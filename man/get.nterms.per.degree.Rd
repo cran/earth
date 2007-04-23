@@ -34,4 +34,3 @@ a <- earth(O3 ~ ., data = ozone1, degree = 2)
 get.nterms.per.degree(a)  # yields 1 5 5 
 }
 \keyword{models}
-\keyword{regression}

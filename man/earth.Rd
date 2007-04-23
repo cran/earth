@@ -50,7 +50,7 @@ To start off, look at the arguments
   }
   \item{y}{
      Vector containing the response variable.
-     If the \code{y} values are very big or very small, you may get
+     If the \code{y} values are very big or very small then you may get
      better results if you \code{\link{scale}} \code{y} first.
   }
   \item{subset}{
@@ -150,7 +150,7 @@ To start off, look at the arguments
   }
   \item{ppenalty}{
      Like \code{penalty} but for the pruning pass.
-     Default is \code{penalty}.\cr
+     Default is \code{penalty}.
   }
   \item{nprune}{
      Maximum number of terms (including intercept) in the pruned model.
@@ -233,7 +233,7 @@ To start off, look at the arguments
      Each row corresponds to a row in in the input matrix \code{x},
      after taking \code{subset}.
      See \code{\link{model.matrix.earth}} for an example of \code{bx} handling.
-     Example:\preformatted{    (Intercept) h(Girth-12.9) h(12.9-Girth) h(Girth-12.9)*h(...
+     Example \code{bx}:\preformatted{    (Intercept) h(Girth-12.9) h(12.9-Girth) h(Girth-12.9)*h(...
 [1,]          1           0.0           4.6                   0
 [2,]          1           0.0           4.3                   0
 [3,]          1           0.0           4.1                   0
@@ -248,8 +248,7 @@ To start off, look at the arguments
      including those not in \code{selected.terms}.
      Note that the terms may not be in pairs, because the forward pass
      deletes linearly dependent terms before handing control to the pruning pass.
-
-     Example:\preformatted{                       Girth Height
+     Example \code{dirs}:\preformatted{                       Girth Height
 (Intercept)                0      0  #no factors in intercept
 h(Girth-12.9)              1      0  #2nd term uses Girth
 h(12.9-Girth)             -1      0  #3rd term uses Girth
@@ -263,8 +262,7 @@ h(Girth-12.9)*h(Height-76) 1      1  #4th term uses Girth and Height
      including those not in \code{selected.terms}.
      Note that the terms may not be in pairs, because the forward pass
      deletes linearly dependent terms before handing control to the pruning pass.
-
-     Example:\preformatted{                           Girth Height
+     Example \code{cuts}:\preformatted{                           Girth Height
 (Intercept)                  0.0      0  #intercept, no cuts
 h(Girth-12.9)               12.9      0  #2nd term has cut at 12.9
 h(12.9-Girth)               12.9      0  #3rd term has cut at 12.9
@@ -297,7 +295,7 @@ h(Girth-12.9)*h(Height-76)  12.9     76  #4th term has two cuts
      lower triangular matrix, with dimensions \code{nprune x nprune}.
      The model selected by the pruning pass
      is at row \code{length(selected.terms)}.
-     Example:\preformatted{[1,]    1  0  0  0  0  0  0  #intercept-only model
+     Example \code{prune.terms}:\preformatted{[1,]    1  0  0  0  0  0  0  #intercept-only model
 [2,]    1  2  0  0  0  0  0  #best 2 term model uses terms 1,2.
 [3,]    1  2  4  0  0  0  0  #best 3 term model uses terms 1,2,4
 [4,]    1  2  9  8  0  0  0
@@ -360,16 +358,14 @@ vii) Fast MARS h parameter.
 
 \strong{The Forward Pass}
 
-The forward pass adds terms in pairs until the first of the
+The forward pass adds MARS terms in pairs until the first of the
 following conditions is met:\cr
 i) reach maximum number of terms \code{(nterms>=nk)}.\cr
-ii) reach DeltaRSq threshold \code{(DeltaRSq<thresh)}.
+ii) reach DeltaRSq threshold \code{(DeltaRSq<thresh)} where
 DeltaRSq is the difference in R-Squared caused by adding the current term pair.\cr
 iii) reach max RSq \code{(RSq>1-thresh)}.\cr
 iv) reach min GRSq \code{(GRSq< -10)}.
 
-Thus you can change when forward stepping stops by
-adjusting \code{nk}, \code{thresh}, or \code{penalty}.
 Set \code{trace>=2} to see the stopping condition.
 
 The result of the forward pass is the set of terms defined by \code{$dirs}
@@ -382,7 +378,7 @@ stopping conditions and in trace prints.
 
 \strong{The Pruning Pass}
 
-The pruning pass is handed the sets of terms created by the forward pass
+The pruning pass is handed the sets of MARS terms created by the forward pass
 and works like this:
 it determines the subset of terms (using \code{pmethod})
 with the lowest RSS for each model size in \code{1:nprune}.
@@ -390,8 +386,11 @@ It saves the RSS and term numbers for each such subset in \code{rssVec}
 and \code{prune.terms}.
 It then applies the \code{Get.crit} function with \code{ppenalty}
 to \code{rssVec} to yield \code{gcvVec}.
-Finally, it chooses the model with lowest value in \code{gcvVec},
+It chooses the model with lowest value in \code{gcvVec},
 and puts its term numbers into \code{selected.terms}.
+Finally, it runs \code{\link{lm}} to determine the 
+\code{fitted.values}, \code{residuals}, and \code{coefficients}, by regressing 
+the input vector \code{y} on the \code{selected.terms} of \code{bx}.
 
 By default \code{Get.crit} is \code{earth:::get.gcv}.
 Alternative \code{Get.crit} functions can be defined.
@@ -401,9 +400,9 @@ See the source code of \code{get.gcv} for an example.
 
 This example demonstrates one way to train on 80\% of the data and
 test on the remaining 20\%. 
-Repeated runs of the code show the high variance of R-Squared
+(Repeated runs of the code show the high variance of R-Squared
 associated with a model built from a small dataset from which
-many parameters have to be estimated.
+many parameters have to be estimated.)
 \preformatted{
 train.subset <- sample(1:nrow(ozone), .8 * nrow(ozone))
 test.subset <- (1:nrow(ozone))[-train.subset]
@@ -420,7 +419,7 @@ i) increasing \code{fast.k}\cr
 ii) decreasing \code{nk}\cr
 iii) decreasing \code{degree}\cr
 iv) increasing \code{threshold}\cr
-v) increasing \code{min.span}.\cr
+v) increasing \code{min.span}.
 
 The backward pass is normally much faster than the forward pass,
 unless \code{pmethod="exhaustive"}.
@@ -433,11 +432,10 @@ For big models, \code{earth} is much faster than \code{mda::\link[mda]{mars}}.
 
 \strong{Using fast.k}
 
-With a low \code{fast.k} (say 5), \code{plotmo} is faster.  
-In general, with a high \code{fast.k}, or with \code{fast.k} disabled (set to -1), plotmo builds
-a better model, but this is not always the case.
-The idea is to use high values of \code{fast.k} for exploratory work, and to
-disable \code{fast.k} for the best model possible.  
+In general, with a low \code{fast.k} (say 5), \code{earth} is faster;
+with a high \code{fast.k}, or with \code{fast.k} disabled (set to -1), \code{earth} builds
+a better model.
+However it is not unusual to get a better model with a lower \code{fast.k}.
 You will need to experiment using your data.
 
 \strong{Warning and Error Messages}
@@ -450,7 +448,7 @@ and using \code{\link{traceback}}.
 }
 \author{
   Stephen Milborrow, derived from \code{mda::\link[mda]{mars}}
-  by Trevor Hastie and Robert Tibshirani.\cr
+  by Trevor Hastie and Robert Tibshirani.
 
 This is an early release and users are encouraged to send feedback --- use 
 milboATsonicPERIODnet.
@@ -459,8 +457,8 @@ milboATsonicPERIODnet.
   The primary references are
   the Friedman papers.  Readers may find the MARS section in Hastie, Tibshirani,
   and Friedman a more accessible introduction.  Faraway takes a hands-on approach,
-  using the \code{\link[=ozone1]{ozone}} data to compare mda::mars with other techniques.
-  (If you use Faraway's examples with earth instead of mars, use \code{$bx}
+  using the \code{\link[=ozone1]{ozone}} data to compare \code{mda::mars} with other techniques.
+  (If you use Faraway's examples with \code{earth} instead of \code{mars}, use \code{$bx}
   instead of \code{$x}).
   Earth's pruning pass uses \code{\link[leaps]{leaps}} which is based on
   techniques in Miller.

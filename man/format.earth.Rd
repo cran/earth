@@ -81,4 +81,3 @@ cat(format(a, use.names = FALSE, add.labels = TRUE))
 #      + 0.7183364 * pmax(0, x[,2] -    76)  # 4
 }
 \keyword{models}
-\keyword{regression}

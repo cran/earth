@@ -145,4 +145,3 @@ a <- earth(O3 ~ ., data = ozone1, degree = 2)
 plot(a, col.npreds = 1, cum.grid = "none")
 }
 \keyword{models}
-\keyword{regression}

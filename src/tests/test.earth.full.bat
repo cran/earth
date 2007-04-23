@@ -1,7 +1,7 @@
 @rem test.earth.full.bat: this does a regression test of earth
 @rem Stephen Milborrow Apr 2007 Petaluma
 
-"C:\a1\r\work\bin\Rcmd.exe" BATCH --quiet --vanilla test.earth.full.R
+"c:\Program Files\r\R-2.4.1\bin\Rcmd.exe" BATCH --quiet --vanilla test.earth.full.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.full.Rout
 @exit /B %errorlevel%

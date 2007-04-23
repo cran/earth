@@ -1,0 +1,20 @@
+> # test.plotmo.R: regression tests for plotmo
+> # Many of thewse  tests are culled from man page examples and modified to try to confuse plotmo.
+> # Many of the plots are plotted twice so you can visually check by comparing
+> # plots in the same window, they should be substantially the same.
+> # Stephen Milborrow, Petaluma Jan 2007
+> 
+> Trace = FALSE
+> 
+> dopar <- function(nrows, ncols, caption = "")
++ {
++     cat("                             ", caption, "\n")
++     earth:::make.space.for.sub.caption(caption)
++     par(mfrow=c(nrows, ncols))
++     par(mar = c(3, 3, 1.7, 0.5))
++     par(mgp = c(1.6, 0.6, 0))
++     par(cex = 0.7)
++ }
+> library(earth)
+Error in library(earth) : 'earth' is not a valid package -- installed < 2.0.0?
+Execution halted
