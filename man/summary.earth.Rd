@@ -64,4 +64,3 @@ summary(a, digits = 2)
 #    GCV: 11     RSS: 213     GRSq: 0.96     RSq: 0.97 
 }
 \keyword{models}
-\keyword{regression}

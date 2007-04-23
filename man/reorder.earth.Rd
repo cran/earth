@@ -26,7 +26,7 @@ and \code{object$coefficients}.
         \code{"none"}   order the terms as created during the earth forward pass
                   i.e. no reordering.\cr
         \code{"anova"}  (default) order the terms using the \sQuote{anova decomposition}
-                  i.e. in increasing order of interaction.\cr
+                  i.e. in increasing order of interaction.
   }
   \item{degree}{
     Maximum order of interaction.
@@ -69,4 +69,3 @@ a$selected.terms[reorder(a)]
 # [1]  1  2 19 13  6  7 14  9 10 11 17
 }
 \keyword{models}
-\keyword{regression}

@@ -1,6 +1,6 @@
 \name{plot.earth.models}
 \alias{plot.earth.models}
-\title{Plot 'earth' models}
+\title{Compare 'earth' models by plotting them.}
 \description{
 Compare \sQuote{earth} models by plotting them.
 }
@@ -12,7 +12,8 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   col.rsq = 0, col.npreds = 0, col.cum = NULL,
   col.vline = "grey", lty.vline = 3,
   col.legend = 1, col.grid = "grey", cum.grid = "percentages",
-  legend.pos = NULL, legend.text = NULL, do.par = TRUE, main = "Model Comparison", \dots)
+  legend.pos = NULL, legend.text = NULL, do.par = TRUE, 
+  main = "Model Comparison", \dots)
 }
 \arguments{
   \item{x}{
@@ -145,4 +146,3 @@ a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
 plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8), cum.grid="n")
 }
 \keyword{models}
-\keyword{regression}

@@ -7,9 +7,11 @@
 @rem 
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
-@set R_HOME \a1\r\work
-@cp /a1/r/work/bin/R.dll .
-@cp /a1/r/work/bin/Rblas.dll .
+@rem @set R_HOME \a1\r\work
+@rem @cp /a1/r/work/bin/R.dll .
+@rem @cp /a1/r/work/bin/Rblas.dll .
+cp "c:\Program Files\r\R-2.4.1\bin\R.dll" .
+cp "c:\Program Files\r\R-2.4.1\bin\Rblas.dll" .
 @md Debug
 @md Release
 nmake -nologo CFG=Release -f test.earthc.mak %1 %2 %3

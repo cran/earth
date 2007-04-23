@@ -67,4 +67,3 @@ update(a, nprune = 8)              #requires only pruning
 #    GCV: 15.07944     RSS: 4433.915     GRSq: 0.7657586     RSq: 0.7900152 
 }
 \keyword{models}
-\keyword{regression}

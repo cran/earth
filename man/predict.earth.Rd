@@ -42,4 +42,3 @@ predict(a)           # same as a$fitted.values
 predict(a, c(10,80)) # yields 17.76888
 }
 \keyword{models}
-\keyword{regression}

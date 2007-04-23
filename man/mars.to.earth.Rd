@@ -64,4 +64,3 @@ summary(a, digits = 2) # the standard earth functions can now be used
 }
 }
 \keyword{models}
-\keyword{regression}
