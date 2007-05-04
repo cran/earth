@@ -3,6 +3,10 @@ Timing Test Results On Earth Version 0.1
 
 Tested on a 1.5GHz Dell laptop with the robot arm from Friedman's Fast MARS paper.
 
+These tests were done before I added the multiple response code.  I
+re-defined BETA_CACHE to FALSE when I added the multiple response
+code, so the current code is not as fast as the times below.
+
 N     ncol(x) fast.k  degree     time    gcv             grsq  nterms  npreds
 3000     5       -1      10      4.9     0.0025          0.98    54      4       original
 3000     5       20      10      3.6     0.0024          0.98    59      4       original

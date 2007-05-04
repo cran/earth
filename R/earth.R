@@ -38,8 +38,8 @@ earth <- function(...) UseMethod("earth")
 earth.default <- function(
     x       = stop("no 'x' arg"), # NAs are not allowed in x or y, an error msg if so
     y       = stop("no 'y' arg"),
-    subset  = NULL,         # which rows in x to use
     weights = NULL,         # not yet supported
+    subset  = NULL,         # which rows in x to use
     na.action = na.fail,    # only legal value is na.fail
 
     penalty = if(degree > 1) 3 else 2,
@@ -48,6 +48,8 @@ earth.default <- function(
                             #   special case -1 means no penalty (so GRSq==RSq)
 
     trace = 0,              # 0 none 1 overview 2 forward 3 pruning 4 more pruning 5 ...
+
+    keepxy  = FALSE,        # true to retain x and y (before  taking subset) in returned value
 
                             #------------------------------------------------------------
                             # Following affect forward pass only, not pruning pass
@@ -75,7 +77,7 @@ earth.default <- function(
                             # Following affect pruning only, not forward pass
                             # If you change these, update prune.args.global too!
 
-    pmethod = "backward",   # for legal values see eval.model.subsets
+    pmethod = "backward",   # for legal values see eval.model.subsets.*
     ppenalty = penalty,     # like penalty, but for the pruning pass
     nprune  = NULL,         # max nbr of terms (including intercept) in prune subset
 
@@ -85,6 +87,7 @@ earth.default <- function(
     Get.crit           = get.gcv,            # criterion func for model select during pruning
     Eval.model.subsets = eval.model.subsets, # function used to evaluate model subsets
     Print.pruning.pass = print.pruning.pass, # function used to print pruning pass results
+    Force.xtx.prune    = FALSE, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
     ...)                    # unused
 {
     forward.pass <- function()
@@ -104,7 +107,7 @@ earth.default <- function(
         yvec <- as.vector(y, mode="numeric")
         check.vec("x", x, xvec)
         check.vec("y", y, yvec)
-        stopifnot(length(y) == nrow(x))
+        stopifnot(nrow(x) == nrow(y))
         fullset <- rep(0, nk)   # element will be set TRUE if corresponding term used
         if(is.null(colnames(x))) {
             # Generate predictor names (empty strings).  Needed because there seems to be
@@ -120,20 +123,21 @@ earth.default <- function(
             bx = matrix(0, nrow=nrow(x), ncol=nk),  # out: double bx[]
             dirs = matrix(0, nrow=nk, ncol=npreds), # out: double Dirs[]
             cuts = matrix(0, nrow=nk, ncol=npreds), # out: double Cuts[]
-            xvec,                           # in: double x[]
-            yvec,                           # in: double y[]
-            as.integer(nrow(x)),            # in: int *pnCases
-            as.integer(npreds),             # in: int *pnPreds
-            as.integer(degree),             # in: int *pnMaxDegree
-            as.integer(nk),                 # in: int *pnMaxTerms
-            as.double(penalty),             # in: double *pPenalty
+            xvec,                           # in: const double x[]
+            yvec,                           # in: const double y[]
+            as.integer(nrow(x)),            # in: const int *pnCases
+            as.integer(ncol(y)),            # in: const int *pnClasses
+            as.integer(npreds),             # in: const int *pnPreds
+            as.integer(degree),             # in: const int *pnMaxDegree
+            as.integer(nk),                 # in: const int *pnMaxTerms
+            as.double(penalty),             # in: const double *pPenalty
             as.double(thresh),              # in: double *pThresh
-            as.integer(minspan),            # in: int *pnMinSpan
-            as.integer(fast.k),             # in: int *pFastK
-            as.double(fast.beta),           # in: double *pFastBeta
+            as.integer(minspan),            # in: const int *pnMinSpan
+            as.integer(fast.k),             # in: const int *pFastK
+            as.double(fast.beta),           # in: const double *pFastBeta
             as.double(newvar.penalty),      # in: const double *pNewVarPenalty
-            as.integer(trace),              # in: int *nTrace
-            as.character(pred.names),       # in: char *sPredNames[]
+            as.integer(trace),              # in: const int *pnTrace
+            as.character(pred.names),       # in: const char *sPredNames[]
             PACKAGE="earth")
 
         fullset <- as.logical(rval$fullset)
@@ -167,71 +171,71 @@ earth.default <- function(
         else
             bx.prune <- get.bx(x.org, 1:nrow(dirs), dirs, cuts) # all terms
         y.prune <- y.org
-        stopifnot(length(y) == nrow(bx))
+        stopifnot(nrow(bx) == nrow(y))
         if(!is.null(subset)) {
             check.index.vec("subset", subset, y.prune, check.empty=TRUE)
-            y.prune <- y.prune[subset]
+            y.prune <- y.prune[subset, , drop=FALSE]
             bx.prune <- bx.prune[subset, , drop=FALSE]
         }
-        rval <- Eval.model.subsets(bx.prune, y.prune, pmethod, nprune)
-          rssVec      <- rval[[1]]
-          prune.terms <- rval[[2]]
-        stopifnot(length(rssVec) == nprune)
+        rval <- Eval.model.subsets(bx.prune, y.prune, pmethod, nprune, Force.xtx.prune)
+          rss.per.subset <- rval[[1]]   # RSS for each subset
+          prune.terms    <- rval[[2]]   # terms in each subset
+        stopifnot(length(rss.per.subset) == nprune)
         stopifnot(nrow(prune.terms) == nprune)
         stopifnot(ncol(prune.terms) == nprune)
         stopif(any(prune.terms[,1] != 1))   # check intercept column
-        gcvVec <- Get.crit(rssVec, 1:nprune, get.nknots(1:nprune), ppenalty, nrow(bx.prune))
-        if(!all(is.finite(rssVec)))
-            warning1("non finite RSS in model subsets (see rssVec)")
-        else if(!all(is.finite(gcvVec)))
-            warning1("non finite GCV in model subsets (see gcvVec)")
+        gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, ppenalty, nrow(bx.prune))
+        if(!all(is.finite(rss.per.subset)))
+            warning1("non finite RSS in model subsets (see rss.per.subset)")
+        else if(!all(is.finite(gcv.per.subset)))
+            warning1("non finite GCV in model subsets (see gcv.per.subset)")
         do.prune <- pmatch(pmethod[1], "none", 0) != 1
         selected.terms <- 1:nprune  # all terms
         if(do.prune) {
             # choose the subset which has the lowest GCV in the vector of GCVS
-            selected.terms <- prune.terms[which.min(gcvVec),]
+            selected.terms <- prune.terms[which.min(gcv.per.subset),]
             selected.terms <- selected.terms[selected.terms != 0]
         }
         Print.pruning.pass(trace, pmethod, ppenalty, nprune,
-            selected.terms, prune.terms, rssVec, gcvVec, dirs)
+            selected.terms, prune.terms, rss.per.subset, gcv.per.subset, dirs)
         list(bx.prune,
             y.prune,
-            rssVec,             # vector of RSSs for each model (index on subset size)
-            gcvVec,             # vector of GCVs for each model (index on subset size)
+            rss.per.subset,     # vector of RSSs for each model (index on subset size)
+            gcv.per.subset,     # vector of GCVs for each model (index on subset size)
             prune.terms,        # triangular mat: each row is a vector of term indices
             selected.terms)     # vector of model terms in best model
     }
     # earth.default starts here
     warn.if.dots.used("earth.default", ...)
+    if(trace >= 3)              # show the call?
+       cat("Call", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
+            "\n\n")
     if(nk < 1)
         stop1("'nk' ", nk, " is less than 1")
     if(!identical(na.action, na.fail))
         stop1("illegal 'na.action', only na.action=na.fail is currently allowed")
-    if(!is.null(weights))
-        stop1("'weights' are not yet supported")
+    if(!is.null(weights) && !isTRUE(all.equal(weights, rep(weights[1], length(weights)))))
+        warning1("'weights' are not yet supported by 'earth', ignoring them")
     if(!is.null(fast.h))
         stop1("'fast.h' is not yet supported")
     if(is.logical(trace) && trace) {
         warning1("converted trace=TRUE to trace=4")
-        trace = 4
+        trace <- 4
     }
     x <- as.matrix(x)   # if x is a vec this converts it to an ncases x 1 matrix
+    y <- as.matrix(y)   # ditto for y
     x.org <- x
     y.org <- y
     if(nrow(x) == 0)
         stop1("no 'x' values")
     if(ncol(x) == 0)    # this happens for example for earth(Volume~Volume,data=trees)
         stop1("no 'x'")
-    if(ncol(x) == 1 && NCOL(y) > 1)
-        warning1("reversed x and y?")
-    if(NCOL(y) != 1)
-        stop1("'y' has more than one column (multiple responses are not yet supported)")
-    if(nrow(x) != length(y))
-        stop1(" nrow(x) ", nrow(x), " != length(y) ", length(y))
+    if(nrow(x) != nrow(y))
+        stop1(" nrow(x) ", nrow(x), " != nrow(y) ", nrow(y))
     if(!is.null(subset)) {
         check.index.vec("subset", subset, x, check.empty=TRUE)
         x <- x[subset, , drop=FALSE]
-        y <- y[subset]
+        y <- y[subset, , drop=FALSE]
     }
     if(is.null(Object)) {
         rval <- forward.pass()
@@ -250,14 +254,12 @@ earth.default <- function(
     rval <- pruning.pass()
       bx             <- rval[[1]]
       y              <- rval[[2]]
-      rssVec         <- rval[[3]]   # vector of RSSs for each model (index on subset size)
-      gcvVec         <- rval[[4]]   # vector of GCVs for each model
+      rss.per.subset <- rval[[3]]   # vector of RSSs for each model (index on subset size)
+      gcv.per.subset <- rval[[4]]   # vector of GCVs for each model
       prune.terms    <- rval[[5]]   # triangular mat: each row is a vector of term indices
       selected.terms <- rval[[6]]   # vector of term indices of selected model
     bx <- bx[, selected.terms, drop=FALSE]
-    lfit <- lm.fit(bx, y, singular.ok=FALSE)
-
-    # add names (actually, the only names we need for plotting etc. are names for dirs)
+    # add names
     pred.names <- colnames(x)
     term.names <- get.earth.term.name(1:nrow(dirs), dirs, cuts, pred.names)
     colnames(bx)   <- term.names[selected.terms]
@@ -265,33 +267,67 @@ earth.default <- function(
     colnames(dirs) <- pred.names
     rownames(cuts) <- term.names
     colnames(cuts) <- pred.names
-
+    # Regress y on bx to get fitted.values etc.
+    # The as.matrix calls after the call to lm are needed if y is
+    # a vector so the fitted.values etc. are always arrays.
+    lfit <- lm.fit(bx, y, singular.ok=FALSE)
+       fitted.values <- as.matrix(lfit$fitted.values)
+       residuals     <- as.matrix(lfit$residuals)
+       coefficients  <- as.matrix(lfit$coefficients)
+    # prepare returned summary statistics
     nselected <- length(selected.terms)
-    rss  <- rssVec[nselected]
-    rsq  <- get.rsq(rss, rssVec[1])
-    gcv  <- gcvVec[nselected]
-    grsq <- get.rsq(gcv, gcvVec[1])
+    rss  <- rss.per.subset[nselected]
+    rsq  <- get.rsq(rss, rss.per.subset[1])
+    gcv  <- gcv.per.subset[nselected]
+    grsq <- get.rsq(gcv, gcv.per.subset[1])
+    nclasses <- ncol(y)
+    rss.per.response  <- vector(mode="numeric", length=nclasses)
+    rsq.per.response  <- vector(mode="numeric", length=nclasses)
+    gcv.per.response  <- vector(mode="numeric", length=nclasses)
+    grsq.per.response <- vector(mode="numeric", length=nclasses)
+    for(iclass in 1:nclasses) {
+        rss.per.response[iclass]  <- sum(residuals[,iclass]^2)
+        rss.null                  <- sum((y - mean(y[,iclass]))^2)
+        rsq.per.response[iclass]  <- get.rsq(rss.per.response[iclass], rss.null)
+        gcv.null                  <- Get.crit(rss.null, 1, ppenalty, nrow(x))
+        gcv.per.response[iclass]  <- Get.crit(rss.per.response[iclass], nselected,
+                                              ppenalty, nrow(x))
+        grsq.per.response[iclass] <- get.rsq(gcv.per.response[iclass], gcv.null)
+    }
+    rval <- structure(list(             # term 1 is the intercept in all returned data
+        bx             = bx,            # selected terms only
+        dirs           = dirs,          # all terms including unselected: nterms x npreds
+        cuts           = cuts,          # all terms including unselected: nterms x npreds
+        selected.terms = selected.terms,# row indices into dirs and cuts
+        prune.terms    = prune.terms,   # nprune x nprune, each row is vec of term indices
 
-    structure(list(                         # term 1 is the intercept in all returned data
-        fitted.values  = lfit$fitted.values,# ncases (after subset) x 1
-        residuals      = lfit$residuals,    # ncases (after subset) x 1
-        coefficients   = lfit$coefficients, # selected terms only: nselected x 1
-        rss            = rss,
-        rsq            = rsq,
-        gcv            = gcv,
-        grsq           = grsq,
-        bx             = bx,                # selected terms only
-        dirs           = dirs,              # all terms including unselected: nterms x npreds
-        cuts           = cuts,              # all terms including unselected: nterms x npreds
-                                            # following generated by pruning pass:
-        selected.terms = selected.terms,    #   row indices into dirs and cuts
-        rssVec         = rssVec,            #   RSS of each model
-        gcvVec         = gcvVec,            #   GCV of each model
-        prune.terms    = prune.terms,       #   each row is a vector of term indices
-        ppenalty       = ppenalty,          # copy of ppenalty argument
+        rss            = rss,           # RSS, across all classes if y has multiple cols
+        rsq            = rsq,           # R-Squared, across all classes
+        gcv            = gcv,           # GCV, across all classes
+        grsq           = grsq,          # GRSq across all classes
+
+        rss.per.response  = rss.per.response,   # nclasses x 1, RSS for each class
+        rsq.per.response  = rsq.per.response,   # nclasses x 1, RSq for each class
+        gcv.per.response  = gcv.per.response,   # nclasses x 1, GCV for each class
+        grsq.per.response = grsq.per.response,  # nclasses x 1, GRSq for each class
+
+        rss.per.subset = rss.per.subset,# nprune x 1, RSS of each model, across all classes
+        gcv.per.subset = gcv.per.subset,# nprune x 1, GCV of each model, across all classes
+
+        fitted.values  = fitted.values, # ncases (after subset) x nclasses
+        residuals      = residuals,     # ncases (after subset) x nclasses
+        coefficients   = coefficients,  # selected terms only: nselected x nclasses
+
+        ppenalty       = ppenalty,      # copy of ppenalty argument
         call           = make.call.generic(
-                            strip.dots.from.call(match.call(expand.dots = FALSE)), "earth")),
+                            strip.dots.from.call(match.call(expand.dots=FALSE)), "earth")),
     class = "earth")
+    if(keepxy) {
+        rval$x <- x.org
+        rval$y <- y.org
+        rval$subset <- subset
+    }
+    rval
 }
 
 # NAs are not allowed.
@@ -349,7 +385,7 @@ update.earth <- function(
 {
     check.classname(object, deparse(substitute(object)), "earth")
     call <- object$call
-    stopif(is.null(call))                   # should never happen
+    stopif(is.null(call))
     do.forward.pass <- FALSE
     if(!is.null(formula.)) {
         if(is.null(call$formula))
@@ -357,15 +393,15 @@ update.earth <- function(
         call$formula <- update.formula(formula(object), formula.)
         do.forward.pass <- TRUE
     }
-    extras <- match.call(expand.dots = FALSE)$...
-    if(length(extras) > 0) {
-        if(any(is.na(pmatch(names(extras), prune.args.global))))
+    dots <- match.call(expand.dots=FALSE)$...
+    if(length(dots) > 0) {
+        if(any(is.na(pmatch(names(dots), prune.args.global))))
             do.forward.pass <- TRUE
-        existing <- !is.na(match(names(extras), names(call)))
-        for(i in names(extras)[existing])  # replace existing args
-            call[[i]] <- extras[[i]]
+        existing <- !is.na(match(names(dots), names(call)))
+        for(i in names(dots)[existing])     # replace existing args
+            call[[i]] <- dots[[i]]
         if(any(!existing)) {                # append new args
-            call <- c(as.list(call), extras[!existing])
+            call <- c(as.list(call), dots[!existing])
             call <- as.call(call)
         }
     }
@@ -378,11 +414,11 @@ update.earth <- function(
         call
 }
 
-eval.model.subsets <- function(     # this is the default Eval.model.subsets
-    bx,         # basis model matrix
-    y,          # model response
+eval.model.subsets.with.leaps <- function(
+    bx,
+    y,
     pmethod = c("backward", "none", "exhaustive", "forward", "seqrep"),
-    nprune)     # max nbr of terms (including intercept) in prune subset, in range 1..nterms
+    nprune)
 {
     convert.lopt <- function(lopt)  # convert lopt format to prune.terms format
     {
@@ -393,56 +429,105 @@ eval.model.subsets <- function(     # this is the default Eval.model.subsets
         prune.terms[upper.tri(prune.terms, diag=TRUE)] <- lopt
         t(prune.terms)
     }
-    # eval.model.subsets starts here
-    # We always want a model with an intercept.  It seems that the easiest way to do
-    # this is drop the intercept here and tell leaps.setup() to include an intercept.
+    # eval.model.subsets.with.leaps starts here
 
-    bx <- bx[, -1, drop=FALSE]
-
-    # The special handling for nprune==1 and nprune==2 is a workaround
-    # for an error issued by leaps.setup.  Possibly incorrect invocation.
-    # The error is: length of 'dimnames' [2] not equal to array extent
-    # $$ revisit, this hackery is ugly
-
-    stopifnot(nprune >= 1 && nprune <= nrow(bx))
-    if(nprune == 1) {
-        lopt <- convert.lopt(1)
-        rssVec <- sum((y - mean(y))^2)
-    } else {
-        if(nprune == 2) {       # hack: add an indep col to bx to avoid dimnames error
-            bx <- cbind(bx, sin(bx[,1]))
-            bx[1,2] = 10000
-        }
-        pacify <- pmatch(pmethod[1], "exhaustive", 0) == 1 && nrow(bx) > 30 && nprune > 8
-        if(pacify) {            # pruning could take a while so print a reminder
-            cat("Pruning...")
-            flush.console()
-        }
-        # call the regsubsets functions to get a vector of RSSs, one for each subset size
-
-        rprune <- leaps.setup(x=bx, y=y, w=, force.in=NULL, force.out=NULL,
-                intercept=TRUE, # we don't have an intercept so leaps.setup must add one
-                nvmax=nprune-1, nbest=1, warn.dep=TRUE)
-
-        if(rprune$ier != 0 || !is.null(rprune$reorder))
-            stop1("Pruning pass failed")
-
-        rprune <- switch(match.arg1(pmethod),
-                    leaps.backward(rprune),
-                    leaps.backward(rprune),
-                    leaps.exhaustive(rprune, really.big=TRUE),
-                    leaps.forward(rprune),
-                    leaps.seqrep(rprune))
-        if(pacify)
-            cat("\n")
-        rssVec <- as.vector(rprune$ress) # convert from n x 1 mat to vector
-        lopt <- convert.lopt(rprune$lopt)
-        if(max(lopt) > ncol(bx)+1)       # $$ I have seen this fail with nprune=2
-            stop1("internal error max(lopt) ", max(lopt),
-                  " > ncol(bx)+1 ", ncol(bx)+1, " nprune ", nprune)
+    pacify <- pmatch(pmethod[1], "exhaustive", 0) == 1 && nrow(bx) > 30 && nprune > 8
+    if(pacify) {                # pruning could take a while so print a reminder
+        cat("Pruning...")
+        flush.console()
     }
-    list(rssVec,    # Vector of RSSs for each model (index on subset size).
-         lopt)      # Triangular mat: each row is a vector of term indices,
+    rprune <- leaps.setup(x=bx, y=y,
+             force.in=1,        # make sure intercept is in model
+             force.out=NULL,
+             intercept=FALSE,   # we have an intercept so leaps.setup must not add one
+             nvmax=nprune, nbest=1, warn.dep=TRUE)
+
+    rprune <- switch(match.arg1(pmethod),
+                leaps.backward(rprune),     # "backward"
+                leaps.backward(rprune),     # "none"
+                leaps.exhaustive(rprune, really.big=TRUE),
+                leaps.forward(rprune),
+                leaps.seqrep(rprune))
+    if(pacify)
+        cat("\n")
+    rss.per.subset <- as.vector(rprune$ress) # convert from n x 1 mat to vector
+    prune.terms <- convert.lopt(rprune$lopt)
+
+    list(rss.per.subset,    # vector of RSSs for each model (index on subset size)
+         prune.terms)       # triangular mat: each row is a vector of term indices
+}
+
+# This calls the earth.c routine EvalSubsetsUsingXtxR.
+# Unlike the leaps code, it can deal with multiple classes (i.e. multiple y columns)
+
+eval.model.subsets.using.xtx <- function(
+    bx,
+    y,
+    pmethod = c("backward", "none", "exhaustive", "forward", "seqrep"),
+    nprune,
+    Force.xtx.prune)
+{
+    bad.pmethod <- function()
+    {
+        # following reasons must match conditions in eval.model.subsets
+        reason <- "unknown"
+        if(Force.xtx.prune)
+            reason <- "Force.xtx.prune==TRUE"
+        else if(ncol(y) > 1)
+            reason <- "ncol(y) > 1"
+        else if(ncol(bx) <= 2)
+            reason <- "ncol(bx) <= 2"
+        stop1("You have pmethod=\"", pmethod, "\" ",
+            "but only pmethod=\"backward\" or \"none\"\n",
+            "is supported by eval.model.subsets.using.xtx\n",
+            "(eval.model.subsets.using.xtx was invoked because ", reason, ")\n")
+        NULL
+    }
+    backward <- function(bx, y)
+    {
+        ncases <- nrow(bx)
+        nterms <- ncol(bx)
+        nclasses <- ncol(y)
+        rval <- .C("EvalSubsetsUsingXtxR",
+            prune.terms = matrix(0, nrow=nterms, ncol=nterms),  # double PruneTerms[]
+            rss.per.subset = vector(mode="numeric", length=nterms),
+            as.integer(ncases),                         # const int *pnCases
+            as.integer(nclasses),                       # const int *pnClasses
+            as.integer(nterms),                         # const int *pnMaxTerms
+            as.double(as.vector(bx, mode="numeric")),   # const double bx[]
+            as.double(as.vector(y, mode="numeric")),    # const double y[]
+            PACKAGE="earth")
+
+        # above always evaluates all subsets, so trim back to nprune
+
+        list(rval$rss.per.subset[1:nprune], rval$prune.terms[1:nprune, 1:nprune])
+    }
+    # eval.model.subsets.using.xtx
+
+    rprune <- switch(match.arg1(pmethod),
+                backward(bx, y),    # "backward"
+                backward(bx, y),    # "none"
+                bad.pmethod(),
+                bad.pmethod(),
+                bad.pmethod())
+}
+
+# This returns the RSS and selected terms for each subset of size 1:nprune
+
+eval.model.subsets <- function(     # this is the default Eval.model.subsets
+    bx,         # basis model matrix
+    y,          # model response
+    pmethod,
+    nprune,     # max nbr of terms (including intercept) in prune subset, in range 1..nterms
+    Force.xtx.prune) # TRUE to always call EvalSubsetsUsingXtx rather than leaps
+{
+    stopifnot(nprune >= 1 && nprune <= nrow(bx))
+    if(Force.xtx.prune ||   # user explicityly asked for xtx subset evaluation
+            ncol(y) > 1 ||  # leaps cannot deal with multiple classes
+            ncol(bx) <= 2)  # leaps code gives an error for small number of cols, so avoid
+        eval.model.subsets.using.xtx(bx, y, pmethod, nprune, Force.xtx.prune)
+    else
+        eval.model.subsets.with.leaps(bx, y, pmethod, nprune)
 }
 
 print.pruning.pass <- function(     # this is the default Print.pruning.pass
@@ -452,24 +537,24 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
     nprune,
     selected.terms,
     prune.terms,
-    rssVec,
-    gcvVec,
+    rss.per.subset,
+    gcv.per.subset,
     dirs)
 {
-    nselected = length(selected.terms)
+    nselected <- length(selected.terms)
     if(trace >= 3) {
         cat("Subset size         GCV         GRSq      RSq  nPreds")
         if(trace >= 4)
             cat("  Terms (index into bx)")
         cat("\n")
-        for(iterm in seq_along(rssVec)) {
+        for(iterm in seq_along(rss.per.subset)) {
             selected <- prune.terms[iterm,]
             selected <- selected[selected != 0]
             cat(if(iterm==nselected) "chosen " else "       ",
                 format(iterm, width=4),
-                sprintf("%12g ",   gcvVec[iterm]),
-                sprintf("%12.4f ", get.rsq(gcvVec[iterm], gcvVec[1])),
-                sprintf("%8.4f",   get.rsq(rssVec[iterm], rssVec[1])),
+                sprintf("%12g ",   gcv.per.subset[iterm]),
+                sprintf("%12.4f ", get.rsq(gcv.per.subset[iterm], gcv.per.subset[1])),
+                sprintf("%8.4f",   get.rsq(rss.per.subset[iterm], rss.per.subset[1])),
                 sprintf("%8d",     get.nused.preds.per.subset(dirs, selected)),
                 "  ", sep="")
             if(trace >= 4)
@@ -486,8 +571,11 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
         cat(nrow(dirs), "terms, and",
             get.nused.preds.per.subset(dirs, selected),
             "of", ncol(dirs), "predictors\n")
-        cat("GRSq:", format(get.rsq(gcvVec[nselected], gcvVec[1]), digits=4),
-            "RSq:",  format(get.rsq(rssVec[nselected], rssVec[1]), digits=4), "\n")
+        cat("GRSq:",
+            format(get.rsq(gcv.per.subset[nselected], gcv.per.subset[1]), digits=4),
+            "RSq:",
+            format(get.rsq(rss.per.subset[nselected], rss.per.subset[1]), digits=4),
+            "\n")
     }
     NULL
 }
@@ -496,6 +584,8 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
 
 print.earth <- function(x, digits=getOption("digits"), ...)
 {
+    form <- function(x, pad) sprintf("%-*s", digits+pad, format(x, digits=digits))
+
     warn.if.dots.used("print.earth", ...)
 
     cat("Selected", length(x$selected.terms),
@@ -512,11 +602,24 @@ print.earth <- function(x, digits=getOption("digits"), ...)
             " (additive model)"),
         "\n", sep="")
 
-    cat("GCV:",      format(x$gcv,  digits=digits),
-        "    RSS:",  format(x$rss,  digits=digits),
-        "    GRSq:", format(x$grsq, digits=digits),
-        "    RSq:",  format(x$rsq,  digits=digits),
-        "\n")
+    nclasses <- NCOL(x$coefficients)
+
+    if(nclasses > 1) {
+        cat("\n")
+        for(iclass in 1:nclasses)
+            cat("Response ", iclass, "  ",
+                "GCV: ",  form(x$gcv.per.response[iclass], 10),
+                "RSS: ",  form(x$rss.per.response[iclass], 10),
+                "GRSq: ", form(x$grsq.per.response[iclass], 8),
+                "RSq: ",  form(x$rsq.per.response[iclass], 0),
+                "\n", sep="")
+        cat("All         ")
+    }
+    cat("GCV: ",  form(x$gcv, 10),
+        "RSS: ",  form(x$rss, 10),
+        "GRSq: ", form(x$grsq, 8),
+        "RSq: ",  form(x$rsq, 0),
+        "\n", sep="")
 
     invisible(x)
 }
@@ -543,8 +646,13 @@ print.summary.earth <- function(
     warn.if.dots.used("print.summary.earth", ...)
     cat("Call:\n")
     dput(x$call)
-    cat("\nExpression:\n")
-    cat(x$string)
+    nclasses <- NCOL(x$coefficients)
+    for(iclass in 1:nclasses)
+        cat(if(nclasses == 1)
+                "\nExpression:"
+            else
+                paste("\nResponse ", iclass, " expression:\n", sep=""),
+            x$string[iclass], sep="")
     cat("\nNumber of cases: ", length(x$residuals), "\n", sep="")
     print.earth(x, if(missing(digits)) x$digits else digits)
     invisible(x)
@@ -557,7 +665,7 @@ get.rsq <- function(rss, rss.null)
 
 # Return the estimated number of knots
 #
-# $$ This is not correct.  It assumes that each term pair adds one
+# $$ This is not quite correct.  It assumes that each term pair adds one
 # knot.  Thus each term adds "half a knot".  But if we have deleted a term
 # in a pair then the remaining term adds a knot, not half a knot.
 
@@ -578,29 +686,27 @@ effective.nbr.of.params <- function(ntermsVec, nknotsVec, penalty)  # for GCV ca
 # extension for penalty < 0
 
 get.gcv <- function(    # default Get.crit function
-    rssVec,
-    ntermsVec,  # number of MARS regression terms including intercept
-    nknotsVec,  # number of MARS knots
-    penalty,    # penalty per knot, argument from earth.default()
-    ncases)     # number of cases
+    rss.per.subset,
+    ntermsVec,          # number of MARS regression terms including intercept
+    penalty,            # penalty per knot, argument from earth.default()
+    ncases)             # number of cases
 {
-    stopifnot(length(rssVec) == length(ntermsVec))
-    stopifnot(length(rssVec) == length(nknotsVec))
-
+    stopifnot(length(rss.per.subset) == length(ntermsVec))
+    nknotsVec <- get.nknots(ntermsVec)
     nparams <- effective.nbr.of.params(ntermsVec, nknotsVec, penalty)
 
     if(max(nparams, na.rm=TRUE) >= ncases)
         warning1("effective number of parameters for GCV ", max(nparams, na.rm=TRUE),
             " >= number of cases ", ncases)
 
-    rssVec / (ncases * (1 - nparams/ncases)^2)
+    rss.per.subset / (ncases * (1 - nparams/ncases)^2)
 }
 
 get.nused.preds.per.subset <- function(dirs, which.terms)
 {
     # object was converted from mars? if so ugly hack, to allow plot routines to work
     if(is.null(which.terms))
-        which.terms = matrix(1:ncol(dirs),ncol(dirs), ncol(dirs))
+        which.terms <- matrix(1:ncol(dirs),ncol(dirs), ncol(dirs))
 
     # allow which.terms to be a vector or matrix
     if(NROW(which.terms) == 1 || NCOL(which.terms) == 1)
@@ -751,11 +857,22 @@ get.earth.x <- function(    # returns x matrix
         if(xint > 0)
             x <- x[, -xint, drop=FALSE] # silently discard intercept
     }
-    # removed, because for example x=cbind(wind, exp(humidity)) has an empty 2nd col name
-    # if(length(colnames(data)) > 0 && any(colnames(data) != colnames(object$dirs)))
-    #   warning1("the variable names in 'data' do not match those in 'object'",
-    #            "\n  data:        ", paste.with.space(colnames(data)),
-    #            "\n  object$dirs: ", paste.with.space((colnames(object$dirs))))
+    # check that the column names of data match predictor names used to build the object
+
+    if(!is.data.frame(data)) {
+        data.names <- colnames(data)
+        dirs.names <- colnames(object$dirs)
+        for(iname in seq_along(dirs.names)) {
+            if(!is.null(data.names[iname]) && data.names[iname] != "" &&
+                    !is.null(dirs.names[iname]) && dirs.names[iname] != "" &&
+                    data.names[iname] != dirs.names[iname]) {
+                warning1("the variable names in 'data' do not match those in 'object'",
+                        "\n  data:        ", paste.with.space(data.names),
+                        "\n  object$dirs: ", paste.with.space(dirs.names))
+                break
+                }
+        }
+    }
     if(NCOL(x) != NCOL(object$dirs))
         warning1("ncol(x) ", NCOL(x), " does not match the number of cols ",
             NCOL(object$dirs), " of the 'object' input matrix")
@@ -769,16 +886,16 @@ predict.earth <- function(
     newdata = NULL,
     ...,
     type = c("response", "terms"))  # "terms" returns just the additive terms!
+                                    # and just the first response if more than one
 {
     get.response <- function()
     {
         if(is.null(newdata))
             object$fitted.values
         else
-            as.vector(model.matrix(object,
-                get.earth.x(object, newdata)) %*% object$coefficients)
+            model.matrix(object, get.earth.x(object, newdata)) %*% object$coefficients
     }
-    get.terms <- function()
+    get.terms <- function()         # returns just enough for termplot to work
     {
         if(is.null(newdata))
             bx <- object$bx
@@ -789,7 +906,7 @@ predict.earth <- function(
         additive.terms <- rowSums(abs(dirs)) == 1
         bx <- bx[, additive.terms]
         dirs <- dirs[additive.terms, ]
-        coefs <- object$coefficients[additive.terms]
+        coefs <- object$coefficients[additive.terms, 1, drop=FALSE]
         additive.preds <- colSums(abs(dirs)) != 0
         dirs <- dirs[, additive.preds]
         var.names <- variable.names(object, use.names=TRUE)[additive.preds]
@@ -874,31 +991,13 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coeffs
         10 # arbitrary width if no coefs
 }
 
-# Return a string representing the earth model.
-# There is one term per line. Each term (except the intercept)
-# is made up of a coefficent which multiplies one or more hockey stick funcs.
-# The result looks like this:
-#
-#         23.208244
-#         +  5.7459616 * pmax(0,  Girth -   12.9)
-#         -  2.8664516 * pmax(0,   12.9 -  Girth)
-#         + 0.71833643 * pmax(0, Height -     76)
-#
-# decomp: see reorder.earth()
-#
-# The first arg is actually an object but called x for consistency with generic
-#
-# $$ would be nice to add an option to first list bx terms and then combine them
-# $$ would be nice to add an option to print in term importance order
-# $$ would be simpler using print with print.gap rather than my hand made alignment?
-
-format.earth <- function(
-    x           = stop("no 'x' arg"),   # "earth" object
-    digits      = getOption("digits"),
-    use.names   = TRUE,                 # use predictor names, else "x[,1]" etc
-    add.labels  = FALSE,                # add comments labelling each term
-    decomp      = "anova",              # see reorder.earth for legal decomp values
-    ...)                                # unused
+format.one.class <- function(
+    iclass,         # class index
+    object,         # "earth" object
+    digits,
+    use.names,      # use predictor names, else "x[,1]" etc
+    add.labels,     # add comments labelling each term
+    decomp)         # see reorder.earth for legal decomp values
 {
     # get.width returns the width for printing elements of the earth expression.
     # This is used to keep things lined up without too much white space.
@@ -915,21 +1014,19 @@ format.earth <- function(
         max(nchar(var.names[used.preds]),
             nchar(format(as.list(cuts[which.terms, used.preds]), digits=digits)))
     }
-    check.classname(x, deparse(substitute(x)), "earth")
-    warn.if.dots.used("format.earth", ...)
-    dirs <- x$dirs
-    cuts <- x$cuts
-    new.order <- reorder.earth(x, decomp=decomp)
-    coefs <- x$coefficients[new.order]
-    which.terms <- x$selected.terms[new.order]
-    check.which.terms(x, which.terms)
+    dirs <- object$dirs
+    cuts <- object$cuts
+    new.order <- reorder.earth(object, decomp=decomp)
+    coefs <- object$coefficients[new.order, iclass]
+    which.terms <- object$selected.terms[new.order]
+    check.which.terms(object, which.terms)
     coef.width <- get.coef.width(coefs[-1], digits)
-    var.names <- variable.names(x, use.names=use.names)
+    var.names <- variable.names(object, use.names=use.names)
     width <- get.width()
     s <- ""     # result goes into this string
     s <- pastef(s, "  %.*g %s\n", digits=digits, coefs[1], if(add.labels) " # 1" else"")
     iterm <- 2
-    while (iterm <= length(which.terms)) {
+    while(iterm <= length(which.terms)) {
         isel.term <- which.terms[iterm]
         dir <- dirs[isel.term, , drop=FALSE]
         cut <- cuts[isel.term, , drop=FALSE]
@@ -957,6 +1054,43 @@ format.earth <- function(
         s <- pastef(s, "\n")
         iterm <- iterm + 1
     }
+    s
+}
+
+# format.earth returns a string representing the earth model.
+# There is one term per line. Each term (except the intercept)
+# is made up of a coefficent which multiplies one or more hockey stick funcs.
+# The result looks like this:
+#
+#         23.208244
+#         +  5.7459616 * pmax(0,  Girth -   12.9)
+#         -  2.8664516 * pmax(0,   12.9 -  Girth)
+#         + 0.71833643 * pmax(0, Height -     76)
+#
+# If there are multiple responses, this function returns a vector of strings
+#
+# decomp argument: see reorder.earth()
+#
+# The first arg is actually an object but called x for consistency with generic
+#
+# $$ would be nice to add an option to first list bx terms and then combine them
+# $$ would be nice to add an option to print in term importance order
+# $$ would be simpler using print with print.gap rather than my hand made alignment?
+
+format.earth <- function(
+    x           = stop("no 'x' arg"),   # "earth" object, called x for consist with generic
+    digits      = getOption("digits"),
+    use.names   = TRUE,                 # use predictor names, else "x[,1]" etc
+    add.labels  = FALSE,                # add comments labelling each term
+    decomp      = "anova",              # see reorder.earth for legal decomp values
+    ...)                                # unused
+{
+    check.classname(x, deparse(substitute(a)), "earth")
+    warn.if.dots.used("format.earth", ...)
+    nclasses <- NCOL(x$coefficients)
+    s <- vector(mode = "character", length=nclasses)
+    for(iclass in 1:nclasses)
+        s[iclass] <- format.one.class(iclass, x, digits, use.names, add.labels, decomp)
     s
 }
 
@@ -1016,14 +1150,13 @@ format.earth <- function(
 # All standard method funcs are supported, I think, except anova, effects, offset, family.
 
 deviance.earth <- function(object, ...) object$rss
-case.names.earth <- function(object, ...) names(object$residuals)
+case.names.earth <- function(object, ...) rownames(object$residuals)
+
+# variable.names.earth returns "name" if possible, else return "x[,i]"
 
 variable.names.earth <- function(object, ..., use.names=TRUE)
 {
     warn.if.dots.used("variable.names.earth", ...)
-
-    # return "name" if possible, else return "x[,i]"
-
     ipred <- 1:ncol(object$dirs)
     var.name <- NULL
     if(use.names)
@@ -1051,13 +1184,13 @@ extractAIC.earth <- function(fit, scale = 0, k = 2, ...)
 #--------------------------------------------------------------------------------------------
 # Method functions for plotmo.R
 # We look at the built model to determine singles and pairs -- this is a
-# better approach than that used in the default functions because it knows which
-# predictors are unused and it knows which predictors were paired up during
-# model building.
+# better approach for earth than that used in get.singles.default and
+# get.pairs.default because it knows which predictors are unused and it
+# knows which predictors were paired up during model building.
 
 get.singles.earth <- function(object, degree1, pred.names, trace)
 {
-    Singles = NULL
+    Singles <- NULL
     dataClasses <- attr(object$terms, "dataClasses")
     if(any((dataClasses == "factor") | (dataClasses == "ordered")))
         stop1("a predictor has class 'factor'") # model.matrix cols are messed up by factors

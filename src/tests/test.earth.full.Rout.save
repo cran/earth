@@ -1,5 +1,8 @@
 > # test.earth.full.R: test earth
 > 
+> print(R.version.string)
+[1] "R version 2.5.0 (2007-04-23)"
+> 
 > library(earth)
 Loading required package: leaps
 > library(mda)
@@ -10,19 +13,21 @@ Loading required package: class
 > print.time <- FALSE         # FALSE for no time results (for diff against reference)
 > plot.it.default <- TRUE     # TRUE to do plots too, FALSE for speed
 > options.old <- options()
-> options(digits = 2)
+> options(digits = 3)
 > 
 > #--- test examples from man pages ------------------------------------------------------------
 > 
-> cat("--- earth.Rd ----------------------\n")
---- earth.Rd ----------------------
-> a <- earth(Volume ~ ., data = trees)
-> print(summary(a, digits = 2))
+> cat("--- earth.Rd -----------------------------\n")
+--- earth.Rd -----------------------------
+> example(earth)
+
+earth> a <- earth(Volume ~ ., data = trees)
+
+earth> summary(a, digits = 2)
 Call:
 earth(formula = Volume ~ ., data = trees)
 
-Expression:
-  23 
+Expression:  23 
   +  5.7 * pmax(0,  Girth -     13) 
   -  2.9 * pmax(0,     13 -  Girth) 
   + 0.72 * pmax(0, Height -     76) 
@@ -30,18 +35,248 @@ Expression:
 Number of cases: 31
 Selected 4 of 5 terms, and 2 of 2 predictors
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV: 11     RSS: 213     GRSq: 0.96     RSq: 0.97 
+GCV: 11          RSS: 213         GRSq: 0.96      RSq: 0.97
+> 
+> a <- earth(mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
+Call earth.default(x=x,y=y,trace=4,pmethod="none") 
+
+Forward pass: model matrix 32 x 10 minspan 5 endspan 12
+
+         GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
+1      0.0000 0.0000                   1126                            1
+2      0.8115 0.8570        0.857    161.05    2     disp       167.6  2   3   
+4      0.7730 0.8750      0.01805   140.723    3       hp         123  4   5   
+6      0.7366 0.9011      0.02604   111.402    5       wt       3.215  6   7   
+8      0.6073 0.9081     0.006994   103.526    9     gear           4  8   9   
+10     0.3158 0.9139     0.005793   97.0024    6     qsec        17.6  10  11  
+12    -0.5621 0.9203     0.006493   89.6915    1      cyl           6  12  13  
+14    -6.5107 0.9297     0.009312   79.2055    4     drat        3.69  14  15  
+16   -49.6655 0.9473      0.01762   59.3671   10     carb           2  16  17  reject term
+
+Reached min GRSq (GRSq -49.6655 < -10)
+Forward pass complete: 15 terms
+
+Subset size         GCV         GRSq      RSq  nPreds  Terms (index into bx)
+          1     37.4958       0.0000   0.0000       0  1
+          2     9.36723       0.7502   0.7814       1  1 3
+          3     6.78912       0.8189   0.8626       2  1 3 6
+          4     6.94253       0.8148   0.8796       3  1 3 6 11
+          5     7.63454       0.7964   0.8879       4  1 3 6 8 11
+          6     8.05986       0.7850   0.9014       5  1 3 5 6 8 11
+          7     8.97024       0.7608   0.9101       6  1 3 5 6 8 11 13
+          8     10.6832       0.7151   0.9143       7  1 3 5 6 8 11 13 15
+          9     13.1259       0.6499   0.9180       7  1 2 3 5 6 8 11 13 15
+         10     16.8094       0.5517   0.9212       7  1 2 3 5 6 8 11 13 14 15
+         11     22.3808       0.4031   0.9248       7  1 2 3 5 6 7 8 11 13 14 15
+         12     32.5056       0.1331   0.9269       7  1 2 3 5 6 7 8 10 11 13 14 15
+         13     52.5395      -0.4012   0.9286       7  1 2 3 5 6 7 8 9 10 11 13 14 15
+         14      102.21      -1.7259   0.9291       7  1 2 3 4 5 6 7 8 9 10 11 13 14 15
+chosen   15      281.62      -6.5107   0.9297       7  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+Prune method "none" ppenalty 2 nprune 15: selected 15 of 15 terms, and 7 of 10 predictors
+GRSq: -6.511 RSq: 0.9297 
 > 
 > set.seed(1)
-> train.subset <- rep(FALSE, nrow(trees))
-> train.subset[sample(1:nrow(trees), .8 * nrow(trees))] <- TRUE
-> test.subset <- !train.subset
-> a <- earth(Volume~., data=trees[train.subset, ])
-> yhat <- predict(a, newdata=trees[test.subset, ])
-> y <- trees[test.subset, "Volume"]
-> rsq <- 1 - sum((y - yhat)^2)/sum((y - mean(y))^2)
-> print(rsq, digits=2)
-[1] 0.95
+> train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
+> test.subset <- (1:nrow(trees))[-train.subset]
+> a <- earth(Volume ~ ., data = trees[train.subset, ])
+> yhat <- predict(a, newdata = trees[test.subset, ])
+> y <- trees$Volume[test.subset]
+> print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
+[1] 0.946
+> cat("--- print.default of earth object---------\n")
+--- print.default of earth object---------
+> print.default(a, digits=3)
+$bx
+      (Intercept) h(Girth-8.6) h(Height-63)
+ [1,]           1          2.5           17
+ [2,]           1          2.8           13
+ [3,]           1          4.3           22
+ [4,]           1          8.7           18
+ [5,]           1          2.2           20
+ [6,]           1          7.4            9
+ [7,]           1          9.3           17
+ [8,]           1          4.3           11
+ [9,]           1          3.4           12
+[10,]           1          0.0            2
+[11,]           1          2.1           18
+[12,]           1          1.9            9
+[13,]           1          3.1            6
+[14,]           1          2.4            3
+[15,]           1          5.1            8
+[16,]           1          2.4           12
+[17,]           1          2.7           16
+[18,]           1          9.4           17
+[19,]           1          5.4           15
+[20,]           1          2.6           12
+[21,]           1          5.9           11
+[22,]           1          0.2            0
+[23,]           1          8.9           19
+[24,]           1          5.6           17
+
+$dirs
+             Girth Height
+(Intercept)      0      0
+h(Girth-8.6)     1      0
+h(Height-63)     0      1
+
+$cuts
+             Girth Height
+(Intercept)    0.0      0
+h(Girth-8.6)   8.6      0
+h(Height-63)   0.0     63
+
+$selected.terms
+[1] 1 2 3
+
+$prune.terms
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    1    2    0
+[3,]    1    2    3
+
+$rss
+[1] 250
+
+$rsq
+[1] 0.947
+
+$gcv
+[1] 16.6
+
+$grsq
+[1] 0.923
+
+$rss.per.response
+[1] 250
+
+$rsq.per.response
+[1] 0.947
+
+$gcv.per.response
+[1] 16.6
+
+$grsq.per.response
+[1] 0.923
+
+$rss.per.subset
+[1] 4739  310  250
+
+$gcv.per.subset
+[1] 215.0  16.9  16.6
+
+$fitted.values
+    [,1]
+9  21.44
+12 21.58
+17 31.41
+26 50.69
+6  20.98
+24 41.80
+28 53.18
+16 27.96
+15 24.07
+2   5.06
+5  19.88
+4  16.13
+14 20.79
+7  16.58
+19 30.75
+8  19.40
+11 22.06
+29 53.65
+21 34.35
+10 20.33
+23 35.43
+3   5.37
+27 51.94
+22 35.91
+
+$residuals
+     [,1]
+9   1.165
+12 -0.581
+17  2.393
+26  4.708
+6  -1.276
+24 -3.501
+28  5.120
+16 -5.756
+15 -4.969
+2   5.240
+5  -1.082
+4   0.275
+14  0.514
+7  -0.978
+19 -5.050
+8  -1.200
+11  2.145
+29 -2.146
+21  0.154
+10 -0.434
+23  0.874
+3   4.833
+27  3.760
+22 -4.207
+
+$coefficients
+              [,1]
+(Intercept)  4.433
+h(Girth-8.6) 4.668
+h(Height-63) 0.314
+
+$ppenalty
+[1] 2
+
+$call
+earth(formula = Volume ~ ., data = trees[train.subset, ])
+
+$terms
+Volume ~ Girth + Height
+attr(,"variables")
+list(Volume, Girth, Height)
+attr(,"factors")
+       Girth Height
+Volume     0      0
+Girth      1      0
+Height     0      1
+attr(,"term.labels")
+[1] "Girth"  "Height"
+attr(,"order")
+[1] 1 1
+attr(,"intercept")
+[1] 1
+attr(,"response")
+[1] 1
+attr(,".Environment")
+<environment: R_GlobalEnv>
+attr(,"predvars")
+list(Volume, Girth, Height)
+attr(,"dataClasses")
+   Volume     Girth    Height 
+"numeric" "numeric" "numeric" 
+
+attr(,"class")
+[1] "earth"
+> cat("--- done print.default of earth object----\n")
+--- done print.default of earth object----
+> 
+> plot(a)
+> library(mda)
+> (a <- fda(Species~., data=iris, method=earth, keepxy=TRUE))
+Call:
+fda(formula = Species ~ ., data = iris, method = earth, keepxy = TRUE)
+
+Dimension: 2 
+
+Percent Between-Group Variance Explained:
+   v1    v2 
+ 92.4 100.0 
+
+Training Misclassification Error: 0.0333 ( N = 150 )
+> plot(a)
+> plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
+> plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
 > 
 > cat("--- format.earth.Rd ----------------------\n")
 --- format.earth.Rd ----------------------
@@ -59,185 +294,272 @@ GCV: 11     RSS: 213     GRSq: 0.96     RSq: 0.97
 > a <- earth(Volume ~ ., data = trees)
 > my.func <- as.func(a, use.names = FALSE)
 > print(my.func(c(10,80)))     # yields 17.76888
-[1] 18
+[1] 17.8
 > print(predict(a, c(10,80)))  # yields 17.76888, but is slower
-[1] 18
-> a <- earth(Volume ~ ., data = trees)
-> cat(format(a))
-  23 
-  +  5.7 * pmax(0,  Girth -     13) 
-  -  2.9 * pmax(0,     13 -  Girth) 
-  + 0.72 * pmax(0, Height -     76) 
-> cat(format(a, use.names = FALSE, add.labels = TRUE))
-  23  # 1
-  +  5.7 * pmax(0, x[,1] -    13)  # 2
-  -  2.9 * pmax(0,    13 - x[,1])  # 3
-  + 0.72 * pmax(0, x[,2] -    76)  # 4
+     [,1]
+[1,] 17.8
+> example(format.earth)
+
+frmt.r> a <- earth(Volume ~ ., data = trees)
+
+frmt.r> cat(format(a))
+  23.2 
+  +  5.75 * pmax(0,  Girth -   12.9) 
+  -  2.87 * pmax(0,   12.9 -  Girth) 
+  + 0.718 * pmax(0, Height -     76) 
+
+frmt.r> # yields:
+frmt.r> #      23.20824
+frmt.r> #      +  5.745962 * pmax(0,  Girth -   12.9)
+frmt.r> #      -  2.866452 * pmax(0,   12.9 -  Girth)
+frmt.r> #      + 0.7183364 * pmax(0, Height -     76)
+frmt.r> 
+frmt.r> cat(format(a, use.names = FALSE, add.labels = TRUE))
+  23.2  # 1
+  +  5.75 * pmax(0, x[,1] -  12.9)  # 2
+  -  2.87 * pmax(0,  12.9 - x[,1])  # 3
+  + 0.718 * pmax(0, x[,2] -    76)  # 4
 > cat("--- get.nterms.per.degree.Rd ----------------------\n")
 --- get.nterms.per.degree.Rd ----------------------
-> a <- earth(O3 ~ ., data = ozone1, degree = 2)
-> print(get.nterms.per.degree(a))
+> example(get.nterms.per.degree)
+
+gt.n..> data(ozone1)
+
+gt.n..> a <- earth(O3 ~ ., data = ozone1, degree = 2)
+
+gt.n..> get.nterms.per.degree(a)  # yields 1 5 5
 
 0 1 2 
 1 5 5 
 > cat("--- get.nused.preds.per.subset.Rd ----------------------\n")
 --- get.nused.preds.per.subset.Rd ----------------------
-> a <- earth(O3 ~ ., data = ozone1, degree = 2)
-> print(get.nused.preds.per.subset(a$dirs, a$selected.terms))
+> example(get.nused.preds.per.subset)
+
+gt....> data(ozone1)
+
+gt....> a <- earth(O3 ~ ., data = ozone1, degree = 2)
+
+gt....> get.nused.preds.per.subset(a$dirs, a$selected.terms)
 [1] 8
-> print(get.nused.preds.per.subset(a$dirs, a$prune.terms))
+
+gt....> # yields:
+gt....> #    [1] 8     # there are 8 predictors in selected.terms
+gt....> 
+gt....> get.nused.preds.per.subset(a$dirs, a$prune.terms)
  [1] 0 1 2 3 4 4 5 6 7 7 8 8 8 8 8 8 8 8 8 8 8
 > cat("--- mars.to.earth.Rd ----------------------\n")
 --- mars.to.earth.Rd ----------------------
-> a <- mars(trees[,-3], trees[,3])
-> a <- mars.to.earth(a)
-> print(summary(a, digits = 2))
-Call:
-earth(x = trees[, -3], y = trees[, 3])
-
-Expression:
-  20 
-  +  5.4 * pmax(0,  Girth -     12) 
-  -  2.6 * pmax(0,     12 -  Girth) 
-  + 0.72 * pmax(0, Height -     76) 
-
-Number of cases: 31
-Selected 4 of 5 terms, and 2 of 2 predictors
-Number of terms at each degree of interaction: 1 3 (additive model)
-GCV: 13     RSS: 251     GRSq: 0.95     RSq: 0.97 
-> cat("--- model.matrix.Rd ----------------------\n")
---- model.matrix.Rd ----------------------
-> a <- earth(Volume ~ ., data = trees)
-> print(summary(a, decomp = "none"))
-Call:
-earth(formula = Volume ~ ., data = trees)
-
-Expression:
-  23 
-  +  5.7 * pmax(0,  Girth -     13) 
-  -  2.9 * pmax(0,     13 -  Girth) 
-  + 0.72 * pmax(0, Height -     76) 
-
-Number of cases: 31
-Selected 4 of 5 terms, and 2 of 2 predictors
-Number of terms at each degree of interaction: 1 3 (additive model)
-GCV: 11     RSS: 213     GRSq: 0.96     RSq: 0.97 
-> bx <- model.matrix(a)
-> a.lm <- lm(trees$Volume ~ bx[,-1])
-> print(summary(a.lm))
-
-Call:
-lm(formula = trees$Volume ~ bx[, -1])
-
-Residuals:
-    Min      1Q  Median      3Q     Max 
--5.2900 -1.9782  0.0712  1.9209  4.1267 
-
-Coefficients:
-                      Estimate Std. Error t value Pr(>|t|)    
-(Intercept)             23.208      0.997   23.28  < 2e-16 ***
-bx[, -1]h(Girth-12.9)    5.746      0.297   19.35  < 2e-16 ***
-bx[, -1]h(12.9-Girth)   -2.866      0.444   -6.45  6.5e-07 ***
-bx[, -1]h(Height-76)     0.718      0.175    4.10  0.00034 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
-
-Residual standard error: 2.8 on 27 degrees of freedom
-Multiple R-Squared: 0.974,	Adjusted R-squared: 0.971 
-F-statistic:  333 on 3 and 27 DF,  p-value: <2e-16 
-
+> example(mars.to.earth)
 > cat("--- plot.earth.models.Rd ----------------------\n")
 --- plot.earth.models.Rd ----------------------
-> a1 <- earth(O3 ~ ., data = ozone1, degree = 2)
-> a2 <- earth(O3 ~ .-wind, data = ozone1, degree = 2, nk = 31)
-> a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
-> plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8), cum.grid="n")
+> example(plot.earth.models)
+
+plt.r.> data(ozone1)
+
+plt.r.> a1 <- earth(O3 ~ ., data = ozone1, degree = 2)
+
+plt.r.> a2 <- earth(O3 ~ .-wind, data = ozone1, degree = 2, nk = 31)
+
+plt.r.> a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
+
+plt.r.> plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8))
 > cat("--- plot.earth.Rd ----------------------\n")
 --- plot.earth.Rd ----------------------
-> a <- earth(O3 ~ ., data = ozone1, degree = 2)
-> plot(a, col.npreds = 1, cum.grid = "none")
+> example(plot.earth)
+
+plt.rt> data(ozone1)
+
+plt.rt> a <- earth(O3 ~ ., data = ozone1, degree = 2)
+
+plt.rt> plot(a, col.npreds = 1, cum.grid = "none")
 > cat("--- predict.earth.Rd ----------------------\n")
 --- predict.earth.Rd ----------------------
-> a <- earth(Volume ~ ., data = trees)
-> predict(a)
- 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
-10 11 11 16 20 22 18 18 21 18 21 19 19 20 21 23 30 33 28 28 31 34 32 41 43 52 
-27 28 29 30 31 
-54 55 55 55 75 
-> predict(a, c(10,80))
-[1] 18
+> example(predict.earth)
+
+prdct.> data(trees)
+
+prdct.> a <- earth(Volume ~ ., data = trees)
+
+prdct.> predict(a)           # same as a$fitted.values
+   [,1]
+1  10.0
+2  10.9
+3  11.5
+4  16.3
+5  20.5
+6  22.2
+7  17.8
+8  17.8
+9  20.9
+10 18.3
+11 20.8
+12 18.9
+13 18.9
+14 19.8
+15 20.6
+16 23.2
+17 29.7
+18 32.7
+19 27.8
+20 28.4
+21 31.0
+22 33.6
+23 32.4
+24 41.0
+25 43.5
+26 52.1
+27 53.9
+28 54.8
+29 55.4
+30 55.4
+31 75.4
+
+prdct.> predict(a, c(10,80)) # yields 17.76888
+     [,1]
+[1,] 17.8
 > cat("--- reorder.earth.Rd ----------------------\n")
 --- reorder.earth.Rd ----------------------
-> a <- earth(O3 ~ ., data = ozone1, degree = 2)
-> print(reorder(a, decomp = "none"))
+> example(reorder.earth)
+
+rrdr.r> data(ozone1)
+
+rrdr.r> a <- earth(O3 ~ ., data = ozone1, degree = 2)
+
+rrdr.r> reorder(a, decomp = "none")
  [1]  1  2  3  4  5  6  7  8  9 10 11
-> print(a$selected.terms[reorder(a)])
+
+rrdr.r> # yields:
+rrdr.r> # [1]  1  2  3  4  5  6  7  8  9 10 11
+rrdr.r> 
+rrdr.r> reorder(a)   # defaults to decomp = "anova"
+ [1]  1  2 11  8  3  4  9  5  6  7 10
+
+rrdr.r> # yields:
+rrdr.r> # [1]  1  2 11  8  3  4  9  5  6  7 10
+rrdr.r> 
+rrdr.r> a$selected.terms[reorder(a)]
  [1]  1  2 19 13  6  7 14  9 10 11 17
 > cat("--- update.earth.Rd ----------------------\n")
 --- update.earth.Rd ----------------------
-> a <- earth(Volume~ ., data = trees)
-> print(summary(a, digits = 2))
-Call:
-earth(formula = Volume ~ ., data = trees)
+> example(update.earth)
 
-Expression:
-  23 
-  +  5.7 * pmax(0,  Girth -     13) 
-  -  2.9 * pmax(0,     13 -  Girth) 
-  + 0.72 * pmax(0, Height -     76) 
+updt.r> data(ozone1)
 
-Number of cases: 31
-Selected 4 of 5 terms, and 2 of 2 predictors
-Number of terms at each degree of interaction: 1 3 (additive model)
-GCV: 11     RSS: 213     GRSq: 0.96     RSq: 0.97 
-> a <- earth(O3 ~ ., data = ozone1, degree = 2)
-> print(summary(update(a, formula = O3 ~ . - temp)))
-Call:
-earth(formula = O3 ~ vh + wind + humidity + ibh + dpg + ibt + 
-    vis + doy, data = ozone1, degree = 2)
+updt.r> (a <- earth(O3 ~ ., data = ozone1, degree = 2))
+Selected 11 of 21 terms, and 8 of 9 predictors
+Number of terms at each degree of interaction: 1 5 5
+GCV: 13.4         RSS: 3762         GRSq: 0.791      RSq: 0.822
 
-Expression:
-  13 
-  +    0.17 * pmax(0,       vh -     5890) 
-  -   0.048 * pmax(0,      dpg -       13) 
-  +    0.13 * pmax(0,      ibt -      111) 
-  -    0.04 * pmax(0,      doy -      125) 
-  -   0.084 * pmax(0,      125 -      doy) 
-  - 4.4e-06 * pmax(0,     5890 -       vh) * pmax(0,      ibh -     1899) 
-  - 1.5e-05 * pmax(0,     5890 -       vh) * pmax(0,     1899 -      ibh) 
-  -   0.031 * pmax(0,     wind -        7) * pmax(0,      ibt -      111) 
-  -  0.0021 * pmax(0,       58 - humidity) * pmax(0,      ibt -      111) 
-  -  0.0016 * pmax(0,      dpg -       43) * pmax(0,      ibt -      111) 
-  - 0.00043 * pmax(0,       43 -      dpg) * pmax(0,      ibt -      111) 
-  - 0.00013 * pmax(0,      ibt -      111) * pmax(0,      vis -       40) 
-  - 0.00086 * pmax(0,      ibt -      250) * pmax(0,      doy -      125) 
-  + 8.4e-05 * pmax(0,      250 -      ibt) * pmax(0,      doy -      125) 
-
-Number of cases: 330
+updt.r> # yields:
+updt.r> #    Selected 11 of 21 terms, and 8 of 9 predictors
+updt.r> #    Number of terms at each degree of interaction: 1 5 5
+updt.r> #    GCV: 13.43422     RSS: 3762.234     GRSq: 0.7913151     RSq: 0.8218252
+updt.r> 
+updt.r> update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
 Selected 15 of 21 terms, and 8 of 8 predictors
 Number of terms at each degree of interaction: 1 5 9
-GCV: 13     RSS: 3443     GRSq: 0.8     RSq: 0.84 
-> print(summary(update(a, nprune = 8)))
-Call:
-earth(formula = O3 ~ ., data = ozone1, degree = 2, nprune = 8, 
-    Object = a)
+GCV: 13.1         RSS: 3443         GRSq: 0.796      RSq: 0.837
 
-Expression:
-  13 
-  +   0.33 * pmax(0,     temp -       58) 
-  -  0.037 * pmax(0,      234 -      ibt) 
-  +  0.017 * pmax(0,      200 -      vis) 
-  -  0.021 * pmax(0,      doy -       92) 
-  -   0.13 * pmax(0,       92 -      doy) 
-  -  0.024 * pmax(0,       55 - humidity) * pmax(0,     temp -       58) 
-  + 0.0046 * pmax(0,     temp -       58) * pmax(0,       54 -      dpg) 
-
-Number of cases: 330
+updt.r> # yields:
+updt.r> #    Selected 15 of 21 terms, and 8 of 8 predictors
+updt.r> #    Number of terms at each degree of interaction: 1 5 9
+updt.r> #    GCV: 13.14588     RSS: 3443.265     GRSq: 0.7957941     RSq: 0.8369311
+updt.r> 
+updt.r> update(a, nprune = 8)              # requires only pruning
 Selected 8 of 21 terms, and 6 of 9 predictors
 Number of terms at each degree of interaction: 1 5 2
-GCV: 15     RSS: 4434     GRSq: 0.77     RSq: 0.79 
+GCV: 15.1         RSS: 4434         GRSq: 0.766      RSq: 0.79
 > 
-> #--- test model building capabilities --------------------------------------------------------
+> cat("--- test predict.earth -------------------\n")
+--- test predict.earth -------------------
+> a <- earth(Volume ~ ., data = trees)
+> predict(a, c(10,80))
+     [,1]
+[1,] 17.8
+> predict(a)
+   [,1]
+1  10.0
+2  10.9
+3  11.5
+4  16.3
+5  20.5
+6  22.2
+7  17.8
+8  17.8
+9  20.9
+10 18.3
+11 20.8
+12 18.9
+13 18.9
+14 19.8
+15 20.6
+16 23.2
+17 29.7
+18 32.7
+19 27.8
+20 28.4
+21 31.0
+22 33.6
+23 32.4
+24 41.0
+25 43.5
+26 52.1
+27 53.9
+28 54.8
+29 55.4
+30 55.4
+31 75.4
+> xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
+> predict(a, xpredict)
+     [,1]
+[1,] 17.8
+[2,] 30.7
+> colnames(xpredict) <- c("Girth", "Height")
+> predict(a, xpredict)
+     [,1]
+[1,] 17.8
+[2,] 30.7
+> predict(a, as.data.frame(xpredict))
+     [,1]
+[1,] 17.8
+[2,] 30.7
+> # reverse dataframe columns (and their names), predict should deal with it correctly
+> xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
+> colnames(xpredict) <- c("Height", "Girth")
+> predict(a, xpredict)
+     [,1]
+[1,] 17.8
+[2,] 30.7
+> # repeat but with x,y (not formula) call to earth
+> x1 <- cbind(trees$Girth, trees$Height)
+> colnames(x1) <- c("Girth", "Height")
+> a <- earth(x1, trees$Volume)
+> xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
+> predict(a, xpredict)
+     [,1]
+[1,] 17.8
+[2,] 30.7
+> colnames(xpredict) <- c("Girth", "Height")
+> predict(a, xpredict)
+     [,1]
+[1,] 17.8
+[2,] 30.7
+> predict(a, as.data.frame(xpredict))
+     [,1]
+[1,] 17.8
+[2,] 30.7
+> cat("--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'\n")
+--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'
+> xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
+> colnames(xpredict) <- c("Height", "Girth")
+> predict(a, xpredict)
+     [,1]
+[1,]  409
+[2,]  466
+Warning message:
+the variable names in 'data' do not match those in 'object'
+  data:        Height Girth
+  object$dirs: Girth Height 
 > 
 > cat("--- test model building capabilities ----------------------\n")
 --- test model building capabilities ----------------------
@@ -274,7 +596,7 @@ GCV: 15     RSS: 4434     GRSq: 0.77     RSq: 0.79
 +     eval.parent(parse(text=s))
 + }
 > 
-> # this cross checks that RSq and GRSq claimed by 
+> # this cross checks that RSq and GRSq claimed by
 > # the model versus an independent calc of RSq and GRSq
 > 
 > test.model.rsq <- function(object, x, y, MarsFunc, nCases, nUsedTerms, penalty, RefFunc=NULL, ...)
@@ -282,9 +604,8 @@ GCV: 15     RSS: 4434     GRSq: 0.77     RSq: 0.79
 +     y1 <- RefFunc(x, ...)
 +     rss <- sum((y1 - MarsFunc(x))^2)
 +     rss.null <- sum((y - mean(y))^2)
-+     gcv.null <- earth:::get.gcv(rss.null, 1, 0, penalty, nCases)
-+     gcv <- earth:::get.gcv(rss, nUsedTerms, (nUsedTerms-1)/2, penalty, nCases)
-+     # $$ these happen, look into it
++     gcv.null <- earth:::get.gcv(rss.null, 1, penalty, nCases)
++     gcv <- earth:::get.gcv(rss, nUsedTerms, penalty, nCases)
 +     if(is.finite(object$rsq))
 +         if(!isTRUE(all.equal(object$rsq, 1 - rss/rss.null)))
 +             cat("\nWarning: RSq mismatch object$rsq", object$rsq, "calculated RSq", 1 - rss/rss.null)
@@ -292,29 +613,35 @@ GCV: 15     RSS: 4434     GRSq: 0.77     RSq: 0.79
 +             cat("\nWarning GRSq mismatch object$grsq", object$grsq, "calculated GRSq", 1 - gcv/gcv.null)
 + }
 > 
-> # this uses the global x and d
+> # this uses the global matrix data.global (data.global[,1] is the response)
+> 
 > test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0)
 + {
-+     cat(sprintf("%-3d", itest), sprintf("%-32s", deparse(substitute(func))), 
++     cat("itest", sprintf("%-3d", itest), sprintf("%-32s", deparse(substitute(func))),
 +         "degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk))
++     if(trace)
++         cat("\n")
 +     gc()
-+     earthTime <- system.time(fite <- earth(d[,-1, drop=FALSE], d[,1], degree=degree,
-+                                            trace=trace, nk=nk, pmethod="b", fast.k=-1))
++     earthTime <- system.time(fite <- earth(data.global[,-1], data.global[,1],
++                                         degree=degree, trace=trace, nk=nk, pmethod="b", fast.k=-1))
 +     funca <- make.func(fite)
-+     nCases <- nrow(x)
++     nCases <- nrow(data.global)
 +     penalty <- ifelse(degree>1,3,2)
 +     nUsedTerms <- sum(fite$selected.terms!=0)
-+     cat(" nTerms",  sprintf("%-2d", nUsedTerms), "of", sprintf("%-3d ", ncol(fite$bx)))
++     cat(" nTerms",  sprintf("%-2d", nUsedTerms), "of", sprintf("%-3d ", nrow(fite$dirs)))
 +     if(print.time)
 +         cat(" time", earthTime[1])
 +     cat("GRSq", sprintf("%4.2g", fite$grsq))
-+     sub.caption <- paste(itest, ": ", deparse(substitute(func)), " degree=", degree, " nk=", nk, sep="")
++     caption <- paste("itest ", itest, ": ", deparse(substitute(func)),
++                         " degree=", degree, " nk=", nk, sep="")
 +     if(test.rsq)
-+     test.model.rsq(fite, x=x, y=d[,1], MarsFunc=funca, nCases=nCases,
-+                    nUsedTerms=nUsedTerms, penalty=penalty, RefFunc=func)
++         test.model.rsq(fite, x=data.global[,-1, drop=FALSE], y=data.global[,1], MarsFunc=funca,
++             nCases=nCases, nUsedTerms=nUsedTerms, penalty=penalty, RefFunc=func)
 +     if(plotit) {
-+         plotmo(fite, func=func, sub.caption=sub.caption)
-+         plot(fite, nresiduals=500, sub.caption=sub.caption)
++         #$$ plotmo needs column names on x matrix wich are dropped if data.global[,-1] is a vector
++         if(!is.vector(data.global[,-1]))
++             plotmo(fite, func=func, caption=caption)
++         plot(fite, nresiduals=500, caption=caption)
 +     }
 +     cat("\n")
 +     fite
@@ -326,23 +653,24 @@ GCV: 15     RSS: 4434     GRSq: 0.77     RSq: 0.79
 +     fite <- earth(x, y, degree=degree, nk=nk, trace=trace)
 +     fitm <- mars(x, y, degree=degree, nk=nk)
 + 
-+     cat(sprintf("%-3d", itest),
-+         sprintf("%-32s", sModel), 
++     cat("itest",
++         sprintf("%-3d", itest),
++         sprintf("%-32s", sModel),
 +         "degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk),
-+         "nTerms",  sprintf("%-2d", sum(fite$selected.terms != 0)), 
-+         "of", sprintf("%-3d", sum(fite$selected.terms)),
++         "nTerms",  sprintf("%-2d", sum(fite$selected.terms != 0)),
++         "of", sprintf("%-3d", nrow(fite$dirs)),
 +         "GRSq", sprintf("%4.2g", fite$grsq),
 +         "GRSq ratio", fite$grsq/mars.to.earth(fitm)$grsq,
 +         "\n")
-+     sub.caption <- paste(itest, ": ", sModel, " degree=", degree, " nk=", nk, sep="")
++     caption <- paste("itest ", itest, ": ", sModel, " degree=", degree, " nk=", nk, sep="")
 +     if(plotit) {
 +         fitme <- mars.to.earth(fitm)
-+         plotmo(fite, sub.caption=paste("EARTH", sub.caption))
-+         plotmo(fitme, sub.caption=paste("MARS", sub.caption))
-+         plot(fite, nresiduals=500, col.loess=col.loess, sub.caption=paste("EARTH", sub.caption))
-+         plot(fitme, sub.caption=paste("MARS", sub.caption))
++         plotmo(fite, caption=paste("EARTH", caption))
++         plotmo(fitme, caption=paste("MARS", caption))
++         plot(fite, nresiduals=500, col.loess=col.loess, caption=paste("EARTH", caption))
++         plot(fitme, caption=paste("MARS", caption))
 +         fitme <- update(fitme)  # generate model selection data
-+         plot.earth.models(list(fite, fitme), sub.caption=paste(itest, ": Compare earth to mars ", sModel, sep=""))
++         plot.earth.models(list(fite, fitme), caption=paste(itest, ": Compare earth to mars ", sModel, sep=""))
 +     }
 +     fite
 + }
@@ -351,80 +679,83 @@ GCV: 15     RSS: 4434     GRSq: 0.77     RSq: 0.79
 + {
 +     rnorm(1)
 + }
-> x <- cbind(              x1)
-> d <- cbind(funcNoise(x), x1)
+> x <- cbind(x1)
+> data.global <- cbind(funcNoise(x), x1)
 > # plotit=FALSE because there is only an intercept
 > itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=1, plotit=FALSE, test.rsq=FALSE)
-1   funcNoise                        degree 1  nk 5   nTerms 1  of 1   GRSq  NaN
-Selected 1 of 3 terms, and 0 of 1 predictors
+itest 1   funcNoise                        degree 1  nk 5   nTerms 1  of 2   GRSq    0
+Selected 1 of 2 terms, and 0 of 1 predictors
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV: 0     RSS: 0     GRSq: NaN     RSq: NaN 
+GCV: 2.65e-34     RSS: 2.6e-32      GRSq: 0          RSq: 0  
 > itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=2, plotit=FALSE, test.rsq=FALSE)
-2   funcNoise                        degree 2  nk 5   nTerms 1  of 1   GRSq  NaN
-Selected 1 of 3 terms, and 0 of 1 predictors
+itest 2   funcNoise                        degree 2  nk 5   nTerms 1  of 2   GRSq    0
+Selected 1 of 2 terms, and 0 of 1 predictors
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV: 0     RSS: 0     GRSq: NaN     RSq: NaN 
+GCV: 2.65e-34     RSS: 2.6e-32      GRSq: 0          RSq: 0  
 > itest <- itest+1; test.earth(itest, funcNoise, nk=51, degree=1, plotit=FALSE, test.rsq=FALSE)
-3   funcNoise                        degree 1  nk 51  nTerms 1  of 1   GRSq  NaN
-Selected 1 of 3 terms, and 0 of 1 predictors
+itest 3   funcNoise                        degree 1  nk 51  nTerms 1  of 2   GRSq    0
+Selected 1 of 2 terms, and 0 of 1 predictors
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV: 0     RSS: 0     GRSq: NaN     RSq: NaN 
+GCV: 2.65e-34     RSS: 2.6e-32      GRSq: 0          RSq: 0  
 > itest <- itest+1; test.earth(itest, funcNoise, nk=51, degree=2, plotit=FALSE, test.rsq=FALSE)
-4   funcNoise                        degree 2  nk 51  nTerms 1  of 1   GRSq  NaN
-Selected 1 of 3 terms, and 0 of 1 predictors
+itest 4   funcNoise                        degree 2  nk 51  nTerms 1  of 2   GRSq    0
+Selected 1 of 2 terms, and 0 of 1 predictors
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV: 0     RSS: 0     GRSq: NaN     RSq: NaN 
+GCV: 2.65e-34     RSS: 2.6e-32      GRSq: 0          RSq: 0  
 > 
 > func1 <- function(x)
 + {
 +     sin(3 * x[,1]) + x[,2]
 + }
-> x <- cbind(          x1, x2)
-> d <- cbind(func1(x), x1, x2)
+> x.global <- cbind(                    x1, x2)
+> data.global <- cbind(func1(x.global), x1, x2)
 > itest <- itest+1; test.earth(itest, func1, nk=5,   degree=1)
-5   func1                            degree 1  nk 5   nTerms 4  of 4   GRSq 0.86
+itest 5   func1                            degree 1  nk 5   nTerms 4  of 5   GRSq 0.86
 Selected 4 of 5 terms, and 2 of 2 predictors
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV: 0.12     RSS: 10     GRSq: 0.86     RSq: 0.88 
+GCV: 0.117        RSS: 10.1         GRSq: 0.862      RSq: 0.878
 > itest <- itest+1; test.earth(itest, func1, nk=5,   degree=2)
-6   func1                            degree 2  nk 5   nTerms 4  of 4   GRSq 0.86
+itest 6   func1                            degree 2  nk 5   nTerms 4  of 5   GRSq 0.86
 Selected 4 of 5 terms, and 2 of 2 predictors
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV: 0.12     RSS: 10     GRSq: 0.86     RSq: 0.88 
+GCV: 0.121        RSS: 10.1         GRSq: 0.858      RSq: 0.878
 > itest <- itest+1; test.earth(itest, func1, nk=51, degree=1)
-7   func1                            degree 1  nk 51  nTerms 8  of 8   GRSq    1
+itest 7   func1                            degree 1  nk 51  nTerms 8  of 8   GRSq    1
 Selected 8 of 8 terms, and 2 of 2 predictors
 Number of terms at each degree of interaction: 1 7 (additive model)
-GCV: 0.0025     RSS: 0.18     GRSq: 1     RSq: 1 
+GCV: 0.00249      RSS: 0.180        GRSq: 0.997      RSq: 0.998
 > itest <- itest+1; test.earth(itest, func1, nk=51, degree=2)
-8   func1                            degree 2  nk 51  nTerms 8  of 8   GRSq    1
+itest 8   func1                            degree 2  nk 51  nTerms 8  of 8   GRSq    1
 Selected 8 of 8 terms, and 2 of 2 predictors
 Number of terms at each degree of interaction: 1 7 (additive model)
-GCV: 0.0027     RSS: 0.18     GRSq: 1     RSq: 1 
+GCV: 0.00270      RSS: 0.180        GRSq: 0.997      RSq: 0.998
 > 
 > func7 <- function(x)    # just one predictor
 + {
 +     sin(5 * x[,1])
 + }
-> x <- cbind(x1)
-> d <- cbind(func7(x), x1)
-> itest <- itest+1; a<-test.earth(itest, func7, nk=5, degree=1)
-9   func7                            degree 1  nk 5   nTerms 4  of 4   GRSq 0.76
-> itest <- itest+1; test.earth(itest, func7, nk=5,   degree=2)
-10  func7                            degree 2  nk 5   nTerms 4  of 4   GRSq 0.75
+> x.global <- cbind(                    x1)
+> data.global <- cbind(func7(x.global), x1)
+> itest <- itest+1; test.earth(itest, func7, nk=5,  degree=1)
+itest 9   func7                            degree 1  nk 5   nTerms 4  of 4   GRSq 0.76
 Selected 4 of 4 terms, and 1 of 1 predictors
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV: 0.13     RSS: 11     GRSq: 0.75     RSq: 0.79 
+GCV: 0.123        RSS: 10.6         GRSq: 0.76       RSq: 0.788
+> itest <- itest+1; test.earth(itest, func7, nk=5,  degree=2)
+itest 10  func7                            degree 2  nk 5   nTerms 4  of 4   GRSq 0.75
+Selected 4 of 4 terms, and 1 of 1 predictors
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV: 0.127        RSS: 10.6         GRSq: 0.752      RSq: 0.788
 > itest <- itest+1; test.earth(itest, func7, nk=51, degree=1)
-11  func7                            degree 1  nk 51  nTerms 6  of 6   GRSq 0.97
+itest 11  func7                            degree 1  nk 51  nTerms 6  of 7   GRSq 0.97
 Selected 6 of 7 terms, and 1 of 1 predictors
 Number of terms at each degree of interaction: 1 5 (additive model)
-GCV: 0.017     RSS: 1.3     GRSq: 0.97     RSq: 0.97 
+GCV: 0.0168       RSS: 1.33         GRSq: 0.967      RSq: 0.973
 > itest <- itest+1; test.earth(itest, func7, nk=51, degree=2)
-12  func7                            degree 2  nk 51  nTerms 6  of 6   GRSq 0.97
+itest 12  func7                            degree 2  nk 51  nTerms 6  of 7   GRSq 0.97
 Selected 6 of 7 terms, and 1 of 1 predictors
 Number of terms at each degree of interaction: 1 5 (additive model)
-GCV: 0.018     RSS: 1.3     GRSq: 0.97     RSq: 0.97 
+GCV: 0.0178       RSS: 1.33         GRSq: 0.965      RSq: 0.973
 > 
 > func8 <- function(x)
 + {
@@ -439,68 +770,68 @@ GCV: 0.018     RSS: 1.3     GRSq: 0.97     RSq: 0.97
 +     func8(x) + rnorm(nrow(x),0,1)
 + }
 > 
-> x <- cbind(          x1,  x2,  x3,  x4,  x5)
-> d <- cbind(func8(x), x1,  x2,  x3,  x4,  x5)
+> x.global <- cbind(                    x1,  x2,  x3,  x4,  x5)
+> data.global <- cbind(func8(x.global), x1,  x2,  x3,  x4,  x5)
 > itest <- itest+1; test.earth(itest, func8, nk=11, degree=1)
-13  func8                            degree 1  nk 11  nTerms 11 of 11  GRSq 0.89
+itest 13  func8                            degree 1  nk 11  nTerms 11 of 11  GRSq 0.89
 Selected 11 of 11 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV: 0.31     RSS: 19     GRSq: 0.9     RSq: 0.93 
+GCV: 0.309        RSS: 19.3         GRSq: 0.894      RSq: 0.932
 > itest <- itest+1; test.earth(itest, func8, nk=11, degree=2)
-14  func8                            degree 2  nk 11  nTerms 11 of 11  GRSq 0.88
+itest 14  func8                            degree 2  nk 11  nTerms 11 of 11  GRSq 0.88
 Selected 11 of 11 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV: 0.35     RSS: 19     GRSq: 0.88     RSq: 0.93 
+GCV: 0.352        RSS: 19.3         GRSq: 0.879      RSq: 0.932
 > itest <- itest+1; test.earth(itest, func8, nk=11, degree=10)
-15  func8                            degree 10 nk 11  nTerms 11 of 11  GRSq 0.88
+itest 15  func8                            degree 10 nk 11  nTerms 11 of 11  GRSq 0.88
 Selected 11 of 11 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV: 0.35     RSS: 19     GRSq: 0.88     RSq: 0.93 
+GCV: 0.352        RSS: 19.3         GRSq: 0.879      RSq: 0.932
 > itest <- itest+1; test.earth(itest, func8, nk=51, degree=1)
-16  func8                            degree 1  nk 51  nTerms 14 of 14  GRSq 0.91
+itest 16  func8                            degree 1  nk 51  nTerms 14 of 18  GRSq 0.91
 Selected 14 of 18 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 13 (additive model)
-GCV: 0.27     RSS: 14     GRSq: 0.9     RSq: 0.95 
+GCV: 0.271        RSS: 14.4         GRSq: 0.907      RSq: 0.95
 > itest <- itest+1; test.earth(itest, func8, nk=51, degree=2)
-17  func8                            degree 2  nk 51  nTerms 20 of 20  GRSq 0.98
+itest 17  func8                            degree 2  nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 14 5
-GCV: 0.054     RSS: 1.4     GRSq: 0.98     RSq: 1 
+GCV: 0.0535       RSS: 1.42         GRSq: 0.982      RSq: 0.995
 > itest <- itest+1; test.earth(itest, func8, nk=51, degree=10)
-18  func8                            degree 10 nk 51  nTerms 20 of 20  GRSq 0.98
+itest 18  func8                            degree 10 nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 14 5
-GCV: 0.054     RSS: 1.4     GRSq: 0.98     RSq: 1 
+GCV: 0.0535       RSS: 1.42         GRSq: 0.982      RSq: 0.995
 > itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=1,  test.rsq=FALSE)
-19  func8noise                       degree 1  nk 11  nTerms 11 of 11  GRSq 0.89
+itest 19  func8noise                       degree 1  nk 11  nTerms 11 of 11  GRSq 0.89
 Selected 11 of 11 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV: 0.31     RSS: 19     GRSq: 0.9     RSq: 0.93 
+GCV: 0.309        RSS: 19.3         GRSq: 0.894      RSq: 0.932
 > itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=2,  test.rsq=FALSE)
-20  func8noise                       degree 2  nk 11  nTerms 11 of 11  GRSq 0.88
+itest 20  func8noise                       degree 2  nk 11  nTerms 11 of 11  GRSq 0.88
 Selected 11 of 11 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV: 0.35     RSS: 19     GRSq: 0.88     RSq: 0.93 
+GCV: 0.352        RSS: 19.3         GRSq: 0.879      RSq: 0.932
 > itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=10, test.rsq=FALSE)
-21  func8noise                       degree 10 nk 11  nTerms 11 of 11  GRSq 0.88
+itest 21  func8noise                       degree 10 nk 11  nTerms 11 of 11  GRSq 0.88
 Selected 11 of 11 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV: 0.35     RSS: 19     GRSq: 0.88     RSq: 0.93 
+GCV: 0.352        RSS: 19.3         GRSq: 0.879      RSq: 0.932
 > itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=1,  test.rsq=FALSE)
-22  func8noise                       degree 1  nk 51  nTerms 14 of 14  GRSq 0.91
+itest 22  func8noise                       degree 1  nk 51  nTerms 14 of 18  GRSq 0.91
 Selected 14 of 18 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 13 (additive model)
-GCV: 0.27     RSS: 14     GRSq: 0.9     RSq: 0.95 
+GCV: 0.271        RSS: 14.4         GRSq: 0.907      RSq: 0.95
 > itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=2,  test.rsq=FALSE)
-23  func8noise                       degree 2  nk 51  nTerms 20 of 20  GRSq 0.98
+itest 23  func8noise                       degree 2  nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 14 5
-GCV: 0.054     RSS: 1.4     GRSq: 0.98     RSq: 1 
+GCV: 0.0535       RSS: 1.42         GRSq: 0.982      RSq: 0.995
 > itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=10, test.rsq=FALSE)
-24  func8noise                       degree 10 nk 51  nTerms 20 of 20  GRSq 0.98
+itest 24  func8noise                       degree 10 nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors
 Number of terms at each degree of interaction: 1 14 5
-GCV: 0.054     RSS: 1.4     GRSq: 0.98     RSq: 1 
+GCV: 0.0535       RSS: 1.42         GRSq: 0.982      RSq: 0.995
 > 
 > eqn56 <- function(x) # Friedman MARS paper equation 56
 + {
@@ -516,68 +847,73 @@ GCV: 0.054     RSS: 1.4     GRSq: 0.98     RSq: 1
 +     eqn56(x) + rnorm(nrow(x),0,1)
 + }
 > 
-> x <- cbind(          x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
-> d <- cbind(eqn56(x), x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+> neg.eqn56noise <- function(x)
++ {
++ -eqn56noise(x)
++ }
+> 
+> x.global <- cbind(                    x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+> data.global <- cbind(eqn56(x.global), x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 > itest <- itest+1; test.earth(itest, eqn56, nk=11, degree=1)
-25  eqn56                            degree 1  nk 11  nTerms 10 of 10  GRSq 0.96
+itest 25  eqn56                            degree 1  nk 11  nTerms 10 of 11  GRSq 0.96
 Selected 10 of 11 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.34     RSS: 22     GRSq: 0.96     RSq: 0.97 
+GCV: 0.337        RSS: 22.1         GRSq: 0.96       RSq: 0.973
 > itest <- itest+1; test.earth(itest, eqn56, nk=11, degree=2)
-26  eqn56                            degree 2  nk 11  nTerms 10 of 10  GRSq 0.96
+itest 26  eqn56                            degree 2  nk 11  nTerms 10 of 11  GRSq 0.96
 Selected 10 of 11 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.38     RSS: 22     GRSq: 0.96     RSq: 0.97 
+GCV: 0.378        RSS: 22.1         GRSq: 0.955      RSq: 0.973
 > itest <- itest+1; test.earth(itest, eqn56, nk=11, degree=10)
-27  eqn56                            degree 10 nk 11  nTerms 10 of 10  GRSq 0.96
+itest 27  eqn56                            degree 10 nk 11  nTerms 10 of 11  GRSq 0.96
 Selected 10 of 11 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.38     RSS: 22     GRSq: 0.96     RSq: 0.97 
+GCV: 0.378        RSS: 22.1         GRSq: 0.955      RSq: 0.973
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=1)
-28  eqn56                            degree 1  nk 51  nTerms 13 of 13  GRSq    1
+itest 28  eqn56                            degree 1  nk 51  nTerms 13 of 14  GRSq    1
 Selected 13 of 14 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV: 0.035     RSS: 2.0     GRSq: 1     RSq: 1 
+GCV: 0.0348       RSS: 1.96         GRSq: 0.996      RSq: 0.998
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=2)
-29  eqn56                            degree 2  nk 51  nTerms 13 of 13  GRSq    1
+itest 29  eqn56                            degree 2  nk 51  nTerms 13 of 14  GRSq    1
 Selected 13 of 14 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV: 0.041     RSS: 2.0     GRSq: 1     RSq: 1 
+GCV: 0.0411       RSS: 1.96         GRSq: 0.995      RSq: 0.998
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=10)
-30  eqn56                            degree 10 nk 51  nTerms 13 of 13  GRSq    1
+itest 30  eqn56                            degree 10 nk 51  nTerms 13 of 14  GRSq    1
 Selected 13 of 14 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV: 0.041     RSS: 2.0     GRSq: 1     RSq: 1 
+GCV: 0.0411       RSS: 1.96         GRSq: 0.995      RSq: 0.998
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=1,  test.rsq=FALSE)
-31  eqn56noise                       degree 1  nk 11  nTerms 10 of 10  GRSq 0.96
+itest 31  eqn56noise                       degree 1  nk 11  nTerms 10 of 11  GRSq 0.96
 Selected 10 of 11 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.34     RSS: 22     GRSq: 0.96     RSq: 0.97 
+GCV: 0.337        RSS: 22.1         GRSq: 0.96       RSq: 0.973
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=2,  test.rsq=FALSE)
-32  eqn56noise                       degree 2  nk 11  nTerms 10 of 10  GRSq 0.96
+itest 32  eqn56noise                       degree 2  nk 11  nTerms 10 of 11  GRSq 0.96
 Selected 10 of 11 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.38     RSS: 22     GRSq: 0.96     RSq: 0.97 
+GCV: 0.378        RSS: 22.1         GRSq: 0.955      RSq: 0.973
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=10, test.rsq=FALSE)
-33  eqn56noise                       degree 10 nk 11  nTerms 10 of 10  GRSq 0.96
+itest 33  eqn56noise                       degree 10 nk 11  nTerms 10 of 11  GRSq 0.96
 Selected 10 of 11 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.38     RSS: 22     GRSq: 0.96     RSq: 0.97 
+GCV: 0.378        RSS: 22.1         GRSq: 0.955      RSq: 0.973
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=1,  test.rsq=FALSE)
-34  eqn56noise                       degree 1  nk 51  nTerms 13 of 13  GRSq    1
+itest 34  eqn56noise                       degree 1  nk 51  nTerms 13 of 14  GRSq    1
 Selected 13 of 14 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV: 0.035     RSS: 2.0     GRSq: 1     RSq: 1 
+GCV: 0.0348       RSS: 1.96         GRSq: 0.996      RSq: 0.998
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=2,  test.rsq=FALSE)
-35  eqn56noise                       degree 2  nk 51  nTerms 13 of 13  GRSq    1
+itest 35  eqn56noise                       degree 2  nk 51  nTerms 13 of 14  GRSq    1
 Selected 13 of 14 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV: 0.041     RSS: 2.0     GRSq: 1     RSq: 1 
+GCV: 0.0411       RSS: 1.96         GRSq: 0.995      RSq: 0.998
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=10, test.rsq=FALSE)
-36  eqn56noise                       degree 10 nk 51  nTerms 13 of 13  GRSq    1
+itest 36  eqn56noise                       degree 10 nk 51  nTerms 13 of 14  GRSq    1
 Selected 13 of 14 terms, and 5 of 10 predictors
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV: 0.041     RSS: 2.0     GRSq: 1     RSq: 1 
+GCV: 0.0411       RSS: 1.96         GRSq: 0.995      RSq: 0.998
 > 
 > robotArm <- function(x) # Friedman Fast MARS paper
 + {
@@ -601,85 +937,431 @@ GCV: 0.041     RSS: 2.0     GRSq: 1     RSq: 1
 > x4. <- runif(N1, -1, 1)
 > x5. <- runif(N1, -1, 1)
 > 
-> x <- cbind(             (x1.+1)/2, (x2.+2)/2, pi*(x3.+1), pi*(x4.+1), pi*x5./2 )
-> d <- cbind(robotArm(x), (x1.+1)/2, (x2.+2)/2, pi*(x3.+1), pi*(x4.+1), pi*x5./2 )
-> colnames(x) <- c("l1", "l2", "theta1", "theta2", "phi")
-> colnames(d) <- c("arm", "l1", "l2", "theta1", "theta2", "phi")
+> x.global <- cbind(                       (x1.+1)/2, (x2.+2)/2, pi*(x3.+1), pi*(x4.+1), pi*x5./2 )
+> data.global <- cbind(robotArm(x.global), (x1.+1)/2, (x2.+2)/2, pi*(x3.+1), pi*(x4.+1), pi*x5./2 )
+> colnames(x.global) <- c("l1", "l2", "theta1", "theta2", "phi")
+> colnames(data.global) <- c("arm", "l1", "l2", "theta1", "theta2", "phi")
 > itest <- itest+1; test.earth(itest, robotArm, nk=51, degree=1)
-37  robotArm                         degree 1  nk 51  nTerms 10 of 10  GRSq 0.79
+itest 37  robotArm                         degree 1  nk 51  nTerms 10 of 17  GRSq 0.79
 Selected 10 of 17 terms, and 4 of 5 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.038     RSS: 2.5     GRSq: 0.8     RSq: 0.86 
+GCV: 0.0385       RSS: 2.53         GRSq: 0.794      RSq: 0.862
 > itest <- itest+1; test.earth(itest, robotArm, nk=51, degree=10)
-38  robotArm                         degree 10 nk 51  nTerms 19 of 19  GRSq 0.85
+itest 38  robotArm                         degree 10 nk 51  nTerms 19 of 38  GRSq 0.85
 Selected 19 of 38 terms, and 4 of 5 predictors
 Number of terms at each degree of interaction: 1 10 8
-GCV: 0.028     RSS: 0.82     GRSq: 0.85     RSq: 0.96 
+GCV: 0.0282       RSS: 0.823        GRSq: 0.849      RSq: 0.955
 > itest <- itest+1; test.earth(itest, robotArm, nk=201, degree=1)
-39  robotArm                         degree 1  nk 201 nTerms 10 of 10  GRSq 0.79
+itest 39  robotArm                         degree 1  nk 201 nTerms 10 of 17  GRSq 0.79
 Selected 10 of 17 terms, and 4 of 5 predictors
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV: 0.038     RSS: 2.5     GRSq: 0.8     RSq: 0.86 
+GCV: 0.0385       RSS: 2.53         GRSq: 0.794      RSq: 0.862
 > itest <- itest+1; test.earth(itest, robotArm, nk=201, degree=10)
-40  robotArm                         degree 10 nk 201 nTerms 19 of 19  GRSq 0.85
+itest 40  robotArm                         degree 10 nk 201 nTerms 19 of 38  GRSq 0.85
 Selected 19 of 38 terms, and 4 of 5 predictors
 Number of terms at each degree of interaction: 1 10 8
-GCV: 0.028     RSS: 0.82     GRSq: 0.85     RSq: 0.96 
+GCV: 0.0282       RSS: 0.823        GRSq: 0.849      RSq: 0.955
 > 
-> # tests with ozone data
+> cat("--- tests with ozone data ----------------------\n")
+--- tests with ozone data ----------------------
 > 
 > data(ozone1)
 > attach(ozone1)
 > 
-> x <- cbind(wind, humidity, temp, vis)
+> x.global <- cbind(wind, humidity, temp, vis)
 > y <- doy
-> itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x, y, degree=1, nk=21)
-41  doy ~ wind+humidity+temp+vis     degree 1  nk 21  nTerms 6  of 26  GRSq 0.18 GRSq ratio 1.3 
+> itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=1, nk=21)
+itest 41  doy ~ wind+humidity+temp+vis     degree 1  nk 21  nTerms 6  of 15  GRSq 0.18 GRSq ratio 1.33 
 Selected 6 of 15 terms, and 3 of 4 predictors
 Number of terms at each degree of interaction: 1 5 (additive model)
-GCV: 8981     RSS: 2769457     GRSq: 0.18     RSq: 0.23 
+GCV: 8981         RSS: 2769457      GRSq: 0.178      RSq: 0.227
 > 
-> x <- cbind(wind, humidity, temp, vis)
+> x.global <- cbind(wind, humidity, temp, vis)
 > y <- doy
-> itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x, y, degree=2, nk=21)
-42  doy ~ wind+humidity+temp+vis     degree 2  nk 21  nTerms 10 of 92  GRSq 0.22 GRSq ratio 1.8 
+> itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=2, nk=21)
+itest 42  doy ~ wind+humidity+temp+vis     degree 2  nk 21  nTerms 10 of 20  GRSq 0.22 GRSq ratio 1.77 
 Selected 10 of 20 terms, and 3 of 4 predictors
 Number of terms at each degree of interaction: 1 2 7
-GCV: 8563     RSS: 2437753     GRSq: 0.22     RSq: 0.32 
+GCV: 8563         RSS: 2437753      GRSq: 0.216      RSq: 0.32
 > 
 > # this is a basic test of RegressAndFix (because this generates lin dep bx cols)
 > 
 > cat("--Expect warning from mda::mars: NAs introduced by coercion\n") # why do we get a warning?
 --Expect warning from mda::mars: NAs introduced by coercion
-> x <- cbind(wind, exp(humidity))
+> x.global <- cbind(wind, exp(humidity))
 > y <- doy
 > # col.loess is 0 else get loess errors
-> itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x, y, degree=1, nk=21, col.loess=0)
-43  doy ~ wind+exp(humidity)         degree 1  nk 21  nTerms 3  of 8   GRSq  0.1 GRSq ratio 1.6 
+> itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, col.loess=0)
+itest 43  doy ~ wind+exp(humidity)         degree 1  nk 21  nTerms 3  of 5   GRSq  0.1 GRSq ratio 1.64 
 Selected 3 of 5 terms, and 1 of 2 predictors
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV: 9825     RSS: 3144854     GRSq: 0.1     RSq: 0.12 
+GCV: 9825         RSS: 3144854      GRSq: 0.101      RSq: 0.123
 Warning message:
 NAs introduced by coercion 
 > 
-> x <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
+> x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 > y <- O3
-> itest <- itest+1; ozone.test(itest, "O3~.", x, y, degree=2, nk=21)
-44  O3~.                             degree 2  nk 21  nTerms 11 of 109 GRSq 0.79 GRSq ratio 1.0 
+> itest <- itest+1; ozone.test(itest, "O3~.", x.global, y, degree=2, nk=21)
+itest 44  O3~.                             degree 2  nk 21  nTerms 11 of 21  GRSq 0.79 GRSq ratio 1.01 
 Selected 11 of 21 terms, and 8 of 9 predictors
 Number of terms at each degree of interaction: 1 5 5
-GCV: 13     RSS: 3762     GRSq: 0.79     RSq: 0.82 
+GCV: 13.4         RSS: 3762         GRSq: 0.791      RSq: 0.822
 > 
-> x <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
+> x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 > y <- O3
-> itest <- itest+1; a<-ozone.test(itest, "O3~., nk=51", x, y, degree=2, nk=51)
-45  O3~., nk=51                      degree 2  nk 51  nTerms 28 of 734 GRSq 0.81 GRSq ratio 1.0 
+> itest <- itest+1; ozone.test(itest, "O3~., nk=51", x.global, y, degree=2, nk=51)
+itest 45  O3~., nk=51                      degree 2  nk 51  nTerms 28 of 50  GRSq 0.81 GRSq ratio 1.01 
+Selected 28 of 50 terms, and 9 of 9 predictors
+Number of terms at each degree of interaction: 1 9 18
+GCV: 12.4         RSS: 2577         GRSq: 0.807      RSq: 0.878
 > 
 > detach(ozone1)
-> 
 > options(options.old)
 > 
-> #--- subset ----------------------------------------------------------------------------------
+> cat("--- fast mars -----------------------------------\n")
+--- fast mars -----------------------------------
+> 
+> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 1))
+Selected 17 of 31 terms, and 9 of 9 predictors
+Number of terms at each degree of interaction: 1 5 11
+GCV: 13.38345         RSS: 3387.271         GRSq: 0.7921038      RSq: 0.839583
+> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 0))
+Selected 17 of 31 terms, and 9 of 9 predictors
+Number of terms at each degree of interaction: 1 5 11
+GCV: 13.38345         RSS: 3387.271         GRSq: 0.7921038      RSq: 0.839583
+> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 1))
+Selected 17 of 30 terms, and 9 of 9 predictors
+Number of terms at each degree of interaction: 1 8 8
+GCV: 12.97698         RSS: 3284.396         GRSq: 0.7984178      RSq: 0.844455
+> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 0))
+Selected 11 of 31 terms, and 8 of 9 predictors
+Number of terms at each degree of interaction: 1 5 5
+GCV: 13.43422         RSS: 3762.234         GRSq: 0.7913151      RSq: 0.8218252
+> 
+> cat("--- plot.earth and plot.earth.models ------------\n")
+--- plot.earth and plot.earth.models ------------
+> 
+> a <- earth(O3 ~ ., data=ozone1) # formula interface
+> 
+> plot(a, caption="plot.earth test 1", col.rsq=3, col.loess=4, col.qq="pink",
++     col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid")
+> 
+> set.seed(1)
+> plot(a, caption="plot.earth test 2", which=c(3,4,1), rlim=c(.2,.9),
++     jitter=.01, id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
+> 
+> plot(a, caption="plot.earth test 3", which=c(2), main="test main")
+> 
+> a1 <- earth(ozone1[,c(2:4,10)], ozone1[,1])     # x,y interface
+> 
+> plot(a, caption="plot.earth test 4", id.n=1)
+> 
+> set.seed(1)
+> plot.earth.models(a, which=1, rlim=c(.4,.8), jitter=.01)
+> 
+> plot.earth.models(a1)
+> 
+> plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
++     col.npreds=1, col.vline=1, lty.vline=3,
++     legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
+> 
+> cat("--- test multiple responses ---------------------\n")
+--- test multiple responses ---------------------
+> 
+> # this uses the global matrix data.global (data.global[,1:2] is the response)
+> 
+> test.earth.two.responses <- function(itest, func1, func2,
++     degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0)
++ {
++     if(typeof(func1) == "character")
++         funcnames <- paste("multiple responses", func1, func2)
++     else
++         funcnames <- paste("multiple responses", deparse(substitute(func1)), deparse(substitute(func2)))
++     cat("itest", sprintf("%-3d", itest), funcnames,
++         " degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk), "\n\n")
++     gc()
++     fite <- earth(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
++                 degree=degree, trace=trace, nk=nk, pmethod="b", fast.k=-1)
++     print(fite)
++     caption <- paste("itest ", itest, ": ", funcnames, " degree=", degree, " nk=", nk, sep="")
++     if(plotit) {
++         if(typeof(func1) == "character") {
++             plotmo(fite, caption=caption)
++             plotmo(fite, ycolumn=2)
++         } else {
++             plotmo(fite, func=func1, caption=caption)
++             plotmo(fite, func=func2, ycolumn=2)
++         }
++         plot(fite, caption=caption)
++         plot(fite, ycolumn=2)
++     }
++     cat("\n")
++     fite
++ }
+> 
+> x.global <- cbind(                                     x1, x2)
+> data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
+> itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=1)
+itest 46  multiple responses func1 func7  degree 1  nk 51  
+
+Selected 9 of 9 terms, and 2 of 2 predictors
+Number of terms at each degree of interaction: 1 8 (additive model)
+
+Response 1  GCV: 0.002273435      RSS: 0.1566169        GRSq: 0.9983476      RSq: 0.9988386
+Response 2  GCV: 0.01025848       RSS: 0.7067066        GRSq: 0.9925439      RSq: 0.9947592
+All         GCV: 0.01253191       RSS: 0.8633236        GRSq: 0.997709       RSq: 0.9983896
+
+> print(summary(a))
+Call:
+earth(x = data.global[, c(-1, -2), drop = FALSE], y = data.global[, 
+    1:2], trace = trace, degree = degree, nk = nk, fast.k = -1, 
+    pmethod = "b")
+
+Response 1 expression:
+  -1.431854 
+  +  1.854958 * pmax(0,         x1 - -0.4689827) 
+  +  1.427247 * pmax(0, -0.4689827 -         x1) 
+  -  1.796653 * pmax(0,         x1 -   0.435237) 
+  +  1.044777 * pmax(0,         x1 - -0.2277718) 
+  -  1.168701 * pmax(0,         x1 -  0.1991317) 
+  -  2.042002 * pmax(0,         x1 -  0.6418926) 
+  + 0.9908196 * pmax(0,         x2 - -0.3424454) 
+  -  1.044458 * pmax(0, -0.3424454 -         x2) 
+
+Response 2 expression:
+  -0.6896982 
+  -   1.362370 * pmax(0,         x1 - -0.4689827) 
+  +   4.009420 * pmax(0, -0.4689827 -         x1) 
+  -   5.278451 * pmax(0,         x1 -   0.435237) 
+  +    5.94079 * pmax(0,         x1 - -0.2277718) 
+  -   4.522081 * pmax(0,         x1 -  0.1991317) 
+  +   1.971228 * pmax(0,         x1 -  0.6418926) 
+  - 0.01968094 * pmax(0,         x2 - -0.3424454) 
+  - 0.01787571 * pmax(0, -0.3424454 -         x2) 
+
+Number of cases: 200
+Selected 9 of 9 terms, and 2 of 2 predictors
+Number of terms at each degree of interaction: 1 8 (additive model)
+
+Response 1  GCV: 0.002273435      RSS: 0.1566169        GRSq: 0.9983476      RSq: 0.9988386
+Response 2  GCV: 0.01025848       RSS: 0.7067066        GRSq: 0.9925439      RSq: 0.9947592
+All         GCV: 0.01253191       RSS: 0.8633236        GRSq: 0.997709       RSq: 0.9983896
+> plotmo(a, ycolumn=1)     # test generation of caption based on response name
+> plotmo(a, ycolumn=2)
+> plot(a, ycolumn=1)
+> plot(a, ycolumn=2)
+> 
+> x.global <- cbind(                                     x1, x2)
+> data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
+> itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=3)
+itest 47  multiple responses func1 func7  degree 3  nk 51  
+
+Selected 9 of 9 terms, and 2 of 2 predictors
+Number of terms at each degree of interaction: 1 8 (additive model)
+
+Response 1  GCV: 0.002509485      RSS: 0.1566169        GRSq: 0.998176       RSq: 0.9988386
+Response 2  GCV: 0.01132361       RSS: 0.7067066        GRSq: 0.9917697      RSq: 0.9947592
+All         GCV: 0.01383310       RSS: 0.8633236        GRSq: 0.997471       RSq: 0.9983896
+
+> print(summary(a))
+Call:
+earth(x = data.global[, c(-1, -2), drop = FALSE], y = data.global[, 
+    1:2], trace = trace, degree = degree, nk = nk, fast.k = -1, 
+    pmethod = "b")
+
+Response 1 expression:
+  -1.431854 
+  +  1.854958 * pmax(0,         x1 - -0.4689827) 
+  +  1.427247 * pmax(0, -0.4689827 -         x1) 
+  -  1.796653 * pmax(0,         x1 -   0.435237) 
+  +  1.044777 * pmax(0,         x1 - -0.2277718) 
+  -  1.168701 * pmax(0,         x1 -  0.1991317) 
+  -  2.042002 * pmax(0,         x1 -  0.6418926) 
+  + 0.9908196 * pmax(0,         x2 - -0.3424454) 
+  -  1.044458 * pmax(0, -0.3424454 -         x2) 
+
+Response 2 expression:
+  -0.6896982 
+  -   1.362370 * pmax(0,         x1 - -0.4689827) 
+  +   4.009420 * pmax(0, -0.4689827 -         x1) 
+  -   5.278451 * pmax(0,         x1 -   0.435237) 
+  +    5.94079 * pmax(0,         x1 - -0.2277718) 
+  -   4.522081 * pmax(0,         x1 -  0.1991317) 
+  +   1.971228 * pmax(0,         x1 -  0.6418926) 
+  - 0.01968094 * pmax(0,         x2 - -0.3424454) 
+  - 0.01787571 * pmax(0, -0.3424454 -         x2) 
+
+Number of cases: 200
+Selected 9 of 9 terms, and 2 of 2 predictors
+Number of terms at each degree of interaction: 1 8 (additive model)
+
+Response 1  GCV: 0.002509485      RSS: 0.1566169        GRSq: 0.998176       RSq: 0.9988386
+Response 2  GCV: 0.01132361       RSS: 0.7067066        GRSq: 0.9917697      RSq: 0.9947592
+All         GCV: 0.01383310       RSS: 0.8633236        GRSq: 0.997471       RSq: 0.9983896
+> 
+> x.global <- cbind(                                           x1, x2, x3, x4, x5)
+> data.global <- cbind(eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
+> itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=1)
+itest 48  multiple responses eqn56 neg.eqn56noise  degree 1  nk 51  
+
+Selected 12 of 15 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 11 (additive model)
+
+Response 1  GCV: 0.05678189       RSS: 3.366598         GRSq: 0.997706       RSq: 0.9986122
+Response 2  GCV: 1.152197         RSS: 68.31379         GRSq: 0.9534496      RSq: 0.9718399
+All         GCV: 1.140199         RSS: 67.60242         GRSq: 0.9290924      RSq: 0.9571053
+
+> 
+> x.global <- cbind(                                           x1, x2, x3, x4, x5)
+> data.global <- cbind(eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
+> itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=2)
+itest 49  multiple responses eqn56 neg.eqn56noise  degree 2  nk 51  
+
+Selected 11 of 38 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 9 1
+
+Response 1  GCV: 0.2371728        RSS: 12.98758         GRSq: 0.989961       RSq: 0.994391
+Response 2  GCV: 2.200262         RSS: 120.4863         GRSq: 0.9068672      RSq: 0.947965
+All         GCV: 2.011115         RSS: 110.1287         GRSq: 0.8684844      RSq: 0.9265198
+
+> 
+> N1 <- 100
+> set.seed(1)
+> x1. <- runif(N1, -1, 1)
+> x2. <- runif(N1, -1, 1)
+> x3. <- runif(N1, -1, 1)
+> x4. <- runif(N1, -1, 1)
+> x5. <- runif(N1, -1, 1)
+> 
+> x.global <- cbind(                                        (x1.+1)/2, (x2.+2)/2, pi*(x3.+1), pi*(x4.+1), pi*x5./2 )
+> data.global <- cbind(robotArm(x.global), eqn56(x.global), (x1.+1)/2, (x2.+2)/2, pi*(x3.+1), pi*(x4.+1), pi*x5./2 )
+> colnames(x.global)    <- c(                "l1", "l2", "theta1", "theta2", "phi")
+> colnames(data.global) <- c("arm", "eqn56", "l1", "l2", "theta1", "theta2", "phi")
+> itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=51, degree=1)
+itest 50  multiple responses robotArm eqn56  degree 1  nk 51  
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.06829087       RSS: 4.262033         GRSq: 0.999832       RSq: 0.999893
+Response 2  GCV: 0.04701295       RSS: 2.934078         GRSq: 0.9998844      RSq: 0.9999264
+All         GCV: 0.1153038        RSS: 7.196111         GRSq: 0.9943585      RSq: 0.9964076
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.06829087       RSS: 4.262033         GRSq: 0.999832       RSq: 0.999893
+Response 2  GCV: 0.04701295       RSS: 2.934078         GRSq: 0.9998844      RSq: 0.9999264
+All         GCV: 0.1153038        RSS: 7.196111         GRSq: 0.9943585      RSq: 0.9964076
+> itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=51, degree=10)
+itest 51  multiple responses robotArm eqn56  degree 10 nk 51  
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.07783114       RSS: 4.262033         GRSq: 0.9998086      RSq: 0.999893
+Response 2  GCV: 0.05358068       RSS: 2.934078         GRSq: 0.9998683      RSq: 0.9999264
+All         GCV: 0.1314118        RSS: 7.196111         GRSq: 0.9935703      RSq: 0.9964076
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.07783114       RSS: 4.262033         GRSq: 0.9998086      RSq: 0.999893
+Response 2  GCV: 0.05358068       RSS: 2.934078         GRSq: 0.9998683      RSq: 0.9999264
+All         GCV: 0.1314118        RSS: 7.196111         GRSq: 0.9935703      RSq: 0.9964076
+> itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=1)
+itest 52  multiple responses robotArm eqn56  degree 1  nk 201 
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.06829087       RSS: 4.262033         GRSq: 0.999832       RSq: 0.999893
+Response 2  GCV: 0.04701295       RSS: 2.934078         GRSq: 0.9998844      RSq: 0.9999264
+All         GCV: 0.1153038        RSS: 7.196111         GRSq: 0.9943585      RSq: 0.9964076
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.06829087       RSS: 4.262033         GRSq: 0.999832       RSq: 0.999893
+Response 2  GCV: 0.04701295       RSS: 2.934078         GRSq: 0.9998844      RSq: 0.9999264
+All         GCV: 0.1153038        RSS: 7.196111         GRSq: 0.9943585      RSq: 0.9964076
+> itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=2)
+itest 53  multiple responses robotArm eqn56  degree 2  nk 201 
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.07783114       RSS: 4.262033         GRSq: 0.9998086      RSq: 0.999893
+Response 2  GCV: 0.05358068       RSS: 2.934078         GRSq: 0.9998683      RSq: 0.9999264
+All         GCV: 0.1314118        RSS: 7.196111         GRSq: 0.9935703      RSq: 0.9964076
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.07783114       RSS: 4.262033         GRSq: 0.9998086      RSq: 0.999893
+Response 2  GCV: 0.05358068       RSS: 2.934078         GRSq: 0.9998683      RSq: 0.9999264
+All         GCV: 0.1314118        RSS: 7.196111         GRSq: 0.9935703      RSq: 0.9964076
+> itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=10)
+itest 54  multiple responses robotArm eqn56  degree 10 nk 201 
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.07783114       RSS: 4.262033         GRSq: 0.9998086      RSq: 0.999893
+Response 2  GCV: 0.05358068       RSS: 2.934078         GRSq: 0.9998683      RSq: 0.9999264
+All         GCV: 0.1314118        RSS: 7.196111         GRSq: 0.9935703      RSq: 0.9964076
+
+Selected 11 of 11 terms, and 5 of 5 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.07783114       RSS: 4.262033         GRSq: 0.9998086      RSq: 0.999893
+Response 2  GCV: 0.05358068       RSS: 2.934078         GRSq: 0.9998683      RSq: 0.9999264
+All         GCV: 0.1314118        RSS: 7.196111         GRSq: 0.9935703      RSq: 0.9964076
+> 
+> attach(ozone1)
+> x.global <- cbind(                wind, humidity, temp, ibh, dpg, ibt, vis)
+> data.global <- cbind(O3, doy, vh, wind, humidity, temp, ibh, dpg, ibt, vis)
+> itest <- itest+1; test.earth.two.responses(itest, "O3", "doy", nk=51, degree=2)
+itest 55  multiple responses O3 doy  degree 2  nk 51  
+
+Selected 9 of 49 terms, and 6 of 8 predictors
+Number of terms at each degree of interaction: 1 8 (additive model)
+
+Response 1  GCV: 30.97042         RSS: 8960.868         GRSq: 0.9993842      RSq: 0.9994568
+Response 2  GCV: 9924.336         RSS: 2871471          GRSq: 0.8026762      RSq: 0.8259378
+All         GCV: 9903.202         RSS: 2865357          GRSq: 0.840334       RSq: 0.8591563
+
+Selected 9 of 49 terms, and 6 of 8 predictors
+Number of terms at each degree of interaction: 1 8 (additive model)
+
+Response 1  GCV: 30.97042         RSS: 8960.868         GRSq: 0.9993842      RSq: 0.9994568
+Response 2  GCV: 9924.336         RSS: 2871471          GRSq: 0.8026762      RSq: 0.8259378
+All         GCV: 9903.202         RSS: 2865357          GRSq: 0.840334       RSq: 0.8591563
+> detach(ozone1)
+> 
+> cat("--- formula based multiple response -------------\n")
+--- formula based multiple response -------------
+> 
+> a2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=2)
+> plotmo(a2)                  # test generation of caption based on response name
+> plotmo(a2, ycolumn=1)
+> plotmo(a2, ycolumn=2)
+> plot(a2)
+> plot(a2, ycolumn=1)
+> plot(a2, ycolumn=2)
+> 
+> cat("--- test plot.earth.models with multiple responses ---\n")
+--- test plot.earth.models with multiple responses ---
+> 
+> a <- earth(O3 ~ ., data=ozone1, degree=2)
+> a2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=2)
+> b2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=1)
+> plot.earth.models(list(a, a2), caption="plot.earth.models with multiple responses, list(a,a2)")
+> plot.earth.models(list(a2, a), caption="plot.earth.models with multiple responses, list(a2,a)")
+> plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)")
+> 
+> cat("--- subset --------------------------------------\n")
+--- subset --------------------------------------
 > 
 > set.seed(9)
 > train.subset <- sample(1:nrow(ozone1), .8 * nrow(ozone1))
@@ -690,112 +1372,88 @@ GCV: 13     RSS: 3762     GRSq: 0.79     RSq: 0.82
 > print(a)
 Selected 7 of 21 terms, and 5 of 9 predictors
 Number of terms at each degree of interaction: 1 5 1
-GCV: 15.90627     RSS: 3705.678     GRSq: 0.7513819     RSq: 0.7789326 
+GCV: 15.90627         RSS: 3705.678         GRSq: 0.7513819      RSq: 0.7789326
+> plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)")
+> 
 > a <- earth(ozone1[train.subset,-1], ozone1[train.subset,1], nprune=7, degree=2)
 > print(a)
 Selected 7 of 21 terms, and 5 of 9 predictors
 Number of terms at each degree of interaction: 1 5 1
-GCV: 15.90627     RSS: 3705.678     GRSq: 0.7513819     RSq: 0.7789326 
+GCV: 15.90627         RSS: 3705.678         GRSq: 0.7513819      RSq: 0.7789326
+> plotmo(a, caption="test subset: earth(ozone1[train.subset,-1], ozone1[train.subset,1]")
+> 
 > a <- earth(O3 ~ ., data=ozone1, subset=train.subset, nprune=7, degree=2)
 > print(a)
 Selected 7 of 21 terms, and 5 of 9 predictors
 Number of terms at each degree of interaction: 1 5 1
-GCV: 15.90627     RSS: 3705.678     GRSq: 0.7513819     RSq: 0.7789326 
+GCV: 15.90627         RSS: 3705.678         GRSq: 0.7513819      RSq: 0.7789326
+> plotmo(a, caption="test subset: earth(O3 ~ ., data=ozone1, subset=train.subset")
 > 
 > y <- ozone1[test.subset, 1]
 > yhat <- predict(a, newdata = ozone1[test.subset, -1])
 > print(1 - sum((y - yhat)^2)/sum((y - mean(y))^2)) # print RSquared
 [1] 0.7219339
 > 
-> #--- ppenalty and update----------------------------------------------------------------------
+> cat("--- ppenalty and update -------------------------\n")
+--- ppenalty and update -------------------------
 > 
 > a <- earth(O3 ~ ., data=ozone1, degree=2)
 > print(update(a, ppenalty = -1))
 Selected 21 of 21 terms, and 8 of 9 predictors
 Number of terms at each degree of interaction: 1 10 10
-GCV: 10.75936     RSS: 3550.59     GRSq: 0.8318484     RSq: 0.8318484 
+GCV: 10.75936         RSS: 3550.59          GRSq: 0.8318484      RSq: 0.8318484
 > print(update(a, ppenalty = 10))
 Selected 10 of 21 terms, and 7 of 9 predictors
 Number of terms at each degree of interaction: 1 5 4
-GCV: 17.15690     RSS: 3931.79     GRSq: 0.7334877     RSq: 0.8137952 
+GCV: 17.15690         RSS: 3931.79          GRSq: 0.7334877      RSq: 0.8137952
 > a <- earth(O3 ~ ., data=ozone1, nk=31, pmethod="n", degree=2)
 > a.none <- print(update(a, nprune=10, pmethod="n"))
 Selected 10 of 31 terms, and 5 of 9 predictors
 Number of terms at each degree of interaction: 1 6 3
-GCV: 13.81158     RSS: 3931.79     GRSq: 0.7854534     RSq: 0.8137952 
+GCV: 13.81158         RSS: 3931.79          GRSq: 0.7854534      RSq: 0.8137952
 > print(update(a.none, pmethod="b"))
 Selected 10 of 31 terms, and 7 of 9 predictors
 Number of terms at each degree of interaction: 1 5 4
-GCV: 13.81158     RSS: 3931.79     GRSq: 0.7854534     RSq: 0.8137952 
+GCV: 13.81158         RSS: 3931.79          GRSq: 0.7854534      RSq: 0.8137952
 > print(update(a.none, nprune=4, pmethod="e"))
 Selected 4 of 31 terms, and 3 of 9 predictors
 Number of terms at each degree of interaction: 1 2 1
-GCV: 18.56806     RSS: 5815.867     GRSq: 0.711567     RSq: 0.7245676 
+GCV: 18.56806         RSS: 5815.867         GRSq: 0.711567       RSq: 0.7245676
 > a.updated <- update(a.none, nprune=10, pmethod="b")
 > print(a.updated)
 Selected 10 of 31 terms, and 7 of 9 predictors
 Number of terms at each degree of interaction: 1 5 4
-GCV: 13.81158     RSS: 3931.79     GRSq: 0.7854534     RSq: 0.8137952 
+GCV: 13.81158         RSS: 3931.79          GRSq: 0.7854534      RSq: 0.8137952
 > a.backwards <- update(a, nprune=10, pmethod="b")
 > print(a.backwards)
 Selected 10 of 31 terms, and 7 of 9 predictors
 Number of terms at each degree of interaction: 1 5 4
-GCV: 13.81158     RSS: 3931.79     GRSq: 0.7854534     RSq: 0.8137952 
-> stopifnot(all.equal(a.updated$bx, a.backwards$bx))
+GCV: 13.81158         RSS: 3931.79          GRSq: 0.7854534      RSq: 0.8137952
+> print(all.equal(a.updated$bx, a.backwards$bx))
+[1] TRUE
 > a <- earth(O3 ~ ., data=ozone1, nk=31, nprune=10, pmethod="b", degree=2)
 > print(a)
 Selected 10 of 31 terms, and 7 of 9 predictors
 Number of terms at each degree of interaction: 1 5 4
-GCV: 13.81158     RSS: 3931.79     GRSq: 0.7854534     RSq: 0.8137952 
-> stopifnot(all.equal(a$bx, a.backwards$bx))
+GCV: 13.81158         RSS: 3931.79          GRSq: 0.7854534      RSq: 0.8137952
+> print(all.equal(a$bx, a.backwards$bx))
+[1] TRUE
 > 
-> #--- fast mars -------------------------------------------------------------------------------
+> cat("--- Force.xtx.prune -----------------------------\n")
+--- Force.xtx.prune -----------------------------
 > 
-> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 1))
-Selected 17 of 31 terms, and 9 of 9 predictors
-Number of terms at each degree of interaction: 1 5 11
-GCV: 13.38345     RSS: 3387.271     GRSq: 0.7921038     RSq: 0.839583 
-> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 0))
-Selected 17 of 31 terms, and 9 of 9 predictors
-Number of terms at each degree of interaction: 1 5 11
-GCV: 13.38345     RSS: 3387.271     GRSq: 0.7921038     RSq: 0.839583 
-> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 1))
-Selected 17 of 30 terms, and 9 of 9 predictors
-Number of terms at each degree of interaction: 1 8 8
-GCV: 12.97698     RSS: 3284.396     GRSq: 0.7984178     RSq: 0.844455 
-> print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 0))
-Selected 11 of 31 terms, and 8 of 9 predictors
-Number of terms at each degree of interaction: 1 5 5
-GCV: 13.43422     RSS: 3762.234     GRSq: 0.7913151     RSq: 0.8218252 
+> a <- earth(Volume ~ ., data = trees)
+> a1 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
+> print(all.equal(a$bx, a1$bx))
+[1] TRUE
 > 
-> # --- plot.earth and plot.earth.models--------------------------------------------------------
+> a <- earth(O3 ~ ., data = ozone1, nk=51)
+> a1 <- earth(O3 ~ ., data = ozone1, nk=51, Force.xtx.prune=TRUE)
+> print(all.equal(a$bx, a1$bx))
+[1] TRUE
 > 
-> a <- earth(O3 ~ ., data=ozone1) # formula interface
-> 
-> plot(a, sub.caption="plot.earth test 1", col.rsq=3, col.loess=4, col.qq="pink", 
-+     col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid")
-> 
-> set.seed(1)
-> plot(a, sub.caption="plot.earth test 2", which=c(3,4,1), rlim=c(.2,.9), 
-+     jitter=.01, id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
-> 
-> plot(a, sub.caption="plot.earth test 3", which=c(2), main="test main")
-> 
-> a1 <- earth(ozone1[,c(2:4,10)], ozone1[,1])     # x,y interface
-> 
-> plot(a, sub.caption="plot.earth test 4", id.n=1)
-> 
-> set.seed(1)
-> plot.earth.models(a, which=1, rlim=c(.4,.8), jitter=.01)
-> 
-> plot.earth.models(a1)
-> 
-> plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
-+     col.npreds=1, col.vline=1, lty.vline=3,
-+     col.grid="pink", cum.grid="grid", legend.pos=c(5,.4), 
-+     legend.text=c("a", "b", "c"))
-> 
-> # --- extractAIC.earth -----------------------------------------------------------------------
+> cat("--- extractAIC.earth ----------------------------\n")
+--- extractAIC.earth ----------------------------
 > 
 > a <-earth(O3 ~ ., data=ozone1, degree=2)
 > cat("Ignore 10 warnings: extractAIC.earth: using GCV instead of AIC\n")
@@ -828,15 +1486,102 @@ Warning messages:
 9: extractAIC.earth: using GCV instead of AIC 
 10: extractAIC.earth: using GCV instead of AIC 
 > 
-> #--- tests/test.earth.R ----------------------------------------------------------------------
+> cat("--- fda and mda with earth -----------------------------------\n")
+--- fda and mda with earth -----------------------------------
+> 
+> am <- fda(Species ~ ., data=iris, method=mars, degree=1, keepxy=TRUE)
+> print(am)
+Call:
+fda(formula = Species ~ ., data = iris, method = mars, degree = 1, 
+    keepxy = TRUE)
+
+Dimension: 2 
+
+Percent Between-Group Variance Explained:
+    v1     v2 
+ 95.31 100.00 
+
+Training Misclassification Error: 0.02 ( N = 150 )
+> a <- fda(Species ~ ., data=iris, method=earth, degree=1, keepxy=TRUE)
+> print(a)
+Call:
+fda(formula = Species ~ ., data = iris, method = earth, degree = 1, 
+    keepxy = TRUE)
+
+Dimension: 2 
+
+Percent Between-Group Variance Explained:
+    v1     v2 
+ 92.41 100.00 
+
+Training Misclassification Error: 0.03333 ( N = 150 )
+> print(confusion(a))
+            true
+object       setosa versicolor virginica
+  setosa         50          0         0
+  versicolor      0         48         3
+  virginica       0          2        47
+attr(,"error")
+[1] 0.03333333
+> par(mar=c(3, 3, 2, .5))  # small margins and text to pack figs in
+> par(mgp=c(1.6, 0.6, 0))  # flatten axis elements
+> par(oma=c(0,0,4,0))      # make space for caption
+> layout(rbind(c(1,1,0,0), c(2,3,4,5), c(6,7,8,9)), heights=c(2,1,1))
+> plot(a)
+> plotmo(a$fit, ycolum=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+> plotmo(a$fit, ycolum=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+> mtext("fda test", outer=TRUE, font=2, line=1.5, cex=1)
+> 
+> data(glass)
+> set.seed(123)
+> samp <- sample(c(1:214), size=100, replace=FALSE)
+> glass.train <- glass[samp,]
+> glass.test <- glass[-samp,]
+> am <- mda(Type ~ ., data=glass.train, method=mars,  keepxy=TRUE, degree=2)
+> a <-  mda(Type ~ ., data=glass.train, method=earth, keepxy=TRUE, degree=2)
+> print(am)
+Call:
+mda(formula = Type ~ ., data = glass.train, method = mars, keepxy = TRUE, 
+    degree = 2)
+
+Dimension: 9 
+
+Percent Between-Group Variance Explained:
+    v1     v2     v3     v4     v5     v6     v7     v8     v9 
+ 44.62  75.74  84.36  91.27  95.96  98.38  99.40 100.00 100.00 
+
+Training Misclassification Error: 0.32 ( N = 100 )
+
+Deviance: 151.375 
+> print(a)
+Call:
+mda(formula = Type ~ ., data = glass.train, method = earth, keepxy = TRUE, 
+    degree = 2)
+
+Dimension: 8 
+
+Percent Between-Group Variance Explained:
+    v1     v2     v3     v4     v5     v6     v7     v8 
+ 61.26  78.20  89.48  95.67  98.92  99.98 100.00 100.00 
+
+Training Misclassification Error: 0.25 ( N = 100 )
+
+Deviance: 202.65 
+> cat("mda with mars  ", attr(confusion(am), "error"), "\n")
+mda with mars   0.32 
+> cat("mda with earth ", attr(confusion(a),  "error"), "\n")
+mda with earth  0.25 
+> plotmo(a$fit, ycolum=9, clip=FALSE)
 > 
 > cat("--- ../../tests/test.earth.R -------------------------\n")
 --- ../../tests/test.earth.R -------------------------
+> 
 > source("../../tests/test.earth.R")
-BetaCache 0.030 Mb
+Call earth.default(x=x,y=y,trace=4,degree=2) 
+
 Forward pass: model matrix 330 x 9 minspan 8 endspan 15
 
-         GRSq    RSq   DeltaRSq         RSS Pred PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
 1      0.0000 0.0000              2.112e+04                            1
 2      0.6493 0.6599       0.6599   7181.92    4     temp          58  2   3   
 4      0.6903 0.7088      0.04898   6147.78    5      ibh        1108  4   5   
@@ -845,7 +1590,7 @@ Forward pass: model matrix 330 x 9 minspan 8 endspan 15
 10     0.7546 0.7904      0.02906    4424.8    6      dpg          54  10  11  2   
 12     0.7597 0.8015      0.01109   4190.65    8      vis         200  12  13  
 14     0.7632 0.8109     0.009396   3992.24    2     wind           7  14  15  13  
-16      0.764 0.8179      0.00697   3845.07    6      dpg          44  16  17  5   
+16     0.7640 0.8179      0.00697   3845.07    6      dpg          44  16  17  5   
 18     0.7685 0.8275     0.009595   3642.46    7      ibt         234  18  19  
 20     0.7662 0.8318     0.004351   3550.59    9      doy         159  20  21  2   
 
@@ -879,12 +1624,11 @@ Prune method "backward" ppenalty 3 nprune 21: selected 11 of 21 terms, and 8 of 
 GRSq: 0.7913 RSq: 0.8218 
 Selected 11 of 21 terms, and 8 of 9 predictors
 Number of terms at each degree of interaction: 1 5 5
-GCV: 13.4     RSS: 3762     GRSq: 0.791     RSq: 0.822 
+GCV: 13.4         RSS: 3762         GRSq: 0.791      RSq: 0.822
 Call:
 earth(formula = O3 ~ ., data = ozone1, degree = 2, trace = 4)
 
-Expression:
-  15 
+Expression:  15 
   +    0.313 * pmax(0,     temp -       58) 
   -    0.046 * pmax(0,      234 -      ibt) 
   +   0.0221 * pmax(0,      200 -      vis) 
@@ -899,10 +1643,10 @@ Expression:
 Number of cases: 330
 Selected 11 of 21 terms, and 8 of 9 predictors
 Number of terms at each degree of interaction: 1 5 5
-GCV: 13.4     RSS: 3762     GRSq: 0.791     RSq: 0.822 
+GCV: 13.4         RSS: 3762         GRSq: 0.791      RSq: 0.822
 Selected 5 of 21 terms, and 4 of 9 predictors
 Number of terms at each degree of interaction: 1 3 1
-GCV: 18.6     RSS: 5730     GRSq: 0.711     RSq: 0.729 
+GCV: 18.6         RSS: 5730         GRSq: 0.711      RSq: 0.729
 
 0 1 2 
 1 3 1 
@@ -911,6 +1655,8 @@ GCV: 18.6     RSS: 5730     GRSq: 0.711     RSq: 0.729
 [1] "vh"       "wind"     "humidity"
 [1] 5730
 [1] 1 2 5 3 4
-[1] 6.63
+     [,1]
+[1,] 6.63
 > 
-> 
+> if(!interactive())
++     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher)

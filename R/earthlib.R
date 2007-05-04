@@ -52,7 +52,7 @@ check.classname <- function(object, object.name, class.names)
 # This is used in model functions that don't use "..." and issue a
 # warning if a "..." argument is used.
 # If we don't remove the "..." argument from the call, subsequent
-# calls to the model function via update continue will re-issue the
+# calls to the model function via update continue to re-issue the
 # warning, and there is no easy way for the user to get rid of
 # the unwanted argument.
 
@@ -80,8 +80,11 @@ make.call.generic <- function(call, func.name)
 
 warn.if.not.all.finite <- function(x, text="unknown")
 {
-    if(any(is.factors <- sapply(x, is.factor)))
-        x <- x[, !is.factors]               # remove factor columns
+    if(any(is.factors <- sapply(x, is.factor))) {
+        if(NCOL(x) == 1 || all(is.factors==TRUE))   #$$ suspect
+            return(FALSE)
+        x <- x[, !is.factors]               # remove factor columns before is.finite check
+    }
     if(!all(sapply(x, is.finite))) {
         warning1("non finite value in ", text)
         return(TRUE)                        # return TRUE if warning issued
@@ -94,7 +97,8 @@ warn.if.not.all.finite <- function(x, text="unknown")
 # An example is when max(indexVec) > len(object) which quietly returns NA
 # and can cause confusing downstream behaviour.
 
-check.index.vec <- function(index.name, indexVec, object, check.empty = FALSE)
+check.index.vec <- function(index.name, indexVec, object,
+                        check.empty = FALSE, use.as.col.index=FALSE)
 {
     if(is.null(indexVec)) {
         if(check.empty)
@@ -104,11 +108,16 @@ check.index.vec <- function(index.name, indexVec, object, check.empty = FALSE)
     if(any(is.na(indexVec)))
         stop1("NA in '", index.name, "'")
     if(!(NROW(indexVec) == 1 || NCOL(indexVec) == 1))
-        stop1("'", index.name, "' must be a vector not a matrix (it has dimensions ",
+        stop1("'", index.name, "' must be a vector not a matrix ",
+            "('", index.name, "' has dimensions ",
             NROW(indexVec), " x ", NCOL(indexVec), ")")
 
-    # assume that if object is an array then subset chooses rows (not cols)
-    len <- if(is.vector(object)) length(object) else NROW(object)
+    if(use.as.col.index)
+        len <- NCOL(object)         # index is for cols of object
+    else if(is.vector(object))
+        len <- length(object)
+    else
+        len <- NROW(object)         # index is for rows of object
 
     if(is.logical(indexVec)) {
         if(check.empty) {
@@ -120,10 +129,17 @@ check.index.vec <- function(index.name, indexVec, object, check.empty = FALSE)
         if(length(indexVec) > len)
             stop1("logical index vector '", index.name,
                 "' is too long (its length is ", length(indexVec),
-                "and the max allowed length is ", len, ")")
+                " and the max allowed length is ", len, ")")
     } else if(is.numeric(indexVec)) {
-        if(check.empty && length(indexVec) == 0)
-            stop1("length(", index.name, ") == 0")
+        if(check.empty) {
+            if(length(indexVec) == 0)
+                stop1("length(", index.name, ") == 0")
+            else if(all(indexVec == 0))
+                if(length(indexVec) == 1)
+                    stop1(index.name, " is 0")
+                else
+                    stop1(index.name, " is all zeroes")
+        }
         if(any(indexVec < 0) && any(indexVec > 0))
             stop1("mixed negative and positive values in '", index.name, "'")
         if(any(indexVec == 0) && length(indexVec) != 1)
@@ -131,8 +147,12 @@ check.index.vec <- function(index.name, indexVec, object, check.empty = FALSE)
         if(any(duplicated(indexVec)))
             warning1("duplicates in '", index.name, "'")
         if(any(abs(indexVec) > len))
-            stop1("out of range value in '", index.name,
-                "' (allowed range is 1:",  len, ", or negative)")
+            if(len == 1)
+                stop1("out of range value in '", index.name,
+                    "' (the only legal value is 1)")
+            else
+                stop1("out of range value in '", index.name,
+                    "' (allowed index range is 1:",  len, ")")
     } else
         warning1("index vector '", index.name,
             "' has an unusual class \"", class(indexVec), "\"")
@@ -200,40 +220,40 @@ match.choices <- function(arg, choices, arg.name)   # choices is a vector of str
 }
 
 #--------------------------------------------------------------------------------------------
-get.sub.caption.from.call <- function(sub.caption, object)
+get.caption.from.call <- function(caption, object)
 {
-    if(is.null(sub.caption))
-        sub.caption <- strip.white.space(paste(deparse(object$call), sep="", collapse=""))
-    sub.caption
+    if(is.null(caption))
+        caption <- strip.white.space(paste(deparse(object$call), sep="", collapse=""))
+    caption
 }
 
 # Call this only after a plot is on the screen to avoid
 # an error message "plot.new has not been called yet"
 #$$ the trimming code overtrims
 
-show.sub.caption <- function(sub.caption, trim=FALSE)
+show.caption <- function(caption, trim=FALSE)
 {
-    len.sub.caption <- nchar(sub.caption)
-    if(len.sub.caption > 0) {
+    len.caption <- nchar(caption)
+    if(len.caption > 0) {
         if(trim) {
-            # trim sub.caption to fit
-            len <- len.sub.caption / strwidth(sub.caption, "figure")
-            sub.caption <- substr(sub.caption, 1, len)
+            # trim caption to fit
+            len <- len.caption / strwidth(caption, "figure")
+            caption <- substr(caption, 1, len)
             # append ellipsis if chars deleted
-            if(len < len.sub.caption)
-                sub.caption <- paste(sub.caption, "...", sep="")
+            if(len < len.caption)
+                caption <- paste(caption, "...", sep="")
         }
-        mtext(sub.caption, outer=TRUE, font=2, line=1.5, cex=1)
+        mtext(caption, outer=TRUE, font=2, line=1.5, cex=1)
     }
     NULL
 }
 
 # the make.space functions should only be called if do.par is FALSE
 
-make.space.for.sub.caption <- function(sub.caption)
+make.space.for.caption <- function(caption)
 {
     oma <- par("oma")
-    if(nchar(sub.caption) > 0 && oma[3] < 3) {
+    if(nchar(caption) > 0 && oma[3] < 3) {
         oma[3] <- 3
         par(oma=oma)
     }
@@ -306,7 +326,7 @@ get.arg.strings <- function(
 #
 # More precisely, find the first non matching characters in s1 and s2.
 # When it is found, step back until a comma or "(" is found.
-# Return the index of the character after the comma.
+# Return the index of the character after the comma or "(".
 #
 # Example: s1 = lm(formula=O3~.,data=ozone
 #          s2 = lm(formula=O3~.-wind,data=ozone
@@ -321,10 +341,10 @@ first.non.matching.arg <- function(s1, s2)
         return(0)
     for(i in 1:len)
         if(substr(s1, i, i) != substr(s2, i, i))
-            break;
+            break
     if(i == len || i == 1)  # no difference or all different?
         return(1)
-    while (i >= 1 && substr(s2, i, i) != "," && substr(s2, i, i) != "(")
+    while(i >= 1 && substr(s2, i, i) != "," && substr(s2, i, i) != "(")
         i <- i - 1  # move backwards to character following comma or "("
     return(i+1)
 }

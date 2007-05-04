@@ -31,6 +31,6 @@ get.nterms.per.degree(object, which.terms = object$selected.terms)
 \examples{
 data(ozone1)
 a <- earth(O3 ~ ., data = ozone1, degree = 2)
-get.nterms.per.degree(a)  # yields 1 5 5 
+get.nterms.per.degree(a)  # yields 1 5 5
 }
 \keyword{models}

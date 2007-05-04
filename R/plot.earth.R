@@ -3,19 +3,23 @@
 # Comments containing "$$" mark known issues.
 # Stephen Milborrow Mar 2007 Petaluma
 #
-# $$ allow model comparism using newdata instead of data used to build model
+# $$ allow model comparison using newdata instead of data used to build model
 # $$ add lty.grsq and lty.rsq vector arguments to plot.earth.models
 # $$ add legend entries argument i.e. vector of strings
 # $$ add an x range option to model plot
 # $$ add code to not print percentages if too close to each other in plot.cum
+# $$ allow col.vline=col.grsq in plot.earth.models
+# $$ add ycolumn to plot.earth.models
 
 #--------------------------------------------------------------------------------------------
 plot.earth <- function(
     x = stop("no 'x' arg"),     # an earth object (called x for consistency with generic)
     which       = 1:4,          # which plots to plot: 1 model 2 cumul 3 residuals 4 qq
 
-    sub.caption = if(do.par) NULL else "",
-                                # overall caption (but called sub.caption for compat with lm)
+    ycolumn     = 1,            # which column of response to use if multiple col response
+
+    caption = if(do.par) NULL else "",
+                                # overall caption
                                 #   "string"  string
                                 #   ""        no caption
                                 #   NULL      generate a caption from x$call
@@ -30,7 +34,7 @@ plot.earth <- function(
     col.npreds  = 1,            # if 0, don't show "nbr of preds" in model plot
 
     nresiduals  = 1000,         # max number of residuals to plot, -1 for all
-                                # default limits to 1000 for clarity
+                                # default limits to 1000 to minimize overplotting
                                 # the largest few residuals are always included
 
     cum.grid   = "percentages", # "none"        no grid on cumulative distribution plot
@@ -44,7 +48,7 @@ plot.earth <- function(
     jitter      = 0,            # non zero val allows overlaid plots to be visible
 
     id.n        = 3,            # number of residuals to be labelled
-    labels.id   = names(residuals(x)),  # residual names
+    labels.id   = rownames(residuals(x)),  # residual names
 
     legend.pos  = NULL,         # NULL means auto, else specify c(x,y) in user coords
     do.par      = TRUE,         # call par() as appropriate
@@ -57,17 +61,17 @@ plot.earth <- function(
     {
         if(any(!is.finite(residuals)))
             warning1("non finite residuals")
-        stopifnot(length(residuals) == length(fitted.values))
-        iresiduals = 1:length(residuals)
-        if(nresiduals > 0 && nresiduals < length(residuals)) {
+        stopifnot(nrow(residuals) == nrow(fitted.values))
+        iresiduals = 1:nrow(residuals)
+        if(nresiduals > 0 && nresiduals < nrow(residuals)) {
             # take a sample, but make sure it includes the largest residuals
 
-            nresiduals = min(nresiduals, length(residuals))
+            nresiduals = min(nresiduals, nrow(residuals))
             nlargest = min(max(3, id.n), nresiduals)
             isorted = order(abs(residuals), decreasing=TRUE)
             ikeep = 1:nlargest
             if(nresiduals > nlargest)
-                ikeep = c(ikeep, seq(from=nlargest + 1, to=length(residuals),
+                ikeep = c(ikeep, seq(from=nlargest + 1, to=nrow(residuals),
                             length.out=nresiduals - nlargest))
             iresiduals <- isorted[ikeep]
         }
@@ -79,7 +83,7 @@ plot.earth <- function(
         id.n <- if(is.null(id.n)) 0 else as.integer(id.n)
         if(id.n < 0)
             stop1("negative 'id.n'")
-        ncases <- length(object$fitted.values)
+        ncases <- nrow(object$residuals)
         if(id.n > ncases)
             id.n <- ncases
         if(id.n > 0)
@@ -92,7 +96,7 @@ plot.earth <- function(
         plot.loess <- function()
         {
             do.loess = (col.loess != 0)
-            if(length(unique(object$fitted)) < 10)          # prevent warnings from loess
+            if(length(unique(object$fitted.values[,1])) < 10)  # prevent warnings from loess
                 do.loess = FALSE
             if(do.loess) {
                 fitted.values <- fitted.values
@@ -103,7 +107,7 @@ plot.earth <- function(
         }
         if(is.null(main))
             main="Residuals vs Fitted"
-        plot(fitted.values, residuals, main=main, xlab="Fitted", ylab="Residuals", pch=pch, ...)
+        plot(fitted.values, residuals, main=main,xlab="Fitted",ylab="Residuals",pch=pch,...)
         abline(h=0, lty=3, col=col.grid)
         plot.loess()
         if(!is.null(id.indices)) {
@@ -127,6 +131,19 @@ plot.earth <- function(
         par(pty="m")                # back to maximal (the default)
         NULL
     }
+    # return the response.name (for prepending to caption), if appropriate
+    get.caption.prefix <- function(residuals, ycolumn, caption)
+    {
+        if (!is.null(caption))
+            return(NULL)                # don't modify caption explictly set by user
+        colnames <- colnames(residuals)
+        if(!is.null(colnames) && !is.null(colnames[1]) && colnames[1] != "")
+            colnames[1]
+        else if(NCOL(residuals) > 1)
+            paste("Response", ycolumn)
+        else
+            NULL
+    }
     # plot.earth starts here
     object <- x
     plot.earth.prolog(object, deparse(substitute(x)))
@@ -138,8 +155,13 @@ plot.earth <- function(
         warning1("nothing to plot")
         return(invisible())
     }
-    must.trim.sub.caption <- is.null(sub.caption)
-    sub.caption <- get.sub.caption.from.call(sub.caption, object)
+    must.trim.caption <- is.null(caption)
+    check.index.vec("ycolumn", ycolumn, object$residuals,
+                    check.empty = TRUE, use.as.col.index=TRUE)
+    caption.prefix = get.caption.prefix(object$residuals, ycolumn, caption)
+    caption <- get.caption.from.call(caption, object)
+    if(!is.null(caption.prefix))
+        caption <- paste(caption.prefix, ": ", caption, sep="")
     if(do.par) {
         old.par <- par(no.readonly=TRUE)
         on.exit(par(old.par))
@@ -148,16 +170,23 @@ plot.earth <- function(
         par(mar = c(4, 4, 2, 1))    # small margins and text to pack figs in
         par(mgp = c(1.6, 0.6, 0))   # flatten axis elements
         par(cex = 0.7)
-        make.space.for.sub.caption(sub.caption)
+        make.space.for.caption(caption)
+    }
+    nclasses <- NCOL(object$residuals)
+    if(nclasses > 1) {
+        # already called check.index.vec(ycolumn) above, so no need to call again
+        object$fitted.values <- object$fitted.values[, ycolumn, drop=FALSE]
+        object$residuals <- object$residuals[, ycolumn, drop=FALSE]
     }
     if(show[1]) {
         rlim <- get.rlim(object, rlim, 1, col.rsq)
         plot.earth.model(object, col.grsq=1, col.rsq=col.rsq, lty.rsq=1,
                 col.npreds=col.npreds, col.vline=col.vline, lty.vline=lty.vline, col.vseg=0,
                 col.legend=col.legend, rlim=rlim, add=FALSE, do.par=do.par,
-                max.nterms=length(object$rssVec),
+                max.nterms=length(object$rss.per.subset),
                 max.npreds=max(get.nused.preds.per.subset(object$dirs, object$prune.terms)),
-                jitter=jitter, legend.pos=legend.pos, main=main, ...)
+                jitter=jitter, legend.pos=legend.pos, nclasses,
+                main=main, ...)
     }
     if(any(show[2:4])) {
         iresiduals <- get.iresiduals(nresiduals, object$residuals, object$fitted.values)
@@ -165,17 +194,20 @@ plot.earth <- function(
         fitted.values <- object$fitted.values[iresiduals]
     }
     if(show[2])
-        plot.cum(residuals, main, col=1, col.grid, cum.grid, add=FALSE, ...)
+        plot.cum(residuals, main, xlim=range(abs(object$residuals)),
+                 col=1, col.grid, cum.grid, add=FALSE, ...)
     if(any(show[3:4])) {
         id.indices <- get.id.indices()
         if(is.null(labels.id))
             labels.id <- paste(iresiduals)
+        else
+            labels.id <- labels.id[iresiduals]
     }
     if(show[3])
         plot.residuals(fitted.values, residuals)
     if(show[4])
         plot.qq(residuals)
-    show.sub.caption(sub.caption, trim=must.trim.sub.caption)
+    show.caption(caption, trim=must.trim.caption)
     invisible()
 }
 
@@ -184,7 +216,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
     x           = stop("no 'x' arg"), # list of earth objects, can just be one object
                                       # called x for consistency with the generic
     which       = c(1:2),       # which plots to plot: 1 model 2 cumul
-    sub.caption = "",           # overall caption (but called sub.caption for compat with lm)
+    caption = "",               # overall caption
                                 #   "string"  string
                                 #   ""        no caption
                                 #   NULL      generate a caption from objects[1]$call
@@ -203,12 +235,6 @@ plot.earth.models <- function(  # compare earth models by plotting them
     col.vline   = "grey",
     lty.vline   = 3,
     col.legend  = 1,            # 0 for no legend
-    col.grid    = "grey",       # color for grid lines in cumulative distribution plot
-
-    cum.grid   = "percentages", # "none"        no grid on cumulative distribution plot
-                                # "grid"        add grid
-                                # "percentages" add grid and percentage labels
-
     legend.pos  = NULL,         # NULL means auto, else specify c(x,y)
     legend.text = NULL,         # vector of strings to use as legend text, NULL for auto
     do.par      = TRUE,         # call par() as appropriate
@@ -217,7 +243,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
     main        = "Model Comparison",
     ...)
 {
-    do.legend <- function(xrange)
+    do.legend <- function(xmax)
     {
         lty <- NULL
         col <- NULL
@@ -245,24 +271,24 @@ plot.earth.models <- function(  # compare earth models by plotting them
         cex1 <- 1
         if(is.null(legend.pos)) {
             ypos <- strheight("") * 1.1 * (length(legend) + 2)  # 2 for top and bot border
-            xpos <- max(1.5, xrange / 3)
+            xpos <- max(1.5, xmax / 3)
             # If legend is too big relative to figure, then reduce char size and move left.
             # This is just a hack that seems to work most of the time.
             if(len.legend > .9) {
-                xpos <- max(1.5, xrange / 6)
                 cex1 <- .7
+                xpos <- max(1.5, xmax / 6)
                 ypos <- ypos * .8
             } else if(len.legend > .6) {
-                xpos <- max(1.5, xrange / 6)
                 cex1 <- .8
+                xpos <- max(1.5, xmax / 6)
                 ypos <- ypos * .8
             }
-        } else {
+        } else {                    # user specified legend position
             if(length(legend.pos) < 2)
                 stop1("length(legend.pos) < 2")
             xpos = legend.pos[1]
             ypos = legend.pos[2]
-            if(xpos < 0 || xpos > xrange || ypos < 0 || ypos > 1.1)
+            if(xpos < 0 || xpos > xmax || ypos < 0 || ypos > 1.1)
                 warning1("out of range legend.pos")
             if(len.legend > .6)
                 cex1 <- .8
@@ -273,11 +299,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
     objects <- x
     if(!is.list(objects))       # note that is.list returns TRUE for a single object
         stop1("'x' is not an \"earth\" object or a list of \"earth\" objects")
-
-    # if user specified just one object, convert it to a list
-    # $$ is there a more sane way of writing the if statement?
-
-    if(!is.null(objects$residuals) && is.null(objects[[1]]$residuals))
+    if(typeof(objects[[1]]) != "list") # if user specified just one object, convert to list
         objects <- list(objects)
     plot.earth.prolog(objects[[1]], "objects")
     check.index.vec("which", which, 1:2)
@@ -305,10 +327,8 @@ plot.earth.models <- function(  # compare earth models by plotting them
     col.cum    <- rep(col.cum,    length.out=nmodels)
     col.vline  <- rep(col.vline,  length.out=nmodels)
     lty.vline  <- rep(lty.vline,  length.out=nmodels)
-    # $$ should really get rlim across all objects, not just first object
-    rlim <- get.rlim(objects[[1]], rlim, col.grsq[1], col.rsq[1])
-    must.trim.sub.caption <- is.null(sub.caption)
-    sub.caption <- get.sub.caption.from.call(sub.caption, objects[1])
+    must.trim.caption <- is.null(caption)
+    caption <- get.caption.from.call(caption, objects[1])
     if(do.par) {
         old.par <- par(no.readonly=TRUE)
         on.exit(par(old.par))
@@ -317,14 +337,16 @@ plot.earth.models <- function(  # compare earth models by plotting them
         par(mar = c(4, 4, 2, 3))    # small margins and text
         par(mgp = c(1.6, 0.6, 0))   # flatten axis elements
         par(cex = 0.7)
-        make.space.for.sub.caption(sub.caption)
+        make.space.for.caption(caption)
     }
     max.npreds <- 1
     max.nterms <- 1
-    for(object in objects) {
+    for(imodel in seq_along(objects)) {
+        object <- objects[[imodel]]
+        rlim <- range(rlim, get.rlim(object, rlim, col.grsq[imodel], col.rsq[imodel]))
         max.npreds <- max(max.npreds,
               get.nused.preds.per.subset(object$dirs, object$prune.terms))
-        max.nterms <- max(max.nterms, length(object$rssVec))
+        max.nterms <- max(max.nterms, length(object$rss.per.subset))
     }
     if(show[1]) {
         for(imodel in seq_along(objects))
@@ -344,28 +366,43 @@ plot.earth.models <- function(  # compare earth models by plotting them
                 max.npreds  = max.npreds,
                 jitter      = jitter,
                 legend.pos  = NULL,
+                nclasses    = NCOL(object[[imodel]]$residuals),
                 main        = if(imodel > 1) "" else main,
                 ...)
         if(col.legend != 0 && length(objects) > 1 && !show[2])
             do.legend(max.nterms)
     }
     if(show[2]) {
+        multiple.responses <- FALSE
+        xlim = c(0,0)
+        for(object in objects)
+            if(NCOL(object$residuals) > 1) {
+                multiple.responses <- TRUE
+                xlim = range(xlim, abs(object$residuals[,1]))
+            } else
+                xlim = range(xlim, abs(object$residuals))
         for(imodel in seq_along(objects))
             plot.cum(
-                residuals = objects[[imodel]]$residuals,
-                main      = if(imodel > 1) "" else "Cumulative Distribution",
+                residuals = if(NCOL(objects[[imodel]]$residuals) > 1)
+                                objects[[imodel]]$residuals[,1]
+                            else
+                                objects[[imodel]]$residuals,
+                main      = if(imodel > 1)              ""
+                            else if(multiple.responses) "Cumul Distrib (response 1)"
+                            else                        "Cumulative Distribution",
+                xlim      = xlim,
                 col       = if(length(col.cum) > 1)         col.cum[imodel]
                             else if(col.grsq[imodel] != 0)  col.grsq[imodel]
                             else                            col.rsq[imodel],
-                col.grid  = if(imodel > 1) 0 else col.grid,
-                cum.grid  = if(imodel > 1) "none" else cum.grid,
+                col.grid  = 0,
+                cum.grid  = "none",
                 add       = (imodel > 1),
                 pch       = 20,
                 ...)
         if(col.legend != 0 && length(objects) > 1)
-            do.legend(xrange=max(abs(object$residuals)))
+            do.legend(xmax=xlim[2])
         }
-    show.sub.caption(sub.caption, trim=must.trim.sub.caption)
+    show.caption(caption, trim=must.trim.caption)
     invisible()
 }
 
@@ -385,9 +422,10 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     do.par,
     max.nterms,
     max.npreds,
-    jitter,                 # allows overlaid plots to be visible
-    legend.pos,             # NULL means auto, else c(x,y)
-    main,                   # par() settings
+    jitter,         # allows overlaid plots to be visible
+    legend.pos,     # NULL means auto, else c(x,y)
+    nclasses,       # ncol(y)
+    main,           # par() settings
     ...)
 {
     scale1 <- function(x, Min, Max)
@@ -462,8 +500,12 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     # plot.earth.model starts here
     plot.earth.prolog(object, deparse(substitute(object)))
     warn.if.dots.used("plot.earth.model", ...)
-    if(is.null(main))
-        main <- "Model Selection"
+    if(is.null(main)) {
+        if(nclasses > 1)
+            main <- "Model Selection (all responses)"
+        else
+            main <- "Model Selection"
+    }
     if(is.null(object$prune.terms)) {       # no prune data?
         if(!add)
             plot(c(0,1), col=0, xlab="", ylab="")
@@ -491,12 +533,12 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     # plot a colored marker at the top of the above line
     points(x=length(object$selected.terms), y=1.02, col=col.vseg, pch=6)
 
-    rsqVec  <- get.rsq(object$rssVec, object$rssVec[1])
+    rsqVec  <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
     if(jitter > 0)
         rsqVec  <- jitter(rsqVec, amount=jitter)
     lines(scale1(rsqVec,  rlim[1], rlim[2]), col=col.rsq, lty=lty.rsq)
 
-    grsqVec <- get.rsq(object$gcvVec, object$gcvVec[1])
+    grsqVec <- get.rsq(object$gcv.per.subset, object$gcv.per.subset[1])
     if(jitter > 0)
         grsqVec <- jitter(grsqVec, amount=jitter)
     lines(scale1(grsqVec, rlim[1], rlim[2]), col=col.grsq)
@@ -510,6 +552,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
 plot.cum <- function(           # plot cumulative distribution of absolute residuals
     residuals,
     main,
+    xlim,
     col,
     col.grid,
     cum.grid,
@@ -522,7 +565,7 @@ plot.cum <- function(           # plot cumulative distribution of absolute resid
     cum <- ecdf(abs.residuals)
     # col.points=0 gives a finer resolution graph (points are quite big regardless of pch)
     plot.stepfun(cum, add=add, main=main, xlab="abs(Residuals)", ylab="Proportion",
-            col.points=0, col.hor=col, col.vert=col, ...)
+            xlim=xlim, col.points=0, col.hor=col, col.vert=col, ...)
     if(col.grid != 0 && !add) {
         choices =
         ngrid <- match.choices(cum.grid[1], c("none", "grid", "percentages"), "cum.grid")
@@ -542,7 +585,7 @@ plot.cum <- function(           # plot cumulative distribution of absolute resid
                 text(x=q[5], y=1.02, "100%", offset=0, cex=cex1)
             }
             plot.stepfun(cum, add=TRUE, verticals=TRUE, # replot data over grid
-                col.points=0, col.hor=col, col.vert=col, ...)
+                xlim=xlim, col.points=0, col.hor=col, col.vert=col, ...)
         }
     }
     NULL
@@ -561,16 +604,16 @@ get.rlim <- function(object, rlim, col.grsq, col.rsq)
         stop1(paste(
             "Bad 'rlim' c(", rlim[1], ",", rlim[2], ")\n",
             "Legal settings are from 0 to 1, with special values:\n",
-            "  rlim[1]=-1 means use min(RSq excluding intercept)\n",
-            "  rlim[2]=-1 means use max(RSq)\n", sep=""))
+            "  rlim[1]=-1 means use min(RSq) or min(GRSq) excluding intercept)\n",
+            "  rlim[2]=-1 means use max(RSq) or max(GRSq)\n", sep=""))
 
     if(rlim[1] < 0 || rlim[2] < 0) {
         grsq <- NULL
         if(col.grsq != 0)
-            grsq <- get.rsq(object$gcvVec, object$gcvVec[1])
+            grsq <- get.rsq(object$gcv.per.subset, object$gcv.per.subset[1])
         rsq <- NULL
         if(col.rsq != 0)
-            rsq <- get.rsq(object$rssVec, object$rssVec[1])
+            rsq <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
         if(rlim[1] < 0)
             rlim[1] <- min(grsq[-1], rsq[-1])
         if(rlim[2] < 0)

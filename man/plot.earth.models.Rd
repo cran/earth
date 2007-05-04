@@ -4,15 +4,13 @@
 \description{
 Compare \sQuote{earth} models by plotting them.
 }
-}
 \usage{
 plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
-  sub.caption = "", rlim = c(0,1), jitter = 0,
+  caption = "", rlim = c(0,1), jitter = 0,
   col.grsq = discrete.plot.cols(length(x)),
   col.rsq = 0, col.npreds = 0, col.cum = NULL,
-  col.vline = "grey", lty.vline = 3,
-  col.legend = 1, col.grid = "grey", cum.grid = "percentages",
-  legend.pos = NULL, legend.text = NULL, do.par = TRUE, 
+  col.vline = "grey", lty.vline = 3, col.legend = 1,
+  legend.pos = NULL, legend.text = NULL, do.par = TRUE,
   main = "Model Comparison", \dots)
 }
 \arguments{
@@ -26,8 +24,8 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     Which plots to plot: 1 model, 2 cumulative distribution of residuals.
     Default is \code{1:2}, meaning both.
   }
-  \item{sub.caption}{
-    Overall caption.
+  \item{caption}{
+    Overall caption. Values:\cr
        \code{"string"} string\cr
        \code{""} (default) no caption\cr
        \code{NULL} generate a caption from the \code{$call} component of the \code{earth} objects.
@@ -37,14 +35,14 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     values on the y axis of the RSq/GRSq plot.
     Default is \code{c(0,1)}.
 
-    Special value min=\code{-1} means the minimum y axis value
-    is the smallest GRSq or RSq value of the first object, excluding the intercept values.
+    The special value min=\code{-1} means the minimum y axis value
+    is the smallest GRSq or RSq, excluding the intercept.
 
-    Special value max=\code{-1} means the maximum y axis value
-    is the largest GRSq or RSq value of the first object.
+    The special value max=\code{-1} means the maximum y axis value
+    is the largest GRSq or RSq.
   }
   \item{jitter}{
-    Jitter applied to GRSq and RSq values to minimise overplotting.
+    Jitter applied to GRSq and RSq values to minimise over-plotting.
     Default is \code{0}, meaning no jitter.
     A typical useful value is 0.01.
   }
@@ -65,7 +63,7 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     Default is \code{0}, meaning no RSq plot.
   }
   \item{col.npreds}{
-    Vector of colours for the \sQuote{number of predictors} plot within the model plot.
+    Vector of colours for the \sQuote{number of predictors} plot within the model selection plot.
 
     Default is \code{0}, meaning no \sQuote{number of predictors} plot.
 
@@ -79,33 +77,21 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   }
   \item{col.vline}{
     A vertical line is drawn for each object
-    to show which model size was chosen for each object.
+    to show which model size was chosen for that object.
     The colour of the line is \code{col.vline}.
     Default is \code{"grey"}.
   }
   \item{lty.vline}{
-    Line type of best model vertical line.
+    Line type of vertical lines (a vertical line is drawn to show the selected model for each object).
     Can be a vector.
     Default is \code{3}.
   }
   \item{col.legend}{
     Default is \code{1}, meaning draw a legend.
-    Use \code{0} for no legend.
-
+    Use \code{0} for no legend. 
     The legend is drawn in the cumulative distribution graph,
     if that graph is plotted.
     Else the legend is drawn in the model comparison chart.
-  }
-  \item{col.grid}{
-    Colour of grid lines in cumulative distribution plot.
-    Default is \code{"grey"}.
-  }
-  \item{cum.grid}{
-    Specify grid on cumulative distribution graph.
-    Values are:\cr
-    \code{"none"}  no grid on cumulative distribution plot\cr
-    \code{"grid"}  add grid\cr
-    \code{"percentages"}  (default) add grid, and percentage labels to quantile lines.\cr
   }
   \item{legend.pos}{
     The special value \code{NULL} (default) means position the legend automatically.
@@ -143,6 +129,6 @@ data(ozone1)
 a1 <- earth(O3 ~ ., data = ozone1, degree = 2)
 a2 <- earth(O3 ~ .-wind, data = ozone1, degree = 2, nk = 31)
 a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
-plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8), cum.grid="n")
+plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8))
 }
 \keyword{models}

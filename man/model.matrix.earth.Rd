@@ -15,8 +15,8 @@ Get the basis matrix of an \sQuote{earth} object.
   \item{x}{
     An input matrix with the same number of columns as the \code{x} matrix
     used to construct the original \code{\link{earth}} object.
-    Default is NULL, meaning use the original \code{x} matrix (but ignoring
-    the original \code{subset}, if any).
+    Default is NULL, meaning use the original \code{x} matrix after
+    taking the original \code{subset}, if any.
   }
   \item{subset}{
     Which rows to use in \code{x}.
@@ -55,17 +55,17 @@ summary(a, decomp = "none") # "none" to print terms in same seq as a.lm below
 # yields:
 #    Call:
 #    earth(formula = Volume ~ ., data = trees)
-#    
+#
 #    Expression:
-#      23.20824 
-#      +  5.745962 * pmax(0,  Girth -   12.9) 
-#      -  2.866452 * pmax(0,   12.9 -  Girth) 
-#      + 0.7183364 * pmax(0, Height -     76) 
-#    
+#      23.20824
+#      +  5.745962 * pmax(0,  Girth -   12.9)
+#      -  2.866452 * pmax(0,   12.9 -  Girth)
+#      + 0.7183364 * pmax(0, Height -     76)
+#
 #    Number of cases: 31
 #    Selected 4 of 5 terms, and 2 of 2 predictors
 #    Number of terms at each degree of interaction: 1 3 (additive model)
-#    GCV: 11.48697     RSS: 213.4354     GRSq: 0.958859     RSq: 0.9736697 
+#    GCV: 11.48697     RSS: 213.4354     GRSq: 0.958859     RSq: 0.9736697
 
 bx <- model.matrix(a)               # equivalent to bx <- a$bx
 a.lm <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept

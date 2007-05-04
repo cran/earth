@@ -1,17 +1,17 @@
 \name{plotmo}
 \alias{plotmo}
-\title{Plot Model Functions}
+\title{Plot Model Response}
 \description{
-Plot the model response when varying one
-or two predictors while holding all the other predictors at their median values.
-This function is is intended for models with quantitative responses.
+Plot the predicted model response when varying one
+or two predictors while holding all the other predictors constant.
 }
 \usage{
 plotmo(object = stop("no 'object' arg"),
-       degree1 = TRUE, degree2 = TRUE,
-       sub.caption = if(do.par) NULL else "",
-       ylim = NULL, clip = TRUE, col.response = 0, pch.response = 1,
-       trace = FALSE, inverse.func = NULL, grid.func = median,
+       degree1 = TRUE, degree2 = TRUE, ycolumn = 1,
+       caption = if(do.par) NULL else "",
+       ylim = NULL, clip = TRUE, inverse.func = NULL,
+       col.response = 0, pch.response = 1,
+       trace = FALSE, grid.func = median,
        ndegree1 = 500, lty.degree1 = 1, col.degree1 = 1,
        se = 0, col.shade = "lightblue", col.se = 0, lty.se = 2,
        func = NULL, col.func = "pink", pch.func = 20, nrug = 0,
@@ -44,31 +44,45 @@ To start off, look at the arguments
      Index vector specifying interaction plots to include.
      Default is \code{TRUE}, meaning all.
   }
-  \item{sub.caption}{
+  \item{ycolumn}{
+     Specify which column of the response to plot if the model has multiple responses.
+     Default is 1.
+  }
+  \item{caption}{
     Overall caption.  The default value is
     \code{if(do.par) NULL else ""}. Values are:\cr
        \code{"string"}  string\cr
        \code{""}  no caption\cr
-       \code{NULL}  generate a caption from \code{object$call}.
+       \code{NULL}  generate a caption from \code{object$call} and the response name.
   }
   \item{trace}{
-     Use \code{TRUE} to trace operation.  Default is \code{FALSE}.\cr
+     Set to \code{TRUE} to trace operation.  Default is \code{FALSE}.\cr
   }
   \item{ylim}{Values are:\cr
 
      \code{NULL} (default) all y axes have same limits
      (where "y" is actually "z" on degree2 plots).
      The limits are the min and max values of y across all (degree1 and degree2) plots.
-     If \code{col.response!=0} then the response is included in the min and max calculation.\cr
+     If \code{col.response!=0} then the original response is
+     included in the min and max calculation.\cr
 
-     \code{NA} Each graph has its own y limits.\cr
+     \code{NA} each graph has its own y limits.\cr
 
-     \code{c(ymin,ymax)} All graphs have the specified y limits.\cr
+     \code{c(ymin,ymax)} all graphs have the specified y limits.\cr
 
   }
   \item{clip}{
      Plot only values that are in the range of the response of original data.
      Default is \code{TRUE}.
+  }
+  \item{inverse.func}{
+     Function applied to the predicted response before plotting.
+     Default is \code{NULL}, meaning do not apply a function.
+     For example, you could use \code{inverse.func=exp} if your
+     model formula is \code{log(y)~x}.
+     Note, however, that is usually unnecessary
+     to use \code{inverse.func} for models such as \code{\link{glm}}
+     with \code{family=binomial}, because the plotted response is already a probability.
   }
   \item{col.response}{
      Colour of response values (actually, the response sites in interaction plots).
@@ -79,16 +93,6 @@ To start off, look at the arguments
   \item{pch.response}{
      Plot character for \code{col.response}.
      Default is 1.
-  }
-  \item{inverse.func}{
-     Function applied to the predicted response before plotting.
-     Default is \code{NULL}, meaning do not apply a function.
-     For example, you could use \code{inverse.func=exp} if your
-     model formula is \code{log(y)~x}.
-
-     Note, however, that is usually unnecessary
-     to use \code{inverse.func} for models such as \code{\link{glm}}
-     with \code{family=binomial}, because the plotted response is already a probability.
   }
   \item{grid.func}{
      Function applied to x columns to calculate the values for numeric predictors
@@ -121,13 +125,13 @@ plotmo(a, grid.func = grid.func)
   \item{se}{
      Draw standard error bands at plus and minus \code{se} times the pointwise standard errors.
      Default is \code{0}, meaning no standard error bands.
-     A typical value is \code{2}.
+     A common value is \code{2}.
      The predict method for \code{object} must be callable with \code{se.fit=TRUE}
      (examples are \code{\link{predict.lm}} but not \code{\link{predict.earth}}).
   }
   \item{col.shade}{
      Colour of \code{se} shading.  Default is \code{"lightblue"}.
-     Use \code{0} for no shading.
+     Set to \code{0} for no shading.
   }
   \item{col.se}{
      Colour of \code{se} lines.  Default is \code{0} meaning no lines just shading.
@@ -139,7 +143,6 @@ plotmo(a, grid.func = grid.func)
      Superimpose \code{func(x)} if \code{func} is not \code{NULL}.
      Default is \code{NULL}.
      This is useful if you are comparing the model to a known function.
-
      Note that \code{func} is called with a single argument which
      is a dataframe with columns in the same order as the predictors
      in the \code{formula} or \code{x} used to build the model.
@@ -161,11 +164,11 @@ plotmo(a, grid.func = grid.func)
   }
   \item{col.persp}{
      Colour of \code{\link{persp}} surface. Default is \code{"lightblue"}.
-     Use 0 for no colour.
+     Set to 0 for no colour.
   }
   \item{col.image}{
      Colours of \code{\link{image}} plot. Default is \code{grey(0:9/10)}.
-     The default excludes 1 because that is the colour of clipped
+     The default excludes \code{grey(1)} because that is the "colour" of clipped
      values, see \code{clip}.
   }
   \item{ngrid}{
@@ -176,7 +179,7 @@ plotmo(a, grid.func = grid.func)
   \item{do.par}{
     Call \code{par()} for global settings as appropriate.
     Default is \code{TRUE}.
-    Use \code{FALSE} if you want to append figures to an existing plot.
+    Set to \code{FALSE} if you want to append figures to an existing plot.
   }
   \item{main}{
     Title of each plot.
@@ -202,7 +205,7 @@ plotmo(a, grid.func = grid.func)
      Horizontal axis label on degree1 plots
      (for degree2 plots the abscissa labels are always the predictor names).
      Default is \code{""}, meaning none, which gives more plottable area.
-     Use \code{NULL} to use the predictor names as labels.
+     Set to \code{NULL} to use the predictor names as labels.
      If you use \code{NULL}, you may want to set \code{main=""} to avoid
      redundant labeling.
   }
@@ -221,12 +224,13 @@ plotmo(a, grid.func = grid.func)
 \details{
 \code{Plotmo} is a general purpose model plotting function
 (but comes with the \code{\link{earth}} package).
+It is intended for models with quantitative responses.
 
 \strong{Limitations}
 
 NAs are not yet allowed.
 To prevent confusing error messages from \code{plotmo},
-a safe stategy is to build your model with
+a safe strategy is to build your model with
 \code{na.action=na.fail} before calling \code{plotmo}.
 
 Weights are currently ignored, with a warning.
@@ -234,9 +238,8 @@ Weights are currently ignored, with a warning.
 Factors are not plotted in degree2 plots.
 
 Variable names containing \$ are not supported.
-
-If the predicted response (from \code{plotmo}'s call to 
-\code{\link{predict}}) has multiple columns then only the first column is used.
+The work around is to build the model using temporary variables
+or to use \code{\link{attach}}.
 
 By default (i.e. when using \code{get.x.default} and \code{get.pairs.default}),
 \code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
@@ -290,10 +293,11 @@ method that can be called with \code{se.fit=TRUE}.
 3) \code{object} must have the following components
 (which are searched for in the order given):
 
-a) \code{$call$formula} (\code{formula} is required for \code{degree2} plots),
-or \code{$call$x} with named columns, or \code{$x} with named columns.
+a) \code{$x} with named columns, or \code{$call$formula}
+(\code{formula} is required for \code{degree2} plots),
+or \code{$call$x} with named columns
 
-b) \code{$call$formula}, or \code{$call$y}, or \code{$y}.
+b) \code{$y}, or \code{$call$formula}, or \code{$call$y}.
 
 \strong{Extending plotmo}
 
@@ -303,14 +307,14 @@ the file \code{plotmo.R}:
 \code{plotmo.prolog}\cr
 \code{get.x}\cr
 \code{get.y}\cr
-\code{plotmo.predict} (the default simply calls \code{\link{predict}})\cr
+\code{plotmo.predict}\cr
 \code{get.singles}\cr
 \code{get.pairs}
 
 Thus \code{plotmo} can be extended
 by writing new method functions, although the default
 functions may suffice for your object's class.
-See the examples below and see the source comments for details.\cr
+See the examples below and see the source comments for details.
 }
 \author{
 Stephen Milborrow.
@@ -328,7 +332,7 @@ a <- earth(O3 ~ ., data = ozone1, degree = 2)
 plotmo(a)
 
 # example with some arguments:
-# plotmo(a, sub.caption = "example", ylim = NULL, degree1=c(1,2,4),
+# plotmo(a, caption = "example", ylim = NULL, degree1 = c(1,2,4),
 #   degree2 = 4, col.response = 3, clip = FALSE, ticktype = "d", theta = -30)
 
 # examples using functions other than earth:

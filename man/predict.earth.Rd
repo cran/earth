@@ -24,11 +24,11 @@ Predict with an 'earth' model.
      Type of prediction.  One of:\cr
 \code{"response"} (default)\cr
 \code{"terms"} return a response suitable for \code{\link{termplot}}.  Only
-the additive terms are returned.\cr
+the additive terms and the first response (for multi-response models) are returned.\cr
   }
 }
 \value{
-If \code{type="response"},  a vector of predicted values.\cr
+If \code{type="response"},  the predicted values.\cr
 If \code{type="terms"},  a matrix with each column showing the contribution of a predictor.
 }
 \seealso{

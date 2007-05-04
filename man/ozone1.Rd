@@ -26,12 +26,11 @@ Ozone readings in Los Angeles, with incomplete cases removed.}
   }
 }
 \source{
-This data was copied from \code{library(faraway)} and the name
+This data set was copied from \code{library(faraway)} and the name
 changed to \code{ozone1} to prevent a name clash.
-The data was originally made available by Leo Breiman who was a consultant
-on a project where the data was generated.
-Example analyses using this data may be found
-in Faraway and in Hastie and Tibshirani.
+The data were originally made available by Leo Breiman who was a consultant
+on a project where the data were generated.
+Example analyses using these data may be found in Faraway and in Hastie and Tibshirani.
 
 \preformatted{    > ozone1
         O3   vh wind humidity temp  ibh dpg ibt vis doy
