@@ -7,14 +7,15 @@ The plot shows model selection, cumulative distribution
 of the residuals, residuals versus fitted values, and the residual QQ plot.
 }
 \usage{
-\method{plot}{earth}(x = stop("no 'x' arg"), 
-     which = 1:4, sub.caption = if(do.par) NULL else "",
-     col.rsq = "lightblue", col.loess = col.rsq, 
+\method{plot}{earth}(x = stop("no 'x' arg"),
+     which = 1:4, ycolumn = 1,
+     caption = if(do.par) NULL else "",
+     col.rsq = "lightblue", col.loess = col.rsq,
      col.qq = col.rsq, col.grid = "grey",
-     col.vline = "grey", lty.vline = 3, 
+     col.vline = "grey", lty.vline = 3,
      col.legend = 1, col.npreds = 1,
      nresiduals = 1000, cum.grid = "percentages", rlim = c(-1,-1),
-     jitter = 0, id.n = 3, labels.id = names(residuals(x)),
+     jitter = 0, id.n = 3, labels.id = rownames(residuals(x)),
      legend.pos = NULL, do.par = TRUE,
      main = NULL, pch = 1, \dots)
 }
@@ -22,16 +23,21 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   \item{x}{
     An \code{\link{earth}} object.
     This is the only required argument.
-    (This argument is called 'x' for consistency with the generic \code{\link{plot}}).
+    (This argument is called "x" for consistency with the generic \code{\link{plot}}).
   }
   \item{which}{
     Which plots to plot. Default is \code{1:4}, meaning all.\cr
-1)  model\cr
+1)  model selection\cr
 2)  cumulative distribution of absolute values of residuals\cr
 3)  residuals versus fitted values\cr
 4)  QQ.
   }
-  \item{sub.caption}{
+  \item{ycolumn}{
+     Specify which column of the response to plot if the model has multiple responses.
+     Default is 1.
+     This argument does not affect the model selection plot which is always across all responses.
+  }
+  \item{caption}{
     Overall caption.  The default value is
     \code{if(do.par) NULL else ""}. Values are:\cr
        \code{"string"}  string\cr
@@ -46,7 +52,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
     Default is \code{"lightblue"}.
   }
   \item{col.loess}{
-    Colour of loess line in residuals plot.
+    Colour of \code{\link{loess}} line in residuals plot.
     Default is \code{col.rsq}.
     Generating the loess line occasionally causes warnings such as
     "Warning: pseudoinverse used".
@@ -78,9 +84,9 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   \item{nresiduals}{
     Maximum number of residuals to plot.
     Use \code{-1} for all.
+    Default is \code{1000} (not all to minimize over-plotting).
     A systematic sample of size \code{nresiduals} is taken but
     the largest few residuals are always included.
-    Default is \code{1000}.
   }
   \item{cum.grid}{
     Specify grid on cumulative distribution graph.
@@ -101,7 +107,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
     is the largest GRSq or RSq value.
   }
   \item{jitter}{
-    Jitter applied to GRSq and RSq values to minimise overplotting.
+    Jitter applied to GRSq and RSq values to minimise over-plotting.
     Default is \code{0}, meaning no jitter.
     A typical useful value is 0.01.
   }
@@ -109,7 +115,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
     Number of largest residuals to be labeled.  Default is \code{3}.
   }
   \item{labels.id}{
-    Residual names.  Default is \code{names(residuals(x))}.
+    Residual names.  Default is \code{rownames(residuals(x))}.
   }
   \item{legend.pos}{
     \code{NULL} (default) means position legend automatically.  Else specify \code{c(x,y)}

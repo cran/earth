@@ -1,0 +1,25 @@
+Forward pass: model matrix 100 x 1 minspan 7 endspan 13
+
+         GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
+1      0.0000 0.0000                  26.13                  1
+2      0.9797 0.9813       0.9813  0.489078    1       0.42  2   3   
+4      0.9856 0.9873     0.006021  0.331724    1       0.63  4       
+6      0.9851 0.9874    8.545e-05  0.329491    1       0.84  5       reject term
+
+Reached delta RSq threshold (DeltaRSq 8.54517e-05 < 0.001)
+Forward pass complete: 5 terms (4 terms used)
+
+Backward pass:
+SubsetSize         GRSq          RSq
+         1       0.0000       0.0000
+         2       0.6918       0.7041
+         3       0.9797       0.9813
+         4       0.9856       0.9873
+
+Backward pass complete: selected 4 terms of 4, GRSq 0.985616 RSq 0.987306
+
+Expression:
+1.14                                      // 0
+-2.63     * max(0, x[0]     -       0.42) // 1
+-2.34     * max(0, 0.42      -      x[0]) // 2
+-1.13     * max(0, x[0]     -       0.63) // 3

@@ -1,5 +1,0 @@
-> # test.earth.full.R: test earth
-> 
-> library(earth)
-Error in library(earth) : 'earth' is not a valid package -- installed < 2.0.0?
-Execution halted

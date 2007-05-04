@@ -1,2 +1,1 @@
-# PKG_CFLAGS=-O3 # commented out because check complains that this is not portable
 PKG_LIBS=$(BLAS_LIBS) $(FLIBS)

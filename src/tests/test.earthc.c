@@ -57,67 +57,165 @@ static double RandGauss(void)   // standard normal random number
 }
 
 //-----------------------------------------------------------------------------
-static double funcNoise(const double x[]) { return RandGauss(); }
+static double funcNoise(const double x[], const int iClass) { return RandGauss(); }
 
-static double func0(const double x[]) { return x[0]; }
+static double func0(const double x[], const int iClass) { return x[0]; }
 
-static double func1(const double x[]) { return x[0] + x[1] + .1 * RandGauss(); }
+static double func1(const double x[], const int iClass) { return x[0] + x[1] + .1 * RandGauss(); }
 
-static double func2(const double x[]) { return x[0] + x[1] + x[0]*x[1]; }
+static double func2(const double x[], const int iClass) { return x[0] + x[1] + x[0]*x[1]; }
 
-static double func3(const double x[]) { return cos(x[0]) + x[1]; }
+static double func3(const double x[], const int iClass) { return cos(x[0]) + x[1]; }
 
-static double func4(const double x[]) { return sin(2 * x[0]) + 2*x[1] + 0.5*x[0]*x[1]; }
+static double func4(const double x[], const int iClass) { return sin(2 * x[0]) + 2*x[1] + 0.5*x[0]*x[1]; }
 
-static double func5(const double x[]) { return x[0] + x[1] + x[3] + x[4] + x[5] + x[1]*x[2] + (x[3]+1)*(x[4]+1)*x[5]; }
+static double func5(const double x[], const int iClass) { return x[0] + x[1] + x[3] + x[4] + x[5] + x[1]*x[2] + (x[3]+1)*(x[4]+1)*x[5]; }
 
-static double func4lin(const double x[]) { return x[0] + x[1] + x[3] + x[4]; }
+static double func4lin(const double x[], const int iClass) { return x[0] + x[1] + x[3] + x[4]; }
 
-static double func6(const double x[]) {                 // 5 preds, 2nd order
+static double func6(const double x[], const int iClass) {                 // 5 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5]
             + .1 * RandGauss();
 }
 
-static double func6clean(const double x[]) {            // 5 preds, 2nd order
+static double func6clean(const double x[], const int iClass) {            // 5 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5];
 }
 
-static double func7(const double x[]) {                 // 10 preds, 2nd order
+static double func7(const double x[], const int iClass) {                 // 10 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +x[6] +x[7] +x[8] +x[9] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5] + x[6]*x[7] + x[8]*x[9];
 }
 
-static double func8(const double x[]) {                 // 20 preds, 2nd order
+static double func8(const double x[], const int iClass) {                 // 20 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +x[6] +x[7] +x[8] +x[9] +
            x[10]+x[11]+x[12]+x[13]+x[14]+x[15]+x[16]+x[17]+x[18]+x[19] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5] + x[6]*x[7] + x[8]*x[9] +
             + .1 * RandGauss();
 }
 
-static double func56(const double x[]) {    // Friedman MARS paper eqn 56
+static double func9(const double x[], const int iClass) { return x[1]; }
+
+static double func56(const double x[], const int iClass) {    // Friedman MARS paper eqn 56
     return 0.1 * exp(4*x[0]) + 4 / (1 + exp(-20*(x[1]-0.5)) + 3*x[2] + 2*x[3] + x[4] + RandGauss());
 }
 
+// functions for testing multiple responses
+
+static double func0_1(const double x[], const int iClass) 
+{
+    if (iClass == 0)
+        return func0(x, iClass);
+    else if (iClass == 1)
+        return func1(x, iClass);
+    else
+        error("bad iClass");
+    return 0;
+}
+
+static double func2_2(const double x[], const int iClass) 
+{
+    if (iClass == 0)
+        return func2(x, iClass);
+    else if (iClass == 1)
+        return func2(x, iClass);
+    else
+        error("bad iClass");
+    return 0;
+}
+
+static double func0_4(const double x[], const int iClass) 
+{
+    if (iClass == 0)
+        return func0(x, iClass);
+    else  if (iClass == 1)
+        return func4(x, iClass);
+    else
+        error("bad iClass");
+    return 0;
+}
+
+static double func0_2_4(const double x[], const int iClass) 
+{
+    if (iClass == 0)
+        return func0(x, iClass);
+    else  if (iClass == 1)
+        return func2(x, iClass);
+    else  if (iClass == 2)
+        return func4(x, iClass);
+    else
+        error("bad iClass");
+    return 0;
+}
+
+static double func2_4_0(const double x[], const int iClass) 
+{
+    if (iClass == 0)
+        return func2(x, iClass);
+    else  if (iClass == 1)
+        return func4(x, iClass);
+    else  if (iClass == 2)
+        return func0(x, iClass);
+    else
+        error("bad iClass");
+    return 0;
+}
+
+static double func4_2_0(const double x[], const int iClass) 
+{
+    if (iClass == 0)
+        return func4(x, iClass);
+    else  if (iClass == 1)
+        return func2(x, iClass);
+    else  if (iClass == 2)
+        return func0(x, iClass);
+    else
+        error("bad iClass");
+    return 0;
+}
+
+static double func4_6(const double x[], const int iClass) 
+{
+    if (iClass == 0)
+        return func4(x, iClass);
+    else  if (iClass == 1)
+        return func6(x, iClass);
+    else
+        error("bad iClass");
+    return 0;
+}
+
+// functions for testing NewVarPenalty
+
+static double func1colinear(const double x[], const int iClass) 
+    { return x[0] + x[1] + .1 * RandGauss(); }
+
+static double func2colinear(const double x[], const int iClass) 
+    { return cos(x[0]) + cos(x[1]) + .1 * RandGauss(); }
+
 //-----------------------------------------------------------------------------
-static void testEarth(char sTestName[],
-                double (__cdecl *func)(const double xVec[]),    // function to be modeled
-                const int nCases, const int nPreds,
+static void TestEarth(char sTestName[],
+                double (__cdecl *func)(const double xVec[], const int iClass),
+                const int nCases, const int nClasses, const int nPreds,
                 const int nMaxDegree, const int nMaxTerms,
                 const int nTrace, const bool Format,
                 const double ForwardStepThresh,
-                const int K, const double AgeCoeff, const double NewVarPenalty,
-                const int seed)
+                const int K, const double FastBeta, const double NewVarPenalty,
+                const int seed, 
+                const double Colinear = 0)
 {
-    double *x          = (double *)malloc(nCases * nPreds * sizeof(double));
-    double *y          = (double *)malloc(nCases * sizeof(double));
-    bool   *BestSet    = (bool *)  malloc(nMaxTerms * sizeof(bool));
-    int    *Dirs       = (int *)   malloc(nMaxTerms * nPreds * sizeof(int));
-    double *Cuts       = (double *)malloc(nMaxTerms * nPreds * sizeof(double));
-    double *Residuals  = (double *)malloc(nCases * sizeof(double));
-    double *Betas      = (double *)malloc(nMaxTerms * sizeof(double));
-    double *bx         = (double *)malloc(nCases * nMaxTerms * sizeof(double));
+    #define y_(iCase,iClass) y[(iCase) + (iClass)*(nCases)]
+
+    double *x         = (double *)malloc(nCases    * nPreds    * sizeof(double));
+    double *y         = (double *)malloc(nCases    * nClasses  * sizeof(double));
+    double *bx        = (double *)malloc(nCases    * nMaxTerms * sizeof(double));
+    bool   *BestSet   = (bool *)  malloc(nMaxTerms *             sizeof(bool));
+    int    *Dirs      = (int *)   malloc(nMaxTerms * nPreds    * sizeof(int));
+    double *Cuts      = (double *)malloc(nMaxTerms * nPreds    * sizeof(double));
+    double *Residuals = (double *)malloc(nCases    * nClasses  * sizeof(double));
+    double *Betas     = (double *)malloc(nMaxTerms * nClasses  * sizeof(double));
 
     static int nTest;
     nTest++;
@@ -130,17 +228,22 @@ static void testEarth(char sTestName[],
     srand(seed);
     double *xVec = (double *)malloc(nPreds * sizeof(double));
     int iCase;
-    static int xxx;
     for (iCase = 0; iCase < nCases; iCase++) {
         for (int iPred = 0; iPred < nPreds; iPred++) {
-            double x1;
-            x1 = (double)((rand() % 20000) - 10000) / 10000;    // rand number from -1 to +1
-            x[iCase + iPred * nCases] = x1;
+            double xtemp;
+            xtemp = (double)((rand() % 20000) - 10000) / 10000;    // rand number from -1 to +1
+            x[iCase + iPred * nCases] = xtemp;
             xVec[iPred] = x[iCase + iPred * nCases];
         }
-        y[iCase] = func(xVec);
+        if (Colinear > 0) {
+            // copy column 0 to 1 with added noise
+            double xtemp =  x[iCase] + Colinear * RandGauss();
+            x[iCase + 1 * nCases] = xtemp;
+            xVec[1] = xtemp;
+        }
+        for (int iClass = 0; iClass < nClasses; iClass++)
+            y_(iCase, iClass) = func(xVec, iClass);
     }
-    xxx++;
     free(xVec);
 
     double BestGcv;
@@ -148,10 +251,11 @@ static void testEarth(char sTestName[],
     const double Penalty = ((nMaxDegree>1)? 3:2);
     clock_t Time = clock();
 
-    Earth(bx, &BestGcv, BestSet, &nTerms, Dirs, Cuts, Residuals, Betas,
-        x, y, nCases, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
-        0, true, // MinSpan Prune
-        K, AgeCoeff, NewVarPenalty, nTrace, NULL);
+    Earth(&BestGcv, &nTerms, BestSet, bx, Dirs, Cuts, Residuals, Betas,
+        x, y, nCases, nClasses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
+        0,      // MinSpan
+        true,   // Prune
+        K, FastBeta, NewVarPenalty, nTrace, NULL);
 
     // calc nUsedTerms
 
@@ -162,36 +266,48 @@ static void testEarth(char sTestName[],
 
     // calc RSquared, GRSquared
 
-    double Rss = 0, Tss = 0, meanY = 0;
-    for (iCase = 0; iCase < nCases; iCase++)
-        meanY += y[iCase];
-    meanY /= nCases;
-    xVec = (double *)malloc(nPreds * sizeof(double));
-    for (iCase = 0; iCase < nCases; iCase++) {
-        for (int iPred = 0; iPred < nPreds; iPred++)
-            xVec[iPred] = x[iCase + iPred * nCases];
-        double yHat = PredictEarth(xVec, BestSet, Dirs, Cuts, Betas, nPreds, nTerms, nMaxTerms);
-        double Residual = y[iCase] - yHat;
-        Rss += sq(Residual);
-        Tss += sq(y[iCase] - meanY);
-    }
-    free(xVec);
-    const double RSq =  1 - Rss/Tss;
-    const double GcvNull =  getGcv(1, nCases, Tss, Penalty);
-    const double GRSq =  1 - getGcv(nUsedTerms, nCases, Rss, Penalty) / GcvNull;
+    for (int iClass = 0; iClass < nClasses; iClass++) {
+        double Rss = 0, Tss = 0, meanY = 0;
+        for (iCase = 0; iCase < nCases; iCase++)
+            meanY += y_(iCase, iClass);
+        meanY /= nCases;
+        xVec = (double *)malloc(nPreds * sizeof(double));
+        double *yHat = (double *)malloc(nClasses * sizeof(double));
+        for (iCase = 0; iCase < nCases; iCase++) {
+            for (int iPred = 0; iPred < nPreds; iPred++)
+                xVec[iPred] = x[iCase + iPred * nCases];
+            PredictEarth(yHat, xVec, BestSet, Dirs, Cuts, Betas, nPreds, nClasses, nTerms, nMaxTerms);
+            double Residual = y_(iCase,iClass) - yHat[iClass];
+            Rss += sq(Residual);
+            Tss += sq(y_(iCase,iClass) - meanY);
+        }
+        free(yHat);
+        free(xVec);
+        const double RSq =  1 - Rss/Tss;
+        const double GcvNull =  getGcv(1, nCases, Tss, Penalty);
+        const double GRSq =  1 - getGcv(nUsedTerms, nCases, Rss, Penalty) / GcvNull;
 
-    // show results
-
-    printf("RESULT %d: GRSq %g RSq %g nTerms %d of %d of %d [%.2f secs]\n", nTest,
-        GRSq, RSq, nUsedTerms, nTerms, nMaxTerms,
 #if PRINT_TIME
-        (double)(clock() - Time) / CLOCKS_PER_SEC);
+        double TimeDelta = (double)(clock() - Time) / CLOCKS_PER_SEC;
 #else
-        99.99);
+        double TimeDelta = 99.99;
 #endif
+        // show results
+        if (nClasses > 1) {
+            printf("RESULT %d Class %d: GRSq %g RSq %g nTerms %d of %d of %d",
+                nTest, iClass+1, GRSq, RSq, nUsedTerms, nTerms, nMaxTerms, TimeDelta);
+            if (iClass == 0)
+                printf(" [%.2f secs]", TimeDelta);
+            printf("\n");
+            
+        }
+        else
+            printf("RESULT %d: GRSq %g RSq %g nTerms %d of %d of %d [%.2f secs]\n", 
+                nTest, GRSq, RSq, nUsedTerms, nTerms, nMaxTerms, TimeDelta);
+    }
     if (Format && nTrace) {
-        printf("\nTEST %d: FUNCTION\n", nTest);
-        FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nTerms, nMaxTerms, 3);
+        printf("\nTEST %d: FUNCTION %s\n", nTest, sTestName);
+        FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nClasses, nTerms, nMaxTerms, 3, 1e-6);
         printf("\n");
     }
     free(x);
@@ -206,34 +322,68 @@ static void testEarth(char sTestName[],
 
 //-----------------------------------------------------------------------------
 int main(void)
-{                                               // nCases  nPreds  nMaxDegree nMaxTerms nTrace  Format   Thresh K AgeCoeff seed
-  testEarth("noise N=1000",            funcNoise,     1000,      1,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 N=10",                     func0,       10,      1,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 N=1000",                   func0,     1000,      1,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 + noise N=1000",           func0,     1000,    1+1,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 + x1 N=1000",              func1,     1000,      2,          2,       11,     6,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 + x1 + noise N=1000",      func1,     1000,    2+8,          2,       51,     0,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 + x1 + x0*x1 N=30",        func2,       30,      2,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 + x1 + x0*x1 N=1000",      func2,     1000,      2,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("cos(x0) + x1 N=1000",         func3,     1000,      2,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,      2,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,      3,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("3rd order, mi=2 ni=11",       func5,     1000,      6,          2,       11,     1,  true,   0.001, 20, 0, 0, 99);
-  testEarth("3rd order, mi=2 ni=51",       func5,     1000,      6,          2,       51,     2,  true,   0.001, 20, 0, 0, 99);
-  testEarth("3rd order, mi=3",             func5,     1000,      6,          3,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("5 preds + noise",             func6,      200,   5+10,          2,      101,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("5 preds clean",          func6clean,      200,   5+10,          2,      101,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("10 preds + noise",            func7,      200,  10+40,          2,      101,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("20 preds + noise, N=100",     func8,      100,  20+10,          2,      101,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("20 preds + noise, N=400",     func8,      400,  20+10,          2,      101,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("3rd order, mi=3, +noise",     func5,     1000,     10,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("eqn56 mi=1 N=100",            func56,     100,     10,          1,      101,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("eqn56 mi=2 N=100",            func56,     100,     10,          2,       51,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("eqn56 mi=10 N=100",           func56,     100,     10,         10,       51,     3,  true,   0.001, 20, 0, 0, 99);
-//testEarth("eqn56 mi=10 N=1000",          func56,    1000,     10,         10,      101,     3,  true,   0.001, 20, 0, 0, 99);
-//testEarth("eqn56 mi=10 N=5000",          func56,    5000,     10,         10,      101,     3,  true,   0.001, 20, 0, 0, 99);
-  testEarth("x0 + x1 + x0*x1 N=30",        func2,       30,      2,          2,       51,     7,  true,   0.001, 99, 0, 0, 99);
-  testEarth("x0 + x1 + x0*x1 N=30",        func2,       30,      2,          2,       51,     7,  true,   0.001,  4, 0, 0, 99);
-  testEarth("x0 + x1 + x0*x1 N=30",        func2,       30,      2,          2,       51,     7,  true,   0.001,  4, 1, 0, 99);
+{                                        // func    nCases  nClasses nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B N s
+  TestEarth("noise N=1000",            funcNoise,     1000,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("x0 N=10",                     func0,       10,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("x0 N=1000",                   func0,     1000,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("x0 + noise N=1000",           func0,     1000,        1,   1+1,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("x0 + x1 N=1000",              func1,     1000,        1,     2,          2,       11,     6,true,0.001,20,0,0,99);
+  TestEarth("x0 + x1 + noise N=1000",      func1,     1000,        1,   2+8,          2,       51,     0,true,0.001,20,0,0,99);
+  TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("x0 + x1 + x0*x1 N=1000",      func2,     1000,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("cos(x0) + x1 N=1000",         func3,     1000,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,        1,     3,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("3rd order, mi=2 ni=11",       func5,     1000,        1,     6,          2,       11,     1,true,0.001,20,0,0,99);
+  TestEarth("3rd order, mi=2 ni=51",       func5,     1000,        1,     6,          2,       51,     2,true,0.001,20,0,0,99);
+  TestEarth("3rd order, mi=3",             func5,     1000,        1,     6,          3,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("5 preds + noise",             func6,      200,        1,  5+10,          2,      101,     3,true,0.001,20,0,0,99);
+  TestEarth("5 preds clean",          func6clean,      200,        1,  5+10,          2,      101,     3,true,0.001,20,0,0,99);
+  TestEarth("10 preds + noise",            func7,      200,        1, 10+40,          2,      101,     3,true,0.001,20,0,0,99);
+  TestEarth("20 preds + noise, N=100",     func8,      100,        1, 20+10,          2,      101,     3,true,0.001,20,0,0,99);
+  TestEarth("20 preds + noise, N=400",     func8,      400,        1, 20+10,          2,      101,     3,true,0.001,20,0,0,99);
+  TestEarth("3rd order, mi=3, +noise",     func5,     1000,        1,    10,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("eqn56 mi=1 N=100",            func56,     100,        1,    10,          1,      101,     3,true,0.001,20,0,0,99);
+  TestEarth("eqn56 mi=2 N=100",            func56,     100,        1,    10,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("eqn56 mi=10 N=100",           func56,     100,        1,    10,         10,       51,     3,true,0.001,20,0,0,99);
+  // Following two tests are slow so are commented out
+//TestEarth("eqn56 mi=10 N=1000",          func56,    1000,        1,    10,         10,      101,     3,true,0.001,20,0,0,99);
+//TestEarth("eqn56 mi=10 N=5000",          func56,    5000,        1,    10,         10,      101,     3,true,0.001,20,0,0,99);
+  TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     7,true,0.001,99,0,0,99);
+  TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     7,true,0.001, 4,0,0,99);
+  TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     7,true,0.001, 4,1,0,99);
+
+  // test multiple responses                func    nCases  nClasses nPreds  nMaxDegree nMaxTerms nTrace Format   Thresh  K B N s
+
+  TestEarth("x0|x+x1+noise N=30",        func0_1,      100,        2,     2,          1,       51,     4, true,0.001,20,0,0,99);
+
+  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100",        
+                                         func2_2,      100,        2,     2,          1,       51,     4, true,0.001,20,0,0,99);
+
+  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100",        
+                                         func2_2,      100,        2,     2,          2,       51,     7, true,0.001,20,0,0,99);
+
+  TestEarth("x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50",
+                                         func0_4,       50,        2,    10,          2,      101,     3, true,0.001,20,0,0,99);
+
+  TestEarth("x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50",
+                                         func0_2_4,     50,        3,   3+8,          2,      101,     3, true,0.001,20,0,0,99);
+
+  TestEarth("|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50",
+                                         func2_4_0,     50,        3,   3+8,          2,      101,     3, true,0.001,20,0,0,99);
+
+  TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50",
+                                         func4_2_0,     50,        3,   3+8,          2,      101,     3, true,0.001,20,0,0,99);
+
+  //$$ following gives lousy GRSq for Class 2, investigate
+  TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50",
+                                         func4_6,     1000,         2,     6,         2,      101,     3, true,0.001,20,0,0,99);
+
+  // test NewVarPenalty                     func    nCases  nClasses nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B  NP  s Colin
+
+  TestEarth("cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0",
+                                   func2colinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0, 0.0,99,.005);
+  TestEarth("cos(x1) + cos(x), x1 and x2 xcolinear, NewVarPenalty=0.05",
+                                   func2colinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0,0.05,99,.005);
   return 0;
 }

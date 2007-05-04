@@ -1,8 +1,8 @@
 earth/src/tests/README
 ----------------------
 
-The tests in this directory are much more comprehensive than tests\test.earth.R
-but also take much longer to execute.
+The tests in this directory are much more comprehensive than
+tests\test.earth.R but also take much longer to execute.
 
 For regression tests on earth.c: run test.earthc.bat
 For regression tests of earth with a variety of models: run test.earth.full.bat
@@ -11,7 +11,7 @@ For some timing test results: see timing-tests.txt
 
 None of these test appropriate behaviour for bad arguments.
 
-earth.h contains the externs for earth.c and should be used if you
-want to call routines in earth.c from another C program.
+If your program is independent of R and you want to use the routines
+in earth.c then earth.h will be useful.
 
 Stephen Milborrow Apr 2007 Petaluma
