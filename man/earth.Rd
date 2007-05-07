@@ -480,6 +480,8 @@ See the source code of \code{get.gcv} for an example.
 This example demonstrates one way to train on 80\% of the data and
 test on the remaining 20\%.
 In practice a larger dataset should be used for splitting.
+Also, remember that the test set should not be used for parameter tuning ---
+use separate validation set(s) for that.
 \preformatted{
 train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
 test.subset <- (1:nrow(trees))[-train.subset]
@@ -488,10 +490,6 @@ yhat <- predict(a, newdata = trees[test.subset, ])
 y <- trees$Volume[test.subset]
 print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 }
-Remember that the test set should not be used for parameter tuning.
-Use separate validation set(s) for that (so that there are three
-subsets in total: the training, validation, and test sets).
-
 \strong{Using earth with fda and mda}
 
 Earth can be used with \code{\link[mda]{fda}} and \code{\link[mda]{mda}}

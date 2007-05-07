@@ -761,7 +761,7 @@ get.subset <- function(object, trace)   # called by get.x.default and get.y.defa
         # the n=4 takes us to the caller of plotmo
         subset <- try(eval.parent(object$call$subset, n=3))
         if(class(subset) == "try-error")
-            subset <- null
+            subset <- NULL
     }
     if(!is.null(subset) && trace) {
         cat("subset length " , length(subset), sep="")
