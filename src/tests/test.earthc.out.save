@@ -1,6 +1,6 @@
 =============================================================================
 TEST 1: noise N=1000
-Forward pass: model matrix 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 1 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  783.4                  1
@@ -9,6 +9,7 @@ Forward pass: model matrix 1000 x 1 minspan 9 endspan 17
 6     -0.0048 0.0152      0.00212   771.503    1     0.7606  5       
 8     -0.0091 0.0160     0.000767   770.902    1     0.6702  6       reject term
 
+GRSq: -0.009094 RSq: 0.016
 Reached delta RSq threshold (DeltaRSq 0.000766991 < 0.001)
 Forward pass complete: 7 terms (5 terms used)
 
@@ -30,12 +31,13 @@ TEST 1: FUNCTION noise N=1000
 
 =============================================================================
 TEST 2: x0 N=10
-Forward pass: model matrix 10 x 1 minspan 4 endspan 10
+Forward pass: model matrix 10 x 1 y 10 x 1 minspan 4 endspan 10
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  1.941                  1
 2      1.0000 1.0000            1         0    1    -0.9681< 2       
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 3 terms (2 terms used)
 
@@ -54,12 +56,13 @@ TEST 2: FUNCTION x0 N=10
 
 =============================================================================
 TEST 3: x0 N=1000
-Forward pass: model matrix 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 1 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  291.4                  1
 2      1.0000 1.0000            1         0    1    -0.9987< 2       
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 3 terms (2 terms used)
 
@@ -78,12 +81,13 @@ TEST 3: FUNCTION x0 N=1000
 
 =============================================================================
 TEST 4: x0 + noise N=1000
-Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  297.1                  1
 2      1.0000 1.0000            1         0    1    -0.9994< 2       
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 3 terms (2 terms used)
 
@@ -102,8 +106,8 @@ TEST 4: FUNCTION x0 + noise N=1000
 
 =============================================================================
 TEST 5: x0 + x1 N=1000
-earth.c version 1.0-0
-Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
+earth.c version 1.0-1
+Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  559.7                  1
@@ -143,6 +147,7 @@ Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
 
 6      0.9846 0.9851    4.029e-05   8.33857    1     -0.237  6   7   reject term
 
+GRSq: 0.9846 RSq: 0.9851
 Reached delta RSq threshold (DeltaRSq 4.02874e-05 < 0.001)
 Forward pass complete: 5 terms
 
@@ -184,7 +189,7 @@ TEST 6: x0 + x1 + noise N=1000
 RESULT 6: GRSq 0.986762 RSq 0.987025 nTerms 5 of 5 of 51 [99.99 secs]
 =============================================================================
 TEST 7: x0 + x1 + x0*x1 N=30
-Forward pass: model matrix 30 x 2 minspan 5 endspan 12
+Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -193,6 +198,7 @@ Forward pass: model matrix 30 x 2 minspan 5 endspan 12
 6      0.9173 0.9732      0.04795  0.497969    1    -0.2974  5   6   
 8      1.0000 1.0000      0.02677         0    1    -0.9681< 7       3   
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 9 terms (7 terms used)
 
@@ -221,7 +227,7 @@ TEST 7: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 8: x0 + x1 + x0*x1 N=1000
-Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  537.9                  1
@@ -229,6 +235,7 @@ Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
 4      0.8261 0.8296        0.399   91.6664    2     0.9691  4   5   
 6      1.0000 1.0000       0.1704 0.000348251    1     0.5703  6   7   5   
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 0.999999 > 0.999)
 Forward pass complete: 7 terms
 
@@ -257,7 +264,7 @@ TEST 8: FUNCTION x0 + x1 + x0*x1 N=1000
 
 =============================================================================
 TEST 9: cos(x0) + x1 N=1000
-Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  316.2                  1
@@ -266,6 +273,7 @@ Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
 6      0.9982 0.9982     0.001419   0.55475    1     0.5217  6       
 8      0.9997 0.9997     0.001491 0.0833999    1    -0.5309  7       
 
+GRSq: 0.9997 RSq: 0.9997
 Reached max RSq (RSq 0.999736 > 0.999)
 Forward pass complete: 9 terms (7 terms used)
 
@@ -294,7 +302,7 @@ TEST 9: FUNCTION cos(x0) + x1 N=1000
 
 =============================================================================
 TEST 10: sin(2*x0)+2*x1*.5*x0*x1
-Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1631                  1
@@ -304,6 +312,7 @@ Forward pass: model matrix 1000 x 2 minspan 9 endspan 17
 8      0.9982 0.9983     0.001216     2.767    1     0.5988  8       
 10     0.9995 0.9995     0.001198  0.813479    1    -0.4336  9       
 
+GRSq: 0.9995 RSq: 0.9995
 Reached max RSq (RSq 0.999501 > 0.999)
 Forward pass complete: 11 terms (9 terms used)
 
@@ -336,7 +345,7 @@ TEST 10: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 
 =============================================================================
 TEST 11: sin(2*x0)+2*x1*.5*x0*x1
-Forward pass: model matrix 1000 x 3 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 3 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1486                  1
@@ -346,6 +355,7 @@ Forward pass: model matrix 1000 x 3 minspan 9 endspan 17
 8      0.9977 0.9977      0.00141   3.36251    1     0.6138  8       
 10     0.9994 0.9994     0.001645  0.919317    1    -0.4497  9       
 
+GRSq: 0.9994 RSq: 0.9994
 Reached max RSq (RSq 0.999381 > 0.999)
 Forward pass complete: 11 terms (9 terms used)
 
@@ -378,7 +388,9 @@ TEST 11: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 
 =============================================================================
 TEST 12: 3rd order, mi=2 ni=11
-Term 1, 2, 4, 6, 8, 10 GRSq: 0.8838 RSq: 0.8896 
+Term 1, 2, 4, 6, 8, 10
+GRSq: 0.8838 RSq: 0.8896
+Reached max number of terms 11
 RESULT 12: GRSq 0.884668 RSq 0.889239 nTerms 9 of 11 of 11 [99.99 secs]
 
 TEST 12: FUNCTION 3rd order, mi=2 ni=11
@@ -394,7 +406,7 @@ TEST 12: FUNCTION 3rd order, mi=2 ni=11
 
 =============================================================================
 TEST 13: 3rd order, mi=2 ni=51
-Forward pass: model matrix 1000 x 6 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 6 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1920                  1
@@ -410,6 +422,7 @@ Forward pass: model matrix 1000 x 6 minspan 9 endspan 17
 20     0.9872 0.9884      0.01865   22.3539    3         -1< 20      
 22     0.9875 0.9888    0.0004566   21.4772    5     0.9335  21  22  reject term
 
+GRSq: 0.9875 RSq: 0.9888
 Reached delta RSq threshold (DeltaRSq 0.000456567 < 0.001)
 Forward pass complete: 21 terms (20 terms used)
 RESULT 13: GRSq 0.987166 RSq 0.988358 nTerms 20 of 20 of 51 [99.99 secs]
@@ -438,7 +451,7 @@ TEST 13: FUNCTION 3rd order, mi=2 ni=51
 
 =============================================================================
 TEST 14: 3rd order, mi=3
-Forward pass: model matrix 1000 x 6 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 6 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1920                  1
@@ -455,6 +468,7 @@ Forward pass: model matrix 1000 x 6 minspan 9 endspan 17
 22     0.9921 0.9929     0.004583    13.554    5     0.9335  21  22  15  15  
 24     0.9999 0.9999     0.006932  0.243794    5     0.9335  23  24  9   
 
+GRSq: 0.9999 RSq: 0.9999
 Reached max RSq (RSq 0.999873 > 0.999)
 Forward pass complete: 25 terms (24 terms used)
 
@@ -515,7 +529,7 @@ TEST 14: FUNCTION 3rd order, mi=3
 
 =============================================================================
 TEST 15: 5 preds + noise
-Forward pass: model matrix 200 x 15 minspan 7 endspan 14
+Forward pass: model matrix 200 x 15 y 200 x 1 minspan 7 endspan 14
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  288.7                  1
@@ -531,6 +545,7 @@ Forward pass: model matrix 200 x 15 minspan 7 endspan 14
 20     0.9886 0.9936      0.01174   1.84828    6     0.2714  20  21  3   
 22     0.9894 0.9945    0.0008751   1.59566    3    -0.1897  22  23  reject term
 
+GRSq: 0.9894 RSq: 0.9945
 Reached delta RSq threshold (DeltaRSq 0.000875067 < 0.001)
 Forward pass complete: 21 terms
 
@@ -586,7 +601,7 @@ TEST 15: FUNCTION 5 preds + noise
 
 =============================================================================
 TEST 16: 5 preds clean
-Forward pass: model matrix 200 x 15 minspan 7 endspan 14
+Forward pass: model matrix 200 x 15 y 200 x 1 minspan 7 endspan 14
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    279                  1
@@ -603,6 +618,7 @@ Forward pass: model matrix 200 x 15 minspan 7 endspan 14
 22     0.9891 0.9943     0.007259   1.59289    3     0.0183  22  23  7   
 24     0.9992 0.9996      0.00533  0.106033    2     0.6573  24  25  9   
 
+GRSq: 0.9992 RSq: 0.9996
 Reached max RSq (RSq 0.99962 > 0.999)
 Forward pass complete: 25 terms
 
@@ -666,7 +682,7 @@ TEST 16: FUNCTION 5 preds clean
 
 =============================================================================
 TEST 17: 10 preds + noise
-Forward pass: model matrix 200 x 50 minspan 7 endspan 14
+Forward pass: model matrix 200 x 50 y 200 x 1 minspan 7 endspan 14
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    533                  1
@@ -687,6 +703,7 @@ Forward pass: model matrix 200 x 50 minspan 7 endspan 14
 30     0.9931 0.9972      0.01854   1.48411    4     -0.995< 30      15  
 32     0.9975 0.9991     0.001863  0.491205    2    -0.1157  31  32  
 
+GRSq: 0.9975 RSq: 0.9991
 Reached max RSq (RSq 0.999078 > 0.999)
 Forward pass complete: 33 terms (32 terms used)
 
@@ -763,7 +780,7 @@ TEST 17: FUNCTION 10 preds + noise
 
 =============================================================================
 TEST 18: 20 preds + noise, N=100
-Forward pass: model matrix 100 x 30 minspan 7 endspan 13
+Forward pass: model matrix 100 x 30 y 100 x 1 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  539.4                  1
@@ -787,6 +804,7 @@ Forward pass: model matrix 100 x 30 minspan 7 endspan 13
 36    -5.4837 0.9464     0.006208   28.9039    2     0.5575  36  37  33  
 38   -26.4825 0.9551     0.008719   24.2006   16     0.0821  38  39  reject term
 
+GRSq: -26.48 RSq: 0.9551
 Reached min GRSq (GRSq -26.4825 < -10)
 Forward pass complete: 37 terms
 
@@ -859,7 +877,7 @@ TEST 18: FUNCTION 20 preds + noise, N=100
 
 =============================================================================
 TEST 19: 20 preds + noise, N=400
-Forward pass: model matrix 400 x 30 minspan 8 endspan 15
+Forward pass: model matrix 400 x 30 y 400 x 1 minspan 8 endspan 15
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1909                  1
@@ -891,6 +909,7 @@ Forward pass: model matrix 400 x 30 minspan 8 endspan 15
 52     0.9943 0.9974     0.001357   4.92358    9     0.3247  52  53  
 54     0.9955 0.9980    0.0005914   3.79451    6    -0.3754  54  55  reject term
 
+GRSq: 0.9955 RSq: 0.998
 Reached delta RSq threshold (DeltaRSq 0.000591351 < 0.001)
 Forward pass complete: 53 terms
 
@@ -1004,7 +1023,7 @@ TEST 19: FUNCTION 20 preds + noise, N=400
 
 =============================================================================
 TEST 20: 3rd order, mi=3, +noise
-Forward pass: model matrix 1000 x 10 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 10 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1871                  1
@@ -1023,6 +1042,7 @@ Forward pass: model matrix 1000 x 10 minspan 9 endspan 17
 26     0.9873 0.9888       0.0021   20.9078    5     0.7622  25  26  10  
 28     0.9878 0.9894    0.0005764   19.8293    5     0.9244  27  28  reject term
 
+GRSq: 0.9878 RSq: 0.9894
 Reached delta RSq threshold (DeltaRSq 0.000576444 < 0.001)
 Forward pass complete: 27 terms (26 terms used)
 
@@ -1086,7 +1106,7 @@ TEST 20: FUNCTION 3rd order, mi=3, +noise
 
 =============================================================================
 TEST 21: eqn56 mi=1 N=100
-Forward pass: model matrix 100 x 10 minspan 7 endspan 13
+Forward pass: model matrix 100 x 10 y 100 x 1 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  641.9                  1
@@ -1121,6 +1141,7 @@ Forward pass: model matrix 100 x 10 minspan 7 endspan 13
 58    -8.4496 0.5748     0.002085   272.921    8     0.6941  40      
 60   -10.4962 0.5766     0.001752   271.796    9     0.4622  41      reject term
 
+GRSq: -10.5 RSq: 0.5766
 Reached min GRSq (GRSq -10.4962 < -10)
 Forward pass complete: 59 terms (40 terms used)
 
@@ -1178,7 +1199,7 @@ TEST 21: FUNCTION eqn56 mi=1 N=100
 
 =============================================================================
 TEST 22: eqn56 mi=2 N=100
-Forward pass: model matrix 100 x 10 minspan 7 endspan 13
+Forward pass: model matrix 100 x 10 y 100 x 1 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  641.9                  1
@@ -1204,6 +1225,7 @@ Forward pass: model matrix 100 x 10 minspan 7 endspan 13
 40    -7.4937 0.9861     0.005417   8.90024    1    -0.4316  38  39  14  
 42  -110.0735 0.9887     0.002533   7.27435   10     0.2084  40  41  reject term
 
+GRSq: -110.1 RSq: 0.9887
 Reached min GRSq (GRSq -110.074 < -10)
 Forward pass complete: 41 terms (39 terms used)
 
@@ -1275,7 +1297,7 @@ TEST 22: FUNCTION eqn56 mi=2 N=100
 
 =============================================================================
 TEST 23: eqn56 mi=10 N=100
-Forward pass: model matrix 100 x 10 minspan 7 endspan 13
+Forward pass: model matrix 100 x 10 y 100 x 1 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  641.9                  1
@@ -1299,6 +1321,7 @@ Forward pass: model matrix 100 x 10 minspan 7 endspan 13
 36     0.9866 0.9984     0.002139   1.01147    5    -0.3903  27      20  20  20  
 38     0.9855 0.9988    0.0003338  0.797183    7     0.3901  28  29  reject term
 
+GRSq: 0.9855 RSq: 0.9988
 Reached delta RSq threshold (DeltaRSq 0.000333837 < 0.001)
 Forward pass complete: 37 terms (27 terms used)
 
@@ -1365,8 +1388,8 @@ TEST 23: FUNCTION eqn56 mi=10 N=100
 
 =============================================================================
 TEST 24: x0 + x1 + x0*x1 N=30
-earth.c version 1.0-0
-Forward pass: model matrix 30 x 2 minspan 5 endspan 12
+earth.c version 1.0-1
+Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -1448,6 +1471,7 @@ SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
               7      7                 8     -1.0  inf
 
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 9 terms (7 terms used)
 
@@ -1496,8 +1520,8 @@ TEST 24: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 N=30
-earth.c version 1.0-0
-Forward pass: model matrix 30 x 2 minspan 5 endspan 12
+earth.c version 1.0-1
+Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -1578,6 +1602,7 @@ FastK 4 ----------------------------------------------------
               7      5                 8     -1.0  -1
 
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 9 terms (7 terms used)
 
@@ -1626,8 +1651,8 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
-earth.c version 1.0-0
-Forward pass: model matrix 30 x 2 minspan 5 endspan 12
+earth.c version 1.0-1
+Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -1708,6 +1733,7 @@ FastK 4 ----------------------------------------------------
               7      4                 6      7.0  -1
 
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 9 terms (7 terms used)
 
@@ -1756,7 +1782,7 @@ TEST 26: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 27: x0|x+x1+noise N=30
-Forward pass: model matrix 100 x 2 minspan 7 endspan 13
+Forward pass: model matrix 100 x 2 y 100 x 2 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  86.87                  1
@@ -1764,6 +1790,7 @@ Forward pass: model matrix 100 x 2 minspan 7 endspan 13
 4      0.9891 0.9908       0.4147  0.802374    2     0.0313  4   5   
 6      0.9888 0.9910    0.0002243  0.782893    2     0.2714  6       reject term
 
+GRSq: 0.9888 RSq: 0.991
 Reached delta RSq threshold (DeltaRSq 0.000224254 < 0.001)
 Forward pass complete: 5 terms
 
@@ -1794,7 +1821,7 @@ Response 2:
 
 =============================================================================
 TEST 28: x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
-Forward pass: model matrix 100 x 2 minspan 7 endspan 13
+Forward pass: model matrix 100 x 2 y 100 x 2 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    127                  1
@@ -1802,6 +1829,7 @@ Forward pass: model matrix 100 x 2 minspan 7 endspan 13
 4      0.8107 0.8401       0.3303   20.3155    2     0.2735  4   5   
 6      0.8033 0.8410    0.0009201   20.1986    2     0.1097  6       reject term
 
+GRSq: 0.8033 RSq: 0.841
 Reached delta RSq threshold (DeltaRSq 0.000920137 < 0.001)
 Forward pass complete: 5 terms
 
@@ -1834,8 +1862,8 @@ Response 2:
 
 =============================================================================
 TEST 29: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
-earth.c version 1.0-0
-Forward pass: model matrix 100 x 2 minspan 7 endspan 13
+earth.c version 1.0-1
+Forward pass: model matrix 100 x 2 y 100 x 2 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    127                  1
@@ -1928,6 +1956,7 @@ SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
               8      7                 8     -1.0  -1
 
 
+GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
 Forward pass complete: 9 terms (8 terms used)
 
@@ -1990,7 +2019,7 @@ Response 2:
 
 =============================================================================
 TEST 30: x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
-Forward pass: model matrix 50 x 10 minspan 6 endspan 12
+Forward pass: model matrix 50 x 10 y 50 x 2 minspan 6 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  92.98                  1
@@ -2000,6 +2029,7 @@ Forward pass: model matrix 50 x 10 minspan 6 endspan 12
 8      0.9963 0.9985     0.002658  0.140364    1     0.2211  8       
 10     0.9975 0.9993    0.0007838 0.0674908    1    -0.1314  9   10  reject term
 
+GRSq: 0.9975 RSq: 0.9993
 Reached delta RSq threshold (DeltaRSq 0.00078379 < 0.001)
 Forward pass complete: 9 terms (8 terms used)
 
@@ -2036,7 +2066,7 @@ Response 2:
 
 =============================================================================
 TEST 31: x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
-Forward pass: model matrix 50 x 11 minspan 6 endspan 12
+Forward pass: model matrix 50 x 11 y 50 x 3 minspan 6 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  113.8                  1
@@ -2047,6 +2077,7 @@ Forward pass: model matrix 50 x 11 minspan 6 endspan 12
 10     0.9947 0.9981     0.001748  0.212603    1    -0.1314  9       
 12     0.9945 0.9987    0.0005536  0.149614    2    -0.0326  10  11  reject term
 
+GRSq: 0.9945 RSq: 0.9987
 Reached delta RSq threshold (DeltaRSq 0.000553563 < 0.001)
 Forward pass complete: 11 terms (9 terms used)
 
@@ -2096,7 +2127,7 @@ Response 3:
 
 =============================================================================
 TEST 32: |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
-Forward pass: model matrix 50 x 11 minspan 6 endspan 12
+Forward pass: model matrix 50 x 11 y 50 x 3 minspan 6 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  113.8                  1
@@ -2107,6 +2138,7 @@ Forward pass: model matrix 50 x 11 minspan 6 endspan 12
 10     0.9947 0.9981     0.001748  0.212603    1    -0.1314  9       
 12     0.9945 0.9987    0.0005536  0.149614    2    -0.0326  10  11  reject term
 
+GRSq: 0.9945 RSq: 0.9987
 Reached delta RSq threshold (DeltaRSq 0.000553563 < 0.001)
 Forward pass complete: 11 terms (9 terms used)
 
@@ -2156,7 +2188,7 @@ Response 3:
 
 =============================================================================
 TEST 33: sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
-Forward pass: model matrix 50 x 11 minspan 6 endspan 12
+Forward pass: model matrix 50 x 11 y 50 x 3 minspan 6 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  113.8                  1
@@ -2167,6 +2199,7 @@ Forward pass: model matrix 50 x 11 minspan 6 endspan 12
 10     0.9947 0.9981     0.001748  0.212603    1    -0.1314  9       
 12     0.9945 0.9987    0.0005536  0.149614    2    -0.0326  10  11  reject term
 
+GRSq: 0.9945 RSq: 0.9987
 Reached delta RSq threshold (DeltaRSq 0.000553563 < 0.001)
 Forward pass complete: 11 terms (9 terms used)
 
@@ -2216,7 +2249,7 @@ Response 3:
 
 =============================================================================
 TEST 34: sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
-Forward pass: model matrix 1000 x 6 minspan 9 endspan 17
+Forward pass: model matrix 1000 x 6 y 1000 x 2 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   2909                  1
@@ -2231,6 +2264,7 @@ Forward pass: model matrix 1000 x 6 minspan 9 endspan 17
 18     0.9952 0.9956       0.0248   12.8009    6    -0.5247  18  19  8   
 20     0.9958 0.9962    0.0005968    11.065    1     0.5849  20      reject term
 
+GRSq: 0.9958 RSq: 0.9962
 Reached delta RSq threshold (DeltaRSq 0.000596833 < 0.001)
 Forward pass complete: 19 terms
 
@@ -2303,7 +2337,7 @@ Response 2:
 
 =============================================================================
 TEST 35: cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0
-Forward pass: model matrix 100 x 2 minspan 7 endspan 13
+Forward pass: model matrix 100 x 2 y 100 x 1 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  8.717                  1
@@ -2312,6 +2346,7 @@ Forward pass: model matrix 100 x 2 minspan 7 endspan 13
 6      0.9199 0.9323      0.03209  0.590144    2   -0.61227  5       
 8      0.9165 0.9325    0.0002344  0.588101    2    0.23331  6       reject term
 
+GRSq: 0.9165 RSq: 0.9325
 Reached delta RSq threshold (DeltaRSq 0.000234375 < 0.001)
 Forward pass complete: 7 terms (5 terms used)
 
@@ -2336,7 +2371,7 @@ TEST 35: FUNCTION cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0
 
 =============================================================================
 TEST 36: cos(x1) + cos(x), x1 and x2 xcolinear, NewVarPenalty=0.05
-Forward pass: model matrix 100 x 2 minspan 7 endspan 13
+Forward pass: model matrix 100 x 2 y 100 x 1 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  8.717                  1
@@ -2345,6 +2380,7 @@ Forward pass: model matrix 100 x 2 minspan 7 endspan 13
 6      0.9101 0.9241      0.03142  0.661941    1    -0.5979  5       
 8      0.9063 0.9243     0.000236  0.659884    2    0.23331  6       reject term
 
+GRSq: 0.9063 RSq: 0.9243
 Reached delta RSq threshold (DeltaRSq 0.000235973 < 0.001)
 Forward pass complete: 7 terms (5 terms used)
 

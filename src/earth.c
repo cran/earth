@@ -120,7 +120,7 @@ extern _C_ double ddot_(const int *n,
 #define FAST_MARS   1     // 1 to use techniques in FriedmanFastMars (see refs)
 #define IOFFSET     1     // 1 to convert 0-based indices to 1-based in printfs
 
-static const char   *VERSION    = "version 1.0-0"; // change if you modify this file!
+static const char   *VERSION    = "version 1.0-1"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -581,7 +581,7 @@ static void RegressAndFix(
         for (int iCol = nRank; iCol < nUsedCols; iCol++)
             UsedCols[iPivots[iCol]] = false;
 
-        Regress(Betas, Residuals, NULL, Diags, &nRank, iPivots,
+        Regress(Betas, Residuals, NULL, Diags, &nRank, NULL,
             bx, y, nCases, nClasses, nTerms, UsedCols);
         nUsedCols = nUsedCols - nDeficient;
         if (nRank != nUsedCols)
@@ -1593,6 +1593,7 @@ static void FindTerm(
 
 //--------------------------------------------------------------------------------------------
 static void PrintForwardProlog(const double RssNull,
+                const int nClasses,
                 const int nCases,
                 const int nPreds,
                 const char *sPredNames[])       // in: predictor names, can be NULL
@@ -1600,8 +1601,8 @@ static void PrintForwardProlog(const double RssNull,
     if (nTraceGlobal == 1)
         printf("Term 1");
     else if (nTraceGlobal >= 2) {
-        printf("Forward pass: model matrix %d x %d minspan %d endspan %d\n\n",
-            nCases, nPreds,
+        printf("Forward pass: model matrix %d x %d y %d x %d minspan %d endspan %d\n\n",
+            nCases, nPreds, nCases, nClasses,
             GetMinSpan(nCases, NULL, 0, nMinSpanGlobal), GetEndSpan(nCases));
 
         printf("         GRSq    RSq     DeltaRSq       RSS Pred ");
@@ -1635,8 +1636,8 @@ static void PrintForwardStep(
     if (nTraceGlobal == 1) {
         printf(", ");
         if (nTerms % 30 == 29)
-            printf("\n");
-        printf("%d", nTerms+IOFFSET);
+            printf("\n     ");
+        printf("%d", nUsedTerms-2+IOFFSET);
     } else if (nTraceGlobal >= 2) {
         printf("%-4d%9.4f %6.4f %12.4g %9g  %3d",
             nTerms+IOFFSET, 1-Gcv/GcvNull, RSq, RSqDelta, Rss, iBestPred+IOFFSET);
@@ -1673,11 +1674,11 @@ static void PrintForwardEpilog(
             const bool FullSet[])
 {
     double GRSq = 1-Gcv/GcvNull;
-    if (nTraceGlobal == 1)
-        printf(" GRSq: %.4g RSq: %.4g ", GRSq, RSq);
     if (nTraceGlobal >= 1)
+        printf("\nGRSq: %.4g RSq: %.4g", GRSq, RSq);
+    if (nTraceGlobal >= 1) {
         printf("\n");
-    if (nTraceGlobal >= 2) {
+
         // print reason why we stopped adding terms
         // NOTE: this code must match the loop termination conditions in ForwardPass
 
@@ -1706,15 +1707,17 @@ static void PrintForwardEpilog(
                 printf(" (no room for another term pair)");
             printf("\n");
         }
+    }
+    if (nTraceGlobal >= 2) {
         printf("Forward pass complete: %d terms", nTerms);
         int nUsed = GetNbrUsedCols(FullSet, nMaxTerms);
         if (nUsed != nTerms)
             printf(" (%d terms used)", nUsed);
-        if (nTraceGlobal >= 2)
-            printf("\n");
-        if (nTraceGlobal >= 3)
-            printf("\n");
     }
+    if (nTraceGlobal >= 2)
+        printf("\n");
+    if (nTraceGlobal >= 3)
+        printf("\n");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1841,7 +1844,7 @@ static void ForwardPass(
     double Rss = RssNull, RssDelta = RssNull, RSq = 0, RSqDelta = 0;
     int nUsedTerms = 1;     // number of used basis terms including intercept, for GCV calc
     double Gcv = 0, GcvNull = GetGcv(1, nCases, RssNull, Penalty);
-    PrintForwardProlog(RssNull, nCases, nPreds, sPredNames);
+    PrintForwardProlog(RssNull, nClasses, nCases, nPreds, sPredNames);
 #if FAST_MARS
     InitQ(nMaxTerms);
     AddTermToQ(0, 1, RssNull, true, nMaxTerms, FastK, FastBeta);    // intercept term into Q
@@ -1975,6 +1978,7 @@ void ForwardPassR(              // for use by R
     for (iTerm = 0; iTerm < nMaxTerms; iTerm++)     // convert bool to int
         FullSet[iTerm] = BoolFullSet[iTerm];
 
+    free1(BoolFullSet);
     free1(iDirs);
     free1(nFactorsInTerm);
     free1(nUses);
@@ -2020,7 +2024,9 @@ static void EvalSubsetsUsingXtx(
         double RssBeforeDeletingTerm;
         Regress(Betas, NULL, &RssBeforeDeletingTerm, Diags, &nRank, NULL,
             bx, y, nCases, nClasses, nMaxTerms, WorkingSet);
-        ASSERT(nRank == nTerms);
+        if(nRank != nTerms)
+            error("nRank %d != nTerms %d (probably because of lin dep terms in bx)\n", 
+                nRank, nTerms);
 
         // set iDelete to the best term for deletion
 

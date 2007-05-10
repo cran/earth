@@ -29,13 +29,17 @@ print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 cat("--- print.default of earth object---------\n")
 print.default(a, digits=3)
 cat("--- done print.default of earth object----\n")
-
 plot(a)
 library(mda)
 (a <- fda(Species~., data=iris, method=earth, keepxy=TRUE))
 plot(a)
+print(summary(a$fit))
+plot(a$fit)
 plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
 plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+a <- update(a, nk=3)	# not on man page
+print(a)
+print(summary(a$fit))
 
 cat("--- format.earth.Rd ----------------------\n")
 as.func <- function( # convert expression string to func

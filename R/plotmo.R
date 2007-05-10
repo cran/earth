@@ -759,7 +759,7 @@ get.subset <- function(object, trace)   # called by get.x.default and get.y.defa
     subset <- object$subset
     if(is.null(subset)) {
         # the n=4 takes us to the caller of plotmo
-        subset <- try(eval.parent(object$call$subset, n=3))
+        subset <- try(eval.parent(object$call$subset, n=3), silent=TRUE)
         if(class(subset) == "try-error")
             subset <- NULL
     }

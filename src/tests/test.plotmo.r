@@ -1,5 +1,5 @@
 # test.plotmo.R: regression tests for plotmo
-# Many of thewse  tests are culled from man page examples and modified to try to confuse plotmo.
+# Many of these tests are culled from man page examples and modified to try to confuse plotmo.
 # Many of the plots are plotted twice so you can visually check by comparing
 # plots in the same window, they should be substantially the same.
 # Stephen Milborrow, Petaluma Jan 2007
