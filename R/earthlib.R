@@ -102,7 +102,7 @@ check.index.vec <- function(index.name, indexVec, object,
 {
     if(is.null(indexVec)) {
         if(check.empty)
-            stop1("'", index.name, "' is NULL")
+            stop1("'", index.name, "' is NULL and cannot be used as an index vector")
         return(NULL)
     }
     if(any(is.na(indexVec)))

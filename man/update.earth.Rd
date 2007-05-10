@@ -13,8 +13,7 @@ Update an \sQuote{earth} model.
   \item{formula.}{}
   \item{\dots}{
      These arguments are the same as \code{\link{earth}}.
-     The \code{formula.} argument is treated like earth's \code{formula} argument.
-     The updated call is printed if the \code{trace} argument is greater than 0.\cr
+     The \code{formula.} argument is treated like earth's \code{formula} argument.\cr
 
   }
   \item{evaluate}{
@@ -33,6 +32,7 @@ This is usually much faster for large models.
      Get.crit
      Eval.model.subsets
      Print.pruning.pass
+     Force.xtx.prune
 }
 }
 \value{

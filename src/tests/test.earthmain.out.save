@@ -1,4 +1,4 @@
-Forward pass: model matrix 100 x 1 minspan 7 endspan 13
+Forward pass: model matrix 100 x 1 y 100 x 1 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  26.13                  1
@@ -6,6 +6,7 @@ Forward pass: model matrix 100 x 1 minspan 7 endspan 13
 4      0.9856 0.9873     0.006021  0.331724    1       0.63  4       
 6      0.9851 0.9874    8.545e-05  0.329491    1       0.84  5       reject term
 
+GRSq: 0.9851 RSq: 0.9874
 Reached delta RSq threshold (DeltaRSq 8.54517e-05 < 0.001)
 Forward pass complete: 5 terms (4 terms used)
 

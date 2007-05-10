@@ -10,9 +10,9 @@ Loading required package: leaps
 > options(digits=3)
 > data(ozone1)
 > a <- earth(O3 ~ ., data = ozone1, degree = 2, trace = 4)
-Call earth.default(x=x,y=y,trace=4,degree=2) 
+Call: earth.default(x=x,y=y,trace=4,degree=2) 
 
-Forward pass: model matrix 330 x 9 minspan 8 endspan 15
+Forward pass: model matrix 330 x 9 y 330 x 1 minspan 8 endspan 15
 
          GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
 1      0.0000 0.0000              2.112e+04                            1
@@ -27,6 +27,7 @@ Forward pass: model matrix 330 x 9 minspan 8 endspan 15
 18     0.7685 0.8275     0.009595   3642.46    7      ibt         234  18  19  
 20     0.7662 0.8318     0.004351   3550.59    9      doy         159  20  21  2   
 
+GRSq: 0.7662 RSq: 0.8318
 Reached max number of terms 21
 Forward pass complete: 21 terms
 

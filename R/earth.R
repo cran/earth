@@ -30,7 +30,8 @@
 # NOTE: if you change the pruning formal arguments in earth.default(), update this too!
 
 prune.args.global <- c("trace", "pmethod", "ppenalty", "nprune",
-                        "Get.crit", "Eval.model.subsets", "Print.pruning.pass")
+                        "Get.crit", "Eval.model.subsets", "Print.pruning.pass", 
+                        "Force.xtx.prune")
 
 #--------------------------------------------------------------------------------------------
 earth <- function(...) UseMethod("earth")
@@ -150,6 +151,7 @@ earth.default <- function(
     {
         get.nprune <- function()  # convert user's nprune argument to something we can use
         {
+            nterms <- nrow(dirs)
             if(is.null(nprune))
                 nprune <- nterms
             if(nprune > nterms) {
@@ -163,13 +165,13 @@ earth.default <- function(
             nprune
         }
         # pruning.pass starts here
-        nterms <- nrow(dirs)
-        nprune <- get.nprune()
+
         # get bx.prune and y.prune, with subset handling
         if(!is.null(bx) && is.null(subset))
             bx.prune <- bx   # use bx created in forward pass
         else
             bx.prune <- get.bx(x.org, 1:nrow(dirs), dirs, cuts) # all terms
+
         y.prune <- y.org
         stopifnot(nrow(bx) == nrow(y))
         if(!is.null(subset)) {
@@ -177,6 +179,7 @@ earth.default <- function(
             y.prune <- y.prune[subset, , drop=FALSE]
             bx.prune <- bx.prune[subset, , drop=FALSE]
         }
+        nprune <- get.nprune()
         rval <- Eval.model.subsets(bx.prune, y.prune, pmethod, nprune, Force.xtx.prune)
           rss.per.subset <- rval[[1]]   # RSS for each subset
           prune.terms    <- rval[[2]]   # terms in each subset
@@ -208,7 +211,7 @@ earth.default <- function(
     # earth.default starts here
     warn.if.dots.used("earth.default", ...)
     if(trace >= 3)              # show the call?
-       cat("Call", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
+       cat("Call:", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
             "\n\n")
     if(nk < 1)
         stop1("'nk' ", nk, " is less than 1")
@@ -375,6 +378,8 @@ earth.formula <- function(
 #    not created using a formula i.e. were created by earth.formula() or
 #    by calling earth.default() directly.
 #
+# c) This function retrieves x and y from object$x and object$y if need be
+# 
 # $$ would be nice to not do forward.pass if new formula==call$formula
 
 update.earth <- function(
@@ -393,7 +398,8 @@ update.earth <- function(
         call$formula <- update.formula(formula(object), formula.)
         do.forward.pass <- TRUE
     }
-    dots <- match.call(expand.dots=FALSE)$...
+    this.call <- match.call(expand.dots=FALSE)
+    dots <- this.call$...
     if(length(dots) > 0) {
         if(any(is.na(pmatch(names(dots), prune.args.global))))
             do.forward.pass <- TRUE
@@ -405,9 +411,35 @@ update.earth <- function(
             call <- as.call(call)
         }
     }
+    # If the user has not specified an x then we must get x from the original call.
+    # This may not be possible, for example if earth was called from within a
+    # function (e.g. fda) and the original x no longer exists.  But if we saved 
+    # the original x (because keepxy was true) then we can use that instead.  
+    # That's what the following code does, and for y too.
+
+    if(is.null(call$formula)) {     # earth was invoked using the x,y interface?
+        if(is.null(this.call$x)) {  # no x argument in this call to update?
+            x <- try(eval.parent(call$x), silent=TRUE)
+            if(class(x) == "try-error") {
+                x <- try(eval.parent(object$x), silent=TRUE)
+                if(is.null(x) || class(x) == "try-error")
+                    stop1("Cannot find 'x' (remedy: ",
+                        "call earth with keepxy=TRUE before calling predict.earth)")
+                call$x <- x
+            }
+        }
+        if(is.null(this.call$y)) {
+            y <- try(eval.parent(call$y), silent=TRUE)
+            if(class(y) == "try-error") {
+                y <- try(eval.parent(object$y), silent=TRUE)
+                if(is.null(y) || class(y) == "try-error")
+                    stop1("Cannot find 'y' (remedy: ",
+                        "call earth with keepxy=TRUE before calling predict.earth)")
+                call$y <- y
+            }
+        }
+    }
     call$Object <- if(do.forward.pass) NULL else substitute(object)
-    if(!is.null(call$trace) && eval.parent(call$trace) > 0)
-        cat(strip.white.space(format(call)), "\n")
     if(evaluate)
         eval(call, parent.frame())
     else
@@ -716,15 +748,17 @@ get.nused.preds.per.subset <- function(dirs, which.terms)
     nmodels <- NROW(which.terms)
     stopifnot(nmodels > 0)
     nused <- vector(mode="numeric", nmodels)
-    for(i in 1:nmodels)
+    for(i in 1:nmodels) {
+        check.which.terms(dirs, which.terms)
         nused[i] <- sum(colSums(abs(dirs[which.terms[i,,drop=FALSE], , drop=FALSE])) != 0)
+    }
     nused
 }
 
 get.nterms.per.degree <- function(object, which.terms = object$selected.terms)
 {
     check.classname(object, deparse(substitute(object)), c("earth", "summary.earth"))
-    check.which.terms(object, which.terms)
+    check.which.terms(object$dirs, which.terms)
     table(rowSums(abs(object$dirs[which.terms, , drop=FALSE])))
 }
 
@@ -926,7 +960,7 @@ predict.earth <- function(
         get.terms())
 }
 
-check.which.terms <- function(object, which.terms)
+check.which.terms <- function(dirs, which.terms)
 {
     if(is.null(which.terms))
         stop1("'which.terms\' is NULL")
@@ -934,7 +968,7 @@ check.which.terms <- function(object, which.terms)
         stop1("length(which.terms) == 0")
     if(which.terms[1] != 1)
         stop1("first element of 'which.terms' must be 1, the intercept term")
-    check.index.vec("which.terms", which.terms[1], object$dirs)
+    check.index.vec("which.terms", which.terms[1], dirs)
 }
 
 factors.present <- function(object)
@@ -974,7 +1008,7 @@ reorder.earth <- function(
         stop1("min.degree ", min.degree, " < 0")
     if(degree < min.degree)
         stop1("degree ", degree, " < min.degree ", min.degree)
-    check.which.terms(x, which.terms)
+    check.which.terms(x$dirs, which.terms)
     dirs <- x$dirs[which.terms, , drop=FALSE]
     new.order <- switch(match.arg1(decomp),
                         anova.decomp(dirs),     # anova
@@ -1019,7 +1053,7 @@ format.one.class <- function(
     new.order <- reorder.earth(object, decomp=decomp)
     coefs <- object$coefficients[new.order, iclass]
     which.terms <- object$selected.terms[new.order]
-    check.which.terms(object, which.terms)
+    check.which.terms(object$dirs, which.terms)
     coef.width <- get.coef.width(coefs[-1], digits)
     var.names <- variable.names(object, use.names=use.names)
     width <- get.width()

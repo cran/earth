@@ -38,9 +38,9 @@ Number of terms at each degree of interaction: 1 3 (additive model)
 GCV: 11          RSS: 213         GRSq: 0.96      RSq: 0.97
 > 
 > a <- earth(mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
-Call earth.default(x=x,y=y,trace=4,pmethod="none") 
+Call: earth.default(x=x,y=y,trace=4,pmethod="none") 
 
-Forward pass: model matrix 32 x 10 minspan 5 endspan 12
+Forward pass: model matrix 32 x 10 y 32 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
 1      0.0000 0.0000                   1126                            1
@@ -53,6 +53,7 @@ Forward pass: model matrix 32 x 10 minspan 5 endspan 12
 14    -6.5107 0.9297     0.009312   79.2055    4     drat        3.69  14  15  
 16   -49.6655 0.9473      0.01762   59.3671   10     carb           2  16  17  reject term
 
+GRSq: -49.67 RSq: 0.9473
 Reached min GRSq (GRSq -49.6655 < -10)
 Forward pass complete: 15 terms
 
@@ -260,7 +261,6 @@ attr(,"class")
 [1] "earth"
 > cat("--- done print.default of earth object----\n")
 --- done print.default of earth object----
-> 
 > plot(a)
 > library(mda)
 > (a <- fda(Species~., data=iris, method=earth, keepxy=TRUE))
@@ -275,8 +275,80 @@ Percent Between-Group Variance Explained:
 
 Training Misclassification Error: 0.0333 ( N = 150 )
 > plot(a)
+> print(summary(a$fit))
+Call:
+earth(x = x, y = Theta, weights = weights, keepxy = TRUE)
+
+Response 1 expression:
+  -1.96 
+  -  0.208 * pmax(0, Sepal.Length -          5.4) 
+  +  0.179 * pmax(0,  Sepal.Width -          3.2) 
+  + 0.0107 * pmax(0,          3.2 -  Sepal.Width) 
+  +  0.762 * pmax(0,          4.5 - Petal.Length) 
+  -  0.893 * pmax(0, Petal.Length -          5.3) 
+  +   1.02 * pmax(0, Petal.Length -          3.7) 
+  +  0.363 * pmax(0,  Petal.Width -          1.2) 
+  +  0.841 * pmax(0,          1.2 -  Petal.Width) 
+  -   2.34 * pmax(0,  Petal.Width -          1.9) 
+  +   1.59 * pmax(0,  Petal.Width -          1.6) 
+
+Response 2 expression:
+  -1.46 
+  -  0.286 * pmax(0, Sepal.Length -          5.4) 
+  + 0.0845 * pmax(0,  Sepal.Width -          3.2) 
+  +  0.434 * pmax(0,          3.2 -  Sepal.Width) 
+  +  0.341 * pmax(0,          4.5 - Petal.Length) 
+  -  0.884 * pmax(0, Petal.Length -          5.3) 
+  +   1.17 * pmax(0, Petal.Length -          3.7) 
+  +  0.317 * pmax(0,  Petal.Width -          1.2) 
+  -  0.336 * pmax(0,          1.2 -  Petal.Width) 
+  -   4.58 * pmax(0,  Petal.Width -          1.9) 
+  +   3.88 * pmax(0,  Petal.Width -          1.6) 
+
+Number of cases: 300
+Selected 11 of 13 terms, and 4 of 4 predictors
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+Response 1  GCV: 0.0653       RSS: 7.24         GRSq: 0.968      RSq: 0.976
+Response 2  GCV: 0.143        RSS: 15.8         GRSq: 0.93       RSq: 0.947
+All         GCV: 0.196        RSS: 21.8         GRSq: 0.966      RSq: 0.974
+> plot(a$fit)
 > plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
 > plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+> a <- update(a, nk=3)	# not on man page
+> print(a)
+Call:
+fda(formula = Species ~ ., data = iris, method = earth, keepxy = TRUE, 
+    nk = 3)
+
+Dimension: 2 
+
+Percent Between-Group Variance Explained:
+   v1    v2 
+ 94.4 100.0 
+
+Training Misclassification Error: 0.04 ( N = 150 )
+> print(summary(a$fit))
+Call:
+earth(x = x, y = Theta, weights = weights, keepxy = TRUE, nk = 3)
+
+Response 1 expression:
+  -1.3 
+  + 1.35 * pmax(0, Petal.Width -         1.2) 
+  +  2.6 * pmax(0,         1.2 - Petal.Width) 
+
+Response 2 expression:
+  -0.744 
+  +  2.22 * pmax(0, Petal.Width -         1.2) 
+  + 0.039 * pmax(0,         1.2 - Petal.Width) 
+
+Number of cases: 300
+Selected 3 of 3 terms, and 1 of 4 predictors
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+Response 1  GCV: 0.119        RSS: 16.7         GRSq: 0.941      RSq: 0.944
+Response 2  GCV: 0.243        RSS: 34.1         GRSq: 0.88       RSq: 0.886
+All         GCV: 0.362        RSS: 50.7         GRSq: 0.869      RSq: 0.876
 > 
 > cat("--- format.earth.Rd ----------------------\n")
 --- format.earth.Rd ----------------------
@@ -1577,9 +1649,9 @@ mda with earth  0.25
 --- ../../tests/test.earth.R -------------------------
 > 
 > source("../../tests/test.earth.R")
-Call earth.default(x=x,y=y,trace=4,degree=2) 
+Call: earth.default(x=x,y=y,trace=4,degree=2) 
 
-Forward pass: model matrix 330 x 9 minspan 8 endspan 15
+Forward pass: model matrix 330 x 9 y 330 x 1 minspan 8 endspan 15
 
          GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
 1      0.0000 0.0000              2.112e+04                            1
@@ -1594,6 +1666,7 @@ Forward pass: model matrix 330 x 9 minspan 8 endspan 15
 18     0.7685 0.8275     0.009595   3642.46    7      ibt         234  18  19  
 20     0.7662 0.8318     0.004351   3550.59    9      doy         159  20  21  2   
 
+GRSq: 0.7662 RSq: 0.8318
 Reached max number of terms 21
 Forward pass complete: 21 terms
 

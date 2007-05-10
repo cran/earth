@@ -189,6 +189,9 @@ plot.earth <- function(
                 main=main, ...)
     }
     if(any(show[2:4])) {
+        if(NROW(object$fitted.values) != nrow(object$residuals))
+            stop1("NROW(object$fitted.values) ",  NROW(object$fitted.values),
+                " != nrow(object$residuals) ", nrow(object$residuals))
         iresiduals <- get.iresiduals(nresiduals, object$residuals, object$fitted.values)
         residuals <- object$residuals[iresiduals]
         fitted.values <- object$fitted.values[iresiduals]
@@ -301,7 +304,8 @@ plot.earth.models <- function(  # compare earth models by plotting them
         stop1("'x' is not an \"earth\" object or a list of \"earth\" objects")
     if(typeof(objects[[1]]) != "list") # if user specified just one object, convert to list
         objects <- list(objects)
-    plot.earth.prolog(objects[[1]], "objects")
+    for(imodel in seq_along(objects))
+        plot.earth.prolog(objects[[imodel]], paste("objects[[", imodel, "]]", sep=""))
     check.index.vec("which", which, 1:2)
     show <- rep(FALSE, 2)
     show[which] <- TRUE
