@@ -72,7 +72,7 @@ To start off, look at the arguments
 
   }
   \item{clip}{
-     Plot only values that are in the range of the response of original data.
+     Plot only values that are in the range of the response of the original data.
      Default is \code{TRUE}.
   }
   \item{inverse.func}{
@@ -85,7 +85,7 @@ To start off, look at the arguments
      with \code{family=binomial}, because the plotted response is already a probability.
   }
   \item{col.response}{
-     Colour of response values (actually, the response sites in interaction plots).
+     Colour of response values (actually, the response sites in degree2 plots).
      Here \sQuote{response} refers to the original data used to build the model.
      Default is 0, meaning don't plot the response.
      Ignored by \code{persp} plots.
@@ -314,7 +314,7 @@ the file \code{plotmo.R}:
 Thus \code{plotmo} can be extended
 by writing new method functions, although the default
 functions may suffice for your object's class.
-See the examples below and see the source comments for details.
+See the source comments for details.
 }
 \author{
 Stephen Milborrow.

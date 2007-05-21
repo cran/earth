@@ -31,7 +31,7 @@ Summary method for 'earth' objects.
 }
 \value{
 The value is the same as that returned by \code{\link{earth}}
-but with the following extra components:
+but with the following extra components.
 
   \item{string}{
     String created by \code{\link{format.earth}}.

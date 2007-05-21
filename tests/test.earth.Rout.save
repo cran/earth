@@ -64,7 +64,8 @@ GCV: 13.4         RSS: 3762         GRSq: 0.791      RSq: 0.822
 Call:
 earth(formula = O3 ~ ., data = ozone1, degree = 2, trace = 4)
 
-Expression:  15 
+Expression:
+  15 
   +    0.313 * pmax(0,     temp -       58) 
   -    0.046 * pmax(0,      234 -      ibt) 
   +   0.0221 * pmax(0,      200 -      vis) 

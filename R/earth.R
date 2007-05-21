@@ -681,7 +681,7 @@ print.summary.earth <- function(
     nclasses <- NCOL(x$coefficients)
     for(iclass in 1:nclasses)
         cat(if(nclasses == 1)
-                "\nExpression:"
+                "\nExpression:\n"
             else
                 paste("\nResponse ", iclass, " expression:\n", sep=""),
             x$string[iclass], sep="")
