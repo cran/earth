@@ -84,7 +84,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   \item{nresiduals}{
     Maximum number of residuals to plot.
     Use \code{-1} for all.
-    Default is \code{1000} (not all to minimize over-plotting).
+    Default is \code{1000} (not all to reduce over-plotting).
     A systematic sample of size \code{nresiduals} is taken but
     the largest few residuals are always included.
   }

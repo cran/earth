@@ -252,7 +252,7 @@ airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs y
 a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
 plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, trace=Trace)
 # termplot gives fishy looking wind plot, plotmo looks ok
-termplot(a)
+# termplot(a) #$$ this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL 
 detach("package:gam")
 
 library(mda)
@@ -357,7 +357,7 @@ airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs y
 a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
 cat("Ignore three warnings: No standard errors (currently) for gam predictions with newdata\n")
 plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
-termplot(a)
+# termplot(a)  #$$ this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL 
 detach("package:gam")
 
 # test factors by changing wind to a factor
