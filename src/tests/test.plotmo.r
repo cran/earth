@@ -270,6 +270,21 @@ b <- mars.to.earth(a)
 plotmo(a, do.par=FALSE, caption=caption, ylim=NA, trace=Trace)
 plotmo(b, do.par=FALSE, ylim=NA, trace=Trace)
 
+# check fix for bug reported by Martin Maechler:
+# form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a) fails
+
+dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1)")
+fa <- log(O3) ~ .
+a <- earth(fa, data=ozone1, degree=2)
+print(summary(a))
+plot(a, do.par=FALSE)
+plotmo(a, do.par=FALSE, degree1=2:3, degree2=c(1,3), col.response = "pink")
+a <- lm(log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh), data=ozone1)
+plotmo(a, do.par=FALSE, degree1=1:2)
+fa <- log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh)
+a <- lm(fa, data=ozone1)
+plotmo(a, do.par=FALSE, degree1=1:2)
+		
 # test inverse.func and func
 
 caption <- "test inverse.func=exp"

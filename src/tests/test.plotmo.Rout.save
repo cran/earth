@@ -308,6 +308,45 @@ Loading required package: class
 > plotmo(a, do.par=FALSE, caption=caption, ylim=NA, trace=Trace)
 > plotmo(b, do.par=FALSE, ylim=NA, trace=Trace)
 > 
+> # check fix for bug reported by Martin Maechler:
+> # form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a) fails
+> 
+> dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1)")
+                              test f <- O3 ~ .; a <- earth(f, data=ozone1) 
+> fa <- log(O3) ~ .
+> a <- earth(fa, data=ozone1, degree=2)
+> print(summary(a))
+Call:
+earth(formula = fa, data = ozone1, degree = 2)
+
+Expression:
+  2.702086 
+  -  0.002637418 * pmax(0,     5740 -       vh) 
+  -   0.01388240 * pmax(0,       50 - humidity) 
+  +   0.02571597 * pmax(0,     temp -       52) 
+  -  5.08602e-05 * pmax(0,      ibh -     1108) 
+  - 0.0002480677 * pmax(0,     1108 -      ibh) 
+  -  0.007327494 * pmax(0,      dpg -       13) 
+  -  0.004430662 * pmax(0,       13 -      dpg) 
+  +  0.001597261 * pmax(0,      200 -      vis) 
+  -  0.002391563 * pmax(0,      doy -       92) 
+  -   0.01391381 * pmax(0,       92 -      doy) 
+  -  0.003333751 * pmax(0, humidity -       69) * pmax(0,       52 -     temp) 
+  - 0.0001149328 * pmax(0, humidity -       50) * pmax(0,      195 -      ibt) 
+  - 0.0001295599 * pmax(0,      dpg -       13) * pmax(0,      doy -      236) 
+
+Number of cases: 330
+Selected 14 of 21 terms, and 8 of 9 predictors
+Number of terms at each degree of interaction: 1 10 3
+GCV: 0.1079334        RSS: 28.75354         GRSq: 0.8078581      RSq: 0.8439443
+> plot(a, do.par=FALSE)
+> plotmo(a, do.par=FALSE, degree1=2:3, degree2=c(1,3), col.response = "pink")
+> a <- lm(log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh), data=ozone1)
+> plotmo(a, do.par=FALSE, degree1=1:2)
+> fa <- log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh)
+> a <- lm(fa, data=ozone1)
+> plotmo(a, do.par=FALSE, degree1=1:2)
+> 		
 > # test inverse.func and func
 > 
 > caption <- "test inverse.func=exp"
