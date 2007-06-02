@@ -412,7 +412,7 @@ iv) Model slicing (\code{\link{plotmo}} goes part way)\cr
 v) Handling missing values\cr
 vi) Logistic regression \cr
 vii) Special handling of categorical predictors\cr
-viii) Fast MARS h parameter.
+viii) Fast MARS h parameter\cr
 ix) Cross validation to determine \code{penalty}.
 
 \strong{Large Models and Execution Time}
@@ -428,7 +428,7 @@ v) increasing \code{min.span}.
 
 The backward pass is normally much faster than the forward pass,
 unless \code{pmethod="exhaustive"}.
-Reducing \code{npune} reduces exhaustive search time.
+Reducing \code{nprune} reduces exhaustive search time.
 One strategy is to first build a large model
 and then adjust pruning parameters using \code{\link{update.earth}}.
 
@@ -495,7 +495,7 @@ print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 \strong{Multiple Response Models}
 
 If \code{y} has K columns then earth builds K simultaneous models.
-Each model has the same set of basis functions (i.e. same \code{bx})
+Each model has the same set of basis functions (i.e. same \code{bx} and \code{selected.terms})
 but different coefficients (the returned \code{coefficients} will have K columns).
 The models are built and pruned as usual but with the GCVs
 and RSSs summed across all K responses.

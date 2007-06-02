@@ -456,7 +456,7 @@ static void Regress(
     bool MustFreeBetas = false;
     if (Betas == NULL) {
         Betas = (double *)malloc1(nCols * nClasses * sizeof(double));
-    MustFreeBetas = true;
+        MustFreeBetas = true;
     }
     bool MustFreeResiduals = false;
     if (Residuals == NULL) {
@@ -983,7 +983,7 @@ static void AddTermPair(
 #if FAST_MARS
 
 // For simplicity we always update the queue.
-// We only use the queues to get next iParent if FastK is small enough.
+// We only use the queue (to get next iParent) if FastK is small enough.
 
 typedef struct tQueue {
     int     iParent;            // parent term

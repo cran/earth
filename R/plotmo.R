@@ -863,7 +863,11 @@ get.x.default <- function(
         form <- Call$formula
         if(is.null(form))
             return(NULL)
-        formula.as.string <- paste(format(form), collapse=" ")
+        # following "if" is needed for: form <- Volume ~ .; earth(form, data=trees)
+        # fixes bug reported by Martin Maechler and Michael Amrein
+        if(typeof(form) != "language")
+            form <- eval.parent(form, n=3)
+        formula.as.string <- format(form)
         stripped.formula <- strip.formula.string(formula.as.string)
         if(trace)
             cat("formula ", formula.as.string, "\n",
@@ -967,6 +971,8 @@ get.y.default <- function(
         form <- Call$formula
         if(is.null(form))
             return(NULL)
+        if(typeof(form) != "language")
+            form <- eval.parent(form, n=3)
         formula.as.string <- paste(format(form), collapse=" ")
         stripped.formula <- strip.formula.string(formula.as.string)
         Call$formula <- parse(text=stripped.formula)[[1]]
@@ -1065,9 +1071,13 @@ get.pairs.default <- function(object, x, degree2, pred.names, trace=FALSE)
 {
     Pairs <- matrix(0, nrow=0, ncol=2)   # no pairs
     term.labels <- NULL
-    if(!is.null(object$call$formula))
-        terms <- terms(as.formula(object$call$formula),
-                    data=eval.parent(object$call$data, n=2))
+    if(!is.null(object$call$formula)) {
+        form <- object$call$formula
+        if(typeof(form) != "language")
+            form <- eval.parent(form, n=2)
+        form <- as.formula(form)
+        terms <- terms(form, data=eval.parent(object$call$data, n=2))
+    }
     if(!is.null(terms))
         term.labels <- attr(terms, "term.labels")
     if(!is.null(term.labels))

@@ -27,10 +27,8 @@ mars.to.earth(object)
   is that \code{\link{earth}} returns \code{bx} in \code{$bx}, while
   \code{\link[mda]{mars}} returns \code{bx} in \code{$x}.
 
-  For details of other differences between \code{\link[mda]{mars}} and
-  \code{\link{earth}} objects,
-  see the comments in the function header in the source code of
-  \code{mars.to.earth()}.
+  For details of other differences between earth and mars objects,
+  see the comments in the source code of \code{mars.to.earth()}.
 }
 \seealso{
   \code{\link{earth}},
