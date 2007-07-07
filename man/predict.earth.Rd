@@ -15,7 +15,7 @@ Predict with an 'earth' model.
   \item{newdata}{
     Make predictions using the \code{newdata}.
     Can be a dataframe, a matrix, or a vector with the same length as a row of the input matrix x.
-    Default is NULL, meaning use \code{object}'s fitted values.
+    Default is NULL, meaning return \code{object}'s fitted values.
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
@@ -39,6 +39,6 @@ If \code{type="terms"},  a matrix with each column showing the contribution of a
 data(trees)
 a <- earth(Volume ~ ., data = trees)
 predict(a)           # same as a$fitted.values
-predict(a, c(10,80)) # yields 17.76888
+predict(a, c(10,80)) # yields 17.82973
 }
 \keyword{models}

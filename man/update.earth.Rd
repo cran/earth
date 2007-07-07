@@ -48,22 +48,22 @@ data(ozone1)
 (a <- earth(O3 ~ ., data = ozone1, degree = 2))
 
 # yields:
-#    Selected 11 of 21 terms, and 8 of 9 predictors
-#    Number of terms at each degree of interaction: 1 5 5
-#    GCV: 13.43422     RSS: 3762.234     GRSq: 0.7913151     RSq: 0.8218252
+#    Selected 14 of 21 terms, and 8 of 9 predictors
+#    Number of terms at each degree of interaction: 1 6 7
+#    GCV: 13.74837   RSS: 3662.576   GRSq: 0.7864352   RSq: 0.8265448
 
 update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
 
 # yields:
 #    Selected 15 of 21 terms, and 8 of 8 predictors
 #    Number of terms at each degree of interaction: 1 5 9
-#    GCV: 13.14588     RSS: 3443.265     GRSq: 0.7957941     RSq: 0.8369311
+#    GCV: 13.11272   RSS: 3434.579   GRSq: 0.7963093   RSq: 0.8373425
 
 update(a, nprune = 8)              # requires only pruning
 
 # yields:
 #    Selected 8 of 21 terms, and 6 of 9 predictors
 #    Number of terms at each degree of interaction: 1 5 2
-#    GCV: 15.07944     RSS: 4433.915     GRSq: 0.7657586     RSq: 0.7900152
+#    GCV: 15.8959    RSS: 4673.984   GRSq: 0.7530759   RSq: 0.7786458
 }
 \keyword{models}

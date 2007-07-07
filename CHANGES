@@ -7,3 +7,9 @@ Changes to Earth Package
 
 1.0-8 Fixed bug where plotmo failed under these circumstances: 
       form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a)
+
+1.1-0 Default minspan is now 1 (was 0)
+      Fixed potential crash in PrintForwardStep if nTrace>1
+      Added a missing drop=FALSE to backward()
+      Minor code, comment, and man page fixups
+

@@ -328,7 +328,7 @@ milboATsonicPERIODnet.
 }
 \examples{
 data(ozone1)
-a <- earth(O3 ~ ., data = ozone1, degree = 2)
+a <- earth(O3 ~ ., data = ozone1, degree = 2, minspan = 0)
 plotmo(a)
 
 # example with some arguments:

@@ -36,6 +36,7 @@ get.nused.preds.per.subset(a$dirs, a$selected.terms)
 get.nused.preds.per.subset(a$dirs, a$prune.terms)
 
 # yields:
-#    [1] 0 1 2 3 4 4 5 6 7 7 8 8 8 8 8 8 8 8 8 8 8
+#    [1] 0 1 2 3 4 5 5 6 6 8 8 8 8 8 8 8 8 8 8 8 8
+
 }
 \keyword{models}

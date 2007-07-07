@@ -27,6 +27,7 @@ Summary method for 'earth' objects.
   }
   \item{\dots}{
     Extra arguments are passed to \code{\link{format.earth}}.
+    Use \code{decomp="none"} to order the terms as created by the forward.pass.
   }
 }
 \value{

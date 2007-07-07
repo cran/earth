@@ -40,7 +40,7 @@ LFLAGS=-nologo -debug:full
 LIBS=$(R_DIR)\src\gnuwin32\Rdll.lib $(R_DIR)\bin\Rblas.lib
 !ENDIF
 
-OBJ=$(OUTDIR)\earth.obj $(OUTDIR)\test.earthc.obj $(OUTDIR)\lib_xerbla.obj
+OBJ=$(OUTDIR)\earth.obj $(OUTDIR)\test.earthc.obj
 
 .c{$(OUTDIR)}.obj::
    cl $(CFLAGS) $< 
@@ -65,5 +65,3 @@ $(OUTDIR)/earth.obj: ..\earth.c test.earthc.mak
    cl $(CFLAGS) ..\earth.c
 
 $(OUTDIR)/test.earthc.obj: test.earthc.c ..\earth.c test.earthc.mak
-
-$(OUTDIR)/lib_xerbla.obj: test.earthc.mak

@@ -120,7 +120,7 @@ extern _C_ double ddot_(const int *n,
 #define FAST_MARS   1     // 1 to use techniques in FriedmanFastMars (see refs)
 #define IOFFSET     1     // 1 to convert 0-based indices to 1-based in printfs
 
-static const char   *VERSION    = "version 1.0-1"; // change if you modify this file!
+static const char   *VERSION    = "version 1.1"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -430,7 +430,7 @@ static void CalcDiags(
 // Regress y on the used columns of x, in the standard way (using QR).
 // UsedCols[i] is true for each each used col i in x; unused cols are ignored.
 //
-// The returned Beta argument is computed from, and is indexed on,
+// The returned Betas argument is computed from, and is indexed on,
 // the compacted x vector, not on the original x.
 //
 // The returned iPivots should only be used if *pnRank != nUsedCols.
@@ -511,7 +511,7 @@ static void Regress(
 
         ASSERT(info == 0);
 
-        // compute Residuals and *pRss (sum over all classes)
+        // compute Residuals and Rss (sum over all classes)
 
         for (int iCase = 0; iCase < nCases; iCase++) {
             Residuals_(iCase, iClass) = y_(iCase, iClass) - Residuals_(iCase, iClass);
@@ -591,7 +591,7 @@ static void RegressAndFix(
             printf("Fixed rank deficient bx by removing %d term%s, %d term%s remain\n",
                 nDeficient, ((nDeficient==1)? "": "s"),
                 nUsedCols,  ((nUsedCols==1)? "": "s"));
-        }
+    }
     free1(iPivots);
 }
 
@@ -682,8 +682,7 @@ static INLINE double GetGcv(const int nTerms, // nbr basis terms including inter
 // If bx==NULL then instead of counting valid entries in bx we use nCases,
 // and ignore the term index iTerm.
 //
-// nMinSpan: if <0, add to internally calculated min span (i.e. decrease internal min span)
-//           if =0, use internally calculated min span
+// nMinSpan: if =0, use internally calculated min span
 //           if >0, use instead of internally calculated min span
 
 static INLINE int GetMinSpan(int nCases, const double *bx,
@@ -702,13 +701,7 @@ static INLINE int GetMinSpan(int nCases, const double *bx,
     static const double temp1 = 2.9702;         // -log(-log(0.95)
     static const double temp2 = 1.7329;         // 2.5 * log(2)
 
-    double MinSpan = (temp1 + log((double)nCases * nUsed)) / temp2;
-
-    MinSpan += nMinSpan;                        // possibly decrease
-    if (MinSpan < 1)
-        MinSpan = 1;
-
-    return (int)MinSpan;
+    return (int)((temp1 + log((double)nCases * nUsed)) / temp2);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -992,7 +985,7 @@ typedef struct tQueue {
     double  AgedRank;
 } tQueue;
 
-static tQueue *Q;           // indexed on iTerm (this Q is used for updates)
+static tQueue *Q;           // indexed on iTerm (this Q is used for queue updates)
 static tQueue *SortedQ;     // indexed on iParent rank (this Q is used to get next iParent)
 static int    nQMax;        // number of elements in Q
 
@@ -1033,7 +1026,7 @@ static void PrintSortedQ(int FastK)     // for debugging
 
 // Sort so highest RssDeltas are at low indices.
 // Secondary sort key is iParent.  Not strictly needed, but removes
-// possible differences in qsort implementations (which "sorts"
+// possible differences in qsort implementations (which "sort"
 // identical keys unpredictably).
 
 static int CompareQ(const void *p1, const void *p2)     // for qsort
@@ -1094,7 +1087,7 @@ static void AddTermToQ(
 {
     ASSERT(iTerm < nMaxTerms);
     Q[nQMax].nTermsForRssDelta = nTerms;
-    Q[nQMax].RssDelta = max(Q[iTerm].RssDelta, RssDelta);
+    Q[nQMax].RssDelta = max(Q[iTerm].RssDelta, RssDelta);               //$$ correct?
     nQMax++;
     if (Sort) {
         memcpy(SortedQ, Q, nQMax * sizeof(tQueue));
@@ -1201,8 +1194,8 @@ static void PrintSummary(
 // This function now selects a knot.  If it finds a knot it will
 // update *piBestCase and *pRssDeltaForThisTerm.
 //
-// The general idea: scan backwards through all (ordered) knots for the
-// given predictor iPred, calculating RssDelta.
+// The general idea: scan backwards through all (ordered) values (i.e. potential knots) 
+// for the given predictor iPred, calculating RssDelta.
 // If RssDelta > *pRssDeltaForThisTerm (and all else is ok), then select
 // the knot (by updating *piBestCase and *pRssDeltaForThisTerm).
 //
@@ -1335,7 +1328,7 @@ static INLINE void FindKnot(
 
 //--------------------------------------------------------------------------------------------
 // The caller has selected a candidate parent term iParent.
-// This function now selects a predictor (and a knot for that predictor).
+// This function now selects a predictor, and a knot for that predictor.
 //
 // $$ These functions have a ridiculous number of parameters, I know.
 
@@ -1394,7 +1387,7 @@ static INLINE void FindPred(
             if (IsNewForm) {
                 // Add a candidate term at bx[,nTerms], with predictor iPred entering
                 // linearly. Do this by setting the knot at the lowest value xMin of x,
-                // since min(0,x-xMin)==x-xMin for all x.  The change in RSS caused by
+                // since max(0,x-xMin)==x-xMin for all x.  The change in RSS caused by
                 // adding this term forms the base RSS delta which we will try to beat
                 // in the search in FindKnot.
 
@@ -1448,7 +1441,7 @@ static INLINE void FindPred(
                     if (nTraceGlobal >= 6)
                         printf("BestRssDeltaSoFar");
                 }
-            }   // is NewForm
+            } // endif IsNewForm
             if (nTraceGlobal >= 6)
                 printf("\n");
 
@@ -1490,6 +1483,8 @@ static INLINE void FindPred(
 //
 // The new term is a copy of an existing parent term but extended
 // by multiplying the parent by a new hockey stick function at the selected knot.
+//
+// Actually, this usually finds a term _pair_, with left and right hockey sticks.
 //
 // There are currently nTerms in the model. We want to add a term at index nTerms.
 
@@ -1557,8 +1552,8 @@ static void FindTerm(
     for (iParent = 0; iParent < nTerms; iParent++) {
 #endif
         // Assume a bad RssDelta for iParent.  This pushes parent terms that
-        // can't be used to the bottom of the queue.  (A parent can't be used
-        // if nFactorsInTerm is too big or all predictors are in the parent).
+        // can't be used to the bottom of the FastMARS queue.  (A parent can't be
+        // used if nFactorsInTerm is too big or all predictors are in the parent).
 
         double BestRssDeltaForThisTerm = -1;    // used only by FAST_MARS
 
@@ -1639,18 +1634,18 @@ static void PrintForwardStep(
             printf("\n     ");
         printf("%d", nUsedTerms-2+IOFFSET);
     } else if (nTraceGlobal >= 2) {
-        printf("%-4d%9.4f %6.4f %12.4g %9g  %3d",
-            nTerms+IOFFSET, 1-Gcv/GcvNull, RSq, RSqDelta, Rss, iBestPred+IOFFSET);
-
-        if (sPredNames) {
-            if (sPredNames[iBestPred] && sPredNames[iBestPred][0])
-                printf(" %8.8s ", sPredNames[iBestPred]);
-            else
-                printf(" %8.8s ", " ");
-        }
+        printf("%-4d%9.4f %6.4f %12.4g %9g  ",
+            nTerms+IOFFSET, 1-Gcv/GcvNull, RSq, RSqDelta, Rss);
         if (iBestPred < 0)
-            printf("                   ");
+            printf("  -                                ");
         else {
+            printf("%3d", iBestPred+IOFFSET);
+            if (sPredNames) {
+                if (sPredNames[iBestPred] && sPredNames[iBestPred][0])
+                    printf(" %8.8s ", sPredNames[iBestPred]);
+                else
+                    printf(" %8.8s ", " ");
+            }
             if (iBestCase == -1)
                 printf("       none  ");
             else
@@ -1673,11 +1668,9 @@ static void PrintForwardEpilog(
             const double Gcv, const double GcvNull,
             const bool FullSet[])
 {
-    double GRSq = 1-Gcv/GcvNull;
-    if (nTraceGlobal >= 1)
-        printf("\nGRSq: %.4g RSq: %.4g", GRSq, RSq);
     if (nTraceGlobal >= 1) {
-        printf("\n");
+        double GRSq = 1-Gcv/GcvNull;
+        printf("\nGRSq: %.4g RSq: %.4g\n", GRSq, RSq);
 
         // print reason why we stopped adding terms
         // NOTE: this code must match the loop termination conditions in ForwardPass
@@ -1713,9 +1706,8 @@ static void PrintForwardEpilog(
         int nUsed = GetNbrUsedCols(FullSet, nMaxTerms);
         if (nUsed != nTerms)
             printf(" (%d terms used)", nUsed);
-    }
-    if (nTraceGlobal >= 2)
         printf("\n");
+    }
     if (nTraceGlobal >= 3)
         printf("\n");
 }
@@ -1782,8 +1774,8 @@ static void ForwardPass(
     if (nMaxTerms > 10000)
         error("nk %d > 10000", nMaxTerms);
     if (Penalty < 0 && Penalty != -1)
-        error("penalty %g < 0, the only legal value less than 0 is -1, "
-            "meaning terms and knots are free", Penalty);
+        error("penalty %g < 0, the only legal value less than 0 is -1 "
+            "(meaning terms and knots are free)", Penalty);
     if (Penalty > 1000)
         error("penalty %g > 1000", Penalty);
     if (Thresh < 0)
@@ -1792,15 +1784,15 @@ static void ForwardPass(
         error("thresh %g >= 1", Thresh);
     if (Thresh < 1e-10)     // needed for numerical stability, 1e-10 seems ok
         Thresh = 1e-10;
-    if (nMinSpanGlobal < -10000)
-        error("minspan %d < -10000", nMinSpanGlobal);
+    if (nMinSpanGlobal < 0)
+        error("minspan %d < 0", nMinSpanGlobal);
     if (nMinSpanGlobal > nCases/2)
         error("minspan %d > nrow(x)/2 %d", nMinSpanGlobal, nCases/2);
     if (FastK == -1)
         FastK = 10000;      // bigger than any nMaxTerms
     if (FastK < 3)
-        error("fast.k %d < 3, the only legal value less than 3 is -1, ",
-            "meaning no Fast MARS", FastK);
+        error("fast.k %d < 3, the only legal value less than 3 is -1 ",
+            "(meaning no Fast MARS)", FastK);
     if (FastBeta < 0)
         error("fast.beta %g < 0", FastBeta);
     if (FastBeta > 1000)
@@ -1853,7 +1845,7 @@ static void ForwardPass(
     for (nTerms = 1;                                    // start after intercept
             nTerms < nMaxTerms-1 && RSq < 1-Thresh;     // -1 allows for upper term in pair
             nTerms += 2) {                              // add terms in pairs
-        int iBestPred, iBestParent;
+        int iBestPred = -1, iBestParent;
         bool IsNewForm, IsLinPred;
 
         FindTerm(&iBestCase, &iBestPred, &iBestParent, &RssDelta, &IsNewForm, &IsLinPred,
@@ -2419,10 +2411,12 @@ void PredictEarth(
 #endif // STANDALONE
 
 //--------------------------------------------------------------------------------------------
-// Example main routine.  See test.earthc.c for another example.
+// Example main routine
+// See earth/src/tests/test.earthc.c for another example
+// See also earth/src/tests/earth.h
 
 #if STANDALONE && MAIN
-void error(const char *args, ...)
+void error(const char *args, ...)       // params like printf
 {
     char s[1000];
     va_list p;
@@ -2443,45 +2437,56 @@ void xerbla_(char *srname, int *info)   // needed by BLAS and LAPACK routines
 
 int main(void)
 {
-    const int nTrace = 3;
     const int nMaxTerms = 21;
     const int nCases = 100;
     const int nClasses = 1;     // number of y columns
     const int nPreds = 1;
     const int nMaxDegree = 1;
-    const double Penalty = 2;
+    const double Penalty = (nMaxDegree > 1)? 3: 2;
+    const double Thresh = .001;
+    const int nMinSpan = 1;
+    const bool Prune = true;
+    const int FastK = 20;
+    const double FastBeta = 0;
+    const double NewVarPenalty = 0;
+    const int nTrace = 3;
+    const char **sPredNames = NULL;
 
-    double *x = (double *)malloc1(nCases * nPreds * sizeof(double));
-    double *y = (double *)malloc1(nCases *          sizeof(double));
-    for (int i = 0; i < nCases; i++) {
-        double x0 = (double)i / nCases;
-        x[i] = x0;
-        y[i] = sin(4 * x0);
-    }
-    double *bx        = (double *)malloc1(nCases    * nMaxTerms * sizeof(double));
-    bool   *BestSet   = (bool *)  malloc1(nMaxTerms *             sizeof(bool));
-    int    *Dirs      = (int *)   malloc1(nMaxTerms * nPreds *    sizeof(int));
-    double *Cuts      = (double *)malloc1(nMaxTerms * nPreds *    sizeof(double));
-    double *Residuals = (double *)malloc1(nCases    * nClasses *  sizeof(double));
-    double *Betas     = (double *)malloc1(nMaxTerms * nClasses *  sizeof(double));
     double BestGcv;
     int    nTerms;
+    bool   *BestSet   = (bool *)  malloc1(nMaxTerms *             sizeof(bool));
+    double *bx        = (double *)malloc1(nCases    * nMaxTerms * sizeof(double));
+    int    *Dirs      = (int *)   malloc1(nMaxTerms * nPreds    * sizeof(int));
+    double *Cuts      = (double *)malloc1(nMaxTerms * nPreds    * sizeof(double));
+    double *Residuals = (double *)malloc1(nCases    * nClasses  * sizeof(double));
+    double *Betas     = (double *)malloc1(nMaxTerms * nClasses  * sizeof(double));
 
+    double *x = (double *)malloc1(nCases * nPreds   * sizeof(double));
+    double *y = (double *)malloc1(nCases * nClasses * sizeof(double));
+
+    ASSERT(nClasses == 1);      // code in for loop below only works for nClasses == 1
+
+    for (int i = 0; i < nCases; i++) {
+        const double x0 = (double)i / nCases;
+        x[i] = x0;
+        y[i] = sin(4 * x0);     // target function, change this to whatever you want
+    }
     Earth(&BestGcv, &nTerms, BestSet, bx, Dirs, Cuts, Residuals, Betas,
         x, y, nCases, nClasses, nPreds,
-        nMaxDegree, nMaxTerms, Penalty, 0.001, 0, true, 20, 0, 0, nTrace, NULL);
+        nMaxDegree, nMaxTerms, Penalty, Thresh, nMinSpan, Prune, 
+        FastK, FastBeta, NewVarPenalty, nTrace, sPredNames);
 
     printf("Expression:\n");
     FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nClasses, nTerms, nMaxTerms, 3, 0);
 
-    free1(x);
-    free1(y);
-    free1(bx);
     free1(BestSet);
+    free1(bx);
     free1(Dirs);
     free1(Cuts);
     free1(Residuals);
     free1(Betas);
+    free1(x);
+    free1(y);
 
     return 0;
 }
