@@ -47,7 +47,7 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     A typical useful value is 0.01.
   }
   \item{}{
-    \emph{For all the col arguments, 0 means do not plot the corresponding graph element.
+    \emph{For all the col arguments below, 0 means do not plot the corresponding graph element.
           You can use vectors of colours for the col arguments.
     }
   }

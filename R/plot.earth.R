@@ -172,8 +172,8 @@ plot.earth <- function(
         par(cex = 0.7)
         make.space.for.caption(caption)
     }
-    nclasses <- NCOL(object$residuals)
-    if(nclasses > 1) {
+    nresponses <- NCOL(object$residuals)
+    if(nresponses > 1) {
         # already called check.index.vec(ycolumn) above, so no need to call again
         object$fitted.values <- object$fitted.values[, ycolumn, drop=FALSE]
         object$residuals <- object$residuals[, ycolumn, drop=FALSE]
@@ -185,7 +185,7 @@ plot.earth <- function(
                 col.legend=col.legend, rlim=rlim, add=FALSE, do.par=do.par,
                 max.nterms=length(object$rss.per.subset),
                 max.npreds=max(get.nused.preds.per.subset(object$dirs, object$prune.terms)),
-                jitter=jitter, legend.pos=legend.pos, nclasses,
+                jitter=jitter, legend.pos=legend.pos, nresponses,
                 main=main, ...)
     }
     if(any(show[2:4])) {
@@ -370,7 +370,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
                 max.npreds  = max.npreds,
                 jitter      = jitter,
                 legend.pos  = NULL,
-                nclasses    = NCOL(object[[imodel]]$residuals),
+                nresponses  = NCOL(object[[imodel]]$residuals),
                 main        = if(imodel > 1) "" else main,
                 ...)
         if(col.legend != 0 && length(objects) > 1 && !show[2])
@@ -428,7 +428,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     max.npreds,
     jitter,         # allows overlaid plots to be visible
     legend.pos,     # NULL means auto, else c(x,y)
-    nclasses,       # ncol(y)
+    nresponses,     # ncol(y)
     main,           # par() settings
     ...)
 {
@@ -505,7 +505,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     plot.earth.prolog(object, deparse(substitute(object)))
     warn.if.dots.used("plot.earth.model", ...)
     if(is.null(main)) {
-        if(nclasses > 1)
+        if(nresponses > 1)
             main <- "Model Selection (all responses)"
         else
             main <- "Model Selection"

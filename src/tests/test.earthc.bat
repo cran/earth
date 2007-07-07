@@ -8,10 +8,10 @@
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
 @echo === test.earthc ===
-@cp "C:\Program Files\r\R-2.6.0\bin\R.dll" .
-@cp "C:\Program Files\r\R-2.6.0\bin\Rblas.dll" .
-@cp "C:\Program Files\r\R-2.6.0\bin\iconv.dll" .
-@cp "C:\Program Files\r\R-2.6.0\bin\graphapp.dll" .
+@cp "C:\Program Files\r\R-2.6.1\bin\R.dll" .
+@cp "C:\Program Files\r\R-2.6.1\bin\Rblas.dll" .
+@cp "C:\Program Files\r\R-2.6.1\bin\iconv.dll" .
+@cp "C:\Program Files\r\R-2.6.1\bin\graphapp.dll" .
 @md Debug
 @md Release
 
