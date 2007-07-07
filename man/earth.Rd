@@ -545,7 +545,14 @@ If \code{y} has K columns then earth builds K simultaneous models.
 Each model has the same set of basis functions (i.e. same \code{bx} and \code{selected.terms})
 but different coefficients (the returned \code{coefficients} will have K columns).
 The models are built and pruned as usual but with the GCVs
-and RSSs summed across all K responses.
+and RSSs averaged across all K responses.
+
+Since earth attempts to optimize for all models simultaneously,
+the results will not be as "good" as building the models independently.
+i.e. the GCV of the combined model will not be as good as 
+the GCVS for independent models, on the whole.
+However, the combined model may be a better model in other senses,
+depending on what you are trying to achieve.
 
 For more details see section 4.1 of 
 Hastie, Tibshirani, and Buja \emph{Flexible Discriminant Analysis by Optimal Scoring},
@@ -554,7 +561,8 @@ JASA, December 1994 \url{http://www-stat.stanford.edu/~hastie/Papers/fda.pdf}.
 \strong{Using earth with fda and mda}
 
 \code{Earth} can be used with \code{\link[mda]{fda}} and \code{\link[mda]{mda}}
-in the \code{mda} package.
+in the \code{mda} package.  Earth will be a multiple response model,
+as described above.
 Use \code{keep.fitted=TRUE} if you want to call \code{\link{plot.earth}} later
 (actually only necessary for large datasets, see the description of 
 \code{keep.fitted} in \code{\link[mda]{fda}}).
@@ -582,8 +590,8 @@ and using \code{\link{traceback}}.
   Stephen Milborrow, derived from \code{mda::\link[mda]{mars}}
   by Trevor Hastie and Robert Tibshirani.
 
-This is an early release and users are encouraged to send feedback --- use
-milboATsonicPERIODnet.
+Users are encouraged to send feedback --- use
+milboATsonicPERIODnet \url{http://www.milbo.users.sonic.net}.
 }
 \references{
   The primary references are
