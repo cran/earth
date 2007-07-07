@@ -1,4 +1,4 @@
-Forward pass: model matrix 100 x 1 y 100 x 1 minspan 1 endspan 13
+Forward pass: model matrix[100,1]   y[100,1]   minspan 1   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  26.13                  1

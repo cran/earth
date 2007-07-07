@@ -1,6 +1,6 @@
 =============================================================================
 TEST 1: noise N=1000
-Forward pass: model matrix 1000 x 1 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,1]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  783.4                  1
@@ -31,7 +31,7 @@ TEST 1: FUNCTION noise N=1000
 
 =============================================================================
 TEST 2: x0 N=10
-Forward pass: model matrix 10 x 1 y 10 x 1 minspan 4 endspan 10
+Forward pass: model matrix[10,1]   y[10,1]   minspan 4   endspan 10
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  1.941                  1
@@ -56,7 +56,7 @@ TEST 2: FUNCTION x0 N=10
 
 =============================================================================
 TEST 3: x0 N=1000
-Forward pass: model matrix 1000 x 1 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,1]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  291.4                  1
@@ -81,7 +81,7 @@ TEST 3: FUNCTION x0 N=1000
 
 =============================================================================
 TEST 4: x0 + noise N=1000
-Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,2]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  297.1                  1
@@ -107,7 +107,7 @@ TEST 4: FUNCTION x0 + noise N=1000
 =============================================================================
 TEST 5: x0 + x1 N=1000
 earth.c version 1.1
-Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,2]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  559.7                  1
@@ -189,7 +189,7 @@ TEST 6: x0 + x1 + noise N=1000
 RESULT 6: GRSq 0.986762 RSq 0.987025 nTerms 5 of 5 of 51 [99.99 secs]
 =============================================================================
 TEST 7: x0 + x1 + x0*x1 N=30
-Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
+Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -227,7 +227,7 @@ TEST 7: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 8: x0 + x1 + x0*x1 N=1000
-Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,2]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  537.9                  1
@@ -264,7 +264,7 @@ TEST 8: FUNCTION x0 + x1 + x0*x1 N=1000
 
 =============================================================================
 TEST 9: cos(x0) + x1 N=1000
-Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,2]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  316.2                  1
@@ -302,7 +302,7 @@ TEST 9: FUNCTION cos(x0) + x1 N=1000
 
 =============================================================================
 TEST 10: sin(2*x0)+2*x1*.5*x0*x1
-Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,2]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1631                  1
@@ -345,7 +345,7 @@ TEST 10: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 
 =============================================================================
 TEST 11: sin(2*x0)+2*x1*.5*x0*x1
-Forward pass: model matrix 1000 x 3 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,3]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1486                  1
@@ -406,7 +406,7 @@ TEST 12: FUNCTION 3rd order, mi=2 ni=11
 
 =============================================================================
 TEST 13: 3rd order, mi=2 ni=51
-Forward pass: model matrix 1000 x 6 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,6]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1920                  1
@@ -451,7 +451,7 @@ TEST 13: FUNCTION 3rd order, mi=2 ni=51
 
 =============================================================================
 TEST 14: 3rd order, mi=3
-Forward pass: model matrix 1000 x 6 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,6]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1920                  1
@@ -529,7 +529,7 @@ TEST 14: FUNCTION 3rd order, mi=3
 
 =============================================================================
 TEST 15: 5 preds + noise
-Forward pass: model matrix 200 x 15 y 200 x 1 minspan 7 endspan 14
+Forward pass: model matrix[200,15]   y[200,1]   minspan 7   endspan 14
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  288.7                  1
@@ -601,7 +601,7 @@ TEST 15: FUNCTION 5 preds + noise
 
 =============================================================================
 TEST 16: 5 preds clean
-Forward pass: model matrix 200 x 15 y 200 x 1 minspan 7 endspan 14
+Forward pass: model matrix[200,15]   y[200,1]   minspan 7   endspan 14
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    279                  1
@@ -682,7 +682,7 @@ TEST 16: FUNCTION 5 preds clean
 
 =============================================================================
 TEST 17: 10 preds + noise
-Forward pass: model matrix 200 x 50 y 200 x 1 minspan 7 endspan 14
+Forward pass: model matrix[200,50]   y[200,1]   minspan 7   endspan 14
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    533                  1
@@ -780,7 +780,7 @@ TEST 17: FUNCTION 10 preds + noise
 
 =============================================================================
 TEST 18: 20 preds + noise, N=100
-Forward pass: model matrix 100 x 30 y 100 x 1 minspan 7 endspan 13
+Forward pass: model matrix[100,30]   y[100,1]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  539.4                  1
@@ -877,7 +877,7 @@ TEST 18: FUNCTION 20 preds + noise, N=100
 
 =============================================================================
 TEST 19: 20 preds + noise, N=400
-Forward pass: model matrix 400 x 30 y 400 x 1 minspan 8 endspan 15
+Forward pass: model matrix[400,30]   y[400,1]   minspan 8   endspan 15
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1909                  1
@@ -1023,7 +1023,7 @@ TEST 19: FUNCTION 20 preds + noise, N=400
 
 =============================================================================
 TEST 20: 3rd order, mi=3, +noise
-Forward pass: model matrix 1000 x 10 y 1000 x 1 minspan 9 endspan 17
+Forward pass: model matrix[1000,10]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   1871                  1
@@ -1106,7 +1106,7 @@ TEST 20: FUNCTION 3rd order, mi=3, +noise
 
 =============================================================================
 TEST 21: eqn56 mi=1 N=100
-Forward pass: model matrix 100 x 10 y 100 x 1 minspan 7 endspan 13
+Forward pass: model matrix[100,10]   y[100,1]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  641.9                  1
@@ -1199,7 +1199,7 @@ TEST 21: FUNCTION eqn56 mi=1 N=100
 
 =============================================================================
 TEST 22: eqn56 mi=2 N=100
-Forward pass: model matrix 100 x 10 y 100 x 1 minspan 7 endspan 13
+Forward pass: model matrix[100,10]   y[100,1]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  641.9                  1
@@ -1297,7 +1297,7 @@ TEST 22: FUNCTION eqn56 mi=2 N=100
 
 =============================================================================
 TEST 23: eqn56 mi=10 N=100
-Forward pass: model matrix 100 x 10 y 100 x 1 minspan 7 endspan 13
+Forward pass: model matrix[100,10]   y[100,1]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  641.9                  1
@@ -1389,7 +1389,7 @@ TEST 23: FUNCTION eqn56 mi=10 N=100
 =============================================================================
 TEST 24: x0 + x1 + x0*x1 N=30
 earth.c version 1.1
-Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
+Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -1521,7 +1521,7 @@ TEST 24: FUNCTION x0 + x1 + x0*x1 N=30
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 N=30
 earth.c version 1.1
-Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
+Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -1652,7 +1652,7 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
 earth.c version 1.1
-Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
+Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   18.6                  1
@@ -1782,7 +1782,7 @@ TEST 26: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 27: x0|x+x1+noise N=30
-Forward pass: model matrix 100 x 2 y 100 x 2 minspan 7 endspan 13
+Forward pass: model matrix[100,2]   y[100,2]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  86.87                  1
@@ -1821,7 +1821,7 @@ Response 2:
 
 =============================================================================
 TEST 28: x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
-Forward pass: model matrix 100 x 2 y 100 x 2 minspan 7 endspan 13
+Forward pass: model matrix[100,2]   y[100,2]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    127                  1
@@ -1863,7 +1863,7 @@ Response 2:
 =============================================================================
 TEST 29: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
 earth.c version 1.1
-Forward pass: model matrix 100 x 2 y 100 x 2 minspan 7 endspan 13
+Forward pass: model matrix[100,2]   y[100,2]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                    127                  1
@@ -2019,7 +2019,7 @@ Response 2:
 
 =============================================================================
 TEST 30: x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
-Forward pass: model matrix 50 x 10 y 50 x 2 minspan 6 endspan 12
+Forward pass: model matrix[50,10]   y[50,2]   minspan 6   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  92.98                  1
@@ -2066,7 +2066,7 @@ Response 2:
 
 =============================================================================
 TEST 31: x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
-Forward pass: model matrix 50 x 11 y 50 x 3 minspan 6 endspan 12
+Forward pass: model matrix[50,11]   y[50,3]   minspan 6   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  113.8                  1
@@ -2127,7 +2127,7 @@ Response 3:
 
 =============================================================================
 TEST 32: |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
-Forward pass: model matrix 50 x 11 y 50 x 3 minspan 6 endspan 12
+Forward pass: model matrix[50,11]   y[50,3]   minspan 6   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  113.8                  1
@@ -2188,7 +2188,7 @@ Response 3:
 
 =============================================================================
 TEST 33: sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
-Forward pass: model matrix 50 x 11 y 50 x 3 minspan 6 endspan 12
+Forward pass: model matrix[50,11]   y[50,3]   minspan 6   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  113.8                  1
@@ -2249,7 +2249,7 @@ Response 3:
 
 =============================================================================
 TEST 34: sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
-Forward pass: model matrix 1000 x 6 y 1000 x 2 minspan 9 endspan 17
+Forward pass: model matrix[1000,6]   y[1000,2]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                   2909                  1
@@ -2337,7 +2337,7 @@ Response 2:
 
 =============================================================================
 TEST 35: cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0
-Forward pass: model matrix 100 x 2 y 100 x 1 minspan 7 endspan 13
+Forward pass: model matrix[100,2]   y[100,1]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  8.717                  1
@@ -2371,7 +2371,7 @@ TEST 35: FUNCTION cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0
 
 =============================================================================
 TEST 36: cos(x1) + cos(x), x1 and x2 xcolinear, NewVarPenalty=0.05
-Forward pass: model matrix 100 x 2 y 100 x 1 minspan 7 endspan 13
+Forward pass: model matrix[100,2]   y[100,1]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
 1      0.0000 0.0000                  8.717                  1

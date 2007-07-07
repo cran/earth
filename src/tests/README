@@ -14,4 +14,7 @@ None of these test appropriate behaviour for bad arguments.
 If your program is independent of R and you want to use the routines
 in earth.c then earth.h will be useful.
 
+See earth-data-structures.jpg for a description of earth's 
+internal data structures.
+
 Stephen Milborrow Apr 2007 Petaluma

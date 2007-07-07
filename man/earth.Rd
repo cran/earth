@@ -446,12 +446,20 @@ Set \code{trace>=1} to see the stopping condition.
 
 The result of the forward pass is the set of terms defined by \code{$dirs}
 and \code{$cuts}.
-As a final step, the forward pass deletes linearly dependent terms, if any,
-so all terms in \code{$dirs} and \code{$cuts} are independent.
 
 Note that GCVs (via GRSq) are used during the forward pass only as one of the
 stopping conditions and in trace prints.
 Changing the GCV \code{$penalty} does not change the knot positions.
+
+The various stopping conditions mean that the actual number of terms
+created by the forward pass may be less than nk.  There are some more
+reasons why the actual number of terms may be less than nk:
+(i) the forward pass chucks out one "side" of the pair
+if it adds nothing to the model --- 
+but the forward pass counts terms as if they were actually created in pairs.
+(ii) as a final step, the forward pass deletes linearly dependent terms, if any,
+so all terms in \code{$dirs} and \code{$cuts} are independent.
+And remember that the pruning pass will further discard terms.
 
 \strong{The Pruning Pass}
 
