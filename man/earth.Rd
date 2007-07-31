@@ -18,7 +18,7 @@ and \sQuote{Fast MARS}.
       weights = NULL, subset = NULL, na.action = na.fail,
       penalty = if(degree > 1) 3 else 2, trace = 0, keepxy = FALSE,
       degree = 1, nk = max(21, 2 * NCOL(x) + 1),
-      thresh = 0.001, minspan = 0, newvar.penalty = 0,
+      thresh = 0.001, minspan = 1, newvar.penalty = 0,
       fast.k = 20, fast.beta = 1, fast.h = NULL,
       pmethod = "backward", ppenalty = penalty, nprune = NULL,
       Object  = NULL, Get.crit = get.gcv,
@@ -107,21 +107,20 @@ To start off, look at the arguments
      See the section below on the forward pass.
   }
   \item{minspan}{
-    Minimum distance between knots.
-    Set \code{trace>=2} to see the calculated value.  Values:\cr
-    \code{<0} add to the internally calculated min span (i.e. decrease span).\cr
-    \code{0} (default) use internally calculated min span as per
+    Minimum distance between knots.\cr
+    The default value of 1 means consider all knots.\cr
+    The special value of 0 means calculate the minspan internally as per
     Friedman's MARS paper section 3.8 with \eqn{alpha} = 0.05.
-    Intended to increase resistance to runs of noise in the input data.\cr
-    \code{>0} use instead of the internally calculated min span.
-    Thus a value of 1 means consider all knots.
+    Intended to increase resistance to runs of noise in the input data.
+    Set \code{trace>=2} to see the calculated value.\cr
+    \strong{Note: the default minspan was 0 prior to earth version 1.1 (July 2007).}
   }
   \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
      (Friedman's \eqn{gamma}, equation 74 in the MARS paper).
-     This argument can mitigate the effects of collinearity or concurvity
+     This argument can mitigate the effects of colinearity or concurvity
      in the input data.
-     Default is 0, meaning no new penalty for adding a new variable.
+     Default is 0, meaning no penalty for adding a new variable.
      Useful non-zero values range from about 0.01 to 0.2 --- you will
      need to experiment.
   }
@@ -130,8 +129,7 @@ To start off, look at the arguments
      as described in Friedman's Fast MARS paper section 3.0.
      Default is 20.
      The special value -1 is equivalent to infinity, meaning no Fast MARS.
-     Typical values, apart from -1, range
-     from about 20 to 5, in steps of 5 or 10.
+     Typical values, apart from -1, are 20, 10, or 5.
      In general, with a lower \code{fast.k} (say 5), \code{earth} is faster;
      with a higher \code{fast.k}, or with \code{fast.k} disabled (set to -1), \code{earth} builds
      a better model.
@@ -413,7 +411,8 @@ v) Handling missing values\cr
 vi) Logistic regression \cr
 vii) Special handling of categorical predictors\cr
 viii) Fast MARS h parameter\cr
-ix) Cross validation to determine \code{penalty}.
+ix) Cross validation to determine \code{penalty}\cr
+x) Anova tables with sigma and other information.
 
 \strong{Large Models and Execution Time}
 
@@ -430,7 +429,7 @@ The backward pass is normally much faster than the forward pass,
 unless \code{pmethod="exhaustive"}.
 Reducing \code{nprune} reduces exhaustive search time.
 One strategy is to first build a large model
-and then adjust pruning parameters using \code{\link{update.earth}}.
+and then adjust pruning parameters such as \code{nprune} using \code{\link{update.earth}}.
 
 \strong{The Forward Pass}
 
@@ -443,7 +442,7 @@ DeltaRSq is the difference in R-Squared caused by adding the current term pair\c
 iii) reach max RSq \code{(RSq>1-thresh)}\cr
 iv) reach min GRSq \code{(GRSq< -10)}.
 
-Set \code{trace>=2} to see the stopping condition.
+Set \code{trace>=1} to see the stopping condition.
 
 The result of the forward pass is the set of terms defined by \code{$dirs}
 and \code{$cuts}.
@@ -452,12 +451,13 @@ so all terms in \code{$dirs} and \code{$cuts} are independent.
 
 Note that GCVs (via GRSq) are used during the forward pass only as one of the
 stopping conditions and in trace prints.
-Changing the GCV penalty does not change the knot positions.
+Changing the GCV \code{$penalty} does not change the knot positions.
 
 \strong{The Pruning Pass}
 
-The pruning pass is handed the sets of terms created by the forward pass
-and works like this:
+The pruning pass is handed the sets of terms created by the forward pass.
+Its job is to find the subset of these terms that gives the lowest GCV.
+The pruning pass works like this:
 it determines the subset of terms (using \code{pmethod})
 with the lowest RSS for each model size in \code{1:nprune}
 (see \code{Force.xtx.prune} above for some details).
@@ -492,6 +492,53 @@ yhat <- predict(a, newdata = trees[test.subset, ])
 y <- trees$Volume[test.subset]
 print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 }
+\strong{How do I measure variable importance?}
+
+Establishing predictor importance is in general a tricky and even controversial problem.
+
+Running \code{\link{plotmo}} with \code{ylim=NULL} (the default)
+gives an idea of which predictors make the largest changes to the predicted value.
+
+You can also use \code{\link{drop1}}
+(assuming you are using the formula interface to earth).
+Calling \code{drop1(my.earth.model)} will delete each predictor in turn from your model,
+rebuild the model from scratch each time, and calculate the GCV each time.
+You will get warnings that the earth library function \code{extractAIC.earth} is
+returning GCVs instead of AICs --- but that is what you want so you can
+ignore the warnings.  
+The column labeled \code{AIC} in the printed response
+from \code{\link{drop1}} will actually be a column of GCVs not AICs.  
+The \code{Df} column is not much use in this context.  
+
+You will get lots of output from \code{\link{drop1}} if you built your original earth
+model with \code{trace>0}.
+You can set \code{trace=0} by updating your model before calling \code{\link{drop1}}.
+Do it like this:\cr
+\code{my.model <- \link{update.earth}(my.model, trace=0)}.
+
+Remember that these techniques only tell you how important
+a variable is with the other variables already in the model.
+There are alternative ways of measuring variable importance (using
+resampling) but they are not yet implemented.
+
+\strong{How do I know which predictors were added to the model first?}
+
+You can see the forward pass adding terms with \code{trace=2} or higher.
+But remember, pruning will remove some of the terms.
+Another approach is to use
+
+\code{summary(my.model, decomp="none")}
+
+which will list the basis functions remaining after pruning,
+in the order they were added by the forward pass.
+
+\strong{Can I get a list of the predictors actually used in the model?}
+
+Use this function:
+\preformatted{
+get.used.pred.names <- function(obj)   # obj is an earth object
+    names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any)))
+}
 \strong{Multiple Response Models}
 
 If \code{y} has K columns then earth builds K simultaneous models.
@@ -523,7 +570,6 @@ plot(a$fit)
 plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
 plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
 }
-
 \strong{Warning and Error Messages}
 
 \code{Earth} prints most error and warning messages without
@@ -586,17 +632,17 @@ summary(a, digits = 2)
 # yields:
 #    Call:
 #    earth(formula = Volume ~ ., data = trees)
-#
+#    
 #    Expression:
-#      23
-#      +  5.7 * pmax(0,  Girth -     13)
-#      -  2.9 * pmax(0,     13 -  Girth)
-#      + 0.72 * pmax(0, Height -     76)
-#
+#      27 
+#      +    6 * pmax(0,  Girth -     14) 
+#      -  3.2 * pmax(0,     14 -  Girth) 
+#      + 0.61 * pmax(0, Height -     75) 
+#    
 #    Number of cases: 31
 #    Selected 4 of 5 terms, and 2 of 2 predictors
 #    Number of terms at each degree of interaction: 1 3 (additive model)
-#    GCV: 11     RSS: 213     GRSq: 0.96     RSq: 0.97
+#    GCV: 11          RSS: 196         GRSq: 0.96      RSq: 0.98
 }
 \keyword{smooth}
 \keyword{models}

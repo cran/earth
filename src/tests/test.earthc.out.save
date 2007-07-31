@@ -106,7 +106,7 @@ TEST 4: FUNCTION x0 + noise N=1000
 
 =============================================================================
 TEST 5: x0 + x1 N=1000
-earth.c version 1.0-1
+earth.c version 1.1
 Forward pass: model matrix 1000 x 2 y 1000 x 1 minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1388,7 +1388,7 @@ TEST 23: FUNCTION eqn56 mi=10 N=100
 
 =============================================================================
 TEST 24: x0 + x1 + x0*x1 N=30
-earth.c version 1.0-1
+earth.c version 1.1
 Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1520,7 +1520,7 @@ TEST 24: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 N=30
-earth.c version 1.0-1
+earth.c version 1.1
 Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1651,7 +1651,7 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
-earth.c version 1.0-1
+earth.c version 1.1
 Forward pass: model matrix 30 x 2 y 30 x 1 minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1862,7 +1862,7 @@ Response 2:
 
 =============================================================================
 TEST 29: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
-earth.c version 1.0-1
+earth.c version 1.1
 Forward pass: model matrix 100 x 2 y 100 x 2 minspan 7 endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents

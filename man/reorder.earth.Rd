@@ -56,16 +56,16 @@ a <- earth(O3 ~ ., data = ozone1, degree = 2)
 reorder(a, decomp = "none")
 
 # yields:
-# [1]  1  2  3  4  5  6  7  8  9 10 11
+# [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
 reorder(a)   # defaults to decomp = "anova"
 
 # yields:
-# [1]  1  2 11  8  3  4  9  5  6  7 10
+# [1]  1 10  2  3  8  4  5 13 14  9  6  7 11 12
 
 a$selected.terms[reorder(a)]
 
 # yields:
-# [1]  1  2 19 13  6  7 14  9 10 11 17
+# [1]  1 16  2  4 13  6  7 20 21 14  9 10 18 19
 }
 \keyword{models}

@@ -13,7 +13,7 @@ mars.to.earth(object)
   }
 }
 \value{
-  The value is the same as that returned by \code{\link{earth}} but
+  The value is the same format as that returned by \code{\link{earth}} but
   with skeletal versions of \code{rss.per.subset}, \code{gcv.per.subset}, and \code{prune.terms}.\cr
 
   You can fully initialise these components by calling \code{\link{update.earth}}
@@ -46,7 +46,7 @@ summary(a, digits = 2) # the standard earth functions can now be used
 
 # yields (note the reconstructed call):
 #    Call:
-#    earth(x = trees[, -3], y = trees[, 3])
+#    earth(x = trees[, -3], y = trees[, 3], minspan = 0)
 #
 #    Expression:
 #      20

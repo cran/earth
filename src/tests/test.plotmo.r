@@ -2,6 +2,7 @@
 # Many of these tests are culled from man page examples and modified to try to confuse plotmo.
 # Many of the plots are plotted twice so you can visually check by comparing
 # plots in the same window, they should be substantially the same.
+# I added the minspan=0 arguments when the minspan default was changed to 1
 # Stephen Milborrow, Petaluma Jan 2007
 
 print(R.version.string)
@@ -21,36 +22,36 @@ library(earth)
 data(ozone1)
 
 caption <- "basic earth test of plotmo"
-a <- earth(O3 ~ ., data=ozone1, degree=2)
+a <- earth(O3 ~ ., data=ozone1, degree=2, minspan=0)
 plotmo(a, degree1=2, degree2=4, caption=caption, trace=Trace)
 
 caption <- "test 5 x 5 layout"
 dopar(1,1,caption)
-a <- earth(O3 ~ ., data=ozone1, nk=51, pmethod="n", degree=2)
+a <- earth(O3 ~ ., data=ozone1, nk=51, pmethod="n", degree=2, minspan=0)
 plotmo(a, xlab="", ylab="", caption=caption, trace=Trace)
 
 caption <- "test 4 x 4 layout with ylab"
 dopar(1,1,caption)
-a <- earth(O3 ~ ., data=ozone1, nk=30, pmethod="n", degree=2)
+a <- earth(O3 ~ ., data=ozone1, nk=30, pmethod="n", degree=2, minspan=0)
 plotmo(a, xlab="", ylab="ozone", caption=caption, trace=Trace)
 
 caption <- "test 3 x 3 layout"
 dopar(1,1,caption)
-a <- earth(O3 ~ ., data=ozone1, nk=16, pmethod="n", degree=2)
+a <- earth(O3 ~ ., data=ozone1, nk=16, pmethod="n", degree=2, minspan=0)
 plotmo(a, xlab="", ylab="", caption=caption, trace=Trace)
 
 caption <- "test 2 x 2 layout"
 dopar(1,1,caption)
-a <- earth(O3 ~ ., data=ozone1, nk=9, pmethod="n", degree=2)
+a <- earth(O3 ~ ., data=ozone1, nk=9, pmethod="n", degree=2, minspan=0)
 plotmo(a, xlab="", ylab="", caption=caption, trace=Trace)
 
 caption <- "test 1 x 1 layout"
 dopar(1,1,caption)
-a <- earth(O3 ~ ., data=ozone1, nk=4, pmethod="n", degree=2)
+a <- earth(O3 ~ ., data=ozone1, nk=4, pmethod="n", degree=2, minspan=0)
 plotmo(a, xlab="", ylab="", caption=caption, trace=Trace)
 
 caption <- "test plotmo basic params"
-a <- earth(O3 ~ ., data=ozone1, degree=2)
+a <- earth(O3 ~ ., data=ozone1, degree=2, minspan=0)
 dopar(3,2,caption)
 set.seed(1) # needed for reproducibility because of sample for rug in plotmo
 plotmo(a, do.par=FALSE, degree1=1, nrug=-1, degree2=F, caption=caption,
@@ -65,7 +66,7 @@ set.seed(1)
 plotmo(a, do.par=FALSE, degree1=1, nrug=20, ndegree1=50, degree2=F, main="ndegree1=50 nrug=20", trace=Trace)
 
 caption <- "test plotmo ylim"
-a <- earth(O3 ~ ., data=ozone1, degree=2)
+a <- earth(O3 ~ ., data=ozone1, degree=2, minspan=0)
 dopar(3,3,caption)
 plotmo(a, do.par=FALSE, degree1=2:3, degree2=4, caption=caption, xlab="ylim=default", trace=Trace)
 plotmo(a, do.par=FALSE, degree1=2:3, degree2=4, ylim=NA, xlab="ylim=NA", trace=Trace)
@@ -76,30 +77,30 @@ plotmo(a, do.par=FALSE, degree1=2:3, degree2=4, ylim=c(0,20), xlab="ylim=c(0,20)
 caption <- "basic earth test against termplot"
 dopar(4,4,caption)
 earth:::make.space.for.caption("test caption1")
-a <- earth(O3 ~ ., data=ozone1, degree=2)
+a <- earth(O3 ~ ., data=ozone1, degree=2, minspan=0)
 plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=FALSE, trace=Trace)
 cat("Ignore two warnings: predict.earth ignored argument \"se\"\n")
 termplot(a)
 
 caption <- "test change order of earth predictors"
 dopar(4,4,caption)
-a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
-plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
+a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=0)
+plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,2), trace=Trace)
 termplot(a)
 
-a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
+a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=0)
 func1 <- function()
 {
     caption <- "test call plotmo from within a function, global dataframe"
     dopar(4,4,caption)
-    a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
+    a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=0)
     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 
     caption <- "test call plotmo from within a function, local dataframe"
     dopar(4,4,caption)
     ozone1.local <- ozone1[,c(1,2,3,4,5,6,7,8,10)]  # drop vis
-    a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2)
+    a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2, minspan=0)
     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 
@@ -107,7 +108,7 @@ func1 <- function()
     dopar(4,4,caption)
     x <- ozone1.local[,c(4,5,3)]    # humidty temp wind
     y <- ozone1.local[,9]           # doy
-    a <- earth(x, y, degree=2)
+    a <- earth(x, y, degree=2, minspan=0)
     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 }
@@ -115,15 +116,15 @@ func1()
 
 caption <- "test earth formula versus to x,y model"
 dopar(4,4,caption)
-a <- earth(O3 ~ ., data=ozone1, degree=2)
+a <- earth(O3 ~ ., data=ozone1, degree=2, minspan=0)
 plotmo(a, do.par=FALSE, caption=caption, trace=Trace)
-a <- earth(ozone1[, -1], ozone1[,1], degree=2)
+a <- earth(ozone1[, -1], ozone1[,1], degree=2, minspan=0)
 plotmo(a, do.par=FALSE, trace=Trace)
 
 # single predictor
-caption <- "test earth(O3~wind, data=ozone1, degree=2), single predictor"
+caption <- "test earth(O3~wind, data=ozone1, degree=2, minspan=0), single predictor"
 dopar(2,2,caption)
-a <- earth(O3~wind, data=ozone1, degree=2)
+a <- earth(O3~wind, data=ozone1, degree=2, minspan=0)
 plotmo(a, trace=Trace)
 
 caption <- "test lm(log(doy) ~ vh+wind+humidity+temp+log(ibh), data=ozone1)"
@@ -259,7 +260,7 @@ library(mda)
 caption <- "test mars and earth (expect not a close match)"
 dopar(6,3,caption)
 a <- mars( ozone1[, -1], ozone1[,1], degree=2)
-b <- earth(ozone1[, -1], ozone1[,1], degree=2)
+b <- earth(ozone1[, -1], ozone1[,1], degree=2, minspan=0)
 plotmo(a, do.par=FALSE, caption=caption, trace=Trace)
 plotmo(b, do.par=FALSE, trace=Trace)
 
@@ -271,11 +272,11 @@ plotmo(a, do.par=FALSE, caption=caption, ylim=NA, trace=Trace)
 plotmo(b, do.par=FALSE, ylim=NA, trace=Trace)
 
 # check fix for bug reported by Martin Maechler:
-# form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a) fails
+# form <- Volume ~ .; a <- earth(form, data = trees, minspan=0); plotmo(a) fails
 
-dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1)")
+dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1, minspan=0)")
 fa <- log(O3) ~ .
-a <- earth(fa, data=ozone1, degree=2)
+a <- earth(fa, data=ozone1, degree=2, minspan=0)
 print(summary(a))
 plot(a, do.par=FALSE)
 plotmo(a, do.par=FALSE, degree1=2:3, degree2=c(1,3), col.response = "pink")
@@ -284,7 +285,7 @@ plotmo(a, do.par=FALSE, degree1=1:2)
 fa <- log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh)
 a <- lm(fa, data=ozone1)
 plotmo(a, do.par=FALSE, degree1=1:2)
-		
+
 # test inverse.func and func
 
 caption <- "test inverse.func=exp"
@@ -308,9 +309,9 @@ plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, col.shade.se=0, col.se=1
 plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, col.se=1, trace=Trace)
 plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, se=2, col.se=1, trace=Trace)
 
-caption = "se=2, earth(doy~humidity+temp+wind, data=ozone1) versus termplot (expect no se lines)"
+caption = "se=2, earth(doy~humidity+temp+wind, data=ozone1, minspan=0) versus termplot (expect no se lines)"
 dopar(3,2,caption)
-a <- earth(doy~humidity + temp + wind, data=ozone1, degree=2)
+a <- earth(doy~humidity + temp + wind, data=ozone1, degree=2, minspan=0)
 cat("Ignore warning: predict.earth ignored argument \"se\"\n")
 termplot(a)
 cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
@@ -380,8 +381,8 @@ detach("package:gam")
 ozone1[,"wind"] <- factor(ozone1[,"wind"])
 
 # commented out because factors are not yet supported by plotmo.earth
-# caption <- "test wind=factor, earth(O3 ~ ., data=ozone1)"
-# a <- earth(doy ~ ., data=ozone1)
+# caption <- "test wind=factor, earth(O3 ~ ., data=ozone1, minspan=0)"
+# a <- earth(doy ~ ., data=ozone1, minspan=0)
 # set.seed(1)
 # dopar(4,3,caption)
 # plotmo(a, col.response="gray", se=2, nrug=-1, do.par=FALSE, caption=caption, trace=Trace)

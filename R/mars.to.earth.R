@@ -74,7 +74,7 @@
 #   gc()
 #   m.time <- system.time(m <- mars(x,  robotArm(x), degree=degree, nk=201))
 #   gc()
-#   e.time <- system.time(e <- earth(x, robotArm(x), degree=degree, nk=201, fast.k=fast.k))
+#   e.time <- system.time(e <- earth(x, robotArm(x), degree=degree, nk=201, fast.k=fast.k, minspan=0))
 #   options(digits=2)
 #   cat(N, "\t", fast.k, "\t", degree, "\t", e.time[1]/m.time[1], "\t\t",  e$gcv / m$gcv)
 #   options(digits=3)
@@ -119,6 +119,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     call$w <- NULL
     call$forward.step <- NULL
     call$prev.fit <- NULL
+    call$minspan <- 0           # earth default minspan is 1 but mars default is 0
 
     y <- eval.parent(object$call$y)
     if(NCOL(y) != 1)

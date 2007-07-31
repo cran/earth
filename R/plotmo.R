@@ -27,6 +27,12 @@
 #
 # $$ revisit warning: 'newdata' had 10 rows but variable(s) found have 31 rows
 #    e.g. newdata <- as.data.frame(trees[1:10,-3]); predict(a, newdata=newdata)
+#
+# $$ Fix this i.e. if predictor in munged formula is a numeric then delete it:
+# dat <- data.frame(x1=1:20, x2 = sample(1:20), y = rnorm(20)+1:20)
+# fm <- lm(y ~ x1+x2+sin(x1*x2/10), dat)
+# plotmo(fm, se=2)
+# Error in terms.formula(formula, data = data) : invalid model formula in ExtractVars
 
 #--------------------------------------------------------------------------------------------
 # Notes for plotmo()
@@ -926,7 +932,7 @@ get.x.default <- function(
             cat("\n")
         }
         stop1("get.x.default cannot get x matrix --- ",
-            "tried object$call$formula, object$call$x, and object$call$x")
+              "tried object$x, object$call$formula, and object$call$x")
     }
     x <- as.data.frame(x)
     weights <- weights(object)

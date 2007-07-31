@@ -1,5 +1,5 @@
 # earth.R: an implementation of Friedman's Multivariate Adaptive
-#          Spline Regression, commonly known as MARS.
+#          Regression Splines, commonly known as MARS.
 #
 # This code is derived from code in mda.R by Hastie and Tibshirani.
 # Comments containing "$$" mark known issues.
@@ -7,7 +7,7 @@
 
 # Notes for earth() that didn't make it into the man pages.
 #
-# --- subset argument
+# --- subset argument (for selecting cases)
 #
 # All subset handling is done in earth.default not in earth.formula or
 # update.earth.  This is because we want to allow the user to specify
@@ -50,7 +50,7 @@ earth.default <- function(
 
     trace = 0,              # 0 none 1 overview 2 forward 3 pruning 4 more pruning 5 ...
 
-    keepxy  = FALSE,        # true to retain x and y (before  taking subset) in returned value
+    keepxy  = FALSE,        # true to retain x and y (before taking subset) in returned value
 
                             #------------------------------------------------------------
                             # Following affect forward pass only, not pruning pass
@@ -63,16 +63,14 @@ earth.default <- function(
     thresh         = 0.001, # used as one of the conditions to stop adding terms in forw pass
                             # stop if RSqDelta<thresh or 1-RSq<thresh
 
-    minspan        = 0,     # consider knots that are minspan apart:
-                            # <0 add to internally calculated min span (i.e. decrease span)
-                            # =0 use internally calculated min span
-                            # >0 use instead of internally calculated min span
+    minspan        = 1,     # consider knots that are minspan apart
+                            # special value 0 means use internally calculated min span
 
     newvar.penalty = 0,     # penalty for adding a new variable in forward pass
 
     fast.k         = 20,    # Fast MARS K: 0 means use all terms i.e. no Fast MARS
     fast.beta      = 1,     # Fast MARS ageing coefficient
-    fast.h         = NULL,
+    fast.h         = NULL,  # FAST MARS h: not yet supported
 
                             #------------------------------------------------------------
                             # Following affect pruning only, not forward pass
@@ -234,7 +232,7 @@ earth.default <- function(
     if(ncol(x) == 0)    # this happens for example for earth(Volume~Volume,data=trees)
         stop1("no 'x'")
     if(nrow(x) != nrow(y))
-        stop1(" nrow(x) ", nrow(x), " != nrow(y) ", nrow(y))
+        stop1("nrow(x) ", nrow(x), " != nrow(y) ", nrow(y))
     if(!is.null(subset)) {
         check.index.vec("subset", subset, x, check.empty=TRUE)
         x <- x[subset, , drop=FALSE]
@@ -246,7 +244,7 @@ earth.default <- function(
           dirs <- rval[[2]]
           cuts <- rval[[3]]
     } else {
-        # no forward pass: get here if update() called me
+        # no forward pass: get here if update() called me with no forward pass params
         if(trace >= 1)
             cat("Skipped forward pass\n")
         check.classname(Object, deparse(substitute(Object)), "earth")
@@ -355,6 +353,8 @@ earth.formula <- function(
     xint <- match("(Intercept)", colnames(x), nomatch=0)
     if(xint)
         x <- x[, -xint, drop=FALSE]     # silently discard intercept
+    else
+        warning1("ignored -1 in formula (earth objects always have an intercept)")
     y <- model.response(model.frame, "numeric")
     rval <- earth.default(x=x, y=y, ...)
     rval$terms <- attr(model.frame, "terms")
@@ -532,9 +532,9 @@ eval.model.subsets.using.xtx <- function(
 
         # above always evaluates all subsets, so trim back to nprune
 
-        list(rval$rss.per.subset[1:nprune], rval$prune.terms[1:nprune, 1:nprune])
+        list(rval$rss.per.subset[1:nprune], rval$prune.terms[1:nprune, 1:nprune, drop=FALSE])
     }
-    # eval.model.subsets.using.xtx
+    # eval.model.subsets.using.xtx starts here
 
     rprune <- switch(match.arg1(pmethod),
                 backward(bx, y),    # "backward"
@@ -659,7 +659,7 @@ print.earth <- function(x, digits=getOption("digits"), ...)
 summary.earth <- function(  # returns a superset, not a summary in the strict sense
     object = stop("no 'object' arg"),
     digits = getOption("digits"),
-    ...)                    # extra args passed to format.earth e.g. decomp="none"
+    ...)                    # extra args passed on to format.earth e.g. decomp="none"
 {
     rval <- object
     rval$string <- format.earth(object, digits, ...)
@@ -736,7 +736,7 @@ get.gcv <- function(    # default Get.crit function
 
 get.nused.preds.per.subset <- function(dirs, which.terms)
 {
-    # object was converted from mars? if so ugly hack, to allow plot routines to work
+    # object was converted from mars? if so, ugly hack to allow plot routines to work
     if(is.null(which.terms))
         which.terms <- matrix(1:ncol(dirs),ncol(dirs), ncol(dirs))
 
@@ -792,7 +792,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names)
                     s <- pastef(s, "h(%g-%s)", cuts[nterm,ipred], get.name(ipred))
                 else
                     s <- pastef(s, "h(%s-%g)", get.name(ipred), cuts[nterm,ipred])
-        }
+            }
         s
     }
     sapply(seq_along(ntermsVec), get.term.name1, dirs, cuts, pred.names)
@@ -853,8 +853,8 @@ get.earth.x <- function(    # returns x matrix
                 data <- matrix(data, nrow=1, ncol=ncol(object$dirs))
             else
                 stop1("length(data) ", length(data),
-                " is not equal to the number of predictors ", ncol(object$dirs),
-                " in 'object'")
+                    " is not equal to the number of predictors ", ncol(object$dirs),
+                    " in 'object'")
         data
     }
     # get.earth.x starts here
@@ -1025,8 +1025,8 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coeffs
         10 # arbitrary width if no coefs
 }
 
-format.one.class <- function(
-    iclass,         # class index
+format.one.response <- function(
+    iresponse,      # response index i.e. column in y matrix
     object,         # "earth" object
     digits,
     use.names,      # use predictor names, else "x[,1]" etc
@@ -1051,7 +1051,7 @@ format.one.class <- function(
     dirs <- object$dirs
     cuts <- object$cuts
     new.order <- reorder.earth(object, decomp=decomp)
-    coefs <- object$coefficients[new.order, iclass]
+    coefs <- object$coefficients[new.order, iresponse]
     which.terms <- object$selected.terms[new.order]
     check.which.terms(object$dirs, which.terms)
     coef.width <- get.coef.width(coefs[-1], digits)
@@ -1121,10 +1121,10 @@ format.earth <- function(
 {
     check.classname(x, deparse(substitute(a)), "earth")
     warn.if.dots.used("format.earth", ...)
-    nclasses <- NCOL(x$coefficients)
-    s <- vector(mode = "character", length=nclasses)
-    for(iclass in 1:nclasses)
-        s[iclass] <- format.one.class(iclass, x, digits, use.names, add.labels, decomp)
+    nresponses <- NCOL(x$coefficients)
+    s <- vector(mode = "character", length=nresponses)
+    for(iresponse in 1:nresponses)
+        s[iresponse] <- format.one.response(iresponse,x,digits,use.names,add.labels,decomp)
     s
 }
 
@@ -1146,7 +1146,7 @@ format.earth <- function(
 #   x           = stop("no 'x' arg"),    # "lm" object
 #   digits      = getOption("digits"),
 #   use.names   = TRUE,
-#   add.labels  = FALSE)                # add comments labelling each term
+#   add.labels  = FALSE)                 # add comments labelling each term
 # {
 #   get.name <- function(ipred) # return "name" if possible, else "x[,i]"
 #   {
@@ -1161,7 +1161,7 @@ format.earth <- function(
 #   check.classname(x, deparse(substitute(x)), "lm")
 #   coefs = coef(x)
 #   s <- sprintf("  %.*g%s\n", digits=digits, coefs[1], if(add.labels) " # 1" else "")
-#   coefs <- coefs[-1]                  # drop intercept
+#   coefs <- coefs[-1]                  # drop intercept $$ should only do if no intercept
 #   coef.width <- get.coef.width(coefs, digits)
 #   for(ipred in seq_along(coefs)) {
 #       coef <- coefs[ipred]
@@ -1205,7 +1205,7 @@ variable.names.earth <- function(object, ..., use.names=TRUE)
 
 extractAIC.earth <- function(fit, scale = 0, k = 2, ...)
 {
-    warning1("extractAIC.earth: using GCV instead of AIC")
+    warning1("extractAIC.earth: returning GCV instead of AIC")
     if(scale != 0)
         warning1("extractAIC.earth: ignored scale parameter ", scale)
     if(k != 2)

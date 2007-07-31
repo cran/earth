@@ -37,7 +37,7 @@ print(summary(a$fit))
 plot(a$fit)
 plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
 plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
-a <- update(a, nk=3)	# not on man page
+a <- update(a, nk=3) # not on man page
 print(a)
 print(summary(a$fit))
 
@@ -63,7 +63,12 @@ example(get.nterms.per.degree)
 cat("--- get.nused.preds.per.subset.Rd ----------------------\n")
 example(get.nused.preds.per.subset)
 cat("--- mars.to.earth.Rd ----------------------\n")
-example(mars.to.earth)
+example(mars.to.earth) # doesn't do anything
+library(mda)
+a <- mars(trees[,-3], trees[,3])
+a <- mars.to.earth(a)
+summary(a, digits = 2)
+print(summary(a, digits=2))
 cat("--- plot.earth.models.Rd ----------------------\n")
 example(plot.earth.models)
 cat("--- plot.earth.Rd ----------------------\n")
@@ -407,12 +412,20 @@ plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
     col.npreds=1, col.vline=1, lty.vline=3,
     legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
 
+cat("--- test min.span -------------------------------\n")
+
+a <- earth(O3 ~ ., data=ozone1, minspan=2)
+print(summary(a))
+
+a <- earth(O3 ~ ., data=ozone1, minspan=0)
+print(summary(a))
+
 cat("--- test multiple responses ---------------------\n")
 
 # this uses the global matrix data.global (data.global[,1:2] is the response)
 
 test.earth.two.responses <- function(itest, func1, func2,
-    degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0)
+    degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0, minspan=1)
 {
     if(typeof(func1) == "character")
         funcnames <- paste("multiple responses", func1, func2)
@@ -422,7 +435,7 @@ test.earth.two.responses <- function(itest, func1, func2,
         " degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk), "\n\n")
     gc()
     fite <- earth(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
-                degree=degree, trace=trace, nk=nk, pmethod="b", fast.k=-1)
+                degree=degree, trace=trace, nk=nk, pmethod="b", fast.k=-1, minspan=minspan)
     print(fite)
     caption <- paste("itest ", itest, ": ", funcnames, " degree=", degree, " nk=", nk, sep="")
     if(plotit) {
@@ -483,7 +496,7 @@ itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degre
 attach(ozone1)
 x.global <- cbind(                wind, humidity, temp, ibh, dpg, ibt, vis)
 data.global <- cbind(O3, doy, vh, wind, humidity, temp, ibh, dpg, ibt, vis)
-itest <- itest+1; test.earth.two.responses(itest, "O3", "doy", nk=51, degree=2)
+itest <- itest+1; test.earth.two.responses(itest, "O3", "doy", nk=51, degree=2, minspan=0)
 detach(ozone1)
 
 cat("--- formula based multiple response -------------\n")

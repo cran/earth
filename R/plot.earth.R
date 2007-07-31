@@ -571,7 +571,6 @@ plot.cum <- function(           # plot cumulative distribution of absolute resid
     plot.stepfun(cum, add=add, main=main, xlab="abs(Residuals)", ylab="Proportion",
             xlim=xlim, col.points=0, col.hor=col, col.vert=col, ...)
     if(col.grid != 0 && !add) {
-        choices =
         ngrid <- match.choices(cum.grid[1], c("none", "grid", "percentages"), "cum.grid")
         if(ngrid >= 2) {
             # add annotated grid lines, unattractive but useful
