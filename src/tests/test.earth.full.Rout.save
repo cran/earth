@@ -1,7 +1,7 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.5.0 (2007-04-23)"
+[1] "R version 2.5.1 (2007-06-27)"
 > 
 > library(earth)
 Loading required package: leaps
@@ -1108,7 +1108,7 @@ Selected 3 of 5 terms, and 1 of 2 predictors
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV: 9825         RSS: 3144854      GRSq: 0.101      RSq: 0.123
 Warning message:
-NAs introduced by coercion 
+NAs introduced by coercion in: as.integer.default(c(4, 3, 3, 4, 6, 3, 3, 3, 8, 3, 6, 6, 3, 2,  
 > 
 > x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 > y <- O3

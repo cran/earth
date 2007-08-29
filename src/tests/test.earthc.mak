@@ -51,6 +51,7 @@ clean:
 test.earthc.main.exe: $(OBJ)
 	link $(LFLAGS) -out:test.earthc.main.exe $(OBJ) $(LIBS)
 
+# we use diff -w below so \r\n is treated the same as \n
 test.earthc.out: test.earthc.main.exe test.earthc.out.save
 	test.earthc.main.exe > $(OUTDIR)\test.earthc.out
 !IF  "$(CFG)" == "Release"
@@ -59,7 +60,7 @@ test.earthc.out: test.earthc.main.exe test.earthc.out.save
 !IF  "$(CFG)" == "Debug"
 	@echo === Following diff may give some differences ===
 !ENDIF
-	diff test.earthc.out.save $(OUTDIR)\test.earthc.out
+	diff -w test.earthc.out.save $(OUTDIR)\test.earthc.out
 
 $(OUTDIR)/earth.obj: ..\earth.c test.earthc.mak
    cl $(CFLAGS) ..\earth.c
