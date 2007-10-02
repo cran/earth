@@ -14,3 +14,5 @@ Changes to Earth Package
       Minor code, comment, and man page fixups
 
 1.1-1 Changed \r\n to \n to pacify CMD CHECK
+
+1.1-2 Added my web page to DESCRIPTION and to some man pages

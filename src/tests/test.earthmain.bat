@@ -9,7 +9,7 @@
 
 @cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MLd -I"C:\Program Files\r\R-2.5.1\include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\earth.c
 @if %errorlevel% neq 0 goto error:
-@link -nologo -debug:full -out:earthmain.exe Debug\earth.obj \a1\r\work\src\gnuwin32\Rdll.lib \a1\r\work\bin\Rblas.lib
+@link -nologo -debug:full -out:earthmain.exe Debug\earth.obj \a\r\work\src\gnuwin32\Rdll.lib \a\r\work\bin\Rblas.lib
 @if %errorlevel% neq 0 goto error:
 @earthmain.exe > Debug\test.earthmain.out
 @if %errorlevel% neq 0 goto error:

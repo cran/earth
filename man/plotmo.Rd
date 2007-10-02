@@ -318,8 +318,8 @@ See the source comments for details.
 }
 \author{
 Stephen Milborrow.
-This is an early release and users are encouraged to send feedback --- use
-milboATsonicPERIODnet.
+Users are encouraged to send feedback --- use
+milboATsonicPERIODnet \url{http://www.milbo.users.sonic.net}.
 }
 \seealso{
   \code{\link{termplot}},

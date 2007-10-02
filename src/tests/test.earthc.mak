@@ -2,7 +2,7 @@
 
 all: test.earthc.out
 
-R_DIR=\a1\r\work
+R_DIR=\a\r\work
 
 INCL=-I$(R_DIR)\src\include -I.
 
