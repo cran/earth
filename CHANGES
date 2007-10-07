@@ -16,3 +16,7 @@ Changes to Earth Package
 1.1-1 Changed \r\n to \n to pacify CMD CHECK
 
 1.1-2 Added my web page to DESCRIPTION and to some man pages
+
+1.1-3 Changed search order for x an y in update.earth on Max Kuhn's suggestion
+      Minor changes to pacify gcc 4 --pedantic
+

@@ -6,7 +6,7 @@
 > # Stephen Milborrow, Petaluma Jan 2007
 > 
 > print(R.version.string)
-[1] "R version 2.5.1 (2007-06-27)"
+[1] "R version 2.6.0 (2007-10-03)"
 > 
 > Trace = FALSE
 > 
@@ -90,11 +90,11 @@ Loading required package: leaps
 NULL
 > a <- earth(O3 ~ ., data=ozone1, degree=2, minspan=0)
 > plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=FALSE, trace=Trace)
-> cat("Ignore two warnings: predict.earth ignored argument \"se\"\n")
-Ignore two warnings: predict.earth ignored argument "se"
+> cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
+Ignore two warnings: predict.earth ignored argument "se.fit"
 > termplot(a)
 Warning message:
-predict.earth ignored argument "se" 
+predict.earth ignored argument "se.fit" 
 > 
 > caption <- "test change order of earth predictors"
 > dopar(4,4,caption)
@@ -103,7 +103,7 @@ predict.earth ignored argument "se"
 > plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,2), trace=Trace)
 > termplot(a)
 Warning message:
-predict.earth ignored argument "se" 
+predict.earth ignored argument "se.fit" 
 > 
 > a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=0)
 > func1 <- function()
@@ -219,7 +219,7 @@ predict.earth ignored argument "se"
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.3-26 
+This is mgcv 1.3-27 
 > set.seed(1)
 > caption <- "test plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -381,7 +381,7 @@ GCV: 0.1079334        RSS: 28.75354         GRSq: 0.8078581      RSq: 0.8439443
 Ignore warning: predict.earth ignored argument "se"
 > termplot(a)
 Warning message:
-predict.earth ignored argument "se" 
+predict.earth ignored argument "se.fit" 
 > cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
 Ignore two warnings: predict.earth ignored argument "se.fit"
 > plotmo(a, se=2, do.par=FALSE, ylim=NA, degree2=c(1:2), clip=FALSE, caption=caption, trace=Trace)
@@ -418,7 +418,7 @@ Warning messages:
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.3-26 
+This is mgcv 1.3-27 
 > set.seed(1)
 > caption <- "test se=2, plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -453,9 +453,12 @@ This is mgcv 1.3-26
 Ignore three warnings: No standard errors (currently) for gam predictions with newdata
 > plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
 Warning messages:
-1: No standard errors (currently) for gam predictions with newdata in: newdata.predict.gam(object, newdata, type, dispersion, se.fit,  
-2: No standard errors (currently) for gam predictions with newdata in: newdata.predict.gam(object, newdata, type, dispersion, se.fit,  
-3: No standard errors (currently) for gam predictions with newdata in: newdata.predict.gam(object, newdata, type, dispersion, se.fit,  
+1: In newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
+  No standard errors (currently) for gam predictions with newdata
+2: In newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
+  No standard errors (currently) for gam predictions with newdata
+3: In newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
+  No standard errors (currently) for gam predictions with newdata
 > # termplot(a)  #$$ this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL 
 > detach("package:gam")
 > 
@@ -502,7 +505,7 @@ Warning messages:
 +    detach("package:gam")
 > caption <- "test wind=factor, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
 > library(mgcv)
-This is mgcv 1.3-26 
+This is mgcv 1.3-27 
 > a <- gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)
 > plotmo(a, se=1, caption=caption, trace=Trace)
 > caption <- "test wind=factor, clip=TRUE, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"

@@ -1445,7 +1445,7 @@ static INLINE void FindPred(
             if (nTraceGlobal >= 6)
                 printf("\n");
 
-            int iBestCase;
+            int iBestCase = -1;
             FindKnot(&iBestCase, pBestRssDeltaForThisTerm, CovCol, CovSy, CovSx, ybxSum,
                     (IsNewForm? nTerms + 1: nTerms),
                     iParent, iPred, nCases, nClasses, nMaxTerms,
@@ -1791,7 +1791,7 @@ static void ForwardPass(
     if (FastK == -1)
         FastK = 10000;      // bigger than any nMaxTerms
     if (FastK < 3)
-        error("fast.k %d < 3, the only legal value less than 3 is -1 ",
+        error("fast.k %d < 3, the only legal value less than 3 is -1 "
             "(meaning no Fast MARS)", FastK);
     if (FastBeta < 0)
         error("fast.beta %g < 0", FastBeta);
@@ -1962,7 +1962,7 @@ void ForwardPassR(              // for use by R
 
     RegressAndFix(NULL, NULL, NULL, BoolFullSet, bx, y, nCases, nClasses, nMaxTerms);
 
-    for (int iTerm = 0; iTerm < nMaxTerms; iTerm++) // convert int to double
+    for (iTerm = 0; iTerm < nMaxTerms; iTerm++) // convert int to double
         for (int iPred = 0; iPred < nPreds; iPred++)
             Dirs[iTerm + iPred * nMaxTerms] =
                 iDirs[iTerm + iPred * nMaxTerms];

@@ -1,7 +1,7 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.5.1 (2007-06-27)"
+[1] "R version 2.6.0 (2007-10-03)"
 > 
 > library(earth)
 Loading required package: leaps
@@ -1108,7 +1108,7 @@ Selected 3 of 5 terms, and 1 of 2 predictors
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV: 9825         RSS: 3144854      GRSq: 0.101      RSq: 0.123
 Warning message:
-NAs introduced by coercion in: as.integer.default(c(4, 3, 3, 4, 6, 3, 3, 3, 8, 3, 6, 6, 3, 2,  
+In storage.mode(tagx) <- "integer" : NAs introduced by coercion
 > 
 > x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 > y <- O3
@@ -1706,11 +1706,11 @@ Call:
 mda(formula = Type ~ ., data = glass.train, method = mars, keepxy = TRUE, 
     degree = 2)
 
-Dimension: 9 
+Dimension: 8
 
 Percent Between-Group Variance Explained:
-    v1     v2     v3     v4     v5     v6     v7     v8     v9 
- 44.62  75.74  84.36  91.27  95.96  98.38  99.40 100.00 100.00 
+    v1     v2     v3     v4     v5     v6     v7     v8 
+ 44.62  75.74  84.36  91.27  95.96  98.38  99.40 100.00 
 
 Training Misclassification Error: 0.32 ( N = 100 )
 

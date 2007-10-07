@@ -411,37 +411,25 @@ update.earth <- function(
             call <- as.call(call)
         }
     }
-    # If the user has not specified an x then we must get x from the original call.
-    # This may not be possible, for example if earth was called from within a
-    # function (e.g. fda) and the original x no longer exists.  But if we saved 
-    # the original x (because keepxy was true) then we can use that instead.  
-    # That's what the following code does, and for y too.
+    # Which x should we use? The precedence is [1] the x parameter, if any,
+    # in this call to update [2] the $x in the earth object (which exists
+    # if keepxy=TRUE was used the original call to earth) [3] the x found 
+    # by eval.parent().
 
-    if(is.null(call$formula)) {     # earth was invoked using the x,y interface?
-        if(is.null(this.call$x)) {  # no x argument in this call to update?
-            x <- try(eval.parent(call$x), silent=TRUE)
-            if(class(x) == "try-error") {
-                x <- try(eval.parent(object$x), silent=TRUE)
-                if(is.null(x) || class(x) == "try-error")
-                    stop1("Cannot find 'x' (remedy: ",
-                        "call earth with keepxy=TRUE before calling predict.earth)")
-                call$x <- x
-            }
-        }
-        if(is.null(this.call$y)) {
-            y <- try(eval.parent(call$y), silent=TRUE)
-            if(class(y) == "try-error") {
-                y <- try(eval.parent(object$y), silent=TRUE)
-                if(is.null(y) || class(y) == "try-error")
-                    stop1("Cannot find 'y' (remedy: ",
-                        "call earth with keepxy=TRUE before calling predict.earth)")
-                call$y <- y
-            }
-        }
+    this.call <- match.call(expand.dots=TRUE)
+    if(is.null(this.call$x)) {  # no x argument in this call to update?
+        x <- try(eval.parent(object$x), silent=TRUE)
+        if(!is.null(x) && class(x) != "try-error")
+            call$x <- x         # use object$x
+    }
+   if(is.null(this.call$y)) {   # same as above, but for y
+        y <- try(eval.parent(object$y), silent=TRUE)
+        if(!is.null(y) && class(y) != "try-error")
+            call$y <- y
     }
     call$Object <- if(do.forward.pass) NULL else substitute(object)
     if(evaluate)
-        eval(call, parent.frame())
+        eval.parent(call)
     else
         call
 }
