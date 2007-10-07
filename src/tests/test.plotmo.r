@@ -79,7 +79,7 @@ dopar(4,4,caption)
 earth:::make.space.for.caption("test caption1")
 a <- earth(O3 ~ ., data=ozone1, degree=2, minspan=0)
 plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=FALSE, trace=Trace)
-cat("Ignore two warnings: predict.earth ignored argument \"se\"\n")
+cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
 termplot(a)
 
 caption <- "test change order of earth predictors"

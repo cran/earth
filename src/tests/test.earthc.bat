@@ -8,8 +8,10 @@
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
 @echo === test.earthc ===
-@cp "C:\Program Files\r\R-2.5.1\bin\R.dll" .
-@cp "C:\Program Files\r\R-2.5.1\bin\Rblas.dll" .
+@cp "C:\Program Files\r\R-2.6.0\bin\R.dll" .
+@cp "C:\Program Files\r\R-2.6.0\bin\Rblas.dll" .
+@cp "C:\Program Files\r\R-2.6.0\bin\iconv.dll" .
+@cp "C:\Program Files\r\R-2.6.0\bin\graphapp.dll" .
 @md Debug
 @md Release
 
@@ -24,6 +26,6 @@
 @echo error: nmake returned errorlevel %errorlevel%
 @exit /B %errorlevel%
 :good
-@rm -f R.dll Rblas.dll test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
+@rm -f R.dll Rblas.dll iconv.dll graphapp.dll test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
 @rm -rf Debug
 @rm -rf Release
