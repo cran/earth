@@ -39,9 +39,7 @@ Number of terms at each degree of interaction: 1 3 (additive model)
 GCV: 11          RSS: 196         GRSq: 0.96      RSq: 0.98
 > 
 > a <- earth(mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
-Call: earth.default(x=x,y=y,trace=4,pmethod="none") 
-
-Forward pass: model matrix 32 x 10 y 32 x 1 minspan 1 endspan 12
+Forward pass: model matrix[32,10]   y[32,1]   minspan 1   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
 1      0.0000 0.0000                   1126                            1
@@ -284,9 +282,6 @@ Percent Between-Group Variance Explained:
 Training Misclassification Error: 0.0333 ( N = 150 )
 > plot(a)
 > print(summary(a$fit))
-Call:
-earth(x = x, y = Theta, weights = weights, keepxy = TRUE)
-
 Response 1 expression:
   -2.17 
   - 0.206 * pmax(0, Sepal.Length -          5.4) 
@@ -299,7 +294,6 @@ Response 1 expression:
   + 0.801 * pmax(0,          1.2 -  Petal.Width) 
   -  2.35 * pmax(0,  Petal.Width -          1.9) 
   +  1.59 * pmax(0,  Petal.Width -          1.6) 
-
 Response 2 expression:
   -1.68 
   -  0.274 * pmax(0, Sepal.Length -          5.4) 
@@ -337,14 +331,10 @@ Percent Between-Group Variance Explained:
 
 Training Misclassification Error: 0.04 ( N = 150 )
 > print(summary(a$fit))
-Call:
-earth(x = x, y = Theta, weights = weights, keepxy = TRUE, nk = 3)
-
 Response 1 expression:
   -1.3 
   + 1.35 * pmax(0, Petal.Width -         1.2) 
   +  2.6 * pmax(0,         1.2 - Petal.Width) 
-
 Response 2 expression:
   -0.744 
   +  2.22 * pmax(0, Petal.Width -         1.2) 
@@ -434,9 +424,6 @@ gt....> get.nused.preds.per.subset(a$dirs, a$prune.terms)
 > a <- mars(trees[,-3], trees[,3])
 > a <- mars.to.earth(a)
 > summary(a, digits = 2)
-Call:
-earth(x = trees[, -3], y = trees[, 3], minspan = 0)
-
 Expression:
   20 
   +  5.4 * pmax(0,  Girth -     12) 
@@ -448,9 +435,6 @@ Selected 4 of 5 terms, and 2 of 2 predictors
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV: 13          RSS: 251         GRSq: 0.95      RSq: 0.97
 > print(summary(a, digits=2))
-Call:
-earth(x = trees[, -3], y = trees[, 3], minspan = 0)
-
 Expression:
   20 
   +  5.4 * pmax(0,  Girth -     12) 
@@ -1274,11 +1258,6 @@ Response 2  GCV: 0.00830622       RSS: 0.5722154        GRSq: 0.9939628      RSq
 All         GCV: 0.01023535       RSS: 0.705113         GRSq: 0.9975333      RSq: 0.9982662
 
 > print(summary(a))
-Call:
-earth(x = data.global[, c(-1, -2), drop = FALSE], y = data.global[, 
-    1:2], trace = trace, degree = degree, nk = nk, minspan = minspan, 
-    fast.k = -1, pmethod = "b")
-
 Response 1 expression:
   -1.424429 
   +  1.641520 * pmax(0,         x1 - -0.4839664) 
@@ -1289,7 +1268,6 @@ Response 1 expression:
   -  2.249128 * pmax(0,         x1 -  0.6788807) 
   + 0.9875745 * pmax(0,         x2 - -0.3424454) 
   -  1.024736 * pmax(0, -0.3424454 -         x2) 
-
 Response 2 expression:
   -0.6135155 
   -   2.015647 * pmax(0,         x1 - -0.4839664) 
@@ -1326,11 +1304,6 @@ Response 2  GCV: 0.00916865       RSS: 0.5722154        GRSq: 0.993336       RSq
 All         GCV: 0.01129808       RSS: 0.705113         GRSq: 0.9972772      RSq: 0.9982662
 
 > print(summary(a))
-Call:
-earth(x = data.global[, c(-1, -2), drop = FALSE], y = data.global[, 
-    1:2], trace = trace, degree = degree, nk = nk, minspan = minspan, 
-    fast.k = -1, pmethod = "b")
-
 Response 1 expression:
   -1.424429 
   +  1.641520 * pmax(0,         x1 - -0.4839664) 
@@ -1341,7 +1314,6 @@ Response 1 expression:
   -  2.249128 * pmax(0,         x1 -  0.6788807) 
   + 0.9875745 * pmax(0,         x2 - -0.3424454) 
   -  1.024736 * pmax(0, -0.3424454 -         x2) 
-
 Response 2 expression:
   -0.6135155 
   -   2.015647 * pmax(0,         x1 - -0.4839664) 
@@ -1706,7 +1678,7 @@ Call:
 mda(formula = Type ~ ., data = glass.train, method = mars, keepxy = TRUE, 
     degree = 2)
 
-Dimension: 8
+Dimension: 8 
 
 Percent Between-Group Variance Explained:
     v1     v2     v3     v4     v5     v6     v7     v8 
@@ -1741,9 +1713,7 @@ mda with earth  0.14
 --- ../../tests/test.earth.R -------------------------
 > 
 > source("../../tests/test.earth.R")
-Call: earth.default(x=x,y=y,trace=4,degree=2) 
-
-Forward pass: model matrix 330 x 9 y 330 x 1 minspan 1 endspan 15
+Forward pass: model matrix[330,9]   y[330,1]   minspan 1   endspan 15
 
          GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
 1      0.0000 0.0000              2.112e+04                            1

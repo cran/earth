@@ -167,7 +167,7 @@ earth.default <- function(
         # get bx.prune and y.prune, with subset handling
         if(!is.null(bx) && is.null(subset))
             bx.prune <- bx   # use bx created in forward pass
-        else
+        else                 # else recreate bx with all terms (update invoked me)
             bx.prune <- get.bx(x.org, 1:nrow(dirs), dirs, cuts) # all terms
 
         y.prune <- y.org
@@ -208,9 +208,10 @@ earth.default <- function(
     }
     # earth.default starts here
     warn.if.dots.used("earth.default", ...)
-    if(trace >= 3)              # show the call?
-       cat("Call:", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
-            "\n\n")
+    # FIX 30 Oct 2007: commented out following lines because cat output can be huge
+    # if(trace >= 3)            # show the call?
+    #   cat("Call:", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
+    #       "\n\n")
     if(nk < 1)
         stop1("'nk' ", nk, " is less than 1")
     if(!identical(na.action, na.fail))
@@ -223,8 +224,11 @@ earth.default <- function(
         warning1("converted trace=TRUE to trace=4")
         trace <- 4
     }
-    x <- as.matrix(x)   # if x is a vec this converts it to an ncases x 1 matrix
-    y <- as.matrix(y)   # ditto for y
+    # FIX 30 Oct 2007: changed as.matrix to data.matrix because as.matrix(x)
+    # converts x to a character matrix if x has a factor column which
+    # creates problems later if update.earth is invoked.
+    x <- data.matrix(x)   # if x is a vec this converts it to an ncases x 1 matrix
+    y <- data.matrix(y)   # ditto for y
     x.org <- x
     y.org <- y
     if(nrow(x) == 0)
@@ -664,14 +668,18 @@ print.summary.earth <- function(
     ...)
 {
     warn.if.dots.used("print.summary.earth", ...)
-    cat("Call:\n")
-    dput(x$call)
+    # FIX 30 Oct 2007: only print call if formula else output can be huge
+    if(!is.null(x$terms)) {
+        cat("Call:\n")
+        dput(x$call)
+        cat("\n")
+    }
     nclasses <- NCOL(x$coefficients)
     for(iclass in 1:nclasses)
         cat(if(nclasses == 1)
-                "\nExpression:\n"
+                "Expression:\n"
             else
-                paste("\nResponse ", iclass, " expression:\n", sep=""),
+                paste("Response ", iclass, " expression:\n", sep=""),
             x$string[iclass], sep="")
     cat("\nNumber of cases: ", length(x$residuals), "\n", sep="")
     print.earth(x, if(missing(digits)) x$digits else digits)
@@ -853,7 +861,8 @@ get.earth.x <- function(    # returns x matrix
             x <- eval.parent(object$call$x)
         else
             x <- convert.data(data)
-        x <- as.matrix(x)   # to cope with dataframes
+        # FIX 30 Oct 2007: changed as.matrix to data.matrix
+        x <- data.matrix(x)   # to cope with dataframes
         if(is.null(colnames(x)))
             colnames(x) <- colnames(object$dirs)
     } else {

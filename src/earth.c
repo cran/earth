@@ -1596,7 +1596,7 @@ static void PrintForwardProlog(const double RssNull,
     if (nTraceGlobal == 1)
         printf("Term 1");
     else if (nTraceGlobal >= 2) {
-        printf("Forward pass: model matrix %d x %d y %d x %d minspan %d endspan %d\n\n",
+        printf("Forward pass: model matrix[%d,%d]   y[%d,%d]   minspan %d   endspan %d\n\n",
             nCases, nPreds, nCases, nClasses,
             GetMinSpan(nCases, NULL, 0, nMinSpanGlobal), GetEndSpan(nCases));
 
