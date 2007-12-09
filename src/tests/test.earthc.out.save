@@ -1804,8 +1804,8 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 5 terms of 5, GRSq 0.988672 RSq 0.990428
 
-RESULT 27 Class 1: GRSq 1 RSq 1 nTerms 5 of 5 of 51 [99.99 secs]
-RESULT 27 Class 2: GRSq 0.984659 RSq 0.987039 nTerms 5 of 5 of 51
+RESULT 27 Response 1: GRSq 1 RSq 1 nTerms 5 of 5 of 51 [99.99 secs]
+RESULT 27 Response 2: GRSq 0.984659 RSq 0.987039 nTerms 5 of 5 of 51
 
 TEST 27: FUNCTION x0|x+x1+noise N=30
 Response 1:
@@ -1843,8 +1843,8 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 5 terms of 5, GRSq 0.794436 RSq 0.826316
 
-RESULT 28 Class 1: GRSq 0.810743 RSq 0.840095 nTerms 5 of 5 of 51 [99.99 secs]
-RESULT 28 Class 2: GRSq 0.810743 RSq 0.840095 nTerms 5 of 5 of 51
+RESULT 28 Response 1: GRSq 0.810743 RSq 0.840095 nTerms 5 of 5 of 51 [99.99 secs]
+RESULT 28 Response 2: GRSq 0.810743 RSq 0.840095 nTerms 5 of 5 of 51
 
 TEST 28: FUNCTION x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
 Response 1:
@@ -1994,8 +1994,8 @@ Backward pass complete: selected 8 terms of 8, GRSq 1 RSq 1
 06   2            1         1 | -1 -1 |  -0.307    0.274 
 07   2            1         1 |  1  1 |  -0.994    0.274 
 
-RESULT 29 Class 1: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
-RESULT 29 Class 2: GRSq 1 RSq 1 nTerms 8 of 8 of 51
+RESULT 29 Response 1: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
+RESULT 29 Response 2: GRSq 1 RSq 1 nTerms 8 of 8 of 51
 
 TEST 29: FUNCTION x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
 Response 1:
@@ -2046,8 +2046,8 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 8 terms of 8, GRSq 0.995445 RSq 0.998118
 
-RESULT 30 Class 1: GRSq 1 RSq 1 nTerms 8 of 8 of 101 [99.99 secs]
-RESULT 30 Class 2: GRSq 0.995787 RSq 0.998259 nTerms 8 of 8 of 101
+RESULT 30 Response 1: GRSq 1 RSq 1 nTerms 8 of 8 of 101 [99.99 secs]
+RESULT 30 Response 2: GRSq 0.995787 RSq 0.998259 nTerms 8 of 8 of 101
 
 TEST 30: FUNCTION x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
 Response 1:
@@ -2095,9 +2095,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 9 terms of 9, GRSq 0.994263 RSq 0.99799
 
-RESULT 31 Class 1: GRSq 1 RSq 1 nTerms 9 of 9 of 101 [99.99 secs]
-RESULT 31 Class 2: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101
-RESULT 31 Class 3: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101
+RESULT 31 Response 1: GRSq 1 RSq 1 nTerms 9 of 9 of 101 [99.99 secs]
+RESULT 31 Response 2: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101
+RESULT 31 Response 3: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101
 
 TEST 31: FUNCTION x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
 Response 1:
@@ -2156,9 +2156,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 9 terms of 9, GRSq 0.993993 RSq 0.997896
 
-RESULT 32 Class 1: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101 [99.99 secs]
-RESULT 32 Class 2: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101
-RESULT 32 Class 3: GRSq 1 RSq 1 nTerms 9 of 9 of 101
+RESULT 32 Response 1: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101 [99.99 secs]
+RESULT 32 Response 2: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101
+RESULT 32 Response 3: GRSq 1 RSq 1 nTerms 9 of 9 of 101
 
 TEST 32: FUNCTION |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
 Response 1:
@@ -2217,9 +2217,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 9 terms of 9, GRSq 0.994963 RSq 0.998236
 
-RESULT 33 Class 1: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101 [99.99 secs]
-RESULT 33 Class 2: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101
-RESULT 33 Class 3: GRSq 1 RSq 1 nTerms 9 of 9 of 101
+RESULT 33 Response 1: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101 [99.99 secs]
+RESULT 33 Response 2: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101
+RESULT 33 Response 3: GRSq 1 RSq 1 nTerms 9 of 9 of 101
 
 TEST 33: FUNCTION sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
 Response 1:
@@ -2292,8 +2292,8 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 18 terms of 19, GRSq 0.995413 RSq 0.995795
 
-RESULT 34 Class 1: GRSq 0.996813 RSq 0.997079 nTerms 18 of 19 of 101 [99.99 secs]
-RESULT 34 Class 2: GRSq -3.29776 RSq -2.93986 nTerms 18 of 19 of 101
+RESULT 34 Response 1: GRSq 0.996813 RSq 0.997079 nTerms 18 of 19 of 101 [99.99 secs]
+RESULT 34 Response 2: GRSq -3.29776 RSq -2.93986 nTerms 18 of 19 of 101
 
 TEST 34: FUNCTION sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
 Response 1:

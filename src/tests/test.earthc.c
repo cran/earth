@@ -57,148 +57,148 @@ static double RandGauss(void)   // standard normal random number
 }
 
 //-----------------------------------------------------------------------------
-static double funcNoise(const double x[], const int iClass) { return RandGauss(); }
+static double funcNoise(const double x[], const int iResponse) { return RandGauss(); }
 
-static double func0(const double x[], const int iClass) { return x[0]; }
+static double func0(const double x[], const int iResponse) { return x[0]; }
 
-static double func1(const double x[], const int iClass) { return x[0] + x[1] + .1 * RandGauss(); }
+static double func1(const double x[], const int iResponse) { return x[0] + x[1] + .1 * RandGauss(); }
 
-static double func2(const double x[], const int iClass) { return x[0] + x[1] + x[0]*x[1]; }
+static double func2(const double x[], const int iResponse) { return x[0] + x[1] + x[0]*x[1]; }
 
-static double func3(const double x[], const int iClass) { return cos(x[0]) + x[1]; }
+static double func3(const double x[], const int iResponse) { return cos(x[0]) + x[1]; }
 
-static double func4(const double x[], const int iClass) { return sin(2 * x[0]) + 2*x[1] + 0.5*x[0]*x[1]; }
+static double func4(const double x[], const int iResponse) { return sin(2 * x[0]) + 2*x[1] + 0.5*x[0]*x[1]; }
 
-static double func5(const double x[], const int iClass) { return x[0] + x[1] + x[3] + x[4] + x[5] + x[1]*x[2] + (x[3]+1)*(x[4]+1)*x[5]; }
+static double func5(const double x[], const int iResponse) { return x[0] + x[1] + x[3] + x[4] + x[5] + x[1]*x[2] + (x[3]+1)*(x[4]+1)*x[5]; }
 
-static double func4lin(const double x[], const int iClass) { return x[0] + x[1] + x[3] + x[4]; }
+static double func4lin(const double x[], const int iResponse) { return x[0] + x[1] + x[3] + x[4]; }
 
-static double func6(const double x[], const int iClass) {                 // 5 preds, 2nd order
+static double func6(const double x[], const int iResponse) {                 // 5 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5]
             + .1 * RandGauss();
 }
 
-static double func6clean(const double x[], const int iClass) {            // 5 preds, 2nd order
+static double func6clean(const double x[], const int iResponse) {            // 5 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5];
 }
 
-static double func7(const double x[], const int iClass) {                 // 10 preds, 2nd order
+static double func7(const double x[], const int iResponse) {                 // 10 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +x[6] +x[7] +x[8] +x[9] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5] + x[6]*x[7] + x[8]*x[9];
 }
 
-static double func8(const double x[], const int iClass) {                 // 20 preds, 2nd order
+static double func8(const double x[], const int iResponse) {                 // 20 preds, 2nd order
     return  x[0] +x[1]+ x[2] +x[3] +x[4] +x[5] +x[6] +x[7] +x[8] +x[9] +
            x[10]+x[11]+x[12]+x[13]+x[14]+x[15]+x[16]+x[17]+x[18]+x[19] +
             x[0]*x[1] + x[2]*x[3] + x[4]*x[5] + x[6]*x[7] + x[8]*x[9] +
             + .1 * RandGauss();
 }
 
-static double func9(const double x[], const int iClass) { return x[1]; }
+static double func9(const double x[], const int iResponse) { return x[1]; }
 
-static double func56(const double x[], const int iClass) {    // Friedman MARS paper eqn 56
+static double func56(const double x[], const int iResponse) {    // Friedman MARS paper eqn 56
     return 0.1 * exp(4*x[0]) + 4 / (1 + exp(-20*(x[1]-0.5)) + 3*x[2] + 2*x[3] + x[4] + RandGauss());
 }
 
 // functions for testing multiple responses
 
-static double func0_1(const double x[], const int iClass) 
+static double func0_1(const double x[], const int iResponse) 
 {
-    if (iClass == 0)
-        return func0(x, iClass);
-    else if (iClass == 1)
-        return func1(x, iClass);
+    if (iResponse == 0)
+        return func0(x, iResponse);
+    else if (iResponse == 1)
+        return func1(x, iResponse);
     else
-        error("bad iClass");
+        error("bad iResponse");
     return 0;
 }
 
-static double func2_2(const double x[], const int iClass) 
+static double func2_2(const double x[], const int iResponse) 
 {
-    if (iClass == 0)
-        return func2(x, iClass);
-    else if (iClass == 1)
-        return func2(x, iClass);
+    if (iResponse == 0)
+        return func2(x, iResponse);
+    else if (iResponse == 1)
+        return func2(x, iResponse);
     else
-        error("bad iClass");
+        error("bad iResponse");
     return 0;
 }
 
-static double func0_4(const double x[], const int iClass) 
+static double func0_4(const double x[], const int iResponse) 
 {
-    if (iClass == 0)
-        return func0(x, iClass);
-    else  if (iClass == 1)
-        return func4(x, iClass);
+    if (iResponse == 0)
+        return func0(x, iResponse);
+    else  if (iResponse == 1)
+        return func4(x, iResponse);
     else
-        error("bad iClass");
+        error("bad iResponse");
     return 0;
 }
 
-static double func0_2_4(const double x[], const int iClass) 
+static double func0_2_4(const double x[], const int iResponse) 
 {
-    if (iClass == 0)
-        return func0(x, iClass);
-    else  if (iClass == 1)
-        return func2(x, iClass);
-    else  if (iClass == 2)
-        return func4(x, iClass);
+    if (iResponse == 0)
+        return func0(x, iResponse);
+    else  if (iResponse == 1)
+        return func2(x, iResponse);
+    else  if (iResponse == 2)
+        return func4(x, iResponse);
     else
-        error("bad iClass");
+        error("bad iResponse");
     return 0;
 }
 
-static double func2_4_0(const double x[], const int iClass) 
+static double func2_4_0(const double x[], const int iResponse) 
 {
-    if (iClass == 0)
-        return func2(x, iClass);
-    else  if (iClass == 1)
-        return func4(x, iClass);
-    else  if (iClass == 2)
-        return func0(x, iClass);
+    if (iResponse == 0)
+        return func2(x, iResponse);
+    else  if (iResponse == 1)
+        return func4(x, iResponse);
+    else  if (iResponse == 2)
+        return func0(x, iResponse);
     else
-        error("bad iClass");
+        error("bad iResponse");
     return 0;
 }
 
-static double func4_2_0(const double x[], const int iClass) 
+static double func4_2_0(const double x[], const int iResponse) 
 {
-    if (iClass == 0)
-        return func4(x, iClass);
-    else  if (iClass == 1)
-        return func2(x, iClass);
-    else  if (iClass == 2)
-        return func0(x, iClass);
+    if (iResponse == 0)
+        return func4(x, iResponse);
+    else  if (iResponse == 1)
+        return func2(x, iResponse);
+    else  if (iResponse == 2)
+        return func0(x, iResponse);
     else
-        error("bad iClass");
+        error("bad iResponse");
     return 0;
 }
 
-static double func4_6(const double x[], const int iClass) 
+static double func4_6(const double x[], const int iResponse) 
 {
-    if (iClass == 0)
-        return func4(x, iClass);
-    else  if (iClass == 1)
-        return func6(x, iClass);
+    if (iResponse == 0)
+        return func4(x, iResponse);
+    else  if (iResponse == 1)
+        return func6(x, iResponse);
     else
-        error("bad iClass");
+        error("bad iResponse");
     return 0;
 }
 
 // functions for testing NewVarPenalty
 
-static double func1colinear(const double x[], const int iClass) 
+static double func1colinear(const double x[], const int iResponse) 
     { return x[0] + x[1] + .1 * RandGauss(); }
 
-static double func2colinear(const double x[], const int iClass) 
+static double func2colinear(const double x[], const int iResponse) 
     { return cos(x[0]) + cos(x[1]) + .1 * RandGauss(); }
 
 //-----------------------------------------------------------------------------
 static void TestEarth(char sTestName[],
-                double (__cdecl *func)(const double xVec[], const int iClass),
-                const int nCases, const int nClasses, const int nPreds,
+                double (__cdecl *func)(const double xVec[], const int iResponse),
+                const int nCases, const int nResponses, const int nPreds,
                 const int nMaxDegree, const int nMaxTerms,
                 const int nTrace, const bool Format,
                 const double ForwardStepThresh,
@@ -206,16 +206,16 @@ static void TestEarth(char sTestName[],
                 const int seed, 
                 const double Colinear = 0)
 {
-    #define y_(iCase,iClass) y[(iCase) + (iClass)*(nCases)]
+    #define y_(iCase,iResponse) y[(iCase) + (iResponse)*(nCases)]
 
-    double *x         = (double *)malloc(nCases    * nPreds    * sizeof(double));
-    double *y         = (double *)malloc(nCases    * nClasses  * sizeof(double));
-    double *bx        = (double *)malloc(nCases    * nMaxTerms * sizeof(double));
-    bool   *BestSet   = (bool *)  malloc(nMaxTerms *             sizeof(bool));
-    int    *Dirs      = (int *)   malloc(nMaxTerms * nPreds    * sizeof(int));
-    double *Cuts      = (double *)malloc(nMaxTerms * nPreds    * sizeof(double));
-    double *Residuals = (double *)malloc(nCases    * nClasses  * sizeof(double));
-    double *Betas     = (double *)malloc(nMaxTerms * nClasses  * sizeof(double));
+    double *x         = (double *)malloc(nCases    * nPreds     * sizeof(double));
+    double *y         = (double *)malloc(nCases    * nResponses * sizeof(double));
+    double *bx        = (double *)malloc(nCases    * nMaxTerms  * sizeof(double));
+    bool   *BestSet   = (bool *)  malloc(nMaxTerms *              sizeof(bool));
+    int    *Dirs      = (int *)   malloc(nMaxTerms * nPreds     * sizeof(int));
+    double *Cuts      = (double *)malloc(nMaxTerms * nPreds     * sizeof(double));
+    double *Residuals = (double *)malloc(nCases    * nResponses * sizeof(double));
+    double *Betas     = (double *)malloc(nMaxTerms * nResponses * sizeof(double));
 
     static int nTest;
     nTest++;
@@ -241,8 +241,8 @@ static void TestEarth(char sTestName[],
             x[iCase + 1 * nCases] = xtemp;
             xVec[1] = xtemp;
         }
-        for (int iClass = 0; iClass < nClasses; iClass++)
-            y_(iCase, iClass) = func(xVec, iClass);
+        for (int iResponse = 0; iResponse < nResponses; iResponse++)
+            y_(iCase, iResponse) = func(xVec, iResponse);
     }
     free(xVec);
 
@@ -252,7 +252,7 @@ static void TestEarth(char sTestName[],
     clock_t Time = clock();
 
     Earth(&BestGcv, &nTerms, BestSet, bx, Dirs, Cuts, Residuals, Betas,
-        x, y, nCases, nClasses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
+        x, y, nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0,      // MinSpan
         true,   // Prune
         K, FastBeta, NewVarPenalty, nTrace, NULL);
@@ -266,20 +266,20 @@ static void TestEarth(char sTestName[],
 
     // calc RSquared, GRSquared
 
-    for (int iClass = 0; iClass < nClasses; iClass++) {
+    for (int iResponse = 0; iResponse < nResponses; iResponse++) {
         double Rss = 0, Tss = 0, meanY = 0;
         for (iCase = 0; iCase < nCases; iCase++)
-            meanY += y_(iCase, iClass);
+            meanY += y_(iCase, iResponse);
         meanY /= nCases;
         xVec = (double *)malloc(nPreds * sizeof(double));
-        double *yHat = (double *)malloc(nClasses * sizeof(double));
+        double *yHat = (double *)malloc(nResponses * sizeof(double));
         for (iCase = 0; iCase < nCases; iCase++) {
             for (int iPred = 0; iPred < nPreds; iPred++)
                 xVec[iPred] = x[iCase + iPred * nCases];
-            PredictEarth(yHat, xVec, BestSet, Dirs, Cuts, Betas, nPreds, nClasses, nTerms, nMaxTerms);
-            double Residual = y_(iCase,iClass) - yHat[iClass];
+            PredictEarth(yHat, xVec, BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms);
+            double Residual = y_(iCase,iResponse) - yHat[iResponse];
             Rss += sq(Residual);
-            Tss += sq(y_(iCase,iClass) - meanY);
+            Tss += sq(y_(iCase,iResponse) - meanY);
         }
         free(yHat);
         free(xVec);
@@ -293,10 +293,10 @@ static void TestEarth(char sTestName[],
         double TimeDelta = 99.99;
 #endif
         // show results
-        if (nClasses > 1) {
-            printf("RESULT %d Class %d: GRSq %g RSq %g nTerms %d of %d of %d",
-                nTest, iClass+1, GRSq, RSq, nUsedTerms, nTerms, nMaxTerms, TimeDelta);
-            if (iClass == 0)
+        if (nResponses > 1) {
+            printf("RESULT %d Response %d: GRSq %g RSq %g nTerms %d of %d of %d",
+                nTest, iResponse+1, GRSq, RSq, nUsedTerms, nTerms, nMaxTerms, TimeDelta);
+            if (iResponse == 0)
                 printf(" [%.2f secs]", TimeDelta);
             printf("\n");
             
@@ -307,7 +307,7 @@ static void TestEarth(char sTestName[],
     }
     if (Format && nTrace) {
         printf("\nTEST %d: FUNCTION %s\n", nTest, sTestName);
-        FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nClasses, nTerms, nMaxTerms, 3, 1e-6);
+        FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms, 3, 1e-6);
         printf("\n");
     }
     free(x);
@@ -322,7 +322,7 @@ static void TestEarth(char sTestName[],
 
 //-----------------------------------------------------------------------------
 int main(void)
-{                                        // func    nCases  nClasses nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B N s
+{                                        // func    nCases     nResp nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B N s
   TestEarth("noise N=1000",            funcNoise,     1000,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 N=10",                     func0,       10,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 N=1000",                   func0,     1000,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
@@ -353,7 +353,7 @@ int main(void)
   TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     7,true,0.001, 4,0,0,99);
   TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     7,true,0.001, 4,1,0,99);
 
-  // test multiple responses                func    nCases  nClasses nPreds  nMaxDegree nMaxTerms nTrace Format   Thresh  K B N s
+  // test multiple responses                func    nCases     nResp nPreds  nMaxDegree nMaxTerms nTrace Format   Thresh  K B N s
 
   TestEarth("x0|x+x1+noise N=30",        func0_1,      100,        2,     2,          1,       51,     4, true,0.001,20,0,0,99);
 
@@ -375,11 +375,11 @@ int main(void)
   TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50",
                                          func4_2_0,     50,        3,   3+8,          2,      101,     3, true,0.001,20,0,0,99);
 
-  //$$ following gives lousy GRSq for Class 2, investigate
+  //$$ following gives lousy GRSq for Response 2, investigate
   TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50",
                                          func4_6,     1000,         2,     6,         2,      101,     3, true,0.001,20,0,0,99);
 
-  // test NewVarPenalty                     func    nCases  nClasses nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B  NP  s Colin
+  // test NewVarPenalty                     func    nCases     nResp nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B  NP  s Colin
 
   TestEarth("cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0",
                                    func2colinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0, 0.0,99,.005);

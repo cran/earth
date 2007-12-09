@@ -711,7 +711,10 @@ strip.formula.string <- function(form)
     if(length(grep("~", form)))                     # if there is a response
         response <- gsubi("~.*", "~", form)         # then extract all before ~
 
-    strip.white.space(paste(response, args))
+    # FIXED 7 Dec 2007 reported by Joe Retzer
+    # collapse possible multiple element response and args into a single string
+
+    strip.white.space(paste(response[1], paste(args, collapse=" "), collapse=" "))
 }
 
 # Given the term.labels, return an npairs x 2 matrix specifying

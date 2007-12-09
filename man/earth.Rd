@@ -118,21 +118,24 @@ To start off, look at the arguments
   \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
      (Friedman's \eqn{gamma}, equation 74 in the MARS paper).
-     This argument can mitigate the effects of colinearity or concurvity
-     in the input data.
      Default is 0, meaning no penalty for adding a new variable.
      Useful non-zero values range from about 0.01 to 0.2 --- you will
      need to experiment.
+     This argument can mitigate the effects of colinearity or concurvity
+     in the input data, but anecdotal evidence is that it does not work very well.
+     If you know two variables are strongle correlated then you
+     would do better to delete one of them before building your MARS model.
   }
   \item{fast.k}{
-     Maximum number of considered parent terms, as
-     as described in Friedman's Fast MARS paper section 3.0.
+     Maximum number of parent terms considered at each step of the forward pass.
+     Friedman invented this parameter to speed up the forward pass
+     (see the Fast MARS paper section 3.0).
      Default is 20.
      The special value -1 is equivalent to infinity, meaning no Fast MARS.
      Typical values, apart from -1, are 20, 10, or 5.
      In general, with a lower \code{fast.k} (say 5), \code{earth} is faster;
-     with a higher \code{fast.k}, or with \code{fast.k} disabled (set to -1), \code{earth} builds
-     a better model.
+     with a higher \code{fast.k}, or with \code{fast.k} disabled (set to -1), 
+     \code{earth} builds a better model.
      However it is not unusual to get a slightly better model with a lower \code{fast.k},
      and you may need to experiment.
   }
@@ -214,6 +217,35 @@ if \code{y} has a single column.
   \emph{Term} refers to a term created during the forward pass
   (each line of the output from \code{\link{format.earth}} is a term).
   Term number 1 is always the intercept.
+  \item{rss}{
+     Residual sum-of-squares (RSS) of the model
+     (summed over all responses if \code{y} has multiple columns).
+  }
+  \item{rsq}{
+    \code{1-rss/rss.null}.
+     R-Squared of the model
+     (calculated over all responses if \code{y} has multiple columns).
+     A measure of how well the model fits the training data.
+  }
+  \item{gcv}{
+     Generalised Cross Validation (GCV) of the model
+     (summed over all responses if \code{y} has multiple columns).
+     The GCV is calculated using \code{ppenalty} (as are all returned GCVs).
+     For details of the GCV calculation, see
+     equation 30 in Friedman's MARS paper and \code{earth:::get.gcv}.
+  }
+  \item{grsq}{
+     \code{1-gcv/gcv.null}.
+     An estimate of the predictive power of the model
+     (calculated over all responses if \code{y} has multiple columns).
+     Unlike \code{rsq}, \code{grsq} can be negative.
+     A negative \code{grsq} would indicate
+     a severely over parameterised model --- a model that
+     would not generalise well
+     even though it may be a good fit to the training data.
+     Example of a negative \code{grsq}:\cr
+     \code{earth(mpg~., data=mtcars, pmethod="none", trace=4)}
+  }
   \item{bx}{
      Matrix of basis functions applied to \code{x}.
      Each column corresponds to a selected term.
@@ -275,35 +307,6 @@ h(Girth-12.9)*h(Height-76)  12.9     76  #4th term has two cuts
 [3,]    1  2  4  0  0  0  0  #best 3 term model uses terms 1,2,4
 [4,]    1  2  9  8  0  0  0
 ...}
-  }
-  \item{rss}{
-     Residual sum-of-squares (RSS) of the model
-     (summed over all responses if \code{y} has multiple columns).
-  }
-  \item{rsq}{
-    \code{1-rss/rss.null}.
-     R-Squared of the model
-     (calculated over all responses if \code{y} has multiple columns).
-     A measure of how well the model fits the training data.
-  }
-  \item{gcv}{
-     Generalised Cross Validation (GCV) of the model
-     (summed over all responses if \code{y} has multiple columns).
-     The GCV is calculated using \code{ppenalty} (as are all returned GCVs).
-     For details of the GCV calculation, see
-     equation 30 in Friedman's MARS paper and \code{earth:::get.gcv}.
-  }
-  \item{grsq}{
-     \code{1-gcv/gcv.null}.
-     An estimate of the predictive power of the model
-     (calculated over all responses if \code{y} has multiple columns).
-     Unlike \code{rsq}, \code{grsq} can be negative.
-     A negative \code{grsq} would indicate
-     a severely over parameterised model --- a model that
-     would not generalise well
-     even though it may be a good fit to the training data.
-     Example of a negative \code{grsq}:\cr
-     \code{earth(mpg~., data=mtcars, pmethod="none", trace=4)}
   }
   \item{rss.per.response}{
     A vector of the RSS for each response.
@@ -440,23 +443,24 @@ i) reach maximum number of terms \code{(nterms>=nk)}\cr
 ii) reach DeltaRSq threshold \code{(DeltaRSq<thresh)} where
 DeltaRSq is the difference in R-Squared caused by adding the current term pair\cr
 iii) reach max RSq \code{(RSq>1-thresh)}\cr
-iv) reach min GRSq \code{(GRSq< -10)}.
+iv) reach min GRSq \code{(GRSq < -10)}.
 
 Set \code{trace>=1} to see the stopping condition.
 
 The result of the forward pass is the set of terms defined by \code{$dirs}
-and \code{$cuts}.
+and \code{$cuts} in earth's return value.
 
 Note that GCVs (via GRSq) are used during the forward pass only as one of the
 stopping conditions and in trace prints.
-Changing the GCV \code{$penalty} does not change the knot positions.
+Changing the \code{penalty} argument does not change the knot positions.
 
 The various stopping conditions mean that the actual number of terms
-created by the forward pass may be less than nk.  There are some more
-reasons why the actual number of terms may be less than nk:
-(i) the forward pass chucks out one "side" of the pair
+created by the forward pass may be less than nk.  
+There are some other
+reasons why the actual number of terms may be less than nk
+(i) the forward pass discards one side of each term pair
 if it adds nothing to the model --- 
-but the forward pass counts terms as if they were actually created in pairs.
+but the forward pass counts terms as if they were actually created in pairs
 (ii) as a final step, the forward pass deletes linearly dependent terms, if any,
 so all terms in \code{$dirs} and \code{$cuts} are independent.
 And remember that the pruning pass will further discard terms.
@@ -468,7 +472,7 @@ Its job is to find the subset of these terms that gives the lowest GCV.
 The pruning pass works like this:
 it determines the subset of terms (using \code{pmethod})
 with the lowest RSS for each model size in \code{1:nprune}
-(see \code{Force.xtx.prune} above for some details).
+(see the \code{Force.xtx.prune} argument above for some details).
 It saves the RSS and term numbers for each such subset in \code{rss.per.subset}
 and \code{prune.terms}.
 It then applies the \code{Get.crit} function with \code{ppenalty}
@@ -500,7 +504,7 @@ yhat <- predict(a, newdata = trees[test.subset, ])
 y <- trees$Volume[test.subset]
 print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 }
-\strong{How do I measure variable importance?}
+\strong{Establishing variable importance}
 
 Establishing predictor importance is in general a tricky and even controversial problem.
 
@@ -529,7 +533,7 @@ a variable is with the other variables already in the model.
 There are alternative ways of measuring variable importance (using
 resampling) but they are not yet implemented.
 
-\strong{How do I know which predictors were added to the model first?}
+\strong{Which predictors were added to the model first?}
 
 You can see the forward pass adding terms with \code{trace=2} or higher.
 But remember, pruning will remove some of the terms.
@@ -540,13 +544,17 @@ Another approach is to use
 which will list the basis functions remaining after pruning,
 in the order they were added by the forward pass.
 
-\strong{Can I get a list of the predictors actually used in the model?}
+\strong{Which predictors are actually used in the model?}
 
-Use this function:
+The following function will give you a a list of the predictors in the model:
 \preformatted{
 get.used.pred.names <- function(obj)   # obj is an earth object
     names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any)))
 }
+\strong{Why do I get fewer terms than nk, even with prune="none"?}
+
+See the section above on the forward pass.
+
 \strong{Multiple Response Models}
 
 If \code{y} has K columns then earth builds K simultaneous models.
@@ -562,20 +570,20 @@ the GCVS for independent models, on the whole.
 However, the combined model may be a better model in other senses,
 depending on what you are trying to achieve.
 
-For more details see section 4.1 of 
+For more details on using GCVs averaged over multiple responses see section 4.1 of 
 Hastie, Tibshirani, and Buja \emph{Flexible Discriminant Analysis by Optimal Scoring},
 JASA, December 1994 \url{http://www-stat.stanford.edu/~hastie/Papers/fda.pdf}.
 
 \strong{Using earth with fda and mda}
 
 \code{Earth} can be used with \code{\link[mda]{fda}} and \code{\link[mda]{mda}}
-in the \code{mda} package.  Earth will be a multiple response model,
+in the \code{mda} package.  Earth will generate a multiple response model,
 as described above.
 Use \code{keep.fitted=TRUE} if you want to call \code{\link{plot.earth}} later
 (actually only necessary for large datasets, see the description of 
 \code{keep.fitted} in \code{\link[mda]{fda}}).
 Use \code{keepxy=TRUE} if you want to call \code{update} or \code{\link{plotmo}} later.
-Use \code{trace>=3} to see the call to \code{earth} generated by \code{fda} or \code{mda}.
+Use \code{trace>=5} to see the call to \code{earth} generated by \code{fda} or \code{mda}.
 Example:
 \preformatted{
 library(mda)
@@ -608,7 +616,7 @@ milboATsonicPERIODnet \url{http://www.milbo.users.sonic.net}.
   using the \code{\link[=ozone1]{ozone}} data to compare \code{mda::mars} with other techniques.
   (If you use Faraway's examples with \code{earth} instead of \code{mars}, use \code{$bx}
   instead of \code{$x}).
-  Earth's pruning pass uses \code{\link[leaps]{leaps}} which is based on
+  Earth's pruning pass uses the \code{\link[leaps]{leaps}} package which is based on
   techniques in Miller.
 
   Faraway \emph{Extending the Linear Model with R}

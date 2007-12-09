@@ -1,0 +1,27 @@
+Changes to Earth Package
+------------------------
+
+1.1-5 Fixed bug reported by Joe Ritzer: long predictor names got munged in plotmo
+      Changed "class" to "response" throughout when used for the 
+      predicted responses in the input y.
+      Man page tweaks based on user feedback.
+
+1.1-4 Changed as.matrix to data.matrix in earth.default -- grep for FIXED
+      Extended earth.Rd slightly
+
+1.1-2 Added my web page to DESCRIPTION and to some man pages
+
+1.1-1 Changed \r\n to \n to pacify CMD CHECK
+
+1.1-0 Default minspan is now 1 (was 0)
+      Fixed potential crash in PrintForwardStep if nTrace>1
+      Added a missing drop=FALSE to backward()
+      Minor code, comment, and man page fixups
+
+1.0-8 Fixed bug where plotmo failed under these circumstances: 
+      form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a)
+
+1.0-7 Minor change to summary.earth formatting.  Man page fixes.
+
+1.0-6 Initial release
+

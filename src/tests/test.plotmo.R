@@ -436,5 +436,103 @@ plotmo(a, se=1, caption=caption, clip=FALSE, trace=Trace)
 # termplot(a, se=1)
 # detach("package:gam")
 
+# test fix to bug reported by Joe Retzer, FIXED Dec 7, 2007 
+N <- 650
+set.seed(2007)
+q_4    <- runif(N, -1, 1)
+q_2102 <- runif(N, -1, 1)
+q_2104 <- runif(N, -1, 1)
+q_3105 <- runif(N, -1, 1)
+q_3106 <- runif(N, -1, 1)
+q_4104 <- runif(N, -1, 1)
+q_6101 <- runif(N, -1, 1)
+q_6103 <- runif(N, -1, 1)
+q_7104 <- runif(N, -1, 1)
+q_3109 <- runif(N, -1, 1)
+q_4103 <- runif(N, -1, 1)
+q_2111 <- runif(N, -1, 1)
+q_3107 <- runif(N, -1, 1)
+q_3101 <- runif(N, -1, 1)
+q_3104 <- runif(N, -1, 1)
+q_7107 <- runif(N, -1, 1)
+depIndex <- sin(1.0 * q_4 + rnorm(650, sd=.8)) + sin(1.8 * q_2102 + rnorm(650, sd=.8)) + sin(1.3 * q_2104 + rnorm(650, sd=.8)) + sin(1.4 * q_3105 + rnorm(650, sd=.8)) + 
+            sin(1.5 * q_3106 + rnorm(650, sd=.8)) + sin(1.6 * q_4104 + rnorm(650, sd=.8)) + sin(1.8 * q_6101 + rnorm(650, sd=.8)) + sin(1.8 * q_6103 + rnorm(650, sd=.8)) +
+            sin(1.9 * q_7104 + rnorm(650, sd=.8)) + sin(2.0 * q_3109 + rnorm(650, sd=.8))
+
+regDatCWD <- as.data.frame(cbind(depIndex, q_4, q_2102, q_2104, q_3105, q_3106, q_4104, q_6101, q_6103, q_7104, q_3109, q_4103, q_2111, q_3107, q_3101, q_3104, q_7107))
+earthobj <- earth(depIndex ~  q_4+q_2102+q_2104+q_3105+q_3106+q_4104+q_6101+q_6103+q_7104+q_3109+q_4103+q_2111+q_3107+q_3101+q_3104+q_7107, data=regDatCWD)
+print(summary(earthobj, digits = 2))
+plotmo(earthobj)
+
+# long predictor names
+
+a.rather.long.in.fact.very.long.name.q_4 <- q_4
+a.rather.long.in.fact.very.long.name.q_2102 <- q_2102
+a.rather.long.in.fact.very.long.name.q_2104 <- q_2104
+a.rather.long.in.fact.very.long.name.q_3105 <- q_3105
+a.rather.long.in.fact.very.long.name.q_3106 <- q_3106
+a.rather.long.in.fact.very.long.name.q_4104 <- q_4104
+a.rather.long.in.fact.very.long.name.q_6101 <- q_6101
+a.rather.long.in.fact.very.long.name.q_6103 <- q_6103
+a.rather.long.in.fact.very.long.name.q_7104 <- q_7104
+a.rather.long.in.fact.very.long.name.q_3109 <- q_3109
+a.rather.long.in.fact.very.long.name.q_4103 <- q_4103
+a.rather.long.in.fact.very.long.name.q_2111 <- q_2111
+a.rather.long.in.fact.very.long.name.q_3107 <- q_3107
+a.rather.long.in.fact.very.long.name.q_3101 <- q_3101
+a.rather.long.in.fact.very.long.name.q_3104 <- q_3104
+a.rather.long.in.fact.very.long.name.q_7107 <- q_7107
+a.rather.long.in.fact.very.long.name.for.the.response <- depIndex
+a.rather.long.in.fact.very.long.name.for.the.dataframe <- 
+	as.data.frame(cbind(
+		a.rather.long.in.fact.very.long.name.for.the.response,
+		a.rather.long.in.fact.very.long.name.q_4,
+		a.rather.long.in.fact.very.long.name.q_2102,
+		a.rather.long.in.fact.very.long.name.q_2104,
+		a.rather.long.in.fact.very.long.name.q_3105,
+		a.rather.long.in.fact.very.long.name.q_3106,
+		a.rather.long.in.fact.very.long.name.q_4104,
+		a.rather.long.in.fact.very.long.name.q_6101,
+		a.rather.long.in.fact.very.long.name.q_6103,
+		a.rather.long.in.fact.very.long.name.q_7104,
+		a.rather.long.in.fact.very.long.name.q_3109,
+		a.rather.long.in.fact.very.long.name.q_4103,
+		a.rather.long.in.fact.very.long.name.q_2111,
+		a.rather.long.in.fact.very.long.name.q_3107,
+		a.rather.long.in.fact.very.long.name.q_3101,
+		a.rather.long.in.fact.very.long.name.q_3104,
+		a.rather.long.in.fact.very.long.name.q_7107))
+
+a.rather.long.in.fact.very.long.name.for.the.modelA <- 
+	earth(a.rather.long.in.fact.very.long.name.for.the.response ~ 
+		a.rather.long.in.fact.very.long.name.q_4 + 
+		a.rather.long.in.fact.very.long.name.q_2102 + 
+		a.rather.long.in.fact.very.long.name.q_2104 + 
+		a.rather.long.in.fact.very.long.name.q_3105 + 
+		a.rather.long.in.fact.very.long.name.q_3106 + 
+		a.rather.long.in.fact.very.long.name.q_4104 + 
+		a.rather.long.in.fact.very.long.name.q_6101 + 
+		a.rather.long.in.fact.very.long.name.q_6103 + 
+		a.rather.long.in.fact.very.long.name.q_7104 + 
+		a.rather.long.in.fact.very.long.name.q_3109 + 
+		a.rather.long.in.fact.very.long.name.q_4103 + 
+		a.rather.long.in.fact.very.long.name.q_2111 + 
+		a.rather.long.in.fact.very.long.name.q_3107 + 
+		a.rather.long.in.fact.very.long.name.q_3101 + 
+		a.rather.long.in.fact.very.long.name.q_3104 + 
+		a.rather.long.in.fact.very.long.name.q_7107, 
+		data = a.rather.long.in.fact.very.long.name.for.the.dataframe)
+print(summary(a.rather.long.in.fact.very.long.name.for.the.modelA, digits = 2))
+plot(a.rather.long.in.fact.very.long.name.for.the.modelA)
+plotmo(a.rather.long.in.fact.very.long.name.for.the.modelA)
+
+a.rather.long.in.fact.very.long.name.for.the.modelC <- 
+	earth(x = a.rather.long.in.fact.very.long.name.for.the.dataframe[,-1],
+          y = a.rather.long.in.fact.very.long.name.for.the.response,
+		  degree = 3)
+print(summary(a.rather.long.in.fact.very.long.name.for.the.modelC, digits = 2))
+plot(a.rather.long.in.fact.very.long.name.for.the.modelC)
+plotmo(a.rather.long.in.fact.very.long.name.for.the.modelC)
+
 if(!interactive())
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher)

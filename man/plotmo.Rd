@@ -237,15 +237,17 @@ Weights are currently ignored, with a warning.
 
 Factors are not plotted in degree2 plots.
 
-Variable names containing \$ are not supported.
-The work around is to build the model using temporary variables
-or to use \code{\link{attach}}.
-
+To avoid confusing error messages from plotmo, 
+keep the original formula you used to build the model simple.
 By default (i.e. when using \code{get.x.default} and \code{get.pairs.default}),
 \code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
 This crude approach is not infallible but works for the common formulae.
 It determines which predictors are paired by looking for
 forms such as \code{"x1:x2"} or \code{"x1*x2"} in the model formula.
+
+Variable names containing \$ are not supported.
+The work around is to build the model using temporary variables
+or to use \code{\link{attach}}.
 
 \code{Plotmo} can get confused by predictors in formulae which use indexing, such as \code{x[,3]}.
 The symptom is usually a message along the lines\cr
@@ -287,7 +289,8 @@ as described in the next section.
 
 1) \code{object} must have a \code{\link{predict}} method that supports \code{type=response}.
 
-2) for standard error bands (see the \code{se} argument), \code{object} must have a \code{\link{predict}}
+2) for standard error bands (see the \code{se} argument), 
+\code{object} must have a \code{\link{predict}}
 method that can be called with \code{se.fit=TRUE}.
 
 3) \code{object} must have the following components
@@ -315,6 +318,18 @@ Thus \code{plotmo} can be extended
 by writing new method functions, although the default
 functions may suffice for your object's class.
 See the source comments for details.
+
+\strong{FAQ} 
+
+I want to add lines or points to a plot created by \code{plotmo}.
+and am having trouble getting my axis scaling right. Help?
+
+Use \code{do.par=FALSE}.  
+With \code{do.par=FALSE}, the axis scales match the axis labels.
+With \code{do.par=TRUE}, plot.earth restores the
+\code{\link{par}} parameters and axis scales to
+what they were before calling plot.earth.
+This usually means that the x- and y-axis scales are both 0 to 1.
 }
 \author{
 Stephen Milborrow.

@@ -27,7 +27,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
   \item{which}{
     Which plots to plot. Default is \code{1:4}, meaning all.\cr
-1)  model selection\cr
+1)  model selection (GRSq plot)\cr
 2)  cumulative distribution of absolute values of residuals\cr
 3)  residuals versus fitted values\cr
 4)  QQ.
@@ -97,7 +97,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
   \item{rlim}{
     Two element vector \code{c(min,max)} specifying min and max
-    values on the y axis of the RSq/GRSq plot.
+    values on the y axis of the RSq plot.
     Default is \code{c(-1,-1)}.
 
     Special value \code{min=-1} means the minimum y axis value
@@ -139,6 +139,19 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   \item{\dots}{
     Extra arguments passed to plotting functions.
   }
+}
+\note{
+FAQ
+
+I want to add lines or points to the RSq plot, 
+and am having trouble getting my axis scaling right. Help?
+
+Use \code{do.par=FALSE}.  
+With \code{do.par=FALSE}, the axis scales match the axis labels.
+With \code{do.par=TRUE}, plot.earth restores the
+\code{\link{par}} parameters and axis scales to
+what they were before calling plot.earth.
+This usually means that the x- and y-axis scales are both 0 to 1.
 }
 \seealso{
   \code{\link{earth}},

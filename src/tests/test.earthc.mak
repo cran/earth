@@ -2,7 +2,7 @@
 
 all: test.earthc.out
 
-R_DIR=\a\r\work
+R_DIR="\Program Files\r\R-2.6.1"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -23,7 +23,7 @@ OUTDIR=Release
 CFLAGS=-nologo -DSTANDALONE $(RELEASE_BUILD_CFLAGS) -TP -O2 -W3 -ML $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo $(RELEASE_BUILD_LFLAGS) $(PROF_FLAGS)
 # To build Rdll.libs see instructions in gnuwin32\README.packages
-LIBS=$(R_DIR)\src\gnuwin32\Rdll.lib $(R_DIR)\bin\Rblas.lib
+LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
 !ENDIF
 
 !IF  "$(CFG)" == "Debug"
@@ -37,7 +37,7 @@ LIBS=$(R_DIR)\src\gnuwin32\Rdll.lib $(R_DIR)\bin\Rblas.lib
 OUTDIR=Debug
 CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MLd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo -debug:full
-LIBS=$(R_DIR)\src\gnuwin32\Rdll.lib $(R_DIR)\bin\Rblas.lib
+LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
 !ENDIF
 
 OBJ=$(OUTDIR)\earth.obj $(OUTDIR)\test.earthc.obj

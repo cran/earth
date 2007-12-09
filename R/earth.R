@@ -125,7 +125,7 @@ earth.default <- function(
             xvec,                           # in: const double x[]
             yvec,                           # in: const double y[]
             as.integer(nrow(x)),            # in: const int *pnCases
-            as.integer(ncol(y)),            # in: const int *pnClasses
+            as.integer(ncol(y)),            # in: const int *pnResponses
             as.integer(npreds),             # in: const int *pnPreds
             as.integer(degree),             # in: const int *pnMaxDegree
             as.integer(nk),                 # in: const int *pnMaxTerms
@@ -208,7 +208,7 @@ earth.default <- function(
     }
     # earth.default starts here
     warn.if.dots.used("earth.default", ...)
-    # FIX 30 Oct 2007: commented out following lines because cat output can be huge
+    # FIXED 30 Oct 2007: commented out following lines because cat output can be huge
     # if(trace >= 3)            # show the call?
     #   cat("Call:", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
     #       "\n\n")
@@ -224,7 +224,7 @@ earth.default <- function(
         warning1("converted trace=TRUE to trace=4")
         trace <- 4
     }
-    # FIX 30 Oct 2007: changed as.matrix to data.matrix because as.matrix(x)
+    # FIXED 30 Oct 2007: changed as.matrix to data.matrix because as.matrix(x)
     # converts x to a character matrix if x has a factor column which
     # creates problems later if update.earth is invoked.
     x <- data.matrix(x)   # if x is a vec this converts it to an ncases x 1 matrix
@@ -285,19 +285,19 @@ earth.default <- function(
     rsq  <- get.rsq(rss, rss.per.subset[1])
     gcv  <- gcv.per.subset[nselected]
     grsq <- get.rsq(gcv, gcv.per.subset[1])
-    nclasses <- ncol(y)
-    rss.per.response  <- vector(mode="numeric", length=nclasses)
-    rsq.per.response  <- vector(mode="numeric", length=nclasses)
-    gcv.per.response  <- vector(mode="numeric", length=nclasses)
-    grsq.per.response <- vector(mode="numeric", length=nclasses)
-    for(iclass in 1:nclasses) {
-        rss.per.response[iclass]  <- sum(residuals[,iclass]^2)
-        rss.null                  <- sum((y - mean(y[,iclass]))^2)
-        rsq.per.response[iclass]  <- get.rsq(rss.per.response[iclass], rss.null)
-        gcv.null                  <- Get.crit(rss.null, 1, ppenalty, nrow(x))
-        gcv.per.response[iclass]  <- Get.crit(rss.per.response[iclass], nselected,
-                                              ppenalty, nrow(x))
-        grsq.per.response[iclass] <- get.rsq(gcv.per.response[iclass], gcv.null)
+    nresponses <- ncol(y)
+    rss.per.response  <- vector(mode="numeric", length=nresponses)
+    rsq.per.response  <- vector(mode="numeric", length=nresponses)
+    gcv.per.response  <- vector(mode="numeric", length=nresponses)
+    grsq.per.response <- vector(mode="numeric", length=nresponses)
+    for(iresponse in 1:nresponses) {
+        rss.per.response[iresponse]  <- sum(residuals[,iresponse]^2)
+        rss.null                     <- sum((y - mean(y[,iresponse]))^2)
+        rsq.per.response[iresponse]  <- get.rsq(rss.per.response[iresponse], rss.null)
+        gcv.null                     <- Get.crit(rss.null, 1, ppenalty, nrow(x))
+        gcv.per.response[iresponse]  <- Get.crit(rss.per.response[iresponse], nselected,
+                                                 ppenalty, nrow(x))
+        grsq.per.response[iresponse] <- get.rsq(gcv.per.response[iresponse], gcv.null)
     }
     rval <- structure(list(             # term 1 is the intercept in all returned data
         bx             = bx,            # selected terms only
@@ -306,22 +306,22 @@ earth.default <- function(
         selected.terms = selected.terms,# row indices into dirs and cuts
         prune.terms    = prune.terms,   # nprune x nprune, each row is vec of term indices
 
-        rss            = rss,           # RSS, across all classes if y has multiple cols
-        rsq            = rsq,           # R-Squared, across all classes
-        gcv            = gcv,           # GCV, across all classes
-        grsq           = grsq,          # GRSq across all classes
+        rss            = rss,           # RSS, across all responses if y has multiple cols
+        rsq            = rsq,           # R-Squared, across all responses
+        gcv            = gcv,           # GCV, across all responses
+        grsq           = grsq,          # GRSq across all responses
 
-        rss.per.response  = rss.per.response,   # nclasses x 1, RSS for each class
-        rsq.per.response  = rsq.per.response,   # nclasses x 1, RSq for each class
-        gcv.per.response  = gcv.per.response,   # nclasses x 1, GCV for each class
-        grsq.per.response = grsq.per.response,  # nclasses x 1, GRSq for each class
+        rss.per.response  = rss.per.response,   # nresponses x 1, RSS for each response
+        rsq.per.response  = rsq.per.response,   # nresponses x 1, RSq for each response
+        gcv.per.response  = gcv.per.response,   # nresponses x 1, GCV for each response
+        grsq.per.response = grsq.per.response,  # nresponses x 1, GRSq for each response
 
-        rss.per.subset = rss.per.subset,# nprune x 1, RSS of each model, across all classes
-        gcv.per.subset = gcv.per.subset,# nprune x 1, GCV of each model, across all classes
+        rss.per.subset = rss.per.subset,# nprune x 1, RSS of each model, across all responses
+        gcv.per.subset = gcv.per.subset,# nprune x 1, GCV of each model, across all responses
 
-        fitted.values  = fitted.values, # ncases (after subset) x nclasses
-        residuals      = residuals,     # ncases (after subset) x nclasses
-        coefficients   = coefficients,  # selected terms only: nselected x nclasses
+        fitted.values  = fitted.values, # ncases (after subset) x nresponses
+        residuals      = residuals,     # ncases (after subset) x nresponses
+        coefficients   = coefficients,  # selected terms only: nselected x nresponses
 
         ppenalty       = ppenalty,      # copy of ppenalty argument
         call           = make.call.generic(
@@ -426,10 +426,10 @@ update.earth <- function(
         if(!is.null(x) && class(x) != "try-error")
             call$x <- x         # use object$x
     }
-   if(is.null(this.call$y)) {   # same as above, but for y
-        y <- try(eval.parent(object$y), silent=TRUE)
-        if(!is.null(y) && class(y) != "try-error")
-            call$y <- y
+	if(is.null(this.call$y)) {   # same as above, but for y
+		y <- try(eval.parent(object$y), silent=TRUE)
+		if(!is.null(y) && class(y) != "try-error")
+			call$y <- y
     }
     call$Object <- if(do.forward.pass) NULL else substitute(object)
     if(evaluate)
@@ -482,7 +482,7 @@ eval.model.subsets.with.leaps <- function(
 }
 
 # This calls the earth.c routine EvalSubsetsUsingXtxR.
-# Unlike the leaps code, it can deal with multiple classes (i.e. multiple y columns)
+# Unlike the leaps code, it can deal with multiple responses (i.e. multiple y columns)
 
 eval.model.subsets.using.xtx <- function(
     bx,
@@ -511,12 +511,12 @@ eval.model.subsets.using.xtx <- function(
     {
         ncases <- nrow(bx)
         nterms <- ncol(bx)
-        nclasses <- ncol(y)
+        nresponses <- ncol(y)
         rval <- .C("EvalSubsetsUsingXtxR",
             prune.terms = matrix(0, nrow=nterms, ncol=nterms),  # double PruneTerms[]
             rss.per.subset = vector(mode="numeric", length=nterms),
             as.integer(ncases),                         # const int *pnCases
-            as.integer(nclasses),                       # const int *pnClasses
+            as.integer(nresponses),                     # const int *pnresponses
             as.integer(nterms),                         # const int *pnMaxTerms
             as.double(as.vector(bx, mode="numeric")),   # const double bx[]
             as.double(as.vector(y, mode="numeric")),    # const double y[]
@@ -547,7 +547,7 @@ eval.model.subsets <- function(     # this is the default Eval.model.subsets
 {
     stopifnot(nprune >= 1 && nprune <= nrow(bx))
     if(Force.xtx.prune ||   # user explicityly asked for xtx subset evaluation
-            ncol(y) > 1 ||  # leaps cannot deal with multiple classes
+            ncol(y) > 1 ||  # leaps cannot deal with multiple responses
             ncol(bx) <= 2)  # leaps code gives an error for small number of cols, so avoid
         eval.model.subsets.using.xtx(bx, y, pmethod, nprune, Force.xtx.prune)
     else
@@ -626,16 +626,16 @@ print.earth <- function(x, digits=getOption("digits"), ...)
             " (additive model)"),
         "\n", sep="")
 
-    nclasses <- NCOL(x$coefficients)
+    nresponses <- NCOL(x$coefficients)
 
-    if(nclasses > 1) {
+    if(nresponses > 1) {
         cat("\n")
-        for(iclass in 1:nclasses)
-            cat("Response ", iclass, "  ",
-                "GCV: ",  form(x$gcv.per.response[iclass], 10),
-                "RSS: ",  form(x$rss.per.response[iclass], 10),
-                "GRSq: ", form(x$grsq.per.response[iclass], 8),
-                "RSq: ",  form(x$rsq.per.response[iclass], 0),
+        for(iresponse in 1:nresponses)
+            cat("Response ", iresponse, "  ",
+                "GCV: ",  form(x$gcv.per.response[iresponse], 10),
+                "RSS: ",  form(x$rss.per.response[iresponse], 10),
+                "GRSq: ", form(x$grsq.per.response[iresponse], 8),
+                "RSq: ",  form(x$rsq.per.response[iresponse], 0),
                 "\n", sep="")
         cat("All         ")
     }
@@ -668,19 +668,19 @@ print.summary.earth <- function(
     ...)
 {
     warn.if.dots.used("print.summary.earth", ...)
-    # FIX 30 Oct 2007: only print call if formula else output can be huge
+    # FIXED 30 Oct 2007: only print call if formula else output can be huge
     if(!is.null(x$terms)) {
         cat("Call:\n")
         dput(x$call)
         cat("\n")
     }
-    nclasses <- NCOL(x$coefficients)
-    for(iclass in 1:nclasses)
-        cat(if(nclasses == 1)
+    nresponses <- NCOL(x$coefficients)
+    for(iresponse in 1:nresponses)
+        cat(if(nresponses == 1)
                 "Expression:\n"
             else
-                paste("Response ", iclass, " expression:\n", sep=""),
-            x$string[iclass], sep="")
+                paste("Response ", iresponse, " expression:\n", sep=""),
+            x$string[iresponse], sep="")
     cat("\nNumber of cases: ", length(x$residuals), "\n", sep="")
     print.earth(x, if(missing(digits)) x$digits else digits)
     invisible(x)
@@ -861,7 +861,7 @@ get.earth.x <- function(    # returns x matrix
             x <- eval.parent(object$call$x)
         else
             x <- convert.data(data)
-        # FIX 30 Oct 2007: changed as.matrix to data.matrix
+        # FIXED 30 Oct 2007: changed as.matrix to data.matrix
         x <- data.matrix(x)   # to cope with dataframes
         if(is.null(colnames(x)))
             colnames(x) <- colnames(object$dirs)
