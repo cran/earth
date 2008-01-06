@@ -58,10 +58,6 @@ my.func <- as.func(a, use.names = FALSE)
 print(my.func(c(10,80)))     # yields 17.76888
 print(predict(a, c(10,80)))  # yields 17.76888, but is slower
 example(format.earth)
-cat("--- get.nterms.per.degree.Rd ----------------------\n")
-example(get.nterms.per.degree)
-cat("--- get.nused.preds.per.subset.Rd ----------------------\n")
-example(get.nused.preds.per.subset)
 cat("--- mars.to.earth.Rd ----------------------\n")
 example(mars.to.earth) # doesn't do anything
 library(mda)
@@ -75,8 +71,6 @@ cat("--- plot.earth.Rd ----------------------\n")
 example(plot.earth)
 cat("--- predict.earth.Rd ----------------------\n")
 example(predict.earth)
-cat("--- reorder.earth.Rd ----------------------\n")
-example(reorder.earth)
 cat("--- update.earth.Rd ----------------------\n")
 example(update.earth)
 
@@ -106,6 +100,12 @@ cat("--Expect warning from predict.earth: the variable names in 'data' do not ma
 xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
 colnames(xpredict) <- c("Height", "Girth")
 predict(a, xpredict)
+
+cat("--- test reorder.earth ----------------------\n")
+a <- earth(O3 ~ ., data = ozone1, degree = 2)
+earth:::reorder.earth(a, decomp = "none")
+earth:::reorder.earth(a)   # defaults to decomp = "anova"
+a$selected.terms[earth:::reorder.earth(a)]
 
 cat("--- test model building capabilities ----------------------\n")
 itest <- 0
@@ -376,7 +376,7 @@ apred <- as.double(predict(a, newdata=newdata))
 alinpred <- as.double(predict(alin, newdata=newdata))
 stopifnot(all.equal(apred, alinpred))
 print(head(predict(a, type="terms")))
-print(get.nused.preds.per.subset(a$dirs, a$prune.terms))
+print(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
 
 # test with mixed linear and standard predictors
 itest <- itest+1; cat("itest", sprintf("%-3d", itest), "\n")
@@ -384,8 +384,8 @@ a <- earth(O3 ~ ., linpreds=c(3, 8), data = ozone1, degree=2, trace=4)  # 3,8 is
 print(summary(a))
 plot(a)
 plotmo(a)
-print(get.nused.preds.per.subset(a$dirs, a$prune.terms))
-print(get.nterms.per.degree(a))
+print(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
+print(earth:::get.nterms.per.degree(a))
 print(head(predict(a, type="terms")))
 
 # this is a good example because it has linear preds in both 1 and 2 degree terms
@@ -474,7 +474,7 @@ cat("--- test multiple responses ---------------------\n")
 # this uses the global matrix data.global (data.global[,1:2] is the response)
 
 test.earth.two.responses <- function(itest, func1, func2,
-    degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0, minspan=1)
+    degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0, minspan=0)
 {
     if(typeof(func1) == "character")
         funcnames <- paste("multiple responses", func1, func2)
@@ -504,6 +504,7 @@ test.earth.two.responses <- function(itest, func1, func2,
 
 x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
+colnames(data.global) = c("func1", "func7", "x1", "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=1)
 print(summary(a))
 plotmo(a, ycolumn=1)     # test generation of caption based on response name
@@ -513,15 +514,18 @@ plot(a, ycolumn=2)
 
 x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
+colnames(data.global) = c("func1", "a.very.long.in.fact.extremely.long.name", "x1", "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=3)
 print(summary(a))
 
 x.global <- cbind(                                           x1, x2, x3, x4, x5)
 data.global <- cbind(eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
+colnames(data.global) = c("", "neg.eqn56noise", "x1", "x2", "x3", "x4", "x5")
 itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=1)
 
 x.global <- cbind(                                           x1, x2, x3, x4, x5)
 data.global <- cbind(eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
+colnames(data.global) = NULL
 itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=2)
 
 N1 <- 100
@@ -545,7 +549,7 @@ itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degre
 attach(ozone1)
 x.global <- cbind(                wind, humidity, temp, ibh, dpg, ibt, vis)
 data.global <- cbind(O3, doy, vh, wind, humidity, temp, ibh, dpg, ibt, vis)
-itest <- itest+1; test.earth.two.responses(itest, "O3", "doy", nk=51, degree=2, minspan=0)
+itest <- itest+1; test.earth.two.responses(itest, "O3", "doy", nk=51, degree=2)
 detach(ozone1)
 
 cat("--- formula based multiple response -------------\n")
@@ -590,11 +594,11 @@ y <- ozone1[test.subset, 1]
 yhat <- predict(a, newdata = ozone1[test.subset, -1])
 print(1 - sum((y - yhat)^2)/sum((y - mean(y))^2)) # print RSquared
 
-cat("--- ppenalty and update -------------------------\n")
+cat("--- update -------------------------\n")
 
 a <- earth(O3 ~ ., data=ozone1, degree=2)
-print(update(a, ppenalty = -1))
-print(update(a, ppenalty = 10))
+print(update(a, penalty = -1, ponly=TRUE))
+print(update(a, penalty = 10, ponly=TRUE))
 a <- earth(O3 ~ ., data=ozone1, nk=31, pmethod="n", degree=2)
 a.none <- print(update(a, nprune=10, pmethod="n"))
 print(update(a.none, pmethod="b"))
@@ -682,6 +686,25 @@ example3 <- function(degree, pred, parents)
 }
 a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
 print(summary(a))
+
+# "allowed" function checks, these check error handling by forcing an error
+
+cat("Expect an error here ")
+z <- try(earth(Volume ~ ., data = trees, allowed = 99))
+if (class(z) != "try-error")
+    stop("test failed")
+
+example7  <- function(degree, pred) pred!=2
+cat("Expect an error here ")
+z <- try(earth(Volume ~ ., data = trees, allowed = example7))
+if (class(z) != "try-error")
+    stop("test failed")
+
+example8  <- function(degree, pred, parents99) pred!=2
+cat("Expect an error here ")
+z <- try(earth(Volume ~ ., data = trees, allowed = example8))
+if (class(z) != "try-error")
+    stop("test failed")
 
 cat("--- beta cache -------------------------\n")
 

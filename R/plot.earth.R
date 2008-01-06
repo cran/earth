@@ -137,8 +137,9 @@ plot.earth <- function(
         if (!is.null(caption))
             return(NULL)                # don't modify caption explictly set by user
         colnames <- colnames(residuals)
-        if(!is.null(colnames) && !is.null(colnames[1]) && colnames[1] != "")
-            colnames[1]
+        if(!is.null(colnames) && !is.null(colnames[ycolumn]) && 
+           !is.na(colnames[ycolumn]) && colnames[ycolumn] != "")
+            colnames[ycolumn]
         else if(NCOL(residuals) > 1)
             paste("Response", ycolumn)
         else
@@ -152,7 +153,7 @@ plot.earth <- function(
     show[which] <- TRUE
     nfigs <- sum(show)
     if(nfigs == 0) {
-        warning1("nothing to plot")
+        warning1("plot.earth: nothing to plot")
         return(invisible())
     }
     must.trim.caption <- is.null(caption)
@@ -274,16 +275,16 @@ plot.earth.models <- function(  # compare earth models by plotting them
         cex1 <- 1
         if(is.null(legend.pos)) {
             ypos <- strheight("") * 1.1 * (length(legend) + 2)  # 2 for top and bot border
-            xpos <- max(1.5, xmax / 3)
+            xpos <- max(xmax / 3)
             # If legend is too big relative to figure, then reduce char size and move left.
             # This is just a hack that seems to work most of the time.
             if(len.legend > .9) {
                 cex1 <- .7
-                xpos <- max(1.5, xmax / 6)
+                xpos <- max(xmax / 6)
                 ypos <- ypos * .8
             } else if(len.legend > .6) {
                 cex1 <- .8
-                xpos <- max(1.5, xmax / 6)
+                xpos <- max(xmax / 6)
                 ypos <- ypos * .8
             }
         } else {                    # user specified legend position
@@ -311,7 +312,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
     show[which] <- TRUE
     nfigs <- sum(show)
     if(nfigs == 0) {
-        warning1("nothing to plot")
+        warning1("plot.earth.models: nothing to plot")
         return(invisible())
     }
     if(is.null(col.rsq))

@@ -23,9 +23,12 @@ mars.to.earth(object)
   have an effect.
 }
 \note{
-  Perhaps the most notable difference between earth and mars objects
-  is that \code{\link{earth}} returns \code{bx} in \code{$bx}, while
-  \code{\link[mda]{mars}} returns \code{bx} in \code{$x}.
+  Perhaps the most notable difference between 
+  earth and mars objects is that \code{mars} returns the
+  MARS basis matrix in a field called "\code{x}"
+  whereas \code{earth} returns "\code{bx}" with only the selected terms.
+  Also, \code{earth} returns "\code{dirs}" rather than "\code{factors}",
+  and in \code{earth} this matrix can have entries of value 2 for linear predictors.
 
   For details of other differences between earth and mars objects,
   see the comments in the source code of \code{mars.to.earth()}.
@@ -46,7 +49,7 @@ summary(a, digits = 2) # the standard earth functions can now be used
 
 # yields (note the reconstructed call):
 #    Call:
-#    earth(x = trees[, -3], y = trees[, 3], minspan = 0)
+#    earth(x = trees[, -3], y = trees[, 3])
 #
 #    Expression:
 #      20

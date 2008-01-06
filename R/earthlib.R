@@ -98,7 +98,8 @@ warn.if.not.all.finite <- function(x, text="unknown")
 # and can cause confusing downstream behaviour.
 
 check.index.vec <- function(index.name, indexVec, object,
-                        check.empty = FALSE, use.as.col.index=FALSE)
+                        check.empty = FALSE, use.as.col.index=FALSE,
+                        allow.negative.indices = TRUE)
 {
     if(is.null(indexVec)) {
         if(check.empty)
@@ -136,9 +137,9 @@ check.index.vec <- function(index.name, indexVec, object,
                 stop1("length(", index.name, ") == 0")
             else if(all(indexVec == 0))
                 if(length(indexVec) == 1)
-                    stop1(index.name, " is 0")
+                    stop1("'", index.name, "' is 0")
                 else
-                    stop1(index.name, " is all zeroes")
+                    stop1("'", index.name, "' is all zeroes")
         }
         if(any(indexVec < 0) && any(indexVec > 0))
             stop1("mixed negative and positive values in '", index.name, "'")
@@ -146,6 +147,8 @@ check.index.vec <- function(index.name, indexVec, object,
             warning1("ignored zero in '", index.name, "'")
         if(any(duplicated(indexVec)))
             warning1("duplicates in '", index.name, "'")
+        if (!allow.negative.indices && any(indexVec < 0))
+            stop1("negative value in '", index.name, "'")
         if(any(abs(indexVec) > len))
             if(len == 1)
                 stop1("out of range value in '", index.name,

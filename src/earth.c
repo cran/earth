@@ -8,7 +8,7 @@
 // See the R earth documentation for descriptions of the principal data structures.
 // See also www.milbo.users.sonic.net.
 //
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // This code uses a subset of C99.  To build the earth R library under gcc:
 //   gcc -Wall -pedantic -Wextra -O3 -std=gnu99 -Ic:/a1/r/work/include -c earth.c -o earth.o
 //
@@ -30,7 +30,7 @@
 //       \a1\r\work\src\gnuwin32\Rdll.lib \a1\r\work\bin\Rblas.lib
 //   main.exe
 //
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // References:
 //
 // HastieTibs: Trevor Hastie and Robert Tibshirani
@@ -45,7 +45,7 @@
 //
 // Miller: Alan Miller (2nd ed. 2002) Subset Selection in Regression
 //
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -59,7 +59,7 @@
 // A copy of the GNU General Public License is available at
 // http://www.r-project.org/Licenses
 //
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #if !STANDALONE
 #define USING_R 1
@@ -91,6 +91,7 @@
     #include "Rinternals.h" // needed for Allowed function handling
     #include "allowed.h"
     #define printf Rprintf
+    #define FINITE(x) R_FINITE(x)
     #define ASSERT(x)   \
         if (!(x)) error("internal assertion failed in file %s line %d: %s\n" \
                         "Please save your data and terminate the R session.", \
@@ -98,11 +99,13 @@
 #else
     #define warning printf
     void error(const char *args, ...);
-    #define R_FINITE(x) _finite(x)
+    #define ISNAN(x)  _isnan(x)
+    #define FINITE(x) _finite(x)
     #define ASSERT(x)   \
         if (!(x)) error("internal assertion failed in file %s line %d: %s\n", \
                         __FILE__, __LINE__, #x)
 #endif
+
 #include "earth.h"
 
 extern _C_ int dqrdc2_(double *x, int *ldx, int *n, int *p,
@@ -137,9 +140,11 @@ extern _C_ double ddot_(const int *n,
                           // also, need USE_BLAS to use bxOrthCenteredT
 
 #define FAST_MARS   1     // 1 to use techniques in FriedmanFastMars (see refs)
-#define IOFFSET     1     // 1 to convert 0-based indices to 1-based in printfs
 
-static const char   *VERSION    = "version 1.2c"; // change if you modify this file!
+#define IOFFSET     1     // 1 to convert 0-based indices to 1-based in printfs
+                          // use 0 for C style indices in messages to the user
+
+static const char   *VERSION    = "version 1.3a"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -150,6 +155,7 @@ static const double POS_INF     = (1.0 / ZERO);
 #else
 static const double POS_INF     = (1.0 / 0.0);
 #endif
+static const int    MAX_DEGREE  = 100;
 
 // Poor man's array indexing -- not pretty, but pretty useful.
 //
@@ -177,7 +183,7 @@ static int nMinSpanGlobal;      // copy of nMinSpan parameter
 
 static void FreeBetaCache(void);
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // malloc and its friends are redefined (a) so under Microsoft C using crtdbg.h we can
 // easily track alloc errors and (b) so FreeR() doesn't re-free any freed blocks
 // and (c) so out of memory conditions are immediately detected.
@@ -220,7 +226,7 @@ _CrtSetDbgFlag(Flag);
 }
 #endif
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // These are malloced blocks.  They unfortunately have to be declared globally so
 // under R if the user interrupts we can free them using on.exit(.C("FreeR"))
 
@@ -273,38 +279,21 @@ void FreeR(void)                // for use by R
 }
 #endif
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Gets called periodically to service the R framework.
 // Will not return if the user interrupts.
 
 #if USING_R
-static INLINE void ServiceR(int nCases)
-{
-    static int nIters;
-    static int nCasesPrev;
-    static int nItersPerRCall;
-    if (nCases != nCasesPrev) {
-        // Init nItersPerRCall, knowing that FindKnot services nCases per call
-        // to ServiceR.  We want to call R_CheckUserInterrupt often enough to be
-        // responsive to interrupts but not so often that we slow computation.
-        // The magic nbrs below seem ok in practice.
 
-        nCasesPrev = nCases;
-        nItersPerRCall = 100000/nCases;
-        if (nItersPerRCall > 100)
-            nItersPerRCall = 100;
-        if (nItersPerRCall < 1)
-            nItersPerRCall = 1;
-    }
-    if (nIters++ >= nItersPerRCall) {
-        nIters = 0;
-        R_FlushConsole();
-        R_CheckUserInterrupt();     // may never return
-    }
+static INLINE void ServiceR(void)
+{
+    R_FlushConsole();
+    R_CheckUserInterrupt();     // may never return
 }
+
 #endif
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #if FAST_MARS
 
 typedef struct tQueue {
@@ -462,12 +451,13 @@ static int GetNextParent(   // returns -1 if no more parents
 
 #endif // FAST_MARS
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Order() gets the sort indices of vector x, so x[sorted[i]] <= x[sorted[i+1]].
 // Ties may be reordered. The returned indices are 0 based (as in C not as in R).
 //
 // This function is similar to the R library function rsort_with_index(),
 // but is defined here to minimize R dependencies.
+// Informal tests show that this is faster than rsort_with_index().
 
 static const double *pxGlobal;
 
@@ -493,7 +483,8 @@ static void Order(int sorted[],                     // out: vector with nx eleme
     qsort(sorted, nx, sizeof(int), Compare);
 }
 
-//-------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 // Get order indices for an x array of dimensions nRows x nCols.
 //
 // Returns an nRows x nCols integer array of indices, where each column
@@ -505,13 +496,17 @@ static int *OrderArray(const double x[], const int nRows, const int nCols)
 {
     int *xOrder = (int *)malloc1(nRows * nCols * sizeof(int));
 
-    for (int iCol = 0; iCol < nCols; iCol++)
+    for (int iCol = 0; iCol < nCols; iCol++) {
         Order(xOrder + iCol*nRows, x + iCol*nRows, nRows);
-
+#if USING_R
+        if (nRows > 10000)
+            ServiceR();
+#endif
+    }
     return xOrder;
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // return the number of TRUEs in the boolean vector UsedCols
 
 static int GetNbrUsedCols(const bool UsedCols[], const int nLen)
@@ -525,7 +520,7 @@ static int GetNbrUsedCols(const bool UsedCols[], const int nLen)
     return nTrue;
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Copy used columns in x to *pxUsed and return the number of used columns
 // UsedCols[i] is true for each each used column index in x
 // Caller must free *pxUsed
@@ -547,7 +542,7 @@ static int CopyUsedCols(double **pxUsed,                // out
     return nUsedCols;
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Print a summary of the model, for debug tracing
 
 #if STANDALONE
@@ -603,7 +598,7 @@ static void PrintSummary(
 }
 #endif // STANDALONE
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Set Diags to the diagonal values of inverse(X'X),
 // where X is referenced via the matrix R, from a previous call to dqrsl
 // with (in practice) bx.  The net result is that Diags is the diagonal
@@ -657,7 +652,7 @@ static void CalcDiags(
     free1(R1);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Regress y on the used columns of x, in the standard way (using QR).
 // UsedCols[i] is true for each each used col i in x; unused cols are ignored.
 //
@@ -783,7 +778,7 @@ static void Regress(
     free1(work);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Regress y on bx to get Residuals and Betas.  If bx isn't of full rank,
 // remove dependent cols, update UsedCols, and regress again on the bx with
 // removed cols.
@@ -826,7 +821,7 @@ static void RegressAndFix(
     free1(iPivots);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static INLINE double Mean(const double x[], int n)
 {
     double mean = 0;
@@ -835,7 +830,7 @@ static INLINE double Mean(const double x[], int n)
     return mean;
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // get mean centered sum of squares
 
 static INLINE double SumOfSquares(const double x[], const double mean, int n)
@@ -846,7 +841,7 @@ static INLINE double SumOfSquares(const double x[], const double mean, int n)
     return ss;
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static double GetRssNull(const double y[], const int nResponses, const int nCases)
 {
     double RssNull = 0;
@@ -857,7 +852,7 @@ static double GetRssNull(const double y[], const int nResponses, const int nCase
     return RssNull;
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static INLINE double GetGcv(const int nTerms, // nbr basis terms including intercept
                 const int nCases, double Rss, const double Penalty)
 {
@@ -871,7 +866,7 @@ static INLINE double GetGcv(const int nTerms, // nbr basis terms including inter
     return Rss / (nCases * sq(1 - cost/nCases));
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // We only consider knots that are nMinSpan distance apart, to increase resistance
 // to runs of correlated noise.  This function determines that distance.
 // It implements eqn 43 FriedmanMars (see refs), but with an extension for nMinSpan.
@@ -900,7 +895,7 @@ static INLINE int GetMinSpan(int nCases, const double *bx,
     return (int)((temp1 + log((double)nCases * nUsed)) / temp2);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // We don't consider knots that are too close to the ends.
 // This function determines how close to an end we can get.
 // It implements eqn 45 FriedmanMars (see refs), re-expressed for efficient computation
@@ -913,7 +908,7 @@ static INLINE int GetEndSpan(const int nCases)
     return (int)(temp1 + log(nCases) / log_2);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Return true if model term type is not already in model
 // i.e. if the hockey stick functions in a pre-existing term do not use the same
 // predictors (ignoring knot values).
@@ -937,7 +932,7 @@ static bool GetNewFormFlag(const int iPred, const int iTerm,
     return IsNewForm;
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static double GetCut(int iCase, const int iPred, const int nCases,
                         const double x[], const int xOrder[])
 {
@@ -948,7 +943,7 @@ static double GetCut(int iCase, const int iPred, const int nCases,
     return x_(ix,iPred);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // The BetaCache is used when searching for a new term pair, via FindTerm.
 // Most of the calculation for the orthogonal regression betas is repeated
 // with the same data, and thus we can save time by caching betas.
@@ -983,7 +978,7 @@ static void FreeBetaCache(void)
         free1(BetaCacheGlobal);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Init a new bxOrthCol to the residuals from regressing y on the used columns of the
 // orthogonal matrix bxOrth.  The length of each column of bxOrth must be 1
 // with mean 0.
@@ -1024,7 +1019,7 @@ static INLINE void OrthogResiduals(
                 for (int iCase = 0; iCase < nCases; iCase++)
                     xty += pbxOrth[iCase] * y[iCase];
                 Beta = xty;  // no need to divide by xtx, it is 1
-                ASSERT(R_FINITE(Beta));
+                ASSERT(FINITE(Beta));
                 if (pCache)
                     pCache[iTerm] = Beta;
             }
@@ -1038,7 +1033,7 @@ static INLINE void OrthogResiduals(
         }
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Init the rightmost column of bxOrth i.e. the column indexed by nTerms.
 // The new col is the normalized residuals from regressing y on the
 // lower (i.e. already existing) cols of bxOrth.
@@ -1096,7 +1091,7 @@ static INLINE void InitBxOrthCol(
         bxOrthCenteredT_(nTerms,iCase) = bxOrth_(iCase,nTerms) - bxOrthMean[nTerms];
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Add a new term pair to the arrays.
 // Each term in the new term pair is a copy of an existing parent term but extended
 // by multiplying it by a new hockey stick function at the selected knot.
@@ -1169,7 +1164,7 @@ static void AddTermPair(
     // nFactorsInTerm to a value greater than any posssible nMaxDegree.
 
     if (!FullSet[nTerms1])
-        nFactorsInTerm[nTerms1] = 99;
+        nFactorsInTerm[nTerms1] = MAX_DEGREE + 1;
 
     // fill in new columns of bx, at nTerms and nTerms+1 (left and right hockey sticks)
 
@@ -1205,7 +1200,7 @@ static void AddTermPair(
     }
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // The caller has selected a candidate predictor iPred and a candidate iParent.
 // This function now selects a knot.  If it finds a knot it will
 // update *piBestCase and *pRssDeltaForThisTerm.
@@ -1224,7 +1219,7 @@ static void AddTermPair(
 //     if (iCase % nMinSpan == 0)
 // now we have
 //     if (iSpan-- == 1)
-// which is measurably faster because, at least on a Pentium D.
+// which is measurably faster, at least on a Pentium D.
 // When we init iSpan (before the loop) we have a bit of code to
 // initialize to an offset that puts the knots as the same positions as
 // previous versions of earth.
@@ -1292,6 +1287,7 @@ static INLINE void FindKnot(
         const double bx1 = bx_(ix1,iParent);
         const double xDelta = x1 - x0;
         const double bx2 = sq(bx1);
+
 #if USE_BLAS
         daxpy_(&nTerms, &bx1, &bxOrthCenteredT_(0,ix1), &ONE, CovSx,  &ONE);
         daxpy_(&nTerms, &xDelta, CovSx, &ONE, CovCol, &ONE);
@@ -1309,8 +1305,7 @@ static INLINE void FindKnot(
         const double su = st;
         st = bxxSum - bxSum * x0;
 
-        CovCol[nTerms] += xDelta *
-                          (2 * bx2xSum - bx2Sum * (x0 + x1)) +
+        CovCol[nTerms] += xDelta * (2 * bx2xSum - bx2Sum * (x0 + x1)) +
                           (sq(su) - sq(st)) / nCases;
 
         if (nResponses == 1) {    // treat nResponses==1 as a special case, for speed
@@ -1362,7 +1357,7 @@ static INLINE void FindKnot(
     }
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Add a candidate term at bx[,nTerms], with predictor iPred entering
 // linearly. Do this by setting the knot at the lowest value xMin of x,
 // since max(0,x-xMin)==x-xMin for all x.  The change in RSS caused by
@@ -1453,7 +1448,7 @@ static INLINE void AddCandidateLinearTerm(
     }
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // The caller has selected a candidate parent term iParent.
 // This function now selects a predictor, and a knot for that predictor.
 //
@@ -1494,9 +1489,6 @@ static INLINE void FindPred(
     const double NewVarPenalty,     // in: penalty for adding a new variable
     const int LinPreds[])           // in: 1 x nPreds, 1 if predictor must enter linearly
 {
-#if USING_R
-    ServiceR(nCases);
-#endif
     double *ybxSum = (double *)malloc1(nResponses * sizeof(double)); // working var for FindKnot
     bool UpdatedBestRssDelta = false;
     for (int iPred = 0; iPred < nPreds; iPred++) {
@@ -1513,6 +1505,13 @@ static INLINE void FindPred(
                     iParent+IOFFSET, iPred+IOFFSET);
 #endif
         } else {
+#if USING_R
+            static int iServiceR = 0;
+            if (++iServiceR > 100) {
+                ServiceR();
+                iServiceR = 0;
+            }
+#endif
             if (nTraceGlobal >= 6)
                 printf("|Parent %-2d Pred %-2d ", iParent+IOFFSET, iPred+IOFFSET);
             const double NewVarAdjust = 1 + (nUses[iPred] == 0? NewVarPenalty: 0);
@@ -1566,7 +1565,7 @@ static INLINE void FindPred(
     }
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Find a new term to add to the model, if possible, and return the
 // selected case (i.e. knot), predictor, and parent term indices.
 //
@@ -1676,7 +1675,7 @@ static void FindTerm(
     free1(xbx);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static void PrintPredNames(
         const int nPreds,
         const char *sPredNames[], // in: predictor names, can be NULL
@@ -1706,7 +1705,7 @@ static void PrintPredNames(
     printf("\n");
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static void PrintForwardProlog(const double RssNull,
         const int nResponses,
         const int nCases,
@@ -1733,7 +1732,7 @@ static void PrintForwardProlog(const double RssNull,
     }
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static void PrintForwardStep(
         const int nTerms,
         const int nUsedTerms,
@@ -1783,7 +1782,7 @@ static void PrintForwardStep(
     }
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static void PrintForwardEpilog(
             const int nTerms,  int nMaxTerms,
             const double Thresh,
@@ -1835,7 +1834,37 @@ static void PrintForwardEpilog(
         printf("\n");
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+static void CheckVec(const double x[], int nCases, int nCols, const char sVecName[])
+{
+    int iCol, iCase;
+
+    for (iCol = 0; iCol < nCols; iCol++)
+        for (iCase = 0; iCase < nCases; iCase++) {
+#if USING_R
+             if (ISNA(x[iCase + iCol * nCases])) {
+                 if (nCols > 1)
+                     error("%s[%d,%d] is NA", sVecName, iCase+IOFFSET, iCol+IOFFSET);
+                 else
+                     error("%s[%d] is NA", sVecName, iCase+IOFFSET);
+             }
+#endif
+             if (ISNAN(x[iCase + iCol * nCases])) {
+                 if (nCols > 1)
+                     error("%s[%d,%d] is NaN", sVecName, iCase+IOFFSET, iCol+IOFFSET);
+                 else
+                     error("%s[%d] is NaN", sVecName, iCase+IOFFSET);
+             }
+             if (!FINITE(x[iCase + iCol * nCases])) {
+                 if (nCols > 1)
+                     error("%s[%d,%d] is not finite", sVecName, iCase+IOFFSET, iCol+IOFFSET);
+                 else
+                     error("%s[%d] is not finite", sVecName, iCase+IOFFSET);
+             }
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Forward pass
 //
 // After initializing the intercept term, the main for loop adds terms in pairs.
@@ -1884,19 +1913,30 @@ static void ForwardPass(
     if (nCases < 10)
         error("need at least 10 rows in x, you have %d", nCases);
     if (nCases < nPreds)    // (this check may not actually be necessary)
-        warning("Need as many rows as columns in x");
+        warning("Need as many rows as columns in x (nrow %d ncol %d)",
+                 nCases, nPreds);
+    if (nCases > 1e8)
+        error("too many rows %d in input matrix, max is 1e8", nCases);
     if (nResponses < 0)
         error("nResponses %d <= 0", nResponses);
-    if (nResponses > 10000)
-        error("nResponses %d > 10000", nResponses);
+    if (nResponses > 1e6)
+        error("nResponses %d > 1e6", nResponses);
+    if (nPreds < 1)
+        error("nPreds %d < 1", nPreds);
+    if (nPreds > 1e5)
+        error("nPreds %d > 1e5", nPreds);
     if (nMaxDegree <= 0)
         error("degree %d <= 0", nMaxDegree);
-    if (nMaxDegree >= 50)
-        error("degree %d >= 50", nMaxDegree);
+    if (nMaxDegree > MAX_DEGREE)
+        error("degree %d > %d", nMaxDegree, MAX_DEGREE);
     if (nMaxTerms < 3)      // prevent internal misbehaviour
         error("nk %d < 3", nMaxTerms);
     if (nMaxTerms > 10000)
         error("nk %d > 10000", nMaxTerms);
+    if (nFastK <= 0)
+        nFastK = 10000+1;   // bigger than any nMaxTerms
+    if (nFastK < 3)         // avoid possible queue boundary conditions
+        nFastK = 3;
     if (Penalty < 0 && Penalty != -1)
         error("penalty %g < 0, the only legal value less than 0 is -1 "
             "(meaning terms and knots are free)", Penalty);
@@ -1912,10 +1952,6 @@ static void ForwardPass(
         error("minspan %d < 0", nMinSpanGlobal);
     if (nMinSpanGlobal > nCases/2)
         error("minspan %d > nrow(x)/2 %d", nMinSpanGlobal, nCases/2);
-    if (nFastK <= 0)
-        nFastK = 10000;         // bigger than any nMaxTerms
-    if (nFastK < 3)             // avoid possible queue boundary conditions
-        nFastK = 3;
     if (FastBeta < 0)
         error("fast.beta %g < 0", FastBeta);
     if (FastBeta > 1000)
@@ -1928,6 +1964,11 @@ static void ForwardPass(
         warning("newvar.penalty %g < 0", NewVarPenalty);
     if(NewVarPenalty > 10)
         warning("newvar.penalty %g > 10", NewVarPenalty);
+    if (UseBetaCache != 0 && UseBetaCache != 1)
+        warning("Use.Beta.Cache is neither TRUE nor FALSE");
+
+    CheckVec(x, nCases, nPreds,     "x");
+    CheckVec(y, nCases, nResponses, "y");
 
     bxOrth          = (double *)malloc1(nCases * nMaxTerms * sizeof(double));
     bxOrthCenteredT = (double *)malloc1(nMaxTerms * nCases * sizeof(double));
@@ -2028,7 +2069,7 @@ static void ForwardPass(
     free1(bxOrth);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // This is an interface from R to the C routine ForwardPass
 
 #if USING_R
@@ -2055,7 +2096,7 @@ void ForwardPassR(              // for use by R
     const SEXP Env,               // in: environment for Allowed function
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const int *pnTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char *sPredNames[])     // in: predictor names in trace printfs, can be NULL
+    const char *sPredNames[])     // in: predictor names in trace printfs, can be R_NilValue
 {
     nTraceGlobal = *pnTrace;
     nMinSpanGlobal = *pnMinSpan;
@@ -2078,6 +2119,10 @@ void ForwardPassR(              // for use by R
     int iTerm;
     for (iTerm = 0; iTerm < nMaxTerms; iTerm++)
         BoolFullSet[iTerm] = FullSet[iTerm];
+
+    // convert R NULL to C NULL
+    if ((void *)sPredNames == (void *)R_NilValue)
+        sPredNames = NULL;
 
     InitAllowedFunc(Allowed, Env, nPreds);
 
@@ -2108,7 +2153,7 @@ void ForwardPassR(              // for use by R
 }
 #endif // USING_R
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Step backwards through the terms, at each step deleting the term that
 // causes the least RSS increase.  The subset of terms and RSS of each subset are
 // saved in PruneTerms and RssVec (which are indexed on subset size).
@@ -2186,7 +2231,7 @@ static void EvalSubsetsUsingXtx(
     free1(Betas);
 }
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // This is invoked from R if y has multiple columns i.e. a multiple response model.
 // It is needed because the alternative (the leaps package) supports only one response.
 
@@ -2217,7 +2262,7 @@ void EvalSubsetsUsingXtxR(      // for use by R
 }
 #endif
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #if STANDALONE
 static void BackwardPass(
     double *pBestGcv,       // out: GCV of the best model i.e. BestSet columns of bx
@@ -2271,7 +2316,7 @@ static void BackwardPass(
 }
 #endif // STANDALONE
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #if STANDALONE
 static int DiscardUnusedTerms(
     double bx[],             // io: nCases x nMaxTerms
@@ -2301,7 +2346,7 @@ static int DiscardUnusedTerms(
 }
 #endif // STANDALONE
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #if STANDALONE
 void Earth(
     double *pBestGcv,       // out: GCV of the best model i.e. BestSet columns of bx
@@ -2373,7 +2418,7 @@ void Earth(
 }
 #endif // STANDALONE
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Return the max number of knots in any term.
 // Lin dep factors are considered as having one knot (at the min value of the predictor)
 
@@ -2399,7 +2444,7 @@ static int GetMaxKnotsPerTerm(
 }
 #endif // STANDALONE
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // print a string representing the earth expresssion, one term per line
 // $$ spacing is not quite right and is overly complicated
 
@@ -2501,7 +2546,7 @@ void FormatEarth(
 }
 #endif // STANDALONE
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // return the value predicted by an earth model, given  a vector of inputs x
 
 #if STANDALONE
@@ -2552,7 +2597,7 @@ void PredictEarth(
 }
 #endif // STANDALONE
 
-//-------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Example main routine
 // See earth/src/tests/test.earthc.c for another example
 
@@ -2585,7 +2630,7 @@ int main(void)
     const int    nMaxDegree = 1;
     const double Penalty = (nMaxDegree > 1)? 3: 2;
     const double Thresh = .001;
-    const int    nMinSpan = 1;
+    const int    nMinSpan = 0;
     const bool   Prune = true;
     const int    nFastK = 20;
     const double FastBeta = 0;
@@ -2623,7 +2668,7 @@ int main(void)
     FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms, 3, 0);
 
     double x1 = 0.1234, y1;
-    PredictEarth(&y1, &x1, BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms);
+    PredictEarth(&y1, &x1, BestSet, Dirs, Cuts, Betas, nPreds,nResponses,nTerms,nMaxTerms);
     printf("\nf(%g) = %g\n", x1, y1);
 
     free1(LinPreds);

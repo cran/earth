@@ -3,15 +3,15 @@
 @rem Stephen Milborrow Apr 2007 Petaluma
 
 @echo === test.earthmain ===
-@cp "C:\Program Files\r\R-2.6.1\bin\R.dll" .
-@cp "C:\Program Files\r\R-2.6.1\bin\Rblas.dll" .
-@cp "C:\Program Files\r\R-2.6.1\bin\iconv.dll" .
-@cp "C:\Program Files\r\R-2.6.1\bin\graphapp.dll" .
+@cp "C:/a/r/ra/bin/R.dll" .
+@cp "C:/a/r/ra/bin/Rblas.dll" .
+@cp "C:/a/r/ra/bin/iconv.dll" .
+@cp "C:/a/r/ra/bin/graphapp.dll" .
 @md Debug
 
-@cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MLd -I"C:\Program Files\r\R-2.6.1\include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\earth.c
+@cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MLd -I"C:/a/r/ra/bin/include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\earth.c
 @if %errorlevel% neq 0 goto error:
-@link -nologo -debug:full -out:earthmain.exe Debug\earth.obj "C:\Program Files\r\R-2.6.1\bin\Rdll.lib" "C:\Program Files\r\R-2.6.1\bin\Rblas.lib"
+@link -nologo -debug:full -out:earthmain.exe Debug\earth.obj "C:\a\r\ra\bin\Rdll.lib" "C:\a\r\ra\bin\Rblas.lib"
 @if %errorlevel% neq 0 goto error:
 @earthmain.exe > Debug\test.earthmain.out
 @if %errorlevel% neq 0 goto error:

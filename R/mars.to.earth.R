@@ -4,7 +4,8 @@
 #
 # The differences between mda:mars and earth objects are:
 #
-#   1. mars returns bx in $x; earth returns bx in $bx.
+#   1. mars returns bx in $x; earth returns bx in $bx with only
+#      the selected.terms.
 #      There is no $x component of earth.
 #
 #   2. after the forward pass, earth discards lin dep terms in
@@ -50,14 +51,13 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
         call$trace <- 4         # trace.mars=TRUE was specified in the original call
     call$trace.mars <- NULL
     if(!is.null(object$call$wp) && !is.null(eval(object$call$wp, sys.parent())))
-        warning1("the mars 'wp' argument is not supported by earth()")
+        warning("the mars 'wp' argument is not supported by earth()")
     call$wp <- NULL
     if(!is.null(object$call$w))
         call$weights <- object$call$w
     call$w <- NULL
     call$forward.step <- NULL
     call$prev.fit <- NULL
-    call$minspan <- 0           # earth default minspan is 1 but mars default is 0
 
     y <- eval.parent(object$call$y)
     if(NCOL(y) != 1)
@@ -84,8 +84,8 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     gcv <- gcv.per.subset[nselected]                # GCV of selected model
 
     if(!isTRUE(all.equal(object$gcv, gcv)))         # should never happen
-        warning1("the original mars GCV ", object$gcv,
-            " is not equal to the re-calculated GCV ", gcv)
+        warning("the original mars GCV ", object$gcv,
+                " is not equal to the re-calculated GCV ", gcv)
 
     # Renumber selected.terms, needed because we drop terms from cuts and
     # dirs that are not in all.terms (whereas mars does not)
@@ -128,7 +128,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
         fitted.values     = object$fitted.values,
         residuals         = object$residuals,
         coefficients      = object$coefficients,
-        ppenalty          = object$ppenalty,
+        penalty           = object$penalty,
         call              = call),
     class = "earth")
 }

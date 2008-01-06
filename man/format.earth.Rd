@@ -40,7 +40,6 @@ A character representation of the earth object.
 \seealso{
   \code{\link{earth}},
   \code{\link{pmax}},
-  \code{\link{reorder.earth}}
 }
 \note{
 The FAQ section for \code{\link{earth}} has some comments
@@ -72,17 +71,17 @@ a <- earth(Volume ~ ., data = trees)
 cat(format(a))
 
 # yields:
-#    26.6 
-#    +  6.05 * pmax(0,  Girth -   13.7) 
-#    -   3.2 * pmax(0,   13.7 -  Girth) 
-#    + 0.608 * pmax(0, Height -     75) 
+#    23.2 
+#    +  5.75 * pmax(0,  Girth -   12.9) 
+#    -  2.87 * pmax(0,   12.9 -  Girth) 
+#    + 0.718 * pmax(0, Height -     76) 
 
 cat(format(a, use.names = FALSE, add.labels = TRUE))
 
 # yields:
-#    26.6  # 1
-#    +  6.05 * pmax(0, x[,1] -  13.7)  # 2
-#    -   3.2 * pmax(0,  13.7 - x[,1])  # 3
-#    + 0.608 * pmax(0, x[,2] -    75)  # 4
+#    23.2  # 1
+#    +  5.75 * pmax(0, x[,1] -  12.9)  # 2
+#    -  2.87 * pmax(0,  12.9 - x[,1])  # 3
+#    + 0.718 * pmax(0, x[,2] -    76)  # 4
 }
 \keyword{models}

@@ -39,6 +39,6 @@ If \code{type="terms"},  a matrix with each column showing the contribution of a
 data(trees)
 a <- earth(Volume ~ ., data = trees)
 predict(a)           # same as a$fitted.values
-predict(a, c(10,80)) # yields 17.82973
+predict(a, c(10,80)) # yields 17.76888
 }
 \keyword{models}

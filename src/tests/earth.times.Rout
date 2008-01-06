@@ -1,0 +1,8 @@
+Loading required package: leaps
+Loading required package: class
+data         nk     degree       earth   ------------------time ratios---------------------------------  ------------------grsq--------------------------
+                                 time    mars   minspan=1   no-fastk fastk=10 fastk=5 no-bcache allowed  earth   mars minspan=1 no-fastk fastk=10 fastk=5
+ozone 9x330
+
+Timing stopped at: 2.16 0 2.1 NA NA 
+Execution halted
