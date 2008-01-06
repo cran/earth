@@ -100,7 +100,7 @@ To start off, look at the arguments
      Default is 1, meaning build an additive model (i.e. no interaction terms).
   }
   \item{linpreds}{
-     Index vector specifying which predictors must enter linearly,
+     Index vector specifying which predictors should enter linearly,
      as in \code{\link{lm}}.\cr
      The default is FALSE, meaning all predictors enter
      in the standard MARS fashion i.e. in hinge functions.\cr
@@ -290,7 +290,7 @@ To start off, look at the arguments
      Each row corresponds to a row in in the input matrix \code{x},
      after taking \code{subset}.
      See \code{\link{model.matrix.earth}} for an example of \code{bx} handling.
-     Note for brevity "h" is used instead of "pmax" in column names.
+     For brevity, "h" is used instead of "pmax" in column names.
      Example \code{bx}:\preformatted{    (Intercept) h(Girth-12.9) h(12.9-Girth) h(Girth-12.9)*h(...
 [1,]          1           0.0           4.6                   0
 [2,]          1           0.0           4.3                   0
@@ -458,10 +458,11 @@ viii) Anova tables with sigma and other information.
 \strong{The forward pass}
 
 Understanding the details of the forward and pruning passes
-will help you understand the admittedly large number of earth arguments.
-The result of the forward pass is \code{$bx} and
-the set of terms defined by \code{$dirs}
-and \code{$cuts} (these are all fields in earth's return value).
+will help you understand earth's return value and
+the admittedly large number of arguments.
+The result of the forward pass is \code{bx} and
+the set of terms defined by \code{dirs}
+and \code{cuts} (these are all fields in earth's return value).
 
 The forward pass adds terms in pairs until the first of the
 following conditions is met:
@@ -486,7 +487,7 @@ reasons why the actual number of terms may be less than \code{nk}:
 if it adds nothing to the model ---
 but the forward pass counts terms as if they were actually created in pairs
 (ii) as a final step, the forward pass deletes linearly dependent terms, if any,
-so all terms in \code{$dirs} and \code{$cuts} are independent.
+so all terms in \code{dirs} and \code{cuts} are independent.
 And remember that the pruning pass will further discard terms.
 
 \strong{The pruning pass}
@@ -533,10 +534,10 @@ and then adjust pruning parameters such as \code{nprune} using \code{\link{updat
 
 The following very rough rules of thumb apply for large models.
 Using \code{minspan=0} instead of the default \code{minspan=1} will increase speeds by 20 to 50\%.
-Using \code{fast.k} less than 20 can give you substantial speed gains 
-but you will often get a much smaller \code{GRSq}.
+Using \code{fast.k=5} instead of the default \code{20} can give you substantial speed gains 
+but will sometimes give you a much smaller \code{GRSq}.
 Using an \code{allowed} function slows down model building by about 10\%.
-Using \code{Use.beta.cache=0} slows down model building by about 20\%.
+Using \code{Use.beta.cache=0} instead of the default \code{1} slows down model building by about 20\%.
 
 \strong{Multiple response models}
 
@@ -547,7 +548,7 @@ The models are built and pruned as usual but with the GCVs
 and RSSs averaged across all K responses.
 
 Since earth attempts to optimise for all models simultaneously,
-the results will not be as "good" as building the models independently.
+the results will not be as "good" as building the models independently
 i.e. the GCV of the combined model will usually not be as good as
 the GCVS for independently built models.
 However, the combined model may be a better model in other senses,
@@ -611,7 +612,7 @@ Establishing predictor importance is in general a tricky and even controversial 
 Running \code{\link{plotmo}} with \code{ylim=NULL} (the default)
 gives an idea of which predictors make the largest changes to the predicted value.
 
-You can also use \code{\link{drop1}}
+You can use \code{\link{drop1}}
 (assuming you are using the formula interface to earth).
 Calling \code{drop1(my.earth.model)} will delete each predictor in turn from your model,
 rebuild the model from scratch each time, and calculate the GCV each time.
@@ -633,8 +634,8 @@ You can also use \code{\link[caret]{varImp}} in the \code{caret} package.
 Remember that these techniques only tell you how important
 a variable is with the other variables already in the model.
 
-MARS models have a high variance in the sense that if the
-data changes a little the set of basis terms created by the forward pass
+MARS models have a high variance in the sense that, if the
+data changes a little, the set of basis terms created by the forward pass
 can change a lot.
 So the above estimates of predictor importance are unreliable
 because they can vary with even slightly different training data.
@@ -687,9 +688,8 @@ An example:
 }
 \strong{Can you give an example of the \code{linpreds} argument?}
 
-With \code{lindeps} you can specify which predictors should enter linearly
-(instead of in hinge functions). 
-
+With \code{linpreds} you can specify which predictors should enter linearly,
+instead of in hinge functions.
 Starting with
 \preformatted{
     a1 <- earth(Volume ~ ., data = trees)
@@ -702,7 +702,7 @@ indicator of \code{Volume} you can use \code{\link{pairs}}:
 \preformatted{
     pairs(trees, panel = panel.smooth, main = "trees data")
 }
-Since we want the simplest possible model that describes the data,
+Since we want the simplest model that describes the data,
 we can specify that \code{Height} should enter linearly:
 \preformatted{
     a2 <- earth(Volume ~ ., data = trees, linpreds = 2)  # 2 is Height column
@@ -725,14 +725,16 @@ or with
 \preformatted{
     a3 <- earth(Volume ~ ., data = trees, linpreds = TRUE)
 }
-But making all predictors enter linearly is not really a useful thing to do.
+But specifying that all predictors should enter linearly is not really a useful thing to do.
 In our simple example, the all-linear MARS model is the
 same as a standard linear model
 \preformatted{
     a4 <- lm(Volume ~ ., data = trees)
 }
-but in general that will not be true: the forward pass
-will stop adding predictors if it realizes
+but in general that will not be true.
+The \code{lindeps} argument does not stipulate that a predictor \emph{must} enter the model,
+only that if it enters it should enter linearly.
+The forward pass will stop if it realizes
 that adding more predictors does not improve the model.
 
 \strong{Can you give an example of the \code{allowed} argument?}
@@ -740,7 +742,6 @@ that adding more predictors does not improve the model.
 You can specify how variables are allowed to enter MARS terms
 with the \code{allowed} argument.
 The interface is flexible but can be a bit tricky to use.
-
 We start with a simple example, which completely excludes one predictor
 from the model:
 \preformatted{
@@ -758,15 +759,14 @@ from the input matrix when invoking earth:
 }
 Here is a more useful example. It prevents the specified predictor
 from being used in interaction terms.
-Note that the \code{parents} argument is the candidate parent's row in the \code{$dirs} matrix
-(\code{$dirs} is described in the Value section above).
+The \code{parents} argument is the candidate parent's row in the \code{dirs} matrix
+(\code{dirs} is described in the Value section above).
 Each entry of \code{parents} is 0, 1, -1, or 2, and you index
 \code{parents} on the predictor index.
 So \code{parents[pred]} is 0 if \code{pred} is not in the parent term.
 
 The example is artificial because it's unlikely you
-would actually want to exclude humidity from interactions in the ozone data.
-
+would single out humidity from interactions in the ozone data.
 \preformatted{
     example2 <- function(degree, pred, parents)
     {
@@ -805,7 +805,7 @@ With the default \code{decomp="anova"},
 the terms are ordered in increasing order of interaction.
 In detail:\cr
 (i) terms are sorted first on degree of interaction\cr
-(ii) then terms with a \code{lindeps} linear factor before standard terms\cr
+(ii) then terms with a \code{linpreds} linear factor before standard terms\cr
 (iii) then on the predictors in the factors (in
 the order of the columns in the input matrix)\cr
 (ii) and finally on increasing knot values.
@@ -814,6 +814,14 @@ It's actually \code{\link{reorder.earth}} that does the ordering.
 
 A slightly different and less predictable ordering was used prior to earth version 1.2 (Jan 2008).
 The change also affects the ordering of \code{degree2} \code{\link{plotmo}} plots.
+
+\strong{Why \code{\link{pmax}} and not \code{\link{max}} in the output from \code{summary.earth}?}
+
+With \code{\link{pmax}} the earth equation can handle multiple predictor rows
+in parallel.  So if you create a function from the MARS expression
+(as described in \code{\link{format.earth}}) you can give the function
+multiple predictor rows in a matrix and it will return a vector of predicted values.
+It's the R way of doing things.
 
 \strong{What about boosting MARS?}
 
@@ -874,7 +882,7 @@ adequate measure of generalisation ability.
 This is no longer true if you do predictor selection on linear models,
 because the process of selecting predictors increases the flexibility
 of the model. Hence the AIC and friends ---
-as used in, say, \code{\link{drop1}}
+as used in, say, \code{\link{drop1}}.
 The AIC and GCV are means to the same end.
 }
 \author{

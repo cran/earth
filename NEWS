@@ -1,6 +1,10 @@
 Changes to Earth Package
 ------------------------
 
+1.2-1 Fixed a newvar.penalty bug introduced in previous release.
+      Added src/tests/test.earthmain.gcc.bat
+      More man page tweaks
+
 1.2-0 Added linpreds, allowed, and Use.beta.cache arguments
       Anova decomp is now more consistent
       Added a few GPL headers

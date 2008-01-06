@@ -4,7 +4,8 @@ earth/src/tests/README
 The tests in this directory are much more comprehensive than
 tests\test.earth.R but also take much longer to execute.
 
-For regression tests on earth.c: run test.earthc.bat
+For regression tests on earth.c with the Microsoft compiler: run test.earthc.bat
+For regression tests on earth.c with gcc: run test.earthc.bat
 For regression tests of earth with a variety of models: run test.earth.full.bat
 For regression tests on plotmo: run test.plotmo.bat
 For some timing test results: see timing-tests.txt

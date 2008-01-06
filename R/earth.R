@@ -1025,7 +1025,7 @@ predict.earth <- function(
         get.terms())
 }
 
-check.which.terms <- function(dirs, which.terms)
+check.which.terms <- function(dirs, which.terms) # ensure which.terms is valid
 {
     if(is.null(which.terms))
         stop1("'which.terms\' is NULL")

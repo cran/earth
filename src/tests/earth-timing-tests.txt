@@ -1,6 +1,8 @@
 Timing Test Results On Earth Version 0.1
 ----------------------------------------
 
+NOTE Jan 2008: more recent tests can be found at www.milbo.users.sonic.net.
+
 Tested on a 1.5GHz Dell laptop with the robot arm from Friedman's Fast MARS paper.
 
 These tests were done before I added the multiple response code.  I
