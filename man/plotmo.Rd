@@ -293,14 +293,16 @@ as described in the next section.
 \code{object} must have a \code{\link{predict}}
 method that can be called with \code{se.fit=TRUE}.
 
-3) \code{object} must have the following components
-(which are searched for in the order given):
+3) \code{object} must have the following two components
+(which are searched for in the order given for each):
 
-a) \code{$x} with named columns, or \code{$call$formula}
-(\code{formula} is required for \code{degree2} plots),
-or \code{$call$x} with named columns
+\itemize{
+  \item \code{$x}, or \code{$call$formula}
+  (\code{formula} is required for \code{degree2} plots),
+  or \code{$call$x}.
 
-b) \code{$y}, or \code{$call$formula}, or \code{$call$y}.
+  \item \code{$y}, or \code{$call$formula}, or \code{$call$y}.
+}
 
 \strong{Extending plotmo}
 

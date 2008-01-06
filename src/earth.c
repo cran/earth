@@ -8,7 +8,7 @@
 // See the R earth documentation for descriptions of the principal data structures.
 // See also www.milbo.users.sonic.net.
 //
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // This code uses a subset of C99.  To build the earth R library under gcc:
 //   gcc -Wall -pedantic -Wextra -O3 -std=gnu99 -Ic:/a1/r/work/include -c earth.c -o earth.o
 //
@@ -30,7 +30,7 @@
 //       \a1\r\work\src\gnuwin32\Rdll.lib \a1\r\work\bin\Rblas.lib
 //   main.exe
 //
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // References:
 //
 // HastieTibs: Trevor Hastie and Robert Tibshirani
@@ -45,7 +45,7 @@
 //
 // Miller: Alan Miller (2nd ed. 2002) Subset Selection in Regression
 //
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -59,7 +59,7 @@
 // A copy of the GNU General Public License is available at
 // http://www.r-project.org/Licenses
 //
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 
 #if !STANDALONE
 #define USING_R 1
@@ -106,23 +106,23 @@
 #include "earth.h"
 
 extern _C_ int dqrdc2_(double *x, int *ldx, int *n, int *p,
-              double *tol, int *rank,
-              double *qraux, int *pivot, double *work);
+                        double *tol, int *rank,
+                        double *qraux, int *pivot, double *work);
 
 extern _C_ int dqrsl_(double *x, int *ldx, int *n, int *k,
-             double *qraux, double *y,
-             double *qy, double *qty, double *b,
-             double *rsd, double *xb, int *job, int *info);
+                        double *qraux, double *y,
+                        double *qy, double *qty, double *b,
+                        double *rsd, double *xb, int *job, int *info);
 
 extern _C_ void dtrsl_(double *t, int *ldt, int *n, double *b, int *job, int *info);
 
 extern _C_ void daxpy_(const int *n, const double *alpha,
-                    const double *dx, const int *incx,
-                    double *dy, const int *incy);
+                        const double *dx, const int *incx,
+                        double *dy, const int *incy);
 
 extern _C_ double ddot_(const int *n,
-                    const double *dx, const int *incx,
-                    const double *dy, const int *incy);
+                        const double *dx, const int *incx,
+                        const double *dy, const int *incy);
 
 #define sq(x)       ((x) * (x))
 #ifndef max
@@ -139,7 +139,7 @@ extern _C_ double ddot_(const int *n,
 #define FAST_MARS   1     // 1 to use techniques in FriedmanFastMars (see refs)
 #define IOFFSET     1     // 1 to convert 0-based indices to 1-based in printfs
 
-static const char   *VERSION    = "version 1.2b"; // change if you modify this file!
+static const char   *VERSION    = "version 1.2c"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -177,7 +177,7 @@ static int nMinSpanGlobal;      // copy of nMinSpan parameter
 
 static void FreeBetaCache(void);
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // malloc and its friends are redefined (a) so under Microsoft C using crtdbg.h we can
 // easily track alloc errors and (b) so FreeR() doesn't re-free any freed blocks
 // and (c) so out of memory conditions are immediately detected.
@@ -220,7 +220,7 @@ _CrtSetDbgFlag(Flag);
 }
 #endif
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // These are malloced blocks.  They unfortunately have to be declared globally so
 // under R if the user interrupts we can free them using on.exit(.C("FreeR"))
 
@@ -273,7 +273,7 @@ void FreeR(void)                // for use by R
 }
 #endif
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // Gets called periodically to service the R framework.
 // Will not return if the user interrupts.
 
@@ -304,696 +304,7 @@ static INLINE void ServiceR(int nCases)
 }
 #endif
 
-//--------------------------------------------------------------------------------------------
-// Order() gets the sort indices of vector x, so x[sorted[i]] <= x[sorted[i+1]].
-// Ties may be reordered. The returned indices are 0 based (as in C not as in R).
-//
-// This function is similar to the R library function rsort_with_index(),
-// but is defined here to minimize R dependencies.
-
-static const double *pxGlobal;
-
-static int Compare(const void *p1, const void *p2)  // for qsort
-{
-    const int i1 = *(int *)p1;
-    const int i2 = *(int *)p2;
-    double Diff = pxGlobal[i1] - pxGlobal[i2];
-    if (Diff < 0)
-        return -1;
-    else if (Diff > 0)
-        return 1;
-    else
-        return 0;
-}
-
-static void Order(int sorted[],                     // out: vector with nx elements
-                  const double x[], const int nx)   // in: x is a vector with nx elements
-{
-    for (int i = 0; i < nx; i++)
-        sorted[i] = i;
-    pxGlobal = x;
-    qsort(sorted, nx, sizeof(int), Compare);
-}
-
-//--------------------------------------------------------------------------------------------
-// Get order indices for an x array of dimensions nRows x nCols.
-//
-// Returns an nRows x nCols integer array of indices, where each column
-// corresponds to a column of x.  See Order() for ordering details.
-//
-// Caller must free the returned array.
-
-static int *OrderArray(const double x[], const int nRows, const int nCols)
-{
-    int *xOrder = (int *)malloc1(nRows * nCols * sizeof(int));
-
-    for (int iCol = 0; iCol < nCols; iCol++)
-        Order(xOrder + iCol*nRows, x + iCol*nRows, nRows);
-
-    return xOrder;
-}
-
-//--------------------------------------------------------------------------------------------
-// return the number of TRUEs in the boolean vector UsedCols
-
-static int GetNbrUsedCols(const bool UsedCols[], const int nLen)
-{
-    int nTrue = 0;
-
-    for (int iCol = 0; iCol < nLen; iCol++)
-        if (UsedCols[iCol])
-            nTrue++;
-
-    return nTrue;
-}
-
-//--------------------------------------------------------------------------------------------
-// Copy used columns in x to *pxUsed and return the number of used columns
-// UsedCols[i] is true for each each used column index in x
-// Caller must free *pxUsed
-
-static int CopyUsedCols(double **pxUsed,                // out
-                    const double x[],                   // in: nCases x nCols
-                    const int nCases, const int nCols,  // in
-                    const bool UsedCols[])              // in
-{
-    int nUsedCols = GetNbrUsedCols(UsedCols, nCols);
-    double *xUsed = (double *)malloc1(nCases * nUsedCols * sizeof(double));
-    int iUsed = 0;
-    for (int iCol = 0; iCol < nCols; iCol++)
-        if (UsedCols[iCol]) {
-            memcpy(xUsed + iUsed * nCases, x + iCol * nCases, nCases * sizeof(double));
-            iUsed++;
-        }
-    *pxUsed = xUsed;
-    return nUsedCols;
-}
-
-//--------------------------------------------------------------------------------------------
-// Set Diags to the diagonal values of inverse(X'X),
-// where X is referenced via the matrix R, from a previous call to dqrsl
-// with (in practice) bx.  The net result is that Diags is the diagonal
-// values of inverse(bx'bx).  We assume that R is created from a full rank X.
-//
-//$$ This could be simplified
-
-static void CalcDiags(
-    double Diags[],     // out: nCols x 1
-    const double R[],   // in: nCases x nCols, upper tri of R of QR, from prev call to dqrsl
-    const int nCases,   // in
-    const int nCols)    // in
-{
-    #define R_(i,j)     R [(i) + (j) * nCases]
-    #define R1_(i,j)    R1[(i) + (j) * nCols]
-    #define B_(i,j)     B [(i) + (j) * nCols]
-
-    double *R1 = (double *)malloc1(nCols * nCols * sizeof(double)); // nCols rows of R
-    double *B =  (double *)calloc1(nCols * nCols, sizeof(double));  // rhs of R1 * x = B
-    int i, j;
-    for (i = 0; i < nCols; i++) {   // copy nCols rows of R into R1
-        for (j =  0; j < nCols; j++)
-            R1_(i,j) = R_(i,j);
-        B_(i,i) = 1;                // set diag of B to 1
-    }
-    int job = 1;            // 1 means solve R1 * x = B where R1 is upper triangular
-    int info = 0;
-    for (i = 0; i < nCols; i++) {
-        dtrsl_(             // LINPACK function
-            R1,             // in: t, matrix of the system, untouched
-            (int *)&nCols,  // in: ldt (typecast discards const)
-            (int *)&nCols,  // in: n
-            &B_(0,i),       // io: b, on return has solution x
-            &job,           // in:
-            &info);         // io:
-
-        ASSERT(info == 0);
-    }
-    // B is now inverse(R1).  Calculate B x B.
-
-    for (i = 0; i < nCols; i++)
-        for (j =  0; j < nCols; j++) {
-            double Sum = 0;
-            for (int k = max(i,j); k < nCols; k++)
-                Sum += B_(i,k) * B_(j,k);
-            B_(i,j) = B_(j,i) = Sum;
-        }
-    for (i = 0; i < nCols; i++)
-         Diags[i] = B_(i,i);
-    free1(B);
-    free1(R1);
-}
-
-//--------------------------------------------------------------------------------------------
-// Regress y on the used columns of x, in the standard way (using QR).
-// UsedCols[i] is true for each each used col i in x; unused cols are ignored.
-//
-// The returned Betas argument is computed from, and is indexed on,
-// the compacted x vector, not on the original x.
-//
-// The returned iPivots should only be used if *pnRank != nUsedCols.
-// The entries of iPivots refer to columns in the full x (and are 0 based).
-// Entries in iPivots at *pnRank and above specify linearly dependent columns in x.
-//
-// To maximize compatibility we call the same routines as the R function lm.
-
-static void Regress(
-    double       Betas[],       // out: nUsedCols * nResponses, can be NULL
-    double       Residuals[],   // out: nCases * nResponses, can be NULL
-    double       *pRss,         // out: RSS, summed over all nResponses, can be NULL
-    double       Diags[],       // out: diags of inv(transpose(bx) * bx), can be NULL
-    int          *pnRank,       // out: nbr of indep cols in x
-    int          iPivots[],     // out: nCols, can be NULL
-    const double x[],           // in: nCases x nCols
-    const double y[],           // in: nCases x nResponses
-    const int    nCases,        // in: number of rows in x and in y
-    const int    nResponses,    // in: number of cols in y
-    int          nCols,         // in: number of columns in x, some may not be used
-    const bool   UsedCols[])    // in: specifies used columns in x
-{
-    bool MustFreeBetas = false;
-    if (Betas == NULL) {
-        Betas = (double *)malloc1(nCols * nResponses * sizeof(double));
-        MustFreeBetas = true;
-    }
-    bool MustFreeResiduals = false;
-    if (Residuals == NULL) {
-        Residuals = (double *)malloc1(nCases * nResponses * sizeof(double));
-        MustFreeResiduals = true;
-    }
-    bool MustFreePivots = false;
-    if (iPivots == NULL) {
-        iPivots = (int *)malloc1(nCols * sizeof(int));
-        MustFreePivots = true;
-    }
-    double *xUsed;
-    int nUsedCols = CopyUsedCols(&xUsed, x, nCases, nCols, UsedCols);
-    int iCol;
-    for (iCol = 0; iCol < nCols; iCol++)
-        iPivots[iCol] = iCol+1;
-
-    // compute Betas and yHat (use Residuals as a temporary buffer to store yHat)
-
-    double *qraux = (double *)malloc1(nUsedCols * sizeof(double));
-    double *work = (double *)malloc1(nCases * nUsedCols * sizeof(double));
-
-    dqrdc2_(                // R function, based on LINPACK dqrdc
-        xUsed,              // io:  x, on return upper tri of x is R of QR
-        (int *)&nCases,     // in:  ldx (typecast discards const)
-        (int *)&nCases,     // in:  n
-        &nUsedCols,         // in:  p
-        (double*)&QR_TOL,   // in:  tol
-        pnRank,             // out: k, num of indep cols of x
-        qraux,              // out: qraux
-        iPivots,            // out: jpvt
-        work);              // work
-
-    double Rss = 0;
-    int job = 101;          // specify c=1 e=1 to compute qty, b, yHat
-    int info;
-    for (int iResponse = 0; iResponse < nResponses; iResponse++) {
-        dqrsl_(                                 // LINPACK function
-            xUsed,                              // in:  x, generated by dqrdc2
-            (int *)&nCases,                     // in:  ldx (typecast discards const)
-            (int *)&nCases,                     // in:  n
-            pnRank,                             // in:  k
-            qraux,                              // in:  qraux
-            (double *)(&y_(0,iResponse)),       // in:  y
-            work,                               // out: qy, unused here
-            work,                               // out: qty, unused here
-            (double *)(&Betas_(0,iResponse)),   // out: b
-            work,                               // out: rsd, unused here
-            (double *)(&Residuals_(0,iResponse)),  // out: xb = yHat = ls approx of x*b
-            &job,                               // in:  job
-            &info);                             // in:  info
-
-        ASSERT(info == 0);
-
-        // compute Residuals and Rss (sum over all responses)
-
-        for (int iCase = 0; iCase < nCases; iCase++) {
-            Residuals_(iCase, iResponse) = y_(iCase, iResponse) - Residuals_(iCase, iResponse);
-            Rss += sq(Residuals_(iCase, iResponse));
-        }
-    }
-    if (pRss)
-        *pRss = Rss;
-
-    if (*pnRank != nUsedCols) {
-        // adjust iPivots for missing cols in UsedCols and for 1 offset
-
-        int *PivotOffset = (int *)malloc1(nCols * sizeof(int));
-        int iCol, nOffset = 0, iOld = 0;
-        for (iCol = 0; iCol < nCols; iCol++) {
-            if (!UsedCols[iCol])
-                nOffset++;
-            else {
-                PivotOffset[iOld] = nOffset;
-                if (++iOld > nUsedCols)
-                    break;
-            }
-        }
-        for (iCol = 0; iCol < nUsedCols; iCol++)
-            iPivots[iCol] = iPivots[iCol] - 1 + PivotOffset[iPivots[iCol] - 1];
-        free1(PivotOffset);
-    }
-    if (Diags)
-        CalcDiags(Diags, xUsed, nCases, nUsedCols);
-    if (MustFreePivots)
-        free1(iPivots);
-    if (MustFreeResiduals)
-        free1(Residuals);
-    if (MustFreeBetas)
-        free1(Betas);
-    free1(xUsed);
-    free1(qraux);
-    free1(work);
-}
-
-//--------------------------------------------------------------------------------------------
-// Regress y on bx to get Residuals and Betas.  If bx isn't of full rank,
-// remove dependent cols, update UsedCols, and regress again on the bx with
-// removed cols.
-
-static void RegressAndFix(
-    double Betas[],         // out: nMaxTerms x nResponses, can be NULL
-    double Residuals[],     // out: nCases x nResponses, can be NULL
-    double Diags[],         // out: if !NULL set to diags of inv(transpose(bx) * bx)
-    bool   UsedCols[],      // io:  will remove cols if necessary, nMaxTerms x 1
-    const  double bx[],     // in:  nCases x nMaxTerms
-    const double y[],       // in:  nCases x nResponses
-    const int nCases,       // in
-    const int nResponses,   // in: number of cols in y
-    const int nTerms)       // in: number of cols in bx, some may not be used
-{
-    int nRank;
-    int *iPivots = (int *)malloc1(nTerms * sizeof(int));
-    Regress(Betas, Residuals, NULL, Diags, &nRank, iPivots,
-        bx, y, nCases, nResponses, nTerms, UsedCols);
-    int nUsedCols = GetNbrUsedCols(UsedCols, nTerms);
-    int nDeficient = nUsedCols - nRank;
-    if (nDeficient) {           // rank deficient?
-        // Remove linearly dependent columns.
-        // The lin dep columns are at index nRank and higher in iPivots.
-
-        for (int iCol = nRank; iCol < nUsedCols; iCol++)
-            UsedCols[iPivots[iCol]] = false;
-
-        Regress(Betas, Residuals, NULL, Diags, &nRank, NULL,
-            bx, y, nCases, nResponses, nTerms, UsedCols);
-        nUsedCols = nUsedCols - nDeficient;
-        if (nRank != nUsedCols)
-            warning("Could not fix rank deficient bx: nUsedCols %d nRank %d",
-                nUsedCols,  nRank);
-        else if (nTraceGlobal >= 1)
-            printf("Fixed rank deficient bx by removing %d term%s, %d term%s remain\n",
-                nDeficient, ((nDeficient==1)? "": "s"),
-                nUsedCols,  ((nUsedCols==1)? "": "s"));
-    }
-    free1(iPivots);
-}
-
-//--------------------------------------------------------------------------------------------
-// The BetaCache is used when searching for a new term pair, via FindTerm.
-// Most of the calculation for the orthogonal regression betas is repeated
-// with the same data, and thus we can save time by caching betas.
-//
-// iParent    is the term that forms the base for the new term
-// iPred      is the predictor for the new term
-// iOrthCol   is the column index in the bxOrth matrix
-
-static double *BetaCacheGlobal; // [iOrthCol,iParent,iPred]
-                                // dim nPreds x nMaxTerms x nMaxTerms
-
-static void InitBetaCache(const bool UseBetaCache, const int nMaxTerms, const int nPreds)
-{
-    if (!UseBetaCache)
-        BetaCacheGlobal = NULL;
-    else {
-        int nCacheSize =  nMaxTerms * nMaxTerms * nPreds;
-
-        if (nTraceGlobal >= 5)                  // print cache size in megabytes
-            printf("BetaCache %.3f Mb\n", (nCacheSize * sizeof(double))/sq(1024.0));
-
-        BetaCacheGlobal = (double *)malloc1(nCacheSize * sizeof(double));
-
-        for (int i = 0; i < nCacheSize; i++)    // mark all cache entries as uninited
-            BetaCacheGlobal[i] = POS_INF;
-    }
-}
-
-static void FreeBetaCache(void)
-{
-    if (BetaCacheGlobal)
-        free1(BetaCacheGlobal);
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE double Mean(const double x[], int n)
-{
-    double mean = 0;
-    for (int i = 0; i < n; i++)
-        mean += x[i] / n;
-    return mean;
-}
-
-//--------------------------------------------------------------------------------------------
-// get mean centered sum of squares
-
-static INLINE double SumOfSquares(const double x[], const double mean, int n)
-{
-    double ss = 0;
-    for (int i = 0; i < n; i++)
-        ss += sq(x[i] - mean);
-    return ss;
-}
-
-//--------------------------------------------------------------------------------------------
-static double GetRssNull(const double y[], const int nResponses, const int nCases)
-{
-    double RssNull = 0;
-    for (int iResponse = 0; iResponse < nResponses; iResponse++) {
-        const double yMean = Mean(&y_(0,iResponse), nCases);
-        RssNull += SumOfSquares(&y_(0,iResponse), yMean, nCases);
-    }
-    return RssNull;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE double GetGcv(const int nTerms, // nbr basis terms including intercept
-                const int nCases, double Rss, const double Penalty)
-{
-    double cost;
-    if (Penalty == -1)  // special case: terms and knots are free
-        cost = 0;
-    else {
-        const double nKnots = ((double)nTerms-1) / 2;
-        cost = nTerms + Penalty * nKnots;
-    }
-    return Rss / (nCases * sq(1 - cost/nCases));
-}
-
-//--------------------------------------------------------------------------------------------
-// We only consider knots that are nMinSpan distance apart, to increase resistance
-// to runs of correlated noise.  This function determines that distance.
-// It implements eqn 43 FriedmanMars (see refs), but with an extension for nMinSpan.
-// If bx==NULL then instead of counting valid entries in bx we use nCases,
-// and ignore the term index iTerm.
-//
-// nMinSpan: if =0, use internally calculated min span
-//           if >0, use instead of internally calculated min span
-
-static INLINE int GetMinSpan(int nCases, const double *bx,
-                             const int iTerm, const int nMinSpan)
-{
-    if (nMinSpan > 0)                           // user specified a fixed span?
-        return nMinSpan;
-
-    int nUsed = 0;
-    if (bx == NULL)
-        nUsed = nCases;
-    else for (int iCase = 0; iCase < nCases; iCase++)
-        if (bx_(iCase,iTerm) > 0)
-            nUsed++;
-
-    static const double temp1 = 2.9702;         // -log(-log(0.95)
-    static const double temp2 = 1.7329;         // 2.5 * log(2)
-
-    return (int)((temp1 + log((double)nCases * nUsed)) / temp2);
-}
-
-//--------------------------------------------------------------------------------------------
-// We don't consider knots that are too close to the ends.
-// This function determines how close to an end we can get.
-// It implements eqn 45 FriedmanMars (see refs), re-expressed for efficient computation
-
-static INLINE int GetEndSpan(const int nCases)
-{
-    static const double log2  = 0.69315;            // log(2)
-    static const double temp1 = 7.32193;            // 3 + log(20)/log(2);
-
-    return (int)(temp1 + log(nCases) / log2);
-}
-
-//--------------------------------------------------------------------------------------------
-// Return true if model term type is not already in model
-// i.e. if the hockey stick functions in a pre-existing term do not use the same
-// predictors (ignoring knot values).
-//
-// In practice this nearly always returns true.
-
-static bool GetNewFormFlag(const int iPred, const int iTerm,
-                        const int Dirs[], const bool UsedCols[],
-                        const int nTerms, const int nPreds, const int nMaxTerms)
-{
-    bool IsNewForm = true;
-    for (int iTerm1 = 1; iTerm1 < nTerms; iTerm1++)     // start at 1 to skip intercept
-        if (UsedCols[iTerm1]) {
-            IsNewForm = false;
-            if (Dirs_(iTerm1,iPred) == 0)
-                return true;
-            for (int iPred1 = 0; iPred1 < nPreds; iPred1++)
-                if (iPred1 != iPred && Dirs_(iTerm1,iPred1) != Dirs_(iTerm,iPred1))
-                    return true;
-        }
-    return IsNewForm;
-}
-
-//--------------------------------------------------------------------------------------------
-// Init a new bxOrthCol to the residuals from regressing y on the used columns of the
-// orthogonal matrix bxOrth.  The mean of each column of bxOrth must be 0.
-//
-// In practice this function is called with the params shown in {braces}
-// and is called only by InitBxOrthCol.
-//
-// This function must be fast.
-
-static INLINE void OrthogResiduals(
-    double bxOrthCol[],     // out: nCases x 1          { bxOrth[,nTerms] }
-    const double y[],       // in:  nCases x nResponses { bx[,nTerms], xbx }
-    const double bxOrth[],  // in:  nCases x nPreds     { bxOrth }
-    const int nCases,       // in
-    const int nCols,        // in: number of cols in bxOrth   { nTerms in model }
-    const bool UsedCols[],  // in: UsedCols[i] is TRUE if col is used, unused cols are ignored
-                            //     Following parameters are only for the beta cache
-    const int iParent,      // in: if >= 0, use BetaCacheGlobal {FindTerm iTerm, addTermP -1}
-    const int iPred,        // in: predictor index i.e. col index in input matrix x
-    const int nMaxTerms)    // in:
-{
-    double *pCache;
-    if (iParent >= 0 && BetaCacheGlobal)
-        pCache = BetaCacheGlobal + iParent*nMaxTerms + iPred*sq(nMaxTerms);
-    else
-        pCache = NULL;
-
-    memcpy(bxOrthCol, y, nCases * sizeof(double));
-
-    for (int iOrthCol = 0; iOrthCol < nCols; iOrthCol++)
-        if (UsedCols[iOrthCol]) {
-            double Beta;
-            const double *pbxOrth = &bxOrth_(0, iOrthCol);
-            if (pCache && pCache[iOrthCol] != POS_INF)
-                Beta = pCache[iOrthCol];
-            else {
-                double Xtx = 0, Xty = 0;
-                for (int iCase = 0; iCase < nCases; iCase++) {
-                    const double x1 = pbxOrth[iCase];
-                    Xty += x1 * y[iCase];
-                    Xtx += sq(x1);
-                }
-                Beta = Xty / Xtx;
-                ASSERT(R_FINITE(Beta));
-                if (pCache)
-                    pCache[iOrthCol] = Beta;
-            }
-#if USE_BLAS
-            const double NegBeta = -Beta;
-            daxpy_(&nCases, &NegBeta, pbxOrth, &ONE, bxOrthCol, &ONE);
-#else
-            for (int iCase = 0; iCase < nCases; iCase++)
-                bxOrthCol[iCase] -= Beta * pbxOrth[iCase];
-#endif
-        }
-}
-
-//--------------------------------------------------------------------------------------------
-// Init the rightmost column of bxOrth i.e. the column indexed by nTerms.
-// The new col is the normalized residuals from regressing y on the
-// lower (i.e. already existing) cols of bxOrth.
-// Also updates bxOrthCenteredT and bxOrthMean.
-//
-// In practice this function is called only with the params shown in {braces}
-
-static INLINE void InitBxOrthCol(
-    double bxOrth[],         // io: col nTerms is changed, other cols not touched
-    double bxOrthCenteredT[],// io: kept in sync with bxOrth
-    double bxOrthMean[],     // io: element at nTerms is updated
-    bool   *pGoodCol,        // io: set to false if col sum-of-squares is under BX_TOL
-    const double *y,         // in: { FindTerm xbx, addTermPair bx[,nTerms] }
-    const int nTerms,        // in: column goes in at index nTerms, 0 is the intercept
-    const bool WorkingSet[], // in
-    const int nCases,        // in
-    const int nMaxTerms,     // in
-    const int iCacheTerm,    // in: if >= 0, use BetaCacheGlobal {FindTerm iTerm, AddTermP -1}
-                             //     if < 0 then recalc Betas from scratch
-    const int iPred)         // in: predictor index i.e. col index in input matrix x
-{
-    int iCase;
-    *pGoodCol = true;
-
-    if (nTerms == 0) {          // column 0, the intercept
-        double root = 1 / sqrt(nCases);
-        bxOrthMean[0] = root;
-        for (iCase = 0; iCase < nCases; iCase++)
-            bxOrth_(iCase,0) = root;
-    } else if (nTerms == 1) {   // column 1, the first basis function
-        double yMean = Mean(y, nCases);
-        for (iCase = 0; iCase < nCases; iCase++)
-            bxOrth_(iCase,1) = y[iCase] - yMean;
-    } else
-        OrthogResiduals(&bxOrth_(0,nTerms), // resids go in rightmost col of bxOrth at nTerms
-            y, bxOrth, nCases, nTerms, WorkingSet, iCacheTerm, iPred, nMaxTerms);
-
-    if (nTerms > 0) {
-        // normalize the column to length 1 and init bxOrthMean[nTerms]
-
-        double bxOrthSS = SumOfSquares(&bxOrth_(0,nTerms), 0, nCases);
-        const double Tol = (iCacheTerm < 0? 0: BX_TOL);
-        if (bxOrthSS > Tol) {
-            bxOrthMean[nTerms] = Mean(&bxOrth_(0,nTerms), nCases);
-            const double root = sqrt(bxOrthSS);
-            for (iCase = 0; iCase < nCases; iCase++)
-                bxOrth_(iCase,nTerms) /= root;
-        } else {
-            *pGoodCol = false;
-            bxOrthMean[nTerms] = 0;
-            memset(&bxOrth_(0,nTerms), 0, nCases * sizeof(double));
-        }
-    }
-    for (iCase = 0; iCase < nCases; iCase++)        // keep bxOrthCenteredT in sync
-        bxOrthCenteredT_(nTerms,iCase) = bxOrth_(iCase,nTerms) - bxOrthMean[nTerms];
-}
-
-//--------------------------------------------------------------------------------------------
-static double GetCut(int iCase, const int iPred, const int nCases,
-                        const double x[], const int xOrder[])
-{
-    if (iCase < 0 || iCase >= nCases)
-        error("GetCut iCase %d: iCase < 0 || iCase >= nCases", iCase);
-    const int ix = xOrder_(iCase,iPred);
-    ASSERT(ix >= 0 && ix < nCases);
-    return x_(ix,iPred);
-}
-
-//--------------------------------------------------------------------------------------------
-// Add a new term pair to the arrays.
-// Each term in the new term pair is a copy of an existing parent term but extended
-// by multiplying it by a new hockey stick function at the selected knot.
-// If the upper term in the term pair is invalid then we still add the upper
-// term but mark it as FALSE in FullSet.
-
-static void AddTermPair(
-    int    Dirs[],              // io
-    double Cuts[],              // io
-    double bx[],                // io: MARS basis matrix
-    double bxOrth[],            // io
-    double bxOrthCenteredT[],   // io
-    double bxOrthMean[],        // io
-    bool   FullSet[],           // io
-    int    nFactorsInTerm[],    // io
-    int    nUses[],             // io: nbr of times each predictor is used in the model
-    const int nTerms,           // in: new term pair goes in at index nTerms and nTerms1
-    const int iBestParent,      // in: parent term
-    const int iBestCase,        // in
-    const int iBestPred,        // in
-    const int nPreds,           // in
-    const int nCases,           // in
-    const int nMaxTerms,        // in
-    const bool IsNewForm,       // in
-    const bool IsLinPred,       // in: pred was discovered by search to be linear
-    const int LinPreds[],       // in: user specified preds which must enter linearly
-    const double x[],           // in
-    const int xOrder[])         // in
-{
-    const double BestCut = GetCut(iBestCase, iBestPred, nCases, x, xOrder);
-    ASSERT(IsLinPred || iBestCase != 0);
-    const int nTerms1 = nTerms+1;
-
-    // copy the parent term to the new term pair
-
-    int iPred;
-    for (iPred = 0; iPred < nPreds; iPred++) {
-        Dirs_(nTerms, iPred) =
-        Dirs_(nTerms1,iPred) = Dirs_(iBestParent,iPred);
-
-        Cuts_(nTerms, iPred) =
-        Cuts_(nTerms1,iPred) = Cuts_(iBestParent,iPred);
-
-        if (nTraceGlobal >= 2)
-            if (Dirs_(iBestParent,iPred) != 0)  // print parent term
-                printf("%-3d ", iBestParent+IOFFSET);
-    }
-    // incorporate the new hockey stick function
-
-    nFactorsInTerm[nTerms]  =
-    nFactorsInTerm[nTerms1] = nFactorsInTerm[iBestParent] + 1;
-
-    int DirEntry = 1;
-    if (LinPreds[iBestPred]) {
-        ASSERT(IsLinPred);
-        DirEntry = 2;
-    }
-    Dirs_(nTerms, iBestPred) = DirEntry;
-    Dirs_(nTerms1,iBestPred) = -1; // will be ignored if adding only one hinge
-
-    Cuts_(nTerms, iBestPred) =
-    Cuts_(nTerms1,iBestPred) = BestCut;
-
-    FullSet[nTerms] = true;
-    if (!IsLinPred && IsNewForm)
-        FullSet[nTerms1] = true;
-
-    // If the term is not valid, then we don't wan't to use it as the base for
-    // a new term later (in FindTerm).  Enforce this by setting
-    // nFactorsInTerm to a value greater than any posssible nMaxDegree.
-
-    if (!FullSet[nTerms1])
-        nFactorsInTerm[nTerms1] = 99;
-
-    // fill in new columns of bx, at nTerms and nTerms+1 (left and right hockey sticks)
-
-    int iCase;
-    if (DirEntry == 2) {
-        for (iCase = 0; iCase < nCases; iCase++)
-            bx_(iCase,nTerms) = bx_(iCase,iBestParent) * x_(iCase,iBestPred);
-    } else for (iCase = 0; iCase < nCases; iCase++) {
-        if (x_(iCase,iBestPred) - BestCut > 0)
-            bx_(iCase,nTerms) = bx_(iCase,iBestParent) * (x_(iCase,iBestPred) - BestCut);
-        else
-            bx_(iCase,nTerms1) = bx_(iCase,iBestParent) * (BestCut - x_(iCase,iBestPred));
-    }
-    nUses[iBestPred]++;
-
-    // init the col in bxOrth at nTerms and init bxOrthMean[nTerms]
-
-    bool GoodCol;
-    InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, &GoodCol,
-        &bx_(0,nTerms), nTerms, FullSet, nCases, nMaxTerms, -1, nPreds);
-                            // -1 means don't use BetaCacheGlobal, calc Betas afresh
-
-    // init the col in bxOrth at nTerms1 and init bxOrthMean[nTerms1]
-
-    if (FullSet[nTerms1]) {
-        InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, &GoodCol,
-            &bx_(0,nTerms1), nTerms1, FullSet, nCases, nMaxTerms, -1, iPred);
-    } else {
-        memset(&bxOrth_(0,nTerms1), 0, nCases * sizeof(double));
-        bxOrthMean[nTerms1] = 0;
-        for (iCase = 0; iCase < nCases; iCase++)    // keep bxOrthCenteredT in sync
-            bxOrthCenteredT_(nTerms1,iCase) = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 #if FAST_MARS
 
 typedef struct tQueue {
@@ -1151,7 +462,92 @@ static int GetNextParent(   // returns -1 if no more parents
 
 #endif // FAST_MARS
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+// Order() gets the sort indices of vector x, so x[sorted[i]] <= x[sorted[i+1]].
+// Ties may be reordered. The returned indices are 0 based (as in C not as in R).
+//
+// This function is similar to the R library function rsort_with_index(),
+// but is defined here to minimize R dependencies.
+
+static const double *pxGlobal;
+
+static int Compare(const void *p1, const void *p2)  // for qsort
+{
+    const int i1 = *(int *)p1;
+    const int i2 = *(int *)p2;
+    double Diff = pxGlobal[i1] - pxGlobal[i2];
+    if (Diff < 0)
+        return -1;
+    else if (Diff > 0)
+        return 1;
+    else
+        return 0;
+}
+
+static void Order(int sorted[],                     // out: vector with nx elements
+                  const double x[], const int nx)   // in: x is a vector with nx elements
+{
+    for (int i = 0; i < nx; i++)
+        sorted[i] = i;
+    pxGlobal = x;
+    qsort(sorted, nx, sizeof(int), Compare);
+}
+
+//-------------------------------------------------------------------------------------------
+// Get order indices for an x array of dimensions nRows x nCols.
+//
+// Returns an nRows x nCols integer array of indices, where each column
+// corresponds to a column of x.  See Order() for ordering details.
+//
+// Caller must free the returned array.
+
+static int *OrderArray(const double x[], const int nRows, const int nCols)
+{
+    int *xOrder = (int *)malloc1(nRows * nCols * sizeof(int));
+
+    for (int iCol = 0; iCol < nCols; iCol++)
+        Order(xOrder + iCol*nRows, x + iCol*nRows, nRows);
+
+    return xOrder;
+}
+
+//-------------------------------------------------------------------------------------------
+// return the number of TRUEs in the boolean vector UsedCols
+
+static int GetNbrUsedCols(const bool UsedCols[], const int nLen)
+{
+    int nTrue = 0;
+
+    for (int iCol = 0; iCol < nLen; iCol++)
+        if (UsedCols[iCol])
+            nTrue++;
+
+    return nTrue;
+}
+
+//-------------------------------------------------------------------------------------------
+// Copy used columns in x to *pxUsed and return the number of used columns
+// UsedCols[i] is true for each each used column index in x
+// Caller must free *pxUsed
+
+static int CopyUsedCols(double **pxUsed,                // out
+                    const double x[],                   // in: nCases x nCols
+                    const int nCases, const int nCols,  // in
+                    const bool UsedCols[])              // in
+{
+    int nUsedCols = GetNbrUsedCols(UsedCols, nCols);
+    double *xUsed = (double *)malloc1(nCases * nUsedCols * sizeof(double));
+    int iUsed = 0;
+    for (int iCol = 0; iCol < nCols; iCol++)
+        if (UsedCols[iCol]) {
+            memcpy(xUsed + iUsed * nCases, x + iCol * nCases, nCases * sizeof(double));
+            iUsed++;
+        }
+    *pxUsed = xUsed;
+    return nUsedCols;
+}
+
+//-------------------------------------------------------------------------------------------
 // Print a summary of the model, for debug tracing
 
 #if STANDALONE
@@ -1207,7 +603,609 @@ static void PrintSummary(
 }
 #endif // STANDALONE
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+// Set Diags to the diagonal values of inverse(X'X),
+// where X is referenced via the matrix R, from a previous call to dqrsl
+// with (in practice) bx.  The net result is that Diags is the diagonal
+// values of inverse(bx'bx).  We assume that R is created from a full rank X.
+//
+//$$ This could be simplified
+
+static void CalcDiags(
+    double Diags[],     // out: nCols x 1
+    const double R[],   // in: nCases x nCols, upper tri of R of QR, from prev call to dqrsl
+    const int nCases,   // in
+    const int nCols)    // in
+{
+    #define R_(i,j)     R [(i) + (j) * nCases]
+    #define R1_(i,j)    R1[(i) + (j) * nCols]
+    #define B_(i,j)     B [(i) + (j) * nCols]
+
+    double *R1 = (double *)malloc1(nCols * nCols * sizeof(double)); // nCols rows of R
+    double *B =  (double *)calloc1(nCols * nCols, sizeof(double));  // rhs of R1 * x = B
+    int i, j;
+    for (i = 0; i < nCols; i++) {   // copy nCols rows of R into R1
+        for (j =  0; j < nCols; j++)
+            R1_(i,j) = R_(i,j);
+        B_(i,i) = 1;                // set diag of B to 1
+    }
+    int job = 1;            // 1 means solve R1 * x = B where R1 is upper triangular
+    int info = 0;
+    for (i = 0; i < nCols; i++) {
+        dtrsl_(             // LINPACK function
+            R1,             // in: t, matrix of the system, untouched
+            (int *)&nCols,  // in: ldt (typecast discards const)
+            (int *)&nCols,  // in: n
+            &B_(0,i),       // io: b, on return has solution x
+            &job,           // in:
+            &info);         // io:
+
+        ASSERT(info == 0);
+    }
+    // B is now inverse(R1).  Calculate B x B.
+
+    for (i = 0; i < nCols; i++)
+        for (j =  0; j < nCols; j++) {
+            double Sum = 0;
+            for (int k = max(i,j); k < nCols; k++)
+                Sum += B_(i,k) * B_(j,k);
+            B_(i,j) = B_(j,i) = Sum;
+        }
+    for (i = 0; i < nCols; i++)
+         Diags[i] = B_(i,i);
+    free1(B);
+    free1(R1);
+}
+
+//-------------------------------------------------------------------------------------------
+// Regress y on the used columns of x, in the standard way (using QR).
+// UsedCols[i] is true for each each used col i in x; unused cols are ignored.
+//
+// The returned Betas argument is computed from, and is indexed on,
+// the compacted x vector, not on the original x.
+//
+// The returned iPivots should only be used if *pnRank != nUsedCols.
+// The entries of iPivots refer to columns in the full x (and are 0 based).
+// Entries in iPivots at *pnRank and above specify linearly dependent columns in x.
+//
+// To maximize compatibility we call the same routines as the R function lm.
+
+static void Regress(
+    double       Betas[],       // out: nUsedCols * nResponses, can be NULL
+    double       Residuals[],   // out: nCases * nResponses, can be NULL
+    double       *pRss,         // out: RSS, summed over all nResponses, can be NULL
+    double       Diags[],       // out: diags of inv(transpose(bx) * bx), can be NULL
+    int          *pnRank,       // out: nbr of indep cols in x
+    int          iPivots[],     // out: nCols, can be NULL
+    const double x[],           // in: nCases x nCols
+    const double y[],           // in: nCases x nResponses
+    const int    nCases,        // in: number of rows in x and in y
+    const int    nResponses,    // in: number of cols in y
+    int          nCols,         // in: number of columns in x, some may not be used
+    const bool   UsedCols[])    // in: specifies used columns in x
+{
+    bool MustFreeBetas = false;
+    if (Betas == NULL) {
+        Betas = (double *)malloc1(nCols * nResponses * sizeof(double));
+        MustFreeBetas = true;
+    }
+    bool MustFreeResiduals = false;
+    if (Residuals == NULL) {
+        Residuals = (double *)malloc1(nCases * nResponses * sizeof(double));
+        MustFreeResiduals = true;
+    }
+    bool MustFreePivots = false;
+    if (iPivots == NULL) {
+        iPivots = (int *)malloc1(nCols * sizeof(int));
+        MustFreePivots = true;
+    }
+    double *xUsed;
+    int nUsedCols = CopyUsedCols(&xUsed, x, nCases, nCols, UsedCols);
+    int iCol;
+    for (iCol = 0; iCol < nCols; iCol++)
+        iPivots[iCol] = iCol+1;
+
+    // compute Betas and yHat (use Residuals as a temporary buffer to store yHat)
+
+    double *qraux = (double *)malloc1(nUsedCols * sizeof(double));
+    double *work = (double *)malloc1(nCases * nUsedCols * sizeof(double));
+
+    dqrdc2_(                // R function, based on LINPACK dqrdc
+        xUsed,              // io:  x, on return upper tri of x is R of QR
+        (int *)&nCases,     // in:  ldx (typecast discards const)
+        (int *)&nCases,     // in:  n
+        &nUsedCols,         // in:  p
+        (double*)&QR_TOL,   // in:  tol
+        pnRank,             // out: k, num of indep cols of x
+        qraux,              // out: qraux
+        iPivots,            // out: jpvt
+        work);              // work
+
+    double Rss = 0;
+    int job = 101;          // specify c=1 e=1 to compute qty, b, yHat
+    int info;
+    for (int iResponse = 0; iResponse < nResponses; iResponse++) {
+        dqrsl_(                                 // LINPACK function
+            xUsed,                              // in:  x, generated by dqrdc2
+            (int *)&nCases,                     // in:  ldx (typecast discards const)
+            (int *)&nCases,                     // in:  n
+            pnRank,                             // in:  k
+            qraux,                              // in:  qraux
+            (double *)(&y_(0,iResponse)),       // in:  y
+            work,                               // out: qy, unused here
+            work,                               // out: qty, unused here
+            (double *)(&Betas_(0,iResponse)),   // out: b
+            work,                               // out: rsd, unused here
+            (double *)(&Residuals_(0,iResponse)),  // out: xb = yHat = ls approx of x*b
+            &job,                               // in:  job
+            &info);                             // in:  info
+
+        ASSERT(info == 0);
+
+        // compute Residuals and Rss (sum over all responses)
+
+        for (int iCase = 0; iCase < nCases; iCase++) {
+            Residuals_(iCase,iResponse) = y_(iCase,iResponse) - Residuals_(iCase,iResponse);
+            Rss += sq(Residuals_(iCase, iResponse));
+        }
+    }
+    if (pRss)
+        *pRss = Rss;
+
+    if (*pnRank != nUsedCols) {
+        // adjust iPivots for missing cols in UsedCols and for 1 offset
+
+        int *PivotOffset = (int *)malloc1(nCols * sizeof(int));
+        int nOffset = 0, iOld = 0;
+        for (iCol = 0; iCol < nCols; iCol++) {
+            if (!UsedCols[iCol])
+                nOffset++;
+            else {
+                PivotOffset[iOld] = nOffset;
+                if (++iOld > nUsedCols)
+                    break;
+            }
+        }
+        for (iCol = 0; iCol < nUsedCols; iCol++)
+            iPivots[iCol] = iPivots[iCol] - 1 + PivotOffset[iPivots[iCol] - 1];
+        free1(PivotOffset);
+    }
+    if (Diags)
+        CalcDiags(Diags, xUsed, nCases, nUsedCols);
+    if (MustFreePivots)
+        free1(iPivots);
+    if (MustFreeResiduals)
+        free1(Residuals);
+    if (MustFreeBetas)
+        free1(Betas);
+    free1(xUsed);
+    free1(qraux);
+    free1(work);
+}
+
+//-------------------------------------------------------------------------------------------
+// Regress y on bx to get Residuals and Betas.  If bx isn't of full rank,
+// remove dependent cols, update UsedCols, and regress again on the bx with
+// removed cols.
+
+static void RegressAndFix(
+    double Betas[],         // out: nMaxTerms x nResponses, can be NULL
+    double Residuals[],     // out: nCases x nResponses, can be NULL
+    double Diags[],         // out: if !NULL set to diags of inv(transpose(bx) * bx)
+    bool   UsedCols[],      // io:  will remove cols if necessary, nMaxTerms x 1
+    const  double bx[],     // in:  nCases x nMaxTerms
+    const double y[],       // in:  nCases x nResponses
+    const int nCases,       // in
+    const int nResponses,   // in: number of cols in y
+    const int nTerms)       // in: number of cols in bx, some may not be used
+{
+    int nRank;
+    int *iPivots = (int *)malloc1(nTerms * sizeof(int));
+    Regress(Betas, Residuals, NULL, Diags, &nRank, iPivots,
+        bx, y, nCases, nResponses, nTerms, UsedCols);
+    int nUsedCols = GetNbrUsedCols(UsedCols, nTerms);
+    int nDeficient = nUsedCols - nRank;
+    if (nDeficient) {           // rank deficient?
+        // Remove linearly dependent columns.
+        // The lin dep columns are at index nRank and higher in iPivots.
+
+        for (int iCol = nRank; iCol < nUsedCols; iCol++)
+            UsedCols[iPivots[iCol]] = false;
+
+        Regress(Betas, Residuals, NULL, Diags, &nRank, NULL,
+            bx, y, nCases, nResponses, nTerms, UsedCols);
+        nUsedCols = nUsedCols - nDeficient;
+        if (nRank != nUsedCols)
+            warning("Could not fix rank deficient bx: nUsedCols %d nRank %d",
+                nUsedCols,  nRank);
+        else if (nTraceGlobal >= 1)
+            printf("Fixed rank deficient bx by removing %d term%s, %d term%s remain\n",
+                nDeficient, ((nDeficient==1)? "": "s"),
+                nUsedCols,  ((nUsedCols==1)? "": "s"));
+    }
+    free1(iPivots);
+}
+
+//-------------------------------------------------------------------------------------------
+static INLINE double Mean(const double x[], int n)
+{
+    double mean = 0;
+    for (int i = 0; i < n; i++)
+        mean += x[i] / n;
+    return mean;
+}
+
+//-------------------------------------------------------------------------------------------
+// get mean centered sum of squares
+
+static INLINE double SumOfSquares(const double x[], const double mean, int n)
+{
+    double ss = 0;
+    for (int i = 0; i < n; i++)
+        ss += sq(x[i] - mean);
+    return ss;
+}
+
+//-------------------------------------------------------------------------------------------
+static double GetRssNull(const double y[], const int nResponses, const int nCases)
+{
+    double RssNull = 0;
+    for (int iResponse = 0; iResponse < nResponses; iResponse++) {
+        const double yMean = Mean(&y_(0,iResponse), nCases);
+        RssNull += SumOfSquares(&y_(0,iResponse), yMean, nCases);
+    }
+    return RssNull;
+}
+
+//-------------------------------------------------------------------------------------------
+static INLINE double GetGcv(const int nTerms, // nbr basis terms including intercept
+                const int nCases, double Rss, const double Penalty)
+{
+    double cost;
+    if (Penalty == -1)  // special case: terms and knots are free
+        cost = 0;
+    else {
+        const double nKnots = ((double)nTerms-1) / 2;
+        cost = nTerms + Penalty * nKnots;
+    }
+    return Rss / (nCases * sq(1 - cost/nCases));
+}
+
+//-------------------------------------------------------------------------------------------
+// We only consider knots that are nMinSpan distance apart, to increase resistance
+// to runs of correlated noise.  This function determines that distance.
+// It implements eqn 43 FriedmanMars (see refs), but with an extension for nMinSpan.
+// If bx==NULL then instead of counting valid entries in bx we use nCases,
+// and ignore the term index iTerm.
+//
+// nMinSpan: if =0, use internally calculated min span
+//           if >0, use instead of internally calculated min span
+
+static INLINE int GetMinSpan(int nCases, const double *bx,
+                             const int iTerm, const int nMinSpan)
+{
+    if (nMinSpan > 0)                           // user specified a fixed span?
+        return nMinSpan;
+
+    int nUsed = 0;
+    if (bx == NULL)
+        nUsed = nCases;
+    else for (int iCase = 0; iCase < nCases; iCase++)
+        if (bx_(iCase,iTerm) > 0)
+            nUsed++;
+
+    static const double temp1 = 2.9702;         // -log(-log(0.95)
+    static const double temp2 = 1.7329;         // 2.5 * log(2)
+
+    return (int)((temp1 + log((double)nCases * nUsed)) / temp2);
+}
+
+//-------------------------------------------------------------------------------------------
+// We don't consider knots that are too close to the ends.
+// This function determines how close to an end we can get.
+// It implements eqn 45 FriedmanMars (see refs), re-expressed for efficient computation
+
+static INLINE int GetEndSpan(const int nCases)
+{
+    static const double log_2 = 0.69315;            // log(2)
+    static const double temp1 = 7.32193;            // 3 + log(20)/log(2);
+
+    return (int)(temp1 + log(nCases) / log_2);
+}
+
+//-------------------------------------------------------------------------------------------
+// Return true if model term type is not already in model
+// i.e. if the hockey stick functions in a pre-existing term do not use the same
+// predictors (ignoring knot values).
+//
+// In practice this nearly always returns true.
+
+static bool GetNewFormFlag(const int iPred, const int iTerm,
+                        const int Dirs[], const bool UsedCols[],
+                        const int nTerms, const int nPreds, const int nMaxTerms)
+{
+    bool IsNewForm = true;
+    for (int iTerm1 = 1; iTerm1 < nTerms; iTerm1++)     // start at 1 to skip intercept
+        if (UsedCols[iTerm1]) {
+            IsNewForm = false;
+            if (Dirs_(iTerm1,iPred) == 0)
+                return true;
+            for (int iPred1 = 0; iPred1 < nPreds; iPred1++)
+                if (iPred1 != iPred && Dirs_(iTerm1,iPred1) != Dirs_(iTerm,iPred1))
+                    return true;
+        }
+    return IsNewForm;
+}
+
+//-------------------------------------------------------------------------------------------
+static double GetCut(int iCase, const int iPred, const int nCases,
+                        const double x[], const int xOrder[])
+{
+    if (iCase < 0 || iCase >= nCases)
+        error("GetCut iCase %d: iCase < 0 || iCase >= nCases", iCase);
+    const int ix = xOrder_(iCase,iPred);
+    ASSERT(ix >= 0 && ix < nCases);
+    return x_(ix,iPred);
+}
+
+//-------------------------------------------------------------------------------------------
+// The BetaCache is used when searching for a new term pair, via FindTerm.
+// Most of the calculation for the orthogonal regression betas is repeated
+// with the same data, and thus we can save time by caching betas.
+//
+// iParent    is the term that forms the base for the new term
+// iPred      is the predictor for the new term
+// iOrthCol   is the column index in the bxOrth matrix
+
+static double *BetaCacheGlobal; // [iOrthCol,iParent,iPred]
+                                // dim nPreds x nMaxTerms x nMaxTerms
+
+static void InitBetaCache(const bool UseBetaCache, const int nMaxTerms, const int nPreds)
+{
+    if (!UseBetaCache)
+        BetaCacheGlobal = NULL;
+    else {
+        int nCacheSize =  nMaxTerms * nMaxTerms * nPreds;
+
+        if (nTraceGlobal >= 5)                  // print cache size in megabytes
+            printf("BetaCache %.3f Mb\n", (nCacheSize * sizeof(double))/sq(1024.0));
+
+        BetaCacheGlobal = (double *)malloc1(nCacheSize * sizeof(double));
+
+        for (int i = 0; i < nCacheSize; i++)    // mark all cache entries as uninited
+            BetaCacheGlobal[i] = POS_INF;
+    }
+}
+
+static void FreeBetaCache(void)
+{
+    if (BetaCacheGlobal)
+        free1(BetaCacheGlobal);
+}
+
+//-------------------------------------------------------------------------------------------
+// Init a new bxOrthCol to the residuals from regressing y on the used columns of the
+// orthogonal matrix bxOrth.  The length of each column of bxOrth must be 1
+// with mean 0.
+//
+// In practice this function is called with the params shown in {braces}
+// and is called only by InitBxOrthCol.
+//
+// This function must be fast.
+
+static INLINE void OrthogResiduals(
+    double bxOrthCol[],     // out: nCases x 1          { bxOrth[,nTerms] }
+    const double y[],       // in:  nCases x nResponses { bx[,nTerms], xbx }
+    const double bxOrth[],  // in:  nTerms x nPreds     { bxOrth }
+    const int nCases,       // in
+    const int nTerms,       // in: nTerms in model, i.e. number of used cols in bxOrth
+    const bool UsedTerms[], // in: UsedTerms[i] is TRUE if col is used, unused cols ignored
+                            //     Following parameters are only for the beta cache
+    const int iParent,      // in: if >= 0, use BetaCacheGlobal {FindTerm iTerm, addTermP -1}
+    const int iPred,        // in: predictor index i.e. col index in input matrix x
+    const int nMaxTerms)    // in:
+{
+    double *pCache;
+    if (iParent >= 0 && BetaCacheGlobal)
+        pCache = BetaCacheGlobal + iParent*nMaxTerms + iPred*sq(nMaxTerms);
+    else
+        pCache = NULL;
+
+    memcpy(bxOrthCol, y, nCases * sizeof(double));
+
+    for (int iTerm = 0; iTerm < nTerms; iTerm++)
+        if (UsedTerms[iTerm]) {
+            const double *pbxOrth = &bxOrth_(0, iTerm);
+            double Beta;
+            if (pCache && pCache[iTerm] != POS_INF)
+                Beta = pCache[iTerm];
+            else {
+                double xty = 0;
+                for (int iCase = 0; iCase < nCases; iCase++)
+                    xty += pbxOrth[iCase] * y[iCase];
+                Beta = xty;  // no need to divide by xtx, it is 1
+                ASSERT(R_FINITE(Beta));
+                if (pCache)
+                    pCache[iTerm] = Beta;
+            }
+#if USE_BLAS
+            const double NegBeta = -Beta;
+            daxpy_(&nCases, &NegBeta, pbxOrth, &ONE, bxOrthCol, &ONE);
+#else
+            for (int iCase = 0; iCase < nCases; iCase++)
+                bxOrthCol[iCase] -= Beta * pbxOrth[iCase];
+#endif
+        }
+}
+
+//-------------------------------------------------------------------------------------------
+// Init the rightmost column of bxOrth i.e. the column indexed by nTerms.
+// The new col is the normalized residuals from regressing y on the
+// lower (i.e. already existing) cols of bxOrth.
+// Also updates bxOrthCenteredT and bxOrthMean.
+//
+// In practice this function is called only with the params shown in {braces}
+
+static INLINE void InitBxOrthCol(
+    double bxOrth[],         // io: col nTerms is changed, other cols not touched
+    double bxOrthCenteredT[],// io: kept in sync with bxOrth
+    double bxOrthMean[],     // io: element at nTerms is updated
+    bool   *pGoodCol,        // io: set to false if col sum-of-squares is under BX_TOL
+    const double *y,         // in: { FindTerm xbx, addTermPair bx[,nTerms] }
+    const int nTerms,        // in: column goes in at index nTerms, 0 is the intercept
+    const bool WorkingSet[], // in
+    const int nCases,        // in
+    const int nMaxTerms,     // in
+    const int iCacheTerm,    // in: if >= 0, use BetaCacheGlobal {FindTerm iTerm, AddTermP -1}
+                             //     if < 0 then recalc Betas from scratch
+    const int iPred)         // in: predictor index i.e. col index in input matrix x
+{
+    int iCase;
+    *pGoodCol = true;
+
+    if (nTerms == 0) {          // column 0, the intercept
+        double root = 1 / sqrt(nCases);
+        bxOrthMean[0] = root;
+        for (iCase = 0; iCase < nCases; iCase++)
+            bxOrth_(iCase,0) = root;
+    } else if (nTerms == 1) {   // column 1, the first basis function
+        double yMean = Mean(y, nCases);
+        for (iCase = 0; iCase < nCases; iCase++)
+            bxOrth_(iCase,1) = y[iCase] - yMean;
+    } else
+        OrthogResiduals(&bxOrth_(0,nTerms), // resids go in rightmost col of bxOrth at nTerms
+            y, bxOrth, nCases, nTerms, WorkingSet, iCacheTerm, iPred, nMaxTerms);
+
+    if (nTerms > 0) {
+        // normalize the column to length 1 and init bxOrthMean[nTerms]
+
+        double bxOrthSS = SumOfSquares(&bxOrth_(0,nTerms), 0, nCases);
+        const double Tol = (iCacheTerm < 0? 0: BX_TOL);
+        if (bxOrthSS > Tol) {
+            bxOrthMean[nTerms] = Mean(&bxOrth_(0,nTerms), nCases);
+            const double root = sqrt(bxOrthSS);
+            for (iCase = 0; iCase < nCases; iCase++)
+                bxOrth_(iCase,nTerms) /= root;
+        } else {
+            *pGoodCol = false;
+            bxOrthMean[nTerms] = 0;
+            memset(&bxOrth_(0,nTerms), 0, nCases * sizeof(double));
+        }
+    }
+    for (iCase = 0; iCase < nCases; iCase++)        // keep bxOrthCenteredT in sync
+        bxOrthCenteredT_(nTerms,iCase) = bxOrth_(iCase,nTerms) - bxOrthMean[nTerms];
+}
+
+//-------------------------------------------------------------------------------------------
+// Add a new term pair to the arrays.
+// Each term in the new term pair is a copy of an existing parent term but extended
+// by multiplying it by a new hockey stick function at the selected knot.
+// If the upper term in the term pair is invalid then we still add the upper
+// term but mark it as FALSE in FullSet.
+
+static void AddTermPair(
+    int    Dirs[],              // io
+    double Cuts[],              // io
+    double bx[],                // io: MARS basis matrix
+    double bxOrth[],            // io
+    double bxOrthCenteredT[],   // io
+    double bxOrthMean[],        // io
+    bool   FullSet[],           // io
+    int    nFactorsInTerm[],    // io
+    int    nUses[],             // io: nbr of times each predictor is used in the model
+    const int nTerms,           // in: new term pair goes in at index nTerms and nTerms1
+    const int iBestParent,      // in: parent term
+    const int iBestCase,        // in
+    const int iBestPred,        // in
+    const int nPreds,           // in
+    const int nCases,           // in
+    const int nMaxTerms,        // in
+    const bool IsNewForm,       // in
+    const bool IsLinPred,       // in: pred was discovered by search to be linear
+    const int LinPreds[],       // in: user specified preds which must enter linearly
+    const double x[],           // in
+    const int xOrder[])         // in
+{
+    const double BestCut = GetCut(iBestCase, iBestPred, nCases, x, xOrder);
+    ASSERT(IsLinPred || iBestCase != 0);
+    const int nTerms1 = nTerms+1;
+
+    // copy the parent term to the new term pair
+
+    int iPred;
+    for (iPred = 0; iPred < nPreds; iPred++) {
+        Dirs_(nTerms, iPred) =
+        Dirs_(nTerms1,iPred) = Dirs_(iBestParent,iPred);
+
+        Cuts_(nTerms, iPred) =
+        Cuts_(nTerms1,iPred) = Cuts_(iBestParent,iPred);
+
+        if (nTraceGlobal >= 2)
+            if (Dirs_(iBestParent,iPred) != 0)  // print parent term
+                printf("%-3d ", iBestParent+IOFFSET);
+    }
+    // incorporate the new hockey stick function
+
+    nFactorsInTerm[nTerms]  =
+    nFactorsInTerm[nTerms1] = nFactorsInTerm[iBestParent] + 1;
+
+    int DirEntry = 1;
+    if (LinPreds[iBestPred]) {
+        ASSERT(IsLinPred);
+        DirEntry = 2;
+    }
+    Dirs_(nTerms, iBestPred) = DirEntry;
+    Dirs_(nTerms1,iBestPred) = -1; // will be ignored if adding only one hinge
+
+    Cuts_(nTerms, iBestPred) =
+    Cuts_(nTerms1,iBestPred) = BestCut;
+
+    FullSet[nTerms] = true;
+    if (!IsLinPred && IsNewForm)
+        FullSet[nTerms1] = true;
+
+    // If the term is not valid, then we don't wan't to use it as the base for
+    // a new term later (in FindTerm).  Enforce this by setting
+    // nFactorsInTerm to a value greater than any posssible nMaxDegree.
+
+    if (!FullSet[nTerms1])
+        nFactorsInTerm[nTerms1] = 99;
+
+    // fill in new columns of bx, at nTerms and nTerms+1 (left and right hockey sticks)
+
+    int iCase;
+    if (DirEntry == 2) {
+        for (iCase = 0; iCase < nCases; iCase++)
+            bx_(iCase,nTerms) = bx_(iCase,iBestParent) * x_(iCase,iBestPred);
+    } else for (iCase = 0; iCase < nCases; iCase++) {
+        if (x_(iCase,iBestPred) - BestCut > 0)
+            bx_(iCase,nTerms) = bx_(iCase,iBestParent) * (x_(iCase,iBestPred) - BestCut);
+        else
+            bx_(iCase,nTerms1) = bx_(iCase,iBestParent) * (BestCut - x_(iCase,iBestPred));
+    }
+    nUses[iBestPred]++;
+
+    // init the col in bxOrth at nTerms and init bxOrthMean[nTerms]
+
+    bool GoodCol;
+    InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, &GoodCol,
+        &bx_(0,nTerms), nTerms, FullSet, nCases, nMaxTerms, -1, nPreds);
+                            // -1 means don't use BetaCacheGlobal, calc Betas afresh
+
+    // init the col in bxOrth at nTerms1 and init bxOrthMean[nTerms1]
+
+    if (FullSet[nTerms1]) {
+        InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, &GoodCol,
+            &bx_(0,nTerms1), nTerms1, FullSet, nCases, nMaxTerms, -1, iPred);
+    } else {
+        memset(&bxOrth_(0,nTerms1), 0, nCases * sizeof(double));
+        bxOrthMean[nTerms1] = 0;
+        for (iCase = 0; iCase < nCases; iCase++)    // keep bxOrthCenteredT in sync
+            bxOrthCenteredT_(nTerms1,iCase) = 0;
+    }
+}
+
+//-------------------------------------------------------------------------------------------
 // The caller has selected a candidate predictor iPred and a candidate iParent.
 // This function now selects a knot.  If it finds a knot it will
 // update *piBestCase and *pRssDeltaForThisTerm.
@@ -1221,6 +1219,15 @@ static void PrintSummary(
 // at index nTerms and nTerms+1.
 //
 // This function must be fast.
+//
+// A note on the iSpan variable. We used to have
+//     if (iCase % nMinSpan == 0)
+// now we have
+//     if (iSpan-- == 1)
+// which is measurably faster because, at least on a Pentium D.
+// When we init iSpan (before the loop) we have a bit of code to
+// initialize to an offset that puts the knots as the same positions as
+// previous versions of earth.
 
 static INLINE void FindKnot(
     int    *piBestCase,             // out: possibly updated, index into the ORDERED x's
@@ -1260,6 +1267,12 @@ static INLINE void FindKnot(
 #endif
     const int nMinSpan = GetMinSpan(nCases, bx, iParent, nMinSpanGlobal);
     const int nEndSpan = GetEndSpan(nCases);
+    const double MaxAllowedRssDelta = min(1.01 * RssExistingModel, 2 * RssDeltaPrev);
+    const int    nCases_nEndSpan = nCases - nEndSpan;
+    ASSERT(nMinSpan > 0);
+    int iSpan = (nCases - 1) % nMinSpan;
+    if (iSpan == 0)
+        iSpan = nMinSpan;
 
     int iResponse;
     for (iResponse = 0; iResponse < nResponses; iResponse++)
@@ -1269,7 +1282,7 @@ static INLINE void FindKnot(
     memset(ybxSum, 0, nResponses * sizeof(double));
     double bxSum = 0, bx2Sum = 0, bx2xSum = 0, bxxSum = 0, st = 0;
 
-    for (int iCase = nCases - 2; iCase >= 0; iCase--) { // -2 allows for ix1
+    for (int iCase = nCases - 2; iCase >= nEndSpan; iCase--) { // -2 allows for ix1
         // may Mars have mercy on the poor soul who enters here
 
         const int    ix0 = xOrder_(iCase,  iPred);      // get the x's in descending order
@@ -1291,12 +1304,13 @@ static INLINE void FindKnot(
 #endif
         bxSum   += bx1;
         bx2Sum  += bx2;
-        bx2xSum += bx2 * x1;
         bxxSum  += bx1 * x1;
+        bx2xSum += bx2 * x1;
         const double su = st;
         st = bxxSum - bxSum * x0;
 
-        CovCol[nTerms] += xDelta * (2 * bx2xSum - bx2Sum * (x0 + x1)) +
+        CovCol[nTerms] += xDelta *
+                          (2 * bx2xSum - bx2Sum * (x0 + x1)) +
                           (sq(su) - sq(st)) / nCases;
 
         if (nResponses == 1) {    // treat nResponses==1 as a special case, for speed
@@ -1306,50 +1320,56 @@ static INLINE void FindKnot(
             ybxSum[iResponse] += (y_(ix1, iResponse) - yMean[iResponse]) * bx1;
             CovSy_(nTerms, iResponse) += xDelta * ybxSum[iResponse];
         }
-        if (iCase % nMinSpan == 0 && CovCol[nTerms] > 0) {
-            // calculate RssDelta and see if this knot beats the previous best
+        if (iSpan-- == 1) {
+            iSpan = nMinSpan;
+            if (CovCol[nTerms] > 0) {
+                // calculate RssDelta and see if this knot beats the previous best
 
-            double RssDelta = RssDeltaBase;
-            for (iResponse = 0; iResponse < nResponses; iResponse++) {
+                double RssDelta = RssDeltaBase;
+                for (iResponse = 0; iResponse < nResponses; iResponse++) {
 #if USE_BLAS
-                double temp1 = CovSy_(nTerms,iResponse) -
-                                      ddot_(&nTerms, &CovSy_(0,iResponse),&ONE,CovCol,&ONE);
-                double temp2 = CovCol[nTerms] - ddot_(&nTerms, CovCol, &ONE, CovCol, &ONE);
+                    const double temp1 =
+                        CovSy_(nTerms,iResponse) -
+                        ddot_(&nTerms, &CovSy_(0,iResponse), &ONE, CovCol, &ONE);
+
+                    const double temp2 =
+                        CovCol[nTerms] - ddot_(&nTerms, CovCol, &ONE, CovCol, &ONE);
 #else
-                double temp1 = CovSy_(nTerms,iResponse);
-                double temp2 = CovCol[nTerms];
-                for (it = 0; it < nTerms; it++) {
-                    temp1 -= CovSy_(it,iResponse) * CovCol[it];
-                    temp2 -= sq(CovCol[it]);
-                }
+                    double temp1 = CovSy_(nTerms,iResponse);
+                    double temp2 = CovCol[nTerms];
+                    for (it = 0; it < nTerms; it++) {
+                        temp1 -= CovSy_(it,iResponse) * CovCol[it];
+                        temp2 -= sq(CovCol[it]);
+                    }
 #endif
-                if (temp2 / CovCol[nTerms] > BX_TOL)
-                    RssDelta += sq(temp1) / temp2;
-            }
-            RssDelta /= NewVarAdjust;   // possibly decrease RssDelta if this is a new var
+                    if (temp2 / CovCol[nTerms] > BX_TOL)
+                        RssDelta += sq(temp1) / temp2;
+                }
+                RssDelta /= NewVarAdjust;
 
-            // $$ HastieTibs has an extra test here
-            // !(iCase > 0 && x_(ix0,iPred) == x_(xOrder_(iCase-1,iPred),iPred))
+                // $$ HastieTibs code had an extra test here, seems unnecessary
+                // !(iCase > 0 && x_(ix0,iPred) == x_(xOrder_(iCase-1,iPred),iPred))
 
-            if (RssDelta > *pRssDeltaForThisTerm        &&
-                    RssDelta < 1.01 * RssExistingModel  &&
-                    RssDelta < 2 * RssDeltaPrev         &&
-                    iCase >= nEndSpan                   &&
-                    iCase < nCases - nEndSpan           &&
-                    bx1 > 0) {
-                *piBestCase = iCase;
-                *pRssDeltaForThisTerm = RssDelta;
+                if (RssDelta > *pRssDeltaForThisTerm  &&
+                        RssDelta < MaxAllowedRssDelta &&
+                        iCase < nCases_nEndSpan       &&
+                        bx1 > 0) {
+                    *piBestCase = iCase;
+                    *pRssDeltaForThisTerm = RssDelta;
+                }
             }
         }
     }
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // Add a candidate term at bx[,nTerms], with predictor iPred entering
 // linearly. Do this by setting the knot at the lowest value xMin of x,
 // since max(0,x-xMin)==x-xMin for all x.  The change in RSS caused by
 // adding this term forms the base RSS delta which we will try to beat
 // in the search in FindKnot.
+//
+// This also initializes CovCol, bxOrth[,nTerms], and CovSy[nTerms,]
 
 static INLINE void AddCandidateLinearTerm(
     int    *piBestCase,             // out: return -1 if no new term available
@@ -1362,7 +1382,7 @@ static INLINE void AddCandidateLinearTerm(
     bool   *pIsNewForm,             // io:
     bool   *pIsLinPred,             // out: true if knot is at min x val so x enters linearly
     bool   *pUpdatedBestRssDelta,   // io:
-    double xbx[],                   // out: nMaxTerms x 1
+    double xbx[],                   // out: nCases x 1
     double CovCol[],                // out: nMaxTerms x 1
     double CovSy[],                 // io: nMaxTerms x nResponses
     double bxOrth[],                // io
@@ -1381,7 +1401,7 @@ static INLINE void AddCandidateLinearTerm(
     const bool FullSet[],           // in
     const double NewVarAdjust)      // in
 {
-    // set xbx to x * bx[,iParent]
+    // set xbx to x[,iPred] * bx[,iParent]
 
     int iCase;
     for (iCase = 0; iCase < nCases; iCase++)
@@ -1393,7 +1413,7 @@ static INLINE void AddCandidateLinearTerm(
     InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, pIsNewForm,
         xbx, nTerms, FullSet, nCases, nMaxTerms, iParent, iPred);
 
-    // init CovCol and CovSy[nTerms]
+    // init CovCol and CovSy[nTerms], for use by FindPred later
 
     memset(CovCol, 0, (nTerms-1) * sizeof(double));
     CovCol[nTerms] = 1;
@@ -1433,7 +1453,7 @@ static INLINE void AddCandidateLinearTerm(
     }
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // The caller has selected a candidate parent term iParent.
 // This function now selects a predictor, and a knot for that predictor.
 //
@@ -1448,7 +1468,7 @@ static INLINE void FindPred(
     double *pBestRssDeltaForThisTerm, // out:
     bool   *pIsNewForm,             // out
     bool   *pIsLinPred,             // out: true if knot is at min x val so x enters linearly
-    double xbx[],                   // io
+    double xbx[],                   // io: nCases x 1
     double CovSx[],                 // io
     double CovCol[],                // io
     double CovSy[],                 // io: nMaxTerms x nResponses
@@ -1500,11 +1520,9 @@ static INLINE void FindPred(
             bool IsNewForm = GetNewFormFlag(iPred, iParent, Dirs,
                                 FullSet, nTerms, nPreds, nMaxTerms);
             if (IsNewForm) {
-                // Add a candidate term at bx[,nTerms], with predictor
-                // iPred entering linearly.
+                // add a term at bx[,nTerms], with predictor iPred entering linearly
 
-                AddCandidateLinearTerm(
-                    piBestCase, piBestPred, piBestParent,
+                AddCandidateLinearTerm(piBestCase, piBestPred, piBestParent,
                     &RssDeltaBase, pBestRssDelta, pBestRssDeltaForThisTerm,
                     &IsNewForm, pIsLinPred, &UpdatedBestRssDelta,
                     xbx, CovCol, CovSy, bxOrth, bxOrthCenteredT, bxOrthMean,
@@ -1538,7 +1556,7 @@ static INLINE void FindPred(
                             *pBestRssDelta);
                 }
             }
-        } // if Dirs
+        } // else
     } // for iPred
     free1(ybxSum);
     if (UpdatedBestRssDelta && nUses[*piBestPred] == 0) {
@@ -1548,7 +1566,7 @@ static INLINE void FindPred(
     }
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // Find a new term to add to the model, if possible, and return the
 // selected case (i.e. knot), predictor, and parent term indices.
 //
@@ -1658,7 +1676,7 @@ static void FindTerm(
     free1(xbx);
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 static void PrintPredNames(
         const int nPreds,
         const char *sPredNames[], // in: predictor names, can be NULL
@@ -1668,7 +1686,7 @@ static void PrintPredNames(
     printf("Predictors ");
     for (i = 0; i < nPreds; i++) {
         printf("%d", i+IOFFSET);
-        if (sPredNames)
+        if (sPredNames && sPredNames[i][0])
             printf("=%s", sPredNames[i]);
         printf(" ");
     }
@@ -1688,7 +1706,7 @@ static void PrintPredNames(
     printf("\n");
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 static void PrintForwardProlog(const double RssNull,
         const int nResponses,
         const int nCases,
@@ -1715,23 +1733,23 @@ static void PrintForwardProlog(const double RssNull,
     }
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 static void PrintForwardStep(
-    const int nTerms,
-    const int nUsedTerms,
-    const int iBestCase,
-    const int iBestPred,
-    const double Rss,
-    const double RSq,
-    const double RSqDelta,
-    const double Gcv,
-    const double GcvNull,
-    const int nCases,
-    const int xOrder[],
-    const double x[],
-    const bool IsLinPred,
-    const bool IsNewForm,
-    const char *sPredNames[])   // in: predictor names, can be NULL
+        const int nTerms,
+        const int nUsedTerms,
+        const int iBestCase,
+        const int iBestPred,
+        const double Rss,
+        const double RSq,
+        const double RSqDelta,
+        const double Gcv,
+        const double GcvNull,
+        const int nCases,
+        const int xOrder[],
+        const double x[],
+        const bool IsLinPred,
+        const bool IsNewForm,
+        const char *sPredNames[])   // in: predictor names, can be NULL
 {
     if (nTraceGlobal == 1) {
         printf(", ");
@@ -1765,7 +1783,7 @@ static void PrintForwardStep(
     }
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 static void PrintForwardEpilog(
             const int nTerms,  int nMaxTerms,
             const double Thresh,
@@ -1817,7 +1835,7 @@ static void PrintForwardEpilog(
         printf("\n");
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // Forward pass
 //
 // After initializing the intercept term, the main for loop adds terms in pairs.
@@ -1832,7 +1850,7 @@ static void ForwardPass(
     int    *pnTerms,            // out: highest used term number in full model
     bool   FullSet[],           // out: 1 * nMaxTerms, indices of lin indep cols of bx
     double bx[],                // out: MARS basis matrix, nCases * nMaxTerms
-    int    Dirs[],              // out: nMaxTerms * nPreds, 1,0,-1 for iTerm, iPred
+    int    Dirs[],              // out: nMaxTerms * nPreds, -1,0,1,2 for iTerm, iPred
     double Cuts[],              // out: nMaxTerms * nPreds, cut for iTerm, iPred
     int    nFactorsInTerm[],    // out: number of hockey stick funcs in each MARS term
     int    nUses[],             // out: nbr of times each predictor is used in the model
@@ -1922,6 +1940,7 @@ static void ForwardPass(
     memset(nFactorsInTerm, 0, nMaxTerms * sizeof(int));
     memset(nUses,          0, nPreds * sizeof(int));
     memset(bx,             0, nCases * nMaxTerms * sizeof(double));
+
     xOrder = OrderArray(x, nCases, nPreds);
     InitBetaCache(UseBetaCache, nMaxTerms, nPreds);
     FullSet[0] = true;  // intercept
@@ -1929,6 +1948,7 @@ static void ForwardPass(
     InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, &GoodCol,   // intercept col 0
         &bx_(0,0), 0 /*nTerms*/, FullSet, nCases, nMaxTerms, -1, -1);
     ASSERT(GoodCol);
+
     for (int iCase = 0; iCase < nCases; iCase++)
         bx_(iCase,0) = 1;
     double RssNull = 0;
@@ -2008,14 +2028,14 @@ static void ForwardPass(
     free1(bxOrth);
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // This is an interface from R to the C routine ForwardPass
 
 #if USING_R
 void ForwardPassR(              // for use by R
     int    FullSet[],           // out: 1 x nMaxTerms, bool vec of lin indep cols of bx
     double bx[],                // out: MARS basis matrix, nCases x nMaxTerms
-    double Dirs[],              // out: nMaxTerms x nPreds, elements are 1,0,-1
+    double Dirs[],              // out: nMaxTerms x nPreds, elements are -1,0,1,2
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
     const double x[],           // in: nCases x nPreds
     const double y[],           // in: nCases x nResponses
@@ -2088,7 +2108,7 @@ void ForwardPassR(              // for use by R
 }
 #endif // USING_R
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // Step backwards through the terms, at each step deleting the term that
 // causes the least RSS increase.  The subset of terms and RSS of each subset are
 // saved in PruneTerms and RssVec (which are indexed on subset size).
@@ -2141,7 +2161,7 @@ static void EvalSubsetsUsingXtx(
                 double DeltaRss = 0;
                 for (int iResponse = 0; iResponse < nResponses; iResponse++)
                     DeltaRss += sq(Betas_(iTerm1, iResponse)) / Diags[iTerm1];
-                if (DeltaRss < MinDeltaRss) {               // new min?
+                if (DeltaRss < MinDeltaRss) {
                     MinDeltaRss = DeltaRss;
                     iDelete = iTerm;
                 }
@@ -2166,7 +2186,7 @@ static void EvalSubsetsUsingXtx(
     free1(Betas);
 }
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // This is invoked from R if y has multiple columns i.e. a multiple response model.
 // It is needed because the alternative (the leaps package) supports only one response.
 
@@ -2197,7 +2217,7 @@ void EvalSubsetsUsingXtxR(      // for use by R
 }
 #endif
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 #if STANDALONE
 static void BackwardPass(
     double *pBestGcv,       // out: GCV of the best model i.e. BestSet columns of bx
@@ -2251,7 +2271,7 @@ static void BackwardPass(
 }
 #endif // STANDALONE
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 #if STANDALONE
 static int DiscardUnusedTerms(
     double bx[],             // io: nCases x nMaxTerms
@@ -2281,14 +2301,14 @@ static int DiscardUnusedTerms(
 }
 #endif // STANDALONE
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 #if STANDALONE
 void Earth(
     double *pBestGcv,       // out: GCV of the best model i.e. BestSet columns of bx
     int    *pnTerms,        // out: max term nbr in final model, after removing lin dep terms
     bool   BestSet[],       // out: nMaxTerms x 1, indices of best set of cols of bx
     double bx[],            // out: nCases x nMaxTerms
-    int    Dirs[],          // out: nMaxTerms x nPreds, 1,0,-1 for term iTerm, predictor iPred
+    int    Dirs[],          // out: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
     double Cuts[],          // out: nMaxTerms x nPreds, cut for term iTerm, predictor iPred
     double Residuals[],     // out: nCases x nResponses
     double Betas[],         // out: nMaxTerms x nResponses
@@ -2353,7 +2373,7 @@ void Earth(
 }
 #endif // STANDALONE
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // Return the max number of knots in any term.
 // Lin dep factors are considered as having one knot (at the min value of the predictor)
 
@@ -2379,14 +2399,14 @@ static int GetMaxKnotsPerTerm(
 }
 #endif // STANDALONE
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // print a string representing the earth expresssion, one term per line
 // $$ spacing is not quite right and is overly complicated
 
 #if STANDALONE
 static void FormatOneResponse(
     const bool   UsedCols[],// in: nMaxTerms x 1, indices of best set of cols of bx
-    const int    Dirs[],    // in: nMaxTerms x nPreds, 1,0,-1 for term iTerm, predictor iPred
+    const int    Dirs[],    // in: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
     const double Cuts[],    // in: nMaxTerms x nPreds, cut for term iTerm, predictor iPred
     const double Betas[],   // in: nMaxTerms x nResponses
     const int    nPreds,
@@ -2462,7 +2482,7 @@ static void FormatOneResponse(
 
 void FormatEarth(
     const bool   UsedCols[],// in: nMaxTerms x 1, indices of best set of cols of bx
-    const int    Dirs[],    // in: nMaxTerms x nPreds, 1,0,-1 for term iTerm, predictor iPred
+    const int    Dirs[],    // in: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
     const double Cuts[],    // in: nMaxTerms x nPreds, cut for term iTerm, predictor iPred
     const double Betas[],   // in: nMaxTerms x nResponses
     const int    nPreds,
@@ -2481,14 +2501,14 @@ void FormatEarth(
 }
 #endif // STANDALONE
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // return the value predicted by an earth model, given  a vector of inputs x
 
 #if STANDALONE
 static double PredictOneResponse(
     const double x[],           // in: vector nPreds x 1 of input values
     const bool   UsedCols[],    // in: nMaxTerms x 1, indices of best set of cols of bx
-    const int    Dirs[],        // in: nMaxTerms x nPreds, 1,0,-1 for iTerm iPred
+    const int    Dirs[],        // in: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
     const double Cuts[],        // in: nMaxTerms x nPreds, cut for term iTerm predictor iPred
     const double Betas[],       // in: nMaxTerms x 1
     const int    nPreds,        // in: number of cols in x
@@ -2518,7 +2538,7 @@ void PredictEarth(
     double       y[],           // out: vector nResponses
     const double x[],           // in: vector nPreds x 1 of input values
     const bool   UsedCols[],    // in: nMaxTerms x 1, indices of best set of cols of bx
-    const int    Dirs[],        // in: nMaxTerms x nPreds, 1,0,-1 for iTerm iPred
+    const int    Dirs[],        // in: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
     const double Cuts[],        // in: nMaxTerms x nPreds, cut for term iTerm predictor iPred
     const double Betas[],       // in: nMaxTerms x nResponses
     const int    nPreds,        // in: number of cols in x
@@ -2532,10 +2552,9 @@ void PredictEarth(
 }
 #endif // STANDALONE
 
-//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 // Example main routine
 // See earth/src/tests/test.earthc.c for another example
-// See also earth/src/tests/earth.h
 
 #if STANDALONE && MAIN
 void error(const char *args, ...)       // params like printf
@@ -2559,22 +2578,22 @@ void xerbla_(char *srname, int *info)   // needed by BLAS and LAPACK routines
 
 int main(void)
 {
-    const int nMaxTerms = 21;
-    const int nCases = 100;
-    const int nResponses = 1;     // number of y columns
-    const int nPreds = 1;
-    const int nMaxDegree = 1;
+    const int    nMaxTerms = 21;
+    const int    nCases = 100;
+    const int    nResponses = 1;     // number of y columns
+    const int    nPreds = 1;
+    const int    nMaxDegree = 1;
     const double Penalty = (nMaxDegree > 1)? 3: 2;
     const double Thresh = .001;
-    const int nMinSpan = 1;
-    const bool Prune = true;
-    const int nFastK = 20;
+    const int    nMinSpan = 1;
+    const bool   Prune = true;
+    const int    nFastK = 20;
     const double FastBeta = 0;
     const double NewVarPenalty = 0;
-    int   *LinPreds  = (int *)calloc1(nPreds, sizeof(int));
-    const bool UseBetaCache = true;
-    const int nTrace = 3;
-    const char **sPredNames = NULL;
+    int          *LinPreds  = (int *)calloc1(nPreds, sizeof(int));
+    const bool   UseBetaCache = true;
+    const int    nTrace = 3;
+    const char   **sPredNames = NULL;
 
     double BestGcv;
     int    nTerms;
@@ -2588,7 +2607,7 @@ int main(void)
     double *x = (double *)malloc1(nCases * nPreds   * sizeof(double));
     double *y = (double *)malloc1(nCases * nResponses * sizeof(double));
 
-    ASSERT(nResponses == 1);    // code in for loop below only works for nResponses == 1
+    ASSERT(nResponses == 1);    // code below only works for nResponses == 1
 
     for (int i = 0; i < nCases; i++) {
         const double x0 = (double)i / nCases;
@@ -2602,6 +2621,10 @@ int main(void)
 
     printf("Expression:\n");
     FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms, 3, 0);
+
+    double x1 = 0.1234, y1;
+    PredictEarth(&y1, &x1, BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms);
+    printf("\nf(%g) = %g\n", x1, y1);
 
     free1(LinPreds);
     free1(BestSet);

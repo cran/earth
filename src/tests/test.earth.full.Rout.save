@@ -39,6 +39,8 @@ Number of terms at each degree of interaction: 1 3 (additive model)
 GCV: 11          RSS: 196         GRSq: 0.96      RSq: 0.98
 > 
 > a <- earth(mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
+Call: earth.default(x=x,y=y,trace=4,pmethod="none")
+
 Predictors 1=cyl 2=disp 3=hp 4=drat 5=wt 6=qsec 7=vs 8=am 9=gear 10=carb 
 
 Forward pass: model matrix[32,10]   y[32,1]   minspan 1   endspan 12
@@ -284,6 +286,9 @@ Percent Between-Group Variance Explained:
 Training Misclassification Error: 0.0333 ( N = 150 )
 > plot(a)
 > print(summary(a$fit))
+Call:
+earth(x = x, y = Theta, weights = weights, keepxy = TRUE)
+
 Response 1 expression:
   -2.17 
   - 0.206 * pmax(0, Sepal.Length -          5.4) 
@@ -333,6 +338,9 @@ Percent Between-Group Variance Explained:
 
 Training Misclassification Error: 0.04 ( N = 150 )
 > print(summary(a$fit))
+Call:
+earth(x = x, y = Theta, weights = weights, keepxy = TRUE, nk = 3)
+
 Response 1 expression:
   -1.3 
   + 1.35 * pmax(0, Petal.Width -         1.2) 
@@ -426,6 +434,9 @@ gt....> get.nused.preds.per.subset(a$dirs, a$prune.terms)
 > a <- mars(trees[,-3], trees[,3])
 > a <- mars.to.earth(a)
 > summary(a, digits = 2)
+Call:
+earth(x = trees[, -3], y = trees[, 3], minspan = 0)
+
 Expression:
   20 
   +  5.4 * pmax(0,  Girth -     12) 
@@ -437,6 +448,9 @@ Selected 4 of 5 terms, and 2 of 2 predictors
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV: 13          RSS: 251         GRSq: 0.95      RSq: 0.97
 > print(summary(a, digits=2))
+Call:
+earth(x = trees[, -3], y = trees[, 3], minspan = 0)
+
 Expression:
   20 
   +  5.4 * pmax(0,  Girth -     12) 
@@ -737,9 +751,7 @@ the variable names in 'data' do not match those in 'object'
 +         test.model.rsq(fite, x=data.global[,-1, drop=FALSE], y=data.global[,1], MarsFunc=funca,
 +             nCases=nCases, nUsedTerms=nUsedTerms, penalty=penalty, RefFunc=func)
 +     if(plotit) {
-+         #$$ plotmo needs column names on x matrix wich are dropped if data.global[,-1] is a vector
-+         if(!is.vector(data.global[,-1]))
-+             plotmo(fite, func=func, caption=caption)
++         plotmo(fite, func=func, caption=caption)
 +         plot(fite, nresiduals=500, caption=caption)
 +     }
 +     cat("\n")
@@ -1151,6 +1163,8 @@ F-statistic: 93.7 on 8 and 321 DF,  p-value: <2e-16
 > itest <- itest+1; cat("itest", sprintf("%-3d", itest), "\n")
 itest 42  
 > a <- earth(O3 ~ ., linpreds=c(3, 8), data = ozone1, degree=2, trace=4)  # 3,8 is humidity,vis
+Call: earth.default(x=x,y=y,trace=4,degree=2,linpreds=..1)
+
 Predictors 1=vh 2=wind 3=humidity 4=temp 5=ibh 6=dpg 7=ibt 8=vis 9=doy 
 Linear predictors 3=humidity 8=vis 
 
@@ -1354,8 +1368,8 @@ GCV: 13.00762         RSS: 3465.24          GRSq: 0.7979419      RSq: 0.8358904
 +     col.npreds=1, col.vline=1, lty.vline=3,
 +     legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
 > 
-> cat("--- test min.span -------------------------------\n")
---- test min.span -------------------------------
+> cat("--- test minspan --------------------------------\n")
+--- test minspan --------------------------------
 > 
 > a <- earth(O3 ~ ., data=ozone1, minspan=2)
 > print(summary(a))
@@ -1452,6 +1466,11 @@ Response 2  GCV: 0.00830622       RSS: 0.5722154        GRSq: 0.9939628      RSq
 All         GCV: 0.01023535       RSS: 0.705113         GRSq: 0.9975333      RSq: 0.9982662
 
 > print(summary(a))
+Call:
+earth(x = data.global[, c(-1, -2), drop = FALSE], y = data.global[, 
+    1:2], trace = trace, nk = nk, degree = degree, minspan = minspan, 
+    fast.k = -1, pmethod = "b")
+
 Response 1 expression:
   -1.424429 
   +  1.641520 * pmax(0,         x1 - -0.4839664) 
@@ -1498,6 +1517,11 @@ Response 2  GCV: 0.00916865       RSS: 0.5722154        GRSq: 0.993336       RSq
 All         GCV: 0.01129808       RSS: 0.705113         GRSq: 0.9972772      RSq: 0.9982662
 
 > print(summary(a))
+Call:
+earth(x = data.global[, c(-1, -2), drop = FALSE], y = data.global[, 
+    1:2], trace = trace, nk = nk, degree = degree, minspan = minspan, 
+    fast.k = -1, pmethod = "b")
+
 Response 1 expression:
   -1.424429 
   +  1.641520 * pmax(0,         x1 - -0.4839664) 
@@ -2001,10 +2025,181 @@ GCV: 13.82785         RSS: 3746.132         GRSq: 0.7852006      RSq: 0.8225878
 > a2$call <- NULL
 > stopifnot(identical(a1, a2))
 > 
+> cat("--- test \"call\" printing in earth.default and summary.earth ---\n")
+--- test "call" printing in earth.default and summary.earth ---
+> # we want to make sure that long x or y aren't printed but short ones are
+> 
+> x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++       0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++       0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++       0,1,2,3,4,5,6,7,8,9,0)
+> 
+> y = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++       0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++       0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++       0,1,2,3,4,5,6,7,8,9,0)
+> 
+> a <- earth(x = x, y=y, trace=4)
+Call: earth.default(x=x,y=y,trace=4)
+
+Predictors 1 
+
+Forward pass: model matrix[101,1]   y[101,1]   minspan 1   endspan 13
+
+         GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
+1      0.0000 0.0000                    845                            1
+2      1.0000 1.0000            1         0    1                    0< 2       
+
+GRSq: 1 RSq: 1
+Reached max RSq (RSq 1 > 0.999)
+Forward pass complete: 3 terms (2 terms used)
+
+Subset size         GCV         GRSq      RSq  nPreds  Terms (index into bx)
+          1       8.535       0.0000   0.0000       0  1
+chosen    2 7.15814e-31       1.0000   1.0000       1  1 2
+
+Prune method "backward" ppenalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
+GRSq: 1 RSq: 1 
+> 
+> a.longx  <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0),
++                   y=y,
++                   trace=4)
+Call: too long to display
+
+Predictors 1 
+
+Forward pass: model matrix[101,1]   y[101,1]   minspan 1   endspan 13
+
+         GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
+1      0.0000 0.0000                    845                            1
+2      1.0000 1.0000            1         0    1                    0< 2       
+
+GRSq: 1 RSq: 1
+Reached max RSq (RSq 1 > 0.999)
+Forward pass complete: 3 terms (2 terms used)
+
+Subset size         GCV         GRSq      RSq  nPreds  Terms (index into bx)
+          1       8.535       0.0000   0.0000       0  1
+chosen    2 7.15814e-31       1.0000   1.0000       1  1 2
+
+Prune method "backward" ppenalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
+GRSq: 1 RSq: 1 
+> 
+> a.longy  <- earth(x = x,
++                   y = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0),
++                   trace=4)
+Call: too long to display
+
+Predictors 1 
+
+Forward pass: model matrix[101,1]   y[101,1]   minspan 1   endspan 13
+
+         GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
+1      0.0000 0.0000                    845                            1
+2      1.0000 1.0000            1         0    1                    0< 2       
+
+GRSq: 1 RSq: 1
+Reached max RSq (RSq 1 > 0.999)
+Forward pass complete: 3 terms (2 terms used)
+
+Subset size         GCV         GRSq      RSq  nPreds  Terms (index into bx)
+          1       8.535       0.0000   0.0000       0  1
+chosen    2 7.15814e-31       1.0000   1.0000       1  1 2
+
+Prune method "backward" ppenalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
+GRSq: 1 RSq: 1 
+> 
+> a.longxy <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0),
++                   y = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
++                         0,1,2,3,4,5,6,7,8,9,0),
++                   trace=4)
+Call: too long to display
+
+Predictors 1 
+
+Forward pass: model matrix[101,1]   y[101,1]   minspan 1   endspan 13
+
+         GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents
+1      0.0000 0.0000                    845                            1
+2      1.0000 1.0000            1         0    1                    0< 2       
+
+GRSq: 1 RSq: 1
+Reached max RSq (RSq 1 > 0.999)
+Forward pass complete: 3 terms (2 terms used)
+
+Subset size         GCV         GRSq      RSq  nPreds  Terms (index into bx)
+          1       8.535       0.0000   0.0000       0  1
+chosen    2 7.15814e-31       1.0000   1.0000       1  1 2
+
+Prune method "backward" ppenalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
+GRSq: 1 RSq: 1 
+> print(summary(a))
+Call:
+earth(x = x, y = y, trace = 4)
+
+Expression:
+  -9.894088e-16 
+  + 1 * pmax(0, x[,1] -     0) 
+
+Number of cases: 101
+Selected 2 of 2 terms, and 1 of 1 predictors
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV: 7.158145e-31     RSS: 6.806616e-29     GRSq: 1              RSq: 1      
+> print(summary(a.longx))
+Call:
+earth(x = "[102,1] too long to display", y = y, trace = 4)
+
+Expression:
+  -9.894088e-16 
+  + 1 * pmax(0, x[,1] -     0) 
+
+Number of cases: 101
+Selected 2 of 2 terms, and 1 of 1 predictors
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV: 7.158145e-31     RSS: 6.806616e-29     GRSq: 1              RSq: 1      
+> print(summary(a.longy))
+Call:
+earth(x = x, y = "[102,1] too long to display", trace = 4)
+
+Expression:
+  -9.894088e-16 
+  + 1 * pmax(0, x[,1] -     0) 
+
+Number of cases: 101
+Selected 2 of 2 terms, and 1 of 1 predictors
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV: 7.158145e-31     RSS: 6.806616e-29     GRSq: 1              RSq: 1      
+> print(summary(a.longxy))
+Call:
+earth(x = "[102,1] too long to display", y = "[102,1] too long to display", 
+    trace = 4)
+
+Expression:
+  -9.894088e-16 
+  + 1 * pmax(0, x[,1] -     0) 
+
+Number of cases: 101
+Selected 2 of 2 terms, and 1 of 1 predictors
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV: 7.158145e-31     RSS: 6.806616e-29     GRSq: 1              RSq: 1      
+> 
 > cat("--- ../../tests/test.earth.R -------------------------\n")
 --- ../../tests/test.earth.R -------------------------
 > 
 > source("../../tests/test.earth.R")
+Call: earth.default(x=x,y=y,trace=4,degree=2)
+
 Predictors 1=vh 2=wind 3=humidity 4=temp 5=ibh 6=dpg 7=ibt 8=vis 9=doy 
 
 Forward pass: model matrix[330,9]   y[330,1]   minspan 1   endspan 15

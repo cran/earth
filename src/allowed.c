@@ -72,21 +72,21 @@ static INLINE bool EvalAllowedFunc(void)
 {
     SEXP s = eval(AllowedFunc, AllowedEnv);
 
-    int allowed;
+    bool allowed;
     switch(TYPEOF(s)) {         // be fairly permissive with return type
         case LGLSXP:
-            allowed = (int)(LOGICAL(s)[0]);
+            allowed = (bool)(LOGICAL(s)[0]);
             break;
         case INTSXP:
             allowed = INTEGER(s)[0];
             break;
         case REALSXP:
-            allowed = (int)(REAL(s)[0]);
+            allowed = (bool)(REAL(s)[0]);
             break;
         default:
             error("the \"allowed\" function returned a %s instead of a logical",
                   Rf_type2char(TYPEOF(s)));
-            allowed = 0; // -Wall
+            allowed = FALSE; // -Wall
             break;
     }
     if (LENGTH(s) != 1)

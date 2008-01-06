@@ -842,7 +842,6 @@ plotmo.predict.default <- function(object, newdata, se.fit, pred.names,ipred1,ip
 # The n=2 and n=3 in the calls to eval.parent() take us to the caller of plotmo.
 #
 # $$ get.x.default uses a nasty "formula string manipulation" hack, must be a better way?
-# $$ I would like to allow x matrices without column names
 
 get.x <- function(object, trace=FALSE)
 {
@@ -898,31 +897,54 @@ get.x.default <- function(
         }
         x
     }
-    badx <- function(x)
+    badx <- function(x, check.colnames)
     {
-        is.null(x) || class(x) == "try-error" || NROW(x) == 0 || is.null(colnames(x))
+        is.null(x) || class(x) == "try-error" || NROW(x) == 0 ||
+            (check.colnames && is.null(colnames(x)))
     }
     # get.x.default starts here
+
+    # look for an x with column names
+
     try.error.message = NULL
     x <- object$x
-    if(!badx(x) && trace)
-        cat("got x from object$x\n")
-    if(badx(x)) {
+    if(!badx(x, TRUE) && trace)
+        cat("got x with colnames from object$x\n")
+    if(badx(x, TRUE)) {
         x <- get.x.from.formula(object, trace)
-        if(!badx(x) && trace)
-            cat("got x from object$call$formula\n")
+        if(!badx(x, TRUE) && trace)
+            cat("got x with colnames from object$call$formula\n")
     }
-    if(badx(x)) {
+    if(badx(x, TRUE)) {
         x <- try(eval.parent(object$call$x, n=2), silent=TRUE)
-        if(!badx(x) && trace)
-            cat("got x from object$call$x\n")
+        if(!badx(x, TRUE) && trace)
+            cat("got x with colnames from object$call$x\n")
         if(class(x) == "try-error")
             try.error.message = x
     }
-    if(badx(x)) {
+    # if don't have an x with colnames look for one without colnames
+    # the call to as.data.frame below will add V1, V2, ... colnames if necessary
+
+    if(badx(x, TRUE)) {
+        x <- object$x
+        if(!badx(x, FALSE) && trace)
+            cat("got x without colnames from object$x\n")
+        if(badx(x, FALSE)) {
+            x <- get.x.from.formula(object, trace)
+            if(!badx(x, FALSE) && trace)
+                cat("got x without colnames from object$call$formula\n")
+        }
+        if(badx(x, FALSE)) {
+            x <- try(eval.parent(object$call$x, n=2), silent=TRUE)
+            if(!badx(x, FALSE) && trace)
+                cat("got x without colnames from object$call$x\n")
+            if(class(x) == "try-error")
+                try.error.message = x
+        }
+    }
+    if(badx(x, FALSE)) {
         if(trace) {
-            cat(
-              "Looked unsuccessfully for an x with column names in the following places:\n")
+            cat("Looked unsuccessfully for an x in the following places:\n")
             cat("\nobject$x:\n")
             print(head(object$x, 3))
             cat("\nobject$call$formula:\n")

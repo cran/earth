@@ -71,7 +71,7 @@ To start off, look at the arguments
     A value of 0 penalises only terms, not knots.
     The value -1 is a special case, meaning no penalty, so GCV=RSS/n.
     Theory suggests values in the range of about 2 to 4.
-    In practice for big data sets, larger values can be useful to force a smaller model.
+    In practice, for big data sets larger values can be useful to force a smaller model.
     See also \code{ppenalty}.
   }
   \item{trace}{
@@ -119,7 +119,7 @@ To start off, look at the arguments
      Earth calls the \code{allowed} function just before adding a term.
      If \code{allowed} returns TRUE the term goes into the model as usual;
      if \code{allowed} returns FALSE the term is discarded.
-     Your \code{allowed} function should have the the following prototype\cr
+     Your \code{allowed} function should have the following prototype\cr
      \code{allowed <- function(degree, pred, parents) \{...\}}\cr
      where\cr
         \code{degree} is the interaction degree of the candidate term. 
@@ -310,10 +310,10 @@ To start off, look at the arguments
      Note that the terms may not be in pairs, because the forward pass
      deletes linearly dependent terms before handing control to the pruning pass.
      Example \code{dirs}:\preformatted{                       Girth Height
-(Intercept)                0      0  #no factors in intercept
-h(Girth-12.9)              1      0  #2nd term uses Girth
-h(12.9-Girth)             -1      0  #3rd term uses Girth
-h(Girth-12.9)*h(Height-76) 1      1  #4th term uses Girth and Height
+(Intercept)                0  0 #no factors in intercept
+h(Girth-12.9)              1  0 #2nd term uses Girth
+h(12.9-Girth)             -1  0 #3rd term uses Girth
+h(Girth-12.9)*h(Height-76) 1  1 #4th term uses Girth and Height
 ...}
   }
   \item{cuts}{
@@ -324,10 +324,10 @@ h(Girth-12.9)*h(Height-76) 1      1  #4th term uses Girth and Height
      Note that the terms may not be in pairs, because the forward pass
      deletes linearly dependent terms before handing control to the pruning pass.
      Example \code{cuts}:\preformatted{                           Girth Height
-(Intercept)                  0.0      0  #intercept, no cuts
-h(Girth-12.9)               12.9      0  #2nd term has cut at 12.9
-h(12.9-Girth)               12.9      0  #3rd term has cut at 12.9
-h(Girth-12.9)*h(Height-76)  12.9     76  #4th term has two cuts
+(Intercept)                  0.0   0  #intercept, no cuts
+h(Girth-12.9)               12.9   0  #2nd term has cut at 12.9
+h(12.9-Girth)               12.9   0  #3rd term has cut at 12.9
+h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
 ...}
   }
   \item{selected.terms}{
@@ -344,10 +344,10 @@ h(Girth-12.9)*h(Height-76)  12.9     76  #4th term has two cuts
      lower triangular matrix, with dimensions \code{nprune x nprune}.
      The model selected by the pruning pass
      is at row \code{length(selected.terms)}.
-     Example \code{prune.terms}:\preformatted{[1,]    1  0  0  0  0  0  0  #intercept-only model
-[2,]    1  2  0  0  0  0  0  #best 2 term model uses terms 1,2.
-[3,]    1  2  4  0  0  0  0  #best 3 term model uses terms 1,2,4
-[4,]    1  2  9  8  0  0  0
+     Example \code{prune.terms}:\preformatted{[1,]    1  0  0  0  0  0  0 #intercept-only model
+[2,]    1  2  0  0  0  0  0 #best 2 term model uses terms 1,2
+[3,]    1  2  4  0  0  0  0 #best 3 term model uses terms 1,2,4
+[4,]    1  2  9  8  0  0  0 #and so on
 ...}
   }
   \item{rss.per.response}{
@@ -533,11 +533,10 @@ One strategy is to first build a large model
 and then adjust pruning parameters such as \code{nprune} using \code{\link{update.earth}}.
 
 The following very rough rules of thumb apply for large models.
-Using \code{minspan=0} instead of the default \code{minspan=1} will increase speeds by 20 to 50\%.
+Using \code{minspan=0} instead of the default \code{1} will increase speeds by 20 to 50\%.
 Using \code{fast.k=5} instead of the default \code{20} can give you substantial speed gains 
 but will sometimes give you a much smaller \code{GRSq}.
 Using an \code{allowed} function slows down model building by about 10\%.
-Using \code{Use.beta.cache=0} instead of the default \code{1} slows down model building by about 20\%.
 
 \strong{Multiple response models}
 
@@ -570,32 +569,32 @@ Use \code{keepxy=TRUE} if you want to call
 \code{\link{update.earth}} or \code{\link{plotmo}} later.
 Example:
 \preformatted{
-    library(mda)
-    (a <- fda(Species ~ ., data=iris, keep.fitted=TRUE, method=earth, keepxy=TRUE))
-    plot(a)
-    summary(a$fit)  # examine earth model embedded in fda model
-    plot(a$fit)
-    plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
-    plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
-    }
+library(mda)
+(a <- fda(Species~., data=iris, keep.fitted=TRUE, method=earth, keepxy=TRUE))
+plot(a)
+summary(a$fit)  # examine earth model embedded in fda model
+plot(a$fit)
+plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
+plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+}
 \strong{Standard model functions}
 
 Standard model functions such as \code{\link{case.names}}
-are provided for \code{earth} objects and are not explicitly documented.
+are provided for \code{earth} objects and are not explicitly documented.\cr\cr
 
 \strong{FREQUENTLY ASKED QUESTIONS}
-
+\cr\cr
 \strong{How can I train on one set of data and test on another?}
 
 The example below demonstrates one way to train on 80\% of the data and
 test on the remaining 20\%.
 \preformatted{
-    train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
-    test.subset <- (1:nrow(trees))[-train.subset]
-    a <- earth(Volume ~ ., data = trees[train.subset, ])
-    yhat <- predict(a, newdata = trees[test.subset, ])
-    y <- trees$Volume[test.subset]
-    print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
+train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
+test.subset <- (1:nrow(trees))[-train.subset]
+a <- earth(Volume ~ ., data = trees[train.subset, ])
+yhat <- predict(a, newdata = trees[test.subset, ])
+y <- trees$Volume[test.subset]
+print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 }
 In practice a dataset larger than the one in the example should be used for splitting.
 The model variance is too high with this small set -- run the example a few
@@ -622,6 +621,8 @@ ignore the warnings.
 The column labeled \code{AIC} in the printed response
 from \code{\link{drop1}} will actually be a column of GCVs not AICs.
 The \code{Df} column is not much use in this context.
+Note that \code{\link{drop1}} drops \emph{predictors} from the model
+while earth's pruning pass drops \emph{terms}.
 
 You will get lots of output from \code{\link{drop1}} if you built your original earth
 model with \code{trace>0}.
@@ -634,9 +635,8 @@ You can also use \code{\link[caret]{varImp}} in the \code{caret} package.
 Remember that these techniques only tell you how important
 a variable is with the other variables already in the model.
 
-MARS models have a high variance in the sense that, if the
-data changes a little, the set of basis terms created by the forward pass
-can change a lot.
+MARS models have a high variance --- if the data changes a little, 
+the set of basis terms created by the forward pass can change a lot.
 So the above estimates of predictor importance are unreliable
 because they can vary with even slightly different training data.
 Furthermore, if two predictors are correlated, the forward pass will
@@ -651,7 +651,7 @@ You can see the forward pass adding terms with \code{trace=2} or higher.
 But remember, pruning will usually remove some of the terms.
 You can also use
 \preformatted{
-    summary(my.model, decomp="none")
+summary(my.model, decomp="none")
 }
 which will list the basis functions remaining after pruning,
 in the order they were added by the forward pass.
@@ -662,12 +662,13 @@ Well, you can always use \code{\link{summary.earth}}.
 Or use the following function which will give you a
 list of the predictors in the model:
 \preformatted{
-    get.used.pred.names <- function(obj)   # obj is an earth object
-        names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any)))
+get.used.pred.names <- function(obj)   # obj is an earth object
+  names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any)))
 }
 \strong{Why do I get fewer terms than \code{nk}, even with \code{prune="none"}?}
 
-The forward pass typically stops before reaching \code{nk}.
+There are several conditions that can terminate the forward pass,
+and reaching \code{nk} is just one of them.
 See the section above on the forward pass.
 
 \strong{Why do I get fewer terms than \code{nprune}?}
@@ -677,14 +678,20 @@ that has \code{nprune} or fewer terms.
 Thus the \code{nprune} argument specifies the \emph{maximum}
 number of permissible terms in the final pruned model.
 
-You can get exactly \code{nprune} terms by specifying \code{ppenalty = -1}.
-This special value of \code{ppenalty} causes earth to set the GCV to
-\code{RSS/nrow(x)}.
+You can work around this because you will get exactly \code{nprune} 
+terms if you specify \code{pmethod="none"}.
+Compare the output of these two examples:
+\preformatted{
+earth(Volume ~ ., data = trees, trace=3)
+earth(Volume ~ ., data = trees, trace=3, pmethod="none")
+}
+Another way to get exactly \code{nprune} terms is to specify \code{ppenalty = -1}.
+This special value of \code{ppenalty} causes earth to set the GCV to \code{RSS/nrow(x)}.
 Since the training RSS always decreases with more terms,
 the pruning pass will choose the maximum allowable number of terms.
 An example:
 \preformatted{
-    earth(Volume ~ ., data = trees, penalty=-1, trace=4)
+earth(Volume ~ ., data = trees, trace=3, penalty=-1)
 }
 \strong{Can you give an example of the \code{linpreds} argument?}
 
@@ -692,44 +699,44 @@ With \code{linpreds} you can specify which predictors should enter linearly,
 instead of in hinge functions.
 Starting with
 \preformatted{
-    a1 <- earth(Volume ~ ., data = trees)
-    plotmo(a1)
+a1 <- earth(Volume ~ ., data = trees)
+plotmo(a1)
 }
-we see in the \code{\link{plotmo}} graphs that the \code{Height}
-is not as important as the \code{Girth}.
+we see in the \code{\link{plotmo}} graphs that \code{Height}
+is not as important as \code{Girth}.
 For collaborative evidence that \code{Girth} is a more reliable
 indicator of \code{Volume} you can use \code{\link{pairs}}:
 \preformatted{
-    pairs(trees, panel = panel.smooth, main = "trees data")
+pairs(trees, panel = panel.smooth)
 }
 Since we want the simplest model that describes the data,
 we can specify that \code{Height} should enter linearly:
 \preformatted{
-    a2 <- earth(Volume ~ ., data = trees, linpreds = 2)  # 2 is Height column
-    summary(a2)
+a2 <- earth(Volume ~ ., data = trees, linpreds = 2)  # 2 is Height column
+summary(a2)
 }
 which yields
 \preformatted{
-    Expression:
-      0.734
-      + 0.359 * Height
-      +  6.19 * pmax(0,  Girth -   13.7)
-      -  2.96 * pmax(0,   13.7 -  Girth)
+Expression:
+  0.734
+  + 0.359 * Height
+  +  6.19 * pmax(0,  Girth -   13.7)
+  -  2.96 * pmax(0,   13.7 -  Girth)
 }
-In this example, the second simpler model has the same GCV as the first model.
+In this example, the second simpler model has almost the same RSS as the first model.
 We can make both \code{Girth} and \code{Height} enter linearly with
 \preformatted{
-    a2 <- earth(Volume ~ ., data = trees, linpreds = c(1,2))
+a2 <- earth(Volume ~ ., data = trees, linpreds = c(1,2))
 }
 or with
 \preformatted{
-    a3 <- earth(Volume ~ ., data = trees, linpreds = TRUE)
+a3 <- earth(Volume ~ ., data = trees, linpreds = TRUE)
 }
 But specifying that all predictors should enter linearly is not really a useful thing to do.
 In our simple example, the all-linear MARS model is the
-same as a standard linear model
+same as a standard linear model (compare the \code{\link{summary}} for each)
 \preformatted{
-    a4 <- lm(Volume ~ ., data = trees)
+a4 <- lm(Volume ~ ., data = trees)
 }
 but in general that will not be true.
 The \code{lindeps} argument does not stipulate that a predictor \emph{must} enter the model,
@@ -745,17 +752,17 @@ The interface is flexible but can be a bit tricky to use.
 We start with a simple example, which completely excludes one predictor
 from the model:
 \preformatted{
-    example1  <- function(degree, pred, parents)   # returns TRUE if allowed
-    {
-        pred != 2  # disallow predictor 2, which is "Height"
-    }
-    a1 <- earth(Volume ~ ., data = trees, allowed = example1)
-    print(summary(a1))
+example1  <- function(degree, pred, parents)   # returns TRUE if allowed
+{
+    pred != 2  # disallow predictor 2, which is "Height"
+}
+a1 <- earth(Volume ~ ., data = trees, allowed = example1)
+print(summary(a1))
 }
 But that's not much use, because it's simpler to exclude the predictor
 from the input matrix when invoking earth:
 \preformatted{
-    a1 <- earth(Volume ~ . - Height, data = trees)
+a1 <- earth(Volume ~ . - Height, data = trees)
 }
 Here is a more useful example. It prevents the specified predictor
 from being used in interaction terms.
@@ -763,36 +770,37 @@ The \code{parents} argument is the candidate parent's row in the \code{dirs} mat
 (\code{dirs} is described in the Value section above).
 Each entry of \code{parents} is 0, 1, -1, or 2, and you index
 \code{parents} on the predictor index.
-So \code{parents[pred]} is 0 if \code{pred} is not in the parent term.
+Thus \code{parents[pred]} is 0 if \code{pred} is not in the parent term.
 
 The example is artificial because it's unlikely you
-would single out humidity from interactions in the ozone data.
+would want to single out humidity from interactions in the ozone data.
 \preformatted{
-    example2 <- function(degree, pred, parents)
-    {
-        # disallow humidity in terms of degree > 1
-        # 3 is the "humidity" column in the input matrix
-        if (degree > 1 && (pred == 3 || parents[3]))
-            return(FALSE)
-        TRUE
-    }
-    a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
-    print(summary(a))
+example2 <- function(degree, pred, parents)
+{
+    # disallow humidity in terms of degree > 1
+    # 3 is the "humidity" column in the input matrix
+    if (degree > 1 && (pred == 3 || parents[3]))
+        return(FALSE)
+    TRUE
+}
+a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
+print(summary(a))
 }
 The following example allows only the specified predictors
 in interaction terms:
 \preformatted{
-    example3 <- function(degree, pred, parents)
-    {
-        # allow only humidity and temp in terms of degree > 1
-        # 3 and 4 are the "humidity" and "temp" columns
-        allowed.set = c(3,4)
-        if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
-            return(FALSE)
-        TRUE
-    }
-    a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-    print(summary(a))
+example3 <- function(degree, pred, parents)
+{
+    # allow only humidity and temp in terms of degree > 1
+    # 3 and 4 are the "humidity" and "temp" columns
+    allowed.set = c(3,4)
+    if (degree > 1 && 
+           (all(pred != allowed.set) || any(parents[-allowed.set])))
+        return(FALSE)
+    TRUE
+}
+a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
+print(summary(a))
 }
 You can expect model building to be about 10\% slower with an \code{allowed} function.
 
@@ -817,10 +825,13 @@ The change also affects the ordering of \code{degree2} \code{\link{plotmo}} plot
 
 \strong{Why \code{\link{pmax}} and not \code{\link{max}} in the output from \code{summary.earth}?}
 
-With \code{\link{pmax}} the earth equation can handle multiple predictor rows
-in parallel.  So if you create a function from the MARS expression
-(as described in \code{\link{format.earth}}) you can give the function
-multiple predictor rows in a matrix and it will return a vector of predicted values.
+With \code{\link{pmax}} the earth equation can handle multiple cases.
+It makes the printed R expression consistent with the 
+way \code{\link{predict.earth}} works --- you can give \code{\link{predict}}
+multiple cases (i.e. multiple rows in the input matrix)
+and it will return a vector of predicted values.
+If you create a function from the MARS expression as described 
+in \code{\link{format.earth}} you can give the function multiple cases.
 It's the R way of doing things.
 
 \strong{What about boosting MARS?}
@@ -860,7 +871,7 @@ account the flexibility of the model.
 Summarising, the GCV approximates the mean RSS that would
 be measured on independent data.
 
-GCVs were introduced by Craven and Wahba, and extended by Friedman.
+GCVs were introduced by Craven and Wahba, and extended by Friedman for MARS.
 See Hastie et al. p216 and the Friedman MARS paper for more.
 GCV stands for "Generalised Cross Validation", a perhaps misleading term.
 
@@ -876,14 +887,16 @@ The more flexible a model, the more its propensity to overfit the training data
 give good prediction results on new data).
 Linear models are simple and don't have the tendency
 to overfit the data like more flexible models such as MARS.
-This means that for linear models the RSS is usually an
+% More formally, linear models have \emph{low variance} but \emph{high bias}.
+This means that for linear models the RSS on the data used to build the model is usually an
 adequate measure of generalisation ability.
 
-This is no longer true if you do predictor selection on linear models,
-because the process of selecting predictors increases the flexibility
-of the model. Hence the AIC and friends ---
-as used in, say, \code{\link{drop1}}.
-The AIC and GCV are means to the same end.
+This is no longer true if you do automatic variable selection on linear models,
+because the process of selecting variables increases the flexibility
+of the model. Hence the AIC --- as used in, say, \code{\link{drop1}}.
+The GCV, AIC, and friends are means to the same end.
+We choose one to estimate model performance on new data,
+depending on what information is available during model building.
 }
 \author{
   Stephen Milborrow, derived from \code{mda::\link[mda]{mars}}

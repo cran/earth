@@ -185,9 +185,7 @@ test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default,
         test.model.rsq(fite, x=data.global[,-1, drop=FALSE], y=data.global[,1], MarsFunc=funca,
             nCases=nCases, nUsedTerms=nUsedTerms, penalty=penalty, RefFunc=func)
     if(plotit) {
-        #$$ plotmo needs column names on x matrix wich are dropped if data.global[,-1] is a vector
-        if(!is.vector(data.global[,-1]))
-            plotmo(fite, func=func, caption=caption)
+        plotmo(fite, func=func, caption=caption)
         plot(fite, nresiduals=500, caption=caption)
     }
     cat("\n")
@@ -463,7 +461,7 @@ plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
     col.npreds=1, col.vline=1, lty.vline=3,
     legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
 
-cat("--- test min.span -------------------------------\n")
+cat("--- test minspan --------------------------------\n")
 
 a <- earth(O3 ~ ., data=ozone1, minspan=2)
 print(summary(a))
@@ -692,6 +690,49 @@ a2 <- earth(O3 ~ ., data = ozone1, degree = 3, Use.beta.cache=FALSE)
 a1$call <- NULL
 a2$call <- NULL
 stopifnot(identical(a1, a2))
+
+cat("--- test \"call\" printing in earth.default and summary.earth ---\n")
+# we want to make sure that long x or y aren't printed but short ones are
+
+x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+      0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+      0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+      0,1,2,3,4,5,6,7,8,9,0)
+
+y = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+      0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+      0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+      0,1,2,3,4,5,6,7,8,9,0)
+
+a <- earth(x = x, y=y, trace=4)
+
+a.longx  <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0),
+                  y=y,
+                  trace=4)
+
+a.longy  <- earth(x = x,
+                  y = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0),
+                  trace=4)
+
+a.longxy <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0),
+                  y = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
+                        0,1,2,3,4,5,6,7,8,9,0),
+                  trace=4)
+print(summary(a))
+print(summary(a.longx))
+print(summary(a.longy))
+print(summary(a.longxy))
 
 cat("--- ../../tests/test.earth.R -------------------------\n")
 
