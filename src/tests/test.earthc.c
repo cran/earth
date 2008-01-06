@@ -9,7 +9,7 @@
 #include <math.h>
 #include <time.h>
 #include <crtdbg.h>
-#include "earth.h"
+#include "../earth.h"
 
 #define PRINT_TIME 0
 
@@ -208,6 +208,8 @@ static void TestEarth(char sTestName[],
 {
     #define y_(iCase,iResponse) y[(iCase) + (iResponse)*(nCases)]
 
+    int *LinPreds  = (int *)calloc(nPreds, sizeof(int));
+
     double *x         = (double *)malloc(nCases    * nPreds     * sizeof(double));
     double *y         = (double *)malloc(nCases    * nResponses * sizeof(double));
     double *bx        = (double *)malloc(nCases    * nMaxTerms  * sizeof(double));
@@ -255,7 +257,7 @@ static void TestEarth(char sTestName[],
         x, y, nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0,      // MinSpan
         true,   // Prune
-        K, FastBeta, NewVarPenalty, nTrace, NULL);
+        K, FastBeta, NewVarPenalty, LinPreds, true, nTrace, NULL);
 
     // calc nUsedTerms
 
@@ -310,6 +312,7 @@ static void TestEarth(char sTestName[],
         FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms, 3, 1e-6);
         printf("\n");
     }
+    free(LinPreds);
     free(x);
     free(y);
     free(BestSet);

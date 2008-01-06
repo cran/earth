@@ -28,6 +28,7 @@ Return a string representing the \sQuote{earth} expression.
 \code{"anova"}  (the default) order the terms using the \sQuote{anova decomposition}
           i.e. in increasing order of interaction\cr
 \code{"none"}   order the terms as created during the earth forward pass.\cr
+  The FAQ section for \code{\link{earth}} has more details.
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
@@ -38,15 +39,19 @@ A character representation of the earth object.
 }
 \seealso{
   \code{\link{earth}},
-  \code{\link{pmax}}
+  \code{\link{pmax}},
+  \code{\link{reorder.earth}}
 }
 \note{
+The FAQ section for \code{\link{earth}} has some comments
+about the "anova" decompostion.
+
 Using \code{format.earth}, perhaps after hand editing the returned string,
 you can create an alternative to \code{predict.earth}.
 For example:
 \preformatted{
 as.func <- function(
-               object, digits = 8, use.names = TRUE, ...)
+               object, digits = 8, use.names = FALSE, ...)
   eval(parse(text=paste(
     "function(x)\n",
     "{\n",

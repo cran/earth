@@ -1,6 +1,6 @@
 \name{ozone1}
 \alias{ozone1}
-\title{Ozone Readings in Los Angeles with Incomplete Cases Removed}
+\title{Ozone readings in Los Angeles with incomplete cases removed}
 \description{
 Ozone readings in Los Angeles, with incomplete cases removed.}
 \format{

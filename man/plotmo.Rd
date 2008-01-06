@@ -1,6 +1,6 @@
 \name{plotmo}
 \alias{plotmo}
-\title{Plot Model Response}
+\title{Plot the predicted model response}
 \description{
 Plot the predicted model response when varying one
 or two predictors while holding all the other predictors constant.
@@ -188,8 +188,8 @@ plotmo(a, grid.func = grid.func)
   \item{theta}{
      Rotation argument for \code{\link{persp}}.
      Default is \code{NA}, meaning
-     let this function choose the rotation (it rotates each graph so
-     the highest corner is furthest away).
+     automatically rotate each graph so
+     the highest corner is furthest away.
   }
   \item{phi}{
      Phi argument for \code{\link{persp}}. Default is \code{30}.
