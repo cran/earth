@@ -8,7 +8,7 @@
 @exit /B %errorlevel%
 :good1
 @echo === Following two diffs should give no output ===
-diff -w test.earth.full.Rout.save test.earth.full.Rout
+diff test.earth.full.Rout.save test.earth.full.Rout
 @if %errorlevel% equ 0 goto good2:
 @echo === Files are different ===
 @exit /B %errorlevel%

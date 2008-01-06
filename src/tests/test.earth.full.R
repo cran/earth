@@ -160,7 +160,8 @@ test.model.rsq <- function(object, x, y, MarsFunc, nCases, nUsedTerms, penalty, 
 
 # this uses the global matrix data.global (data.global[,1] is the response)
 
-test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0)
+test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default,
+                       test.rsq=TRUE, trace=0, linpreds=FALSE)
 {
     cat("itest", sprintf("%-3d", itest), sprintf("%-32s", deparse(substitute(func))),
         "degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk))
@@ -168,7 +169,8 @@ test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default, tes
         cat("\n")
     gc()
     earthTime <- system.time(fite <- earth(data.global[,-1], data.global[,1],
-                                        degree=degree, trace=trace, nk=nk, pmethod="b", fast.k=-1))
+                                        degree=degree, trace=trace, nk=nk,
+                                        pmethod="b", fast.k=-1, linpreds=linpreds))
     funca <- make.func(fite)
     nCases <- nrow(data.global)
     penalty <- ifelse(degree>1,3,2)
@@ -291,6 +293,11 @@ eqn56 <- function(x) # Friedman MARS paper equation 56
     x[,5]
 }
 
+neg.eqn56 <- function(x)
+{
+    -eqn56(x)
+}
+
 eqn56noise <- function(x)
 {
     eqn56(x) + rnorm(nrow(x),0,1)
@@ -298,7 +305,7 @@ eqn56noise <- function(x)
 
 neg.eqn56noise <- function(x)
 {
--eqn56noise(x)
+    -eqn56noise(x)
 }
 
 x.global <- cbind(                    x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
@@ -346,6 +353,50 @@ itest <- itest+1; test.earth(itest, robotArm, nk=51, degree=1)
 itest <- itest+1; test.earth(itest, robotArm, nk=51, degree=10)
 itest <- itest+1; test.earth(itest, robotArm, nk=201, degree=1)
 itest <- itest+1; test.earth(itest, robotArm, nk=201, degree=10)
+
+cat("--- linear predictors -------------------------\n")
+
+# Build a linear-only earth model and an identical lm model to compare predict().
+# The somewhat strange args are to force the models to use the same predictors.
+itest <- itest+1; cat("itest", sprintf("%-3d", itest), "\n")
+a <- earth(O3 ~ ., linpreds=TRUE, data = ozone1, pmethod="none", thresh=1e-10)
+print(summary(a))
+alin <- lm(O3 ~ . - vh, data = ozone1)
+print(summary(alin))
+stopifnot(all.equal(as.double(predict(a)), as.double(predict(alin))))
+newdata <- data.frame(
+        vh = c(5700,5701,5702),
+        wind = c(3,4,5),
+        humidity = c(30,40,50),
+        temp = c(31,42,53),
+        ibh = c(1000, 1000, 1000),
+        dpg = c(-10, 0, 10),
+        ibt = c(90, 80, 60),
+        vis = c(100, 110, 120),
+        doy= c(12, 34, 56))
+apred <- as.double(predict(a, newdata=newdata))
+alinpred <- as.double(predict(alin, newdata=newdata))
+stopifnot(all.equal(apred, alinpred))
+print(head(predict(a, type="terms")))
+print(get.nused.preds.per.subset(a$dirs, a$prune.terms))
+
+# test with mixed linear and standard predictors
+itest <- itest+1; cat("itest", sprintf("%-3d", itest), "\n")
+a <- earth(O3 ~ ., linpreds=c(3, 8), data = ozone1, degree=2, trace=4)  # 3,8 is humidity,vis
+print(summary(a))
+plot(a)
+plotmo(a)
+print(get.nused.preds.per.subset(a$dirs, a$prune.terms))
+print(get.nterms.per.degree(a))
+print(head(predict(a, type="terms")))
+
+# this is a good example because it has linear preds in both 1 and 2 degree terms
+x.global <- cbind(                    x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+data.global <- cbind(eqn56(x.global), x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+itest <- itest+1; test.earth(itest, eqn56,     nk=21, degree=2, linpreds=c(3,5))
+# check symmetry by using negative of eqn56
+itest <- itest+1; data.global <- cbind(neg.eqn56(x.global), x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
+test.earth(itest, neg.eqn56, nk=21, degree=2, linpreds=c(3,5))
 
 cat("--- tests with ozone data ----------------------\n")
 
@@ -587,8 +638,8 @@ par(mgp=c(1.6, 0.6, 0))  # flatten axis elements
 par(oma=c(0,0,4,0))      # make space for caption
 layout(rbind(c(1,1,0,0), c(2,3,4,5), c(6,7,8,9)), heights=c(2,1,1))
 plot(a)
-plotmo(a$fit, ycolum=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
-plotmo(a$fit, ycolum=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
 mtext("fda test", outer=TRUE, font=2, line=1.5, cex=1)
 
 data(glass)
@@ -602,7 +653,45 @@ print(am)
 print(a)
 cat("mda with mars  ", attr(confusion(am), "error"), "\n")
 cat("mda with earth ", attr(confusion(a),  "error"), "\n")
-plotmo(a$fit, ycolum=9, clip=FALSE)
+plotmo(a$fit, ycolumn=9, clip=FALSE, ylim=NA)
+
+cat("--- \"allowed\" argument -----------------\n")
+
+example1  <- function(degree, pred, parents)
+{
+    pred != 2  # disallow predictor 2, which is "Height"
+}
+a1 <- earth(Volume ~ ., data = trees, allowed = example1)
+print(summary(a1))
+example2 <- function(degree, pred, parents)
+{
+    # disallow humidity in terms of degree > 1
+    # 3 is the "humidity" column in the input matrix
+    if (degree > 1 && (pred == 3 || parents[3]))
+        return(FALSE)
+    TRUE
+}
+a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
+print(summary(a))
+example3 <- function(degree, pred, parents)
+{
+    # allow only humidity and temp in terms of degree > 1
+    # 3 and 4 are the "humidity" and "temp" columns
+    allowed.set = c(3,4)
+    if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
+        return(FALSE)
+    TRUE
+}
+a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
+print(summary(a))
+
+cat("--- beta cache -------------------------\n")
+
+a1 <- earth(O3 ~ ., data = ozone1, degree = 3)
+a2 <- earth(O3 ~ ., data = ozone1, degree = 3, Use.beta.cache=FALSE)
+a1$call <- NULL
+a2$call <- NULL
+stopifnot(identical(a1, a2))
 
 cat("--- ../../tests/test.earth.R -------------------------\n")
 

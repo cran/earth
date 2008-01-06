@@ -33,6 +33,7 @@ This is usually much faster for large models.
      Eval.model.subsets
      Print.pruning.pass
      Force.xtx.prune
+     Use.beta.cache
 }
 }
 \value{

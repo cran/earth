@@ -10,6 +10,8 @@ Loading required package: leaps
 > options(digits=3)
 > data(ozone1)
 > a <- earth(O3 ~ ., data = ozone1, degree = 2, trace = 4)
+Predictors 1=vh 2=wind 3=humidity 4=temp 5=ibh 6=dpg 7=ibt 8=vis 9=doy 
+
 Forward pass: model matrix[330,9]   y[330,1]   minspan 1   endspan 15
 
          GRSq    RSq     DeltaRSq       RSS Pred PredName         Cut  Terms   Parents

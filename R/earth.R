@@ -4,7 +4,22 @@
 # This code is derived from code in mda.R by Hastie and Tibshirani.
 # Comments containing "$$" mark known issues.
 # Stephen Milborrow Mar 2007 Petaluma
-
+#
+#--------------------------------------------------------------------------------------------
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# A copy of the GNU General Public License is available at
+# http://www.r-project.org/Licenses
+#
+#--------------------------------------------------------------------------------------------
 # Notes for earth() that didn't make it into the man pages.
 #
 # --- subset argument (for selecting cases)
@@ -23,15 +38,16 @@
 #
 # $$ feature: add get.var.importance function
 # $$ there are places where efficiency could be improved I think
-
+#
 #--------------------------------------------------------------------------------------------
+
 # This is a list of those formal arguments of earth.default that can be changed without
 # requiring a new forward pass.
 # NOTE: if you change the pruning formal arguments in earth.default(), update this too!
 
 prune.args.global <- c("trace", "pmethod", "ppenalty", "nprune",
-                        "Get.crit", "Eval.model.subsets", "Print.pruning.pass", 
-                        "Force.xtx.prune")
+                        "Get.crit", "Eval.model.subsets", "Print.pruning.pass",
+                        "Force.xtx.prune", "Use.beta.cache")
 
 #--------------------------------------------------------------------------------------------
 earth <- function(...) UseMethod("earth")
@@ -55,10 +71,14 @@ earth.default <- function(
                             #------------------------------------------------------------
                             # Following affect forward pass only, not pruning pass
 
-    degree  = 1,            # max degree of interaction (1=additive model) (Friedman's mi)
-
     nk      = max(21, 2 * NCOL(x) + 1),
                             # max number of model terms including intercept
+
+    degree         = 1,     # max degree of interaction (1=additive model) (Friedman's mi)
+
+    linpreds       = FALSE, # index vector specifying which preds that must enter linearly
+
+    allowed        = NULL,  # constraint function specifying allowed interactions
 
     thresh         = 0.001, # used as one of the conditions to stop adding terms in forw pass
                             # stop if RSqDelta<thresh or 1-RSq<thresh
@@ -70,7 +90,6 @@ earth.default <- function(
 
     fast.k         = 20,    # Fast MARS K: 0 means use all terms i.e. no Fast MARS
     fast.beta      = 1,     # Fast MARS ageing coefficient
-    fast.h         = NULL,  # FAST MARS h: not yet supported
 
                             #------------------------------------------------------------
                             # Following affect pruning only, not forward pass
@@ -87,6 +106,7 @@ earth.default <- function(
     Eval.model.subsets = eval.model.subsets, # function used to evaluate model subsets
     Print.pruning.pass = print.pruning.pass, # function used to print pruning pass results
     Force.xtx.prune    = FALSE, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
+    Use.beta.cache     = TRUE,  # TRUE to use beta cache, for speed
     ...)                    # unused
 {
     forward.pass <- function()
@@ -108,13 +128,17 @@ earth.default <- function(
         check.vec("y", y, yvec)
         stopifnot(nrow(x) == nrow(y))
         fullset <- rep(0, nk)   # element will be set TRUE if corresponding term used
+
+        linpreds1 = rep(0, npreds)
+        check.index.vec("linpreds", linpreds, x, use.as.col.index=TRUE)
+        linpreds1[linpreds] = TRUE
+
         if(is.null(colnames(x))) {
-            # Generate predictor names (empty strings).  Needed because there seems to be
+           # Generate predictor names (empty strings).  Needed because there seems to be
             # no easy way to pass a C NULL to a C function (passing R NULL doesn't do it).
             pred.names <- rep("", npreds)
         } else
             pred.names <- colnames(x)
-
         on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interupts
 
         rval <- .C("ForwardPassR",
@@ -132,9 +156,13 @@ earth.default <- function(
             as.double(penalty),             # in: const double *pPenalty
             as.double(thresh),              # in: double *pThresh
             as.integer(minspan),            # in: const int *pnMinSpan
-            as.integer(fast.k),             # in: const int *pFastK
+            as.integer(fast.k),             # in: const int *pnFastK
             as.double(fast.beta),           # in: const double *pFastBeta
             as.double(newvar.penalty),      # in: const double *pNewVarPenalty
+            as.integer(linpreds1),          # in: const int LinPreds[]
+            allowed,                        # in: const SEXP Allowed
+            parent.frame(),                 # in: const SEXP Env
+            as.integer(Use.beta.cache),     # in: const int *pnUseBetaCache
             as.integer(trace),              # in: const int *pnTrace
             as.character(pred.names),       # in: const char *sPredNames[]
             PACKAGE="earth")
@@ -207,7 +235,9 @@ earth.default <- function(
             selected.terms)     # vector of model terms in best model
     }
     # earth.default starts here
+
     warn.if.dots.used("earth.default", ...)
+
     # FIXED 30 Oct 2007: commented out following lines because cat output can be huge
     # if(trace >= 3)            # show the call?
     #   cat("Call:", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
@@ -218,8 +248,6 @@ earth.default <- function(
         stop1("illegal 'na.action', only na.action=na.fail is currently allowed")
     if(!is.null(weights) && !isTRUE(all.equal(weights, rep(weights[1], length(weights)))))
         warning1("'weights' are not yet supported by 'earth', ignoring them")
-    if(!is.null(fast.h))
-        stop1("'fast.h' is not yet supported")
     if(is.logical(trace) && trace) {
         warning1("converted trace=TRUE to trace=4")
         trace <- 4
@@ -241,6 +269,17 @@ earth.default <- function(
         check.index.vec("subset", subset, x, check.empty=TRUE)
         x <- x[subset, , drop=FALSE]
         y <- y[subset, , drop=FALSE]
+    }
+    if(!is.null(allowed)) {
+        if(typeof(allowed) != "closure")
+            stop("the given \"allowed\" argument is not a function");
+        names. <- names(formals(allowed))
+        if (length(names.) != 3)
+            stop("the given \"allowed\" function does not have 3 arguments")
+        if (!identical(names., c("degree", "pred", "parents")))
+            stop("the \"allowed\" function needs the following arguments ",
+                 paste.quoted.names(c("degree", "pred", "parents")), "\n",
+                 "You have ", paste.quoted.names(names.))
     }
     if(is.null(Object)) {
         rval <- forward.pass()
@@ -264,7 +303,9 @@ earth.default <- function(
       prune.terms    <- rval[[5]]   # triangular mat: each row is a vector of term indices
       selected.terms <- rval[[6]]   # vector of term indices of selected model
     bx <- bx[, selected.terms, drop=FALSE]
-    # add names
+
+    # add names for returned values
+
     pred.names <- colnames(x)
     term.names <- get.earth.term.name(1:nrow(dirs), dirs, cuts, pred.names)
     colnames(bx)   <- term.names[selected.terms]
@@ -272,6 +313,7 @@ earth.default <- function(
     colnames(dirs) <- pred.names
     rownames(cuts) <- term.names
     colnames(cuts) <- pred.names
+
     # Regress y on bx to get fitted.values etc.
     # The as.matrix calls after the call to lm are needed if y is
     # a vector so the fitted.values etc. are always arrays.
@@ -279,7 +321,9 @@ earth.default <- function(
        fitted.values <- as.matrix(lfit$fitted.values)
        residuals     <- as.matrix(lfit$residuals)
        coefficients  <- as.matrix(lfit$coefficients)
+
     # prepare returned summary statistics
+
     nselected <- length(selected.terms)
     rss  <- rss.per.subset[nselected]
     rsq  <- get.rsq(rss, rss.per.subset[1])
@@ -383,7 +427,7 @@ earth.formula <- function(
 #    by calling earth.default() directly.
 #
 # c) This function retrieves x and y from object$x and object$y if need be
-# 
+#
 # $$ would be nice to not do forward.pass if new formula==call$formula
 
 update.earth <- function(
@@ -417,7 +461,7 @@ update.earth <- function(
     }
     # Which x should we use? The precedence is [1] the x parameter, if any,
     # in this call to update [2] the $x in the earth object (which exists
-    # if keepxy=TRUE was used the original call to earth) [3] the x found 
+    # if keepxy=TRUE was used the original call to earth) [3] the x found
     # by eval.parent().
 
     this.call <- match.call(expand.dots=TRUE)
@@ -426,10 +470,10 @@ update.earth <- function(
         if(!is.null(x) && class(x) != "try-error")
             call$x <- x         # use object$x
     }
-	if(is.null(this.call$y)) {   # same as above, but for y
-		y <- try(eval.parent(object$y), silent=TRUE)
-		if(!is.null(y) && class(y) != "try-error")
-			call$y <- y
+        if(is.null(this.call$y)) {   # same as above, but for y
+                y <- try(eval.parent(object$y), silent=TRUE)
+                if(!is.null(y) && class(y) != "try-error")
+                        call$y <- y
     }
     call$Object <- if(do.forward.pass) NULL else substitute(object)
     if(evaluate)
@@ -615,11 +659,17 @@ print.earth <- function(x, digits=getOption("digits"), ...)
     cat("Selected", length(x$selected.terms),
         "of", nrow(x$dirs), "terms, and",
         get.nused.preds.per.subset(x$dirs, x$selected.terms),
-        "of", ncol(x$dirs), "predictors\n")
+        "of", ncol(x$dirs), "predictors")
+
+    nlinpreds <- sum(x$dirs[x$selected.terms,] == 2)
+    if (nlinpreds == 1)
+        cat(" (", nlinpreds, " linear predictor)", sep="")
+    else if (nlinpreds > 1)
+        cat(" (", nlinpreds, " linear predictors)", sep="")
 
     nterms.per.degree <- get.nterms.per.degree(x, x$selected.terms)
 
-    cat("Number of terms at each degree of interaction:", nterms.per.degree)
+    cat("\nNumber of terms at each degree of interaction:", nterms.per.degree)
 
     cat(switch(length(nterms.per.degree),
             " (intercept only model)",
@@ -695,7 +745,7 @@ get.rsq <- function(rss, rss.null)
 #
 # $$ This is not quite correct.  It assumes that each term pair adds one
 # knot.  Thus each term adds "half a knot".  But if we have deleted a term
-# in a pair then the remaining term adds a knot, not half a knot.
+# in a pair then the remaining term should add a knot, not half a knot.
 
 get.nknots <- function(nterms)
 {
@@ -724,7 +774,7 @@ get.gcv <- function(    # default Get.crit function
     nparams <- effective.nbr.of.params(ntermsVec, nknotsVec, penalty)
 
     if(max(nparams, na.rm=TRUE) >= ncases)
-        warning1("effective number of parameters for GCV ", max(nparams, na.rm=TRUE),
+        warning1("GCV effective number of parameters ", max(nparams, na.rm=TRUE),
             " >= number of cases ", ncases)
 
     rss.per.subset / (ncases * (1 - nparams/ncases)^2)
@@ -734,7 +784,7 @@ get.nused.preds.per.subset <- function(dirs, which.terms)
 {
     # object was converted from mars? if so, ugly hack to allow plot routines to work
     if(is.null(which.terms))
-        which.terms <- matrix(1:ncol(dirs),ncol(dirs), ncol(dirs))
+        which.terms <- matrix(1:ncol(dirs), ncol(dirs), ncol(dirs))
 
     # allow which.terms to be a vector or matrix
     if(NROW(which.terms) == 1 || NCOL(which.terms) == 1)
@@ -746,16 +796,30 @@ get.nused.preds.per.subset <- function(dirs, which.terms)
     nused <- vector(mode="numeric", nmodels)
     for(i in 1:nmodels) {
         check.which.terms(dirs, which.terms)
-        nused[i] <- sum(colSums(abs(dirs[which.terms[i,,drop=FALSE], , drop=FALSE])) != 0)
+        nused[i] <- sum(0 != colSums(abs(
+                             dirs[which.terms[i,,drop=FALSE], , drop=FALSE])))
     }
     nused
+}
+
+# Return a vec which specifies the degree of each term in dirs.
+# Each row of dirs specifies one term so we work row-wise in dirs.
+
+get.degrees.per.term <- function(dirs)
+{
+    if (nrow(dirs) == 1)            # intercept only model?
+        return(0)
+    degrees <- double(nrow(dirs))
+    for (i in seq_along(degrees))
+        degrees[i] = sum(dirs[i,] != 0)
+    degrees
 }
 
 get.nterms.per.degree <- function(object, which.terms = object$selected.terms)
 {
     check.classname(object, deparse(substitute(object)), c("earth", "summary.earth"))
     check.which.terms(object$dirs, which.terms)
-    table(rowSums(abs(object$dirs[which.terms, , drop=FALSE])))
+    table(get.degrees.per.term(object$dirs[which.terms, , drop=FALSE]))
 }
 
 # Return string like "h(55-x1)*h(x2-58)".
@@ -784,7 +848,9 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names)
                 if(!first.fac)
                     s <- paste(s, "*", sep="")
                 first.fac <- FALSE
-                if(dirs[nterm,ipred] == -1)
+                if(dirs[nterm,ipred] == 2)  # predictor enters linearly?
+                    s <- pastef(s, "%s", get.name(ipred))
+                else if(dirs[nterm,ipred] == -1)
                     s <- pastef(s, "h(%g-%s)", cuts[nterm,ipred], get.name(ipred))
                 else
                     s <- pastef(s, "h(%s-%g)", get.name(ipred), cuts[nterm,ipred])
@@ -826,7 +892,9 @@ get.bx <- function(x, which.terms, dirs, cuts)
     for(iterm in which.terms) {
         temp1 <- 1
         for(ipred in 1:ncol(x))
-            if(dirs[iterm, ipred] != 0) {
+            if(dirs[iterm, ipred] == 2)  # predictor enters linearly?
+                temp1 <- temp1 * x[, ipred]
+            else if(dirs[iterm, ipred] != 0) {
                 temp2 <- dirs[iterm, ipred] * (x[, ipred] - cuts[iterm, ipred])
                 temp1 <- temp1 * temp2 * (temp2 > 0)
             }
@@ -924,7 +992,7 @@ predict.earth <- function(
         if(is.null(newdata))
             object$fitted.values
         else
-            model.matrix(object, get.earth.x(object, newdata)) %*% object$coefficients
+            model.matrix.earth(object, get.earth.x(object, newdata)) %*% object$coefficients
     }
     get.terms <- function()         # returns just enough for termplot to work
     {
@@ -934,7 +1002,7 @@ predict.earth <- function(
             bx <- model.matrix(object, get.earth.x(object, newdata))
         dirs <- object$dirs[object$selected.terms, ]
         # retain only additive terms
-        additive.terms <- rowSums(abs(dirs)) == 1
+        additive.terms <- get.degrees.per.term(dirs) == 1
         bx <- bx[, additive.terms]
         dirs <- dirs[additive.terms, ]
         coefs <- object$coefficients[additive.terms, 1, drop=FALSE]
@@ -974,6 +1042,35 @@ factors.present <- function(object)
     return(any(dataClasses == "factor" | dataClasses == "ordered"))
 }
 
+# return a list of term numbers, ordered as per the "anova" decomposition
+
+anova.decomp <- function(dirs, cuts)
+{
+    nterms = nrow(dirs)
+    key.degrees = get.degrees.per.term(dirs)    # sort first on degree
+    first.fac.order <- double(nterms)           # order of first factor
+    key.x <- double(nterms)                     # order of preds in factors
+    if (nterms > 1)
+        for (i in 2:nterms)      {              # start at 2 to skip intercept
+            used = which(dirs[i,] != 0)
+            first.fac.order[i] <- used[1]
+            key.x[i] = 1e6 * used[1]            # 1st factor
+            if (!is.na(used[2])) {              # 2nd factor if any
+                key.x[i] = key.x[i] + 1e3 * used[2]
+                if (!is.na(used[3]))            # 3rd factor if any
+                    key.x[i] = key.x[i] + used[3]
+            }
+    }
+    key.linpreds <- double(nterms)              # put lin pred factors first
+    key.cuts <- double(nterms)                  # cut values
+    if (nterms > 1)
+        for (i in 2:nterms) {
+            key.linpreds[i] = -sum(dirs[i, ] == 2)
+            key.cuts[i] = cuts[i, first.fac.order[i]]
+    }
+    order(key.degrees, key.linpreds, key.x, key.cuts)
+}
+
 # Return an index vector suitable for indexing into object$coefficients
 # and ordered using the specified "decomp":
 #
@@ -992,12 +1089,6 @@ reorder.earth <- function(
     min.degree  = 0,
     ...)                    # unused
 {
-    anova.decomp <- function(dirs)
-    {
-        key <- cbind(rowSums(abs(dirs)) # primary sort key is number of dirs
-                    -abs(dirs))         # thereafter stable sort on dirs
-        do.call(order, transform(data.frame(key)))
-    }
     warn.if.dots.used("reorder.earth", ...)
     if(degree < 0)
         stop1("degree ", degree, " < 0")
@@ -1008,9 +1099,9 @@ reorder.earth <- function(
     check.which.terms(x$dirs, which.terms)
     dirs <- x$dirs[which.terms, , drop=FALSE]
     new.order <- switch(match.arg1(decomp),
-                        anova.decomp(dirs),     # anova
-                        1:length(which.terms))  # none
-    degrees <- rowSums(abs(dirs[new.order, , drop=FALSE]))
+                   anova.decomp(dirs, x$cuts[which.terms,,drop=FALSE]), # anova
+                   1:length(which.terms))                               # none
+    degrees <- get.degrees.per.term(dirs[new.order, , drop=FALSE])
     new.order[degrees >= min.degree & degrees <= degree]
 }
 
@@ -1075,9 +1166,13 @@ format.one.response <- function(
                         format(cut[ipred], width=width, digits=digits),
                         width, var.names[ipred])
             else if(dir[ipred] == 1)
-                s <- pastef(s, "* pmax(0, %*s - %s) ", width=width,
-                        var.names[ipred],
+                s <- pastef(s, "* pmax(0, %*s - %s) ",
+                        width=width, var.names[ipred],
                         format(cut[ipred], width=width, digits=digits))
+            else if(dir[ipred] == 2) # linear predictor
+                s <- pastef(s, "* %-*s %*s            ",
+                        width=width, var.names[ipred],
+                        width=width, "")
             else if(dir[ipred] != 0)
                 stop1("illegal dir in 'dirs'")
         if(add.labels)
@@ -1158,7 +1253,7 @@ format.earth <- function(
 #   check.classname(x, deparse(substitute(x)), "lm")
 #   coefs = coef(x)
 #   s <- sprintf("  %.*g%s\n", digits=digits, coefs[1], if(add.labels) " # 1" else "")
-#   coefs <- coefs[-1]                  # drop intercept $$ should only do if no intercept
+#   coefs <- coefs[-1]                  # drop intercept $$ should only do if intercept
 #   coef.width <- get.coef.width(coefs, digits)
 #   for(ipred in seq_along(coefs)) {
 #       coef <- coefs[ipred]

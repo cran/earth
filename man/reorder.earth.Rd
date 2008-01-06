@@ -26,7 +26,8 @@ and \code{object$coefficients}.
         \code{"none"}   order the terms as created during the earth forward pass
                   i.e. no reordering.\cr
         \code{"anova"}  (default) order the terms using the \sQuote{anova decomposition}
-                  i.e. in increasing order of interaction.
+                  i.e. in increasing order of interaction.\cr
+        The FAQ section for \code{\link{earth}} has more details.
   }
   \item{degree}{
     Maximum order of interaction.

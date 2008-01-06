@@ -6,7 +6,9 @@
 // Stephen Milborrow Feb 2007 Petaluma
 //
 // See the R earth documentation for descriptions of the principal data structures.
+// See also www.milbo.users.sonic.net.
 //
+//--------------------------------------------------------------------------------------------
 // This code uses a subset of C99.  To build the earth R library under gcc:
 //   gcc -Wall -pedantic -Wextra -O3 -std=gnu99 -Ic:/a1/r/work/include -c earth.c -o earth.o
 //
@@ -28,6 +30,7 @@
 //       \a1\r\work\src\gnuwin32\Rdll.lib \a1\r\work\bin\Rblas.lib
 //   main.exe
 //
+//--------------------------------------------------------------------------------------------
 // References:
 //
 // HastieTibs: Trevor Hastie and Robert Tibshirani
@@ -42,7 +45,21 @@
 //
 // Miller: Alan Miller (2nd ed. 2002) Subset Selection in Regression
 //
-// $$ don't really need UsedCols if only add good cols to bx
+//--------------------------------------------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// A copy of the GNU General Public License is available at
+// http://www.r-project.org/Licenses
+//
+//--------------------------------------------------------------------------------------------
 
 #if !STANDALONE
 #define USING_R 1
@@ -71,18 +88,22 @@
 
 #if USING_R             // R with gcc
     #include "R.h"
+    #include "Rinternals.h" // needed for Allowed function handling
+    #include "allowed.h"
     #define printf Rprintf
     #define ASSERT(x)   \
-        if (!(x)) error("assertion failed: %s [%s %d]", #x, __FILE__, __LINE__)
+        if (!(x)) error("internal assertion failed in file %s line %d: %s\n" \
+                        "Please save your data and terminate the R session.", \
+                        __FILE__, __LINE__, #x)
 #else
-    #include "earth.h"
     #define warning printf
     void error(const char *args, ...);
     #define R_FINITE(x) _finite(x)
-    // ASSERT is the same as above ASSERT but appends \n
     #define ASSERT(x)   \
-        if (!(x)) error("assertion failed: %s [%s %d]\n", #x, __FILE__, __LINE__)
+        if (!(x)) error("internal assertion failed in file %s line %d: %s\n", \
+                        __FILE__, __LINE__, #x)
 #endif
+#include "earth.h"
 
 extern _C_ int dqrdc2_(double *x, int *ldx, int *n, int *p,
               double *tol, int *rank,
@@ -115,13 +136,10 @@ extern _C_ double ddot_(const int *n,
 #define USE_BLAS    1     // 1 is faster (tested on Windows XP Pentium with R BLAS)
                           // also, need USE_BLAS to use bxOrthCenteredT
 
-//$$ had to turn off BETA_CACHE when I added multiple responses -- revisit
-#define BETA_CACHE  0     // 1 to cache betas in orthogResiduals, for speed
-
 #define FAST_MARS   1     // 1 to use techniques in FriedmanFastMars (see refs)
 #define IOFFSET     1     // 1 to convert 0-based indices to 1-based in printfs
 
-static const char   *VERSION    = "version 1.1"; // change if you modify this file!
+static const char   *VERSION    = "version 1.2a"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -148,17 +166,16 @@ static const double POS_INF     = (1.0 / 0.0);
 #define x_(iCase,iPred)                 x              [(iCase) + (iPred)*(nCases)]
 #define xOrder_(iCase,iPred)            xOrder         [(iCase) + (iPred)*(nCases)]
 #define xOrder_(iCase,iPred)            xOrder         [(iCase) + (iPred)*(nCases)]
-#define y_(iCase,iResponse)                y              [(iCase) + (iResponse)*(nCases)]
-#define Residuals_(iCase,iResponse)        Residuals      [(iCase) + (iResponse)*(nCases)]
-#define CovSy_(iTerm,iResponse)            CovSy          [(iTerm) + (iResponse)*(nMaxTerms)]
-#define Betas_(iTerm,iResponse)            Betas          [(iTerm) + (iResponse)*(nUsedCols)]
+#define y_(iCase,iResponse)             y              [(iCase) + (iResponse)*(nCases)]
+#define Residuals_(iCase,iResponse)     Residuals      [(iCase) + (iResponse)*(nCases)]
+#define CovSy_(iTerm,iResponse)         CovSy          [(iTerm) + (iResponse)*(nMaxTerms)]
+#define Betas_(iTerm,iResponse)         Betas          [(iTerm) + (iResponse)*(nUsedCols)]
 
+// Global copies of some input parameters.  These stay constant for the entire MARS fit.
 static int nTraceGlobal;        // copy of nTrace parameter
 static int nMinSpanGlobal;      // copy of nMinSpan parameter
 
-#if BETA_CACHE
 static void FreeBetaCache(void);
-#endif
 
 //--------------------------------------------------------------------------------------------
 // malloc and its friends are redefined (a) so under Microsoft C using crtdbg.h we can
@@ -249,9 +266,7 @@ void FreeR(void)                // for use by R
     free1(iDirs);
     free1(nUses);
     free1(nFactorsInTerm);
-#if BETA_CACHE
     FreeBetaCache();
-#endif
 #if FAST_MARS
     FreeQ();
 #endif
@@ -265,7 +280,7 @@ void FreeR(void)                // for use by R
 #if USING_R
 static INLINE void ServiceR(int nCases)
 {
-    static unsigned nIters;
+    static int nIters;
     static int nCasesPrev;
     static int nItersPerRCall;
     if (nCases != nCasesPrev) {
@@ -281,7 +296,8 @@ static INLINE void ServiceR(int nCases)
         if (nItersPerRCall < 1)
             nItersPerRCall = 1;
     }
-    if (nIters++ % nItersPerRCall == 0) {
+    if (nIters++ >= nItersPerRCall) {
+        nIters = 0;
         R_FlushConsole();
         R_CheckUserInterrupt();     // may never return
     }
@@ -501,10 +517,10 @@ static void Regress(
             (int *)&nCases,                     // in:  n
             pnRank,                             // in:  k
             qraux,                              // in:  qraux
-            (double *)(&y_(0,iResponse)),          // in:  y
+            (double *)(&y_(0,iResponse)),       // in:  y
             work,                               // out: qy, unused here
             work,                               // out: qty, unused here
-            (double *)(&Betas_(0,iResponse)),      // out: b
+            (double *)(&Betas_(0,iResponse)),   // out: b
             work,                               // out: rsd, unused here
             (double *)(&Residuals_(0,iResponse)),  // out: xb = yHat = ls approx of x*b
             &job,                               // in:  job
@@ -597,8 +613,6 @@ static void RegressAndFix(
 }
 
 //--------------------------------------------------------------------------------------------
-#if BETA_CACHE
-
 // The BetaCache is used when searching for a new term pair, via FindTerm.
 // Most of the calculation for the orthogonal regression betas is repeated
 // with the same data, and thus we can save time by caching betas.
@@ -606,23 +620,25 @@ static void RegressAndFix(
 // iParent    is the term that forms the base for the new term
 // iPred      is the predictor for the new term
 // iOrthCol   is the column index in the bxOrth matrix
-//
-// $$ could reduce the size of BetaCache, repeated values?
 
 static double *BetaCacheGlobal; // [iOrthCol,iParent,iPred]
                                 // dim nPreds x nMaxTerms x nMaxTerms
 
-static void InitBetaCache(int nMaxTerms, int nPreds)
+static void InitBetaCache(const bool UseBetaCache, const int nMaxTerms, const int nPreds)
 {
-    int nCacheSize =  nMaxTerms * nMaxTerms * nPreds;
+    if (!UseBetaCache)
+        BetaCacheGlobal = NULL;
+    else {
+        int nCacheSize =  nMaxTerms * nMaxTerms * nPreds;
 
-    if (nTraceGlobal >= 5)                  // print cache size in megabytes
-        printf("BetaCache %.3f Mb\n", (nCacheSize * sizeof(double))/sq(1024.0));
+        if (nTraceGlobal >= 5)                  // print cache size in megabytes
+            printf("BetaCache %.3f Mb\n", (nCacheSize * sizeof(double))/sq(1024.0));
 
-    BetaCacheGlobal = (double *)malloc1(nCacheSize * sizeof(double));
+        BetaCacheGlobal = (double *)malloc1(nCacheSize * sizeof(double));
 
-    for (int i = 0; i < nCacheSize; i++)    // mark all cache entries as uninited
-        BetaCacheGlobal[i] = POS_INF;
+        for (int i = 0; i < nCacheSize; i++)    // mark all cache entries as uninited
+            BetaCacheGlobal[i] = POS_INF;
+    }
 }
 
 static void FreeBetaCache(void)
@@ -630,7 +646,6 @@ static void FreeBetaCache(void)
     if (BetaCacheGlobal)
         free1(BetaCacheGlobal);
 }
-#endif // BETA_CACHE
 
 //--------------------------------------------------------------------------------------------
 static INLINE double Mean(const double x[], int n)
@@ -670,9 +685,10 @@ static INLINE double GetGcv(const int nTerms, // nbr basis terms including inter
     double cost;
     if (Penalty == -1)  // special case: terms and knots are free
         cost = 0;
-    else
-        cost = nTerms + (Penalty * (double)(nTerms-1) / 2);         // nKnots = (nTerms-1)/2
-
+    else {
+        const double nKnots = ((double)nTerms-1) / 2;
+        cost = nTerms + Penalty * nKnots;
+    }
     return Rss / (nCases * sq(1 - cost/nCases));
 }
 
@@ -741,6 +757,7 @@ static bool GetNewFormFlag(const int iPred, const int iTerm,
         }
     return IsNewForm;
 }
+
 //--------------------------------------------------------------------------------------------
 // Init a new bxOrthCol to the residuals from regressing y on the used columns of the
 // orthogonal matrix bxOrth.  The mean of each column of bxOrth must be 0.
@@ -762,25 +779,21 @@ static INLINE void OrthogResiduals(
     const int iPred,        // in: predictor index i.e. col index in input matrix x
     const int nMaxTerms)    // in:
 {
-#if BETA_CACHE
-    double *const pCache = BetaCacheGlobal + iParent*nMaxTerms + iPred*sq(nMaxTerms);
-#else
-    double Dummy = iParent; // prevent compiler warning: unused parameter
-    Dummy = iPred;
-    Dummy = nMaxTerms;
-#endif
+    double *pCache;
+    if (iParent >= 0 && BetaCacheGlobal)
+        pCache = BetaCacheGlobal + iParent*nMaxTerms + iPred*sq(nMaxTerms);
+    else
+        pCache = NULL;
+
     memcpy(bxOrthCol, y, nCases * sizeof(double));
 
     for (int iOrthCol = 0; iOrthCol < nCols; iOrthCol++)
         if (UsedCols[iOrthCol]) {
             double Beta;
             const double *pbxOrth = &bxOrth_(0, iOrthCol);
-#if BETA_CACHE
-            if (iParent >= 0 && pCache[iOrthCol] != POS_INF)
+            if (pCache && pCache[iOrthCol] != POS_INF)
                 Beta = pCache[iOrthCol];
-            else
-#endif
-            {
+            else {
                 double Xtx = 0, Xty = 0;
                 for (int iCase = 0; iCase < nCases; iCase++) {
                     const double x1 = pbxOrth[iCase];
@@ -789,10 +802,8 @@ static INLINE void OrthogResiduals(
                 }
                 Beta = Xty / Xtx;
                 ASSERT(R_FINITE(Beta));
-#if BETA_CACHE
-                if (iParent >= 0)
+                if (pCache)
                     pCache[iOrthCol] = Beta;
-#endif
             }
 #if USE_BLAS
             const double NegBeta = -Beta;
@@ -817,12 +828,12 @@ static INLINE void InitBxOrthCol(
     double bxOrthCenteredT[],// io: kept in sync with bxOrth
     double bxOrthMean[],     // io: element at nTerms is updated
     bool   *pGoodCol,        // io: set to false if col sum-of-squares is under BX_TOL
-    const double *y,         // in: { FindTerm y, addTermPair bx[,nTerms] }
+    const double *y,         // in: { FindTerm xbx, addTermPair bx[,nTerms] }
     const int nTerms,        // in: column goes in at index nTerms, 0 is the intercept
     const bool WorkingSet[], // in
     const int nCases,        // in
     const int nMaxTerms,     // in
-    const int iCacheTerm,    // in: if >= 0, use BetaCacheGlobal {FindTerm iTerm, addTermP -1}
+    const int iCacheTerm,    // in: if >= 0, use BetaCacheGlobal {FindTerm iTerm, AddTermP -1}
                              //     if < 0 then recalc Betas from scratch
     const int iPred)         // in: predictor index i.e. col index in input matrix x
 {
@@ -898,7 +909,8 @@ static void AddTermPair(
     const int nCases,           // in
     const int nMaxTerms,        // in
     const bool IsNewForm,       // in
-    const bool IsLinPred,       // in
+    const bool IsLinPred,       // in: pred was discovered by search to be linear
+    const int LinPreds[],       // in: user specified preds which must enter linearly
     const double x[],           // in
     const int xOrder[])         // in
 {
@@ -925,8 +937,13 @@ static void AddTermPair(
     nFactorsInTerm[nTerms]  =
     nFactorsInTerm[nTerms1] = nFactorsInTerm[iBestParent] + 1;
 
-    Dirs_(nTerms, iBestPred) = 1;
-    Dirs_(nTerms1,iBestPred) = -1;
+    int DirEntry = 1;
+    if (LinPreds[iBestPred]) {
+        ASSERT(IsLinPred);
+        DirEntry = 2;
+    }
+    Dirs_(nTerms, iBestPred) = DirEntry;
+    Dirs_(nTerms1,iBestPred) = -1; // will be ignored if adding only one hinge
 
     Cuts_(nTerms, iBestPred) =
     Cuts_(nTerms1,iBestPred) = BestCut;
@@ -945,12 +962,15 @@ static void AddTermPair(
     // fill in new columns of bx, at nTerms and nTerms+1 (left and right hockey sticks)
 
     int iCase;
-    for (iCase = 0; iCase < nCases; iCase++)
+    if (DirEntry == 2) {
+        for (iCase = 0; iCase < nCases; iCase++)
+            bx_(iCase,nTerms) = bx_(iCase,iBestParent) * x_(iCase,iBestPred);
+    } else for (iCase = 0; iCase < nCases; iCase++) {
         if (x_(iCase,iBestPred) - BestCut > 0)
             bx_(iCase,nTerms) = bx_(iCase,iBestParent) * (x_(iCase,iBestPred) - BestCut);
         else
             bx_(iCase,nTerms1) = bx_(iCase,iBestParent) * (BestCut - x_(iCase,iBestPred));
-
+    }
     nUses[iBestPred]++;
 
     // init the col in bxOrth at nTerms and init bxOrthMean[nTerms]
@@ -975,9 +995,6 @@ static void AddTermPair(
 
 //--------------------------------------------------------------------------------------------
 #if FAST_MARS
-
-// For simplicity we always update the queue.
-// We only use the queue (to get next iParent) if FastK is small enough.
 
 typedef struct tQueue {
     int     iParent;            // parent term
@@ -1010,7 +1027,7 @@ static void FreeQ(void)
     free1(Q);
 }
 
-static void PrintSortedQ(int FastK)     // for debugging
+static void PrintSortedQ(int nFastK)     // for debugging
 {
     printf("\n\nSortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta\n");
     for (int i = 0; i < nQMax; i++) {
@@ -1020,8 +1037,8 @@ static void PrintSortedQ(int FastK)     // for debugging
             SortedQ[i].nTermsForRssDelta+IOFFSET,
             SortedQ[i].AgedRank,
             SortedQ[i].RssDelta);
-        if (i == FastK-1)
-            printf("FastK %d ----------------------------------------------------\n", FastK);
+        if (i == nFastK-1)
+            printf("FastK %d ----------------------------------------------------\n", nFastK);
     }
 }
 
@@ -1083,23 +1100,21 @@ static void AddTermToQ(
     const double RssDelta,  // in
     const bool Sort,        // in
     const int nMaxTerms,    // in
-    const int FastK,        // in
     const double FastBeta)  // in: ageing Coef, 0 is no ageing, FastMARS recommends 1
 {
     ASSERT(iTerm < nMaxTerms);
+    ASSERT(nQMax < nMaxTerms);
     Q[nQMax].nTermsForRssDelta = nTerms;
-    Q[nQMax].RssDelta = max(Q[iTerm].RssDelta, RssDelta);               //$$ correct?
+    Q[nQMax].RssDelta = max(Q[iTerm].RssDelta, RssDelta);
     nQMax++;
     if (Sort) {
         memcpy(SortedQ, Q, nQMax * sizeof(tQueue));
-        if (FastK < nMaxTerms) { // for (small gain in) efficiency, only sort if Q is used
-            qsort(SortedQ, nQMax, sizeof(tQueue), CompareQ);            // sort on RssDelta
-            if (FastBeta != 0) {
-                for (int iRank = 0; iRank < nQMax; iRank++)
-                    SortedQ[iRank].AgedRank =
-                        iRank + FastBeta * (nTerms - SortedQ[iRank].nTermsForRssDelta);
-                qsort(SortedQ, nQMax, sizeof(tQueue), CompareAgedQ);    // sort on aged rank
-            }
+        qsort(SortedQ, nQMax, sizeof(tQueue), CompareQ);            // sort on RssDelta
+        if (FastBeta != 0) {
+            for (int iRank = 0; iRank < nQMax; iRank++)
+                SortedQ[iRank].AgedRank =
+                    iRank + FastBeta * (nTerms - SortedQ[iRank].nTermsForRssDelta);
+            qsort(SortedQ, nQMax, sizeof(tQueue), CompareAgedQ);    // sort on aged rank
         }
     }
 }
@@ -1114,8 +1129,8 @@ static void UpdateRssDeltaInQ(const int iParent, const int nTermsForRssDelta,
 }
 
 static int GetNextParent(   // returns -1 if no more parents
-    const bool InitFlag,    // use true to init, thereafter false.
-    const int  FastK)
+    const bool InitFlag,    // use true to init, thereafter false
+    const int  nFastK)
 {
     static int iQ;          // index into sorted queue
     int iParent = -1;
@@ -1124,12 +1139,12 @@ static int GetNextParent(   // returns -1 if no more parents
             printf("\n|Considering parents ");
         iQ = 0;
     } else {
-        if (nTraceGlobal == 5 && iParent >= 0)
-            printf("%d [%g] ", iParent+IOFFSET, SortedQ[iQ].RssDelta);
-        if (iQ < min(nQMax, FastK)) {
+        if (iQ < min(nQMax, nFastK)) {
             iParent = SortedQ[iQ].iParent;
             iQ++;
         }
+        if (nTraceGlobal == 5 && iParent >= 0)
+            printf("%d [%g] ", iParent+IOFFSET, SortedQ[iQ].RssDelta);
     }
     return iParent;
 }
@@ -1181,6 +1196,8 @@ static void PrintSummary(
         for (iPred = 0; iPred < nPreds; iPred++)
             if (Dirs_(iTerm,iPred) == 0)
                 printf("    .    ");
+            else if (Dirs_(iTerm,iPred) == 2)
+                printf("  linear ");
             else
                 printf("%8.3g ", Cuts_(iTerm,iPred));
 
@@ -1195,7 +1212,7 @@ static void PrintSummary(
 // This function now selects a knot.  If it finds a knot it will
 // update *piBestCase and *pRssDeltaForThisTerm.
 //
-// The general idea: scan backwards through all (ordered) values (i.e. potential knots) 
+// The general idea: scan backwards through all (ordered) values (i.e. potential knots)
 // for the given predictor iPred, calculating RssDelta.
 // If RssDelta > *pRssDeltaForThisTerm (and all else is ok), then select
 // the knot (by updating *piBestCase and *pRssDeltaForThisTerm).
@@ -1296,7 +1313,7 @@ static INLINE void FindKnot(
             for (iResponse = 0; iResponse < nResponses; iResponse++) {
 #if USE_BLAS
                 double temp1 = CovSy_(nTerms,iResponse) -
-                                      ddot_(&nTerms, &CovSy_(0,iResponse), &ONE, CovCol, &ONE);
+                                      ddot_(&nTerms, &CovSy_(0,iResponse),&ONE,CovCol,&ONE);
                 double temp2 = CovCol[nTerms] - ddot_(&nTerms, CovCol, &ONE, CovCol, &ONE);
 #else
                 double temp1 = CovSy_(nTerms,iResponse);
@@ -1325,6 +1342,98 @@ static INLINE void FindKnot(
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------
+// Add a candidate term at bx[,nTerms], with predictor iPred entering
+// linearly. Do this by setting the knot at the lowest value xMin of x,
+// since max(0,x-xMin)==x-xMin for all x.  The change in RSS caused by
+// adding this term forms the base RSS delta which we will try to beat
+// in the search in FindKnot.
+// Return true if updated pBestRssDelta.
+
+static INLINE bool AddCandidateLinearTerm(
+    int    *piBestCase,             // out: return -1 if no new term available
+                                    //      else return an index into the ORDERED x's
+    int    *piBestPred,             // out
+    int    *piBestParent,           // out: existing term on which we are basing the new term
+    double *pRssDeltaBase,          // out:
+    double *pBestRssDelta,          // out: adding new term reduces RSS this much
+    double *pBestRssDeltaForThisTerm, // out:
+    bool   *pIsNewForm,             // io:
+    bool   *pIsLinPred,             // out: true if knot is at min x val so x enters linearly
+    double xbx[],                   // io
+    double CovCol[],                // io
+    double CovSy[],                 // io: nMaxTerms x nResponses
+    double bxOrth[],                // io
+    double bxOrthCenteredT[],       // io
+    double bxOrthMean[],            // io
+    const int iPred,                // in
+    const int iParent,              // in
+    const double x[],               // in: nCases x nPreds
+    const double y[],               // in: nCases x nResponses
+    const int nCases,               // in
+    const int nResponses,           // in: number of cols in y
+    const int nTerms,               // in
+    const int nMaxTerms,            // in
+    const double yMean[],           // in: vector nResponses x 1
+    const double bx[],              // in: MARS basis matrix
+    const bool FullSet[],           // in
+    const double NewVarAdjust)      // in
+{
+    bool UpdatedBestRssDelta = false;
+
+    // set xbx to x * bx[,iParent]
+
+    int iCase;
+    for (iCase = 0; iCase < nCases; iCase++)
+        xbx[iCase] = x_(iCase,iPred) * bx_(iCase,iParent);
+
+    // init bxOrth[,nTerms] and bxOrthMean[nTerms] for the candidate term
+    // $$ look into *pIsNewForm handling here, it's confusing
+
+    InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, pIsNewForm,
+        xbx, nTerms, FullSet, nCases, nMaxTerms, iParent, iPred);
+
+    // init CovCol and CovSy[nTerms]
+
+    memset(CovCol, 0, (nTerms-1) * sizeof(double));
+    CovCol[nTerms] = 1;
+    int iResponse;
+    for (iResponse = 0; iResponse < nResponses; iResponse++) {
+        CovSy_(nTerms, iResponse) = 0;
+        for (iCase = 0; iCase < nCases; iCase++)
+            CovSy_(nTerms, iResponse) +=
+                (y_(iCase, iResponse) - yMean[iResponse]) * bxOrth_(iCase,nTerms);
+    }
+    // calculate change to RSS caused by adding candidate new term
+
+    *pRssDeltaBase = 0;
+    for (iResponse = 0; iResponse < nResponses; iResponse++) {
+        double temp = 0;
+        for (iCase = 0; iCase < nCases; iCase++)
+            temp += y_(iCase,iResponse) * bxOrth_(iCase,nTerms);
+        *pRssDeltaBase += sq(temp) / NewVarAdjust;
+    }
+    if (nTraceGlobal >= 6)
+        printf("Case %4d Cut % 12.4g< RssDelta %-12.5g ",
+            0+IOFFSET, GetCut(0, iPred, nCases, x, xOrder), *pRssDeltaBase);
+    if (*pRssDeltaBase > *pBestRssDeltaForThisTerm)
+        *pBestRssDeltaForThisTerm = *pRssDeltaBase;
+    if (*pRssDeltaBase > *pBestRssDelta) {
+        // The new term (with predictor entering linearly) beats other
+        // candidate terms so far.
+
+        UpdatedBestRssDelta = true;
+        *pBestRssDelta = *pRssDeltaBase;
+        *pIsLinPred    = true;
+        *piBestCase    = 0;         // knot is at the lowest value of x
+        *piBestPred    = iPred;
+        *piBestParent  = iParent;
+        if (nTraceGlobal >= 6)
+            printf("BestRssDeltaSoFar");
+    }
+    return UpdatedBestRssDelta;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1365,7 +1474,8 @@ static INLINE void FindPred(
     const int xOrder[],             // in
     const int nUses[],              // in: nbr of times each predictor is used in the model
     const int Dirs[],               // in
-    const double NewVarPenalty)     // in: penalty for adding a new variable
+    const double NewVarPenalty,     // in: penalty for adding a new variable
+    const int LinPreds[])           // in: 1 x nPreds, 1 if predictor must enter linearly
 {
 #if USING_R
     ServiceR(nCases);
@@ -1378,6 +1488,13 @@ static INLINE void FindPred(
                 printf("|Parent %-2d Pred %-2d                                   "
                     "                skip (pred is in parent)\n",
                     iParent+IOFFSET, iPred+IOFFSET);
+#if USING_R
+        } else if (!IsAllowed(iPred, iParent, Dirs, nPreds, nMaxTerms)) {
+            if (nTraceGlobal >= 6)
+                printf("|Parent %-2d Pred %-2d                                   "
+                    "                skip (not allowed by \"allowed\" func)\n",
+                    iParent+IOFFSET, iPred+IOFFSET);
+#endif
         } else {
             if (nTraceGlobal >= 6)
                 printf("|Parent %-2d Pred %-2d ", iParent+IOFFSET, iPred+IOFFSET);
@@ -1386,93 +1503,48 @@ static INLINE void FindPred(
             bool IsNewForm = GetNewFormFlag(iPred, iParent, Dirs,
                                 FullSet, nTerms, nPreds, nMaxTerms);
             if (IsNewForm) {
-                // Add a candidate term at bx[,nTerms], with predictor iPred entering
-                // linearly. Do this by setting the knot at the lowest value xMin of x,
-                // since max(0,x-xMin)==x-xMin for all x.  The change in RSS caused by
-                // adding this term forms the base RSS delta which we will try to beat
-                // in the search in FindKnot.
+                // Add a candidate term at bx[,nTerms], with predictor
+                // iPred entering linearly.
 
-                // set xbx to x * bx[,iParent]
+                AddCandidateLinearTerm(piBestCase, piBestPred, piBestParent,
+                    &RssDeltaBase, pBestRssDelta, pBestRssDeltaForThisTerm,
+                    &IsNewForm, pIsLinPred,
+                    xbx, CovCol, CovSy, bxOrth, bxOrthCenteredT, bxOrthMean,
+                    iPred, iParent, x, y, nCases, nResponses, nTerms, nMaxTerms,
+                    yMean, bx, FullSet, NewVarAdjust);
+            }
+            if (nTraceGlobal >= 6)
+                printf("\n");
+            if (!LinPreds[iPred]) {
+                int iBestCase = -1;
+                FindKnot(&iBestCase, pBestRssDeltaForThisTerm, CovCol, CovSy, CovSx, ybxSum,
+                        (IsNewForm? nTerms + 1: nTerms),
+                        iParent, iPred, nCases, nResponses, nMaxTerms,
+                        RssExistingModel, RssDeltaBase, RssDeltaPrev,
+                        bx, bxOrth, bxOrthCenteredT, bxOrthMean,
+                        y, x, xOrder, yMean, NewVarAdjust);
 
-                int iCase;
-                for (iCase = 0; iCase < nCases; iCase++)
-                    xbx[iCase] = x_(iCase,iPred) * bx_(iCase,iParent);
-
-                // init bxOrth[,nTerms] and bxOrthMean[nTerms] for the candidate term
-                // $$ look into IsNewForm handling here, it's confusing
-
-                InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, &IsNewForm,
-                    xbx, nTerms, FullSet, nCases, nMaxTerms, iParent, iPred);
-
-                // init CovCol and CovSy[nTerms]
-
-                memset(CovCol, 0, (nTerms-1) * sizeof(double));
-                CovCol[nTerms] = 1;
-                int iResponse;
-                for (iResponse = 0; iResponse < nResponses; iResponse++) {
-                    CovSy_(nTerms, iResponse) = 0;
-                    for (iCase = 0; iCase < nCases; iCase++)
-                        CovSy_(nTerms, iResponse) +=
-                            (y_(iCase, iResponse) - yMean[iResponse]) * bxOrth_(iCase,nTerms);
-                }
-                // calculate change to RSS caused by adding candidate new term
-
-                RssDeltaBase = 0;
-                for (iResponse = 0; iResponse < nResponses; iResponse++) {
-                    double temp = 0;
-                    for (iCase = 0; iCase < nCases; iCase++)
-                        temp += y_(iCase,iResponse) * bxOrth_(iCase,nTerms);
-                    RssDeltaBase += sq(temp) / NewVarAdjust;
-                }
-                if (nTraceGlobal >= 6)
-                    printf("Case %4d Cut % 12.4g< RssDelta %-12.5g ",
-                        0+IOFFSET, GetCut(0, iPred, nCases, x, xOrder), RssDeltaBase);
-                if (RssDeltaBase > *pBestRssDeltaForThisTerm)
-                    *pBestRssDeltaForThisTerm = RssDeltaBase;
-                if (RssDeltaBase > *pBestRssDelta) {
-                    // The new term (with predictor entering linearly) beats other
-                    // candidate terms so far.
-
+                if (*pBestRssDeltaForThisTerm > *pBestRssDelta) {
                     UpdatedBestRssDelta = true;
-                    *pBestRssDelta = RssDeltaBase;
-                    *pIsLinPred    = true;
-                    *piBestCase    = 0;         // knot is at the lowest value of x
+                    *pBestRssDelta = *pBestRssDeltaForThisTerm;
+                    *pIsLinPred    = false;
+                    *pIsNewForm    = IsNewForm;
+                    *piBestCase    = iBestCase;
                     *piBestPred    = iPred;
                     *piBestParent  = iParent;
                     if (nTraceGlobal >= 6)
-                        printf("BestRssDeltaSoFar");
+                        printf("|                  "
+                            "Case %4d Cut % 12.4g  RssDelta %-12.5g BestRssDeltaSoFar\n",
+                            iBestCase+IOFFSET,
+                            GetCut(iBestCase, iPred, nCases, x, xOrder),
+                            *pBestRssDelta);
                 }
-            } // endif IsNewForm
-            if (nTraceGlobal >= 6)
-                printf("\n");
-
-            int iBestCase = -1;
-            FindKnot(&iBestCase, pBestRssDeltaForThisTerm, CovCol, CovSy, CovSx, ybxSum,
-                    (IsNewForm? nTerms + 1: nTerms),
-                    iParent, iPred, nCases, nResponses, nMaxTerms,
-                    RssExistingModel, RssDeltaBase, RssDeltaPrev,
-                    bx, bxOrth, bxOrthCenteredT, bxOrthMean,
-                    y, x, xOrder, yMean, NewVarAdjust);
-
-            if (*pBestRssDeltaForThisTerm > *pBestRssDelta) {
-                UpdatedBestRssDelta = true;
-                *pBestRssDelta = *pBestRssDeltaForThisTerm;
-                *pIsLinPred    = false;
-                *pIsNewForm    = IsNewForm;
-                *piBestCase    = iBestCase;
-                *piBestPred    = iPred;
-                *piBestParent  = iParent;
-                if (nTraceGlobal >= 6)
-                    printf("|                  "
-                        "Case %4d Cut % 12.4g  RssDelta %-12.5g BestRssDeltaSoFar\n",
-                        iBestCase+IOFFSET,
-                        GetCut(iBestCase, iPred, nCases, x, xOrder),
-                        *pBestRssDelta);
             }
         } // if Dirs
     } // for iPred
     free1(ybxSum);
-    if (UpdatedBestRssDelta && nUses[*piBestPred] == 0) {   // de-adjust NewVarPenalty?
+    if (UpdatedBestRssDelta && nUses[*piBestPred] == 0) {
+        // de-adjust NewVarPenalty
         const double NewVarAdjust = 1 + NewVarPenalty;
         *pBestRssDelta *= NewVarAdjust;
     }
@@ -1518,11 +1590,12 @@ static void FindTerm(
     const int nFactorsInTerm[],     // in:
     const int nUses[],              // in: nbr of times each predictor is used in the model
     const int Dirs[],               // in:
-    const int FastK,                // in: Fast MARS K
-    const double NewVarPenalty)     // in: penalty for adding a new variable
+    const int nFastK,               // in: Fast MARS K
+    const double NewVarPenalty,     // in: penalty for adding a new variable
+    const int LinPreds[])           // in: 1 x nPreds, 1 if predictor must enter linearly
 {
 #if !FAST_MARS
-    int Dummy = FastK;              // prevent compiler warning: unused parameter
+    int Dummy = nFastK;             // prevent compiler warning: unused parameter
     Dummy = 0;
 #endif
     if (nTraceGlobal >= 6)
@@ -1547,8 +1620,8 @@ static void FindTerm(
 
     int iParent;
 #if FAST_MARS
-    GetNextParent(true, FastK); // init queue iterator
-    while ((iParent = GetNextParent(false, FastK)) > -1) {
+    GetNextParent(true, nFastK); // init queue iterator
+    while ((iParent = GetNextParent(false, nFastK)) > -1) {
 #else
     for (iParent = 0; iParent < nTerms; iParent++) {
 #endif
@@ -1569,7 +1642,7 @@ static void FindTerm(
                 xbx, CovSx, CovCol, CovSy, bxOrth, bxOrthCenteredT, bxOrthMean,
                 iParent, x, y, nCases, nResponses, nPreds, nTerms, nMaxTerms, yMean,
                 RssExistingModel, RssDeltaPrev,
-                bx, FullSet, xOrder, nUses, Dirs, NewVarPenalty);
+                bx, FullSet, xOrder, nUses, Dirs, NewVarPenalty, LinPreds);
 #if FAST_MARS
         UpdateRssDeltaInQ(iParent, nTerms, BestRssDeltaForThisTerm);
 #endif
@@ -1588,12 +1661,45 @@ static void FindTerm(
 }
 
 //--------------------------------------------------------------------------------------------
-static void PrintForwardProlog(const double RssNull,
-                const int nResponses,
-                const int nCases,
-                const int nPreds,
-                const char *sPredNames[])       // in: predictor names, can be NULL
+static void PrintPredNames(
+        const int nPreds,
+        const char *sPredNames[], // in: predictor names, can be NULL
+        const int LinPreds[])     // in: 1 x nPreds, 1 if predictor must enter linearly
 {
+    int i, iCount = 0;
+    printf("Predictors ");
+    for (i = 0; i < nPreds; i++) {
+        printf("%d", i+IOFFSET);
+        if (sPredNames)
+            printf("=%s", sPredNames[i]);
+        printf(" ");
+    }
+    printf("\n");
+    for (i = 0; i < nPreds; i++) {
+        if (LinPreds[i]) {
+            if (iCount++ == 0)              // must print prefix?
+                printf("Linear predictors ");
+            printf("%d", i+IOFFSET);
+            if (sPredNames)
+                printf("=%s", sPredNames[i]);
+            printf(" ");
+        }
+    }
+    if (iCount)
+        printf("\n");
+    printf("\n");
+}
+
+//--------------------------------------------------------------------------------------------
+static void PrintForwardProlog(const double RssNull,
+        const int nResponses,
+        const int nCases,
+        const int nPreds,
+        const char *sPredNames[],   // in: predictor names, can be NULL
+        const int LinPreds[])       // in: 1 x nPreds, 1 if predictor must enter linearly
+{
+    if (nTraceGlobal >= 2 && sPredNames)
+        PrintPredNames(nPreds, sPredNames, LinPreds);
     if (nTraceGlobal == 1)
         printf("Term 1");
     else if (nTraceGlobal >= 2) {
@@ -1722,7 +1828,6 @@ static void PrintForwardEpilog(
 // The upper term in the term pair may not be useable.  If so we still
 // increment nTerms by 2 but don't set the flag in FullSet.
 //
-// $$ feature: allow nMaxDegree to be a vector of length nPreds
 // $$ feature: add option to prescale x and y
 
 static void ForwardPass(
@@ -1742,9 +1847,11 @@ static void ForwardPass(
     const int nMaxTerms,        // in:
     const double Penalty,       // in: GCV penalty per knot
     double Thresh,              // in: forward step threshold
-    int FastK,                  // in: Fast MARS K
+    int nFastK,                 // in: Fast MARS K
     const double FastBeta,      // in: Fast MARS ageing coef
     const double NewVarPenalty, // in: penalty for adding a new variable
+    const int LinPreds[],       // in: 1 x nPreds, 1 if predictor must enter linearly
+    const bool UseBetaCache,    // in: 1 to use the beta cache, for speed
     const char *sPredNames[])   // in: predictor names, can be NULL
 {
     if (nTraceGlobal >= 5)
@@ -1789,11 +1896,10 @@ static void ForwardPass(
         error("minspan %d < 0", nMinSpanGlobal);
     if (nMinSpanGlobal > nCases/2)
         error("minspan %d > nrow(x)/2 %d", nMinSpanGlobal, nCases/2);
-    if (FastK == -1)
-        FastK = 10000;      // bigger than any nMaxTerms
-    if (FastK < 3)
-        error("fast.k %d < 3, the only legal value less than 3 is -1 "
-            "(meaning no Fast MARS)", FastK);
+    if (nFastK <= 0)
+        nFastK = 10000;         // bigger than any nMaxTerms
+    if (nFastK < 3)             // avoid possible queue boundary conditions
+        nFastK = 3;
     if (FastBeta < 0)
         error("fast.beta %g < 0", FastBeta);
     if (FastBeta > 1000)
@@ -1819,9 +1925,7 @@ static void ForwardPass(
     memset(nUses,          0, nPreds * sizeof(int));
     memset(bx,             0, nCases * nMaxTerms * sizeof(double));
     xOrder = OrderArray(x, nCases, nPreds);
-#if BETA_CACHE
-    InitBetaCache(nMaxTerms, nPreds);
-#endif
+    InitBetaCache(UseBetaCache, nMaxTerms, nPreds);
     FullSet[0] = true;  // intercept
     bool GoodCol;
     InitBxOrthCol(bxOrth, bxOrthCenteredT, bxOrthMean, &GoodCol,   // intercept col 0
@@ -1836,11 +1940,11 @@ static void ForwardPass(
     }
     double Rss = RssNull, RssDelta = RssNull, RSq = 0, RSqDelta = 0;
     int nUsedTerms = 1;     // number of used basis terms including intercept, for GCV calc
-    double Gcv = 0, GcvNull = GetGcv(1, nCases, RssNull, Penalty);
-    PrintForwardProlog(RssNull, nResponses, nCases, nPreds, sPredNames);
+    double Gcv = 0, GcvNull = GetGcv(nUsedTerms, nCases, RssNull, Penalty);
+    PrintForwardProlog(RssNull, nResponses, nCases, nPreds, sPredNames, LinPreds);
 #if FAST_MARS
     InitQ(nMaxTerms);
-    AddTermToQ(0, 1, RssNull, true, nMaxTerms, FastK, FastBeta);    // intercept term into Q
+    AddTermToQ(0, 1, RssNull, true, nMaxTerms, FastBeta); // intercept term into Q
 #endif
     int nTerms, iBestCase;
     for (nTerms = 1;                                    // start after intercept
@@ -1853,7 +1957,7 @@ static void ForwardPass(
             bxOrth, bxOrthCenteredT, bxOrthMean, x, y,
             nCases, nResponses, nPreds, nTerms, nMaxDegree, nMaxTerms,
             yMean, Rss, RssDelta, bx, FullSet, xOrder, nFactorsInTerm, nUses, Dirs,
-            FastK, NewVarPenalty);
+            nFastK, NewVarPenalty, LinPreds);
 
         nUsedTerms++;
         if (!IsLinPred && IsNewForm)    // add paired term too?
@@ -1879,24 +1983,23 @@ static void ForwardPass(
         AddTermPair(Dirs, Cuts, bx, bxOrth, bxOrthCenteredT, bxOrthMean,
             FullSet, nFactorsInTerm, nUses,
             nTerms, iBestParent, iBestCase, iBestPred, nPreds, nCases,
-            nMaxTerms, IsNewForm, IsLinPred, x, xOrder);
+            nMaxTerms, IsNewForm, IsLinPred, LinPreds, x, xOrder);
+
 #if FAST_MARS
         if (!IsLinPred && IsNewForm) {  // good upper term?
-            AddTermToQ(nTerms,   nTerms, POS_INF, false, nMaxTerms, FastK, FastBeta);
-            AddTermToQ(nTerms+1, nTerms, POS_INF, true,  nMaxTerms, FastK, FastBeta);
+            AddTermToQ(nTerms,   nTerms, POS_INF, false, nMaxTerms, FastBeta);
+            AddTermToQ(nTerms+1, nTerms, POS_INF, true,  nMaxTerms, FastBeta);
         } else
-            AddTermToQ(nTerms,   nTerms, POS_INF, true,  nMaxTerms, FastK, FastBeta);
-        if (nTraceGlobal >= 7)
-            PrintSortedQ(FastK);
+            AddTermToQ(nTerms,   nTerms, POS_INF, true,  nMaxTerms, FastBeta);
+        if (nTraceGlobal == 5)
+            PrintSortedQ(nFastK);
 #endif
         if (nTraceGlobal >= 2)
             printf("\n");
     }
     PrintForwardEpilog(nTerms, nMaxTerms, Thresh, RSq, RSqDelta, Gcv, GcvNull, FullSet);
     *pnTerms = nTerms;
-#if BETA_CACHE
     FreeBetaCache();
-#endif
 #if FAST_MARS
     FreeQ();
 #endif
@@ -1926,9 +2029,13 @@ void ForwardPassR(              // for use by R
     const double *pPenalty,     // in:
     double *pThresh,            // in: forward step threshold
     const int *pnMinSpan,       // in:
-    const int *pFastK,            // in: Fast MARS K
-    const double *pFastBeta,      // in: Fast MARS ageing coef
+    const int *pnFastK,         // in: Fast MARS K
+    const double *pFastBeta,    // in: Fast MARS ageing coef
     const double *pNewVarPenalty, // in: penalty for adding a new variable
+    const int LinPreds[],         // in: 1 x nPreds, 1 if predictor must enter linearly
+    const SEXP Allowed,           // in: constraints function
+    const SEXP Env,               // in: environment for Allowed function
+    const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const int *pnTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[])     // in: predictor names in trace printfs, can be NULL
 {
@@ -1954,10 +2061,15 @@ void ForwardPassR(              // for use by R
     for (iTerm = 0; iTerm < nMaxTerms; iTerm++)
         BoolFullSet[iTerm] = FullSet[iTerm];
 
+    InitAllowedFunc(Allowed, Env, nPreds);
+
     int nTerms;
     ForwardPass(&nTerms, BoolFullSet, bx, iDirs, Cuts, nFactorsInTerm, nUses,
             x, y, nCases, nResponses, nPreds, *pnMaxDegree, nMaxTerms,
-            *pPenalty, *pThresh, *pFastK, *pFastBeta, *pNewVarPenalty, sPredNames);
+            *pPenalty, *pThresh, *pnFastK, *pFastBeta, *pNewVarPenalty,
+            LinPreds, (bool)(*pnUseBetaCache), sPredNames);
+
+    FreeAllowedFunc();
 
     // remove linearly independent rows if necessary -- this updates BoolFullSet
 
@@ -2018,7 +2130,7 @@ static void EvalSubsetsUsingXtx(
         Regress(Betas, NULL, &RssBeforeDeletingTerm, Diags, &nRank, NULL,
             bx, y, nCases, nResponses, nMaxTerms, WorkingSet);
         if(nRank != nTerms)
-            error("nRank %d != nTerms %d (probably because of lin dep terms in bx)\n", 
+            error("nRank %d != nTerms %d (probably because of lin dep terms in bx)\n",
                 nRank, nTerms);
 
         // set iDelete to the best term for deletion
@@ -2193,9 +2305,11 @@ void Earth(
     double Thresh,          // in: forward step threshold
     const int nMinSpan,     // in: set to non zero to override internal calculation
     const bool Prune,       // in: do backward pass
-    const int FastK,        // in: Fast MARS K
+    const int nFastK,       // in: Fast MARS K
     const double FastBeta,  // in: Fast MARS ageing coef
     const double NewVarPenalty, // in: penalty for adding a new variable
+    const int LinPreds[],       // in: 1 x nPreds, 1 if predictor must enter linearly
+    const bool UseBetaCache,    // in: 1 to use the beta cache, for speed
     const int nTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[])   // in: predictor names in trace printfs, can be NULL
 {
@@ -2214,7 +2328,8 @@ void Earth(
     int nTerms;
     ForwardPass(&nTerms, BestSet, bx, Dirs, Cuts, nFactorsInTerm, nUses,
         x, y, nCases, nResponses, nPreds, nMaxDegree, nMaxTerms,
-        Penalty, Thresh, FastK, FastBeta, NewVarPenalty, sPredNames);
+        Penalty, Thresh, nFastK, FastBeta, NewVarPenalty,
+        LinPreds, UseBetaCache, sPredNames);
 
     // ensure bx is full rank by updating BestSet, and get Residuals and Betas
 
@@ -2241,7 +2356,8 @@ void Earth(
 #endif // STANDALONE
 
 //--------------------------------------------------------------------------------------------
-// return the max number of knots in any term
+// Return the max number of knots in any term.
+// Lin dep factors are considered as having one knot (at the min value of the predictor)
 
 #if STANDALONE
 static int GetMaxKnotsPerTerm(
@@ -2301,7 +2417,7 @@ static void FormatOneResponse(
     char sPredFormat[20]; sprintf(sPredFormat, "%%%dd", nPredWidth);
     char sPad[500]; sprintf(sPad, "%*s", 28+nDigits+nPredWidth, " ");    // comment pad
     const int nUsedCols = nTerms;           // nUsedCols is needed for the Betas_ macro
-    printf(sFormat, Betas_(0, iResponse));     // intercept
+    printf(sFormat, Betas_(0, iResponse));  // intercept
     while (nKnots++ < nKnotsMax)
         printf(sPad);
     printf(" // 0\n");
@@ -2326,6 +2442,12 @@ static void FormatOneResponse(
                             sprintf(s, " * max(0, x[%s]%*s-  %s)",
                                 sPredFormat,  nDigits+2, " ", sFormat1);
                             printf(s, iPred, Cuts_(iTerm, iPred));
+                            nKnots++;
+                            break;
+                        case  2:
+                            sprintf(s, " * x[%s]%*s                    ",
+                                sPredFormat,  nDigits+2, " ", sFormat1);
+                            printf(s, iPred);
                             nKnots++;
                             break;
                         default:
@@ -2386,6 +2508,7 @@ static double PredictOneResponse(
                     case  0: break;
                     case -1: Term *= max(0, Cuts_(iTerm, iPred) - x[iPred]); break;
                     case  1: Term *= max(0, x[iPred] - Cuts_(iTerm, iPred)); break;
+                    case  2: Term *= x[iPred]; break;
                     default: ASSERT("bad direction" == NULL); break;
                 }
             yHat += Term;
@@ -2394,7 +2517,7 @@ static double PredictOneResponse(
 }
 
 void PredictEarth(
-    double       y[],           // out: vector nResponses x 1
+    double       y[],           // out: vector nResponses
     const double x[],           // in: vector nPreds x 1 of input values
     const bool   UsedCols[],    // in: nMaxTerms x 1, indices of best set of cols of bx
     const int    Dirs[],        // in: nMaxTerms x nPreds, 1,0,-1 for iTerm iPred
@@ -2447,9 +2570,11 @@ int main(void)
     const double Thresh = .001;
     const int nMinSpan = 1;
     const bool Prune = true;
-    const int FastK = 20;
+    const int nFastK = 20;
     const double FastBeta = 0;
     const double NewVarPenalty = 0;
+    int   *LinPreds  = (int *)calloc1(nPreds, sizeof(int));
+    const bool UseBetaCache = true;
     const int nTrace = 3;
     const char **sPredNames = NULL;
 
@@ -2465,7 +2590,7 @@ int main(void)
     double *x = (double *)malloc1(nCases * nPreds   * sizeof(double));
     double *y = (double *)malloc1(nCases * nResponses * sizeof(double));
 
-    ASSERT(nResponses == 1);      // code in for loop below only works for nResponses == 1
+    ASSERT(nResponses == 1);    // code in for loop below only works for nResponses == 1
 
     for (int i = 0; i < nCases; i++) {
         const double x0 = (double)i / nCases;
@@ -2474,12 +2599,13 @@ int main(void)
     }
     Earth(&BestGcv, &nTerms, BestSet, bx, Dirs, Cuts, Residuals, Betas,
         x, y, nCases, nResponses, nPreds,
-        nMaxDegree, nMaxTerms, Penalty, Thresh, nMinSpan, Prune, 
-        FastK, FastBeta, NewVarPenalty, nTrace, sPredNames);
+        nMaxDegree, nMaxTerms, Penalty, Thresh, nMinSpan, Prune,
+        nFastK, FastBeta, NewVarPenalty, LinPreds, UseBetaCache, nTrace, sPredNames);
 
     printf("Expression:\n");
     FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms, 3, 0);
 
+    free1(LinPreds);
     free1(BestSet);
     free1(bx);
     free1(Dirs);

@@ -17,14 +17,15 @@ and \sQuote{Fast MARS}.
 \method{earth}{default}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
       weights = NULL, subset = NULL, na.action = na.fail,
       penalty = if(degree > 1) 3 else 2, trace = 0, keepxy = FALSE,
-      degree = 1, nk = max(21, 2 * NCOL(x) + 1),
+      nk = max(21, 2 * NCOL(x) + 1), degree = 1, 
+      linpreds = FALSE, allowed  = NULL,
       thresh = 0.001, minspan = 1, newvar.penalty = 0,
-      fast.k = 20, fast.beta = 1, fast.h = NULL,
+      fast.k = 20, fast.beta = 1,
       pmethod = "backward", ppenalty = penalty, nprune = NULL,
       Object  = NULL, Get.crit = get.gcv,
       Eval.model.subsets = eval.model.subsets,
       Print.pruning.pass = print.pruning.pass,
-      Force.xtx.prune = FALSE, \dots)
+      Force.xtx.prune = FALSE, Use.beta.cache = TRUE, \dots)
 }
 \arguments{
 All arguments are optional except \code{formula}, or \code{x} and \code{y}.
@@ -34,9 +35,8 @@ To start off, look at the arguments
 \code{formula},
 \code{x},
 \code{y},
-\code{degree},
 \code{nk}, and
-\code{nprune}.
+\code{degree}.
 
   \item{formula}{
      Model formula.
@@ -51,7 +51,7 @@ To start off, look at the arguments
      Vector containing the response variable,
      or in the case of multiple responses,
      a matrix whose columns are the response values for each variable.
-     If the \code{y} values are very big or very small then you may get
+     If the \code{y} values are very big or very small you may get
      better results if you \code{\link{scale}} \code{y} first for
      better numerical stability in the forward pass.
   }
@@ -66,28 +66,24 @@ To start off, look at the arguments
      NA action. Default is \code{na.fail}, and only \code{na.fail} is supported.
   }
   \item{penalty}{
-    Generalized Cross Validation (GCV) penalty per knot.
+    Generalised Cross Validation (GCV) penalty per knot.
     Default is \code{if(degree>1) 3 else 2}.
     A value of 0 penalises only terms, not knots.
     The value -1 is a special case, meaning no penalty, so GCV=RSS/n.
-    Theory suggests values in the range of about 2 to 3.
+    Theory suggests values in the range of about 2 to 4.
     In practice for big data sets, larger values can be useful to force a smaller model.
     See also \code{ppenalty}.
   }
   \item{trace}{
      Trace earth's execution.  Default is 0.  Values:
 
-     0 none 1 overview 2 forward 3 pruning 4 more pruning 5 \dots
+     0 none 1 overview 2 forward pass 3 pruning 4 more pruning 5 \dots
   }
   \item{keepxy}{
      Set to TRUE to retain \code{x}, \code{y}, and  \code{subset} in the returned value.
      Default is FALSE\cr
 
      \emph{The following arguments are for the forward pass}
-  }
-  \item{degree}{
-     Maximum degree of interaction (Friedman's \eqn{mi}).
-     Default is 1, meaning build an additive model.
   }
   \item{nk}{
      Maximum number of model terms before pruning.
@@ -99,6 +95,41 @@ To start off, look at the arguments
      or if a forward stopping condition is reached before \code{nk} terms.
      See the section below on the forward pass.
   }
+  \item{degree}{
+     Maximum degree of interaction (Friedman's \eqn{mi}).
+     Default is 1, meaning build an additive model (i.e. no interaction terms).
+  }
+  \item{linpreds}{
+     Index vector specifying which predictors must enter linearly,
+     as in \code{\link{lm}}.\cr
+     The default is FALSE, meaning all predictors enter
+     in the standard MARS fashion i.e. in hinge functions.\cr
+     A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}.
+     If you use the formula interface to \code{earth}, you may have
+     to exclude the response when counting columns.
+     As a sanity check, use \code{trace >= 2} to see a list of numbered predictors.\cr
+     An example is given in the FAQ section below.\cr
+     Note: in the current implementation, the GCV penalty for predictors
+     that enter linearly is the same as that for predictors with knots.
+     That is not quite correct; linear terms should be penalised less.
+  }
+  \item{allowed}{
+     Function specifying which predictors can interact and how.
+     Default is NULL, meaning all standard MARS terms are allowed.\cr
+     Earth calls the \code{allowed} function just before adding a term.
+     If \code{allowed} returns TRUE the term goes into the model as usual;
+     if \code{allowed} returns FALSE the term is discarded.
+     Your \code{allowed} function should have the the following prototype\cr
+     \code{allowed <- function(degree, pred, parents) \{...\}}\cr
+     where\cr
+        \code{degree} is the interaction degree of the candidate term. 
+              Will be 1 for additive terms.\cr
+        \code{pred} is the index of the candidate predictor.
+              For details of predictor indexing, see the description of
+              the \code{linpreds} argument above.\cr
+        \code{parents} is the candidate parent's row in \code{dirs}.\cr
+     An example is given in the FAQ section below.\cr
+  }
   \item{thresh}{
      Forward stepping threshold.
      Default is 0.001.
@@ -107,13 +138,16 @@ To start off, look at the arguments
      See the section below on the forward pass.
   }
   \item{minspan}{
-    Minimum distance between knots.\cr
-    The default value of 1 means consider all knots.\cr
-    The special value of 0 means calculate the minspan internally as per
+    Minimum distance between knots.
+    The default value of 1 means consider all knots (which is good if the
+    data are not noisy).
+    The special value of 0 means calculate the \code{minspan} internally as per
     Friedman's MARS paper section 3.8 with \eqn{alpha} = 0.05.
-    Intended to increase resistance to runs of noise in the input data.
     Set \code{trace>=2} to see the calculated value.\cr
-    \strong{Note: the default minspan was 0 prior to earth version 1.1 (July 2007).}
+    This argument is intended to increase resistance to runs of noise in the input data.
+    Higher values will increase smoothness in your model.\cr
+    Note: predictor value extremes are ineligible for knots
+    regardless of the \code{minspan} setting, as per the MARS paper equation 45.
   }
   \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
@@ -123,18 +157,18 @@ To start off, look at the arguments
      need to experiment.
      This argument can mitigate the effects of colinearity or concurvity
      in the input data, but anecdotal evidence is that it does not work very well.
-     If you know two variables are strongle correlated then you
-     would do better to delete one of them before building your MARS model.
+     If you know two variables are strongly correlated then you
+     would do better to delete one of them before building your model.
   }
   \item{fast.k}{
      Maximum number of parent terms considered at each step of the forward pass.
      Friedman invented this parameter to speed up the forward pass
      (see the Fast MARS paper section 3.0).
      Default is 20.
-     The special value -1 is equivalent to infinity, meaning no Fast MARS.
-     Typical values, apart from -1, are 20, 10, or 5.
+     Values of 0 or less are equivalent to infinity, meaning no Fast MARS.
+     Typical values, apart from 0, are 20, 10, or 5.
      In general, with a lower \code{fast.k} (say 5), \code{earth} is faster;
-     with a higher \code{fast.k}, or with \code{fast.k} disabled (set to -1), 
+     with a higher \code{fast.k}, or with \code{fast.k} disabled (set to 0),
      \code{earth} builds a better model.
      However it is not unusual to get a slightly better model with a lower \code{fast.k},
      and you may need to experiment.
@@ -145,15 +179,10 @@ To start off, look at the arguments
      Default is 1.
      A value of 0 sometimes gives better results.
   }
-  \item{fast.h}{
-     Fast MARS \eqn{h}, as described in the Fast MARS paper section 4.0.
-     (not yet implemented).\cr
-
      \emph{The following arguments are for the pruning pass.
      One strategy is to build a large model and then trim it
      back using \code{\link{update.earth}} with the arguments below.
      }
-  }
   \item{pmethod}{
      Pruning method.
      Default is \code{"backward"}.
@@ -172,8 +201,10 @@ To start off, look at the arguments
   }
   \item{nprune}{
      Maximum number of terms (including intercept) in the pruned model.
-     Default is NULL, meaning all terms.
-     Use this to reduce exhaustive search time, or to enforce a maximum model size.\cr
+     Default is NULL, meaning all terms created by the forward pass
+     (but typically not all terms will remain after pruning).
+     Use this to reduce exhaustive search time, or
+     to enforce an upper bound on the model size.\cr
 
     \emph{The following arguments are for internal or advanced use}
   }
@@ -194,22 +225,29 @@ To start off, look at the arguments
      --- see notes in source code.
   }
   \item{Force.xtx.prune}{
-Default is FALSE.
-This argument pertains to subset evaluation in the pruning pass.
-By default,
-if \code{y} has a single column then \code{earth} calls the \code{\link[leaps]{leaps}} routines;
-if \code{y} has multiple columns then \code{earth} calls \code{EvalSubsetsUsingXtx}.
-The \code{\link[leaps]{leaps}} routines are based on the QR decomposition;
-the \code{EvalSubsetsUsingXtx} routine is based on the inverse of X'X.
-The \code{\link[leaps]{leaps}} routines are more accurate but do not support multiple responses.
-Setting \code{Force.xtx.prune=TRUE} forces use of \code{EvalSubsetsUsingXtx}, even
-if \code{y} has a single column.
-}
+    Default is FALSE.
+    This argument pertains to subset evaluation in the pruning pass.
+    By default,
+    if \code{y} has a single column then \code{earth} calls the \code{\link[leaps]{leaps}} routines;
+    if \code{y} has multiple columns then \code{earth} calls \code{EvalSubsetsUsingXtx}.
+    The \code{\link[leaps]{leaps}} routines are based on the QR decomposition;
+    the \code{EvalSubsetsUsingXtx} routine is based on the inverse of X'X.
+    The \code{\link[leaps]{leaps}} routines are more accurate but do not support multiple responses.
+    Setting \code{Force.xtx.prune=TRUE} forces use of \code{EvalSubsetsUsingXtx}, even
+    if \code{y} has a single column.
+  }
+  \item{Use.beta.cache}{
+    Default is TRUE.
+    Using the "beta cache" takes more memory but is faster 
+    (by roughly 20\% for large models).
+    The beta cache uses \code{nk * nk * ncol(x) * sizeof(double)} bytes.
+    Set \code{Use.beta.cache=FALSE} to save memory.
+  }
   \item{\dots}{
      \code{earth.formula}: arguments passed to \code{earth.default}.
 
      \code{earth.default}: unused, but provided for generic/method consistency.
-  }
+ }
 }
 \value{
   An object of class \sQuote{earth} which is a list with the components
@@ -252,6 +290,7 @@ if \code{y} has a single column.
      Each row corresponds to a row in in the input matrix \code{x},
      after taking \code{subset}.
      See \code{\link{model.matrix.earth}} for an example of \code{bx} handling.
+     Note for brevity "h" is used instead of "pmax" in column names.
      Example \code{bx}:\preformatted{    (Intercept) h(Girth-12.9) h(12.9-Girth) h(Girth-12.9)*h(...
 [1,]          1           0.0           4.6                   0
 [2,]          1           0.0           4.3                   0
@@ -259,10 +298,13 @@ if \code{y} has a single column.
 ...}
 }
   \item{dirs}{
-     Matrix with \eqn{ij}-th element equal to 1 if term
-     \eqn{i} has a factor of the form \eqn{x_j > c}, equal to \eqn{-1} if
-     term \eqn{i} has a factor of the form \eqn{x_j \le c}, and to 0 if
-     \eqn{x_j} is not in term \eqn{i}.
+     Matrix with one row per MARS term, and with with ij-th element equal to\cr
+
+\code{0} if predictor j is not in term i\cr
+\code{-1} if a factor of the form \code{pmax(c - xj)} is in term i\cr
+\code{1} if a factor of the form \code{pmax(xj - c)} is in term i\cr
+\code{2} if predictor j enters term i linearly.\cr
+
      This matrix includes all terms generated by the forward.pass,
      including those not in \code{selected.terms}.
      Note that the terms may not be in pairs, because the forward pass
@@ -275,8 +317,8 @@ h(Girth-12.9)*h(Height-76) 1      1  #4th term uses Girth and Height
 ...}
   }
   \item{cuts}{
-     Matrix with \eqn{ij}-th element equal to the cut point
-     for variable \eqn{j} in term \eqn{i}.
+     Matrix with ij-th element equal to the cut point
+     for predictor j in term i.
      This matrix includes all terms generated by the forward.pass,
      including those not in \code{selected.terms}.
      Note that the terms may not be in pairs, because the forward pass
@@ -374,12 +416,7 @@ h(Girth-12.9)*h(Height-76)  12.9     76  #4th term has two cuts
   }
 }
 \note{
-\strong{Standard Model Functions}
-
-Standard model functions such as \code{\link{case.names}}
-are provided for \code{earth} objects and are not explicitly documented.
-
-\strong{Other Implementations}
+\strong{Other implementations}
 
 The results are similar to but not identical to other
 Multivariate Adaptive Regression Splines implementations.
@@ -401,74 +438,62 @@ Salford Systems \url{http://www.salfordsystems.com}.
 Their implementation uses an engine written by Friedman and
 offers more features than \code{earth}.
 
+StatSoft also have an implementation which they call MARSplines
+\url{http://www.statsoft.com/textbook/stmars.html}.
+
 \strong{Limitations}
 
 The following aspects of MARS
 are mentioned in Friedman's papers but not implemented in \code{earth}:
 
 i) Piecewise cubic models\cr
-ii) Specifying which predictors must enter linearly\cr
-iii) Specifying which predictors can interact\cr
-iv) Model slicing (\code{\link{plotmo}} goes part way)\cr
-v) Handling missing values\cr
-vi) Logistic regression \cr
-vii) Special handling of categorical predictors\cr
-viii) Fast MARS h parameter\cr
-ix) Cross validation to determine \code{penalty}\cr
-x) Anova tables with sigma and other information.
+ii) Model slicing (\code{\link{plotmo}} goes part way)\cr
+iii) Handling missing values\cr
+iv) Logistic regression \cr
+v) Special handling of categorical predictors\cr
+vi) Fast MARS h parameter\cr
+vii) Cross validation to determine \code{penalty}\cr
+viii) Anova tables with sigma and other information.
 
-\strong{Large Models and Execution Time}
+\strong{The forward pass}
 
-For a given set of input data,
-the following can increase the speed of the forward pass:
-
-i) decreasing \code{fast.k}\cr
-ii) decreasing \code{nk}\cr
-iii) decreasing \code{degree}\cr
-iv) increasing \code{threshold}\cr
-v) increasing \code{min.span}.
-
-The backward pass is normally much faster than the forward pass,
-unless \code{pmethod="exhaustive"}.
-Reducing \code{nprune} reduces exhaustive search time.
-One strategy is to first build a large model
-and then adjust pruning parameters such as \code{nprune} using \code{\link{update.earth}}.
-
-\strong{The Forward Pass}
+Understanding the details of the forward and pruning passes
+will help you understand the admittedly large number of earth arguments.
+The result of the forward pass is \code{$bx} and
+the set of terms defined by \code{$dirs}
+and \code{$cuts} (these are all fields in earth's return value).
 
 The forward pass adds terms in pairs until the first of the
 following conditions is met:
 
-i) reach maximum number of terms \code{(nterms>=nk)}\cr
-ii) reach DeltaRSq threshold \code{(DeltaRSq<thresh)} where
+i) reach maximum number of terms \code{(nterms >= nk)}\cr
+ii) reach DeltaRSq threshold \code{(DeltaRSq < thresh)} where
 DeltaRSq is the difference in R-Squared caused by adding the current term pair\cr
-iii) reach max RSq \code{(RSq>1-thresh)}\cr
+iii) reach max RSq \code{(RSq > 1-thresh)}\cr
 iv) reach min GRSq \code{(GRSq < -10)}.
 
 Set \code{trace>=1} to see the stopping condition.
 
-The result of the forward pass is the set of terms defined by \code{$dirs}
-and \code{$cuts} in earth's return value.
-
 Note that GCVs (via GRSq) are used during the forward pass only as one of the
-stopping conditions and in trace prints.
+stopping conditions and in \code{trace} prints.
 Changing the \code{penalty} argument does not change the knot positions.
 
 The various stopping conditions mean that the actual number of terms
-created by the forward pass may be less than nk.  
-There are some other
-reasons why the actual number of terms may be less than nk
+created by the forward pass may be less than \code{nk}.
+There are other
+reasons why the actual number of terms may be less than \code{nk}:
 (i) the forward pass discards one side of each term pair
-if it adds nothing to the model --- 
+if it adds nothing to the model ---
 but the forward pass counts terms as if they were actually created in pairs
 (ii) as a final step, the forward pass deletes linearly dependent terms, if any,
 so all terms in \code{$dirs} and \code{$cuts} are independent.
 And remember that the pruning pass will further discard terms.
 
-\strong{The Pruning Pass}
+\strong{The pruning pass}
 
 The pruning pass is handed the sets of terms created by the forward pass.
-Its job is to find the subset of these terms that gives the lowest GCV.
+Its job is to find the subset of those terms that gives the lowest GCV.
+
 The pruning pass works like this:
 it determines the subset of terms (using \code{pmethod})
 with the lowest RSS for each model size in \code{1:nprune}
@@ -489,22 +514,97 @@ By default \code{Get.crit} is \code{earth:::get.gcv}.
 Alternative \code{Get.crit} functions can be defined.
 See the source code of \code{get.gcv} for an example.
 
-\strong{Testing on New Data}
+\strong{Large models and execution time}
 
-This example demonstrates one way to train on 80\% of the data and
-test on the remaining 20\%.
-In practice a dataset larger than the one below should be used for splitting.
-Also, remember that the test set should not be used for parameter tuning ---
-use GCVs or separate validation sets for that.
+For a given set of input data,
+the following can increase the speed of the forward pass:
+
+i) decreasing \code{fast.k}\cr
+ii) decreasing \code{nk}\cr
+iii) decreasing \code{degree}\cr
+iv) increasing \code{threshold}\cr
+v) increasing \code{min.span}.
+
+The backward pass is normally much faster than the forward pass,
+unless \code{pmethod="exhaustive"}.
+Reducing \code{nprune} reduces exhaustive search time.
+One strategy is to first build a large model
+and then adjust pruning parameters such as \code{nprune} using \code{\link{update.earth}}.
+
+The following very rough rules of thumb apply for large models.
+Using \code{minspan=0} instead of the default \code{minspan=1} will increase speeds by 20 to 50\%.
+Using \code{fast.k} less than 20 can give you substantial speed gains 
+but you will often get a much smaller \code{GRSq}.
+Using an \code{allowed} function slows down model building by about 10\%.
+Using \code{Use.beta.cache=0} slows down model building by about 20\%.
+
+\strong{Multiple response models}
+
+If \code{y} has K columns then earth builds K simultaneous models.
+Each model has the same set of basis functions (i.e. same \code{bx} and \code{selected.terms})
+but different coefficients (the returned \code{coefficients} will have K columns).
+The models are built and pruned as usual but with the GCVs
+and RSSs averaged across all K responses.
+
+Since earth attempts to optimise for all models simultaneously,
+the results will not be as "good" as building the models independently.
+i.e. the GCV of the combined model will usually not be as good as
+the GCVS for independently built models.
+However, the combined model may be a better model in other senses,
+depending on what you are trying to achieve.
+
+For more details on using residual errors averaged over multiple responses see section 4.1 of
+Hastie, Tibshirani, and Buja \emph{Flexible Discriminant Analysis by Optimal Scoring},
+JASA, December 1994 \url{http://www-stat.stanford.edu/~hastie/Papers/fda.pdf}.
+
+\strong{Using earth with fda and mda}
+
+\code{Earth} can be used with \code{\link[mda]{fda}} and \code{\link[mda]{mda}}
+in the \code{mda} package.  Earth will generate a multiple response model,
+as described above.
+Use \code{keep.fitted=TRUE} if you want to call \code{\link{plot.earth}} later
+(actually only necessary for large datasets, see the description of
+\code{keep.fitted} in \code{\link[mda]{fda}}).
+Use \code{keepxy=TRUE} if you want to call 
+\code{\link{update.earth}} or \code{\link{plotmo}} later.
+Example:
 \preformatted{
-train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
-test.subset <- (1:nrow(trees))[-train.subset]
-a <- earth(Volume ~ ., data = trees[train.subset, ])
-yhat <- predict(a, newdata = trees[test.subset, ])
-y <- trees$Volume[test.subset]
-print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
+    library(mda)
+    (a <- fda(Species ~ ., data=iris, keep.fitted=TRUE, method=earth, keepxy=TRUE))
+    plot(a)
+    summary(a$fit)  # examine earth model embedded in fda model
+    plot(a$fit)
+    plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
+    plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+    }
+\strong{Standard model functions}
+
+Standard model functions such as \code{\link{case.names}}
+are provided for \code{earth} objects and are not explicitly documented.
+
+\strong{FREQUENTLY ASKED QUESTIONS}
+
+\strong{How can I train on one set of data and test on another?}
+
+The example below demonstrates one way to train on 80\% of the data and
+test on the remaining 20\%.
+\preformatted{
+    train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
+    test.subset <- (1:nrow(trees))[-train.subset]
+    a <- earth(Volume ~ ., data = trees[train.subset, ])
+    yhat <- predict(a, newdata = trees[test.subset, ])
+    y <- trees$Volume[test.subset]
+    print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 }
-\strong{Establishing variable importance}
+In practice a dataset larger than the one in the example should be used for splitting.
+The model variance is too high with this small set -- run the example a few
+times to see how the model changes as \code{\link[basic]{sample}}
+splits the dataset differently on each run.
+Also, remember that the test set should not be used for parameter tuning
+because you will be optimising for the test set ---
+use GCVs or separate validation sets for that.
+
+\strong{How can I establish variable importance?}
 
 Establishing predictor importance is in general a tricky and even controversial problem.
 
@@ -517,10 +617,10 @@ Calling \code{drop1(my.earth.model)} will delete each predictor in turn from you
 rebuild the model from scratch each time, and calculate the GCV each time.
 You will get warnings that the earth library function \code{extractAIC.earth} is
 returning GCVs instead of AICs --- but that is what you want so you can
-ignore the warnings.  
+ignore the warnings.
 The column labeled \code{AIC} in the printed response
-from \code{\link{drop1}} will actually be a column of GCVs not AICs.  
-The \code{Df} column is not much use in this context.  
+from \code{\link{drop1}} will actually be a column of GCVs not AICs.
+The \code{Df} column is not much use in this context.
 
 You will get lots of output from \code{\link{drop1}} if you built your original earth
 model with \code{trace>0}.
@@ -528,79 +628,254 @@ You can set \code{trace=0} by updating your model before calling \code{\link{dro
 Do it like this:\cr
 \code{my.model <- \link{update.earth}(my.model, trace=0)}.
 
+You can also use \code{\link[caret]{varImp}} in the \code{caret} package.
+
 Remember that these techniques only tell you how important
 a variable is with the other variables already in the model.
-There are alternative ways of measuring variable importance (using
-resampling) but they are not yet implemented.
+
+MARS models have a high variance in the sense that if the
+data changes a little the set of basis terms created by the forward pass
+can change a lot.
+So the above estimates of predictor importance are unreliable
+because they can vary with even slightly different training data.
+Furthermore, if two predictors are correlated, the forward pass will
+somewhat arbitrarily choose one over the other.
+The chosen predictor will incorrectly appear more important.
+There are better ways of measuring variable importance (using
+resampling) but they are not yet implemented in the \code{earth} package.
 
 \strong{Which predictors were added to the model first?}
 
 You can see the forward pass adding terms with \code{trace=2} or higher.
-But remember, pruning will remove some of the terms.
-Another approach is to use
-
-\code{summary(my.model, decomp="none")}
-
+But remember, pruning will usually remove some of the terms.
+You can also use
+\preformatted{
+    summary(my.model, decomp="none")
+}
 which will list the basis functions remaining after pruning,
 in the order they were added by the forward pass.
 
-\strong{Which predictors are actually used in the model?}
+\strong{Which predictors are actually in the model?}
 
-The following function will give you a a list of the predictors in the model:
+Well, you can always use \code{\link{summary.earth}}.
+Or use the following function which will give you a
+list of the predictors in the model:
 \preformatted{
-get.used.pred.names <- function(obj)   # obj is an earth object
-    names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any)))
+    get.used.pred.names <- function(obj)   # obj is an earth object
+        names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any)))
 }
-\strong{Why do I get fewer terms than nk, even with prune="none"?}
+\strong{Why do I get fewer terms than \code{nk}, even with \code{prune="none"}?}
 
+The forward pass typically stops before reaching \code{nk}.
 See the section above on the forward pass.
 
-\strong{Multiple Response Models}
+\strong{Why do I get fewer terms than \code{nprune}?}
 
-If \code{y} has K columns then earth builds K simultaneous models.
-Each model has the same set of basis functions (i.e. same \code{bx} and \code{selected.terms})
-but different coefficients (the returned \code{coefficients} will have K columns).
-The models are built and pruned as usual but with the GCVs
-and RSSs averaged across all K responses.
+The pruning pass selects a model with the lowest GCV
+that has \code{nprune} or fewer terms.
+Thus the \code{nprune} argument specifies the \emph{maximum}
+number of permissible terms in the final pruned model.
 
-Since earth attempts to optimize for all models simultaneously,
-the results will not be as "good" as building the models independently.
-i.e. the GCV of the combined model will not be as good as 
-the GCVS for independent models, on the whole.
-However, the combined model may be a better model in other senses,
-depending on what you are trying to achieve.
-
-For more details on using GCVs averaged over multiple responses see section 4.1 of 
-Hastie, Tibshirani, and Buja \emph{Flexible Discriminant Analysis by Optimal Scoring},
-JASA, December 1994 \url{http://www-stat.stanford.edu/~hastie/Papers/fda.pdf}.
-
-\strong{Using earth with fda and mda}
-
-\code{Earth} can be used with \code{\link[mda]{fda}} and \code{\link[mda]{mda}}
-in the \code{mda} package.  Earth will generate a multiple response model,
-as described above.
-Use \code{keep.fitted=TRUE} if you want to call \code{\link{plot.earth}} later
-(actually only necessary for large datasets, see the description of 
-\code{keep.fitted} in \code{\link[mda]{fda}}).
-Use \code{keepxy=TRUE} if you want to call \code{update} or \code{\link{plotmo}} later.
-Use \code{trace>=5} to see the call to \code{earth} generated by \code{fda} or \code{mda}.
-Example:
+You can get exactly \code{nprune} terms by specifying \code{ppenalty = -1}.
+This special value of \code{ppenalty} causes earth to set the GCV to
+\code{RSS/nrow(x)}.
+Since the training RSS always decreases with more terms,
+the pruning pass will choose the maximum allowable number of terms.
+An example:
 \preformatted{
-library(mda)
-(a <- fda(Species ~ ., data=iris, keep.fitted=TRUE, method=earth, keepxy=TRUE))
-plot(a)
-summary(a$fit)  # examine earth model embedded in fda model
-plot(a$fit)
-plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
-plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+    earth(Volume ~ ., data = trees, penalty=-1, trace=4)
 }
-\strong{Warning and Error Messages}
+\strong{Can you give an example of the \code{linpreds} argument?}
 
-\code{Earth} prints most error and warning messages without
-printing the \sQuote{call}.
-If you are mystified by a warning message, try
-setting \code{\link{options}(warn=2)}
-and using \code{\link{traceback}}.
+With \code{lindeps} you can specify which predictors should enter linearly
+(instead of in hinge functions). 
+
+Starting with
+\preformatted{
+    a1 <- earth(Volume ~ ., data = trees)
+    plotmo(a1)
+}
+we see in the \code{\link{plotmo}} graphs that the \code{Height}
+is not as important as the \code{Girth}.
+For collaborative evidence that \code{Girth} is a more reliable
+indicator of \code{Volume} you can use \code{\link{pairs}}:
+\preformatted{
+    pairs(trees, panel = panel.smooth, main = "trees data")
+}
+Since we want the simplest possible model that describes the data,
+we can specify that \code{Height} should enter linearly:
+\preformatted{
+    a2 <- earth(Volume ~ ., data = trees, linpreds = 2)  # 2 is Height column
+    summary(a2)
+}
+which yields
+\preformatted{
+    Expression:
+      0.734
+      + 0.359 * Height
+      +  6.19 * pmax(0,  Girth -   13.7)
+      -  2.96 * pmax(0,   13.7 -  Girth)
+}
+In this example, the second simpler model has the same GCV as the first model.
+We can make both \code{Girth} and \code{Height} enter linearly with
+\preformatted{
+    a2 <- earth(Volume ~ ., data = trees, linpreds = c(1,2))
+}
+or with
+\preformatted{
+    a3 <- earth(Volume ~ ., data = trees, linpreds = TRUE)
+}
+But making all predictors enter linearly is not really a useful thing to do.
+In our simple example, the all-linear MARS model is the
+same as a standard linear model
+\preformatted{
+    a4 <- lm(Volume ~ ., data = trees)
+}
+but in general that will not be true: the forward pass
+will stop adding predictors if it realizes
+that adding more predictors does not improve the model.
+
+\strong{Can you give an example of the \code{allowed} argument?}
+
+You can specify how variables are allowed to enter MARS terms
+with the \code{allowed} argument.
+The interface is flexible but can be a bit tricky to use.
+
+We start with a simple example, which completely excludes one predictor
+from the model:
+\preformatted{
+    example1  <- function(degree, pred, parents)   # returns TRUE if allowed
+    {
+        pred != 2  # disallow predictor 2, which is "Height"
+    }
+    a1 <- earth(Volume ~ ., data = trees, allowed = example1)
+    print(summary(a1))
+}
+But that's not much use, because it's simpler to exclude the predictor
+from the input matrix when invoking earth:
+\preformatted{
+    a1 <- earth(Volume ~ . - Height, data = trees)
+}
+Here is a more useful example. It prevents the specified predictor
+from being used in interaction terms.
+Note that the \code{parents} argument is the candidate parent's row in the \code{$dirs} matrix
+(\code{$dirs} is described in the Value section above).
+Each entry of \code{parents} is 0, 1, -1, or 2, and you index
+\code{parents} on the predictor index.
+So \code{parents[pred]} is 0 if \code{pred} is not in the parent term.
+
+The example is artificial because it's unlikely you
+would actually want to exclude humidity from interactions in the ozone data.
+
+\preformatted{
+    example2 <- function(degree, pred, parents)
+    {
+        # disallow humidity in terms of degree > 1
+        # 3 is the "humidity" column in the input matrix
+        if (degree > 1 && (pred == 3 || parents[3]))
+            return(FALSE)
+        TRUE
+    }
+    a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
+    print(summary(a))
+}
+The following example allows only the specified predictors
+in interaction terms:
+\preformatted{
+    example3 <- function(degree, pred, parents)
+    {
+        # allow only humidity and temp in terms of degree > 1
+        # 3 and 4 are the "humidity" and "temp" columns
+        allowed.set = c(3,4)
+        if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
+            return(FALSE)
+        TRUE
+    }
+    a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
+    print(summary(a))
+}
+You can expect model building to be about 10\% slower with an \code{allowed} function.
+
+\strong{How does \code{summary.earth} order terms?}
+
+With \code{decomp="none"},
+the terms are ordered as created by the forward pass.
+
+With the default \code{decomp="anova"},
+the terms are ordered in increasing order of interaction.
+In detail:\cr
+(i) terms are sorted first on degree of interaction\cr
+(ii) then terms with a \code{lindeps} linear factor before standard terms\cr
+(iii) then on the predictors in the factors (in
+the order of the columns in the input matrix)\cr
+(ii) and finally on increasing knot values.
+
+It's actually \code{\link{reorder.earth}} that does the ordering.
+
+A slightly different and less predictable ordering was used prior to earth version 1.2 (Jan 2008).
+The change also affects the ordering of \code{degree2} \code{\link{plotmo}} plots.
+
+\strong{What about boosting MARS?}
+
+If you want to boost, use boosted trees rather than boosted MARS --- you
+will get better results.
+
+More precisely, although boosted MARS gives better results than plain MARS,
+if you would like to improve prediction performance (at the cost
+of a more complicated and less interpretable model)
+you will usually get better results with
+boosted \code{\link[rpart]{rpart}} trees than with boosted MARS.
+See Gillian Ward (2007) \emph{Statistics in Ecological Modeling:
+Presence-Only Data and Boosted Mars (Doctoral Thesis)}
+\url{http://www-stat.stanford.edu/~hastie/THESES/Gill\_Ward.pdf}.
+
+This could change as the state of the art advances.
+
+\strong{What is a GCV, in simple terms?}
+
+GCVs are important for MARS because the pruning pass
+uses GCVs to evaluate model subsets.
+
+In general terms,
+when testing a model
+(not necessarily a MARS model)
+we want to test \emph{generalisation} performance and so
+want to measure error on independent data i.e. not on the training data.
+Often a decent set of independent data is unavailable and so we
+resort to cross validation or leave-one-out methods.
+But that can be painfully slow.
+For certain forms of model we can use a formula to
+approximate the error that would determined by leave-one-out
+validation --- that approximation is the GCV.
+The formula adjusts (i.e. increases) the mean training RSS to take into
+account the flexibility of the model.
+Summarising, the GCV approximates the mean RSS that would
+be measured on independent data.
+
+GCVs were introduced by Craven and Wahba, and extended by Friedman.
+See Hastie et al. p216 and the Friedman MARS paper for more.
+GCV stands for "Generalised Cross Validation", a perhaps misleading term.
+
+The \code{GRSq} measure used in the earth package standardises the raw GCV,
+in the same way that R-Squared standardises the RSS.
+The \code{GRSq}, although useful, does not have the nice statistical properties of
+R-Squared and should be taken with a pinch of salt.
+
+\strong{If GCVs are so important, why don't linear models use them?}
+
+The more flexible a model, the more its propensity to overfit the training data
+(an overfit model fits the training data well but will not
+give good prediction results on new data).
+Linear models are simple and don't have the tendency
+to overfit the data like more flexible models such as MARS.
+This means that for linear models the RSS is usually an
+adequate measure of generalisation ability.
+
+This is no longer true if you do predictor selection on linear models,
+because the process of selecting predictors increases the flexibility
+of the model. Hence the AIC and friends ---
+as used in, say, \code{\link{drop1}}
+The AIC and GCV are means to the same end.
 }
 \author{
   Stephen Milborrow, derived from \code{mda::\link[mda]{mars}}
@@ -619,13 +894,13 @@ milboATsonicPERIODnet \url{http://www.milbo.users.sonic.net}.
   Earth's pruning pass uses the \code{\link[leaps]{leaps}} package which is based on
   techniques in Miller.
 
-  Faraway \emph{Extending the Linear Model with R}
+  Faraway (2005) \emph{Extending the Linear Model with R}
   \url{http://www.maths.bath.ac.uk/~jjf23}
 
-  Friedman  (1991) \emph{Multivariate Adaptive Regression Splines (with discussion)}
+  Friedman (1991) \emph{Multivariate Adaptive Regression Splines (with discussion)}
   Annals of Statistics 19/1, 1--141
 
-  Friedman  (1993) \emph{Fast MARS}
+  Friedman (1993) \emph{Fast MARS}
   Stanford University Department of Statistics, Technical Report 110
   \url{http://www-stat.stanford.edu/research/index.html}
 
@@ -656,13 +931,13 @@ summary(a, digits = 2)
 # yields:
 #    Call:
 #    earth(formula = Volume ~ ., data = trees)
-#    
+#
 #    Expression:
-#      27 
-#      +    6 * pmax(0,  Girth -     14) 
-#      -  3.2 * pmax(0,     14 -  Girth) 
-#      + 0.61 * pmax(0, Height -     75) 
-#    
+#      27
+#      +    6 * pmax(0,  Girth -     14)
+#      -  3.2 * pmax(0,     14 -  Girth)
+#      + 0.61 * pmax(0, Height -     75)
+#
 #    Number of cases: 31
 #    Selected 4 of 5 terms, and 2 of 2 predictors
 #    Number of terms at each degree of interaction: 1 3 (additive model)

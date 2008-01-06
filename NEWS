@@ -1,6 +1,12 @@
 Changes to Earth Package
 ------------------------
 
+1.2-0 Added linpreds, allowed, and Use.beta.cache arguments
+      Anova decomp is now more consistent
+      Added a few GPL headers
+      Reinstated the beta cache
+      More man page tweaks
+
 1.1-5 Fixed bug reported by Joe Ritzer: long predictor names got munged in plotmo
       Changed "class" to "response" throughout when used for the 
       predicted responses in the input y.
@@ -24,4 +30,3 @@ Changes to Earth Package
 1.0-7 Minor change to summary.earth formatting.  Man page fixes.
 
 1.0-6 Initial release
-

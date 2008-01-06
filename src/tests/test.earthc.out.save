@@ -106,7 +106,8 @@ TEST 4: FUNCTION x0 + noise N=1000
 
 =============================================================================
 TEST 5: x0 + x1 N=1000
-earth.c version 1.1
+earth.c version 1.2a
+BetaCache 0.002 Mb
 Forward pass: model matrix[1000,2]   y[1000,1]   minspan 9   endspan 17
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -121,29 +122,32 @@ Forward pass: model matrix[1000,2]   y[1000,1]   minspan 9   endspan 17
 2      0.4781 0.4833       0.4833   289.188    2     0.8338  2   3   
 
 |Searching for new term 4                      RssDelta 0
+|Parent 2  Pred 1  Case    1 Cut      -0.9987< RssDelta 8.0457       BestRssDeltaSoFar
+|                  Case  289 Cut      -0.5069  RssDelta 8.0648       BestRssDeltaSoFar
+|Parent 2  Pred 2                                                    skip (pred is in parent)
+|Parent 3  Pred 1  Case    1 Cut      -0.9987< RssDelta 218.58       BestRssDeltaSoFar
+|                  Case  217 Cut      -0.6186  RssDelta 218.7        BestRssDeltaSoFar
+|Parent 3  Pred 2                                                    skip (pred is in parent)
 |Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 280.81       BestRssDeltaSoFar
 |                  Case  901 Cut       0.7026  RssDelta 280.83       BestRssDeltaSoFar
 |Parent 1  Pred 2  
-|Parent 2  Pred 1  Case    1 Cut      -0.9987< RssDelta 8.0457       
-|Parent 2  Pred 2                                                    skip (pred is in parent)
-|Parent 3  Pred 1  Case    1 Cut      -0.9987< RssDelta 218.58       
-|Parent 3  Pred 2                                                    skip (pred is in parent)
 
 4      0.9848 0.9851       0.5017   8.36111    1     0.7026  4   5   
 
 |Searching for new term 6                      RssDelta 0
+|Parent 5  Pred 1                                                    skip (pred is in parent)
+|Parent 5  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0079213    BestRssDeltaSoFar
+|                  Case  946 Cut       0.8338  RssDelta 0.011519     BestRssDeltaSoFar
+|Parent 4  Pred 1                                                    skip (pred is in parent)
+|Parent 4  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0018915    
 |Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 0            
 |                  Case  982 Cut       0.9411  RssDelta 0.014144     BestRssDeltaSoFar
 |Parent 1  Pred 2  Case    1 Cut      -0.9987< RssDelta 0            
-|Parent 2  Pred 1  Case    1 Cut      -0.9987< RssDelta 0.00058621   
-|Parent 2  Pred 2                                                    skip (pred is in parent)
 |Parent 3  Pred 1  Case    1 Cut      -0.9987< RssDelta 0.0068694    
 |                  Case  442 Cut       -0.237  RssDelta 0.022549     BestRssDeltaSoFar
 |Parent 3  Pred 2                                                    skip (pred is in parent)
-|Parent 4  Pred 1                                                    skip (pred is in parent)
-|Parent 4  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0018915    
-|Parent 5  Pred 1                                                    skip (pred is in parent)
-|Parent 5  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0079213    
+|Parent 2  Pred 1  Case    1 Cut      -0.9987< RssDelta 0.00058621   
+|Parent 2  Pred 2                                                    skip (pred is in parent)
 
 6      0.9846 0.9851    4.029e-05   8.33857    1     -0.237  6   7   reject term
 
@@ -1388,7 +1392,8 @@ TEST 23: FUNCTION eqn56 mi=10 N=100
 
 =============================================================================
 TEST 24: x0 + x1 + x0*x1 N=30
-earth.c version 1.1
+earth.c version 1.2a
+BetaCache 0.040 Mb
 Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1402,74 +1407,41 @@ Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
 2      0.3635 0.5640        0.564   8.10849    2    -0.1126  2   3   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      1                 2     -1.0  10.4905
-              2      2                 2     -1.0  inf
-              3      3                 2     -1.0  inf
-
-
 |Searching for new term 4                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 5.0831       BestRssDeltaSoFar
-|                  Case   16 Cut      -0.2974  RssDelta 5.1805       BestRssDeltaSoFar
-|Parent 1  Pred 2  
 |Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaSoFar
 |Parent 2  Pred 2                                                    skip (pred is in parent)
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.089228     
 |Parent 3  Pred 2                                                    skip (pred is in parent)
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 5.0831       
+|Parent 1  Pred 2  
 
 4      0.8640 0.9253       0.3612    1.3898    1    -0.9681< 4       2   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      1                 4     -1.0  5.18053
-              2      2                 4     -1.0  6.71869
-              3      3                 4     -1.0  0.21639
-              4      4                 4     -1.0  inf
-
-
 |Searching for new term 6                      RssDelta 0
+|Parent 4                                                            skip (nFactorsInTerm 2)
+|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
+|Parent 2  Pred 2                                                    skip (pred is in parent)
 |Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.87164      BestRssDeltaSoFar
 |                  Case   16 Cut      -0.2974  RssDelta 0.89183      BestRssDeltaSoFar
 |Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
-|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
-|Parent 2  Pred 2                                                    skip (pred is in parent)
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.12546      
 |Parent 3  Pred 2                                                    skip (pred is in parent)
-|Parent 4                                                            skip (nFactorsInTerm 2)
 
 6      0.9173 0.9732      0.04795  0.497969    1    -0.2974  5   6   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      1                 6     -1.0  0.891833
-              2      2                 6     -1.0  0
-              3      3                 6     -1.0  0.209175
-              4      4                 6     -1.0  -1
-              5      5                 6     -1.0  inf
-              6      6                 6     -1.0  inf
-
-
 |Searching for new term 8                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
-|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
-|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
-|Parent 2  Pred 2                                                    skip (pred is in parent)
-|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaSoFar
-|Parent 3  Pred 2                                                    skip (pred is in parent)
-|Parent 4                                                            skip (nFactorsInTerm 2)
 |Parent 5                                                            skip (nFactorsInTerm 99)
 |Parent 6  Pred 1                                                    skip (pred is in parent)
-|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      
+|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
+|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
+|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaSoFar
+|Parent 3  Pred 2                                                    skip (pred is in parent)
+|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
+|Parent 2  Pred 2                                                    skip (pred is in parent)
+|Parent 4                                                            skip (nFactorsInTerm 2)
 
 8      1.0000 1.0000      0.02677         0    1    -0.9681< 7       3   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      1                 8     -1.0  0
-              2      2                 8     -1.0  0
-              3      3                 8     -1.0  0.497969
-              4      4                 8     -1.0  -1
-              5      5                 8     -1.0  -1
-              6      6                 8     -1.0  0.345944
-              7      7                 8     -1.0  inf
-
 
 GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
@@ -1520,7 +1492,8 @@ TEST 24: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 N=30
-earth.c version 1.1
+earth.c version 1.2a
+BetaCache 0.040 Mb
 Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1534,12 +1507,6 @@ Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
 2      0.3635 0.5640        0.564   8.10849    2    -0.1126  2   3   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      2                 2     -1.0  inf
-              2      3                 2     -1.0  inf
-              3      1                 2     -1.0  10.4905
-
-
 |Searching for new term 4                      RssDelta 0
 |Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaSoFar
 |Parent 2  Pred 2                                                    skip (pred is in parent)
@@ -1549,14 +1516,6 @@ SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
 |Parent 1  Pred 2  
 
 4      0.8640 0.9253       0.3612    1.3898    1    -0.9681< 4       2   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      4                 4     -1.0  inf
-              2      2                 4     -1.0  6.71869
-              3      1                 4     -1.0  5.18053
-              4      3                 4     -1.0  0.21639
-FastK 4 ----------------------------------------------------
-
 
 |Searching for new term 6                      RssDelta 0
 |Parent 4                                                            skip (nFactorsInTerm 2)
@@ -1570,16 +1529,6 @@ FastK 4 ----------------------------------------------------
 
 6      0.9173 0.9732      0.04795  0.497969    1    -0.2974  5   6   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      5                 6     -1.0  inf
-              2      6                 6     -1.0  inf
-              3      1                 6     -1.0  0.891833
-              4      3                 6     -1.0  0.209175
-FastK 4 ----------------------------------------------------
-              5      2                 6     -1.0  0
-              6      4                 6     -1.0  -1
-
-
 |Searching for new term 8                      RssDelta 0
 |Parent 5                                                            skip (nFactorsInTerm 99)
 |Parent 6  Pred 1                                                    skip (pred is in parent)
@@ -1590,17 +1539,6 @@ FastK 4 ----------------------------------------------------
 |Parent 3  Pred 2                                                    skip (pred is in parent)
 
 8      1.0000 1.0000      0.02677         0    1    -0.9681< 7       3   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      7                 8     -1.0  inf
-              2      3                 8     -1.0  0.497969
-              3      6                 8     -1.0  0.345944
-              4      1                 8     -1.0  0
-FastK 4 ----------------------------------------------------
-              5      2                 6     -1.0  0
-              6      4                 6     -1.0  -1
-              7      5                 8     -1.0  -1
-
 
 GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
@@ -1651,7 +1589,8 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
-earth.c version 1.1
+earth.c version 1.2a
+BetaCache 0.040 Mb
 Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1665,12 +1604,6 @@ Forward pass: model matrix[30,2]   y[30,1]   minspan 5   endspan 12
 
 2      0.3635 0.5640        0.564   8.10849    2    -0.1126  2   3   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      2                 2      0.0  inf
-              2      3                 2      1.0  inf
-              3      1                 2      2.0  10.4905
-
-
 |Searching for new term 4                      RssDelta 0
 |Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaSoFar
 |Parent 2  Pred 2                                                    skip (pred is in parent)
@@ -1680,14 +1613,6 @@ SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
 |Parent 1  Pred 2  
 
 4      0.8640 0.9253       0.3612    1.3898    1    -0.9681< 4       2   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      4                 4      0.0  inf
-              2      2                 4      1.0  6.71869
-              3      1                 4      2.0  5.18053
-              4      3                 4      3.0  0.21639
-FastK 4 ----------------------------------------------------
-
 
 |Searching for new term 6                      RssDelta 0
 |Parent 4                                                            skip (nFactorsInTerm 2)
@@ -1701,16 +1626,6 @@ FastK 4 ----------------------------------------------------
 
 6      0.9173 0.9732      0.04795  0.497969    1    -0.2974  5   6   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      5                 6      0.0  inf
-              2      6                 6      1.0  inf
-              3      1                 6      2.0  0.891833
-              4      3                 6      3.0  0.209175
-FastK 4 ----------------------------------------------------
-              5      2                 6      4.0  0
-              6      4                 6      5.0  -1
-
-
 |Searching for new term 8                      RssDelta 0
 |Parent 5                                                            skip (nFactorsInTerm 99)
 |Parent 6  Pred 1                                                    skip (pred is in parent)
@@ -1721,17 +1636,6 @@ FastK 4 ----------------------------------------------------
 |Parent 3  Pred 2                                                    skip (pred is in parent)
 
 8      1.0000 1.0000      0.02677         0    1    -0.9681< 7       3   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      7                 8      0.0  inf
-              2      3                 8      1.0  0.497969
-              3      6                 8      2.0  0.345944
-              4      1                 8      3.0  0
-FastK 4 ----------------------------------------------------
-              5      2                 6      6.0  0
-              6      5                 8      6.0  -1
-              7      4                 6      7.0  -1
-
 
 GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
@@ -1862,7 +1766,8 @@ Response 2:
 
 =============================================================================
 TEST 29: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
-earth.c version 1.1
+earth.c version 1.2a
+BetaCache 0.040 Mb
 Forward pass: model matrix[100,2]   y[100,2]   minspan 7   endspan 13
 
          GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
@@ -1875,12 +1780,6 @@ Forward pass: model matrix[100,2]   y[100,2]   minspan 7   endspan 13
 
 2      0.4563 0.5098       0.5098   62.2734    1     0.1441  2   3   
 
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      2                 2     -1.0  inf
-              2      3                 2     -1.0  inf
-              3      1                 2     -1.0  64.7734
-
-
 |Searching for new term 4                      RssDelta 0
 |Parent 2  Pred 1                                                    skip (pred is in parent)
 |Parent 2  Pred 2  Case    1 Cut      -0.9801< RssDelta 40.014       BestRssDeltaSoFar
@@ -1892,14 +1791,6 @@ SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
 |                  Case   78 Cut       0.2735  RssDelta 41.958       BestRssDeltaSoFar
 
 4      0.8021 0.8401       0.3303   20.3155    2     0.2735  4   5   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      4                 4     -1.0  inf
-              2      5                 4     -1.0  inf
-              3      1                 4     -1.0  41.958
-              4      2                 4     -1.0  40.0527
-              5      3                 4     -1.0  3.09434
-
 
 |Searching for new term 6                      RssDelta 0
 |Parent 4  Pred 1  Case    1 Cut      -0.9936< RssDelta 11.007       BestRssDeltaSoFar
@@ -1916,16 +1807,6 @@ SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
 |Parent 3  Pred 2  Case    1 Cut      -0.9801< RssDelta 17.96        
 
 6      0.9797 0.9854       0.1453   1.85244    1    -0.3074  6   7   5   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      6                 6     -1.0  inf
-              2      7                 6     -1.0  inf
-              3      5                 6     -1.0  18.4631
-              4      3                 6     -1.0  17.9844
-              5      2                 6     -1.0  13.998
-              6      4                 6     -1.0  11.0304
-              7      1                 6     -1.0  0.116901
-
 
 |Searching for new term 8                      RssDelta 0
 |Parent 6                                                            skip (nFactorsInTerm 2)
@@ -1944,17 +1825,6 @@ SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
 |Parent 1  Pred 2  Case    1 Cut      -0.9801< RssDelta 0            
 
 8      1.0000 1.0000      0.01458         0    1    -0.9936< 8       4   
-
-SortedQ  QIndex Parent nTermsForRssDelta AgedRank  RssDelta
-              1      8                 8     -1.0  inf
-              2      4                 8     -1.0  1.85244
-              3      3                 8     -1.0  1.5951
-              4      2                 8     -1.0  1.08572
-              5      1                 8     -1.0  0.0115494
-              6      5                 8     -1.0  0.000836728
-              7      6                 8     -1.0  -1
-              8      7                 8     -1.0  -1
-
 
 GRSq: 1 RSq: 1
 Reached max RSq (RSq 1 > 0.999)
