@@ -7,10 +7,10 @@ library(mda)
 data(ozone1)
 data(trees)
 
-print.time <- FALSE         # FALSE for no time results (for diff against reference)
-plot.it.default <- TRUE     # TRUE to do plots too, FALSE for speed
+PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
+PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
 options.old <- options()
-options(digits = 3)
+options(digits = 5)
 
 #--- test examples from man pages ------------------------------------------------------------
 
@@ -29,14 +29,18 @@ print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
 cat("--- print.default of earth object---------\n")
 print.default(a, digits=3)
 cat("--- done print.default of earth object----\n")
-plot(a)
+if (PLOT)
+    plot(a)
 library(mda)
 (a <- fda(Species~., data=iris, method=earth, keepxy=TRUE))
-plot(a)
+if (PLOT)
+    plot(a)
 print(summary(a$fit))
-plot(a$fit)
-plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
-plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+if (PLOT) {
+    plot(a$fit)
+    plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
+    plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+}
 a <- update(a, nk=3) # not on man page
 print(a)
 print(summary(a$fit))
@@ -58,6 +62,17 @@ my.func <- as.func(a, use.names = FALSE)
 print(my.func(c(10,80)))     # yields 17.76888
 print(predict(a, c(10,80)))  # yields 17.76888, but is slower
 example(format.earth)
+cat(format(a)) # basic tests of format.earth
+cat(format(a, digits=4))
+cat(format(a, use.names=FALSE))
+cat(format(a, add.labels=TRUE))
+cat(format(a, use.names=FALSE, add.labels=TRUE))
+a <- lm(Volume ~ ., data = trees)
+# cat(format(a)) # basic tests of format.lm
+# cat(format(a, digits=4))
+# cat(format(a, use.names=FALSE))
+# cat(format(a, add.labels=TRUE))
+# cat(format(a, use.names=FALSE, add.labels=TRUE))
 cat("--- mars.to.earth.Rd ----------------------\n")
 example(mars.to.earth) # doesn't do anything
 library(mda)
@@ -66,9 +81,11 @@ a <- mars.to.earth(a)
 summary(a, digits = 2)
 print(summary(a, digits=2))
 cat("--- plot.earth.models.Rd ----------------------\n")
-example(plot.earth.models)
+if (PLOT)
+    example(plot.earth.models)
 cat("--- plot.earth.Rd ----------------------\n")
-example(plot.earth)
+if (PLOT)
+    example(plot.earth)
 cat("--- predict.earth.Rd ----------------------\n")
 example(predict.earth)
 cat("--- update.earth.Rd ----------------------\n")
@@ -160,7 +177,7 @@ test.model.rsq <- function(object, x, y, MarsFunc, nCases, nUsedTerms, penalty, 
 
 # this uses the global matrix data.global (data.global[,1] is the response)
 
-test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default,
+test.earth <- function(itest, func, degree=2, nk=51, plotit=PLOT,
                        test.rsq=TRUE, trace=0, linpreds=FALSE)
 {
     cat("itest", sprintf("%-3d", itest), sprintf("%-32s", deparse(substitute(func))),
@@ -176,7 +193,7 @@ test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default,
     penalty <- ifelse(degree>1,3,2)
     nUsedTerms <- sum(fite$selected.terms!=0)
     cat(" nTerms",  sprintf("%-2d", nUsedTerms), "of", sprintf("%-3d ", nrow(fite$dirs)))
-    if(print.time)
+    if(PRINT.TIME)
         cat(" time", earthTime[1])
     cat("GRSq", sprintf("%4.2g", fite$grsq))
     caption <- paste("itest ", itest, ": ", deparse(substitute(func)),
@@ -193,7 +210,7 @@ test.earth <- function(itest, func, degree=2, nk=51, plotit=plot.it.default,
 }
 
 ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
-                    plotit=plot.it.default, trace=0, col.loess="lightblue")
+                    plotit=PLOT, trace=0, col.loess="lightblue")
 {
     fite <- earth(x, y, degree=degree, nk=nk, trace=trace)
     fitm <- mars(x, y, degree=degree, nk=nk)
@@ -375,18 +392,20 @@ newdata <- data.frame(
 apred <- as.double(predict(a, newdata=newdata))
 alinpred <- as.double(predict(alin, newdata=newdata))
 stopifnot(all.equal(apred, alinpred))
-print(head(predict(a, type="terms")))
+# print(head(predict(a, type="terms")))
 print(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
 
 # test with mixed linear and standard predictors
 itest <- itest+1; cat("itest", sprintf("%-3d", itest), "\n")
 a <- earth(O3 ~ ., linpreds=c(3, 8), data = ozone1, degree=2, trace=4)  # 3,8 is humidity,vis
 print(summary(a))
-plot(a)
-plotmo(a)
+if (PLOT) {
+    plot(a)
+    plotmo(a)
+}
 print(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
 print(earth:::get.nterms.per.degree(a))
-print(head(predict(a, type="terms")))
+# print(head(predict(a, type="terms")))
 
 # this is a good example because it has linear preds in both 1 and 2 degree terms
 x.global <- cbind(                    x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
@@ -426,7 +445,6 @@ y <- O3
 itest <- itest+1; ozone.test(itest, "O3~., nk=51", x.global, y, degree=2, nk=51)
 
 detach(ozone1)
-options(options.old)
 
 cat("--- fast mars -----------------------------------\n")
 
@@ -439,27 +457,31 @@ cat("--- plot.earth and plot.earth.models ------------\n")
 
 a <- earth(O3 ~ ., data=ozone1) # formula interface
 
-plot(a, caption="plot.earth test 1", col.rsq=3, col.loess=4, col.qq="pink",
-    col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid")
+if (PLOT)
+    plot(a, caption="plot.earth test 1", col.rsq=3, col.loess=4, col.qq="pink",
+         col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid")
 
 set.seed(1)
-plot(a, caption="plot.earth test 2", which=c(3,4,1), rlim=c(.2,.9),
-    jitter=.01, id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
+if (PLOT) {
+    plot(a, caption="plot.earth test 2", which=c(3,4,1), rlim=c(.2,.9),
+         jitter=.01, id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
 
-plot(a, caption="plot.earth test 3", which=c(2), main="test main")
+    plot(a, caption="plot.earth test 3", which=c(2), main="test main")
+}
 
 a1 <- earth(ozone1[,c(2:4,10)], ozone1[,1])     # x,y interface
 
-plot(a, caption="plot.earth test 4", id.n=1)
+if (PLOT) {
+    plot(a, caption="plot.earth test 4", id.n=1)
+    set.seed(1)
+    plot.earth.models(a, which=1, rlim=c(.4,.8), jitter=.01)
 
-set.seed(1)
-plot.earth.models(a, which=1, rlim=c(.4,.8), jitter=.01)
+    plot.earth.models(a1)
 
-plot.earth.models(a1)
-
-plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
-    col.npreds=1, col.vline=1, lty.vline=3,
-    legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
+    plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
+         col.npreds=1, col.vline=1, lty.vline=3,
+         legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
+}
 
 cat("--- test minspan --------------------------------\n")
 
@@ -474,7 +496,8 @@ cat("--- test multiple responses ---------------------\n")
 # this uses the global matrix data.global (data.global[,1:2] is the response)
 
 test.earth.two.responses <- function(itest, func1, func2,
-    degree=2, nk=51, plotit=plot.it.default, test.rsq=TRUE, trace=0, minspan=0)
+    degree=2, nk=51, plotit=PLOT, test.rsq=TRUE, trace=0, minspan=0,
+    test.mars.to.earth=FALSE)
 {
     if(typeof(func1) == "character")
         funcnames <- paste("multiple responses", func1, func2)
@@ -499,6 +522,18 @@ test.earth.two.responses <- function(itest, func1, func2,
         plot(fite, ycolumn=2)
     }
     cat("\n")
+#     if(test.mars.to.earth) {
+#         cat("Testing mars.to.earth with a multiple response model\n")
+#         fitm <- mars(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
+#                      degree=degree, trace=(trace!=0), nk=nk)
+#         fitme <- mars.to.earth(fitm)
+#         print(fitme)
+#         print(summary(fitme))
+#         if(plotit) {
+#             plotmo(fitm, func=func1, caption=caption)
+#             plotmo(fitm, func=func2, ycolumn=2)
+#         }
+#     }
     fite
 }
 
@@ -507,11 +542,12 @@ data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
 colnames(data.global) = c("func1", "func7", "x1", "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=1)
 print(summary(a))
-plotmo(a, ycolumn=1)     # test generation of caption based on response name
-plotmo(a, ycolumn=2)
-plot(a, ycolumn=1)
-plot(a, ycolumn=2)
-
+if (PLOT) {
+    plotmo(a, ycolumn=1)     # test generation of caption based on response name
+    plotmo(a, ycolumn=2)
+    plot(a, ycolumn=1)
+    plot(a, ycolumn=2)
+}
 x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
 colnames(data.global) = c("func1", "a.very.long.in.fact.extremely.long.name", "x1", "x2")
@@ -541,7 +577,7 @@ data.global <- cbind(robotArm(x.global), eqn56(x.global), (x1.+1)/2, (x2.+2)/2, 
 colnames(x.global)    <- c(                "l1", "l2", "theta1", "theta2", "phi")
 colnames(data.global) <- c("arm", "eqn56", "l1", "l2", "theta1", "theta2", "phi")
 itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=51, degree=1)
-itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=51, degree=10)
+itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=51, degree=2, test.mars.to.earth=TRUE)
 itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=1)
 itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=2)
 itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=10)
@@ -555,21 +591,25 @@ detach(ozone1)
 cat("--- formula based multiple response -------------\n")
 
 a2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=2)
-plotmo(a2)                  # test generation of caption based on response name
-plotmo(a2, ycolumn=1)
-plotmo(a2, ycolumn=2)
-plot(a2)
-plot(a2, ycolumn=1)
-plot(a2, ycolumn=2)
+if (PLOT) {
+    plotmo(a2)                  # test generation of caption based on response name
+    plotmo(a2, ycolumn=1)
+    plotmo(a2, ycolumn=2)
+    plot(a2)
+    plot(a2, ycolumn=1)
+    plot(a2, ycolumn=2)
+}
 
 cat("--- test plot.earth.models with multiple responses ---\n")
 
 a <- earth(O3 ~ ., data=ozone1, degree=2)
 a2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=2)
 b2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=1)
-plot.earth.models(list(a, a2), caption="plot.earth.models with multiple responses, list(a,a2)")
-plot.earth.models(list(a2, a), caption="plot.earth.models with multiple responses, list(a2,a)")
-plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)")
+if (PLOT) {
+    plot.earth.models(list(a, a2), caption="plot.earth.models with multiple responses, list(a,a2)")
+    plot.earth.models(list(a2, a), caption="plot.earth.models with multiple responses, list(a2,a)")
+    plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)")
+}
 
 cat("--- subset --------------------------------------\n")
 
@@ -580,15 +620,18 @@ test.subset <- (1:nrow(ozone1))[-train.subset]
 # all the following models should be identical
 a <- earth(ozone1[,-1], ozone1[,1], subset=train.subset, nprune=7, degree=2)
 print(a)
-plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)")
+if (PLOT)
+    plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)")
 
 a <- earth(ozone1[train.subset,-1], ozone1[train.subset,1], nprune=7, degree=2)
 print(a)
-plotmo(a, caption="test subset: earth(ozone1[train.subset,-1], ozone1[train.subset,1]")
+if (PLOT)
+    plotmo(a, caption="test subset: earth(ozone1[train.subset,-1], ozone1[train.subset,1]")
 
 a <- earth(O3 ~ ., data=ozone1, subset=train.subset, nprune=7, degree=2)
 print(a)
-plotmo(a, caption="test subset: earth(O3 ~ ., data=ozone1, subset=train.subset")
+if (PLOT)
+    plotmo(a, caption="test subset: earth(O3 ~ ., data=ozone1, subset=train.subset")
 
 y <- ozone1[test.subset, 1]
 yhat <- predict(a, newdata = ozone1[test.subset, -1])
@@ -635,14 +678,16 @@ print(am)
 a <- fda(Species ~ ., data=iris, method=earth, degree=1, keepxy=TRUE)
 print(a)
 print(confusion(a))
-par(mar=c(3, 3, 2, .5))  # small margins and text to pack figs in
-par(mgp=c(1.6, 0.6, 0))  # flatten axis elements
-par(oma=c(0,0,4,0))      # make space for caption
-layout(rbind(c(1,1,0,0), c(2,3,4,5), c(6,7,8,9)), heights=c(2,1,1))
-plot(a)
-plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
-plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
-mtext("fda test", outer=TRUE, font=2, line=1.5, cex=1)
+if (PLOT) {
+    par(mar=c(3, 3, 2, .5))  # small margins and text to pack figs in
+    par(mgp=c(1.6, 0.6, 0))  # flatten axis elements
+    par(oma=c(0,0,4,0))      # make space for caption
+    layout(rbind(c(1,1,0,0), c(2,3,4,5), c(6,7,8,9)), heights=c(2,1,1))
+    plot(a)
+    plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+    plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+    mtext("fda test", outer=TRUE, font=2, line=1.5, cex=1)
+}
 
 data(glass)
 set.seed(123)
@@ -655,7 +700,8 @@ print(am)
 print(a)
 cat("mda with mars  ", attr(confusion(am), "error"), "\n")
 cat("mda with earth ", attr(confusion(a),  "error"), "\n")
-plotmo(a$fit, ycolumn=9, clip=FALSE, ylim=NA)
+if (PLOT)
+    plotmo(a$fit, ycolumn=9, clip=FALSE, ylim=NA)
 
 cat("--- \"allowed\" argument -----------------\n")
 
@@ -757,8 +803,127 @@ print(summary(a.longx))
 print(summary(a.longy))
 print(summary(a.longxy))
 
+# cat("--- factors with x,y interface -------------------------\n")
+# # this also tests for integer variables in the input matrix
+# data(titanic1)
+# attach(titanic1)
+# a1 <- earth(pclass, sex, degree=2, trace=2)        # x=unordered y=unordered
+# print(summary(a1))
+# if (PLOT)
+#     plot(a1)
+# a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
+# print(summary(a2))
+# if (PLOT)
+#     plot(a2)
+# a3 <- earth(pclass, age, degree=2, trace=2)        # x=unordered y=numeric
+# print(summary(a3))
+# if (PLOT)
+#     plot(a3)
+# a4 <- earth(age, pclass, degree=2, trace=2)        # x=numeric y=unordered
+# print(summary(a4))
+# if (PLOT)
+#     plot(a4)
+# a5 <- earth(titanic1[,c(2:4)], pclass, degree=2, trace=2)  # x=mixed  y=unordered
+# print(summary(a5))
+# if (PLOT)
+#     plot(a5)
+# a6 <- earth(titanic1[,c(1,3,4,5,6)], survived, degree=2, trace=2)  # x=mixed y=unordered
+# print(summary(a6))
+# if (PLOT)
+#     plot(a6)
+# a7 <- earth(titanic1[,c(2,3,5,6)], titanic1[,c(1,4)], degree=2, trace=2)  # x=mixed y=mixed
+# print(summary(a7))
+# if (PLOT)
+#     plot(a7)
+# 
+# cat("--- factors with formula interface -------------------------\n")
+# # these correspond to the models above (except a7 which is a multiple response model)
+# a1f <- earth(sex ~ pclass, degree=2, trace=2)        # x=unordered y=unordered
+# print(summary(a1f))
+# if (PLOT)
+#     plot(a1f)
+# a2f <- earth(pclass ~ sex, degree=2, trace=2)        # x=unordered y=unordered
+# print(summary(a2f))
+# if (PLOT)
+#     plot(a2f)
+# a3f <- earth(age ~ pclass, degree=2, trace=2)        # x=unordered y=numeric
+# print(summary(a3f))
+# if (PLOT)
+#     plot(a3f)
+# a4f <- earth(pclass ~ age, degree=2, trace=2)        # x=numeric y=unordered
+# print(summary(a4f))
+# if (PLOT)
+#     plot(a4f)
+# a5f <- earth(pclass ~ survived + sex + age, data=titanic1, degree=2, trace=2)  # x=mixed y=unordered
+# print(summary(a5f))
+# if (PLOT)
+#     plot(a5f)
+# a6f <- earth(survived ~ ., data=titanic1, degree=2, trace=2)  # x=mixed y=unordered
+# print(summary(a6f))
+# if (PLOT)
+#     plot(a6f)
+# detach(titanic1)
+# 
+# # basic test with ordered factors
+# ff <- factor(substring("statistics", 1:10, 1:10), levels=letters, ordered=TRUE)
+# ff <- c(ff, ff, ff)
+# vowels = (ff == 1 | ff == 9) * 3
+# print(head(ff))
+# print(head(vowels))
+# a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
+# print(summary(a8))
+# if (PLOT)
+#     plot(a8)
+# a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
+# if (PLOT)
+#     plot(a9)
+# print(summary(a9))
+# 
+# cat("--- wp argument---------------------------------\n")
+# set.seed(79)
+# NWP = 100
+# x1 <- runif(NWP)
+# x2 <- runif(NWP)
+# y1 <- (x1 > .5) + .3 * runif(1)
+# y2 <- sin(3 * x2) + .3 * runif(1)
+# myw = 10
+# m <- mars(cbind(x1,x2), cbind(y1, y2))
+# me1 <- mars.to.earth(m)
+# print(me1)
+# e1 <- earth(cbind(x1,x2), cbind(y1, y2))
+# print(e1)
+# e2 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(1,1))
+# print(e2)
+# e1$call = NULL
+# e2$call = NULL
+# stopifnot(identical(e1, e2))
+# e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(.001,1))
+# print(e3)
+# e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(1, .01))
+# print(e3)
+# e4 <- earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))
+# print(e4) # both sub models should be the same
+# print(summary(e4))
+# # wp with formula interface
+# e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(1, 1))
+# print(e5)
+# print(summary(e5))
+# e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(.3, 1))
+# print(e5)
+# print(summary(e5))
+# # wp with factors
+# e6 <- earth(pclass ~ ., data=titanic1, degree=2, wp=c(.001,.001,1))
+# print(e6)
+# print(summary(e6))
+# e7 <- earth(pclass ~ ., data=titanic1, degree=2, wp=c(1,.001,.001))
+# print(e7)
+# print(summary(e7))
+# if (PLOT)
+#     plot(e7)
+
 cat("--- ../../tests/test.earth.R -------------------------\n")
 
+options(options.old)
 source("../../tests/test.earth.R")
 
 if(!interactive())

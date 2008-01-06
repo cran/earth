@@ -334,7 +334,6 @@ Expression:
   -  0.003333751 * pmax(0, humidity -       69) * pmax(0,       52 -     temp) 
   - 0.0001149328 * pmax(0, humidity -       50) * pmax(0,      195 -      ibt) 
   - 0.0001295599 * pmax(0,      dpg -       13) * pmax(0,      doy -      236) 
-
 Number of cases: 330
 Selected 14 of 21 terms, and 8 of 9 predictors
 Number of terms at each degree of interaction: 1 10 3
@@ -575,7 +574,6 @@ Expression:
   +  1.8 * pmax(0,    0.7 - q_2111) 
   +  2.7 * pmax(0,   -0.7 - q_3107) 
   + 0.26 * pmax(0, q_7107 -  -0.67) 
-
 Number of cases: 650
 Selected 18 of 31 terms, and 13 of 16 predictors
 Number of terms at each degree of interaction: 1 17 (additive model)
@@ -672,7 +670,6 @@ Expression:
   +  1.8 * pmax(0,                                         0.7 - a.rather.long.in.fact.very.long.name.q_2111) 
   +  2.7 * pmax(0,                                        -0.7 - a.rather.long.in.fact.very.long.name.q_3107) 
   + 0.26 * pmax(0, a.rather.long.in.fact.very.long.name.q_7107 -                                       -0.67) 
-
 Number of cases: 650
 Selected 18 of 31 terms, and 13 of 16 predictors
 Number of terms at each degree of interaction: 1 17 (additive model)
@@ -709,7 +706,6 @@ Expression:
   +  0.72 * pmax(0,                                        0.54 - a.rather.long.in.fact.very.long.name.q_7104) * pmax(0, a.rather.long.in.fact.very.long.name.q_2111 -                                       -0.48) 
   +   1.3 * pmax(0,                                       -0.16 - a.rather.long.in.fact.very.long.name.q_3109) * pmax(0,                                        0.82 - a.rather.long.in.fact.very.long.name.q_2111) 
   +    39 * pmax(0,    a.rather.long.in.fact.very.long.name.q_4 -                                         0.9) * pmax(0,                                        0.54 - a.rather.long.in.fact.very.long.name.q_7104) * pmax(0, a.rather.long.in.fact.very.long.name.q_2111 -                                       -0.48) 
-
 Number of cases: 650
 Selected 18 of 33 terms, and 12 of 16 predictors
 Number of terms at each degree of interaction: 1 13 3 1

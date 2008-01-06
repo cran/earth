@@ -350,9 +350,9 @@ earth.default <- function(
     grsq.per.response <- vector(mode="numeric", length=nresponses)
     for(iresponse in 1:nresponses) {
         rss.per.response[iresponse]  <- sum(residuals[,iresponse]^2)
-        rss.null                     <- sum((y - mean(y[,iresponse]))^2)
+        rss.null                 <- sum((y[,iresponse] - mean(y[,iresponse]))^2)
         rsq.per.response[iresponse]  <- get.rsq(rss.per.response[iresponse], rss.null)
-        gcv.null                     <- Get.crit(rss.null, 1, penalty, nrow(x.org))
+        gcv.null                 <- Get.crit(rss.null, 1, penalty, nrow(x.org))
         gcv.per.response[iresponse]  <- Get.crit(rss.per.response[iresponse], nselected,
                                                  penalty, nrow(x.org))
         grsq.per.response[iresponse] <- get.rsq(gcv.per.response[iresponse], gcv.null)
@@ -374,8 +374,8 @@ earth.default <- function(
         gcv.per.response  = gcv.per.response,   # nresponses x 1, GCV for each response
         grsq.per.response = grsq.per.response,  # nresponses x 1, GRSq for each response
 
-        rss.per.subset = rss.per.subset,# nprune x 1, RSS of each model, across all responses
-        gcv.per.subset = gcv.per.subset,# nprune x 1, GCV of each model, across all responses
+        rss.per.subset = rss.per.subset,# nprune x 1, RSS of each model, across all resp
+        gcv.per.subset = gcv.per.subset,# nprune x 1, GCV of each model, across all resp
 
         fitted.values  = fitted.values, # ncases (after subset) x nresponses
         residuals      = residuals,     # ncases (after subset) x nresponses
@@ -462,7 +462,7 @@ check.allowed.arg <- function(allowed)
 update.earth <- function(
     object   = stop("no 'object' arg"),
     formula. = NULL,                        # formula. is optional
-    ponly = FALSE,			    # force prune only, no forward pass
+    ponly = FALSE,                          # force prune only, no forward pass
     ...,                                    # args the same as earth()
     evaluate = TRUE)                        # for compatibility with generic update
 {
@@ -501,9 +501,9 @@ update.earth <- function(
             call$x <- x         # use object$x
     }
     if(is.null(this.call$y)) {   # same as above, but for y
-	y <- try(eval.parent(object$y), silent=TRUE)
-	if(!is.null(y) && class(y) != "try-error")
-	    call$y <- y
+        y <- try(eval.parent(object$y), silent=TRUE)
+        if(!is.null(y) && class(y) != "try-error")
+            call$y <- y
     }
     if (ponly)
         do.forward.pass = FALSE
@@ -592,7 +592,7 @@ eval.model.subsets.using.xtx <- function(
             prune.terms = matrix(0, nrow=nterms, ncol=nterms),  # double PruneTerms[]
             rss.per.subset = vector(mode="numeric", length=nterms),
             as.integer(ncases),                         # const int *pnCases
-            as.integer(nresponses),                     # const int *pnresponses
+            as.integer(nresponses),                     # const int *pnResponses
             as.integer(nterms),                         # const int *pnMaxTerms
             as.double(as.vector(bx, mode="numeric")),   # const double bx[]
             as.double(as.vector(y, mode="numeric")),    # const double y[]
@@ -806,7 +806,7 @@ print.summary.earth <- function(
             x$string[iresponse],
             if (iresponse < nresponses) "\n" else "",
             sep="")
-    cat("\nNumber of cases: ", length(x$residuals), "\n", sep="")
+    cat("Number of cases: ", nrow(x$residuals), "\n", sep="")
     print.earth(x, if(missing(digits)) x$digits else digits)
     invisible(x)
 }

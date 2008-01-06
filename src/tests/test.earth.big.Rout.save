@@ -61,7 +61,6 @@ Expression:
   -      2 * pmax(0,    x03 - 0.0153) 
   +   6.63 * pmax(0, 0.0153 -    x03) 
   +   3.69 * pmax(0,    x03 -  0.513) 
-
 Number of cases: 10000
 Selected 12 of 12 terms, and 3 of 100 predictors
 Number of terms at each degree of interaction: 1 11 (additive model)
@@ -118,7 +117,6 @@ Expression:
   -  1.01 * pmax(0, 0.762 -   x01) 
   +  1.01 * pmax(0,   x02 - 0.907) 
   -     1 * pmax(0, 0.907 -   x02) 
-
 Number of cases: 10000
 Selected 5 of 5 terms, and 2 of 100 predictors
 Number of terms at each degree of interaction: 1 4 (additive model)

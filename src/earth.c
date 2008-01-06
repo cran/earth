@@ -696,6 +696,7 @@ static void Regress(
     }
     double *xUsed;
     int nUsedCols = CopyUsedCols(&xUsed, x, nCases, nCols, UsedCols);
+
     int iCol;
     for (iCol = 0; iCol < nCols; iCol++)
         iPivots[iCol] = iCol+1;
@@ -2182,16 +2183,17 @@ static void EvalSubsetsUsingXtx(
 {
     double *Betas = (double *)malloc1(nMaxTerms * nResponses * sizeof(double));
     double *Diags = (double *)malloc1(nMaxTerms * sizeof(double));
-    const int nUsedCols = nMaxTerms;  // only needed for Betas_ macro
     WorkingSet = (bool *)malloc1(nMaxTerms * sizeof(bool));
     for (int i = 0; i < nMaxTerms; i++)
         WorkingSet[i] = true;
+    int nUsedCols = nMaxTerms;  // needed for for Betas_ macro below
     RssVec[0] = GetRssNull(y, nResponses, nCases);
     for (int nTerms = nMaxTerms; nTerms > 1; nTerms--) {
         int nRank;
         double RssBeforeDeletingTerm;
         Regress(Betas, NULL, &RssBeforeDeletingTerm, Diags, &nRank, NULL,
             bx, y, nCases, nResponses, nMaxTerms, WorkingSet);
+
         if(nRank != nTerms)
             error("nRank %d != nTerms %d (probably because of lin dep terms in bx)\n",
                 nRank, nTerms);
@@ -2199,31 +2201,36 @@ static void EvalSubsetsUsingXtx(
         // set iDelete to the best term for deletion
 
         int iDelete = -1;       // term to be deleted
-        int iTerm1 = 1;         // index taking into account FALSE vals in WorkingSet
+        int iTerm1 = 0;         // index taking into account FALSE vals in WorkingSet
         double MinDeltaRss = POS_INF;
-        for (int iTerm = 1; iTerm < nMaxTerms; iTerm++) {   // 1 skips intercept
+
+        for (int iTerm = 0; iTerm < nMaxTerms; iTerm++) {
             if (WorkingSet[iTerm]) {
                 double DeltaRss = 0;
                 for (int iResponse = 0; iResponse < nResponses; iResponse++)
                     DeltaRss += sq(Betas_(iTerm1, iResponse)) / Diags[iTerm1];
-                if (DeltaRss < MinDeltaRss) {
+
+                if (iTerm > 0 &&                    // never delete the intercept
+                        DeltaRss < MinDeltaRss) {   // new minimum?
                     MinDeltaRss = DeltaRss;
                     iDelete = iTerm;
                 }
                 iTerm1++;
             }
         }
-        ASSERT(iDelete > 0);
+        nUsedCols = iTerm1 - 1;
 
         // delete term at iDelete from the WorkingSet and stash RSS
 
         WorkingSet[iDelete] = false;
         memcpy(PruneTerms + (nTerms-2) * nMaxTerms, WorkingSet, nMaxTerms * sizeof(bool));
-        RssVec[nTerms-2] = RssBeforeDeletingTerm + MinDeltaRss;
-        if (nTerms == nMaxTerms) {                          // final term?
+        // the "if" prevents update of null RSS, to avoid possibly accumulated num errs
+        if (nTerms - 2 > 0)
+            RssVec[nTerms-2] = RssBeforeDeletingTerm + MinDeltaRss;
+        if (nTerms == nMaxTerms) {                      // full model?
             for (int i = 0; i < nMaxTerms; i++)
                 PruneTerms[(nMaxTerms-1) * nMaxTerms + i] = true;
-            RssVec[nTerms-1] = RssBeforeDeletingTerm;       // RSS of full model
+            RssVec[nTerms-1] = RssBeforeDeletingTerm;   // RSS of full model
         }
     }
     free1(WorkingSet);
