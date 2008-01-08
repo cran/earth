@@ -139,7 +139,7 @@ extern _C_ double ddot_(const int *n,
 #define FAST_MARS   1     // 1 to use techniques in FriedmanFastMars (see refs)
 #define IOFFSET     1     // 1 to convert 0-based indices to 1-based in printfs
 
-static const char   *VERSION    = "version 1.2a"; // change if you modify this file!
+static const char   *VERSION    = "version 1.2b"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -1179,7 +1179,7 @@ static void PrintSummary(
             printf("| ");
             }
         else {
-            printf("%2.2d  --    ", iTerm, 0.0);
+            printf("%2.2d  --    ", iTerm);
             for (int iResponse = 0; iResponse < nResponses; iResponse++)
                 printf("%9s ", "--");
             printf("| ");
@@ -1350,9 +1350,8 @@ static INLINE void FindKnot(
 // since max(0,x-xMin)==x-xMin for all x.  The change in RSS caused by
 // adding this term forms the base RSS delta which we will try to beat
 // in the search in FindKnot.
-// Return true if updated pBestRssDelta.
 
-static INLINE bool AddCandidateLinearTerm(
+static INLINE void AddCandidateLinearTerm(
     int    *piBestCase,             // out: return -1 if no new term available
                                     //      else return an index into the ORDERED x's
     int    *piBestPred,             // out
@@ -1362,8 +1361,9 @@ static INLINE bool AddCandidateLinearTerm(
     double *pBestRssDeltaForThisTerm, // out:
     bool   *pIsNewForm,             // io:
     bool   *pIsLinPred,             // out: true if knot is at min x val so x enters linearly
-    double xbx[],                   // io
-    double CovCol[],                // io
+    bool   *pUpdatedBestRssDelta,   // io:
+    double xbx[],                   // out: nMaxTerms x 1
+    double CovCol[],                // out: nMaxTerms x 1
     double CovSy[],                 // io: nMaxTerms x nResponses
     double bxOrth[],                // io
     double bxOrthCenteredT[],       // io
@@ -1381,8 +1381,6 @@ static INLINE bool AddCandidateLinearTerm(
     const bool FullSet[],           // in
     const double NewVarAdjust)      // in
 {
-    bool UpdatedBestRssDelta = false;
-
     // set xbx to x * bx[,iParent]
 
     int iCase;
@@ -1424,7 +1422,7 @@ static INLINE bool AddCandidateLinearTerm(
         // The new term (with predictor entering linearly) beats other
         // candidate terms so far.
 
-        UpdatedBestRssDelta = true;
+        *pUpdatedBestRssDelta = true;
         *pBestRssDelta = *pRssDeltaBase;
         *pIsLinPred    = true;
         *piBestCase    = 0;         // knot is at the lowest value of x
@@ -1433,7 +1431,6 @@ static INLINE bool AddCandidateLinearTerm(
         if (nTraceGlobal >= 6)
             printf("BestRssDeltaSoFar");
     }
-    return UpdatedBestRssDelta;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1506,9 +1503,10 @@ static INLINE void FindPred(
                 // Add a candidate term at bx[,nTerms], with predictor
                 // iPred entering linearly.
 
-                AddCandidateLinearTerm(piBestCase, piBestPred, piBestParent,
+                AddCandidateLinearTerm(
+                    piBestCase, piBestPred, piBestParent,
                     &RssDeltaBase, pBestRssDelta, pBestRssDeltaForThisTerm,
-                    &IsNewForm, pIsLinPred,
+                    &IsNewForm, pIsLinPred, &UpdatedBestRssDelta,
                     xbx, CovCol, CovSy, bxOrth, bxOrthCenteredT, bxOrthMean,
                     iPred, iParent, x, y, nCases, nResponses, nTerms, nMaxTerms,
                     yMean, bx, FullSet, NewVarAdjust);
@@ -2446,7 +2444,7 @@ static void FormatOneResponse(
                             break;
                         case  2:
                             sprintf(s, " * x[%s]%*s                    ",
-                                sPredFormat,  nDigits+2, " ", sFormat1);
+                                sPredFormat,  nDigits+2, " ");
                             printf(s, iPred);
                             nKnots++;
                             break;

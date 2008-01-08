@@ -68,8 +68,6 @@ void FreeAllowedFunc(void)
          UNPROTECT(1);          // matches PROTECT in InitAllowedFunc
 }
 
-// this uses the globals AllowedFunc and AllowedEnv
-
 static INLINE bool EvalAllowedFunc(void)
 {
     SEXP s = eval(AllowedFunc, AllowedEnv);
