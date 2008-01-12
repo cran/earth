@@ -39,7 +39,7 @@ Get the basis matrix of an \sQuote{earth} object.
 
 The format of \code{bx} is described in \code{\link{earth}}.
 The basis matrix \code{bx} can be used, for example,
-as the input matrix to \code{\link{lm}} as shown below.
+as the input matrix to \code{\link{lm}} or \code{\link{glm}} as shown below.
 }
 \seealso{
   \code{\link{earth}},

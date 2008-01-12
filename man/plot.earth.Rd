@@ -141,7 +141,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
 }
 \note{
-FAQ
+\strong{FAQ}
 
 I want to add lines or points to the RSq plot, 
 and am having trouble getting my axis scaling right. Help?

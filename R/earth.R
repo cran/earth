@@ -238,10 +238,16 @@ earth.default <- function(
 
     warn.if.dots.used("earth.default", ...)
 
-    # FIXED 30 Oct 2007: commented out following lines because cat output can be huge
-    # if(trace >= 3)            # show the call?
-    #   cat("Call:", strip.white.space(format(match.call(expand.dots=TRUE), "earth")),
-    #       "\n\n")
+    if(trace >= 4) {           # show the call?
+        cat("Call: ")
+        # $$ there must be a better way of doing this
+        if (length(paste(substitute(x))) > 100 || length(paste(substitute(y))) > 100)
+            cat("too long to display")
+        else
+            cat(strip.white.space(format(match.call(expand.dots=TRUE), "earth")))
+
+        cat("\n\n")
+    }
     if(nk < 1)
         stop1("'nk' ", nk, " is less than 1")
     if(!identical(na.action, na.fail))
@@ -317,6 +323,7 @@ earth.default <- function(
     # Regress y on bx to get fitted.values etc.
     # The as.matrix calls after the call to lm are needed if y is
     # a vector so the fitted.values etc. are always arrays.
+
     lfit <- lm.fit(bx, y, singular.ok=FALSE)
        fitted.values <- as.matrix(lfit$fitted.values)
        residuals     <- as.matrix(lfit$residuals)
@@ -427,8 +434,6 @@ earth.formula <- function(
 #    by calling earth.default() directly.
 #
 # c) This function retrieves x and y from object$x and object$y if need be
-#
-# $$ would be nice to not do forward.pass if new formula==call$formula
 
 update.earth <- function(
     object   = stop("no 'object' arg"),
@@ -718,12 +723,23 @@ print.summary.earth <- function(
     ...)
 {
     warn.if.dots.used("print.summary.earth", ...)
-    # FIXED 30 Oct 2007: only print call if formula else output can be huge
-    if(!is.null(x$terms)) {
-        cat("Call:\n")
-        dput(x$call)
-        cat("\n")
+    cat("Call:\n")
+    call. = x$call
+    if(is.null(x$terms)) {
+        # earth was called with the x,y interface i.e. not the formula interface
+        # don't print x or y if they are too long
+        # $$ there must be a better way of doing this
+        x. <- x$call$x
+        if (length(paste(substitute(x.))) > 100)
+            call.$x = paste("[", NROW(call.$x), ",", NCOL(call.$x),
+                            "] too long to display", sep="")
+        y. <- x$call$y
+        if (length(paste(substitute(y.))) > 100)
+            call.$y = paste("[", NROW(call.$y), ",", NCOL(call.$y),
+                            "] too long to display", sep="")
     }
+    dput(call.)
+    cat("\n")
     nresponses <- NCOL(x$coefficients)
     for(iresponse in 1:nresponses)
         cat(if(nresponses == 1)

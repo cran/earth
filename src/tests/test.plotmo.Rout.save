@@ -686,6 +686,11 @@ GCV: 2.5         RSS: 1442        GRSq: 0.54      RSq: 0.58
 +           y = a.rather.long.in.fact.very.long.name.for.the.response,
 +                   degree = 3)
 > print(summary(a.rather.long.in.fact.very.long.name.for.the.modelC, digits = 2))
+Call:
+earth(x = a.rather.long.in.fact.very.long.name.for.the.dataframe[, 
+    -1], y = a.rather.long.in.fact.very.long.name.for.the.response, 
+    degree = 3)
+
 Expression:
   3.4 
   -    10 * pmax(0,    a.rather.long.in.fact.very.long.name.q_4 -                                        0.79) 
