@@ -16,6 +16,7 @@
 # $$ need something more flexible than grid.func, especially for factors
 # $$ would like to make plotmo faster
 # $$ would like to add loess of reponse option
+# $$ use ndegree1 to limit the number points plooted for "func" argument
 #
 # $$ following causes error in model.frame: invalid type (list) for variable 'trees[, -3]'
 #      a <- earth(trees[,3] ~ as.matrix(trees[,-3])); plotmo(a)
@@ -151,7 +152,8 @@ plotmo <- function(
         if(!is.null(caption))
             return(NULL)                # don't modify caption explictly set by user
         colnames <- colnames(y)
-        if(!is.null(colnames) && !is.null(colnames[1]) && colnames[1] != "")
+        if(!is.null(colnames) && !is.null(colnames[1]) && 
+           !is.na(colnames[1]) && colnames[1] != "")
             colnames[1]
         # $$ following is not quite right: should test against nbr of cols from predict
         # so response 1 is labelled uniformly
@@ -168,7 +170,7 @@ plotmo <- function(
 
     # check se arguments
     if(is.logical(se) && se) { # allow user to use se=TRUE for compat with termplot
-        warning1("converted se=TRUE to se=2")
+        warning1("plotmo: converted se=TRUE to se=2")
         se <- 2
     }
     if(!is.numeric(se) || se < 0 || se > 9)
@@ -176,9 +178,9 @@ plotmo <- function(
     if(!missing(lty.se) && lty.se != 0 && col.se == 0)
         col.se <- 1  # needed if user sets just lty.se but doesn't set col.se
     if(se && (col.se == 0 || lty.se == 0) && col.shade == 0)
-        warning1("'se' ignored because (col.se == 0 || lty.se == 0) && col.shade == 0)")
+        warning1("plotmo: 'se' ignored because (col.se == 0 || lty.se == 0) && col.shade == 0)")
     if(se == 0 && (!missing(col.se) || !missing(lty.se) || !missing(col.shade)))
-        warning1("se color and linetype arguments ignored because se=0")
+        warning1("plotmo: se color and linetype arguments ignored because se=0")
 
     x <- get.x(object, trace)
     warn.if.not.all.finite(x, "'x' after calling get.x()")
@@ -222,7 +224,7 @@ plotmo <- function(
 
     nfigs <- nsingles + npairs
     if(nfigs == 0) {
-        warning1("nothing to plot")
+        warning1("plotmo: nothing to plot")
         return(invisible())
     }
     ylims <- get.ylims()    # check ylim arg and calculate min,max limits of y axis
@@ -599,12 +601,13 @@ check.and.show.y <- function(y, msg, ycolumn, expected.len, trace, subset=NULL)
         stop1(msg,  " returned NULL")
     if(length(y) == 0)
         stop1(msg, " returned a zero length value (length(y) == 0)")
-    check.index.vec("ycolumn", ycolumn, y, check.empty = TRUE, use.as.col.index=TRUE)
+    check.index.vec("ycolumn", ycolumn, y, check.empty = TRUE, 
+                    use.as.col.index=TRUE, allow.negative.indices=FALSE)
     if(NCOL(y) > 1)
         y <- y[, ycolumn, drop=FALSE]
     if(NCOL(y) > 1)
         stop1("'ycolumn' specifies more than one column")
-    if(mode(y) != "numeric" || (NROW(y) > 1 && NCOL(y) > 1)) {
+    if(NROW(y) > 1 && NCOL(y) > 1) {
         if(trace) {
             cat(msg, ":\n", sep="")
             print(head(y, 3))
@@ -613,6 +616,8 @@ check.and.show.y <- function(y, msg, ycolumn, expected.len, trace, subset=NULL)
             NROW(y), " x ", NCOL(y), " with colnames ",
             if(NCOL(y) > 1) paste.quoted.names(colnames(y)) else "")
     }
+    if (any(!is.double(y))) # convert logical or whatever vector to double
+        y <- as.vector(y, mode="numeric")
     if(NROW(y) == 1 && NCOL(y) > 1)
         y <- as.vector(y[,1])
     warn.if.not.all.finite(y, "y")

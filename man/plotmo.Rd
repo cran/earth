@@ -56,7 +56,9 @@ To start off, look at the arguments
        \code{NULL}  generate a caption from \code{object$call} and the response name.
   }
   \item{trace}{
-     Set to \code{TRUE} to trace operation.  Default is \code{FALSE}.\cr
+     Set to \code{TRUE} to trace operation.  
+     Useful for tracking down error messages.
+     Default is \code{FALSE}.
   }
   \item{ylim}{Values are:\cr
 
@@ -107,7 +109,7 @@ plotmo(a, grid.func = grid.func)
 \emph{The following arguments are for degree1 (main effect) plots}
   }
   \item{ndegree1}{
-     Number of points in each degree1 plot.
+     Maximum number of points in each degree1 plot.
      Default is \code{500}.
      Special value \code{-1} means use \code{nrow(x)}.
   }
@@ -345,7 +347,7 @@ milboATsonicPERIODnet \url{http://www.milbo.users.sonic.net}.
 }
 \examples{
 data(ozone1)
-a <- earth(O3 ~ ., data = ozone1, degree = 2, minspan = 0)
+a <- earth(O3 ~ ., data = ozone1, degree = 2)
 plotmo(a)
 
 # example with some arguments:

@@ -126,9 +126,9 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
 }
 \examples{
 data(ozone1)
-a1 <- earth(O3 ~ .,          data = ozone1, degree = 2, minspan = 0)
-a2 <- earth(O3 ~ .-wind,     data = ozone1, degree = 2, nk = 31, minspan = 0)
-a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31, minspan = 0)
+a1 <- earth(O3 ~ .,          data = ozone1, degree = 2)
+a2 <- earth(O3 ~ .-wind,     data = ozone1, degree = 2, nk = 31)
+a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
 plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8))
 }
 \keyword{models}

@@ -37,7 +37,6 @@
 # example Eval.model.subsets.
 #
 # $$ feature: add get.var.importance function
-# $$ there are places where efficiency could be improved I think
 #
 #--------------------------------------------------------------------------------------------
 
@@ -45,7 +44,7 @@
 # requiring a new forward pass.
 # NOTE: if you change the pruning formal arguments in earth.default(), update this too!
 
-prune.args.global <- c("trace", "pmethod", "ppenalty", "nprune",
+prune.args.global <- c("trace", "pmethod", "nprune",
                         "Get.crit", "Eval.model.subsets", "Print.pruning.pass",
                         "Force.xtx.prune", "Use.beta.cache")
 
@@ -76,14 +75,14 @@ earth.default <- function(
 
     degree         = 1,     # max degree of interaction (1=additive model) (Friedman's mi)
 
-    linpreds       = FALSE, # index vector specifying which preds that must enter linearly
+    linpreds       = FALSE, # index vector specifying which preds must enter linearly
 
     allowed        = NULL,  # constraint function specifying allowed interactions
 
     thresh         = 0.001, # used as one of the conditions to stop adding terms in forw pass
                             # stop if RSqDelta<thresh or 1-RSq<thresh
 
-    minspan        = 1,     # consider knots that are minspan apart
+    minspan        = 0,     # consider knots that are minspan apart
                             # special value 0 means use internally calculated min span
 
     newvar.penalty = 0,     # penalty for adding a new variable in forward pass
@@ -96,7 +95,6 @@ earth.default <- function(
                             # If you change these, update prune.args.global too!
 
     pmethod = "backward",   # for legal values see eval.model.subsets.*
-    ppenalty = penalty,     # like penalty, but for the pruning pass
     nprune  = NULL,         # max nbr of terms (including intercept) in prune subset
 
     Object  = NULL,         # if null, recreate earth model from scratch with forward pass
@@ -111,21 +109,26 @@ earth.default <- function(
 {
     forward.pass <- function()
     {
-        check.vec <- function(xname, x, xvec)
-        {
-            if(any(is.na(x)))
-                stop1("NA in '", xname, "'")
-            else if(any(is.na(xvec)))
-                stop1("NA in '", xname, "' after conversion to numeric")
-            else if(any(!is.finite(xvec)))
-                stop1("non finite value in '", xname, "' after conversion to numeric")
-        }
-        # forward.pass starts here
         npreds <- ncol(x)
-        xvec <- as.vector(x, mode="numeric") # convert ints etc. to double for C code
-        yvec <- as.vector(y, mode="numeric")
-        check.vec("x", x, xvec)
-        check.vec("y", y, yvec)
+
+        # convert ints etc. in x to double for C code
+        # CHANGED Mar 12, 2008: but only do this if necessary, to save memory
+        if (any(!is.double(x)))
+            xvec <- as.vector(x, mode="numeric")
+        else
+            xvec <- x
+        if (any(!is.double(y)))
+            yvec <- as.vector(y, mode="numeric")
+        else
+            yvec <- y
+
+        # CHANGED Mar 12, 2008: check.vec() moved to ForwardPass in earth.c
+        # because it uses lots of memory even if we do a gc  afterwards, not
+        # sure why. Added NAOK=TRUE to .C call below to allow this.
+        #
+        # check.vec("x", x, xvec)
+        # check.vec("y", y, yvec)
+
         stopifnot(nrow(x) == nrow(y))
         fullset <- rep(0, nk)   # element will be set TRUE if corresponding term used
 
@@ -133,12 +136,20 @@ earth.default <- function(
         check.index.vec("linpreds", linpreds, x, use.as.col.index=TRUE)
         linpreds1[linpreds] = TRUE
 
-        if(is.null(colnames(x))) {
-           # Generate predictor names (empty strings).  Needed because there seems to be
-            # no easy way to pass a C NULL to a C function (passing R NULL doesn't do it).
-            pred.names <- rep("", npreds)
-        } else
+        # CHANGED Mar 12, 2008: We want DUP=FALSE in the .C call below to
+        # reduce memory useage.  But this isn't allowed if you pass a
+        # string array to .C, so we set pred.names=NULL if not tracing.
+
+        if(trace >= 2)  # colnames are only used for trace>=2
             pred.names <- colnames(x)
+        else
+            pred.names <- NULL
+
+        # the 10e6 seems about right
+        bigmodel = (ncol(y) + ncol(x)) * nrow(x) * nk > 10e6
+        if (bigmodel)
+            gc()
+
         on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interupts
 
         rval <- .C("ForwardPassR",
@@ -164,7 +175,9 @@ earth.default <- function(
             parent.frame(),                 # in: const SEXP Env
             as.integer(Use.beta.cache),     # in: const int *pnUseBetaCache
             as.integer(trace),              # in: const int *pnTrace
-            as.character(pred.names),       # in: const char *sPredNames[]
+            pred.names,                     # in: const char *sPredNames[]
+            NAOK = TRUE, # we check for NAs etc. internally in C ForwardPass
+            DUP = !is.null(pred.names),
             PACKAGE="earth")
 
         fullset <- as.logical(rval$fullset)
@@ -181,9 +194,9 @@ earth.default <- function(
             if(is.null(nprune))
                 nprune <- nterms
             if(nprune > nterms) {
-                warning1("specified 'nprune' ", nprune,
+                warning1("earth: specified 'nprune' ", nprune,
                         " is greater than the number of available model terms ", nterms,
-                        ", forcing 'nprune' to ", nterms)
+                        "\nForcing 'nprune' to ", nterms)
                 nprune <- nterms
             }
             if(nprune < 1)
@@ -192,7 +205,7 @@ earth.default <- function(
         }
         # pruning.pass starts here
 
-        # get bx.prune and y.prune, with subset handling
+        # get bx.prune and y.prune
         if(!is.null(bx) && is.null(subset))
             bx.prune <- bx   # use bx created in forward pass
         else                 # else recreate bx with all terms (update invoked me)
@@ -209,15 +222,16 @@ earth.default <- function(
         rval <- Eval.model.subsets(bx.prune, y.prune, pmethod, nprune, Force.xtx.prune)
           rss.per.subset <- rval[[1]]   # RSS for each subset
           prune.terms    <- rval[[2]]   # terms in each subset
+        # sanity checks here because Eval.model.subsets may be user written
         stopifnot(length(rss.per.subset) == nprune)
         stopifnot(nrow(prune.terms) == nprune)
         stopifnot(ncol(prune.terms) == nprune)
         stopif(any(prune.terms[,1] != 1))   # check intercept column
-        gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, ppenalty, nrow(bx.prune))
+        gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, penalty, nrow(bx.prune))
         if(!all(is.finite(rss.per.subset)))
-            warning1("non finite RSS in model subsets (see rss.per.subset)")
+            warning1("earth: non finite RSS in model subsets (see the rss.per.subset returned by earth)")
         else if(!all(is.finite(gcv.per.subset)))
-            warning1("non finite GCV in model subsets (see gcv.per.subset)")
+            warning1("earth: non finite GCV in model subsets (see the gcv.per.subset returned by earth)")
         do.prune <- pmatch(pmethod[1], "none", 0) != 1
         selected.terms <- 1:nprune  # all terms
         if(do.prune) {
@@ -225,7 +239,7 @@ earth.default <- function(
             selected.terms <- prune.terms[which.min(gcv.per.subset),]
             selected.terms <- selected.terms[selected.terms != 0]
         }
-        Print.pruning.pass(trace, pmethod, ppenalty, nprune,
+        Print.pruning.pass(trace, pmethod, penalty, nprune,
             selected.terms, prune.terms, rss.per.subset, gcv.per.subset, dirs)
         list(bx.prune,
             y.prune,
@@ -237,7 +251,10 @@ earth.default <- function(
     # earth.default starts here
 
     warn.if.dots.used("earth.default", ...)
-
+    if(is.logical(trace) && trace) {
+        warning1("earth: converted trace=TRUE to trace=4")
+        trace <- 4
+    }
     if(trace >= 4) {           # show the call?
         cat("Call: ")
         # $$ there must be a better way of doing this
@@ -248,16 +265,14 @@ earth.default <- function(
 
         cat("\n\n")
     }
+    # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)
         stop1("'nk' ", nk, " is less than 1")
     if(!identical(na.action, na.fail))
         stop1("illegal 'na.action', only na.action=na.fail is currently allowed")
     if(!is.null(weights) && !isTRUE(all.equal(weights, rep(weights[1], length(weights)))))
         warning1("'weights' are not yet supported by 'earth', ignoring them")
-    if(is.logical(trace) && trace) {
-        warning1("converted trace=TRUE to trace=4")
-        trace <- 4
-    }
+
     # FIXED 30 Oct 2007: changed as.matrix to data.matrix because as.matrix(x)
     # converts x to a character matrix if x has a factor column which
     # creates problems later if update.earth is invoked.
@@ -276,17 +291,8 @@ earth.default <- function(
         x <- x[subset, , drop=FALSE]
         y <- y[subset, , drop=FALSE]
     }
-    if(!is.null(allowed)) {
-        if(typeof(allowed) != "closure")
-            stop("the given \"allowed\" argument is not a function");
-        names. <- names(formals(allowed))
-        if (length(names.) != 3)
-            stop("the given \"allowed\" function does not have 3 arguments")
-        if (!identical(names., c("degree", "pred", "parents")))
-            stop("the \"allowed\" function needs the following arguments ",
-                 paste.quoted.names(c("degree", "pred", "parents")), "\n",
-                 "You have ", paste.quoted.names(names.))
-    }
+    check.allowed.arg(allowed)
+
     if(is.null(Object)) {
         rval <- forward.pass()
           bx   <- rval[[1]]
@@ -312,7 +318,7 @@ earth.default <- function(
 
     # add names for returned values
 
-    pred.names <- colnames(x)
+    pred.names <- colnames(x.org)
     term.names <- get.earth.term.name(1:nrow(dirs), dirs, cuts, pred.names)
     colnames(bx)   <- term.names[selected.terms]
     rownames(dirs) <- term.names
@@ -333,6 +339,7 @@ earth.default <- function(
 
     nselected <- length(selected.terms)
     rss  <- rss.per.subset[nselected]
+
     rsq  <- get.rsq(rss, rss.per.subset[1])
     gcv  <- gcv.per.subset[nselected]
     grsq <- get.rsq(gcv, gcv.per.subset[1])
@@ -345,9 +352,9 @@ earth.default <- function(
         rss.per.response[iresponse]  <- sum(residuals[,iresponse]^2)
         rss.null                     <- sum((y - mean(y[,iresponse]))^2)
         rsq.per.response[iresponse]  <- get.rsq(rss.per.response[iresponse], rss.null)
-        gcv.null                     <- Get.crit(rss.null, 1, ppenalty, nrow(x))
+        gcv.null                     <- Get.crit(rss.null, 1, penalty, nrow(x.org))
         gcv.per.response[iresponse]  <- Get.crit(rss.per.response[iresponse], nselected,
-                                                 ppenalty, nrow(x))
+                                                 penalty, nrow(x.org))
         grsq.per.response[iresponse] <- get.rsq(gcv.per.response[iresponse], gcv.null)
     }
     rval <- structure(list(             # term 1 is the intercept in all returned data
@@ -374,7 +381,8 @@ earth.default <- function(
         residuals      = residuals,     # ncases (after subset) x nresponses
         coefficients   = coefficients,  # selected terms only: nselected x nresponses
 
-        ppenalty       = ppenalty,      # copy of ppenalty argument
+        penalty        = penalty,       # copy of penalty argument
+        ppenalty       = penalty,       # copy of penalty argument, deprecated
         call           = make.call.generic(
                             strip.dots.from.call(match.call(expand.dots=FALSE)), "earth")),
     class = "earth")
@@ -409,13 +417,26 @@ earth.formula <- function(
     if(xint)
         x <- x[, -xint, drop=FALSE]     # silently discard intercept
     else
-        warning1("ignored -1 in formula (earth objects always have an intercept)")
+        warning1("earth: ignored -1 in formula (earth objects always have an intercept)")
     y <- model.response(model.frame, "numeric")
     rval <- earth.default(x=x, y=y, ...)
     rval$terms <- attr(model.frame, "terms")
     # $$ would like to strip unused args from call here, use strip.dots.from.call?
     rval$call <- make.call.generic(match.call(), "earth")
     rval
+}
+
+check.allowed.arg <- function(allowed)
+{
+    if(!is.null(allowed)) {
+        if(typeof(allowed) != "closure")
+            stop("the given \"allowed\" argument is not a function");
+        names. <- names(formals(allowed))
+        if (length(names.) != 3 || !identical(names., c("degree", "pred", "parents")))
+            stop("the \"allowed\" function needs the following arguments ",
+                 paste.quoted.names(c("degree", "pred", "parents")), "\n",
+                 "You have ", paste.quoted.names(names.))
+    }
 }
 
 # update.earth is based on update.default but:
@@ -429,6 +450,9 @@ earth.formula <- function(
 #    The global character vector prune.args.global says which
 #    args are needed only for the pruning pass.
 #
+#    This default decision to do a forward pass or not can be overriden
+#    with the ponly argument.
+#
 # b) This function also deals appropriately with objects that were or were
 #    not created using a formula i.e. were created by earth.formula() or
 #    by calling earth.default() directly.
@@ -438,8 +462,9 @@ earth.formula <- function(
 update.earth <- function(
     object   = stop("no 'object' arg"),
     formula. = NULL,                        # formula. is optional
+    ponly = FALSE,			    # force prune only, no forward pass
     ...,                                    # args the same as earth()
-    evaluate = TRUE)
+    evaluate = TRUE)                        # for compatibility with generic update
 {
     check.classname(object, deparse(substitute(object)), "earth")
     call <- object$call
@@ -475,11 +500,13 @@ update.earth <- function(
         if(!is.null(x) && class(x) != "try-error")
             call$x <- x         # use object$x
     }
-        if(is.null(this.call$y)) {   # same as above, but for y
-                y <- try(eval.parent(object$y), silent=TRUE)
-                if(!is.null(y) && class(y) != "try-error")
-                        call$y <- y
+    if(is.null(this.call$y)) {   # same as above, but for y
+	y <- try(eval.parent(object$y), silent=TRUE)
+	if(!is.null(y) && class(y) != "try-error")
+	    call$y <- y
     }
+    if (ponly)
+        do.forward.pass = FALSE
     call$Object <- if(do.forward.pass) NULL else substitute(object)
     if(evaluate)
         eval.parent(call)
@@ -569,6 +596,7 @@ eval.model.subsets.using.xtx <- function(
             as.integer(nterms),                         # const int *pnMaxTerms
             as.double(as.vector(bx, mode="numeric")),   # const double bx[]
             as.double(as.vector(y, mode="numeric")),    # const double y[]
+            DUP = FALSE,
             PACKAGE="earth")
 
         # above always evaluates all subsets, so trim back to nprune
@@ -606,7 +634,7 @@ eval.model.subsets <- function(     # this is the default Eval.model.subsets
 print.pruning.pass <- function(     # this is the default Print.pruning.pass
     trace,
     pmethod,
-    ppenalty,
+    penalty,
     nprune,
     selected.terms,
     prune.terms,
@@ -637,7 +665,7 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
     cat("\n")
     }
     if(trace >= 1) {
-        cat("Prune method \"", pmethod[1], "\" ppenalty ", ppenalty,
+        cat("Prune method \"", pmethod[1], "\" penalty ", penalty,
                 " nprune ", nprune, ": selected ", nselected, " of ", sep="")
         selected <- prune.terms[nselected,]
         selected <- selected[selected != 0]
@@ -651,6 +679,29 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
             "\n")
     }
     NULL
+}
+
+get.max.response.name.width <- function(response.names)
+{
+    width = 0
+    if (!is.null(response.names))
+        width = max(nchar(response.names)) # max width of any element
+    if (width < 10)                        # length of "Response 1"
+        width = 10
+    if (width > 50)
+        width = 50
+    width
+}
+
+get.response.name <- function(response.names, iresponse, width)
+{                                       # width<=0 means ignore width
+    s = response.names[iresponse]
+    if (is.null(s) || is.na(s) || nchar(s) == 0)
+        s <- sprintf("Response %d", iresponse)
+    if (width > 0)
+        sprintf("%-*s", width, s)
+    else
+        s
 }
 
 # The first arg is actually an object but called x for consistency with generic
@@ -684,15 +735,19 @@ print.earth <- function(x, digits=getOption("digits"), ...)
     nresponses <- NCOL(x$coefficients)
 
     if(nresponses > 1) {
+        response.names = colnames(x$fitted.values)
+        width = get.max.response.name.width(response.names)
         cat("\n")
-        for(iresponse in 1:nresponses)
-            cat("Response ", iresponse, "  ",
+        for(iresponse in 1:nresponses) {
+            cat(get.response.name(response.names, iresponse, width),
+                "  ",
                 "GCV: ",  form(x$gcv.per.response[iresponse], 10),
                 "RSS: ",  form(x$rss.per.response[iresponse], 10),
                 "GRSq: ", form(x$grsq.per.response[iresponse], 8),
                 "RSq: ",  form(x$rsq.per.response[iresponse], 0),
                 "\n", sep="")
-        cat("All         ")
+        }
+        cat(sprintf("%-*s  ", width, "All"))
     }
     cat("GCV: ",  form(x$gcv, 10),
         "RSS: ",  form(x$rss, 10),
@@ -741,12 +796,16 @@ print.summary.earth <- function(
     dput(call.)
     cat("\n")
     nresponses <- NCOL(x$coefficients)
+    response.names = colnames(x$fitted.values)
     for(iresponse in 1:nresponses)
         cat(if(nresponses == 1)
                 "Expression:\n"
             else
-                paste("Response ", iresponse, " expression:\n", sep=""),
-            x$string[iresponse], sep="")
+                paste(get.response.name(response.names, iresponse, 0),
+                      " expression:\n", sep=""),
+            x$string[iresponse],
+            if (iresponse < nresponses) "\n" else "",
+            sep="")
     cat("\nNumber of cases: ", length(x$residuals), "\n", sep="")
     print.earth(x, if(missing(digits)) x$digits else digits)
     invisible(x)
@@ -791,7 +850,7 @@ get.gcv <- function(    # default Get.crit function
 
     if(max(nparams, na.rm=TRUE) >= ncases)
         warning1("GCV effective number of parameters ", max(nparams, na.rm=TRUE),
-            " >= number of cases ", ncases)
+                 " >= number of cases ", ncases)
 
     rss.per.subset / (ncases * (1 - nparams/ncases)^2)
 }
@@ -1067,7 +1126,7 @@ anova.decomp <- function(dirs, cuts)
     first.fac.order <- double(nterms)           # order of first factor
     key.x <- double(nterms)                     # order of preds in factors
     if (nterms > 1)
-        for (i in 2:nterms)      {              # start at 2 to skip intercept
+        for (i in 2:nterms) {                   # start at 2 to skip intercept
             used = which(dirs[i,] != 0)
             first.fac.order[i] <- used[1]
             key.x[i] = 1e6 * used[1]            # 1st factor
@@ -1320,7 +1379,7 @@ extractAIC.earth <- function(fit, scale = 0, k = 2, ...)
         warning1("extractAIC.earth: ignored k parameter ", k)
     warn.if.dots.used("extractAIC.earth", ...)
     nterms <- length(fit$selected.terms)
-    c(effective.nbr.of.params(nterms, get.nknots(nterms), fit$ppenalty), fit$gcv)
+    c(effective.nbr.of.params(nterms, get.nknots(nterms), fit$penalty), fit$gcv)
 }
 
 #--------------------------------------------------------------------------------------------

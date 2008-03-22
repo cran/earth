@@ -2,16 +2,16 @@
 @rem 
 @rem This tests the earth C code.  It does this: builds test.earthc.exe 
 @rem (under MS VC 6.0), runs it, and compares results to test.earthc.out.save
-@rem You need to make Rdll.lib first -- see instructions in gnuwin32\README.packages
+@rem You need to make Rdll.lib first -- see instructions in gnuwin32/README.packages
 @rem You will need to tweak this file and test.earthc.mak for your directories
 @rem 
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
 @echo === test.earthc ===
-@cp "C:\Program Files\r\R-2.6.1\bin\R.dll" .
-@cp "C:\Program Files\r\R-2.6.1\bin\Rblas.dll" .
-@cp "C:\Program Files\r\R-2.6.1\bin\iconv.dll" .
-@cp "C:\Program Files\r\R-2.6.1\bin\graphapp.dll" .
+@cp "C:/a/r/ra/bin/R.dll" .
+@cp "C:/a/r/ra/bin/Rblas.dll" .
+@cp "C:/a/r/ra/bin/iconv.dll" .
+@cp "C:/a/r/ra/bin/graphapp.dll" .
 @md Debug
 @md Release
 

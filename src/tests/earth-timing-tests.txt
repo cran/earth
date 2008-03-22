@@ -78,7 +78,7 @@ test <- function(s, N, fast.k, degree, ndummy) {
   options(digits=2)
   cat(N, "\t", ncol(x), "\t", fast.k, "\t", degree, "\t", e.time[1], "\t",  e$gcv,
       "\t",  e$grsq, "\t",  length(e$selected.terms), "\t",
-     get.nused.preds.per.subset(e$dirs, e$selected.terms), "\t", s, "\n")
+     earth:::get.nused.preds.per.subset(e$dirs, e$selected.terms), "\t", s, "\n")
 }
 s <- "original"
 cat("N     ncol(x) fast.k  degree     time    gcv             grsq   nterms  npreds\n")
