@@ -1701,12 +1701,12 @@ Forward pass complete: 5 terms
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.7176       0.7289
-         3       0.8885       0.8974
-         4       0.9720       0.9753
-         5       0.9887       0.9904
+         2       0.5315       0.5502
+         3       0.8919       0.9005
+         4       0.9730       0.9761
+         5       0.9891       0.9908
 
-Backward pass complete: selected 5 terms of 5, GRSq 0.988672 RSq 0.990428
+Backward pass complete: selected 5 terms of 5, GRSq 0.989068 RSq 0.990764
 
 RESULT 27 Response 1: GRSq 1 RSq 1 nTerms 5 of 5 of 51 [99.99 secs]
 RESULT 27 Response 2: GRSq 0.984659 RSq 0.987039 nTerms 5 of 5 of 51
@@ -1740,12 +1740,12 @@ Forward pass complete: 5 terms
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.4955       0.5157
-         3       0.7192       0.7415
-         4       0.7623       0.7902
-         5       0.7944       0.8263
+         2       0.4704       0.4915
+         3       0.7188       0.7411
+         4       0.7811       0.8069
+         5       0.8107       0.8401
 
-Backward pass complete: selected 5 terms of 5, GRSq 0.794436 RSq 0.826316
+Backward pass complete: selected 5 terms of 5, GRSq 0.810743 RSq 0.840095
 
 RESULT 28 Response 1: GRSq 0.810743 RSq 0.840095 nTerms 5 of 5 of 51 [99.99 secs]
 RESULT 28 Response 2: GRSq 0.810743 RSq 0.840095 nTerms 5 of 5 of 51
@@ -1844,11 +1844,11 @@ Forward pass complete: 9 terms (8 terms used)
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.3690       0.4005
-         3       0.7536       0.7778
-         4       0.8402       0.8635
-         5       0.9345       0.9470
-         6       0.9821       0.9864
+         2       0.5520       0.5744
+         3       0.7811       0.8026
+         4       0.8454       0.8679
+         5       0.9523       0.9615
+         6       0.9821       0.9863
          7       1.0000       1.0000
          8       1.0000       1.0000
 
@@ -1906,15 +1906,15 @@ Forward pass complete: 9 terms (8 terms used)
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.7389       0.7649
-         3       0.8203       0.8551
-         4       0.8203       0.8583
-         5       0.9857       0.9909
-         6       0.9912       0.9951
-         7       0.9952       0.9977
-         8       0.9954       0.9981
+         2       0.4790       0.5308
+         3       0.8985       0.9181
+         4       0.9809       0.9863
+         5       0.9826       0.9890
+         6       0.9885       0.9936
+         7       0.9962       0.9982
+         8       0.9963       0.9985
 
-Backward pass complete: selected 8 terms of 8, GRSq 0.995445 RSq 0.998118
+Backward pass complete: selected 8 terms of 8, GRSq 0.996347 RSq 0.99849
 
 RESULT 30 Response 1: GRSq 1 RSq 1 nTerms 8 of 8 of 101 [99.99 secs]
 RESULT 30 Response 2: GRSq 0.995787 RSq 0.998259 nTerms 8 of 8 of 101
@@ -1954,16 +1954,16 @@ Forward pass complete: 11 terms (9 terms used)
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.2404       0.3159
-         3       0.7840       0.8258
-         4       0.9661       0.9757
-         5       0.9776       0.9858
-         6       0.9835       0.9908
-         7       0.9863       0.9934
-         8       0.9906       0.9961
-         9       0.9943       0.9980
+         2       0.3469       0.4119
+         3       0.8713       0.8962
+         4       0.9755       0.9824
+         5       0.9793       0.9869
+         6       0.9832       0.9907
+         7       0.9869       0.9937
+         8       0.9912       0.9964
+         9       0.9947       0.9981
 
-Backward pass complete: selected 9 terms of 9, GRSq 0.994263 RSq 0.99799
+Backward pass complete: selected 9 terms of 9, GRSq 0.994666 RSq 0.998132
 
 RESULT 31 Response 1: GRSq 1 RSq 1 nTerms 9 of 9 of 101 [99.99 secs]
 RESULT 31 Response 2: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101
@@ -2015,16 +2015,16 @@ Forward pass complete: 11 terms (9 terms used)
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.6150       0.6533
-         3       0.8812       0.9042
-         4       0.9724       0.9802
-         5       0.9807       0.9878
-         6       0.9871       0.9928
-         7       0.9871       0.9937
-         8       0.9901       0.9959
-         9       0.9940       0.9979
+         2       0.3469       0.4119
+         3       0.8713       0.8962
+         4       0.9755       0.9824
+         5       0.9793       0.9869
+         6       0.9832       0.9907
+         7       0.9869       0.9937
+         8       0.9912       0.9964
+         9       0.9947       0.9981
 
-Backward pass complete: selected 9 terms of 9, GRSq 0.993993 RSq 0.997896
+Backward pass complete: selected 9 terms of 9, GRSq 0.994666 RSq 0.998132
 
 RESULT 32 Response 1: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101 [99.99 secs]
 RESULT 32 Response 2: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101
@@ -2076,16 +2076,16 @@ Forward pass complete: 11 terms (9 terms used)
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.6809       0.7126
-         3       0.9453       0.9559
-         4       0.9770       0.9835
-         5       0.9799       0.9873
-         6       0.9875       0.9931
-         7       0.9875       0.9938
-         8       0.9917       0.9966
-         9       0.9950       0.9982
+         2       0.3469       0.4119
+         3       0.8713       0.8962
+         4       0.9755       0.9824
+         5       0.9793       0.9869
+         6       0.9832       0.9907
+         7       0.9869       0.9937
+         8       0.9912       0.9964
+         9       0.9947       0.9981
 
-Backward pass complete: selected 9 terms of 9, GRSq 0.994963 RSq 0.998236
+Backward pass complete: selected 9 terms of 9, GRSq 0.994666 RSq 0.998132
 
 RESULT 33 Response 1: GRSq 0.993427 RSq 0.997698 nTerms 9 of 9 of 101 [99.99 secs]
 RESULT 33 Response 2: GRSq 0.994046 RSq 0.997914 nTerms 9 of 9 of 101
@@ -2141,26 +2141,26 @@ Forward pass complete: 19 terms
 Backward pass:
 SubsetSize         GRSq          RSq
          1       0.0000       0.0000
-         2       0.3770       0.3801
-         3       0.5448       0.5494
-         4       0.6847       0.6894
-         5       0.7595       0.7643
-         6       0.7751       0.7807
-         7       0.8326       0.8376
-         8       0.9258       0.9284
-         9       0.9530       0.9549
-        10       0.9744       0.9756
-        11       0.9814       0.9823
-        12       0.9836       0.9845
-        13       0.9861       0.9869
-        14       0.9880       0.9888
-        15       0.9947       0.9951
-        16       0.9953       0.9956
-        17       0.9954       0.9958
-        18       0.9954       0.9958
-        19       0.9954       0.9958
+         2       0.3848       0.3879
+         3       0.6173       0.6211
+         4       0.7805       0.7838
+         5       0.8451       0.8482
+         6       0.9157       0.9178
+         7       0.9413       0.9430
+         8       0.9657       0.9668
+         9       0.9752       0.9762
+        10       0.9823       0.9831
+        11       0.9850       0.9857
+        12       0.9890       0.9896
+        13       0.9921       0.9926
+        14       0.9941       0.9945
+        15       0.9948       0.9951
+        16       0.9951       0.9955
+        17       0.9952       0.9956
+        18       0.9952       0.9956
+        19       0.9952       0.9956
 
-Backward pass complete: selected 18 terms of 19, GRSq 0.995413 RSq 0.995795
+Backward pass complete: selected 18 terms of 19, GRSq 0.995196 RSq 0.995596
 
 RESULT 34 Response 1: GRSq 0.996813 RSq 0.997079 nTerms 18 of 19 of 101 [99.99 secs]
 RESULT 34 Response 2: GRSq -3.29776 RSq -2.93986 nTerms 18 of 19 of 101

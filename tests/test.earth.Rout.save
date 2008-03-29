@@ -1,4 +1,19 @@
 
+R version 2.6.2  (2008-03-12 Ra 1.0.6)
+Copyright (C) 2008 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
 
 > # test.earth.R
 > # The intention here is to check for porting problems by building
@@ -78,7 +93,6 @@ Expression:
   -   0.0189 * pmax(0,     temp -       58) * pmax(0,      dpg -       54) 
   +  0.00416 * pmax(0,     temp -       58) * pmax(0,       54 -      dpg) 
   - 7.74e-05 * pmax(0,     1108 -      ibh) * pmax(0,       44 -      dpg) 
-
 Number of cases: 330
 Selected 11 of 21 terms, and 8 of 9 predictors
 Number of terms at each degree of interaction: 1 5 5
@@ -127,7 +141,6 @@ Expression:
   +  0.0419030 * pmax(0,      doy -       89) 
   -   0.114964 * pmax(0,       89 -      doy) 
   -  0.0833327 * pmax(0,      doy -      159) 
-
 Number of cases: 330
 Selected 12 of 20 terms, and 9 of 9 predictors
 Number of terms at each degree of interaction: 1 11 (additive model)
