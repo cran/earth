@@ -19,6 +19,8 @@ dopar <- function(nrows, ncols, caption = "")
 }
 library(earth)
 data(ozone1)
+if(!interactive())
+    postscript()
 
 caption <- "basic earth test of plotmo"
 a <- earth(O3 ~ ., data=ozone1, degree=2)
@@ -533,5 +535,7 @@ print(summary(a.rather.long.in.fact.very.long.name.for.the.modelC, digits = 2))
 plot(a.rather.long.in.fact.very.long.name.for.the.modelC)
 plotmo(a.rather.long.in.fact.very.long.name.for.the.modelC)
 
-if(!interactive())
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher)
+if(!interactive()) {
+    dev.off()         # finish postscript plot
+    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
+}

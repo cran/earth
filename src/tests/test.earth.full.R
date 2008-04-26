@@ -6,6 +6,8 @@ library(earth)
 library(mda)
 data(ozone1)
 data(trees)
+if(!interactive())
+    postscript()
 
 PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
 PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
@@ -926,5 +928,7 @@ cat("--- ../../tests/test.earth.R -------------------------\n")
 options(options.old)
 source("../../tests/test.earth.R")
 
-if(!interactive())
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher)
+if(!interactive()) {
+    dev.off()         # finish postscript plot
+    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
+}

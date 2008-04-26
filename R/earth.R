@@ -1206,7 +1206,7 @@ format.one.response <- function(
             return(10)  # return arbitrary width for intercept only model
         used.dirs <- dirs[which.terms, , drop=FALSE]
         # used.preds is a logical index vector which selects used x predictors
-        used.preds <- apply(used.dirs, 2, any)
+        used.preds <- apply(used.dirs, 2, any1)
         # as.list is needed so format treats each cut independently
         max(nchar(var.names[used.preds]),
             nchar(format(as.list(cuts[which.terms, used.preds]), digits=digits)))

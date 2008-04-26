@@ -6,7 +6,8 @@
 @cp "C:/a/r/ra/bin/R.dll" .
 @cp "C:/a/r/ra/bin/Rblas.dll" .
 @cp "C:/a/r/ra/bin/iconv.dll" .
-@cp "C:/a/r/ra/bin/graphapp.dll" .
+@cp "C:/a/r/ra/bin/Rgraphapp.dll" .
+@cp "C:/a/r/ra/bin/Rzlib.dll" .
 @md Debug
 
 @cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MLd -I"C:/a/r/ra/bin/include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\earth.c
@@ -21,7 +22,7 @@
 diff -w test.earthmain.out.save Debug\test.earthmain.out
 @if %errorlevel% neq 0 goto error:
 
-@rm -f R.dll Rblas.dll iconv.dll graphapp.dll earthmain.exe *.map *.ilk *.pdb
+@rm -f R.dll Rblas.dll iconv.dll Rgraphapp.dll Rzlib.dll earthmain.exe *.map *.ilk *.pdb
 @rm -rf Debug
 @exit /B 0
 

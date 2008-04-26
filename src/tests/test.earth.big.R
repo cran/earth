@@ -1,6 +1,8 @@
 # test.earth.big: test earth with a biggish model
 
 library(earth)
+if(!interactive())
+    postscript()
 options(digits = 3)
 set.seed(777)
 N <- 1e4
@@ -56,5 +58,7 @@ trace=4
 a2 <- earth(x, y, nk=51, degree=degree, minspan=0, trace=trace)
 print(summary(a2))
 
-if(!interactive())
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher)
+if(!interactive()) {
+    dev.off()         # finish postscript plot
+    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
+}

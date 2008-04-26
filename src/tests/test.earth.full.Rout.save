@@ -1,7 +1,7 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.6.2  (2008-03-12 Ra 1.0.6)"
+[1] "R version 2.7.0  (2008-04-24 Ra 1.0.9)"
 > 
 > library(earth)
 Loading required package: leaps
@@ -9,6 +9,8 @@ Loading required package: leaps
 Loading required package: class
 > data(ozone1)
 > data(trees)
+> if(!interactive())
++     postscript()
 > 
 > PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
 > PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
@@ -2448,5 +2450,7 @@ Selected 12 of 20 terms, and 9 of 9 predictors
 Number of terms at each degree of interaction: 1 11 (additive model)
 GCV: 14.6731         RSS: 4190.68         GRSq: 0.77207       RSq: 0.801534
 > 
-> if(!interactive())
-+     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher)
+> if(!interactive()) {
++     dev.off()         # finish postscript plot
++     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
++ }
