@@ -8,6 +8,8 @@
 #--------------------------------------------------------------------------------------------
 # Miscellaneous utilities
 
+any1 <- function(x) any(x != 0) # like any but no warning if x not logical
+
 # The function stopif is intended for catching programmer errors.
 # For user errors, we try to give a more informative message.
 

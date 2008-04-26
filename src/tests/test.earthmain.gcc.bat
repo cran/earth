@@ -6,7 +6,8 @@
 @cp "C:/a/r/ra/bin/R.dll" .
 @cp "C:/a/r/ra/bin/Rblas.dll" .
 @cp "C:/a/r/ra/bin/iconv.dll" .
-@cp "C:/a/r/ra/bin/graphapp.dll" .
+@cp "C:/a/r/ra/bin/Rgraphapp.dll" .
+@cp "C:/a/r/ra/bin/Rzlib.dll" .
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @cp "C:/a/r/ra/bin/Rdll.lib" .
 @cp "C:/a/r/ra/bin/Rblas.lib" .
@@ -27,7 +28,7 @@ gcc -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -O3 -std=gnu99 -I"C:/a/r/ra/incl
 diff -w test.earthmain.out.save test.earthmain-gcc.out
 @if %errorlevel% neq 0 goto error:
 
-@rm -f R.dll Rblas.dll iconv.dll graphapp.dll Rdll.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc.* *.o
+@rm -f R.dll Rblas.dll iconv.dll Rgraphapp.dll Rzlib.dll Rdll.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc.* *.o
 @rm -rf Debug
 @exit /B 0
 

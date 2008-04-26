@@ -2,6 +2,8 @@
 > 
 > library(earth)
 Loading required package: leaps
+> if(!interactive())
++     postscript()
 > options(digits = 3)
 > set.seed(777)
 > N <- 1e4
@@ -122,5 +124,7 @@ Selected 5 of 5 terms, and 2 of 100 predictors
 Number of terms at each degree of interaction: 1 4 (additive model)
 GCV: 0.110        RSS: 1096         GRSq: 0.859      RSq: 0.859
 > 
-> if(!interactive())
-+     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher)
+> if(!interactive()) {
++     dev.off()         # finish postscript plot
++     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
++ }
