@@ -1,21 +1,20 @@
 @rem test.earth.full.bat: this does a regression test of earth
 @rem Stephen Milborrow Apr 2007 Petaluma
 
-@echo === test.earth.full ===
-"\a\r\ra\bin\Rcmd.exe" BATCH --quiet --vanilla test.earth.full.R
+@echo === test.earth.full ==============================================
+@"\a\r\ra\bin\Rcmd.exe" BATCH --quiet --vanilla test.earth.full.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.full.Rout
 @exit /B %errorlevel%
 :good1
-@echo === Following two diffs should give no output ===
-diff test.earth.full.Rout.save test.earth.full.Rout
+diff test.earth.full.Rout test.earth.full.Rout.save 
 @if %errorlevel% equ 0 goto good2:
 @echo === Files are different ===
 @exit /B %errorlevel%
 @rem test.earth.full.save.ps is too big to be included in the release
 @rem so it is stored elsewhere
 :good2
-diff -w ..\..\.#\test.earth.full.save.ps Rplots.ps
+diff -w Rplots.ps ..\..\.#\test.earth.full.save.ps 
 @if %errorlevel% equ 0 goto good3:
 @echo === Files are different ===
 @exit /B %errorlevel%

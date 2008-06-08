@@ -26,9 +26,10 @@ void ForwardPassR(              // for use by R
     double Dirs[],              // out: nMaxTerms x nPreds, elements are 1,0,-1
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
     const double x[],           // in: nCases x nPreds
-    const double y[],           // in: nCases x nResponses
+    const double y[],           // in: nCases x nResp
+    const double weightsArg[],  // in: nCases x 1, can be R_NilValue
     const int *pnCases,         // in: number of rows in x and elements in y
-    const int *pnResponses,     // in: number of cols in y
+    const int *pnResp,          // in: number of cols in y
     const int *pnPreds,         // in: number of cols in x
     const int *pnMaxDegree,     // in:
     const int *pnMaxTerms,      // in:
@@ -45,14 +46,30 @@ void ForwardPassR(              // for use by R
     const int *pnTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[]);    // in: predictor names in trace printfs, can be NULL
 
-void EvalSubsetsUsingXtxR(      // for use by R
-    double       PruneTerms[],  // out: specifies which cols in bx are in best set
-    double       RssVec[],      // out: nTerms x 1
-    const int    *pnCases,      // in
-    const int    *pnResponses,  // in: number of cols in y
-    const int    *pnMaxTerms,   // in
-    const double bx[],          // in: MARS basis matrix, all cols must be independent
-    const double y[]);          // in: nCases * nResponses
+void EvalSubsetsUsingXtxR(     // for use by R
+    double       PruneTerms[], // out: specifies which cols in bx are in best set
+    double       RssVec[],     // out: nTerms x 1
+    const int    *pnCases,     // in
+    const int    *pnResp,      // in: number of cols in y
+    const int    *pnMaxTerms,  // in
+    const double bx[],         // in: MARS basis matrix, all cols must be independent
+    const double y[],          // in: nCases * nResp
+    const double weights[]);   // in: nCases x 1, can be R_NilValue
+
+void RegressR(			// for testing earth routine Regress from R
+    double       Betas[],       // out: nUsedCols * nResp
+    double       Residuals[],   // out: nCases * nResp
+    double       Rss[],         // out: RSS, summed over all nResp
+    double       Diags[],       // out: diags of inv(transpose(bx) * bx)
+    int          *pnRank,       // out: nbr of indep cols in x
+    int          iPivots[],     // out: nCols, can be NULL
+    const double x[],           // in: nCases x nCols
+    const double y[],           // in: nCases x nResp
+    const double weightss[],    // in: nCases x 1, sqrt of weights
+    const int    *pnCases,      // in: number of rows in x and in y
+    const int    *pnResp,       // in: number of cols in y
+    int          *pnCols,       // in: number of columns in x, some may not be used
+    const bool   UsedCols[]);   // in: specifies used columns in x
 
 #endif // USING_R
 
@@ -65,12 +82,13 @@ void Earth(
     double bx[],            // out: nCases x nMaxTerms
     int    Dirs[],          // out: nMaxTerms x nPreds, 1,0,-1 for term iTerm, predictor iPred
     double Cuts[],          // out: nMaxTerms x nPreds, cut for term iTerm, predictor iPred
-    double Residuals[],     // out: nCases x nResponses
-    double Betas[],         // out: nMaxTerms x nResponses
+    double Residuals[],     // out: nCases x nResp
+    double Betas[],         // out: nMaxTerms x nResp
     const double x[],       // in: nCases x nPreds
-    const double y[],       // in: nCases x nResponses
+    const double y[],       // in: nCases x nResp
+    const double weightsArg[], // in: nCases, can be NULL
     const int nCases,       // in: number of rows in x and elements in y
-    const int nResponses,   // in: number of cols in y
+    const int nResp,        // in: number of cols in y
     const int nPreds,       // in: number of cols in x
     const int nMaxDegree,   // in: Friedman's mi
     const int nMaxTerms,    // in: includes the intercept term
@@ -90,23 +108,23 @@ void FormatEarth(
     const bool   UsedCols[],// in: nMaxTerms x 1, indices of best set of cols of bx
     const int    Dirs[],    // in: nMaxTerms x nPreds, 1,0,-1 for term iTerm, predictor iPred
     const double Cuts[],    // in: nMaxTerms x nPreds, cut for term iTerm, predictor iPred
-    const double Betas[],   // in: nMaxTerms x nResponses
+    const double Betas[],   // in: nMaxTerms x nResp
     const int    nPreds,
-    const int    nResponses,// in: number of cols in y
+    const int    nResp,     // in: number of cols in y
     const int    nTerms,
     const int    nMaxTerms,
     const int    nDigits,   // number of significant digits to print
     const double MinBeta);  // terms with abs(beta) less than this are not printed, 0 for all
 
 void PredictEarth(
-    double       y[],           // out: vector nResponses
+    double       y[],           // out: vector nResp
     const double x[],           // in: vector nPreds x 1 of input values
     const bool   UsedCols[],    // in: nMaxTerms x 1, indices of best set of cols of bx
     const int    Dirs[],        // in: nMaxTerms x nPreds, 1,0,-1 for iTerm iPred
     const double Cuts[],        // in: nMaxTerms x nPreds, cut for term iTerm predictor iPred
-    const double Betas[],       // in: nMaxTerms x nResponses
+    const double Betas[],       // in: nMaxTerms x nResp
     const int    nPreds,        // in: number of cols in x
-    const int    nResponses,    // in: number of cols in y
+    const int    nResp,         // in: number of cols in y
     const int    nTerms,
     const int    nMaxTerms);
 

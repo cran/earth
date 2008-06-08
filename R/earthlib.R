@@ -1,11 +1,11 @@
 # earthlib.R: general purpose routines that are needed by the earth package
 #
-# Comments containing "$$" mark known issues.
+# Comments containing "TODO" mark known issues.
 # Stephen Milborrow Mar 2007 Petaluma
 #
-# $$ the make.space functions should take into account char height and other par settings
+# TODO the make.space functions should take into account char height and other par settings
 
-#--------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Miscellaneous utilities
 
 any1 <- function(x) any(x != 0) # like any but no warning if x not logical
@@ -22,7 +22,9 @@ stop1 <- function(...)          # call.=FALSE so use traceback() to see call
 warning1 <- function(...)       # set options(warn=2) and traceback() to see the call
     warning(..., call.=FALSE)
 
-paste.with.space <- function(s) paste(s, collapse = " ")
+paste.with.space <- function(s) paste(s, collapse=" ")
+
+paste.with.comma <- function(s) paste(s, collapse=", ")
 
 paste.quoted.names <- function(names) # add quotes and comma seperators
     paste("\"", paste(names, collapse="\" \""), "\"", sep="")
@@ -36,45 +38,43 @@ warn.if.dots.used <- function(func.name, ...)
 {
     dots <- match.call(expand.dots = FALSE)$...
     if(length(dots) == 1)
-        warning1(func.name, " ignored argument \"", names(dots), "\"")
+        warning1(func.name, " ignored unrecognized argument \"", names(dots), "\"")
     else if(length(dots) > 1)
-        warning1(func.name, " ignored arguments ", paste.quoted.names(names(dots)))
+        warning1(func.name, " ignored unrecognized arguments ",
+                 paste.quoted.names(names(dots)))
 }
 
 check.classname <- function(object, object.name, class.names)
 {
     if(!inherits(object, class.names))
-        stop1("the class of \'", object.name, "\' is not \"",
+        stop("the class of \"", object.name, "\" is not \"",
             paste(class.names, collapse="\" or \""), "\"")
-
 }
 
-# Remove the "..." arguments from call.
-#
-# This is used in model functions that don't use "..." and issue a
-# warning if a "..." argument is used.
-# If we don't remove the "..." argument from the call, subsequent
-# calls to the model function via update continue to re-issue the
-# warning, and there is no easy way for the user to get rid of
-# the unwanted argument.
-
-strip.dots.from.call <- function(call)
+to.logical <- function(x, len)
 {
-    idots <- which(names(call)=="...")
-    if(length(idots) > 0)
-        call[-idots]
-    else
-        call
+    xlogical <- rep(FALSE, len)
+    xlogical[x] <- TRUE
+    xlogical
+}
+
+check.trace.arg <- function(trace) # make sure trace is a one element vector
+{
+    if(!is.vector(trace))
+        warning1("bad \"trace\" argument")
+    if(length(trace) != 1)
+        warning1("\"trace\" argument has more than one element")
+    as.numeric(trace[1])
 }
 
 # Modify call to refer to the generic e.g. "foo.default" becomes "foo".
 # This means that functions like update() call foo() and not foo.default().
 # An advantage is that we don't have to export foo.default().
 
-make.call.generic <- function(call, func.name)
+make.call.generic <- function(Call, func.name)
 {
-    call[[1]] <- as.name(func.name)
-    call
+    Call[[1]] <- as.name(func.name)
+    Call
 }
 
 # warn.if.not.all.finite is intended to help clarify possibly confusing
@@ -82,8 +82,9 @@ make.call.generic <- function(call, func.name)
 
 warn.if.not.all.finite <- function(x, text="unknown")
 {
-    if(any(is.factors <- sapply(x, is.factor))) {
-        if(NCOL(x) == 1 || all(is.factors==TRUE))   #$$ suspect
+    is.factors <- sapply(x, is.factor)
+    if(any(is.factors)) {
+        if(NCOL(x) == 1 || all(is.factors)) #TODO suspect
             return(FALSE)
         x <- x[, !is.factors]               # remove factor columns before is.finite check
     }
@@ -94,6 +95,13 @@ warn.if.not.all.finite <- function(x, text="unknown")
     FALSE
 }
 
+my.fixed.point <- function(x, digits)
+{
+    if(NROW(x) > 2) # if only intercept term and one other then don't use fixed point
+        x <- apply(x, 2, zapsmall, digits+1)
+    x
+}
+
 # Check that an index vector specified by the user is ok to index an object.
 # We want to preclude confusing R messages or behaviour later.
 # An example is when max(indexVec) > len(object) which quietly returns NA
@@ -101,18 +109,20 @@ warn.if.not.all.finite <- function(x, text="unknown")
 
 check.index.vec <- function(index.name, indexVec, object,
                         check.empty = FALSE, use.as.col.index=FALSE,
-                        allow.negative.indices = TRUE)
+                        allow.negative.indices = TRUE,
+                        allow.duplicates = FALSE,
+                        allow.zeroes = FALSE)
 {
     if(is.null(indexVec)) {
         if(check.empty)
-            stop1("'", index.name, "' is NULL and cannot be used as an index vector")
+            stop1("\"", index.name, "\" is NULL and cannot be used as an index vector")
         return(NULL)
     }
     if(any(is.na(indexVec)))
-        stop1("NA in '", index.name, "'")
+        stop1("NA in \"", index.name, "\"")
     if(!(NROW(indexVec) == 1 || NCOL(indexVec) == 1))
-        stop1("'", index.name, "' must be a vector not a matrix ",
-            "('", index.name, "' has dimensions ",
+        stop1("\"", index.name, "\" must be a vector not a matrix ",
+            "(\"", index.name, "\" has dimensions ",
             NROW(indexVec), " x ", NCOL(indexVec), ")")
 
     if(use.as.col.index)
@@ -127,40 +137,40 @@ check.index.vec <- function(index.name, indexVec, object,
             if(length(indexVec) == 0)
                 stop1("length(", index.name, ") == 0")
             if(length(indexVec[indexVec == TRUE]) == 0)
-                stop1("'", index.name, "' is all FALSE")
+                stop1("\"", index.name, "\" is all FALSE")
         }
         if(length(indexVec) > len)
-            stop1("logical index vector '", index.name,
-                "' is too long (its length is ", length(indexVec),
-                " and the max allowed length is ", len, ")")
+            stop1("logical index vector \"", index.name, "\" is too long\n",
+                "       Its length is ", length(indexVec),
+                " and the max allowed length is ", len)
     } else if(is.numeric(indexVec)) {
         if(check.empty) {
             if(length(indexVec) == 0)
                 stop1("length(", index.name, ") == 0")
             else if(all(indexVec == 0))
                 if(length(indexVec) == 1)
-                    stop1("'", index.name, "' is 0")
+                    stop1("\"", index.name, "\" is 0")
                 else
-                    stop1("'", index.name, "' is all zeroes")
+                    stop1("\"", index.name, "\" is all zeroes")
         }
         if(any(indexVec < 0) && any(indexVec > 0))
-            stop1("mixed negative and positive values in '", index.name, "'")
-        if(any(indexVec == 0) && length(indexVec) != 1)
-            warning1("ignored zero in '", index.name, "'")
-        if(any(duplicated(indexVec)))
-            warning1("duplicates in '", index.name, "'")
-        if (!allow.negative.indices && any(indexVec < 0))
-            stop1("negative value in '", index.name, "'")
+            stop1("mixed negative and positive values in \"", index.name, "\"")
+        if(!allow.zeroes && any(indexVec == 0) && length(indexVec) != 1)
+            warning1("zero in \"", index.name, "\"")
+        if(!allow.duplicates && any(duplicated(indexVec)))
+            warning1("duplicates in \"", index.name, "\"")
+        if(!allow.negative.indices && any(indexVec < 0))
+            stop1("negative value in \"", index.name, "\"")
         if(any(abs(indexVec) > len))
             if(len == 1)
-                stop1("out of range value in '", index.name,
-                    "' (the only legal value is 1)")
+                stop1("out of range value in \"", index.name,
+                    "\" (the only legal value is 1)")
             else
-                stop1("out of range value in '", index.name,
-                    "' (allowed index range is 1:",  len, ")")
+                stop1("out of range value in \"", index.name,
+                    "\" (allowed index range is 1:",  len, ")")
     } else
-        warning1("index vector '", index.name,
-            "' has an unusual class \"", class(indexVec), "\"")
+        warning1("index vector \"", index.name,
+            "\" has an unusual class \"", class(indexVec), "\"")
     indexVec
 }
 
@@ -177,7 +187,7 @@ exists.and.not.null <- function(object, mode="any", argname="")
         else
             stop1(object, "illegal NA")
 
-# $$ removed until I can get this to work reliably
+# TODO removed until I can get this to work reliably
 #
 #   if(!exists(paste("'", object, "'", sep=""), where=parent.frame(), mode=mode))
 #       if(length(argname))
@@ -190,7 +200,7 @@ exists.and.not.null <- function(object, mode="any", argname="")
 }
 
 # Return a vector of n clearly distinguishable colors.  Here distinguishability
-# comes before aesthetics and ideas of "matching colors" or of "ordered" sequences.
+# comes before aesthetics and "matching colors" or "ordered" sequences.
 # The first three are also distinguishable on (my) monochrome printer.
 
 discrete.plot.cols <- function(ncolors=5)
@@ -201,7 +211,46 @@ discrete.plot.cols <- function(ncolors=5)
     cols[1:ncolors]
 }
 
-#--------------------------------------------------------------------------------------------
+
+# Example of my.print.call:
+#
+# Call: earth(formula=O3~., data=ozone1, trace=4, linpreds=c(3,
+#       8), degree=2)
+#
+# Note that the 2nd line is horizontally aligned with the first.
+
+my.print.call <- function(msg, Call)
+{
+    # don't print x or y if they are too long
+    # TODO there must be a better way of checking length
+    if(!is.null(Call$x)) {
+        x. <- Call$x
+        if(length(paste(substitute(x.))) > 100)
+            Call$x = paste("[", NROW(Call$x), ",", NCOL(Call$x),
+                            "]-too-long-to-display", sep="")
+    }
+    if(!is.null(Call$y)) {
+        y. <- Call$y
+        if(length(paste(substitute(y.))) > 100)
+            Call$y = paste("[", NROW(Call$y), ",", NCOL(Call$y),
+                            "]-too-long-to-display", sep="")
+    }
+    s <- format(Call)
+    if(length(s) > 8) {
+        s <- s[1:8]
+        s[8] = paste(s[8], "\netc.")
+    }
+    s <- gsub("[ \t\n]", "", s)                 # remove white space
+
+    # add newlines and prefix (spaces prefix all lines except the first)
+    spaces. = sprintf("%*s", nchar(msg), " ")   # nchar spaces
+
+    s <- gsub(",", ", ", s)                     # replace comma with comma space
+    s <- paste(s, collapse=paste("\n", spaces., sep=""), sep="")
+    cat(msg, s, "\n", sep="")
+}
+
+#------------------------------------------------------------------------------
 
 match.arg1 <- function(arg)     # match.arg1 returns an integer
 {
@@ -220,11 +269,11 @@ match.choices <- function(arg, choices, arg.name)   # choices is a vector of str
         stop1(paste("bad ", arg.name, " argument \"", arg, "\"\n",
             "Choose one of: ", paste.with.space(choices), sep=""))
     if(length(i) > 1)
-        stop1("'", arg.name, "' is ambiguous")
+        stop1("\"", arg.name, "\" is ambiguous")
     i
 }
 
-#--------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 get.caption.from.call <- function(caption, object)
 {
     if(is.null(caption))
@@ -234,9 +283,9 @@ get.caption.from.call <- function(caption, object)
 
 # Call this only after a plot is on the screen to avoid
 # an error message "plot.new has not been called yet"
-#$$ the trimming code overtrims
+# TODO the trimming code overtrims
 
-show.caption <- function(caption, trim=FALSE)
+print.caption <- function(caption, trim=FALSE)
 {
     len.caption <- nchar(caption)
     if(len.caption > 0) {
@@ -295,7 +344,7 @@ make.space.for.right.axis <- function()
     NULL
 }
 
-#--------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Given a list of objects, return a vector of strings.  Each string shows where
 # the $call argument of the object differs from the call of the first object.
 # (Thus the first object is used as a reference).
@@ -309,20 +358,20 @@ get.arg.strings <- function(
         gsub("[ \t\n)]",  "",  paste(format(objects[[iobj]]$call), collapse=" "))
 
     stopif(length(objects) == 0)
-    call1 <- get.call(1)
+    Call <- get.call(1)
     if(length(objects) == 1)
-        return(substr(call1, 1, maxchars))
-    call2 <- get.call(2)
-    i <- first.non.matching.arg(call1, call2)
+        return(substr(Call, 1, maxchars))
+    Call2 <- get.call(2)
+    i <- first.non.matching.arg(Call, Call2)
     if(i == 0)
         rval <- c("", "")
     else
-        rval <- c(substr(call1, i, i+maxchars), substr(call2, i, i+maxchars))
+        rval <- c(substr(Call, i, i+maxchars), substr(Call2, i, i+maxchars))
     if(length(objects) > 2)
         for(iobj in 3:(length(objects))) {
-            call2 <- get.call(iobj)
-            i <- first.non.matching.arg(call1, call2)
-            rval <- c(rval, if(i==0) "" else substr(call2, i, i+maxchars))
+            Call2 <- get.call(iobj)
+            i <- first.non.matching.arg(Call, Call2)
+            rval <- c(rval, if(i==0) "" else substr(Call2, i, i+maxchars))
         }
     rval
 }

@@ -1,15 +1,19 @@
 \name{summary.earth}
 \alias{summary.earth}
 \alias{print.summary.earth}
-\title{Summary method for 'earth' objects}
+\title{Summary method for "earth" objects}
 \description{
-Summary method for 'earth' objects.
+Summary method for \code{\link{earth}} objects.
 }
 \usage{
 \method{summary}{earth}(object = stop("no 'object' arg"),
-        digits = getOption("digits"), \dots)
+        details = FALSE, decomp = "anova", 
+        style = c("h", "pmax"), 
+        digits = getOption("digits"), fixed.point=TRUE, \dots)
 
-\method{print}{summary.earth}(x = stop("no 'x' arg"), digits, \dots)
+\method{print}{summary.earth}(x = stop("no 'x' arg"),
+        details = x$details, decomp = x$decomp, 
+        digits = x$digits, fixed.point = x$fixed.point, \dots)
 }
 \arguments{
   \item{object}{
@@ -20,30 +24,69 @@ Summary method for 'earth' objects.
     A \code{\link{summary.earth}} object.
     This is the only required argument for \code{print.summary.earth}.
   }
+  \item{details}{
+    Default is FALSE.
+    Use TRUE for \code{\link{earth}}
+    to print more information about \code{\link{earth}}--\code{\link{glm}} models.
+    But note that the displayed P-values of the GLM coefficients
+    are meaningless because of the amount of preprocessing
+    by earth to select the regression terms.
+  }
+  \item{decomp}{
+    See \code{\link{format.earth}} for legal \code{decomp} values.
+    Default is \code{"anova"}.
+    Use \code{"none"} to order the terms as created by the forward.pass.
+  }
+  \item{style}{
+    Formatting style. One of\cr
+\code{"h"} (default) more compact\cr
+\code{"pmax"} for those who prefer it and for compatibility with old versions of earth.
+  }
   \item{digits}{
     The number of significant digits.
-    For \code{summary.earth} the default is \code{getOption("digits")}.
-    For \code{print.summary.earth} the default is the \code{$digits} component of \code{object}.
+    For \code{summary.earth}, the default is \code{getOption("digits")}.
+    For \code{print.summary.earth}, the default is the \code{$digits} component of \code{object}.
+  }
+  \item{fixed.point}{
+    Method of printing numbers in matrices.
+    Default is \code{TRUE} which prints like this
+    (making it easier to compare coefficients):\preformatted{
+        (Intercept)    15.029
+        h(temp-58)      0.313
+        h(234-ibt)     -0.046
+        ...
+} whereas \code{fixed.point=FALSE} prints like this (which is more usual in R):\preformatted{
+        (Intercept)   1.5e+01
+        h(temp-58)    3.1e-01
+        h(234-ibt)   -4.6e-02
+        ...
+}
+Matrices with two or fewer rows are never printed with a fixed point.
   }
   \item{\dots}{
     Extra arguments are passed to \code{\link{format.earth}}.
-    Use \code{decomp="none"} to order the terms as created by the forward.pass.
   }
 }
 \value{
 The value is the same as that returned by \code{\link{earth}}
 but with the following extra components.
-
-  \item{string}{
-    String created by \code{\link{format.earth}}.
+  \item{strings}{
+    String(s) created by \code{\link{format.earth}}.
     For multiple response models, a vector of strings.
   }
-  \item{digits}{
-    The \code{digits} argument, passed on to \code{print.summary.earth}.
+  \item{digits}{}
+  \item{details}{}
+  \item{decomp}{}
+  \item{fixed.point}{
+    The corresponding arguments, passed on to \code{print.summary.earth}.
   }
+The printed \code{Estimated importance} uses \code{\link{evimp}}
+with the \code{nsubsets} criterion.
+The most important predictor is printed first, and so on.
 }
 \seealso{
   \code{\link{earth}},
+  \code{\link{evimp}},
   \code{\link{format.earth}}
 }
 \examples{
@@ -51,18 +94,17 @@ a <- earth(Volume~ ., data = trees)
 summary(a, digits = 2)
 
 # yields:
-#    Call:
-#    earth(formula = Volume ~ ., data = trees)
-#    
-#    Expression:
-#      23 
-#      +  5.7 * pmax(0,  Girth -     13) 
-#      -  2.9 * pmax(0,     13 -  Girth) 
-#      + 0.72 * pmax(0, Height -     76) 
-#    
-#    Number of cases: 31
+#    Call: earth(formula=Volume~., data=trees)
+#
+#                  Volume
+#    (Intercept)    23.21
+#    h(Girth-12.9)   5.75
+#    h(12.9-Girth)  -2.87
+#    h(Height-76)    0.72
+#
 #    Selected 4 of 5 terms, and 2 of 2 predictors
+#    Estimated importance: Girth Height
 #    Number of terms at each degree of interaction: 1 3 (additive model)
-#    GCV: 11          RSS: 213         GRSq: 0.96      RSq: 0.97
+#    GCV 11    RSS 213    GRSq 0.96    RSq 0.97
 }
 \keyword{models}

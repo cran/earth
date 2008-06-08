@@ -48,4 +48,7 @@ Faraway (2005) \emph{Extending the Linear Model with R}
 Hastie and Tibshirani (1990) \emph{Generalized Additive Models}
 \url{http://www-stat.stanford.edu/~hastie/pub.htm}
 }
+\seealso{
+  \code{\link{earth}}
+}
 \keyword{datasets}

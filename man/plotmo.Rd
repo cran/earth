@@ -27,7 +27,7 @@ To start off, look at the arguments
   \code{degree2},
   \code{ylim},
   \code{clip}, and
-  \code{se}.
+  \code{do.par}.
 
   \item{object}{
         Model object.
@@ -56,7 +56,7 @@ To start off, look at the arguments
        \code{NULL}  generate a caption from \code{object$call} and the response name.
   }
   \item{trace}{
-     Set to \code{TRUE} to trace operation.  
+     Set to \code{TRUE} to trace operation.
      Useful for tracking down error messages.
      Default is \code{FALSE}.
   }
@@ -88,7 +88,7 @@ To start off, look at the arguments
   }
   \item{col.response}{
      Colour of response values (actually, the response sites in degree2 plots).
-     Here \sQuote{response} refers to the original data used to build the model.
+     Here "response" refers to the original data used to build the model.
      Default is 0, meaning don't plot the response.
      Ignored by \code{persp} plots.
   }
@@ -228,20 +228,20 @@ plotmo(a, grid.func = grid.func)
 (but comes with the \code{\link{earth}} package).
 It is intended for models with quantitative responses.
 
-\strong{Limitations}
+\bold{Limitations}
 
-NAs are not yet allowed.
+Factors are not yet supported (TODO we plan to fix this).
+
+NAs are not allowed.
 To prevent confusing error messages from \code{plotmo},
 a safe strategy is to build your model with
 \code{na.action=na.fail} before calling \code{plotmo}.
 
 Weights are currently ignored, with a warning.
 
-Factors are not plotted in degree2 plots.
-
-To avoid confusing error messages from plotmo, 
+To avoid confusing error messages from plotmo,
 keep the original formula you used to build the model simple.
-By default (i.e. when using \code{get.x.default} and \code{get.pairs.default}),
+By default (i.e. when using \code{get.plotmo.x.default} and \code{get.pairs.default}),
 \code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
 This crude approach is not infallible but works for the common formulae.
 It determines which predictors are paired by looking for
@@ -260,7 +260,7 @@ A mesage like\cr
 means that \code{\link{model.frame.default}} cannot find all the variables in the data frame
 created by \code{plotmo}.
 
-\strong{Details of Operation}
+\bold{Details of Operation}
 
 Let's say the model \code{object} has three predictors,
 \code{x1}, \code{x2}, and \code{x3} (all numeric)
@@ -283,7 +283,7 @@ Note that \code{plotmo} calls \code{\link{predict}} with new data and
 \code{type="response"}, whereas \code{\link{termplot}}
 calls \code{\link{predict}} with \code{type="terms"}.
 
-\strong{Minimum Requirements}
+\bold{Minimum Requirements}
 
 \code{Plotmo} requires the following of the model object.
 These requirements are for default operation, which can be changed
@@ -291,7 +291,7 @@ as described in the next section.
 
 1) \code{object} must have a \code{\link{predict}} method that supports \code{type=response}.
 
-2) for standard error bands (see the \code{se} argument), 
+2) for standard error bands (see the \code{se} argument),
 \code{object} must have a \code{\link{predict}}
 method that can be called with \code{se.fit=TRUE}.
 
@@ -306,14 +306,14 @@ method that can be called with \code{se.fit=TRUE}.
   \item \code{$y}, or \code{$call$formula}, or \code{$call$y}.
 }
 
-\strong{Extending plotmo}
+\bold{Extending plotmo}
 
 \code{Plotmo} calls the following generic functions, all defined in
 the file \code{plotmo.R}:
 
 \code{plotmo.prolog}\cr
-\code{get.x}\cr
-\code{get.y}\cr
+\code{get.plotmo.x}\cr
+\code{get.plotmo.y}\cr
 \code{plotmo.predict}\cr
 \code{get.singles}\cr
 \code{get.pairs}
@@ -323,12 +323,12 @@ by writing new method functions, although the default
 functions may suffice for your object's class.
 See the source comments for details.
 
-\strong{FAQ} 
+\bold{FAQ}
 
 I want to add lines or points to a plot created by \code{plotmo}.
 and am having trouble getting my axis scaling right. Help?
 
-Use \code{do.par=FALSE}.  
+Use \code{do.par=FALSE}.
 With \code{do.par=FALSE}, the axis scales match the axis labels.
 With \code{do.par=TRUE}, plot.earth restores the
 \code{\link{par}} parameters and axis scales to

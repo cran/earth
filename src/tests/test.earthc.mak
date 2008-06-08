@@ -2,7 +2,7 @@
 
 all: test.earthc.out
 
-R_DIR="\Program Files\r\R-2.6.2"
+R_DIR="C:\Program Files\r\R-2.6.2"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -54,13 +54,10 @@ test.earthc.main.exe: $(OBJ)
 # we use diff -w below so \r\n is treated the same as \n
 test.earthc.out: test.earthc.main.exe test.earthc.out.save
 	test.earthc.main.exe > $(OUTDIR)\test.earthc.out
-!IF  "$(CFG)" == "Release"
-	@echo === Following diff should give no output ===
-!ENDIF
 !IF  "$(CFG)" == "Debug"
 	@echo === Following diff may give some differences ===
 !ENDIF
-	diff -w test.earthc.out.save $(OUTDIR)\test.earthc.out
+	diff -w $(OUTDIR)\test.earthc.out test.earthc.out.save 
 
 $(OUTDIR)/earth.obj: ..\earth.c test.earthc.mak
    cl $(CFLAGS) ..\earth.c

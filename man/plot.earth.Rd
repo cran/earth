@@ -1,8 +1,8 @@
 \name{plot.earth}
 \alias{plot.earth}
-\title{Plot an 'earth' object}
+\title{Plot an "earth" object}
 \description{
-Plot an \sQuote{earth} object.
+Plot an \code{\link{earth}} object.
 The plot shows model selection, cumulative distribution
 of the residuals, residuals versus fitted values, and the residual QQ plot.
 }
@@ -15,7 +15,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
      col.vline = "grey", lty.vline = 3,
      col.legend = 1, col.npreds = 1,
      nresiduals = 1000, cum.grid = "percentages", rlim = c(-1,-1),
-     jitter = 0, id.n = 3, labels.id = rownames(residuals(x)),
+     jitter = 0, id.n = 3, labels.id = rownames(residuals(x, warn=FALSE)),
      legend.pos = NULL, do.par = TRUE,
      main = NULL, pch = 1, \dots)
 }
@@ -77,9 +77,9 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
     Use \code{0} for no legend.
   }
   \item{col.npreds}{
-     Colour of the \sQuote{number of predictors} plot within the model plot.
+     Colour of the "number of predictors" plot within the model plot.
      Default is \code{1}.
-     Use \code{0} for no \sQuote{number of predictors} plot.
+     Use \code{0} for no "number of predictors" plot.
   }
   \item{nresiduals}{
     Maximum number of residuals to plot.
@@ -93,7 +93,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
     Values are:\cr
     \code{"none"} no grid on cumulative distribution plot\cr
     \code{"grid"}  add grid\cr
-    \code{"percentages"}  (default) add grid, and percentage labels to quantile lines.
+    \code{"percentages"}  (default) add grid and percentage labels to quantile lines.
   }
   \item{rlim}{
     Two element vector \code{c(min,max)} specifying min and max
@@ -141,16 +141,24 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
 }
 \note{
-\strong{FAQ}
+\bold{Why doesn't \code{plot.earth} print GLM information?}
 
-I want to add lines or points to the RSq plot, 
-and am having trouble getting my axis scaling right. Help?
+It's just too much to display.
+You can instead call \code{\link{plot}} on the \code{glm.list} in the earth model like this:
+\preformatted{
+data(etitanic)
+a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial))
+par(mfrow=c(2,2))
+plot(a$glm.list[[1]])
+}
+\bold{I want to add lines or points to the RSq plot,
+and am having trouble getting my axis scaling right. Help?}
 
-Use \code{do.par=FALSE}.  
+Use \code{do.par=FALSE}.
 With \code{do.par=FALSE}, the axis scales match the axis labels.
-With \code{do.par=TRUE}, plot.earth restores the
+With \code{do.par=TRUE}, \code{plot.earth} restores the
 \code{\link{par}} parameters and axis scales to
-what they were before calling plot.earth.
+what they were before calling \code{plot.earth}.
 This usually means that the x- and y-axis scales are both 0 to 1.
 }
 \seealso{

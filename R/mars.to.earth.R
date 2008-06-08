@@ -4,8 +4,8 @@
 #
 # The differences between mda:mars and earth objects are:
 #
-#   1. mars returns bx in $x; earth returns bx in $bx with only
-#      the selected.terms.
+#   1. mars returns the MARS basis matrix in $x;
+#      earth returns it in $bx.
 #      There is no $x component of earth.
 #
 #   2. after the forward pass, earth discards lin dep terms in
@@ -30,39 +30,61 @@
 #   6. earth objects can be created through the formula interface and
 #      if so will have a $terms field (doesn't apply to the conversion below)
 #
-#   7. earth objects have a few extra components
+#   7. earth objects have some extra components
 #
-# $$ Note that the w parameter is actually ignored by the mda:mars routines - a bug?
-#
-# Earth is much faster than mars on large models.
-#
-#
-# $$ need to add support for multiple responses (easy but haven't had time to do it)
+#   8. mars normalizes the wp arg to len 1; earth normalizes the wp len
+#      equal to the number of cols in y (so an all 1s wp argument is
+#      equivalent to no wp argument).
 
 mars.to.earth <- function(object=stop("no 'object' arg"))
 {
     check.classname(object, deparse(substitute(object)), "mars")
-    call <- object$call
-    call[[1]] <- as.name("earth")
-    if(!is.null(object$call$prune) && !eval(object$call$prune, sys.parent()))
-        call$pmethod <- "none"  # prune=FALSE was specified in the original call
-    call$prune <- NULL
-    if(!is.null(object$call$trace.mars) && eval(object$call$trace.mars, sys.parent()))
-        call$trace <- 4         # trace.mars=TRUE was specified in the original call
-    call$trace.mars <- NULL
-    if(!is.null(object$call$wp) && !is.null(eval(object$call$wp, sys.parent())))
-        warning("the mars 'wp' argument is not supported by earth()")
-    call$wp <- NULL
-    if(!is.null(object$call$w))
-        call$weights <- object$call$w
-    call$w <- NULL
-    call$forward.step <- NULL
-    call$prev.fit <- NULL
-
+    oldcall <- object$call
+    newcall <- object$call
+    newcall[[1]] <- as.name("earth")
+    if(!is.null(object$call$prune) && !eval.parent(object$call$prune))
+        newcall$pmethod <- "none"   # prune=FALSE was specified in the original call
+    newcall$prune <- NULL
+    if(!is.null(object$call$trace.mars) && eval.parent(object$call$trace.mars))
+        newcall$trace <- 4          # trace.mars=TRUE was specified in original call
+    newcall$trace.mars <- NULL
     y <- eval.parent(object$call$y)
-    if(NCOL(y) != 1)
-        stop1("'y' has more than one column (multiple responses are not yet supported)")
+    # convert vector y to ncases x 1 matrices so can access uniformly below.
+    if(is.null(dim(y)))
+        dim(y) <- c(length(y), 1)
+    nresp  <- ncol(y)               # number of responses
+    ncases <- nrow(y)               # number of cases
+    weights.used <- FALSE
+    if(!is.null(object$call$wp)) {
+        newcall$wp <- object$call$wp
+        object$call$wp <- NULL      # prevent partial match to "w" below
+        weights.used <- TRUE
+    }
+    if(!is.null(object$call[["w"]]) && !is.null(eval.parent(object$call[["w"]]))) {
+
+        warning("the \"w\" argument was used in the original call to mda::mars\n",
+                "although mda::mars actually ignores the \"w\" argument")
+        newcall$weights <- object$call$w
+        weights.used <- TRUE
+    }
+    newcall$w <- NULL
+    newcall$forward.step <- NULL
+    newcall$prev.fit <- NULL
+    if(!is.null(dim(residuals)))
+        dim(residuals) <- c(ncol(y), nrow(y)) # convert vector to ncases x 1 matrix
+
     nselected <- length(object$selected.terms)
+    residuals <- object$residuals
+    penalty <- object$penalty
+
+    # Renumber selected.terms.  Needed because earth drops terms from cuts and
+    # dirs that are not in all.terms (whereas mars does not).
+
+    selected <- rep(NA, nrow(object$factor))
+    selected[object$all.terms] <- FALSE
+    selected[object$selected.terms] <- TRUE
+    selected <- selected[!is.na(selected)]
+    selected.terms <- (1:length(selected))[selected]
 
     # Fill in the [1] and [nselected] elements of rss.per.subset and gcv.per.subset.
     # This is enough for print.earth() and summary.earth() etc. to work.
@@ -71,47 +93,47 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     # pass implementations could conceivably change selected.terms.
 
     ntermsVec <- rep(NA, length(object$all.terms))
-    ntermsVec[1] = 1                                # intercept
-    ntermsVec[nselected] = nselected                # nterms of selected model
+    ntermsVec[1] <- 1                                # intercept
+    ntermsVec[nselected] <- nselected                # nterms of selected model
 
     rss.per.subset <- rep(NA, length(object$all.terms))
-    rss.per.subset[1] <- sum((y - mean(y))^2)               # null RSS
-    rss.per.subset[nselected] <- sum(object$residuals^2)    # RSS of selected model
+    rss.per.subset[1] <- sum(colSums((y - colMeans(y)) ^ 2)) # null RSS
+    rss.per.subset[nselected] <- sum(residuals^2)            # RSS of selected model
+    rss <- rss.per.subset[nselected]                         # RSS of selected model
 
-    gcv.per.subset <- get.gcv(rss.per.subset, ntermsVec, object$penalty, length(y))
+    gcv.per.subset <- get.gcv(rss.per.subset, ntermsVec, penalty, ncases)
+    gcv <- gcv.per.subset[nselected]                         # GCV of selected model
 
-    rss <- rss.per.subset[nselected]                # RSS of selected model
-    gcv <- gcv.per.subset[nselected]                # GCV of selected model
-
-    if(!isTRUE(all.equal(object$gcv, gcv)))         # should never happen
-        warning("the original mars GCV ", object$gcv,
-                " is not equal to the re-calculated GCV ", gcv)
-
-    # Renumber selected.terms, needed because we drop terms from cuts and
-    # dirs that are not in all.terms (whereas mars does not)
-
-    selected <- rep(NA, nrow(object$factor))
-    selected[object$all.terms] <- FALSE
-    selected[object$selected.terms] <- TRUE
-    selected <- selected[!is.na(selected)]
-    selected.terms <- (1:length(selected))[selected]
-
-    # Add names (actually, the only names we need for plotting etc. are names for dirs)
-
+    rss.per.response  <- vector(mode="numeric", length=nresp)
+    rsq.per.response  <- vector(mode="numeric", length=nresp)
+    gcv.per.response  <- vector(mode="numeric", length=nresp)
+    grsq.per.response <- vector(mode="numeric", length=nresp)
+    for(iresp in 1:nresp) {
+        rss.per.response[iresp]  <- sum(residuals[,iresp]^2)
+        rss.null                 <- sum((y[,iresp] - mean(y[,iresp]))^2)
+        rsq.per.response[iresp]  <- get.rsq(rss.per.response[iresp], rss.null)
+        gcv.null                 <- get.gcv(rss.null, 1, penalty, ncases)
+        gcv.per.response[iresp]  <- get.gcv(rss.per.response[iresp],
+                                            nselected, penalty, ncases)
+        grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
+    }
     pred.names <- colnames(object$factor)
     term.names <- get.earth.term.name(1:nrow(object$factor),
-                                      object$factor, object$cuts, pred.names)
+                                      object$factor, object$cuts, pred.names, NULL)
     dimnames(object$factor) <- list(term.names, pred.names)
     dimnames(object$cuts)   <- list(term.names, pred.names)
+    colnames(object$x) <- term.names[selected.terms]
+    rownames(object$coefficients)  <- term.names[selected.terms]
+    response.names <- generate.colnames(object$coefficients, is.y.arg=TRUE, xname=NULL)
+    colnames(object$fitted.values) <- response.names
+    colnames(object$residuals)     <- response.names
+    colnames(object$coefficients)  <- response.names
 
-    # Show the new call if trace.mars was enabled in the original mars object.
+    dirs <- object$factor[object$all.terms, , drop=FALSE]
 
-    if(!is.null(call$trace) && eval.parent(call$trace))
-        cat("Converted to", strip.white.space(format(call)), "\n")
-
-    structure(list(
+    rval <- structure(list(
         bx                = object$x,
-        dirs              = object$factor[object$all.terms, , drop=FALSE],
+        dirs              = dirs,
         cuts              = object$cuts[object$all.terms, , drop=FALSE],
         selected.terms    = selected.terms,
         prune.terms       = NULL, # init later if you want by calling update.earth()
@@ -119,16 +141,37 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
         rsq               = get.rsq(rss, rss.per.subset[1]),
         gcv               = gcv,
         grsq              = get.rsq(gcv, gcv.per.subset[1]),
-        rss.per.response  = rss,
-        rsq.per.response  = get.rsq(rss, rss.per.subset[1]),
-        gcv.per.response  = gcv,
-        grsq.per.response = get.rsq(gcv, gcv.per.subset[1]),
+        rss.per.response  = rss.per.response,
+        rsq.per.response  = rsq.per.response,
+        gcv.per.response  = gcv.per.response,
+        grsq.per.response = grsq.per.response,
         rss.per.subset    = rss.per.subset,
         gcv.per.subset    = gcv.per.subset,
         fitted.values     = object$fitted.values,
-        residuals         = object$residuals,
+        residuals         = residuals,
         coefficients      = object$coefficients,
         penalty           = object$penalty,
-        call              = call),
+        namesx            = colnames(dirs),
+        call              = newcall),
     class = "earth")
+
+    if(weights.used) { # wp or w args used in original call?
+        # mars and earth normalize wp differently, see header comments
+        # TODO there is probably a better way of handling this
+
+        warning1("w or wp were used in the original call to mars.\n",
+                 "         Running update.earth to conform mars ",
+                 "use of weights to earth.\n")
+
+        rval <- update(object=rval)
+    }
+    else if(!isTRUE(all.equal(object$gcv, rval$gcv)))
+        warning1("the original mars GCV is              ", object$gcv,
+                 "\n         ",
+                 "but the GCV recalculated for earth is ", rval$gcv, "\n")
+
+    my.print.call("Converted ", oldcall)
+    my.print.call("to        ", newcall)
+
+    rval
 }

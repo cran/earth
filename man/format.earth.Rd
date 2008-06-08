@@ -1,13 +1,13 @@
 \name{format.earth}
 \alias{format.earth}
-\title{Format 'earth' objects}
+\title{Format "earth" objects}
 \description{
-Return a string representing the \sQuote{earth} expression.
+Return a string representing an \code{\link{earth}} expression.
 }
 \usage{
 \method{format}{earth}(x = stop("no 'x' arg"),
        digits = getOption("digits"), use.names = TRUE,
-       add.labels = FALSE,  decomp = "anova",  \dots)
+       decomp = "anova",  style = "h", \dots)
 }
 \arguments{
   \item{x}{
@@ -21,14 +21,15 @@ Return a string representing the \sQuote{earth} expression.
   \item{use.names}{
     If \code{TRUE} (default), use variable names.  Else use names of the form \code{x[,1]}.
   }
-  \item{add.labels}{
-    If \code{TRUE} add comments numbering each term. The default is \code{FALSE}.
-  }
   \item{decomp}{One of\cr
-\code{"anova"}  (the default) order the terms using the \sQuote{anova decomposition}
+\code{"anova"}  (default) order the terms using the "anova decomposition"
           i.e. in increasing order of interaction\cr
 \code{"none"}   order the terms as created during the earth forward pass.\cr
-  The FAQ section for \code{\link{earth}} has more details.
+  }
+  \item{style}{
+    Formatting style. One of\cr
+\code{"h"} (default) more compact\cr
+\code{"pmax"} for those who prefer it and for compatibility with old versions of earth.
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
@@ -36,14 +37,18 @@ Return a string representing the \sQuote{earth} expression.
 }
 \value{
 A character representation of the earth object.
+
+If there are multiple responses, \code{format.earth} will return multiple strings.
+
+If there are embedded GLM model(s), the string(s) for the GLM model(s)
+follow the strings for the standard earth model(s).
 }
 \seealso{
   \code{\link{earth}},
   \code{\link{pmax}},
 }
 \note{
-The FAQ section for \code{\link{earth}} has some comments
-about the "anova" decompostion.
+The FAQ section for \code{\link{earth}} has some comments on the \code{"anova"} ordering.
 
 Using \code{format.earth}, perhaps after hand editing the returned string,
 you can create an alternative to \code{predict.earth}.
@@ -57,7 +62,7 @@ as.func <- function(
     "if(is.vector(x))\n",
     "  x <- matrix(x, nrow = 1, ncol = length(x))\n",
     "with(as.data.frame(x),\n",
-    format(object, digits = digits, use.names = use.names, ...),
+    format(object, digits = digits, use.names = use.names, style = "pmax", ...),
     ")\n",
     "}\n", sep = "")))
 a <- earth(Volume ~ ., data = trees)
@@ -65,23 +70,38 @@ my.func <- as.func(a, use.names = FALSE)
 my.func(c(10,80))     # yields 17.82973
 predict(a, c(10,80))  # yields 17.82973, but is slower
 }
+The  earth package also provides a function \code{format.lm}
+(which strictly speaking does not belong in the eartg package).
+It has arguments as follows\cr
+\code{format.lm(x, digits=getOption("digits"), use.names=TRUE)}\cr
+Strictly speaking, \code{format.lm} doesn't belong in the
+earth package. Example:
+\preformatted{
+a <- lm(Volume ~ ., data = trees)
+cat(format(a))
+
+# yields:
+#    -58
+#    +  4.71 * Girth
+#    + 0.339 * Height
+}
 }
 \examples{
 a <- earth(Volume ~ ., data = trees)
 cat(format(a))
 
 # yields:
-#    23.2 
-#    +  5.75 * pmax(0,  Girth -   12.9) 
-#    -  2.87 * pmax(0,   12.9 -  Girth) 
-#    + 0.718 * pmax(0, Height -     76) 
+#    23.2
+#    +  5.75 * h(Girth-12.9)
+#    -  2.87 * h(12.9-Girth)
+#    + 0.718 * h(Height-76)
 
-cat(format(a, use.names = FALSE, add.labels = TRUE))
+cat(format(a, style="pmax")) # default formatting style prior to earth version 1.4
 
 # yields:
-#    23.2  # 1
-#    +  5.75 * pmax(0, x[,1] -  12.9)  # 2
-#    -  2.87 * pmax(0,  12.9 - x[,1])  # 3
-#    + 0.718 * pmax(0, x[,2] -    76)  # 4
+#    23.2
+#    +  5.75 * pmax(0,  Girth -   12.9)
+#    -  2.87 * pmax(0,   12.9 -  Girth)
+#    + 0.718 * pmax(0, Height -     76)
 }
 \keyword{models}

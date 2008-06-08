@@ -4,15 +4,31 @@ print(R.version.string)
 
 library(earth)
 library(mda)
+source("check.models.equal.R")
 data(ozone1)
 data(trees)
+data(etitanic)
 if(!interactive())
     postscript()
 
 PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
 PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
 options.old <- options()
-options(digits = 5)
+options(warn=1) # print warnings as they occur
+options(digits=5)
+
+printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
+{
+    cat("===", deparse(substitute(x)))
+    if(expect.warning)
+        cat(" expect warning -->")
+    else if (NROW(x) > 1)
+        cat("\n")
+    if (max.print > 0)
+        print(head(x, n=max.print))
+    else
+        print(x)
+}
 
 #--- test examples from man pages ------------------------------------------------------------
 
@@ -27,7 +43,61 @@ test.subset <- (1:nrow(trees))[-train.subset]
 a <- earth(Volume ~ ., data = trees[train.subset, ])
 yhat <- predict(a, newdata = trees[test.subset, ])
 y <- trees$Volume[test.subset]
-print(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
+printh(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
+get.used.pred.names <- function(obj) # obj is an earth object
+{
+  any1 <- function(x) any(x != 0)    # like any but no warning if x is double
+  names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any1)))
+}
+printh(get.used.pred.names(a))
+
+a1a <- earth(survived ~ ., data=etitanic,
+            glm=list(family=binomial), degree=2, trace=1)
+printh(summary(a1a))
+a1b <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
+            glm=list(family=binomial), degree=2, trace=1)
+printh(summary(a1b))
+a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
+printh(summary(a2))
+ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
+sex <- factor(rep(c("male", "female"), times=c(6,6)))
+numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
+pair <- cbind(numdead, numalive=20 - numdead)
+a3 <- earth(pair ~ sex + ldose,
+            glm=list(family=binomial(link=probit), maxit=100), 
+            trace=1, pmethod="none")
+printh(summary(a3))
+numdead2 <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
+doublepair <- cbind(numdead, numalive=20-numdead,
+                    numdead2=numdead2, numalive2=30-numdead2)
+a4 <- earth(doublepair ~ sex + ldose,
+            glm=list(family="binomial"), trace=1, pmethod="none")
+printh(summary(a4))
+a5 <- earth(numdead ~ sex + ldose,
+            glm=list(family=gaussian(link=identity)), trace=1, pmethod="none")
+printh(summary(a5))
+print(a5$coefficients == a5$glm.coefficients)  # all TRUE
+counts <- c(18,17,15,20,10,20,25,13,12)
+outcome <- gl(3,1,9)
+treatment <- gl(3,3)
+a6 <- earth(counts ~ outcome + treatment,
+            glm=list(family=poisson), trace=1, pmethod="none")
+printh(summary(a6))
+remove(ldose)
+remove(sex)
+remove(numdead)
+remove(pair)
+remove(numdead2)
+remove(doublepair)
+remove(counts)
+remove(outcome)
+remove(treatment)
+
+printh(earth(cbind(Volume,lvol=log(Volume)) ~ ., data=trees))
+attach(trees)
+printh(earth(data.frame(Girth,Height), data.frame(Volume,lvol=log(Volume))))
+detach(trees)
+
 cat("--- print.default of earth object---------\n")
 print.default(a, digits=3)
 cat("--- done print.default of earth object----\n")
@@ -37,15 +107,17 @@ library(mda)
 (a <- fda(Species~., data=iris, method=earth, keepxy=TRUE))
 if (PLOT)
     plot(a)
-print(summary(a$fit))
+printh(summary(a$fit))
 if (PLOT) {
     plot(a$fit)
     plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
     plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
 }
 a <- update(a, nk=3) # not on man page
-print(a)
-print(summary(a$fit))
+printh(a)
+printh(summary(a$fit))
+head(etitanic) # pclass and sex are unordered factors
+earth(pclass ~ ., data=etitanic, trace=2)
 
 cat("--- format.earth.Rd ----------------------\n")
 as.func <- function( # convert expression string to func
@@ -56,69 +128,156 @@ as.func <- function( # convert expression string to func
     "if(is.vector(x))\n",
     "  x <- matrix(x, nrow = 1, ncol = length(x))\n",
     "with(as.data.frame(x),\n",
-    format(object, digits = digits, use.names = use.names, ...),
+    format(object, digits = digits, use.names = use.names, style = "p", ...),
     ")\n",
     "}\n", sep = "")))
 a <- earth(Volume ~ ., data = trees)
 my.func <- as.func(a, use.names = FALSE)
-print(my.func(c(10,80)))     # yields 17.76888
-print(predict(a, c(10,80)))  # yields 17.76888, but is slower
+printh(my.func(c(10,80)))     # yields 17.76888
+printh(predict(a, c(10,80)))  # yields 17.76888, but is slower
 example(format.earth)
+a <- earth(Volume ~ ., data = trees)
 cat(format(a)) # basic tests of format.earth
 cat(format(a, digits=4))
-cat(format(a, use.names=FALSE))
-cat(format(a, add.labels=TRUE))
-cat(format(a, use.names=FALSE, add.labels=TRUE))
-a <- lm(Volume ~ ., data = trees)
-# cat(format(a)) # basic tests of format.lm
-# cat(format(a, digits=4))
 # cat(format(a, use.names=FALSE))
-# cat(format(a, add.labels=TRUE))
-# cat(format(a, use.names=FALSE, add.labels=TRUE))
+cat(format(a, style="pmax"))
+cat(format(a, use.names=FALSE, style="p"))
+a <- lm(Volume ~ ., data = trees)
+cat(format(a)) # basic tests of format.lm
+cat(format(a, digits=4))
+cat(format(a, use.names=FALSE))
+cat(format(a, style="p"))
+cat(format(a, use.names=FALSE, style="p"))
 cat("--- mars.to.earth.Rd ----------------------\n")
 example(mars.to.earth) # doesn't do anything
 library(mda)
 a <- mars(trees[,-3], trees[,3])
 a <- mars.to.earth(a)
 summary(a, digits = 2)
-print(summary(a, digits=2))
+printh(summary(a, digits=2))
 cat("--- plot.earth.models.Rd ----------------------\n")
 if (PLOT)
     example(plot.earth.models)
 cat("--- plot.earth.Rd ----------------------\n")
-if (PLOT)
+if (PLOT) {
+    data(etitanic)
+    a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial))
+    par(mfrow=c(2,2))
+    plot(a$glm.list[[1]])
     example(plot.earth)
+}
 cat("--- predict.earth.Rd ----------------------\n")
 example(predict.earth)
 cat("--- update.earth.Rd ----------------------\n")
 example(update.earth)
 
 cat("--- test predict.earth -------------------\n")
+
 a <- earth(Volume ~ ., data = trees)
-predict(a, c(10,80))
-predict(a)
+cat("1a predict(a, c(10,80))\n")
+printh(predict(a, c(10,80), trace=1))
+cat("1b predict(a, c(10,10,80,80))\n")
+printh(predict(a, c(10,10,80,80), trace=1))
+cat("1c predict(a, c(10,11,80,81))\n")
+printh(predict(a, c(10,11,80,81), trace=1))
+cat("2 predict(a)\n")
+printh(head(predict(a, trace=1)))
+cat("3a predict(a, matrix(c(10,12), nrow=1, ncol=2))\n")
+printh(predict(a, matrix(c(10,12), nrow=1, ncol=2), trace=1))
+cat("3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)\n")
+printh(predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE), trace=1))
+cat("3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))\n")
+printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
 xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
-predict(a, xpredict)
 colnames(xpredict) <- c("Girth", "Height")
-predict(a, xpredict)
-predict(a, as.data.frame(xpredict))
+cat("4 predict(a, xpredict with colnames)\n")
+printh(predict(a, xpredict, trace=1))
+cat("5 predict(a, as.data.frame(xpredict with colnames))\n")
+printh(predict(a, as.data.frame(xpredict), trace=1))
 # reverse dataframe columns (and their names), predict should deal with it correctly
 xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
 colnames(xpredict) <- c("Height", "Girth")
-predict(a, xpredict)
+cat("6a predict(a, xpredict with reversed columns and colnames)\n")
+printh(predict(a, xpredict, trace=1))
+xpredict2 <- cbind(xpredict[,1], xpredict[,2]) # nameless matrix
+cat("6b predict(a, xpredict2)\n")
+printh(predict(a, xpredict2, trace=1))
+
 # repeat but with x,y (not formula) call to earth
+
 x1 <- cbind(trees$Girth, trees$Height)
 colnames(x1) <- c("Girth", "Height")
 a <- earth(x1, trees$Volume)
 xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
-predict(a, xpredict)
+cat("7a predict(a)\n")
+printh(head(predict(a, trace=1)))
+cat("7n predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2)\n")
+printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
 colnames(xpredict) <- c("Girth", "Height")
-predict(a, xpredict)
-predict(a, as.data.frame(xpredict))
+cat("8 predict(a, xpredict with colnames)\n")
+printh(predict(a, xpredict, trace=1))
+cat("9 predict(a, as.data.frame(xpredict with colnames))\n")
+printh(predict(a, as.data.frame(xpredict), trace=1))
+cat("--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'\n")
+xpredict2 <- cbind(xpredict[,1], xpredict[,2])
+colnames(xpredict2) <- c("none.such", "joe")
+cat("10a predict(a, xpredict2)\n")
+printh(predict(a, xpredict2, trace=1), expect.warning=TRUE)
+cat("--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'\n")
+xpredict2 <- cbind(xpredict[,1], xpredict[,2])
+colnames(xpredict2) <- c("Height", "Girth") # reversed
+cat("10b predict(a, xpredict2)\n")
+printh(predict(a, xpredict2, trace=1), expect.warning=TRUE)
+
+cat("--- test predict.earth with multiple response models-------------------\n")
+
+a <- earth(cbind(Volume, Volume + 100) ~ ., data = trees)
+cat("1a predict(a, c(10,80))\n")
+printh(predict(a, c(10,80), trace=1))
+cat("1b predict(a, c(10,10,80,80))\n")
+printh(predict(a, c(10,10,80,80), trace=1))
+cat("1c predict(a, c(10,11,80,81))\n")
+printh(predict(a, c(10,11,80,81), trace=1))
+cat("2 predict(a)\n")
+printh(head(predict(a, trace=1)))
+cat("3a predict(a, matrix(c(10,12), nrow=1, ncol=2))\n")
+printh(predict(a, matrix(c(10,12), nrow=1, ncol=2), trace=1))
+cat("3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)\n")
+printh(predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE), trace=1))
+cat("3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))\n")
+printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
+xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
+colnames(xpredict) <- c("Girth", "Height")
+cat("4 predict(a, xpredict with colnames)\n")
+printh(predict(a, xpredict, trace=1))
+cat("5 predict(a, as.data.frame(xpredict with colnames))\n")
+printh(predict(a, as.data.frame(xpredict), trace=1))
+# reverse dataframe columns (and their names), predict should deal with it correctly
+xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
+colnames(xpredict) <- c("Height", "Girth")
+cat("6 predict(a, xpredict with reversed columns and colnames)\n")
+printh(predict(a, xpredict, trace=1))
+
+# repeat but with x,y (not formula) call to earth
+
+x1 <- cbind(trees$Girth, trees$Height)
+colnames(x1) <- c("Girth", "Height")
+a <- earth(x1, cbind(trees$Volume, trees$Volume+100))
+xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
+cat("7a predict(a)\n")
+printh(head(predict(a, trace=1)))
+cat("7b predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2)\n")
+printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
+colnames(xpredict) <- c("Girth", "Height")
+cat("8 predict(a, xpredict with colnames)\n")
+printh(predict(a, xpredict, trace=1))
+cat("9 predict(a, as.data.frame(xpredict with colnames))\n")
+printh(predict(a, as.data.frame(xpredict), trace=1))
 cat("--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'\n")
 xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
 colnames(xpredict) <- c("Height", "Girth")
-predict(a, xpredict)
+cat("10 predict(a, xpredict)\n")
+printh(predict(a, xpredict, trace=1), expect.warning=TRUE)
 
 cat("--- test reorder.earth ----------------------\n")
 a <- earth(O3 ~ ., data = ozone1, degree = 2)
@@ -145,7 +304,7 @@ make.func <- function(
     obj      = stop("no 'obj' arg"),
     digits   = 14,
     use.names = TRUE,   # use predictor names, else "x[,1]" etc
-    ...)                # extra args passed onto format, eg add.labels=TRUE
+    ...)                # extra args passed onto format
 {
     s <- paste(
         "function(x)\n",
@@ -153,7 +312,7 @@ make.func <- function(
         "if(is.vector(x))\n",
         "  x <- matrix(x, nrow=1, ncol=length(x))\n",
         "with(as.data.frame(x),\n",
-        format(obj, digits=digits, use.names=use.names, ...),
+        format(obj, digits=digits, use.names=use.names, style="p", ...),
         ")\n",
         "}\n", sep="")
 
@@ -203,6 +362,7 @@ test.earth <- function(itest, func, degree=2, nk=51, plotit=PLOT,
     if(test.rsq)
         test.model.rsq(fite, x=data.global[,-1, drop=FALSE], y=data.global[,1], MarsFunc=funca,
             nCases=nCases, nUsedTerms=nUsedTerms, penalty=penalty, RefFunc=func)
+    # TODO add printh(evimp(fite))
     if(plotit) {
         plotmo(fite, func=func, caption=caption)
         plot(fite, nresiduals=500, caption=caption)
@@ -241,7 +401,7 @@ ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
 
 funcNoise <- function(x)    # noise
 {
-    rnorm(1)
+    rnorm(length(x))
 }
 x <- cbind(x1)
 data.global <- cbind(funcNoise(x), x1)
@@ -249,7 +409,9 @@ data.global <- cbind(funcNoise(x), x1)
 itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=1, plotit=FALSE, test.rsq=FALSE)
 itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=2, plotit=FALSE, test.rsq=FALSE)
 itest <- itest+1; test.earth(itest, funcNoise, nk=51, degree=1, plotit=FALSE, test.rsq=FALSE)
-itest <- itest+1; test.earth(itest, funcNoise, nk=51, degree=2, plotit=FALSE, test.rsq=FALSE)
+itest <- itest+1; a <- test.earth(itest, funcNoise, nk=51, degree=2, plotit=FALSE, test.rsq=FALSE)
+printh(summary(a, fixed.point=FALSE)) # check that print summary works with intercept only model
+printh(summary(a, details=1, fixed.point=FALSE))
 
 func1 <- function(x)
 {
@@ -377,9 +539,9 @@ cat("--- linear predictors -------------------------\n")
 # The somewhat strange args are to force the models to use the same predictors.
 itest <- itest+1; cat("itest", sprintf("%-3d", itest), "\n")
 a <- earth(O3 ~ ., linpreds=TRUE, data = ozone1, pmethod="none", thresh=1e-10)
-print(summary(a))
+printh(summary(a))
 alin <- lm(O3 ~ . - vh, data = ozone1)
-print(summary(alin))
+printh(summary(alin))
 stopifnot(all.equal(as.double(predict(a)), as.double(predict(alin))))
 newdata <- data.frame(
         vh = c(5700,5701,5702),
@@ -394,20 +556,20 @@ newdata <- data.frame(
 apred <- as.double(predict(a, newdata=newdata))
 alinpred <- as.double(predict(alin, newdata=newdata))
 stopifnot(all.equal(apred, alinpred))
-# print(head(predict(a, type="terms")))
-print(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
+# printh(head(predict(a, type="terms")))
+printh(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
 
 # test with mixed linear and standard predictors
 itest <- itest+1; cat("itest", sprintf("%-3d", itest), "\n")
 a <- earth(O3 ~ ., linpreds=c(3, 8), data = ozone1, degree=2, trace=4)  # 3,8 is humidity,vis
-print(summary(a))
+printh(summary(a))
 if (PLOT) {
     plot(a)
     plotmo(a)
 }
-print(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
-print(earth:::get.nterms.per.degree(a))
-# print(head(predict(a, type="terms")))
+printh(earth:::get.nused.preds.per.subset(a$dirs, a$prune.terms))
+printh(earth:::get.nterms.per.degree(a))
+# printh(head(predict(a, type="terms")))
 
 # this is a good example because it has linear preds in both 1 and 2 degree terms
 x.global <- cbind(                    x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
@@ -450,10 +612,10 @@ detach(ozone1)
 
 cat("--- fast mars -----------------------------------\n")
 
-print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 1))
-print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 0))
-print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 1))
-print(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 0))
+printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 1))
+printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 0))
+printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 1))
+printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 0))
 
 cat("--- plot.earth and plot.earth.models ------------\n")
 
@@ -488,10 +650,10 @@ if (PLOT) {
 cat("--- test minspan --------------------------------\n")
 
 a <- earth(O3 ~ ., data=ozone1, minspan=2)
-print(summary(a))
+printh(summary(a))
 
 a <- earth(O3 ~ ., data=ozone1, minspan=0)
-print(summary(a))
+printh(summary(a))
 
 cat("--- test multiple responses ---------------------\n")
 
@@ -510,7 +672,7 @@ test.earth.two.responses <- function(itest, func1, func2,
     gc()
     fite <- earth(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
                 degree=degree, trace=trace, nk=nk, pmethod="b", fast.k=-1, minspan=minspan)
-    print(fite)
+    printh(fite)
     caption <- paste("itest ", itest, ": ", funcnames, " degree=", degree, " nk=", nk, sep="")
     if(plotit) {
         if(typeof(func1) == "character") {
@@ -524,18 +686,25 @@ test.earth.two.responses <- function(itest, func1, func2,
         plot(fite, ycolumn=2)
     }
     cat("\n")
-#     if(test.mars.to.earth) {
-#         cat("Testing mars.to.earth with a multiple response model\n")
-#         fitm <- mars(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
-#                      degree=degree, trace=(trace!=0), nk=nk)
-#         fitme <- mars.to.earth(fitm)
-#         print(fitme)
-#         print(summary(fitme))
-#         if(plotit) {
-#             plotmo(fitm, func=func1, caption=caption)
-#             plotmo(fitm, func=func2, ycolumn=2)
-#         }
-#     }
+    if(test.mars.to.earth) {
+        cat("Testing mars.to.earth with a multiple response model\n")
+        fitm <- mars(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
+                     degree=degree, trace=(trace!=0), nk=nk)
+        fitme <- mars.to.earth(fitm)
+        printh(fitme)
+        printh(summary(fitme))
+        if(plotit) {
+            plotmo(fitm, func=func1, caption=caption)
+            plotmo(fitm, func=func2, ycolumn=2)
+        }
+# TODO following code causes error "nk" not found, looking in wrong environment?
+#       cat("Expect warnings because of weights in the mars model\n")
+#       fitm <- mars(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
+#                    degree=degree, trace=(trace!=0), nk=nk, wp=c(1,2))
+#       fitme <- mars.to.earth(fitm)
+#       printh(fitme)
+#       printh(summary(fitme))
+    }
     fite
 }
 
@@ -543,7 +712,7 @@ x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
 colnames(data.global) = c("func1", "func7", "x1", "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=1)
-print(summary(a))
+printh(summary(a))
 if (PLOT) {
     plotmo(a, ycolumn=1)     # test generation of caption based on response name
     plotmo(a, ycolumn=2)
@@ -554,15 +723,15 @@ x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
 colnames(data.global) = c("func1", "a.very.long.in.fact.extremely.long.name", "x1", "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=3)
-print(summary(a))
+printh(summary(a))
 
 x.global <- cbind(                                           x1, x2, x3, x4, x5)
-data.global <- cbind(eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
+data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
 colnames(data.global) = c("", "neg.eqn56noise", "x1", "x2", "x3", "x4", "x5")
 itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=1)
 
 x.global <- cbind(                                           x1, x2, x3, x4, x5)
-data.global <- cbind(eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
+data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
 colnames(data.global) = NULL
 itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=2)
 
@@ -621,65 +790,73 @@ test.subset <- (1:nrow(ozone1))[-train.subset]
 
 # all the following models should be identical
 a <- earth(ozone1[,-1], ozone1[,1], subset=train.subset, nprune=7, degree=2)
-print(a)
+printh(a)
 if (PLOT)
     plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)")
 
 a <- earth(ozone1[train.subset,-1], ozone1[train.subset,1], nprune=7, degree=2)
-print(a)
+printh(a)
 if (PLOT)
     plotmo(a, caption="test subset: earth(ozone1[train.subset,-1], ozone1[train.subset,1]")
 
 a <- earth(O3 ~ ., data=ozone1, subset=train.subset, nprune=7, degree=2)
-print(a)
+printh(a)
 if (PLOT)
     plotmo(a, caption="test subset: earth(O3 ~ ., data=ozone1, subset=train.subset")
 
 y <- ozone1[test.subset, 1]
 yhat <- predict(a, newdata = ozone1[test.subset, -1])
-print(1 - sum((y - yhat)^2)/sum((y - mean(y))^2)) # print RSquared
+printh(1 - sum((y - yhat)^2)/sum((y - mean(y))^2)) # print RSquared
 
 cat("--- update -------------------------\n")
 
 a <- earth(O3 ~ ., data=ozone1, degree=2)
-print(update(a, penalty = -1, ponly=TRUE))
-print(update(a, penalty = 10, ponly=TRUE))
+printh(update(a, penalty = -1, ponly=TRUE))
+printh(update(a, penalty = 10, ponly=TRUE))
 a <- earth(O3 ~ ., data=ozone1, nk=31, pmethod="n", degree=2)
-a.none <- print(update(a, nprune=10, pmethod="n"))
-print(update(a.none, pmethod="b"))
-print(update(a.none, nprune=4, pmethod="e"))
+a.none <- printh(update(a, nprune=10, pmethod="n"))
+printh(update(a.none, pmethod="b"))
+printh(update(a.none, nprune=4, pmethod="e"))
 a.updated <- update(a.none, nprune=10, pmethod="b")
-print(a.updated)
+printh(a.updated)
 a.backwards <- update(a, nprune=10, pmethod="b")
-print(a.backwards)
-print(all.equal(a.updated$bx, a.backwards$bx))
+printh(a.backwards)
+printh(all.equal(a.updated$bx, a.backwards$bx))
 a <- earth(O3 ~ ., data=ozone1, nk=31, nprune=10, pmethod="b", degree=2)
-print(a)
-print(all.equal(a$bx, a.backwards$bx))
+printh(a)
+printh(all.equal(a$bx, a.backwards$bx))
 
 cat("--- Force.xtx.prune -----------------------------\n")
 
-a <- earth(Volume ~ ., data = trees)
-a1 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
-print(all.equal(a$bx, a1$bx))
+m1 <- earth(Volume ~ ., data = trees)
+m2 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
+check.models.equal(m1, m2, "Force.xtx.prune test 1", check.subsets=FALSE)
 
-a <- earth(O3 ~ ., data = ozone1, nk=51)
-a1 <- earth(O3 ~ ., data = ozone1, nk=51, Force.xtx.prune=TRUE)
-print(all.equal(a$bx, a1$bx))
+m1 <- earth(O3 ~ wind+temp, data = ozone1, nk=51)
+m2 <- earth(O3 ~ wind+temp, data = ozone1, nk=51, Force.xtx.prune=TRUE)
+check.models.equal(m1, m2, "Force.xtx.prune test 2", check.subsets=FALSE)
+
+# TODO there appears to be a bug in leaps --- to see run the call below
+# with trace=4 and in the prune pass display note that at subset size 15
+# several terms are added and deleted -- but only one term should be added per step
+m1 <- earth(O3 ~ ., data = ozone1, nk=51, degree=2)
+m2 <- earth(O3 ~ ., data = ozone1, nk=51, degree=2, Force.xtx.prune=TRUE)
+check.models.equal(m1, m2, "Force.xtx.prune test 3", check.subsets=FALSE)
 
 cat("--- extractAIC.earth ----------------------------\n")
 
 a <-earth(O3 ~ ., data=ozone1, degree=2)
 cat("Ignore 10 warnings: extractAIC.earth: using GCV instead of AIC\n")
-print(drop1(a))
+printh(drop1(a), expect.warning=TRUE)
+printh(drop1(a, warn=FALSE)) # repeat but with warnings suppressed
 
 cat("--- fda and mda with earth -----------------------------------\n")
 
 am <- fda(Species ~ ., data=iris, method=mars, degree=1, keepxy=TRUE)
-print(am)
+printh(am)
 a <- fda(Species ~ ., data=iris, method=earth, degree=1, keepxy=TRUE)
-print(a)
-print(confusion(a))
+printh(a)
+printh(confusion(a))
 if (PLOT) {
     par(mar=c(3, 3, 2, .5))  # small margins and text to pack figs in
     par(mgp=c(1.6, 0.6, 0))  # flatten axis elements
@@ -697,13 +874,112 @@ samp <- sample(c(1:214), size=100, replace=FALSE)
 glass.train <- glass[samp,]
 glass.test <- glass[-samp,]
 am <- mda(Type ~ ., data=glass.train, method=mars,  keepxy=TRUE, degree=2)
-a <-  mda(Type ~ ., data=glass.train, method=earth, keepxy=TRUE, degree=2)
-print(am)
-print(a)
+a <-  mda(Type ~ ., data=glass.train, method=earth, keepxy=TRUE, degree=2, keep.fitted=TRUE)
+printh(am)
+printh(a)
 cat("mda with mars  ", attr(confusion(am), "error"), "\n")
 cat("mda with earth ", attr(confusion(a),  "error"), "\n")
-if (PLOT)
-    plotmo(a$fit, ycolumn=9, clip=FALSE, ylim=NA)
+if (PLOT) {
+    plot(a$fit, caption="mda on glass data")
+    plotmo(a$fit, ycolumn=9, clip=FALSE, ylim=NA, caption="mda on glass data")
+}
+
+cat("\n---- update and keepxy, formula interface --------------------------\n")
+
+new.trees <- trees + c(1,2,3,4)
+new.trees <- new.trees[, -c(20:23)]
+a.formula <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
+cat("\nupdate(a, trace=1)\n")
+a.formula.1update <- update(a.formula, trace=1)
+a.formula.1  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
+check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1")
+
+cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
+a.formula.2update <- update(a.formula, data=new.trees, trace=1)
+a.formula.2  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = new.trees)
+check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2")
+
+cat("\nupdate(a.formula, wp=2, trace=1)\n")
+a.formula.3update <- update(a.formula, wp=2, trace=1)
+a.formula.3  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees, wp=2)
+check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3")
+
+cat("\nupdate(a.formula, subset=subset.new, trace=1)\n")
+subset.new <- rep(TRUE, nrow(trees))
+subset.new[1:4] = FALSE
+a.formula.4update <- update(a.formula, subset=subset.new, trace=1)
+a.formula.4  <- earth(Volume ~ ., data = trees, subset=subset.new)
+check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4")
+
+# now use keepxy=TRUE
+
+a.formula <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
+
+cat("\nupdate(a.formula, trace=1)\n")
+a.formula.5update <- update(a.formula, trace=1)
+a.formula.5  <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
+check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5")
+
+cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
+a.formula.6update <- update(a.formula, data=new.trees, trace=1)
+a.formula.6  <- earth(Volume ~ ., wp=1, data = new.trees, keepxy=TRUE)
+check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6")
+
+cat("\nupdate(a.formula, wp=2, trace=1)\n")
+a.formula.7update <- update(a.formula, wp=2, trace=1)
+a.formula.7  <- earth(Volume ~ ., wp=2, data = trees, keepxy=TRUE)
+check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7")
+
+cat("\n----- update and keepxy, matrix interface--------------------------\n")
+
+Volume <- trees$Volume
+x <- cbind(trees$Height, trees$Volume)
+colnames(x) <- c("Height", "Volume")
+
+new.x <- cbind(new.trees$Height, new.trees$Volume)
+colnames(new.x) <- c("Height", "Volume")
+
+a <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
+cat("\nupdate(a, trace=1)\n")
+a1update <- update(a, trace=1)
+a1  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
+check.models.equal(a1update, a1, msg="a1update a1")
+
+cat("\nupdate(a, x=new.x, trace=1)\n")
+a2update <- update(a, x=new.x, trace=1)
+a2  <- earth(new.x, Volume, subset=rep(TRUE, nrow(trees)))
+check.models.equal(a2update, a2, msg="a2update a2")
+
+cat("\nupdate(a, wp=2, trace=0)\n")
+a3update <- update(a, wp=2, trace=0)
+a3  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)), wp=2)
+check.models.equal(a3update, a3, msg="a3update a3")
+
+cat("\nupdate(a, subset=subset.new, trace=4)\n")
+subset.new <- rep(TRUE, nrow(trees))
+subset.new[1:4] = FALSE
+a4update <- update(a, subset=subset.new, trace=4)
+a4  <- earth(x, Volume, subset=subset.new)
+check.models.equal(a4update, a4, msg="a4update a4")
+
+# now use keepxy=TRUE
+
+a <- earth(x, Volume, wp=1, keepxy=TRUE)
+
+cat("\nupdate(a, trace=4)\n")
+a5update <- update(a, trace=4)
+a5  <- earth(x, Volume, wp=1, keepxy=TRUE)
+check.models.equal(a5update, a5, msg="a5update a5")
+
+cat("\nupdate(a, x=new.x, trace=4)\n")
+a6update <- update(a, x=new.x, trace=4)
+a6  <- earth(new.x, Volume, wp=1, keepxy=TRUE)
+check.models.equal(a6update, a6, msg="a6update a6")
+
+cat("\nupdate(a, wp=2)\n")
+a7update <- update(a, wp=2)
+a7  <- earth(x, Volume, wp=2, keepxy=TRUE)
+check.models.equal(a7update, a7, msg="a7update a7")
 
 cat("--- \"allowed\" argument -----------------\n")
 
@@ -712,7 +988,7 @@ example1  <- function(degree, pred, parents)
     pred != 2  # disallow predictor 2, which is "Height"
 }
 a1 <- earth(Volume ~ ., data = trees, allowed = example1)
-print(summary(a1))
+printh(summary(a1))
 example2 <- function(degree, pred, parents)
 {
     # disallow humidity in terms of degree > 1
@@ -722,7 +998,7 @@ example2 <- function(degree, pred, parents)
     TRUE
 }
 a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
-print(summary(a))
+printh(summary(a))
 example3 <- function(degree, pred, parents)
 {
     # allow only humidity and temp in terms of degree > 1
@@ -733,7 +1009,7 @@ example3 <- function(degree, pred, parents)
     TRUE
 }
 a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-print(summary(a))
+printh(summary(a))
 
 # "allowed" function checks, these check error handling by forcing an error
 
@@ -800,128 +1076,299 @@ a.longxy <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,
                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
                         0,1,2,3,4,5,6,7,8,9,0),
                   trace=4)
-print(summary(a))
-print(summary(a.longx))
-print(summary(a.longy))
-print(summary(a.longxy))
+printh(summary(a))
+printh(summary(a.longx))
+printh(summary(a.longy))
+printh(summary(a.longxy))
 
-# cat("--- factors with x,y interface -------------------------\n")
-# # this also tests for integer variables in the input matrix
-# data(titanic1)
-# attach(titanic1)
-# a1 <- earth(pclass, sex, degree=2, trace=2)        # x=unordered y=unordered
-# print(summary(a1))
-# if (PLOT)
-#     plot(a1)
-# a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
-# print(summary(a2))
-# if (PLOT)
-#     plot(a2)
-# a3 <- earth(pclass, age, degree=2, trace=2)        # x=unordered y=numeric
-# print(summary(a3))
-# if (PLOT)
-#     plot(a3)
-# a4 <- earth(age, pclass, degree=2, trace=2)        # x=numeric y=unordered
-# print(summary(a4))
-# if (PLOT)
-#     plot(a4)
-# a5 <- earth(titanic1[,c(2:4)], pclass, degree=2, trace=2)  # x=mixed  y=unordered
-# print(summary(a5))
-# if (PLOT)
-#     plot(a5)
-# a6 <- earth(titanic1[,c(1,3,4,5,6)], survived, degree=2, trace=2)  # x=mixed y=unordered
-# print(summary(a6))
-# if (PLOT)
-#     plot(a6)
-# a7 <- earth(titanic1[,c(2,3,5,6)], titanic1[,c(1,4)], degree=2, trace=2)  # x=mixed y=mixed
-# print(summary(a7))
-# if (PLOT)
-#     plot(a7)
-# 
-# cat("--- factors with formula interface -------------------------\n")
-# # these correspond to the models above (except a7 which is a multiple response model)
-# a1f <- earth(sex ~ pclass, degree=2, trace=2)        # x=unordered y=unordered
-# print(summary(a1f))
-# if (PLOT)
-#     plot(a1f)
-# a2f <- earth(pclass ~ sex, degree=2, trace=2)        # x=unordered y=unordered
-# print(summary(a2f))
-# if (PLOT)
-#     plot(a2f)
-# a3f <- earth(age ~ pclass, degree=2, trace=2)        # x=unordered y=numeric
-# print(summary(a3f))
-# if (PLOT)
-#     plot(a3f)
-# a4f <- earth(pclass ~ age, degree=2, trace=2)        # x=numeric y=unordered
-# print(summary(a4f))
-# if (PLOT)
-#     plot(a4f)
-# a5f <- earth(pclass ~ survived + sex + age, data=titanic1, degree=2, trace=2)  # x=mixed y=unordered
-# print(summary(a5f))
-# if (PLOT)
-#     plot(a5f)
-# a6f <- earth(survived ~ ., data=titanic1, degree=2, trace=2)  # x=mixed y=unordered
-# print(summary(a6f))
-# if (PLOT)
-#     plot(a6f)
-# detach(titanic1)
-# 
-# # basic test with ordered factors
-# ff <- factor(substring("statistics", 1:10, 1:10), levels=letters, ordered=TRUE)
-# ff <- c(ff, ff, ff)
-# vowels = (ff == 1 | ff == 9) * 3
-# print(head(ff))
-# print(head(vowels))
-# a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
-# print(summary(a8))
-# if (PLOT)
-#     plot(a8)
-# a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
-# if (PLOT)
-#     plot(a9)
-# print(summary(a9))
-# 
-# cat("--- wp argument---------------------------------\n")
-# set.seed(79)
-# NWP = 100
-# x1 <- runif(NWP)
-# x2 <- runif(NWP)
-# y1 <- (x1 > .5) + .3 * runif(1)
-# y2 <- sin(3 * x2) + .3 * runif(1)
-# myw = 10
-# m <- mars(cbind(x1,x2), cbind(y1, y2))
-# me1 <- mars.to.earth(m)
-# print(me1)
-# e1 <- earth(cbind(x1,x2), cbind(y1, y2))
-# print(e1)
-# e2 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(1,1))
-# print(e2)
-# e1$call = NULL
-# e2$call = NULL
-# stopifnot(identical(e1, e2))
-# e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(.001,1))
-# print(e3)
-# e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(1, .01))
-# print(e3)
-# e4 <- earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))
-# print(e4) # both sub models should be the same
-# print(summary(e4))
-# # wp with formula interface
-# e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(1, 1))
-# print(e5)
-# print(summary(e5))
-# e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(.3, 1))
-# print(e5)
-# print(summary(e5))
-# # wp with factors
-# e6 <- earth(pclass ~ ., data=titanic1, degree=2, wp=c(.001,.001,1))
-# print(e6)
-# print(summary(e6))
-# e7 <- earth(pclass ~ ., data=titanic1, degree=2, wp=c(1,.001,.001))
-# print(e7)
-# print(summary(e7))
-# if (PLOT)
-#     plot(e7)
+cat("--- factors with x,y interface -------------------------\n")
+# this also tests for integer variables in the input matrix
+data(etitanic)
+attach(etitanic)
+a1 <- earth(pclass, sex, degree=2, trace=2)        # x=unordered y=unordered
+printh(summary(a1))
+if (PLOT)
+    plot(a1)
+a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
+printh(summary(a2))
+if (PLOT)
+    plot(a2)
+a3 <- earth(pclass, age, degree=2, trace=2)        # x=unordered y=numeric
+printh(summary(a3))
+if (PLOT)
+    plot(a3)
+a4 <- earth(age, pclass, degree=2, trace=2)        # x=numeric y=unordered
+printh(summary(a4))
+if (PLOT)
+    plot(a4)
+a5 <- earth(etitanic[,c(2:4)], pclass, degree=2, trace=2)  # x=mixed  y=unordered
+printh(summary(a5))
+if (PLOT)
+    plot(a5)
+a6 <- earth(etitanic[,c(1,3,4,5,6)], survived, degree=2, trace=2)  # x=mixed y=unordered
+printh(summary(a6))
+if (PLOT)
+    plot(a6)
+a7 <- earth(etitanic[,c(2,3,5,6)], etitanic[,c(1,4)], degree=2, trace=2)  # x=mixed y=mixed
+printh(summary(a7))
+if (PLOT)
+    plot(a7)
+
+cat("--- factors with formula interface -------------------------\n")
+# these correspond to the models above (except a7 which is a multiple response model)
+a1f <- earth(sex ~ pclass, degree=2, trace=2)        # x=unordered y=unordered
+printh(summary(a1f))
+if (PLOT)
+    plot(a1f)
+a2f <- earth(pclass ~ sex, degree=2, trace=2)        # x=unordered y=unordered
+printh(summary(a2f))
+if (PLOT)
+    plot(a2f)
+a3f <- earth(age ~ pclass, degree=2, trace=2)        # x=unordered y=numeric
+printh(summary(a3f))
+if (PLOT)
+    plot(a3f)
+a4f <- earth(pclass ~ age, degree=2, trace=2)        # x=numeric y=unordered
+printh(summary(a4f))
+if (PLOT)
+    plot(a4f)
+a5f <- earth(pclass ~ survived + sex + age, data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
+printh(summary(a5f))
+if (PLOT)
+    plot(a5f)
+a6f <- earth(survived ~ ., data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
+printh(summary(a6f))
+if (PLOT)
+    plot(a6f)
+detach(etitanic)
+
+# basic test with ordered factors
+ff <- factor(substring("statistics", 1:10, 1:10), levels=letters, ordered=TRUE)
+ff <- c(ff, ff, ff)
+vowels = (ff == 1 | ff == 9) * 3
+printh(head(ff))
+printh(head(vowels))
+a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
+printh(summary(a8))
+if (PLOT)
+    plot(a8)
+a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
+if (PLOT)
+    plot(a9)
+printh(summary(a9))
+
+cat("--- wp argument---------------------------------\n")
+set.seed(79)
+NWP <- 100
+x1 <- runif(NWP)
+x2 <- runif(NWP)
+y1 <- (x1 > .5) + .3 * runif(1)
+y2 <- sin(3 * x2) + .3 * runif(1)
+myw <- 10
+m <- mars(cbind(x1,x2), cbind(y1, y2))
+me1 <- mars.to.earth(m)
+printh(me1)
+e1 <- earth(cbind(x1,x2), cbind(y1, y2))
+printh(e1)
+e2 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(1,1))
+printh(e2)
+e1$call <- NULL
+e2$call <- NULL
+stopifnot(identical(e1, e2))
+e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(.001,1))
+printh(e3)
+wp <- c(1, 2)
+e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=wp)
+printh(e3)
+m3 <- mars(cbind(x1,x2), cbind(y1, y2),  wp=wp)
+cat("response weights: wp", wp, "earth gcv", e3$gcv, 
+    "mars gcv", m3$gcv, "mars gcv*length(wp)", 
+    m3$gcv * length(wp), "\n")
+
+e4 <- earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))
+printh(e4) # both sub models should be the same
+printh(summary(e4))
+
+# wp with formula interface
+e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(1, 1))
+printh(e5)
+printh(summary(e5))
+e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(.3, 1))
+printh(e5)
+printh(summary(e5))
+# wp with factors
+e6 <- earth(pclass ~ ., data=etitanic, degree=2, wp=c(.001,.001,1))
+printh(e6)
+printh(summary(e6))
+e7 <- earth(pclass ~ ., data=etitanic, degree=2, wp=c(1,.001,.001))
+printh(e7)
+printh(summary(e7))
+if (PLOT)
+    plot(e7)
+
+cat("--- earth.regress ---------------------------------\n")
+
+msg = "earth.regress with trees data, single response, no weights"
+cat("Test:", msg, "\n")
+
+data(trees)
+y <- trees$Volume
+x <- cbind(trees$Girth, trees$Height)
+colnames(x) <- c("girth", "height")
+
+a.lm <- lm(y ~ x)
+a.lm.rss <- sum((a.lm$fitted.values - y)^2)
+if (is.null(dim(a.lm$coefficients)))
+    dim(a.lm$coefficients) <- c(length(a.lm$coefficients), 1)
+a <- earth:::earth.regress(x, y)
+rownames(a.lm$coefficients) <- rownames(a$coefficients)
+check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]"))
+check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"))
+
+msg = "earth.regress with ozone1 data, multiple responses, no weights"
+cat("Test:", msg, "\n")
+
+data(ozone1)
+y <- cbind(ozone1$O3, ozone1$O3 ^ 2)
+colnames(y) <- c("O3", "O32")
+x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp)
+colnames(x) <- c("wind", "humidity", "temp")
+
+a.lm <- lm(y ~ x)
+a.lm.rss <- sum((a.lm$fitted.values - y)^2)
+a <- earth:::earth.regress(x, y)
+rownames(a.lm$coefficients) <- rownames(a$coefficients)
+check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]"))
+check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
+
+msg = "earth.regress with ozone1 data, multiple responses with case weights"
+cat("Test:", msg, "\n")
+
+# options(digits=10)
+weights. <- rep(.5, nrow(x))
+weights.[1] <- 1
+weights.[2] <- 2
+weights.[3] <- 3
+weights.[4] <- 4
+weights.[5] <- 5
+a.lm <- lm(y ~ x, weights=weights.)
+# a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+a.lm.rss <- sum(a.lm$residuals^2)
+a <- earth:::earth.regress(x, y, weights=weights.)
+rownames(a.lm$coefficients) <- rownames(a$coefficients)
+check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
+
+msg = "earth.regress case weights with zero weights 1"
+cat("Test:", msg, "\n")
+
+weights. <- rep(1, nrow(x))
+weights.[2] <- 0
+weights.[4] <- 0
+a.lm <- lm(y ~ x, weights=weights.)
+# a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+a.lm.rss <- sum(a.lm$residuals^2)
+a <- earth:::earth.regress(x, y, weights=weights.)
+rownames(a.lm$coefficients) <- rownames(a$coefficients)
+# options(digits=10)
+check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+
+msg = "earth.regress case weights with zero weights 2"
+cat("Test:", msg, "\n")
+weights. <- rep(1, nrow(x))
+weights.[5] <- 0
+weights.[6] <- 0
+weights.[7] <- 0
+weights.[21] <- 0
+weights.[22] <- 0
+weights.[23] <- 0
+weights.[24] <- 0
+weights.[25] <- 0
+weights.[26] <- 0
+weights.[27] <- 0
+a.lm <- lm(y ~ x, weights=weights.)
+# a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+a.lm.rss <- sum(a.lm$residuals^2)
+a <- earth:::earth.regress(x, y, weights=weights.)
+rownames(a.lm$coefficients) <- rownames(a$coefficients)
+check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+
+msg = "earth.regress case weights with zero weights and missing columns 1"
+cat("Test:", msg, "\n")
+x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
+weights. <- rep(1, nrow(x))
+weights.[5] <- 0
+weights.[6] <- 0
+weights.[7] <- 0
+weights.[21] <- 0
+weights.[22] <- 0
+weights.[23] <- 0
+weights.[24] <- 0
+weights.[25] <- 0
+weights.[26] <- 0
+weights.[27] <- 0
+colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
+used.cols = as.logical(c(1,0,1,0,1,1))
+x.missing <- x[,used.cols]
+a.lm <- lm(y ~ x.missing, weights=weights.)
+a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+a.lm.rss <- sum(a.lm$residuals^2)
+a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
+rownames(a.lm$coefficients) <- rownames(a$coefficients)
+check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+
+msg = "earth.regress case weights with zero weights and missing columns 2"
+cat("Test:", msg, "\n")
+x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
+weights. <- rep(1, nrow(x))
+weights.[5] <- .1
+weights.[6] <- .2
+weights.[7] <- 1.9
+weights.[21] <- .59
+colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
+used.cols = as.logical(c(0,1,0,0,1,0))
+x.missing <- x[,used.cols]
+a.lm <- lm(y ~ x.missing, weights=weights.)
+a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+a.lm.rss <- sum(a.lm$residuals^2)
+a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
+rownames(a.lm$coefficients) <- rownames(a$coefficients)
+check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+
+cat("---standard method functions ------------------------\n")
+
+short.etitanic <- etitanic[seq(from=1, to=1000, by=20),]
+a1 <- earth(pclass ~ ., data=short.etitanic, glm=list(family=binomial), trace=0)
+printh(variable.names(a1))
+printh(case.names(a1))
+printh(case.names(a1, use.names=FALSE))
+
+named.short.etitanic <- short.etitanic
+rownames(named.short.etitanic) <- paste("xx", 1:nrow(named.short.etitanic))
+a2 <- earth(pclass ~ ., data=named.short.etitanic, glm=list(family=binomial), trace=0)
+printh(variable.names(a2))
+printh(case.names(a2))
+printh(case.names(a2, use.names=FALSE))
+
+printh(deviance(a1), expect.warning=TRUE)
+printh(deviance(a1, warn=FALSE))
+printh(effects(a1), expect.warning=TRUE)
+printh(effects(a1, warn=FALSE))
+printh(family(a1))
+printh(anova(a1), expect.warning=TRUE)
+printh(anova(a1, warn=FALSE))
+printh(family(a1))
 
 cat("--- ../../tests/test.earth.R -------------------------\n")
 

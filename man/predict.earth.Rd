@@ -1,11 +1,13 @@
 \name{predict.earth}
 \alias{predict.earth}
-\title{Predict with an 'earth' model}
+\title{Predict with an "earth" model}
 \description{
-Predict with an 'earth' model.
+Predict with an \code{\link{earth}} model.
 }
 \usage{
-\method{predict}{earth}(object, newdata, \dots, type=c("response", "terms"))
+\method{predict}{earth}(object = stop("no 'object' arg"), newdata = NULL,
+                        type = c("link", "response", "earth", "terms"),
+                        trace = FALSE, \dots)
 }
 \arguments{
   \item{object}{
@@ -13,23 +15,32 @@ Predict with an 'earth' model.
     This is the only required argument.
   }
   \item{newdata}{
-    Make predictions using the \code{newdata}.
-    Can be a dataframe, a matrix, or a vector with the same length as a row of the input matrix x.
+    Make predictions using \code{newdata}, which
+    can be a dataframe, a matrix, or a vector with length equal to a multiple of the row length
+    of the original input matrix \code{x}.
     Default is NULL, meaning return \code{object}'s fitted values.
+  }
+  \item{type}{
+     Type of prediction.
+     One of \code{"link"} (default), \code{"response"}, or \code{"earth"}.\cr\cr
+        The \code{"link"}, \code{"response"}, and \code{"earth"} choices all return the same value unless
+        the earth model has a GLM component (i.e. unless the \code{glm} argument
+        was used in the original call to \code{\link{earth}}).
+        See \code{\link{glm}} for a description of the \code{"link"} and \code{"response"} options.\cr\cr
+        \code{"terms"} returns an \code{"earth"} response suitable for \code{\link{termplot}}.
+        Only the additive terms and the first response (for multi-response models) are returned.
+        Also, \code{"terms"} always returns the earth (not GLM) terms.\cr\cr
+  }
+  \item{trace}{
+     Default FALSE. Set to TRUE to see which data, subset, etc.  \code{predict.earth} is using.
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
   }
-  \item{type}{
-     Type of prediction.  One of:\cr
-\code{"response"} (default)\cr
-\code{"terms"} return a response suitable for \code{\link{termplot}}.  Only
-the additive terms and the first response (for multi-response models) are returned.\cr
-  }
 }
 \value{
-If \code{type="response"},  the predicted values.\cr
 If \code{type="terms"},  a matrix with each column showing the contribution of a predictor.
+Else the predicted values (a matrix for multiple response models).\cr
 }
 \seealso{
   \code{\link{earth}},
