@@ -7,7 +7,7 @@
 @rem 
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
-@echo === test.earthc ===
+@echo === test.earthc ==================================================
 @cp "C:/a/r/ra/bin/R.dll" .
 @cp "C:/a/r/ra/bin/Rblas.dll" .
 @cp "C:/a/r/ra/bin/iconv.dll" .
@@ -18,7 +18,7 @@
 
 @nmake -nologo CFG=Release -f test.earthc.mak %1 %2 %3
 
-@rem The Debug build gives slightly different output in lower decimal places ($$ why?)
+@rem The Debug build gives slightly different output in lower decimal places (TODO why?)
 @rem The advantage of using Debug is that memory leaks are reported.
 @rem It is much slower though.
 @rem nmake -nologo CFG=Debug -f test.earthc.mak %1 %2 %3

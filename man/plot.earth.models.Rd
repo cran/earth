@@ -1,8 +1,8 @@
 \name{plot.earth.models}
 \alias{plot.earth.models}
-\title{Compare 'earth' models by plotting them.}
+\title{Compare "earth" models by plotting them.}
 \description{
-Compare \sQuote{earth} models by plotting them.
+Compare \code{\link{earth}} models by plotting them.
 }
 \usage{
 plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
@@ -63,9 +63,9 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     Default is \code{0}, meaning no RSq plot.
   }
   \item{col.npreds}{
-    Vector of colours for the \sQuote{number of predictors} plot within the model selection plot.
+    Vector of colours for the "number of predictors" plot within the model selection plot.
 
-    Default is \code{0}, meaning no \sQuote{number of predictors} plot.
+    Default is \code{0}, meaning no "number of predictors" plot.
 
     The special value \code{NULL} means borrow \code{col.grsq}
     (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
@@ -88,7 +88,7 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   }
   \item{col.legend}{
     Default is \code{1}, meaning draw a legend.
-    Use \code{0} for no legend. 
+    Use \code{0} for no legend.
     The legend is drawn in the cumulative distribution graph,
     if that graph is plotted.
     Else the legend is drawn in the model comparison chart.
@@ -117,6 +117,9 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   \item{\dots}{
     Extra arguments passed to plotting functions.
   }
+}
+\note{
+   This function ignores GLM components of the earth model, if any.
 }
 \seealso{
   \code{\link{earth}},

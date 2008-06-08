@@ -1,5 +1,5 @@
 // test.earth.c: main() for testing earth c routines
-// Comments containing "$$" mark known issues
+// Comments containing "TODO" mark known issues
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -254,7 +254,8 @@ static void TestEarth(char sTestName[],
     clock_t Time = clock();
 
     Earth(&BestGcv, &nTerms, BestSet, bx, Dirs, Cuts, Residuals, Betas,
-        x, y, nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
+        x, y, NULL, // weights are NULL
+        nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0,      // MinSpan
         true,   // Prune
         K, FastBeta, NewVarPenalty, LinPreds, true, nTrace, NULL);
@@ -378,7 +379,7 @@ int main(void)
   TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50",
                                          func4_2_0,     50,        3,   3+8,          2,      101,     3, true,0.001,20,0,0,99);
 
-  //$$ following gives lousy GRSq for Response 2, investigate
+  //TODO following gives lousy GRSq for Response 2, investigate
   TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50",
                                          func4_6,     1000,         2,     6,         2,      101,     3, true,0.001,20,0,0,99);
 

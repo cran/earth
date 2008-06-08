@@ -3,8 +3,6 @@
 library(earth)
 data(ozone1)
 library(mda) # for mars
-if(!interactive())
-    postscript()
 
 test <- function(nk, degree, use.ozone) {
     if (use.ozone) {

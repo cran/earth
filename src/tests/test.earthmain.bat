@@ -2,7 +2,7 @@
 @rem
 @rem Stephen Milborrow Apr 2007 Petaluma
 
-@echo === test.earthmain ===
+@echo === test.earthmain ===============================================
 @cp "C:/a/r/ra/bin/R.dll" .
 @cp "C:/a/r/ra/bin/Rblas.dll" .
 @cp "C:/a/r/ra/bin/iconv.dll" .
@@ -17,9 +17,8 @@
 @earthmain.exe > Debug\test.earthmain.out
 @if %errorlevel% neq 0 goto error:
 
-@echo === Following diff should give no output ===
 @rem we use -w on diff so it treats \r\n the same as \n
-diff -w test.earthmain.out.save Debug\test.earthmain.out
+diff -w Debug\test.earthmain.out test.earthmain.out.save 
 @if %errorlevel% neq 0 goto error:
 
 @rm -f R.dll Rblas.dll iconv.dll Rgraphapp.dll Rzlib.dll earthmain.exe *.map *.ilk *.pdb

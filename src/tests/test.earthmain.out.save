@@ -1,13 +1,13 @@
-Forward pass: model matrix[100,1]   y[100,1]   minspan 7   endspan 13
+Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq       RSS Pred        Cut  Terms   Parents
-1      0.0000 0.0000                  26.13                  1
-2      0.9797 0.9813       0.9813  0.489078    1       0.42  2   3   
-4      0.9856 0.9873     0.006021  0.331724    1       0.63  4       
-6      0.9851 0.9874    8.545e-05  0.329491    1       0.84  5       reject term
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+1      0.0000 0.0000                               1
+2      0.9797 0.9813       0.9813    1       0.42  2   3   
+4      0.9856 0.9873     0.006021    1       0.63  4       
+6      0.9851 0.9874    8.545e-05    1       0.84  5       reject term
 
-GRSq: 0.9851 RSq: 0.9874
 Reached delta RSq threshold (DeltaRSq 8.54517e-05 < 0.001)
+After forward pass GRSq 0.9851 RSq 0.9874
 Forward pass complete: 5 terms (4 terms used)
 
 Backward pass:

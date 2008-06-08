@@ -1,22 +1,21 @@
 \name{update.earth}
 \alias{update.earth}
-\title{Update an 'earth' model}
+\title{Update an "earth" model}
 \description{
-Update an \sQuote{earth} model.
+Update an \code{\link{earth}} model.
 }
 \usage{
 \method{update}{earth}(object = stop("no 'object' arg"),
        formula. = NULL, ponly = FALSE, \dots, evaluate = TRUE)
 }
 \arguments{
-  \item{object}{}
+  \item{object}{ The earth object}
   \item{formula.}{
-     These arguments are the same as \code{\link{earth}}.
      The \code{formula.} argument is treated like earth's \code{formula} argument.\cr
   }
   \item{ponly}{
-     Force only pruning, no forward pass.
-     Default is FALSE, meaning decide automatically if a forward pass is needed.
+     Force pruning only, no forward pass.
+     Default is FALSE, meaning \code{update.earth} decides automatically if a forward pass is needed.
      See note below.
   }
   \item{\dots}{
@@ -32,21 +31,29 @@ If only the following arguments are used, a forward pass
 is unnecessary, and \code{update.earth} will perform only the pruning pass.
 This is usually much faster for large models.
 \preformatted{
+     glm
      trace
-     pmethod
      nprune
+     pmethod
      Get.crit
      Eval.model.subsets
      Print.pruning.pass
      Force.xtx.prune
      Use.beta.cache
 }
-This automatic determination to do a forward pass can be overriden
+This automatic determination to do a forward pass can be overridden
 with the \code{ponly} argument.
-If \code{ponly=TRUE} the forward pass will be skipped, and only the pruning pass will be executed.
-This is useful for doing a pruning pass with new data, typically with \code{penalty=1}.
-A similar use of \code{ponly=TRUE} is to do subset 
+If \code{ponly=TRUE} the forward pass will be skipped and only the pruning pass will be executed.
+This is useful for doing a pruning pass with new data, typically with \code{penalty=0}.
+A similar use of \code{ponly=TRUE} is to do subset
 selection with a different \code{penalty} from that used to build the original model.
+
+If you used \code{keepxy=TRUE} in your original call to \code{earth}, then
+\code{update.earth} will use the saved values, unless you specify otherwise
+by arguments to \code{update.earth}.
+It can be helpful to set \code{trace=1} to see which \code{x}, \code{y}, \code{data} etc.
+\code{update.earth} is uses.
+With \code{trace=1}, \code{update.earth} will tell you if earth's forward pass was skipped.
 }
 \value{
    The value is the same as that returned by \code{\link{earth}}.
@@ -62,28 +69,32 @@ data(ozone1)
 
 # yields:
 #    Selected 11 of 21 terms, and 8 of 9 predictors
+#    Estimated importance: temp humidity ibt doy dpg ibh vis wind
 #    Number of terms at each degree of interaction: 1 5 5
-#    GCV: 13.43422   RSS: 3762.234   GRSq: 0.7913151   RSq: 0.8218252
+#    GCV 13.4    RSS 3762    GRSq 0.791    RSq 0.822
 
 update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
 
 # yields:
 #    Selected 15 of 21 terms, and 8 of 8 predictors
+#    Estimated importance: ibt humidity doy vh ibh dpg wind vis
 #    Number of terms at each degree of interaction: 1 5 9
-#    GCV: 13.14588   RSS: 3443.265   GRSq: 0.7957941   RSq: 0.8369311
+#    GCV 13.1    RSS 3443    GRSq 0.796    RSq 0.837
 
 update(a, nprune = 8)              # requires only pruning
 
 # yields:
 #    Selected 8 of 21 terms, and 6 of 9 predictors
+#    Estimated importance: temp humidity ibt doy dpg vis
 #    Number of terms at each degree of interaction: 1 5 2
-#    GCV: 15.07944   RSS: 4433.915   GRSq: 0.7657586   RSq: 0.7900152
+#    GCV 15.1    RSS 4434    GRSq 0.766    RSq 0.79
 
 update(a, penalty=1, ponly=TRUE)   # pruning pass only with a new penalty
 
 # yields:
 #    Selected 13 of 21 terms, and 8 of 9 predictors
+#    Estimated importance: temp humidity ibt doy dpg ibh vis wind
 #    Number of terms at each degree of interaction: 1 5 7
-#    GCV: 12.5         RSS: 3675         GRSq: 0.805      RSq: 0.826
+#    GCV 12.5    RSS 3675    GRSq 0.805    RSq 0.826
 }
 \keyword{models}

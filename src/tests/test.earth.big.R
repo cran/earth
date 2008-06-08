@@ -3,6 +3,7 @@
 library(earth)
 if(!interactive())
     postscript()
+options(warn=1) # print warnings as they occur
 options(digits = 3)
 set.seed(777)
 N <- 1e4

@@ -1,9 +1,14 @@
 Changes to Earth Package
 ------------------------
 
-1.3-4 Apr 26 2008
+2.0-0 June 07 2008 
 
-Fixed warnings issued by new version of "any" in R 2.7.0.
+Added support for glms and factors (but plotmo does not yet support factors).
+Added variable importance function "evimp".
+Added response weights argument "wp" to earth.
+Output of summary.earth has changed to better deal
+   with multiple response models, see the "style" argument.
+Added namesx and namesx.org to earth's return value.
 
 1.3-2 Mar 29 2008
 

@@ -1,0 +1,17 @@
+Assuming you are using the configiration that uses least memory
+i.e. earth.default with x and y already double, no subset, no trace, etc.
+
+    bx = matrix(0, nrow=nrow(x), ncol=nk)
+    bxOrth          = (double *)malloc1(nCases * nk * sizeof(double));
+    bxOrthCenteredT = (double *)malloc1(nk * nCases * sizeof(double));
+    xbx = (double *)malloc1(nCases * sizeof(double));
+
+memory = base + (nrow(x) * (3 * nk + ncol(x) + 2)) * 8 # 8 is sizeof(double)
+
+        nk=10                  nk=100
+        ncol(x)=1    10   100     1    10
+N 10         13.2  13.2     -  13.2  13.2
+N 100        13.2  13.2  13.6  13.3  13.9
+N 1000       14.6  15.2  15.4  20.8  21.1
+
+10 + N * 
