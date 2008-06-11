@@ -109,7 +109,7 @@ evimp <- function(obj, trim=TRUE) # see help page for description
         # keep only rows for predictors that are used in at least one subset
 
         in.at.least.one.subset <- importances[,"nsubsets"] != 0
-        importances <- importances[in.at.least.one.subset,]
+        importances <- importances[in.at.least.one.subset, , drop=FALSE]
     }
     importances
 }

@@ -172,7 +172,7 @@ Users who are interested in GLM models will want to look at the \code{glm} argum
      if \code{allowed} returns FALSE the term is discarded.
      Examples are given in the FAQ section below.\cr
      Your \code{allowed} function should have the following prototype\cr
-     \code{allowed <- function(degree, pred, parents) \{...\}}\cr
+     \code{allowed <- function(degree, pred, parents, namesx, first) \{.....\}}\cr
      where\cr
         \code{degree} is the interaction degree of the candidate term.
               Will be 1 for additive terms.\cr
@@ -180,6 +180,9 @@ Users who are interested in GLM models will want to look at the \code{glm} argum
              A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
              after factors have been expanded.
         \code{parents} is the candidate parent term's row in \code{dirs}.\cr
+        \code{namesx} is optional and if present is the column names of \code{x} after factors have been expanded.\cr
+        \code{first} is optional and if present is TRUE the first time your \code{allowed} function is invoked for
+        the current model; and thereafter FALSE.
   }
   \item{thresh}{
      Forward stepping threshold.
@@ -637,26 +640,29 @@ In the examples \code{pmethod="none"}, otherwise with these artificial
 models earth tends to prune away everything except the intercept term.
 You wouldn't normally use \code{pmethod="none"}.
 Also, \code{trace=1}, so if you run these examples you can
-see how earth expands the input matrices.
+see how earth expands the input matrices
 (see the "Factors" and "Binomial pairs" sections below).
 
 1. \emph{Two-level factor or logical response.}
 The response is converted to a single column of 1s and 0s.
-For multiple level factors see the next example.
 \preformatted{
 a1 <- earth(survived ~ ., data=etitanic,   # c.f. Harrell "Reg Mod Strat" ch. 12
-             glm=list(family=binomial), degree=2, trace=1)
+             degree=2, trace=1,
+             glm=list(family=binomial))
 
 a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
-             glm=list(family=binomial), degree=2, trace=1)
+             degree=2, trace=1,
+             glm=list(family=binomial))
 }
 2. \emph{Factor response.}
 This example is for a factor with more than two levels.
+(For factors with just two levels, see the previous example.)
 The factor \code{pclass} is expanded to three indicator columns
 (whereas in a direct call to \code{\link{glm}}, \code{pclass} would be treated
 as logical: the first level versus all other levels).
 \preformatted{
-a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
+a2 <- earth(pclass ~ ., data=etitanic, trace=1, 
+            glm=list(family=binomial))
 }
 3. \emph{Binomial model} specified with a column pair.
 This is a single reponse model but specified with a pair of columns:
@@ -667,9 +673,8 @@ ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
 sex <- factor(rep(c("male", "female"), times=c(6,6)))
 numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
 pair <- cbind(numdead, numalive=20 - numdead)
-a3 <- earth(pair ~ sex + ldose,
-            glm=list(family=binomial(link=probit), maxit=100), 
-            trace=1, pmethod="none")
+a3 <- earth(pair ~ sex + ldose, trace=1, pmethod="none",
+            glm=list(family=binomial(link=probit), maxit=100))
 }
 4. \emph{Double binomial response} (i.e. a multiple response model)
 specified with two column pairs.
@@ -677,22 +682,21 @@ specified with two column pairs.
 numdead2 <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
 doublepair <- cbind(numdead, numalive=20-numdead,
                     numdead2=numdead2, numalive2=30-numdead2)
-a4 <- earth(doublepair ~ sex + ldose,
-            glm=list(family="binomial"), trace=1, pmethod="none")
+a4 <- earth(doublepair ~ sex + ldose, trace=1, pmethod="none",
+            glm=list(family="binomial"))
 }
 5. \emph{Poisson model.}
 \preformatted{
 counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 outcome <- gl(3,1,9)
 treatment <- gl(3,3)
-a5 <- earth(counts ~ outcome + treatment,
-            glm=list(family=poisson), trace=1, pmethod="none")
+a5 <- earth(counts ~ outcome + treatment, trace=1, pmethod="none",
+            glm=list(family=poisson))
 }
 6. \emph{Standard earth model}, the long way.
 \preformatted{
-a6 <- earth(numdead ~ sex + ldose,
-            glm=list(family=gaussian(link=identity)), 
-            trace=1, pmethod="none")
+a6 <- earth(numdead ~ sex + ldose, trace=1, pmethod="none",
+            glm=list(family=gaussian(link=identity)))
 print(a6$coefficients == a6$glm.coefficients)  # all TRUE
 }
 
@@ -1075,7 +1079,7 @@ earth(Volume ~ ., data = trees, trace=3, penalty=-1)
 
 If you want the best possible small model, build a big model 
 (by specifying a big \code{nk}) 
-and let earth prune it back (by specifying a small \code{nprune}).  
+and prune it back (by specifying a small \code{nprune}).  
 This is better than directly building a small model by
 specifying a small \code{nk}, because the pruning pass can look at all the
 terms whereas the forward pass can only see one term ahead.
@@ -1135,6 +1139,7 @@ Earth will not include a linear predictor if that predictor does not improve the
 
 You can specify how variables are allowed to enter MARS terms
 with the \code{allowed} argument.
+
 The interface is flexible but requires a bit of programming.
 We start with a simple example, which completely excludes one predictor
 from the model:
@@ -1189,6 +1194,37 @@ example3 <- function(degree, pred, parents)
 }
 a4 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
 print(summary(a4))
+}
+\bold{Using predictor names instead of indices in the "allowed" function.}
+You can use predictor names instead of indices using
+the optional \code{namesx} argument.
+If present, \code{namesx} is the column names of \code{x} after factors have been expanded.
+The first example (the one that disallows \code{Height}) can be rewritten as
+\preformatted{
+example1a  <- function(degree, pred, parents, namesx)
+{
+    namesx[pred] != "Height"  
+}
+}
+Comparing strings is inefficient and 
+the above example can be rewritten a little more efficiently 
+using the optional \code{first} argument.
+If present, this is TRUE the first time your allowed function is called for
+the current model and thereafter FALSE.
+\preformatted{
+iheight <- 0    # column index of "Height"
+
+example1b  <- function(degree, pred, parents, namesx, first)
+{
+    if (first) {
+        # first time this function is invoked, so
+        # stash column index of "Height" in iheight
+        iheight <<- which(namesx == "Height")   # note use of <<- not <-
+        if (length(iheight) != 1)
+            stop("no Height in ", paste(namesx, collapse=" "))
+    }
+    pred != iheight
+}
 }
 The basic MARS model building strategy is always
 applied even when there is an \code{allowed} function.

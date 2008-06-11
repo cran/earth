@@ -2233,6 +2233,7 @@ void ForwardPassR(              // for use by R
     const double *pNewVarPenalty, // in: penalty for adding a new variable
     const int LinPreds[],         // in: 1 x nPreds, 1 if predictor must enter linearly
     const SEXP Allowed,           // in: constraints function
+    const int *pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const int *pnTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
@@ -2266,7 +2267,7 @@ void ForwardPassR(              // for use by R
     if ((void *)weightsArg == (void *)R_NilValue)
         weightsArg = NULL;
 
-    InitAllowedFunc(Allowed, Env, nPreds);
+    InitAllowedFunc(Allowed, *pnAllowedFuncArgs, Env, sPredNames, nPreds);
 
     int nTerms;
     ForwardPass(&nTerms, BoolFullSet, bx, iDirs, Cuts, nFactorsInTerm, nUses,

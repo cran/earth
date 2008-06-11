@@ -48,19 +48,33 @@ prune.only.args <- c("glm", "trace", "nprune", "pmethod",
                      "Get.crit", "Eval.model.subsets", "Print.pruning.pass",
                      "Force.xtx.prune")
 
+# returns the number of arguments to the user's "allowed" function
+
 check.allowed.arg <- function(allowed) # check earth's "allowed" argument
 {
+    len <- 0
     if(!is.null(allowed)) {
+        allowed.func.needs <- paste(
+            "  The \"allowed\" function needs the following arguments ",
+            "(but namesx and first are optional):\n      ",
+            paste.with.space(c("degree", "pred", "parents", "namesx", "first")),
+            sep="")
+
         if(typeof(allowed) != "closure")
-            stop("the given \"allowed\" argument is not a function");
+            stop("your \"allowed\" argument is not a function");
         names. <- names(formals(allowed))
-        if(length(names.) != 3)
-            stop("the given \"allowed\" function does not have 3 arguments")
-        if(!identical(names., c("degree", "pred", "parents")))
-            stop("the \"allowed\" function needs the following arguments ",
-                 paste.quoted.names(c("degree", "pred", "parents")), "\n",
-                 "You have ", paste.quoted.names(names.))
+        len <- length(names.)
+        if(len < 3 || len > 5)
+            stop1("your \"allowed\" function does not have the correct number of arguments\n",
+                  allowed.func.needs)
+
+        if(names.[1] != "degree" || names.[2] != "pred" || names.[3] != "parents" ||
+           (len >= 4 && names.[4] != "namesx") || (len >= 5 && names.[5] != "first")) {
+              stop1(allowed.func.needs,
+                "\n  You have:\n      ", paste.with.space(names.))
+        }
     }
+    len
 }
 
 check.and.standarize.wp <- function(wp, expected.len)
@@ -143,7 +157,7 @@ earth.default <- function(
     # expand factors, convert to double matrix with col names
 
     env <- parent.frame()
-    x <- expand.arg(x, env)
+    x <- expand.arg(x, env, FALSE, xname=xname)
     rownames(x) <- possibly.delete.rownames(x)
     y <- expand.arg(y, env, is.y.arg=TRUE, deparse(substitute(y)))
     rownames(y) <- possibly.delete.rownames(y)
@@ -223,7 +237,7 @@ earth.formula <- function(
     else
         warning1("ignored -1 in formula (earth objects always have an intercept)")
     # strip white space for better reading earth formula for e.g. earth(y~I(X-3))
-    # beacuse model.matrix inserts spaces around the minus
+    # because model.matrix inserts spaces around the minus
     if (!is.null(colnames(x)))
         colnames(x) <- strip.white.space(colnames(x))
 
@@ -352,7 +366,7 @@ earth.fit <- function(
         warning1("\"weights\" are not supported by \"earth\", ignoring them")
         weights <- NULL
     }
-    check.allowed.arg(allowed)
+    n.allowedfunc.args <- check.allowed.arg(allowed)
     stopif(is.vector(x)) # should have been converted to matrix in earth.default or earth.formula
     stopif(is.vector(y)) # ditto
     if(nrow(x) == 0)
@@ -394,7 +408,8 @@ earth.fit <- function(
         rval <- forward.pass(x, y, standardized.weights, trace, penalty,
                              nk, degree, linpreds,
                              allowed, thresh, minspan, newvar.penalty,
-                             fast.k, fast.beta, Use.beta.cache, env)
+                             fast.k, fast.beta, Use.beta.cache,
+                             n.allowedfunc.args, env)
           bx   <- rval[[1]]
           dirs <- rval[[2]]
           cuts <- rval[[3]]
@@ -661,7 +676,8 @@ eval.model.subsets.using.xtx <- function(
 forward.pass <- function(x, y, weights,  # must be all double
                          trace, penalty, nk, degree, linpreds,
                          allowed, thresh, minspan, newvar.penalty,
-                         fast.k, fast.beta, Use.beta.cache, env)
+                         fast.k, fast.beta, Use.beta.cache,
+                         n.allowedfunc.args, env)
 {
     npreds <- ncol(x)
 
@@ -680,10 +696,11 @@ forward.pass <- function(x, y, weights,  # must be all double
         print.linpreds(linpreds, x)
 
     # CHANGED Mar 12, 2008: We want DUP=FALSE in the .C call below to
-    # reduce memory useage.  But this isn't allowed if you pass a
-    # string array to .C, so we set pred.names=NULL unless tracing.
+    # reduce memory useage.  But this isn't permitted if you pass a
+    # string array to .C, so we set pred.names=NULL unless tracing
+    # or unless we need pred.names for the "allowed" function.
 
-    if(trace >= 2)  # pred.names are only used for tracing when trace>=2
+    if(trace >= 2 || n.allowedfunc.args >= 4)
         pred.names <- colnames(x)
     else
         pred.names <- NULL
@@ -715,6 +732,7 @@ forward.pass <- function(x, y, weights,  # must be all double
         as.double(newvar.penalty),      # in: const double *pNewVarPenalty
         as.integer(linpreds),           # in: const int LinPreds[]
         allowed,                        # in: const SEXP Allowed
+        as.integer(n.allowedfunc.args), # in: const int *pnAllowedFuncArgs
         env,                            # in: const SEXP Env for Allowed
         as.integer(Use.beta.cache),     # in: const int *pnUseBetaCache
         as.integer(trace),              # in: const int *pnTrace

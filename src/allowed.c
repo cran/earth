@@ -4,18 +4,18 @@
 #include "Rinternals.h"
 #define printf Rprintf
 
-#define INLINE inline
-
 #ifndef bool
     typedef int bool;
     #define false 0
     #define true  1
 #endif
 
-#define Dirs_(iTerm,iPred)      Dirs[(iTerm) + (iPred)*(nMaxTerms)]
+#define Dirs_(iTerm,iPred) Dirs[(iTerm) + (iPred)*(nMaxTerms)]
 
 static SEXP AllowedFunc;
 static SEXP AllowedEnv;
+static int  nArgs;
+static bool First;
 
 // Initialize the R function AllowedFunc from the Allowed functon
 // argument which was passed into ForwardPassR.
@@ -24,28 +24,38 @@ static SEXP AllowedEnv;
 // The caller of ForwardPassR has already checked that Allowed is
 // a function and has three arguments: degree, pred, parents.
 //
-// The "allowed" function has the following prototype:
+// The "allowed" function has the following prototype, where
+// xnames is optional.
 //
-//     allowed <- function(degree, pred, parents)
+//     allowed <- function(degree, pred, parents, xnames)
 //     {
 //         ...
-//         TRUE   # return TRUE if not constrained
+//         TRUE   # return TRUE if allowed
 //     }
 //
 // where "degree" is the MARS term degree, with pred in the term.
 //       "pred" is column index in the input matrix x
 //       "parents" is an integer vector of parent predictors
 //                 (it's a copy of Dirs[iParent,]
+//       "xnames" is optional and is the colnames of the x arg
+//                to earth, after factor expansion
+//       "first" is optional and is 1 the first time "allowed"
+//               is invoked for the current model
 
-void InitAllowedFunc(SEXP Allowed, SEXP Env, int nPreds)
+void InitAllowedFunc(SEXP Allowed, int nAllowedFuncArgs, SEXP Env,
+                     const char *sPredNames[], int nPreds)
 {
     if (isNull(Allowed))
         AllowedFunc = R_NilValue;
     else {
+        if (nAllowedFuncArgs < 3 || nAllowedFuncArgs > 5)
+            error("Bad nAllowedFuncArgs %d", nAllowedFuncArgs);
+
         AllowedEnv = Env;
+        nArgs = nAllowedFuncArgs;
 
         // the UNPROTECT for the PROTECT below is in FreeAllowedFunc()
-        PROTECT(AllowedFunc = allocList(4));
+        PROTECT(AllowedFunc = allocList(1 + nAllowedFuncArgs));
 
         SEXP s = AllowedFunc;   // 1st element is the function
         SETCAR(s, Allowed);
@@ -59,7 +69,24 @@ void InitAllowedFunc(SEXP Allowed, SEXP Env, int nPreds)
 
         s = CDR(s);             // 4th element is "parents"
         SETCAR(s, allocVector(INTSXP, nPreds));
+
+        if (nAllowedFuncArgs >= 4) {
+            SEXP namesx;
+            s = CDR(s);        // 5th element is "namesx"
+            SETCAR(s, namesx = allocVector(STRSXP, nPreds));
+            PROTECT(namesx);
+            if (sPredNames == NULL)
+                error("Bad sPredNames");
+            for (int i = 0; i < nPreds; i++)
+                SET_STRING_ELT(namesx, i, mkChar(sPredNames[i]));
+            UNPROTECT(1);
+        }
+        if (nAllowedFuncArgs >= 5) {
+            s = CDR(s);        // 6th element is "first"
+            SETCAR(s, allocVector(LGLSXP, 1));
+        }
     }
+    First = true;
 }
 
 void FreeAllowedFunc(void)
@@ -68,7 +95,7 @@ void FreeAllowedFunc(void)
          UNPROTECT(1);          // matches PROTECT in InitAllowedFunc
 }
 
-static INLINE bool EvalAllowedFunc(void)
+static bool EvalAllowedFunc(void)
 {
     SEXP s = eval(AllowedFunc, AllowedEnv);
 
@@ -123,6 +150,12 @@ bool IsAllowed(
             nDegree++;
     }
     INTEGER(CAR(s))[0] = nDegree;
+
+    // optional 5th element already initialized to predictor names
+
+    if (nArgs >= 5)                 // optional 6th element is "first"
+        *(LOGICAL(CAD4R(s))) = First;
+    First = false;
 
     return EvalAllowedFunc();
 }
