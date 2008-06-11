@@ -5932,7 +5932,7 @@ numdead.2        84.92686 11      1.525354  9          4         1
 > sex1 <- factor(rep(c("male", "female"), times=c(6,6)))
 > sex2 <- factor(rep(c("male", "female"), times=c(6,6)))
 > earth(numdead, cbind(sex1, sex2, sex1), trace=1) # one duplicate name
-x is a 12 by 1 matrix: 1=x
+x is a 12 by 1 matrix: 1=numdead
 y is a 12 by 3 matrix: 1=sex1, 2=sex2, 3=sex1.1
 Forward pass term 1, 2, 4
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
@@ -5940,7 +5940,7 @@ After forward pass GRSq -1.322 RSq 0.05966
 Prune method "backward" penalty 2 nprune 2: selected 1 of 2 terms, and 0 of 1 predictors
 After backward pass GRSq 0 RSq 0 
 Selected 1 of 2 terms, and 0 of 1 predictors 
-Importance: x-unused
+Importance: numdead-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 
              GCV RSS          GRSq           RSq
@@ -5951,7 +5951,7 @@ All    0.8925620   9  0.000000e+00  0.000000e+00
 > sex1 <- factor(rep(c("male", "female"), times=c(6,6)))
 > sex2 <- factor(rep(c("male", "female"), times=c(6,6)))
 > earth(numdead, cbind(sex1, sex2, sex1, sex1), trace=1) # two duplicate names
-x is a 12 by 1 matrix: 1=x
+x is a 12 by 1 matrix: 1=numdead
 y is a 12 by 4 matrix: 1=sex1, 2=sex2, 3=sex1.1, 4=sex1.2
 Forward pass term 1, 2, 4
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
@@ -5959,7 +5959,7 @@ After forward pass GRSq -1.322 RSq 0.05966
 Prune method "backward" penalty 2 nprune 2: selected 1 of 2 terms, and 0 of 1 predictors
 After backward pass GRSq 0 RSq 0 
 Selected 1 of 2 terms, and 0 of 1 predictors 
-Importance: x-unused
+Importance: numdead-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 
              GCV RSS          GRSq           RSq
@@ -6008,7 +6008,7 @@ Warning in model.matrix.default(object = attr(mf, "terms"), data = mf) :
   variable 'x' converted to a factor
 Warning in model.matrix.default(object = attr(mf, "terms"), data = mf) :
   variable 'x' converted to a factor
-x is a 12 by 1 matrix: 1=male
+x is a 12 by 1 matrix: 1=sex2
 y is a 12 by 2 matrix: 1=female, 2=male
 Forward pass term 1, 2
 Reached max RSq (RSq 1 > 0.999)
@@ -6027,7 +6027,7 @@ After backward pass GRSq 1 RSq 1
 update.earth: forcing forward pass because bpairs argument used
 update.earth: using 31 by 1 x argument from original call to earth
 update.earth: using 31 by 2 y argument from original call to earth
-x is a 31 by 1 matrix: 1=x
+x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
 Forward pass term 1, 2, 4
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
@@ -6036,7 +6036,7 @@ Prune method "backward" penalty 2 nprune 3: selected 2 of 3 terms, and 1 of 1 pr
 After backward pass GRSq 0.2191 RSq 0.3197 
 GLM volumei: null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
 Earth selected 2 of 3 terms, and 1 of 1 predictors 
-Importance: x
+Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
 earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
 
@@ -6046,7 +6046,7 @@ GLM null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
 update.earth: forcing forward pass because bpairs argument used
 update.earth: using 31 by 1 x argument from original call to earth
 update.earth: using 31 by 2 y argument from original call to earth
-x is a 31 by 1 matrix: 1=x
+x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
 Forward pass term 1, 2, 4
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
@@ -6055,7 +6055,7 @@ Prune method "backward" penalty 2 nprune 3: selected 2 of 3 terms, and 1 of 1 pr
 After backward pass GRSq 0.2191 RSq 0.3197 
 GLM volumei: null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
 Earth selected 2 of 3 terms, and 1 of 1 predictors 
-Importance: x
+Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
 earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
 

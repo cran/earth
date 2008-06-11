@@ -130,8 +130,9 @@ After backward pass GRSq -6.511 RSq 0.9297
 === get.used.pred.names(a)
 [1] "Girth"  "Height"
 > 
-> a1a <- earth(survived ~ ., data=etitanic,
-+             glm=list(family=binomial), degree=2, trace=1)
+> a1 <- earth(survived ~ ., data=etitanic,   # c.f. Harrell "Reg. Mod. Strat." ch. 12
++              degree=2, trace=1,
++              glm=list(family=binomial))
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, 6=parch
 y is a 1046 by 1 matrix: 1=survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
@@ -140,31 +141,18 @@ After forward pass GRSq 0.4067 RSq 0.4485
 Prune method "backward" penalty 3 nprune 16: selected 9 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.4221 RSq 0.4441 
 GLM survived: null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)   iters 5
-> printh(summary(a1a))
-=== summary(a1a)
-Call: earth(formula=survived~., data=etitanic, glm=list(family=binomial), 
-      trace=1, degree=2)
-
-GLM coefficients
-                       survived
-(Intercept)             2.30619
-pclass3rd              -5.65312
-sexmale                -3.62035
-h(63-age)               0.02863
-pclass2nd * sexmale    -0.72588
-pclass2nd * h(1-parch) -1.37446
-pclass3rd * sexmale     1.80909
-pclass3rd * h(4-sibsp)  0.62243
-sexmale * h(16-age)     0.17013
-
+> printh(a1)
+=== a1
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 earth GCV 0.13986    RSS 140.48    GRSq 0.42215    RSq 0.44405
 
 GLM null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)   iters 5
-> a1b <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
-+             glm=list(family=binomial), degree=2, trace=1)
+> 
+> a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
++              degree=2, trace=1,
++              glm=list(family=binomial))
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, 6=parch
 y is a 1046 by 1 matrix: 1=etitanic[,2]
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
@@ -173,30 +161,16 @@ After forward pass GRSq 0.4067 RSq 0.4485
 Prune method "backward" penalty 3 nprune 16: selected 9 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.4221 RSq 0.4441 
 GLM etitanic[,2]: null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)   iters 5
-> printh(summary(a1b))
-=== summary(a1b)
-Call: earth(x=etitanic[, -2], y=etitanic[, 2], glm=list(family=binomial), 
-      trace=1, degree=2)
-
-GLM coefficients
-                       etitanic[,2]
-(Intercept)                 2.30619
-pclass3rd                  -5.65312
-sexmale                    -3.62035
-h(63-age)                   0.02863
-pclass2nd * sexmale        -0.72588
-pclass2nd * h(1-parch)     -1.37446
-pclass3rd * sexmale         1.80909
-pclass3rd * h(4-sibsp)      0.62243
-sexmale * h(16-age)         0.17013
-
+> printh(a1a)
+=== a1a
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 earth GCV 0.13986    RSS 140.48    GRSq 0.42215    RSq 0.44405
 
 GLM null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)   iters 5
-> a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
+> 
+> a2 <- earth(pclass ~ ., data=etitanic, trace=1, glm=list(family=binomial))
 x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14
@@ -207,22 +181,8 @@ After backward pass GRSq 0.1670 RSq 0.1891
 GLM 1st: null.deviance 1223.3 (1045 dof)   deviance 920.8 (1038 dof)   iters 5
 GLM 2nd: null.deviance 1175.3 (1045 dof)   deviance 1147.5 (1038 dof)   iters 5
 GLM 3rd: null.deviance 1448.2 (1045 dof)   deviance 1142.8 (1038 dof)   iters 5
-> printh(summary(a2))
-=== summary(a2)
-Call: earth(formula=pclass~., data=etitanic, glm=list(family=binomial), 
-      trace=1)
-
-GLM coefficients
-                  1st       2nd       3rd
-(Intercept) -1.362870 -0.289060 -0.765155
-survived     1.606285  0.037934 -1.319988
-h(age-26)    0.079907 -0.012971 -0.070433
-h(26-age)   -0.083895 -0.014830  0.068155
-h(sibsp-1)  -0.335937 -0.760950  0.806440
-h(1-sibsp)  -0.585228 -0.326733  0.855793
-h(parch-2)  -1.177746 -0.903879  1.667964
-h(2-parch)  -0.274682 -0.221743  0.431747
-
+> printh(a2)
+=== a2
 Earth selected 8 of 10 terms, and 4 of 5 predictors 
 Importance: age, survived, sibsp, parch, sexmale-unused
 Number of terms at each degree of interaction: 1 7 (additive model)
@@ -239,13 +199,14 @@ GLM (family binomial, link logit)
 1st          1223.3 1045         920.8 1038          5         1
 2nd          1175.3 1045        1147.5 1038          5         1
 3rd          1448.2 1045        1142.8 1038          5         1
+> 
 > ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
 > sex <- factor(rep(c("male", "female"), times=c(6,6)))
 > numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
 > pair <- cbind(numdead, numalive=20 - numdead)
-> a3 <- earth(pair ~ sex + ldose,
-+             glm=list(family=binomial(link=probit), maxit=100), 
-+             trace=1, pmethod="none")
+> 
+> a3 <- earth(pair ~ sex + ldose, trace=1, pmethod="none",
++             glm=list(family=binomial(link=probit), maxit=100))
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6
@@ -254,28 +215,21 @@ After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
 GLM numdead: null.deviance 124.88 (11 dof)   deviance 5.566 (9 dof)   iters 4
-> printh(summary(a3))
-=== summary(a3)
-Call: earth(formula=pair~sex+ldose, glm=list(family=binomial(link=probit), 
-      maxit=100), trace=1, pmethod="none")
-
-GLM coefficients
-              numdead
-(Intercept)  -2.06033
-sexmale       0.65365
-h(ldose- -2)  0.63245
-
+> printh(a3)
+=== a3
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
 
 GLM null.deviance 124.88 (11 dof)   deviance 5.566 (9 dof)   iters 4
+> 
 > numdead2 <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
 > doublepair <- cbind(numdead, numalive=20-numdead,
 +                     numdead2=numdead2, numalive2=30-numdead2)
-> a4 <- earth(doublepair ~ sex + ldose,
-+             glm=list(family="binomial"), trace=1, pmethod="none")
+> 
+> a4 <- earth(doublepair ~ sex + ldose, trace=1, pmethod="none",
++             glm=list(family="binomial"))
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
@@ -285,17 +239,8 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predic
 After backward pass GRSq 0.8255 RSq 0.9293 
 GLM numdead: null.deviance 124.88 (11 dof)   deviance 6.757 (9 dof)   iters 4
 GLM numdead2: null.deviance 91.625 (11 dof)   deviance 16.067 (9 dof)   iters 4
-> printh(summary(a4))
-=== summary(a4)
-Call: earth(formula=doublepair~sex+ldose, glm=list(family="binomial"), 
-      trace=1, pmethod="none")
-
-GLM coefficients
-             numdead numdead2
-(Intercept)  -3.4732 -2.60803
-sexmale       1.1007  0.71903
-h(ldose- -2)  1.0642  0.59894
-
+> printh(a4)
+=== a4
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
@@ -310,43 +255,13 @@ GLM (family binomial, link logit)
            null.deviance df      deviance df      iters converged
 numdead          124.876 11         6.757  9          4         1
 numdead2          91.625 11        16.067  9          4         1
-> a5 <- earth(numdead ~ sex + ldose,
-+             glm=list(family=gaussian(link=identity)), trace=1, pmethod="none")
-x is a 12 by 2 matrix: 1=sexmale, 2=ldose
-y is a 12 by 1 matrix: 1=numdead
-Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
-After forward pass GRSq 0.9069 RSq 0.9808
-Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
-After backward pass GRSq 0.9525 RSq 0.9808 
-GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.7024 (9 dof)   iters 2
-> printh(summary(a5))
-=== summary(a5)
-Call: earth(formula=numdead~sex+ldose, glm=list(family=gaussian(link=identity)), 
-      trace=1, pmethod="none")
-
-GLM coefficients
-             numdead
-(Intercept)  -1.4405
-sexmale       3.1667
-h(ldose- -2)  3.6429
-
-Earth selected 3 of 3 terms, and 2 of 2 predictors 
-Importance: ldose, sexmale
-Number of terms at each degree of interaction: 1 2 (additive model)
-earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
-
-GLM null.deviance 504.25 (11 dof)   deviance 9.7024 (9 dof)   iters 2
-> print(a5$coefficients == a5$glm.coefficients)  # all TRUE
-            numdead
-(Intercept)    TRUE
-h(ldose--2)    TRUE
-sexmale        TRUE
-> counts <- c(18,17,15,20,10,20,25,13,12)
+> 
+> counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 > outcome <- gl(3,1,9)
 > treatment <- gl(3,3)
-> a6 <- earth(counts ~ outcome + treatment,
-+             glm=list(family=poisson), trace=1, pmethod="none")
+> 
+> a5 <- earth(counts ~ outcome + treatment, trace=1, pmethod="none",
++             glm=list(family=poisson))
 x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 1 matrix: 1=counts
 Forward pass term 1, 2, 4, 6
@@ -355,23 +270,40 @@ After forward pass GRSq -6.576 RSq 0.5265
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
 After backward pass GRSq -0.894 RSq 0.5265 
 GLM counts: null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
-> printh(summary(a6))
-=== summary(a6)
-Call: earth(formula=counts~outcome+treatment, glm=list(family=poisson), 
-      trace=1, pmethod="none")
-
-GLM coefficients
-              counts
-(Intercept)  3.04452
-outcome2    -0.45426
-outcome3    -0.29299
-
+> printh(a5)
+=== a5
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 earth GCV 46.875    RSS 83.333    GRSq -0.89394    RSq 0.52652
 
 GLM null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
+> 
+> a6 <- earth(numdead ~ sex + ldose, trace=1, pmethod="none",
++             glm=list(family=gaussian(link=identity)))
+x is a 12 by 2 matrix: 1=sexmale, 2=ldose
+y is a 12 by 1 matrix: 1=numdead
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.9069 RSq 0.9808
+Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
+After backward pass GRSq 0.9525 RSq 0.9808 
+GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.7024 (9 dof)   iters 2
+> printh(a6$coefficients == a6$glm.coefficients)  # all TRUE
+=== a6$coefficients == a6$glm.coefficients
+            numdead
+(Intercept)    TRUE
+h(ldose--2)    TRUE
+sexmale        TRUE
+> printh(a6)
+=== a6
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
+
+GLM null.deviance 504.25 (11 dof)   deviance 9.7024 (9 dof)   iters 2
+> 
 > remove(ldose)
 > remove(sex)
 > remove(numdead)
@@ -1690,19 +1622,19 @@ predict.earth: returning earth predictions
 > itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=1, plotit=FALSE, test.rsq=FALSE)
 itest 1   funcNoise                        degree 1  nk 5   nTerms 1  of 4   GRSq    0
 Selected 1 of 4 terms, and 0 of 1 predictors 
-Importance: x-unused
+Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
 > itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=2, plotit=FALSE, test.rsq=FALSE)
 itest 2   funcNoise                        degree 2  nk 5   nTerms 1  of 4   GRSq    0
 Selected 1 of 4 terms, and 0 of 1 predictors 
-Importance: x-unused
+Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
 > itest <- itest+1; test.earth(itest, funcNoise, nk=51, degree=1, plotit=FALSE, test.rsq=FALSE)
 itest 3   funcNoise                        degree 1  nk 51  nTerms 1  of 6   GRSq    0
 Selected 1 of 6 terms, and 0 of 1 predictors 
-Importance: x-unused
+Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
 > itest <- itest+1; a <- test.earth(itest, funcNoise, nk=51, degree=2, plotit=FALSE, test.rsq=FALSE)
@@ -1716,7 +1648,7 @@ Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace,
 (Intercept)       -0.044519
 
 Selected 1 of 6 terms, and 0 of 1 predictors 
-Importance: x-unused
+Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
 > printh(summary(a, details=1, fixed.point=FALSE))
@@ -1729,7 +1661,7 @@ Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace,
 
 Number of cases: 100
 Selected 1 of 6 terms, and 0 of 1 predictors 
-Importance: x-unused
+Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
 > 
@@ -1773,25 +1705,25 @@ GCV 0.0027035    RSS 0.17957    GRSq 0.9968    RSq 0.99784
 > itest <- itest+1; test.earth(itest, func7, nk=5,  degree=1)
 itest 9   func7                            degree 1  nk 5   nTerms 4  of 4   GRSq 0.76
 Selected 4 of 4 terms, and 1 of 1 predictors 
-Importance: x
+Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 0.12312    RSS 10.648    GRSq 0.76006    RSq 0.78826
 > itest <- itest+1; test.earth(itest, func7, nk=5,  degree=2)
 itest 10  func7                            degree 2  nk 5   nTerms 4  of 4   GRSq 0.75
 Selected 4 of 4 terms, and 1 of 1 predictors 
-Importance: x
+Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 0.12719    RSS 10.648    GRSq 0.75213    RSq 0.78826
 > itest <- itest+1; test.earth(itest, func7, nk=51, degree=1)
 itest 11  func7                            degree 1  nk 51  nTerms 6  of 7   GRSq 0.97
 Selected 6 of 7 terms, and 1 of 1 predictors 
-Importance: x
+Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 5 (additive model)
 GCV 0.016831    RSS 1.3332    GRSq 0.9672    RSq 0.97349
 > itest <- itest+1; test.earth(itest, func7, nk=51, degree=2)
 itest 12  func7                            degree 2  nk 51  nTerms 6  of 7   GRSq 0.97
 Selected 6 of 7 terms, and 1 of 1 predictors 
-Importance: x
+Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 5 (additive model)
 GCV 0.017818    RSS 1.3332    GRSq 0.96527    RSq 0.97349
 > 
@@ -3419,8 +3351,8 @@ chosen    3      0.9937  0.9953     0.0515      1  1 2 3
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 1 of 2 predictors
 After backward pass GRSq 0.9937 RSq 0.9953 
 > a6  <- earth(new.x, Volume, wp=1, keepxy=TRUE)
-> check.models.equal(a6update, a6, msg="a6update a6")
-check.models.equal identical: a6update a6
+> check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6")
+check.models.equal identical: "allowed" function a6update a6
 
 > 
 > cat("\nupdate(a, wp=2)\n")
@@ -3428,8 +3360,8 @@ check.models.equal identical: a6update a6
 update(a, wp=2)
 > a7update <- update(a, wp=2)
 > a7  <- earth(x, Volume, wp=2, keepxy=TRUE)
-> check.models.equal(a7update, a7, msg="a7update a7")
-check.models.equal identical: a7update a7
+> check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7")
+check.models.equal identical: "allowed" function a7update a7
 
 > 
 > cat("--- \"allowed\" argument -----------------\n")
@@ -3453,6 +3385,31 @@ Selected 3 of 3 terms, and 1 of 2 predictors
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV 15.896    RSS 346.64    GRSq 0.94307    RSq 0.95724
+> 
+> example1a  <- function(degree, pred, parents, namesx)
++ {
++     namesx[pred] != "Height"  # disallow "Height"
++ }
+> a1a <- earth(Volume ~ ., data = trees, allowed = example1a)
+> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a")
+check.models.equal identical: "allowed" function a1 a1a
+
+> 
+> iheight <- 0
+> example1b  <- function(degree, pred, parents, namesx, first)
++ {
++     if (first) {
++         iheight <<- which(namesx == "Height") # note use of <<- not <-
++         if (length(iheight) != 1)
++             stop("could not find Height in ", paste(namesx, collapse=" "))
++     }
++     pred != iheight
++ }
+> a1b <- earth(Volume ~ ., data = trees, allowed = example1b)
+> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b")
+check.models.equal identical: "allowed" function a1 a1b
+
+> 
 > example2 <- function(degree, pred, parents)
 + {
 +     # disallow humidity in terms of degree > 1
@@ -3461,9 +3418,9 @@ GCV 15.896    RSS 346.64    GRSq 0.94307    RSq 0.95724
 +         return(FALSE)
 +     TRUE
 + }
-> a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
-> printh(summary(a))
-=== summary(a)
+> a2 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
+> printh(summary(a2))
+=== summary(a2)
 Call: earth(formula=O3~., data=ozone1, degree=2, allowed=example2)
 
                                O3
@@ -3497,9 +3454,9 @@ GCV 15.195    RSS 3912.6    GRSq 0.76397    RSq 0.8147
 +         return(FALSE)
 +     TRUE
 + }
-> a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-> printh(summary(a))
-=== summary(a)
+> a3 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
+> printh(summary(a3))
+=== summary(a3)
 Call: earth(formula=O3~., data=ozone1, degree=2, allowed=example3)
 
                                   O3
@@ -3522,29 +3479,64 @@ Importance: temp, vis, doy, dpg, humidity, vh, ibh, ibt, wind
 Number of terms at each degree of interaction: 1 11 1
 GCV 13.895    RSS 3764.4    GRSq 0.78415    RSq 0.82172
 > 
+> ihumidity <- 0
+> itemp <- 0
+> example3a  <- function(degree, pred, parents, namesx, first)
++ {
++     if (first) {
++         ihumidity <<- which(namesx == "humidity") # note use of <<- not <-
++         if (length(ihumidity) != 1)
++             stop("could not find humidity in ", paste(namesx, collapse=" "))
++         itemp <<- which(namesx == "temp") # note use of <<- not <-
++         if (length(itemp) != 1)
++             stop("could not find temp in ", paste(namesx, collapse=" "))
++     }
++     # allow only humidity and temp in terms of degree > 1
++     allowed.set = c(ihumidity, itemp)
++     if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
++         return(FALSE)
++     TRUE
++ }
+> a3a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
+> check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a")
+check.models.equal identical: "allowed" function a3 a3a
+
+> 
 > # "allowed" function checks, these check error handling by forcing an error
 > 
 > cat("Expect an error here ")
 Expect an error here > z <- try(earth(Volume ~ ., data = trees, allowed = 99))
 Error in check.allowed.arg(allowed) : 
-  the given "allowed" argument is not a function
+  your "allowed" argument is not a function
 > if (class(z) != "try-error")
 +     stop("test failed")
 > 
 > example7  <- function(degree, pred) pred!=2
 > cat("Expect an error here ")
 Expect an error here > z <- try(earth(Volume ~ ., data = trees, allowed = example7))
-Error in check.allowed.arg(allowed) : 
-  the given "allowed" function does not have 3 arguments
+Error : your "allowed" function does not have the correct number of arguments
+  The "allowed" function needs the following arguments (but namesx and first are optional):
+      degree pred parents namesx first
 > if (class(z) != "try-error")
 +     stop("test failed")
 > 
 > example8  <- function(degree, pred, parents99) pred!=2
 > cat("Expect an error here ")
 Expect an error here > z <- try(earth(Volume ~ ., data = trees, allowed = example8))
-Error in check.allowed.arg(allowed) : 
-  the "allowed" function needs the following arguments "degree" "pred" "parents"
-You have "degree" "pred" "parents99"
+Error :   The "allowed" function needs the following arguments (but namesx and first are optional):
+      degree pred parents namesx first
+  You have:
+      degree pred parents99
+> if (class(z) != "try-error")
++     stop("test failed")
+> 
+> example9  <- function(degree, pred, parents, namesx99) pred!=2
+> cat("Expect an error here ")
+Expect an error here > z <- try(earth(Volume ~ ., data = trees, allowed = example9))
+Error :   The "allowed" function needs the following arguments (but namesx and first are optional):
+      degree pred parents namesx first
+  You have:
+      degree pred parents namesx99
 > if (class(z) != "try-error")
 +     stop("test failed")
 > 
@@ -3827,13 +3819,13 @@ GCV 0.23069    RSS 239.69    GRSq 0.013257    RSq 0.017973
 > if (PLOT)
 +     plot(a1)
 > a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
-x is a 1046 by 1 matrix: 1=male
+x is a 1046 by 1 matrix: 1=sex
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
 1      0.0000 0.0000                                             1
-2      0.0073 0.0120      0.01202    1         male           0< 2       
+2      0.0073 0.0120      0.01202    1          sex           0< 2       
 4      0.0025 0.0120            0    -                                reject term
 
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
@@ -3847,10 +3839,10 @@ Call: earth(x=sex, y=pclass, trace=2, degree=2)
 
                  1st       2nd     3rd
 (Intercept)  0.34278  0.265464 0.39175
-male        -0.11330 -0.025342 0.13864
+sex         -0.11330 -0.025342 0.13864
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
-Importance: male
+Importance: sex
 Number of terms at each degree of interaction: 1 1 (additive model)
 
         GCV    RSS       GRSq        RSq
@@ -3892,17 +3884,17 @@ GCV 173.84    RSS 179758    GRSq 0.16401    RSq 0.17199
 > if (PLOT)
 +     plot(a3)
 > a4 <- earth(age, pclass, degree=2, trace=2)        # x=numeric y=unordered
-x is a 1046 by 1 matrix: 1=x
+x is a 1046 by 1 matrix: 1=age
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
 1      0.0000 0.0000                                             1
-2      0.0893 0.0980      0.09797    1            x          26  2   3   
-4      0.0891 0.1021     0.004178    1            x          55  4       
-6      0.0881 0.1055     0.003357    1            x          16  5       
-8      0.0849 0.1067      0.00116    1            x          44  6       
-10     0.0813 0.1075    0.0008104    1            x          48  7       reject term
+2      0.0893 0.0980      0.09797    1          age          26  2   3   
+4      0.0891 0.1021     0.004178    1          age          55  4       
+6      0.0881 0.1055     0.003357    1          age          16  5       
+8      0.0849 0.1067      0.00116    1          age          44  6       
+10     0.0813 0.1075    0.0008104    1          age          48  7       reject term
 
 Reached delta RSq threshold (DeltaRSq 0.000810417 < 0.001)
 After forward pass GRSq 0.08129 RSq 0.1075
@@ -3915,10 +3907,10 @@ Call: earth(x=age, y=pclass, trace=2, degree=2)
 
                  1st         2nd       3rd
 (Intercept) 0.064394  0.25633356  0.679272
-h(x-16)     0.013886 -0.00045667 -0.013429
+h(age-16)   0.013886 -0.00045667 -0.013429
 
 Selected 2 of 6 terms, and 1 of 1 predictors 
-Importance: x
+Importance: age
 Number of terms at each degree of interaction: 1 1 (additive model)
 
         GCV    RSS       GRSq       RSq
@@ -4313,13 +4305,13 @@ GCV 0.13986    RSS 140.48    GRSq 0.42215    RSq 0.44405
 === head(vowels)
 [1] 0 0 3 0 3 0
 > a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
-x is a 30 by 1 matrix: 1=x
+x is a 30 by 1 matrix: 1=ff
 y is a 30 by 1 matrix: 1=vowels
 Forward pass: minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
 1      0.0000 0.0000                                             1
-2      0.2907 0.4729       0.4729    1            x          19  2   3   
+2      0.2907 0.4729       0.4729    1           ff          19  2   3   
 4      0.1620 0.4729            0    -                                reject term
 
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
@@ -4333,22 +4325,22 @@ Call: earth(x=ff, y=vowels, trace=2, degree=1)
 
              vowels
 (Intercept) 0.17690
-h(19-x)     0.13391
+h(19-ff)    0.13391
 
 Selected 2 of 3 terms, and 1 of 1 predictors 
-Importance: x
+Importance: ff
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 1.2522    RSS 30.428    GRSq 0.38091    RSq 0.46336
 > if (PLOT)
 +     plot(a8)
 > a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
-x is a 30 by 1 matrix: 1=x
+x is a 30 by 1 matrix: 1=vowels
 y is a 30 by 1 matrix: 1=ff
 Forward pass: minspan 5 endspan 12
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
 1      0.0000 0.0000                                             1
-2      0.3877 0.4693       0.4693    1            x           0< 2       
+2      0.3877 0.4693       0.4693    1       vowels           0< 2       
 4      0.2858 0.4693            0    -                                reject term
 
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
@@ -4364,10 +4356,10 @@ Call: earth(x=vowels, y=ff, trace=2, degree=1)
 
                  ff
 (Intercept) 17.1429
-x           -3.6032
+vowels      -3.6032
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
-Importance: x
+Importance: vowels
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 34.262    RSS 832.57    GRSq 0.38772    RSq 0.46926
 > 

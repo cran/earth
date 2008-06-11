@@ -51,38 +51,49 @@ get.used.pred.names <- function(obj) # obj is an earth object
 }
 printh(get.used.pred.names(a))
 
-a1a <- earth(survived ~ ., data=etitanic,
-            glm=list(family=binomial), degree=2, trace=1)
-printh(summary(a1a))
-a1b <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
-            glm=list(family=binomial), degree=2, trace=1)
-printh(summary(a1b))
-a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
-printh(summary(a2))
+a1 <- earth(survived ~ ., data=etitanic,   # c.f. Harrell "Reg. Mod. Strat." ch. 12
+             degree=2, trace=1,
+             glm=list(family=binomial))
+printh(a1)
+
+a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
+             degree=2, trace=1,
+             glm=list(family=binomial))
+printh(a1a)
+
+a2 <- earth(pclass ~ ., data=etitanic, trace=1, glm=list(family=binomial))
+printh(a2)
+
 ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
 sex <- factor(rep(c("male", "female"), times=c(6,6)))
 numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
 pair <- cbind(numdead, numalive=20 - numdead)
-a3 <- earth(pair ~ sex + ldose,
-            glm=list(family=binomial(link=probit), maxit=100), 
-            trace=1, pmethod="none")
-printh(summary(a3))
+
+a3 <- earth(pair ~ sex + ldose, trace=1, pmethod="none",
+            glm=list(family=binomial(link=probit), maxit=100))
+printh(a3)
+
 numdead2 <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
 doublepair <- cbind(numdead, numalive=20-numdead,
                     numdead2=numdead2, numalive2=30-numdead2)
-a4 <- earth(doublepair ~ sex + ldose,
-            glm=list(family="binomial"), trace=1, pmethod="none")
-printh(summary(a4))
-a5 <- earth(numdead ~ sex + ldose,
-            glm=list(family=gaussian(link=identity)), trace=1, pmethod="none")
-printh(summary(a5))
-print(a5$coefficients == a5$glm.coefficients)  # all TRUE
-counts <- c(18,17,15,20,10,20,25,13,12)
+
+a4 <- earth(doublepair ~ sex + ldose, trace=1, pmethod="none",
+            glm=list(family="binomial"))
+printh(a4)
+
+counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 outcome <- gl(3,1,9)
 treatment <- gl(3,3)
-a6 <- earth(counts ~ outcome + treatment,
-            glm=list(family=poisson), trace=1, pmethod="none")
-printh(summary(a6))
+
+a5 <- earth(counts ~ outcome + treatment, trace=1, pmethod="none",
+            glm=list(family=poisson))
+printh(a5)
+
+a6 <- earth(numdead ~ sex + ldose, trace=1, pmethod="none",
+            glm=list(family=gaussian(link=identity)))
+printh(a6$coefficients == a6$glm.coefficients)  # all TRUE
+printh(a6)
+
 remove(ldose)
 remove(sex)
 remove(numdead)
@@ -974,12 +985,12 @@ check.models.equal(a5update, a5, msg="a5update a5")
 cat("\nupdate(a, x=new.x, trace=4)\n")
 a6update <- update(a, x=new.x, trace=4)
 a6  <- earth(new.x, Volume, wp=1, keepxy=TRUE)
-check.models.equal(a6update, a6, msg="a6update a6")
+check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6")
 
 cat("\nupdate(a, wp=2)\n")
 a7update <- update(a, wp=2)
 a7  <- earth(x, Volume, wp=2, keepxy=TRUE)
-check.models.equal(a7update, a7, msg="a7update a7")
+check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7")
 
 cat("--- \"allowed\" argument -----------------\n")
 
@@ -989,6 +1000,27 @@ example1  <- function(degree, pred, parents)
 }
 a1 <- earth(Volume ~ ., data = trees, allowed = example1)
 printh(summary(a1))
+
+example1a  <- function(degree, pred, parents, namesx)
+{
+    namesx[pred] != "Height"  # disallow "Height"
+}
+a1a <- earth(Volume ~ ., data = trees, allowed = example1a)
+check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a")
+
+iheight <- 0
+example1b  <- function(degree, pred, parents, namesx, first)
+{
+    if (first) {
+        iheight <<- which(namesx == "Height") # note use of <<- not <-
+        if (length(iheight) != 1)
+            stop("could not find Height in ", paste(namesx, collapse=" "))
+    }
+    pred != iheight
+}
+a1b <- earth(Volume ~ ., data = trees, allowed = example1b)
+check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b")
+
 example2 <- function(degree, pred, parents)
 {
     # disallow humidity in terms of degree > 1
@@ -997,8 +1029,8 @@ example2 <- function(degree, pred, parents)
         return(FALSE)
     TRUE
 }
-a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
-printh(summary(a))
+a2 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
+printh(summary(a2))
 example3 <- function(degree, pred, parents)
 {
     # allow only humidity and temp in terms of degree > 1
@@ -1008,8 +1040,29 @@ example3 <- function(degree, pred, parents)
         return(FALSE)
     TRUE
 }
-a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-printh(summary(a))
+a3 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
+printh(summary(a3))
+
+ihumidity <- 0
+itemp <- 0
+example3a  <- function(degree, pred, parents, namesx, first)
+{
+    if (first) {
+        ihumidity <<- which(namesx == "humidity") # note use of <<- not <-
+        if (length(ihumidity) != 1)
+            stop("could not find humidity in ", paste(namesx, collapse=" "))
+        itemp <<- which(namesx == "temp") # note use of <<- not <-
+        if (length(itemp) != 1)
+            stop("could not find temp in ", paste(namesx, collapse=" "))
+    }
+    # allow only humidity and temp in terms of degree > 1
+    allowed.set = c(ihumidity, itemp)
+    if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
+        return(FALSE)
+    TRUE
+}
+a3a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
+check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a")
 
 # "allowed" function checks, these check error handling by forcing an error
 
@@ -1027,6 +1080,12 @@ if (class(z) != "try-error")
 example8  <- function(degree, pred, parents99) pred!=2
 cat("Expect an error here ")
 z <- try(earth(Volume ~ ., data = trees, allowed = example8))
+if (class(z) != "try-error")
+    stop("test failed")
+
+example9  <- function(degree, pred, parents, namesx99) pred!=2
+cat("Expect an error here ")
+z <- try(earth(Volume ~ ., data = trees, allowed = example9))
 if (class(z) != "try-error")
     stop("test failed")
 

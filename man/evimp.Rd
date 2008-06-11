@@ -28,8 +28,7 @@ The columns of the matrix are:\cr
 Equivalently, 0 if the row name has a \code{-unused} suffix. \cr
 \code{nsubsets}: variable importance using the "number of subsets" criterion.
 Is the number of subsets that include the variable (see below).\cr
-\code{gcv}: variable importance using the GCV criterion (see below), normalized
-so the most important variable has a value of 100.\cr
+\code{gcv}: variable importance using the GCV criterion (see below).\cr
 \code{rss}: ditto but for the RSS criterion.\cr
 
 The rows are sorted on the \code{nsubsets} criterion.
@@ -55,6 +54,8 @@ guess as described below.
 
 \bold{Three criteria for estimating variable importance}
 
+The \code{evimp} functions uses three criteria for estimating variable importance.
+
 1. The \code{nsubsets} criterion counts the number of model subsets that include the variable.
 Variables that are included in more subsets are considered more important.
 
@@ -69,11 +70,12 @@ for estimating variable importance.
 for each subset relative to the previous subset.
 (For multiple response models, RSS's are calculated over all responses.)
 Then for each variable it sums these decreases over all subsets that include the variable.
-Variables which cause a large net decrease in the RSS are considered important.
+Finally is scales these decreases so the maximum decrease is 100.
+Variables which cause larger net decreases in the RSS are considered more important.
 
 3. The \code{gcv} criterion is the same, but using the GCV instead of the RSS.
 Adding a variable can sometimes \emph{increase} the GCV.
-When this happens, the variable could even have a total negative importance
+When this happens, the variable could even have a negative total importance,
 and thus appear less important than unused variables.
 
 Note that using RSq's and GRSq's instead of RSS's and GCV's
@@ -105,13 +107,13 @@ We see that \code{vh} is unused in the final model,
 and thus is given an \code{unused} suffix and a 0 in the \code{used} column.
 
 The \code{col} column gives the the column indices of the variables
-in the \code{x} argument to \code{earth}.
+in the \code{x} argument to \code{earth} after factors have been expanded.
 
 The \code{nsubsets} column is the number of subsets that included the corresponding variable.
 For example, \code{temp} appears in 10 subsets and \code{humidity} in 8.
 
-The \code{gcv} and \code{rss} columns are normalised so the magnitude
-of the largest net decrease is 100.
+The \code{gcv} and \code{rss} columns are scaled so
+the largest net decrease is 100.
 
 The unnamed columns after the \code{gcv} and \code{rss}
 columns have a 0 if the corresponding criterion increases instead of decreasing
