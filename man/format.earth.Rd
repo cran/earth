@@ -7,7 +7,7 @@ Return a string representing an \code{\link{earth}} expression.
 \usage{
 \method{format}{earth}(x = stop("no 'x' arg"),
        digits = getOption("digits"), use.names = TRUE,
-       decomp = "anova",  style = "h", valid.names = FALSE, \dots)
+       decomp = "anova",  style = "h", colon.char = ":", \dots)
 }
 \arguments{
   \item{x}{
@@ -31,9 +31,11 @@ Return a string representing an \code{\link{earth}} expression.
 \code{"h"} (default) more compact\cr
 \code{"pmax"} for those who prefer it and for compatibility with old versions of earth.
   }
-  \item{valid.names}{
-    If \code{TRUE} convert variable names to valid "C style" names by replacing
-invalid characters with an underscore (currently only replaces ":").
+  \item{colon.char}{
+    Change colons in the returned string to colon.char.
+    Default is ":" i.e. no change.
+    Specifying \code{colon.char="*"} can be useful in some contexts to change
+    names of the form \code{x1:x2} to \code{x1*x2}.
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
@@ -76,12 +78,12 @@ predict(a, c(10,80))  # yields 17.82973, but is slower
 }
 The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr
-\code{format.lm(x, digits=getOption("digits"), use.names=TRUE, valid.names=FALSE)}\cr
+\code{format.lm(x, digits=getOption("digits"), use.names=TRUE, colon.char=":")}\cr
 Strictly speaking, \code{format.lm} doesn't belong in the
 earth package. Example:
 \preformatted{
 a <- lm(Volume ~ Height*Girth, data = trees)
-cat(format(a, valid.names=TRUE))
+cat(format(a, colon.char=TRUE))
 
 # yields:
 #    69.4

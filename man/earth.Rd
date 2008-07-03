@@ -821,10 +821,15 @@ i) reach maximum number of terms \code{(nterms >= nk)}\cr
 ii) reach DeltaRSq threshold \code{(DeltaRSq < thresh)} where
 DeltaRSq is the difference in R-Squared caused by adding the current term pair\cr
 iii) reach max RSq \code{(RSq > 1-thresh)} where \code{thresh} is the argument to earth\cr
-iv) reach min GRSq \code{(GRSq < -10)}.
+iv) reach min GRSq \code{(GRSq < -10)}\cr
+v) reach internal numerical limits.
 
 Set \code{trace>=1} to see the stopping condition and
-\code{trace>=2} to trace the forward pass
+\code{trace>=2} to trace the forward pass.
+
+You can disable all termination conditions 
+except (i) and (v) by setting \code{thresh=0}.
+See the FAQ below "Why do I get fewer terms than nk?".
 
 Note that GCVs (via GRSq) are used during the forward pass only as one of the
 stopping conditions and in \code{trace} prints.
@@ -875,15 +880,15 @@ By default \code{Get.crit} is \code{earth:::get.gcv}.
 Alternative \code{Get.crit} functions can be defined.
 See the source code of \code{get.gcv} for an example.
 
-\bold{Execution time}
+\bold{Execution time: "I wanna go fast"}
 
 For a given set of input data,
 the following can increase the speed of the forward pass:
 
 i) decreasing \code{fast.k}\cr
-ii) decreasing \code{nk}\cr
+ii) decreasing \code{nk} (because fewer forward pass terms)\cr
 iii) decreasing \code{degree}\cr
-iv) increasing \code{threshold}\cr
+iv) increasing \code{threshold} (because fewer forward pass terms)\cr
 v) increasing \code{min.span}.
 
 The backward pass is normally much faster than the forward pass,
@@ -1051,6 +1056,17 @@ use GCVs or separate parameter selections sets for that.
 There are several conditions that can terminate the forward pass,
 and reaching \code{nk} is just one of them.
 See the section above on the forward pass.
+
+Setting earth's argument \code{thresh} to zero is treated as a special case:
+\code{thresh=0} disables all termination conditions except \code{nk} 
+and conditions involving numerical limits.  
+Note that you still may get less than \code{nk} terms
+because earth counts terms in pairs, even when one side of
+a term pair is discarded because it causes a linear dependency.
+Using \code{thresh=0} may cause numerical stability issues.
+The resulting GRSq's should be treated with skepticism
+especially if you get the warning\cr
+\code{GCV effective number P of parameters >= number N of cases}.
 
 \bold{Why do I get fewer terms than \code{nprune}?}
 

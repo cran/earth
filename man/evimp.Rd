@@ -33,6 +33,7 @@ Is the number of subsets that include the variable (see below).\cr
 
 The rows are sorted on the \code{nsubsets} criterion.
 This means that values in the \code{nsubsets} column decrease as you go down the column.
+(More accurately, they are are non-increasing).
 The values in the \code{gcv} and \code{rss} columns decrease except where the
 \code{gcv} or \code{rss} ranking differs from the \code{nsubsets} ranking.\cr
 
@@ -70,7 +71,7 @@ for estimating variable importance.
 for each subset relative to the previous subset.
 (For multiple response models, RSS's are calculated over all responses.)
 Then for each variable it sums these decreases over all subsets that include the variable.
-Finally is scales these decreases so the maximum decrease is 100.
+Finally it scales these decreases so the maximum decrease is 100.
 Variables which cause larger net decreases in the RSS are considered more important.
 
 3. The \code{gcv} criterion is the same, but using the GCV instead of the RSS.
@@ -137,11 +138,13 @@ ignore the warnings.
 The column labeled \code{AIC} in the printed response
 from \code{\link{drop1}} will actually be a column of GCVs not AICs.
 The \code{Df} column is not much use in this context.
-Remember that this technique only tells you how important
-a variable is with the other variables already in the model.
-It does not tell the effect of a variable in isolation.
+
 Note that \code{\link{drop1}} drops \emph{predictors} from the model
 while earth's pruning pass drops \emph{terms}.
+
+Remember that this technique only tells you how important
+a variable is with the other variables already in the model.
+It does not tell you the effect of a variable in isolation.
 
 You will get lots of output from \code{\link{drop1}} if you built your original earth
 model with \code{trace>0}.

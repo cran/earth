@@ -155,7 +155,7 @@ cat(format(a, style="pmax"))
 cat(format(a, use.names=FALSE, style="p"))
 a <- earth(Volume ~ Girth*Height, data = trees, pmethod="none")
 cat(format(a))
-cat(format(a, valid.names=TRUE))
+cat(format(a, colon.char="*"))
 a <- lm(Volume ~ ., data = trees)
 cat(format(a)) # basic tests of format.lm
 cat(format(a, digits=4))
@@ -164,7 +164,7 @@ cat(format(a, style="p"))
 cat(format(a, use.names=FALSE, style="p"))
 a <- lm(Volume ~ Girth*Height, data = trees)
 cat(format(a))
-cat(format(a, valid.names=TRUE))
+cat(format(a, colon.char="*"))
 cat("--- mars.to.earth.Rd ----------------------\n")
 example(mars.to.earth) # doesn't do anything
 library(mda)
@@ -1434,6 +1434,13 @@ printh(family(a1))
 printh(anova(a1), expect.warning=TRUE)
 printh(anova(a1, warn=FALSE))
 printh(family(a1))
+
+cat("--- thresh=0 -----------------------------------------\n")
+
+a.no.thresh <- earth(O3 ~ ., data = ozone1, thresh=0, nk=1000, degree=2, trace=4)
+printh(a.no.thresh)
+printh(summary(a.no.thresh))
+plotmo(a.no.thresh, degree1=1, degree2=c(4,9,16), clip=0, , caption="test with thresh=0")
 
 cat("--- ../../tests/test.earth.R -------------------------\n")
 

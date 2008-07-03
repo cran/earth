@@ -22,7 +22,7 @@ Update an \code{\link{earth}} model.
      Arguments passed on to \code{\link{earth}}.
   }
   \item{evaluate}{
-     If TRUE (default) evaluate the new call else return the call.
+     If TRUE (default) evaluate the new call, else return the call.
      Mostly for compatibility with the generic \code{\link{update}}.
   }
 }
@@ -47,13 +47,13 @@ If \code{ponly=TRUE} the forward pass will be skipped and only the pruning pass 
 This is useful for doing a pruning pass with new data, typically with \code{penalty=0}.
 A similar use of \code{ponly=TRUE} is to do subset
 selection with a different \code{penalty} from that used to build the original model.
+With \code{trace=1}, \code{update.earth} will tell you if earth's forward pass was skipped.
 
 If you used \code{keepxy=TRUE} in your original call to \code{earth}, then
-\code{update.earth} will use the saved values, unless you specify otherwise
-by arguments to \code{update.earth}.
-It can be helpful to set \code{trace=1} to see which \code{x}, \code{y}, \code{data} etc.
-\code{update.earth} is uses.
-With \code{trace=1}, \code{update.earth} will tell you if earth's forward pass was skipped.
+\code{update.earth} will use the saved values of \code{x}, \code{y}, etc., 
+unless you specify otherwise by arguments to \code{update.earth}.
+It can be helpful to set \code{trace=1} to see which \code{x}, etc.
+\code{update.earth} uses.
 }
 \value{
    The value is the same as that returned by \code{\link{earth}}.
