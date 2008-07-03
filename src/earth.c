@@ -1862,10 +1862,11 @@ static void PrintForwardStep(
 
 //-----------------------------------------------------------------------------
 static void PrintForwardEpilog(
-            const int nTerms,  int nMaxTerms,
+            const int nTerms, const int nMaxTerms,
             const double Thresh,
             const double RSq, const double RSqDelta,
             const double Gcv, const double GcvNull,
+            const int iBestCase,
             const bool FullSet[])
 {
     if (nTraceGlobal >= 1) {
@@ -1883,7 +1884,7 @@ static void PrintForwardEpilog(
                 printf(" (no room for another term pair)");
             printf("\n");
         }
-        else if (GRSq < MIN_GRSQ)
+        else if (Thresh != 0 && GRSq < MIN_GRSQ)
             printf("\nReached min GRSq (GRSq %g < %g)\n", GRSq, MIN_GRSQ);
 
         else if (RSqDelta < Thresh)
@@ -1892,6 +1893,9 @@ static void PrintForwardEpilog(
 
         else if (RSq > 1-Thresh)
             printf("\nReached max RSq (RSq %g > %g)\n", RSq, 1-Thresh);
+
+        else if (iBestCase < 0) // TODO not sure what the best msg is here
+            printf("\nReached internal numerical limits (iBestCase < 0)\n");
 
         else {
             printf("\nReached max number of terms %d", nMaxTerms);
@@ -2080,8 +2084,6 @@ static void ForwardPass(
         error("thresh %g < 0", Thresh);
     if (Thresh >= 1)
         error("thresh %g >= 1", Thresh);
-    if (Thresh < ALMOST_ZERO)     // needed for numerical stability
-        Thresh = ALMOST_ZERO;
     if (nMinSpanGlobal < 0)
         error("minspan %d < 0", nMinSpanGlobal);
     if (nMinSpanGlobal > nCases/2)
@@ -2163,15 +2165,14 @@ static void ForwardPass(
         const double OldRSq = RSq;
         RSq = 1-Rss/RssNull;
         RSqDelta = RSq - OldRSq;
-        if (RSqDelta < ALMOST_ZERO)     // for consistent results with different
-            RSqDelta = 0;               // float hardware else print nbrs like -2e-18
+        if (RSqDelta < ALMOST_ZERO) // for consistent results with different
+            RSqDelta = 0;           // float hardware else print nbrs like -2e-18
 
         PrintForwardStep(nTerms, nUsedTerms, iBestCase, iBestPred, RSq, RSqDelta,
             Gcv, GcvNull, nCases, xOrder, x, IsLinPred, IsNewForm, sPredNames);
 
-        // no explicit test for iBestCase<0, because if iBestCase<0 then RSqDelta==0
-
-        if ((1-Gcv/GcvNull) < MIN_GRSQ || RSqDelta < Thresh) {
+        if (iBestCase < 0 || 
+                (Thresh != 0 && ((1-Gcv/GcvNull) < MIN_GRSQ || RSqDelta < Thresh))) {
             if (nTraceGlobal >= 2)
                 printf("reject term\n");
             break;                      // NOTE break
@@ -2193,7 +2194,8 @@ static void ForwardPass(
         if (nTraceGlobal >= 2)
             printf("\n");
     }
-    PrintForwardEpilog(nTerms, nMaxTerms, Thresh, RSq, RSqDelta, Gcv, GcvNull, FullSet);
+    PrintForwardEpilog(nTerms, nMaxTerms, Thresh, RSq, RSqDelta,
+                       Gcv, GcvNull, iBestCase, FullSet);
     *pnTerms = nTerms;
     FreeBetaCache();
 #if FAST_MARS

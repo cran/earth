@@ -5,7 +5,7 @@
 > # Stephen Milborrow, Petaluma Jan 2007
 > 
 > print(R.version.string)
-[1] "R version 2.7.0  (2008-05-30 Ra 1.1.0)"
+[1] "R version 2.7.0  (2008-06-28 Ra 1.1.0)"
 > 
 > Trace = FALSE
 > 

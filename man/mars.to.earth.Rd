@@ -34,8 +34,6 @@ mars.to.earth(object)
   For details of other differences between \code{mars} and \code{earth} objects,
   see the comments in the source code of \code{mars.to.earth()}.
 
-  \code{mars.to.earth} now supports multiple response models \bold{[New Apr 2008]}
-
 \bold{Weights}
 
   \code{mda::mars} normalises \code{wp} to (euclidean) length 1;
@@ -56,30 +54,24 @@ mars.to.earth(object)
   \code{\link[mda]{mars}}
 }
 \examples{
-\dontrun{
-# The example is not run with example("mars.to.earth") because that would
-# require making the earth package dependent on the mda package.
+if (require(mda)) {
+    a <- mars(trees[,-3], trees[,3])
+    a <- mars.to.earth(a)
+    summary(a, digits = 2) # the standard earth functions can now be used
 
-library(mda)
-a <- mars(trees[,-3], trees[,3])
-a <- mars.to.earth(a)
-summary(a, digits = 2) # the standard earth functions can now be used
-
-# yields (note the reconstructed call):
-#    Call:
-#    earth(x = trees[, -3], y = trees[, 3])
-#
-#                     y
-#    (Intercept)  19.76
-#    h(Girth-12)   5.40
-#    h(12-Girth)  -2.56
-#    h(Height-76)  0.72
-#
-#    Number of cases: 31
-#    Selected 4 of 5 terms, and 2 of 2 predictors
-#    Number of terms at each degree of interaction: 1 3 (additive model)
-#    GCV 13     RSS 251     GRSq 0.95     RSq 0.97
-
+    # yields (note the reconstructed call):
+    #    Call: earth(x=trees[, -3], y=trees[, 3])
+    #
+    #                    y
+    #   (Intercept)  19.76
+    #   h(Girth-12)   5.40
+    #   h(12-Girth)  -2.56
+    #   h(Height-76)  0.72
+    #
+    #   Selected 4 of 5 terms, and 2 of 2 predictors
+    #   Importance: Girth, Height
+    #   Number of terms at each degree of interaction: 1 3 (additive model)
+    #   GCV 13    RSS 251    GRSq 0.95    RSq 0.97
 }
 }
 \keyword{models}

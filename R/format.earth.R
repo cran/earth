@@ -35,7 +35,7 @@ format.earth <- function(
     use.names   = TRUE,     # use predictor names, else "x[,1]" etc
     decomp      = "anova",  # see reorder.earth for legal decomp values
     style       = "h",      # see get.term.strings
-    valid.names = FALSE,    # if TRUE, convert to valid C names
+    colon.char  = ":",      # convert colons in expression to this char
     ...)                    # unused, for consistency with generic
 {
     check.classname(x, deparse(substitute(a)), "earth")
@@ -45,13 +45,13 @@ format.earth <- function(
     for(iresp in 1:nresp)
         s[iresp] <- format.one.response(iresp, x, digits, use.names,
                                         decomp, style=style,
-                                        valid.names=valid.names, coefs=NULL)
+                                        colon.char=colon.char, coefs=NULL)
 
     if(!is.null(x$glm.list))   # embedded GLM model(s)?
         for(iresp in 1:nresp)
             s[nresp + iresp] <- format.one.response(iresp, x, digits, use.names,
                                         decomp, style=style,
-                                        valid.names=valid.names,
+                                        colon.char=colon.char,
                                         coefs=x$glm.list[[iresp]]$coefficients)
     s
 }
@@ -63,7 +63,7 @@ format.one.response <- function( # called by format.earth
     use.names,      # use predictor names, else "x[,1]" etc
     decomp,         # see reorder.earth for legal decomp values
     style,          # see get.term.strings
-    valid.names,    # if TRUE, convert to valid C names
+    colon.char=":", # convert colons in output to this char
     coefs=NULL)     # if not NULL use these instead of obj$coefficients
 {
     new.order <- reorder.earth(obj, decomp=decomp)
@@ -74,8 +74,8 @@ format.one.response <- function( # called by format.earth
     dirs <- obj$dirs
     check.which.terms(dirs, which.terms)
     term.names <- get.term.strings(obj, digits, use.names, style, new.order)
-    if(valid.names) # convert invalid chars to underscore
-        term.names <- make.unique(gsub(":", "_", term.names), sep="_")
+    # convert colons to colon.char
+    term.names <- make.unique(gsub(":", colon.char, term.names), sep="_")
     coef.width <- get.coef.width(coefs[-1], digits)
     s <- ""         # result goes into this string
     s <- pastef(s, "  %.*g\n", digits=digits, coefs[1])
@@ -200,51 +200,50 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order)
 # TODO this function doesn't really belong in the earth package
 
 format.lm <- function(
-  x           = stop("no 'x' arg"),    # "lm" object, also works for "glm" objects
-  digits      = getOption("digits"),
-  use.names   = TRUE,
-  valid.names = FALSE,                 # if TRUE, convert to valid C names
-  ...)                                 # unused, for consistency with generic
+    x           = stop("no 'x' arg"),  # "lm" object, also works for "glm" objects
+    digits      = getOption("digits"),
+    use.names   = TRUE,
+    colon.char  = ":",      		   # convert colons in expression to this char
+    ...)                               # unused, for consistency with generic
 {
-  get.name <- function(ipred)
-  {                                    # return "name" if possible, else "x[,i]"
-      pred.name <- pred.names[ipred]
-      if(is.null(pred.name) || is.na(pred.name) || !use.names)
-          pred.name <- paste("x[,", ipred, "]", sep="")
-      if(valid.names) # convert invalid chars to underscore
-          pred.name <- make.unique(gsub(":", "_", pred.name), sep="_")
-      pred.name
-  }
-  format1 <- function(coef)
-  {
-      format(coef, justify="left", w=coef.width, digits=digits, format="%g")
-  }
-  check.classname(x, deparse(substitute(x)), "lm")
-  dataClasses <- attr(x$terms, "dataClasses")
-  if(any((dataClasses == "factor") | (dataClasses == "ordered")))
-      stop("a predictor has class 'factor' and format.lm cannot handle that")
-  coefs <- coef(x)
-  if(!is.vector(coefs) || NCOL(coefs) > 1)
-      stop("format.lm can only handle single response models")
-  intercept <- 0;
-  pred.names <- variable.names(x)
-  intercept.index <- match("(Intercept)", names(coefs), nomatch=0)
-  if(intercept.index) {
-      stopifnot(intercept.index == 1)
-      intercept <- coefs[1]
-      pred.names <- variable.names(x)[-1] # drop intercept
-      coefs <- coefs[-1]
-  }
-  s <- sprintf("  %.*g\n", digits=digits, intercept)
-  coef.width <- get.coef.width(coefs, digits)
-  for(ipred in seq_along(coefs)) {
-      coef <- coefs[ipred]
-      if(coef < 0)
-          s <- pastef(s, "  - %s ", format1(-coef))
-      else
-          s <- pastef(s, "  + %s ", format1(coef))
-      s <- pastef(s, "* %s", get.name(ipred))
-      s <- pastef(s, "\n")
-  }
-  s
+    get.name <- function(ipred)
+    {                                    # return "name" if possible, else "x[,i]"
+        pred.name <- pred.names[ipred]
+        if(is.null(pred.name) || is.na(pred.name) || !use.names)
+            pred.name <- paste("x[,", ipred, "]", sep="")
+        # convert colons to colon.char
+        make.unique(gsub(":", colon.char, pred.name), sep="_")
+    }
+    format1 <- function(coef)
+    {
+        format(coef, justify="left", w=coef.width, digits=digits, format="%g")
+    }
+    check.classname(x, deparse(substitute(x)), "lm")
+    dataClasses <- attr(x$terms, "dataClasses")
+    if(any((dataClasses == "factor") | (dataClasses == "ordered")))
+        stop("a predictor has class 'factor' and format.lm cannot handle that")
+    coefs <- coef(x)
+    if(!is.vector(coefs) || NCOL(coefs) > 1)
+        stop("format.lm can only handle single response models")
+    intercept <- 0;
+    pred.names <- variable.names(x)
+    intercept.index <- match("(Intercept)", names(coefs), nomatch=0)
+    if(intercept.index) {
+        stopifnot(intercept.index == 1)
+        intercept <- coefs[1]
+        pred.names <- variable.names(x)[-1] # drop intercept
+        coefs <- coefs[-1]
+    }
+    s <- sprintf("  %.*g\n", digits=digits, intercept)
+    coef.width <- get.coef.width(coefs, digits)
+    for(ipred in seq_along(coefs)) {
+        coef <- coefs[ipred]
+        if(coef < 0)
+            s <- pastef(s, "  - %s ", format1(-coef))
+        else
+            s <- pastef(s, "  + %s ", format1(coef))
+        s <- pastef(s, "* %s", get.name(ipred))
+        s <- pastef(s, "\n")
+    }
+    s
 }
