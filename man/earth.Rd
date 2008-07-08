@@ -136,7 +136,7 @@ Users who are interested in GLM models will want to look at the \code{glm} argum
     The value -1 is a special case, meaning no penalty, so GCV=RSS/n.
     Theory suggests values in the range of about 2 to 4.
     In practice, for big data sets larger values can be useful to force a smaller model.
-    The FAQ sections below has some information on GCVs.
+    The FAQ section below has some information on GCVs.
   }
   \item{nk}{
      Maximum number of model terms before pruning.
@@ -822,7 +822,7 @@ ii) reach DeltaRSq threshold \code{(DeltaRSq < thresh)} where
 DeltaRSq is the difference in R-Squared caused by adding the current term pair\cr
 iii) reach max RSq \code{(RSq > 1-thresh)} where \code{thresh} is the argument to earth\cr
 iv) reach min GRSq \code{(GRSq < -10)}\cr
-v) reach internal numerical limits.
+v) no new term increases the RSq (reached numerical limits).
 
 Set \code{trace>=1} to see the stopping condition and
 \code{trace>=2} to trace the forward pass.
@@ -1063,8 +1063,9 @@ and conditions involving numerical limits.
 Note that you still may get less than \code{nk} terms
 because earth counts terms in pairs, even when one side of
 a term pair is discarded because it causes a linear dependency.
-Using \code{thresh=0} may cause numerical stability issues.
-The resulting GRSq's should be treated with skepticism
+The resulting GRSq
+(and thus the efficacy of the pruning pass)
+should be treated with skepticism,
 especially if you get the warning\cr
 \code{GCV effective number P of parameters >= number N of cases}.
 
@@ -1215,7 +1216,7 @@ print(summary(a4))
 You can use predictor names instead of indices using
 the optional \code{namesx} argument.
 If present, \code{namesx} is the column names of \code{x} after factors have been expanded.
-The first example (the one that disallows \code{Height}) can be rewritten as
+The first example above (the one that disallows \code{Height}) can be rewritten as
 \preformatted{
 example1a  <- function(degree, pred, parents, namesx)
 {
@@ -1245,7 +1246,7 @@ example1b  <- function(degree, pred, parents, namesx, first)
 The basic MARS model building strategy is always
 applied even when there is an \code{allowed} function.
 For example, earth considers a term for addition only
-if all factors of that term except the new one are already in a term.
+if all factors of that term except the new one are already in a model term.
 This means that an \code{allowed} function that inhibits, say, all degree 2
 terms will also effectively inhibit higher degrees too, because
 there will be no degree 2 terms for earth to extend to degree 3.
