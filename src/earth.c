@@ -1887,15 +1887,15 @@ static void PrintForwardEpilog(
         else if (Thresh != 0 && GRSq < MIN_GRSQ)
             printf("\nReached min GRSq (GRSq %g < %g)\n", GRSq, MIN_GRSQ);
 
-        else if (RSqDelta < Thresh)
+        else if (Thresh != 0 && RSqDelta < Thresh)
             printf("\nReached delta RSq threshold (DeltaRSq %g < %g)\n",
                 RSqDelta, Thresh);
 
         else if (RSq > 1-Thresh)
             printf("\nReached max RSq (RSq %g > %g)\n", RSq, 1-Thresh);
 
-        else if (iBestCase < 0) // TODO not sure what the best msg is here
-            printf("\nReached internal numerical limits (iBestCase < 0)\n");
+        else if (iBestCase < 0)
+            printf("\nNo new term increases RSq (reached numerical limits)\n");
 
         else {
             printf("\nReached max number of terms %d", nMaxTerms);
