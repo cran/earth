@@ -697,6 +697,19 @@ frmt.r> cat(format(a, style="pmax")) # default formatting style prior to earth v
   +   5.746 * pmax(0, x[,1] -  12.9) 
   -  2.8665 * pmax(0,  12.9 - x[,1]) 
   + 0.71834 * pmax(0, x[,2] -    76) 
+> a <- earth(Volume ~ Girth*Height, data = trees, pmethod="none")
+> cat(format(a))
+  22.106
+  +   2.5459 * h(Girth-12.9)
+  -  0.42708 * h(12.9-Girth)
+  + 0.037825 * h(Girth:Height-900)
+  -  0.02955 * h(900-Girth:Height)
+> cat(format(a, valid.names=TRUE))
+  22.106
+  +   2.5459 * h(Girth-12.9)
+  -  0.42708 * h(12.9-Girth)
+  + 0.037825 * h(Girth_Height-900)
+  -  0.02955 * h(900-Girth_Height)
 > a <- lm(Volume ~ ., data = trees)
 > cat(format(a)) # basic tests of format.lm
   -57.988
@@ -718,6 +731,17 @@ frmt.r> cat(format(a, style="pmax")) # default formatting style prior to earth v
   -57.988
   +  4.7082 * x[,1]
   + 0.33925 * x[,2]
+> a <- lm(Volume ~ Girth*Height, data = trees)
+> cat(format(a))
+  69.396
+  -  5.8558 * Girth
+  -  1.2971 * Height
+  + 0.13465 * Girth:Height
+> cat(format(a, valid.names=TRUE))
+  69.396
+  -  5.8558 * Girth
+  -  1.2971 * Height
+  + 0.13465 * Girth_Height
 > cat("--- mars.to.earth.Rd ----------------------\n")
 --- mars.to.earth.Rd ----------------------
 > example(mars.to.earth) # doesn't do anything

@@ -35,6 +35,7 @@ format.earth <- function(
     use.names   = TRUE,     # use predictor names, else "x[,1]" etc
     decomp      = "anova",  # see reorder.earth for legal decomp values
     style       = "h",      # see get.term.strings
+    valid.names = FALSE,    # if TRUE, convert to valid C names
     ...)                    # unused, for consistency with generic
 {
     check.classname(x, deparse(substitute(a)), "earth")
@@ -43,12 +44,14 @@ format.earth <- function(
     s <- vector(mode = "character", length=nresp)
     for(iresp in 1:nresp)
         s[iresp] <- format.one.response(iresp, x, digits, use.names,
-                                        decomp, style=style, coefs=NULL)
+                                        decomp, style=style,
+                                        valid.names=valid.names, coefs=NULL)
 
     if(!is.null(x$glm.list))   # embedded GLM model(s)?
         for(iresp in 1:nresp)
             s[nresp + iresp] <- format.one.response(iresp, x, digits, use.names,
                                         decomp, style=style,
+                                        valid.names=valid.names,
                                         coefs=x$glm.list[[iresp]]$coefficients)
     s
 }
@@ -60,6 +63,7 @@ format.one.response <- function( # called by format.earth
     use.names,      # use predictor names, else "x[,1]" etc
     decomp,         # see reorder.earth for legal decomp values
     style,          # see get.term.strings
+    valid.names,    # if TRUE, convert to valid C names
     coefs=NULL)     # if not NULL use these instead of obj$coefficients
 {
     new.order <- reorder.earth(obj, decomp=decomp)
@@ -70,6 +74,8 @@ format.one.response <- function( # called by format.earth
     dirs <- obj$dirs
     check.which.terms(dirs, which.terms)
     term.names <- get.term.strings(obj, digits, use.names, style, new.order)
+    if(valid.names) # convert invalid chars to underscore
+        term.names <- make.unique(gsub(":", "_", term.names), sep="_")
     coef.width <- get.coef.width(coefs[-1], digits)
     s <- ""         # result goes into this string
     s <- pastef(s, "  %.*g\n", digits=digits, coefs[1])
@@ -197,15 +203,17 @@ format.lm <- function(
   x           = stop("no 'x' arg"),    # "lm" object, also works for "glm" objects
   digits      = getOption("digits"),
   use.names   = TRUE,
+  valid.names = FALSE,                 # if TRUE, convert to valid C names
   ...)                                 # unused, for consistency with generic
 {
   get.name <- function(ipred)
   {                                    # return "name" if possible, else "x[,i]"
       pred.name <- pred.names[ipred]
       if(is.null(pred.name) || is.na(pred.name) || !use.names)
-          paste("x[,", ipred, "]", sep="")
-      else
-          pred.name
+          pred.name <- paste("x[,", ipred, "]", sep="")
+      if(valid.names) # convert invalid chars to underscore
+          pred.name <- make.unique(gsub(":", "_", pred.name), sep="_")
+      pred.name
   }
   format1 <- function(coef)
   {
