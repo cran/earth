@@ -1,6 +1,11 @@
 Changes to Earth Package
 ------------------------
 
+2.0-2 June 15 2008 
+
+Added column names to results of mars.to.earth, allows use of evimp.
+Added valid.names argument to format.earth and format.lm.
+
 2.0-1 June 10 2008 
 
 Added "namesx" and "first" arguments to the "allowed" function.

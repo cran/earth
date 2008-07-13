@@ -117,7 +117,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
                                             nselected, penalty, ncases)
         grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
     }
-    pred.names <- colnames(object$factor)
+    pred.names <- generate.colnames(object$factor)
     term.names <- get.earth.term.name(1:nrow(object$factor),
                                       object$factor, object$cuts, pred.names, NULL)
     dimnames(object$factor) <- list(term.names, pred.names)
@@ -128,7 +128,6 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     colnames(object$fitted.values) <- response.names
     colnames(object$residuals)     <- response.names
     colnames(object$coefficients)  <- response.names
-
     dirs <- object$factor[object$all.terms, , drop=FALSE]
 
     rval <- structure(list(

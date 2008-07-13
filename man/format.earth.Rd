@@ -7,7 +7,7 @@ Return a string representing an \code{\link{earth}} expression.
 \usage{
 \method{format}{earth}(x = stop("no 'x' arg"),
        digits = getOption("digits"), use.names = TRUE,
-       decomp = "anova",  style = "h", \dots)
+       decomp = "anova",  style = "h", valid.names = FALSE, \dots)
 }
 \arguments{
   \item{x}{
@@ -30,6 +30,10 @@ Return a string representing an \code{\link{earth}} expression.
     Formatting style. One of\cr
 \code{"h"} (default) more compact\cr
 \code{"pmax"} for those who prefer it and for compatibility with old versions of earth.
+  }
+  \item{valid.names}{
+    If \code{TRUE} convert variable names to valid "C style" names by replacing
+invalid characters with an underscore (currently only replaces ":").
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
@@ -70,20 +74,20 @@ my.func <- as.func(a, use.names = FALSE)
 my.func(c(10,80))     # yields 17.82973
 predict(a, c(10,80))  # yields 17.82973, but is slower
 }
-The  earth package also provides a function \code{format.lm}
-(which strictly speaking does not belong in the eartg package).
+The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr
-\code{format.lm(x, digits=getOption("digits"), use.names=TRUE)}\cr
+\code{format.lm(x, digits=getOption("digits"), use.names=TRUE, valid.names=FALSE)}\cr
 Strictly speaking, \code{format.lm} doesn't belong in the
 earth package. Example:
 \preformatted{
-a <- lm(Volume ~ ., data = trees)
-cat(format(a))
+a <- lm(Volume ~ Height*Girth, data = trees)
+cat(format(a, valid.names=TRUE))
 
 # yields:
-#    -58
-#    +  4.71 * Girth
-#    + 0.339 * Height
+#    69.4
+#    -  1.30 * Height
+#    -  5.86 * Girth
+#    + 0.135 * Height_Girth
 }
 }
 \examples{

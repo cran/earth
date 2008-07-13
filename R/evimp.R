@@ -37,7 +37,7 @@ evimp <- function(obj, trim=TRUE) # see help page for description
     check.classname(obj, deparse(substitute(obj)), "earth")
     nsubsets <- length(obj$selected.terms)
     dirs <- obj$dirs
-    pred.names <- colnames(dirs)
+    pred.names <- generate.colnames(dirs)
 
     # tagged.pred.names is a copy of pred.names but with unused
     # predictors renamed by adding a "-unused" suffix.
