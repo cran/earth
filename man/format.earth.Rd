@@ -79,17 +79,17 @@ predict(a, c(10,80))  # yields 17.82973, but is slower
 The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr
 \code{format.lm(x, digits=getOption("digits"), use.names=TRUE, colon.char=":")}\cr
-Strictly speaking, \code{format.lm} doesn't belong in the
-earth package. Example:
+(Strictly speaking, \code{format.lm} doesn't belong in the
+earth package.) Example:
 \preformatted{
 a <- lm(Volume ~ Height*Girth, data = trees)
-cat(format(a, colon.char=TRUE))
+cat(format(a, colon.char="*"))
 
 # yields:
 #    69.4
 #    -  1.30 * Height
 #    -  5.86 * Girth
-#    + 0.135 * Height_Girth
+#    + 0.135 * Height*Girth
 }
 }
 \examples{
