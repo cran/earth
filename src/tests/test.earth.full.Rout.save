@@ -1,7 +1,7 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.7.0  (2008-06-28 Ra 1.1.0)"
+[1] "R version 2.7.1  (2008-07-14 Ra 1.1.1)"
 > 
 > library(earth)
 Loading required package: leaps
