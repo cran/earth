@@ -5,7 +5,7 @@
 > # Stephen Milborrow, Petaluma Jan 2007
 > 
 > print(R.version.string)
-[1] "R version 2.7.1  (2008-07-14 Ra 1.1.1)"
+[1] "R version 2.8.0  (2008-10-26 Ra 1.2.0)"
 > 
 > Trace = FALSE
 > 
@@ -219,7 +219,7 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.4-0 
+This is mgcv 1.4-1 
 > set.seed(1)
 > caption <- "test plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -279,6 +279,7 @@ This is mgcv 1.4-0
 > detach("package:mgcv")
 > library(gam)
 Loading required package: splines
+Loading required package: akima
 > caption <- "test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
 > set.seed(1)
 > dopar(3,2,caption)
@@ -321,21 +322,21 @@ to        earth(x=ozone1[, -1], y=ozone1[, 1], degree=2)
 > print(summary(a))
 Call: earth(formula=fa, data=ozone1, degree=2)
 
-                                log(O3)
-(Intercept)                  2.70208646
-h(5740-vh)                  -0.00263742
-h(50-humidity)              -0.01388240
-h(temp-52)                   0.02571597
-h(ibh-1108)                 -0.00005086
-h(1108-ibh)                 -0.00024807
-h(dpg-13)                   -0.00732749
-h(13-dpg)                   -0.00443066
-h(200-vis)                   0.00159726
-h(doy-92)                   -0.00239156
-h(92-doy)                   -0.01391381
-h(humidity-69) * h(52-temp) -0.00333375
-h(humidity-50) * h(195-ibt) -0.00011493
-h(dpg-13) * h(doy-236)      -0.00012956
+                            coefficients
+(Intercept)                   2.70208646
+h(5740-vh)                   -0.00263742
+h(50-humidity)               -0.01388240
+h(temp-52)                    0.02571597
+h(ibh-1108)                  -0.00005086
+h(1108-ibh)                  -0.00024807
+h(dpg-13)                    -0.00732749
+h(13-dpg)                    -0.00443066
+h(200-vis)                    0.00159726
+h(doy-92)                    -0.00239156
+h(92-doy)                    -0.01391381
+h(humidity-69) * h(52-temp)  -0.00333375
+h(humidity-50) * h(195-ibt)  -0.00011493
+h(dpg-13) * h(doy-236)       -0.00012956
 
 Selected 14 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, vh, dpg, ibh, vis, wind-unused
@@ -417,7 +418,7 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.4-0 
+This is mgcv 1.4-1 
 > set.seed(1)
 > caption <- "test se=2, plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -503,7 +504,7 @@ Warning in newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
 +    detach("package:gam")
 > caption <- "test wind=factor, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
 > library(mgcv)
-This is mgcv 1.4-0 
+This is mgcv 1.4-1 
 > a <- gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)
 > plotmo(a, se=1, caption=caption, trace=Trace)
 > caption <- "test wind=factor, clip=TRUE, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
@@ -554,25 +555,25 @@ Call: earth(formula=depIndex~q_4+q_2102+q_2104+q_3105+q_3106+
       q_4104+q_6101+q_6103+q_7104+q_3109+q_4103+q_2111+
       q_3107+q_3101+q_3104+q_7107, data=regDatCWD)
 
-                     depIndex
-(Intercept)             -1.17
-h(q_4-0.791129)         -5.90
-h(0.791129-q_4)         -1.00
-h(q_2102- -0.682452)     1.20
-h(0.833322-q_2104)      -0.85
-h(0.845208-q_3105)      -0.75
-h(0.412852-q_3106)      -0.99
-h(q_4104- -0.684352)     1.01
-h(0.484017-q_6101)      -1.12
-h(0.9131-q_6103)        -1.12
-h(q_7104- -0.585057)     1.42
-h(q_7104-0.542573)      -1.91
-h(q_3109- -0.163231)     1.05
-h(-0.163231-q_3109)     -0.97
-h(q_2111- -0.65247)      2.02
-h(0.69536-q_2111)        1.84
-h(-0.696421-q_3107)      2.69
-h(q_7107- -0.672466)     0.26
+                     coefficients
+(Intercept)                 -1.17
+h(q_4-0.791129)             -5.90
+h(0.791129-q_4)             -1.00
+h(q_2102- -0.682452)         1.20
+h(0.833322-q_2104)          -0.85
+h(0.845208-q_3105)          -0.75
+h(0.412852-q_3106)          -0.99
+h(q_4104- -0.684352)         1.01
+h(0.484017-q_6101)          -1.12
+h(0.9131-q_6103)            -1.12
+h(q_7104- -0.585057)         1.42
+h(q_7104-0.542573)          -1.91
+h(q_3109- -0.163231)         1.05
+h(-0.163231-q_3109)         -0.97
+h(q_2111- -0.65247)          2.02
+h(0.69536-q_2111)            1.84
+h(-0.696421-q_3107)          2.69
+h(q_7107- -0.672466)         0.26
 
 Selected 18 of 31 terms, and 13 of 16 predictors 
 Importance: q_6103, q_4104, q_2102, q_7104, q_3109, q_6101, q_2104, q_4, q_3106, q_3105, ...
@@ -648,25 +649,25 @@ Call: earth(formula=a.rather.long.in.fact.very.long.name.for.the.response~
       a.rather.long.in.fact.very.long.name.q_4103+a.rather.long.in.fact.very.long.name.q_2111+
       a.rather.long.in.fact.very.long.name.q_3107+a.rather.long.in.fact.very.long.name.q_3101+etc.
 
-                                                          a.rather.long.in.fact.very.long.name.for.the.response
-(Intercept)                                                                                               -1.17
-h(a.rather.long.in.fact.very.long.name.q_4-0.791129)                                                      -5.90
-h(0.791129-a.rather.long.in.fact.very.long.name.q_4)                                                      -1.00
-h(a.rather.long.in.fact.very.long.name.q_2102- -0.682452)                                                  1.20
-h(0.833322-a.rather.long.in.fact.very.long.name.q_2104)                                                   -0.85
-h(0.845208-a.rather.long.in.fact.very.long.name.q_3105)                                                   -0.75
-h(0.412852-a.rather.long.in.fact.very.long.name.q_3106)                                                   -0.99
-h(a.rather.long.in.fact.very.long.name.q_4104- -0.684352)                                                  1.01
-h(0.484017-a.rather.long.in.fact.very.long.name.q_6101)                                                   -1.12
-h(0.9131-a.rather.long.in.fact.very.long.name.q_6103)                                                     -1.12
-h(a.rather.long.in.fact.very.long.name.q_7104- -0.585057)                                                  1.42
-h(a.rather.long.in.fact.very.long.name.q_7104-0.542573)                                                   -1.91
-h(a.rather.long.in.fact.very.long.name.q_3109- -0.163231)                                                  1.05
-h(-0.163231-a.rather.long.in.fact.very.long.name.q_3109)                                                  -0.97
-h(a.rather.long.in.fact.very.long.name.q_2111- -0.65247)                                                   2.02
-h(0.69536-a.rather.long.in.fact.very.long.name.q_2111)                                                     1.84
-h(-0.696421-a.rather.long.in.fact.very.long.name.q_3107)                                                   2.69
-h(a.rather.long.in.fact.very.long.name.q_7107- -0.672466)                                                  0.26
+                                                          coefficients
+(Intercept)                                                      -1.17
+h(a.rather.long.in.fact.very.long.name.q_4-0.791129)             -5.90
+h(0.791129-a.rather.long.in.fact.very.long.name.q_4)             -1.00
+h(a.rather.long.in.fact.very.long.name.q_2102- -0.682452)         1.20
+h(0.833322-a.rather.long.in.fact.very.long.name.q_2104)          -0.85
+h(0.845208-a.rather.long.in.fact.very.long.name.q_3105)          -0.75
+h(0.412852-a.rather.long.in.fact.very.long.name.q_3106)          -0.99
+h(a.rather.long.in.fact.very.long.name.q_4104- -0.684352)         1.01
+h(0.484017-a.rather.long.in.fact.very.long.name.q_6101)          -1.12
+h(0.9131-a.rather.long.in.fact.very.long.name.q_6103)            -1.12
+h(a.rather.long.in.fact.very.long.name.q_7104- -0.585057)         1.42
+h(a.rather.long.in.fact.very.long.name.q_7104-0.542573)          -1.91
+h(a.rather.long.in.fact.very.long.name.q_3109- -0.163231)         1.05
+h(-0.163231-a.rather.long.in.fact.very.long.name.q_3109)         -0.97
+h(a.rather.long.in.fact.very.long.name.q_2111- -0.65247)          2.02
+h(0.69536-a.rather.long.in.fact.very.long.name.q_2111)            1.84
+h(-0.696421-a.rather.long.in.fact.very.long.name.q_3107)          2.69
+h(a.rather.long.in.fact.very.long.name.q_7107- -0.672466)         0.26
 
 Selected 18 of 31 terms, and 13 of 16 predictors 
 Importance: a.rather.long.in.fact.very.long.name.q_6103, a.rather.long.in.fact.very.long.name.q_4104, a.rather.long.in.fact.very.long.name.q_2102, a.rather.long.in.fact.very.long.name.q_7104, a.rather.long.in.fact.very.long.name.q_3109, a.rather.long.in.fact.very.long.name.q_6101, a.rather.long.in.fact.very.long.name.q_2104, a.rather.long.in.fact.very.long.name.q_4, a.rather.long.in.fact.very.long.name.q_3106, a.rather.long.in.fact.very.long.name.q_3105, ...
@@ -684,25 +685,25 @@ Call: earth(x=a.rather.long.in.fact.very.long.name.for.the.dataframe[,
       -1], y=a.rather.long.in.fact.very.long.name.for.the.response, 
       degree=3)
 
-                                                                                                                                                                           a.rather.long.in.fact.very.long.name.for.the.response
-(Intercept)                                                                                                                                                                                                                  3.1
-h(a.rather.long.in.fact.very.long.name.q_4-0.791129)                                                                                                                                                                       -10.7
-h(0.791129-a.rather.long.in.fact.very.long.name.q_4)                                                                                                                                                                        -1.0
-h(a.rather.long.in.fact.very.long.name.q_2102- -0.682452)                                                                                                                                                                    1.3
-h(0.833322-a.rather.long.in.fact.very.long.name.q_2104)                                                                                                                                                                     -0.8
-h(0.845208-a.rather.long.in.fact.very.long.name.q_3105)                                                                                                                                                                     -0.8
-h(0.412852-a.rather.long.in.fact.very.long.name.q_3106)                                                                                                                                                                     -0.9
-h(a.rather.long.in.fact.very.long.name.q_4104- -0.684352)                                                                                                                                                                    1.0
-h(0.484017-a.rather.long.in.fact.very.long.name.q_6101)                                                                                                                                                                     -1.1
-h(0.9131-a.rather.long.in.fact.very.long.name.q_6103)                                                                                                                                                                       -1.1
-h(0.542573-a.rather.long.in.fact.very.long.name.q_7104)                                                                                                                                                                     -1.6
-h(a.rather.long.in.fact.very.long.name.q_3109- -0.163231)                                                                                                                                                                    1.1
-h(-0.163231-a.rather.long.in.fact.very.long.name.q_3109)                                                                                                                                                                    -2.0
-h(-0.696421-a.rather.long.in.fact.very.long.name.q_3107)                                                                                                                                                                     2.6
-h(-0.682452-a.rather.long.in.fact.very.long.name.q_2102) * h(a.rather.long.in.fact.very.long.name.q_3106- -0.133095)                                                                                                         4.0
-h(0.542573-a.rather.long.in.fact.very.long.name.q_7104) * h(a.rather.long.in.fact.very.long.name.q_2111- -0.476604)                                                                                                          0.7
-h(-0.163231-a.rather.long.in.fact.very.long.name.q_3109) * h(0.822637-a.rather.long.in.fact.very.long.name.q_2111)                                                                                                           1.3
-h(a.rather.long.in.fact.very.long.name.q_4-0.898656) * h(0.542573-a.rather.long.in.fact.very.long.name.q_7104) * h(a.rather.long.in.fact.very.long.name.q_2111- -0.476604)                                                  39.4
+                                                                                                                                                                           coefficients
+(Intercept)                                                                                                                                                                         3.1
+h(a.rather.long.in.fact.very.long.name.q_4-0.791129)                                                                                                                              -10.7
+h(0.791129-a.rather.long.in.fact.very.long.name.q_4)                                                                                                                               -1.0
+h(a.rather.long.in.fact.very.long.name.q_2102- -0.682452)                                                                                                                           1.3
+h(0.833322-a.rather.long.in.fact.very.long.name.q_2104)                                                                                                                            -0.8
+h(0.845208-a.rather.long.in.fact.very.long.name.q_3105)                                                                                                                            -0.8
+h(0.412852-a.rather.long.in.fact.very.long.name.q_3106)                                                                                                                            -0.9
+h(a.rather.long.in.fact.very.long.name.q_4104- -0.684352)                                                                                                                           1.0
+h(0.484017-a.rather.long.in.fact.very.long.name.q_6101)                                                                                                                            -1.1
+h(0.9131-a.rather.long.in.fact.very.long.name.q_6103)                                                                                                                              -1.1
+h(0.542573-a.rather.long.in.fact.very.long.name.q_7104)                                                                                                                            -1.6
+h(a.rather.long.in.fact.very.long.name.q_3109- -0.163231)                                                                                                                           1.1
+h(-0.163231-a.rather.long.in.fact.very.long.name.q_3109)                                                                                                                           -2.0
+h(-0.696421-a.rather.long.in.fact.very.long.name.q_3107)                                                                                                                            2.6
+h(-0.682452-a.rather.long.in.fact.very.long.name.q_2102) * h(a.rather.long.in.fact.very.long.name.q_3106- -0.133095)                                                                4.0
+h(0.542573-a.rather.long.in.fact.very.long.name.q_7104) * h(a.rather.long.in.fact.very.long.name.q_2111- -0.476604)                                                                 0.7
+h(-0.163231-a.rather.long.in.fact.very.long.name.q_3109) * h(0.822637-a.rather.long.in.fact.very.long.name.q_2111)                                                                  1.3
+h(a.rather.long.in.fact.very.long.name.q_4-0.898656) * h(0.542573-a.rather.long.in.fact.very.long.name.q_7104) * h(a.rather.long.in.fact.very.long.name.q_2111- -0.476604)         39.4
 
 Selected 18 of 33 terms, and 12 of 16 predictors 
 Importance: a.rather.long.in.fact.very.long.name.q_6103, a.rather.long.in.fact.very.long.name.q_4104, a.rather.long.in.fact.very.long.name.q_2102, a.rather.long.in.fact.very.long.name.q_7104, a.rather.long.in.fact.very.long.name.q_3109, a.rather.long.in.fact.very.long.name.q_6101, a.rather.long.in.fact.very.long.name.q_2104, a.rather.long.in.fact.very.long.name.q_4, a.rather.long.in.fact.very.long.name.q_3106, a.rather.long.in.fact.very.long.name.q_3105, ...

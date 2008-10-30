@@ -234,8 +234,9 @@ Factors are not yet supported (TODO we plan to fix this).
 
 NAs are not allowed.
 To prevent confusing error messages from \code{plotmo},
-a safe strategy is to build your model with
-\code{na.action=na.fail} before calling \code{plotmo}.
+remove NAs before building your model.
+(To be safe, you can use \code{na.action=na.fail} when building your model
+so you get an error message if you inadvertently have a NA).
 
 Weights are currently ignored, with a warning.
 

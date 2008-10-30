@@ -82,7 +82,7 @@ GCV 13.4    RSS 3762    GRSq 0.791    RSq 0.822
 > print(summary(a, digits = 3))
 Call: earth(formula=O3~., data=ozone1, trace=4, degree=2)
 
-                                O3
+                            coefficients
 (Intercept)                 15.029
 h(temp-58)                   0.313
 h(234-ibt)                  -0.046

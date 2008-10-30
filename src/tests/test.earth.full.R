@@ -187,6 +187,10 @@ cat("--- predict.earth.Rd ----------------------\n")
 example(predict.earth)
 cat("--- update.earth.Rd ----------------------\n")
 example(update.earth)
+cat("--- evimp.Rd -----------------------------\n")
+example(evimp)
+cat("--- plot.evimp.Rd ------------------------\n")
+example(plot.evimp)
 
 cat("--- test predict.earth -------------------\n")
 

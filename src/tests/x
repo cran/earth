@@ -1,0 +1,3347 @@
+> # test.earth.glm.R: tests glm and factors added for earth release 2.0
+> 
+> library(earth)
+Loading required package: leaps
+> if(!interactive())
++     postscript()
+> data(ozone1)
+> data(trees)
+> data(etitanic)
+> source("check.models.equal.R")
+> options(warn=1) # print warnings as they occur
+> 
+> printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
++ {
++     cat("===", deparse(substitute(x)))
++     if(expect.warning)
++         cat(" expect warning -->")
++     else if (NROW(x) > 1)
++         cat("\n")
++     if (max.print > 0)
++         print(head(x, n=max.print))
++     else
++         print(x)
++ }
+> 
+> count <- 0
+> 
+> print.earth.models <- function(a)
++ {
++     model.name <- deparse(substitute(a))
++     cat("\nPrint", model.name, "\n\n")
++     print(a)
++     cat("\nSummary", model.name, "\n\n")
++     print(summary(a))
++     count <<- count + 1
++     if (count %% 2 == 0) {  # an attempt at trying different parameters without combin explosion.
++         cat("\nSummary", model.name, "decomp=\"none\", digits=5, fixed.point=FALSE, details=TRUE\n\n")
++         print(summary(a, decomp="none", digits=5, fixed.point=FALSE, details=TRUE))
++     } else {
++         cat("\nSummary", model.name, "digits=3, details=TRUE\n\n")
++         print(summary(a, decomp="none", digits=3, details=TRUE))
++     }
++     cat("\nevimp", model.name, "\n\n")
++     print(evimp(a))
++     cat("\nevimp", model.name, "trim=FALSE\n\n")
++     print(evimp(a, trim=FALSE))
++     plot(a, caption=model.name)
++     cat("-------------------------------------------------------------------------------\n\n")
++ }
+> 
+> # binomial models
+> 
+> ldose  <- rep(0:5, 2) - 2
+> # ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
+> ldose1 <- c(0.1, 1.2, 0.1, 1.2, 1.0, 0.1, 0.3, 1.4, 0.1, 1.2, 0.1, 0.9)
+> sex <- factor(rep(c("male", "female"), times=c(6,6)))
+> numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
+> SF <- cbind(numdead, numalive=20 - numdead)
+> numdead2 <- c(2,3,10,13,19,20,0,3,7,11,13,17)
+> SF2 <- cbind(numdead2, numalive2=20 - numdead2)
+> 
+> # single response glm model but with a binomial pair of y columns
+> cat("a1: single response glm model but with a binomial pair of y columns, with ldose1 data degree=2\n\n")
+a1: single response glm model but with a binomial pair of y columns, with ldose1 data degree=2
+
+> a1 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=4, pmethod="none", degree=2)
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family="binomial"), 
+      trace=4, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+First few rows of x are
+     sexmale ldose ldose1
+[1,]       1    -2    0.1
+[2,]       1    -1    1.2
+[3,]       1     0    0.1
+[4,]       1     1    1.2
+[5,]       1     2    1.0
+[6,]       1     3    0.1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+First few rows of y are
+     numdead numalive
+[1,]       1       19
+[2,]       4       16
+[3,]       9       11
+[4,]      13        7
+[5,]      18        2
+[6,]      20        0
+Approximate memory use after expanding x and y matrices: 0.02 MBytes
+Forward pass: minspan 4 endspan 10
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+1      0.0000 0.0000                                             1
+2      0.8679 0.9211       0.9211    2        ldose          -2< 2       
+4      0.9603 0.9882      0.06708    1      sexmale           0< 3       2   
+6      0.9165 0.9915     0.003362    3       ldose1         0.1< 4       2   
+8      0.7309 0.9978     0.006231    3       ldose1         0.1< 5       
+10     0.9313 0.9987     0.000947    1      sexmale           0< 6       reject term
+
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Forward pass complete: 9 terms (5 terms used)
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
+          1      0.0000  0.0000     0.0000      0  1
+          2      0.8679  0.9211     0.8679      1  1 2
+          3      0.9603  0.9882     0.0924      2  1 2 3
+          4      0.9165  0.9915    -0.0438      3  1 2 3 4
+chosen    5      0.7309  0.9978    -0.1856      3  1 2 3 4 5
+
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+
+y arg to glm() is a 12 by 2 matrix: 1=numdead, 2=numalive
+First few rows of y arg to glm() are
+     numdead numalive
+[1,]       1       19
+[2,]       4       16
+[3,]       9       11
+[4,]      13        7
+[5,]      18        2
+[6,]      20        0
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> print.earth.models(a1)
+
+Print a1 
+
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+
+GLM null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+
+Summary a1 
+
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family="binomial"), 
+      trace=4, pmethod="none", degree=2)
+
+GLM coefficients
+                                 numdead
+(Intercept)                  -2.97667726
+h(ldose- -2)                  0.92085659
+h(ldose1-0.1)                 0.12092855
+sexmale * h(ldose- -2)        0.41267810
+h(ldose- -2) * h(ldose1-0.1) -0.06981786
+
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+
+GLM null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+
+Summary a1 digits=3, details=TRUE
+
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family="binomial"), 
+      trace=4, pmethod="none", degree=2)
+
+earth coefficients
+                             numdead
+(Intercept)                    0.820
+h(ldose- -2)                   2.716
+sexmale * h(ldose- -2)         1.177
+h(ldose- -2) * h(ldose1-0.1)   0.827
+h(ldose1-0.1)                 -1.799
+
+GLM coefficients
+                             numdead
+(Intercept)                  -2.9767
+h(ldose- -2)                  0.9209
+sexmale * h(ldose- -2)        0.4127
+h(ldose- -2) * h(ldose1-0.1) -0.0698
+h(ldose1-0.1)                 0.1209
+
+GLM deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-1.42678  -0.37625   0.00377   0.40816   0.99279  
+
+GLM coefficients (family binomial, link logit)
+                             Estimate Std. Error z value Pr(>|z|)
+(Intercept)                   -2.9767     0.5655   -5.26  1.4e-07
+h(ldose- -2)                   0.9209     0.1976    4.66  3.2e-06
+sexmale * h(ldose- -2)         0.4127     0.1268    3.25   0.0011
+h(ldose- -2) * h(ldose1-0.1)  -0.0698     0.2703   -0.26   0.7962
+h(ldose1-0.1)                  0.1209     0.7243    0.17   0.8674
+
+Number of cases: 12
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+earth GCV 13.5    RSS 1.12    GRSq 0.731    RSq 0.998
+
+GLM null.deviance 125 (11 dof)   deviance 4.96 (7 dof)   iters 4
+
+evimp a1 
+
+        col used nsubsets       gcv           rss  
+ldose     2    1        4 100.00000 1 100.0000000 1
+sexmale   1    1        3 -18.73263 1   7.6848001 1
+ldose1    3    1        2 -31.37693 1   0.9614167 1
+
+evimp a1 trim=FALSE
+
+        col used nsubsets       gcv           rss  
+ldose     2    1        4 100.00000 1 100.0000000 1
+sexmale   1    1        3 -18.73263 1   7.6848001 1
+ldose1    3    1        2 -31.37693 1   0.9614167 1
+-------------------------------------------------------------------------------
+
+> a1update <- update(a1, trace=0)
+> check.models.equal(a1, a1update, msg="a1update a1")
+check.models.equal not identical: a1update a1 [but within numerical tolerances]
+> 
+> # test some different but equivalent glm specs
+> a1a <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> check.models.equal(a1a, a1, msg="a1 a1a")
+check.models.equal not identical: a1 a1a [but within numerical tolerances]
+> a1b <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> check.models.equal(a1, a1b, msg="a1 a1b")
+check.models.equal not identical: a1 a1b [but within numerical tolerances]
+> a1c <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial()), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> check.models.equal(a1, a1c, msg="a1 a1c")
+check.models.equal not identical: a1 a1c [but within numerical tolerances]
+> a1d <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> check.models.equal(a1, a1d, msg="a1 a1d")
+check.models.equal not identical: a1 a1d [but within numerical tolerances]
+> a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> check.models.equal(a1, a1e, msg="a1 a1e")
+check.models.equal not identical: a1 a1e [but within numerical tolerances]
+> a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> check.models.equal(a1, a1f, msg="a1 a1f")
+check.models.equal not identical: a1 a1f [but within numerical tolerances]
+> a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> check.models.equal(a1, a1g, msg="a1 a1g")
+check.models.equal not identical: a1 a1g [but within numerical tolerances]
+> # following should cause a "did not converge warning" because maxit=2
+> a1h <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8, maxit=2, trace=TRUE)), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+Deviance = 4.982452 Iterations - 1 
+Deviance = 4.956514 Iterations - 2 
+Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
+  algorithm did not converge
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
+> print(a1h)          # check that "did not converge" is printed
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+
+GLM null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
+> print(summary(a1h)) # ditto
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family=binomial(link="logit"), 
+      control=glm.control(epsilon=1e-08, maxit=2, trace=TRUE)), 
+      trace=1, pmethod="none", degree=2)
+
+GLM coefficients
+                                 numdead
+(Intercept)                  -2.97469341
+h(ldose- -2)                  0.92024106
+h(ldose1-0.1)                 0.11935290
+sexmale * h(ldose- -2)        0.41249352
+h(ldose- -2) * h(ldose1-0.1) -0.06924441
+
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+
+GLM null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
+> check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
+check.models.equal not identical: a1 a1h [but within numerical tolerances]
+> 
+> # basic check with an I in formula
+> a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod="none", degree=2)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=I(ldose1-3)
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> print(summary(a1i))
+Call: earth(formula=SF~sex+ldose+I(ldose1-3), glm=list(family="binomial"), 
+      trace=1, pmethod="none", degree=2)
+
+GLM coefficients
+                                        numdead
+(Intercept)                         -2.97667726
+h(ldose- -2)                         0.92085659
+h(I(ldose1-3)- -2.9)                 0.12092855
+sexmale * h(ldose- -2)               0.41267810
+h(ldose- -2) * h(I(ldose1-3)- -2.9) -0.06981786
+
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, I(ldose1-3)
+Number of terms at each degree of interaction: 1 2 2
+earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+
+GLM null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
+> 
+> cat("a2: single response glm model but with a binomial pair of y columns, degree=1\n\n")
+a2: single response glm model but with a binomial pair of y columns, degree=1
+
+> a2 <-  earth(SF ~ sex*ldose, glm=list(fa="b"), trace=3, pmethod="none")
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass: minspan 4 endspan 10
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+1      0.0000 0.0000                                             1
+2      0.8821 0.9211       0.9211    2        ldose          -2< 2       
+4      0.9525 0.9808      0.05966    1      sexmale           0< 3       
+6      0.9569 0.9911      0.01033    3 sexmale:ldos          -2< 4       
+8      0.8801 0.9911            0    -                                reject term
+
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.8801 RSq 0.9911
+Forward pass complete: 7 terms (4 terms used)
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds
+          1      0.0000  0.0000     0.0000      0  
+          2      0.8821  0.9211     0.8821      1  
+          3      0.9525  0.9808     0.0704      2  
+chosen    4      0.9569  0.9911     0.0044      3  
+
+Prune method "none" penalty 2 nprune 4: selected 4 of 4 terms, and 3 of 3 predictors
+After backward pass GRSq 0.9569 RSq 0.991 
+
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
+> print.earth.models(a2)
+
+Print a2 
+
+Earth selected 4 of 4 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, sexmale:ldose
+Number of terms at each degree of interaction: 1 3 (additive model)
+earth GCV 2.157714    RSS 4.495238    GRSq 0.9568528    RSq 0.9910853
+
+GLM null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
+
+Summary a2 
+
+Call: earth(formula=SF~sex*ldose, glm=list(fa="b"), trace=3, 
+      pmethod="none")
+
+GLM coefficients
+                        numdead
+(Intercept)          -3.6993677
+sexmale               0.8808128
+h(ldose- -2)          0.9060364
+h(sexmale:ldose- -2)  0.3529130
+
+Earth selected 4 of 4 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, sexmale:ldose
+Number of terms at each degree of interaction: 1 3 (additive model)
+earth GCV 2.157714    RSS 4.495238    GRSq 0.9568528    RSq 0.9910853
+
+GLM null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
+
+Summary a2 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(formula=SF~sex*ldose, glm=list(fa="b"), trace=3, 
+      pmethod="none")
+
+earth coefficients
+                      numdead
+(Intercept)          -2.01905
+h(ldose- -2)          3.25714
+sexmale               2.78095
+h(sexmale:ldose- -2)  0.77143
+
+GLM coefficients
+                      numdead
+(Intercept)          -3.69937
+h(ldose- -2)          0.90604
+sexmale               0.88081
+h(sexmale:ldose- -2)  0.35291
+
+GLM deviance residuals:
+      Min         1Q     Median         3Q        Max  
+-1.398493  -0.320939  -0.075918   0.382202   1.103746  
+
+GLM coefficients (family binomial, link logit)
+                     Estimate Std. Error z value  Pr(>|z|)
+(Intercept)          -3.69937    0.51117 -7.2371 4.584e-13
+h(ldose- -2)          0.90604    0.16710  5.4221 5.891e-08
+sexmale               0.88081    0.38842  2.2677   0.02335
+h(sexmale:ldose- -2)  0.35291    0.26999  1.3071   0.19117
+
+Number of cases: 12
+Earth selected 4 of 4 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, sexmale:ldose
+Number of terms at each degree of interaction: 1 3 (additive model)
+earth GCV 2.1577    RSS 4.4952    GRSq 0.95685    RSq 0.99109
+
+GLM null.deviance 124.88 (11 dof)   deviance 4.9937 (8 dof)   iters 4
+
+evimp a2 
+
+              col used nsubsets         gcv          rss  
+ldose           2    1        3 100.0000000 1 100.000000 1
+sexmale         1    1        2   7.8086158 1   7.061559 1
+sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
+
+evimp a2 trim=FALSE
+
+              col used nsubsets         gcv          rss  
+ldose           2    1        3 100.0000000 1 100.000000 1
+sexmale         1    1        2   7.8086158 1   7.061559 1
+sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
+-------------------------------------------------------------------------------
+
+> # repeat with bpairs arg
+> a2a <- earth(SF ~ sex*ldose, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=3, pmethod="none")
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Forward pass: minspan 4 endspan 10
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+1      0.0000 0.0000                                             1
+2      0.8821 0.9211       0.9211    2        ldose          -2< 2       
+4      0.9525 0.9808      0.05966    1      sexmale           0< 3       
+6      0.9569 0.9911      0.01033    3 sexmale:ldos          -2< 4       
+8      0.8801 0.9911            0    -                                reject term
+
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.8801 RSq 0.9911
+Forward pass complete: 7 terms (4 terms used)
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds
+          1      0.0000  0.0000     0.0000      0  
+          2      0.8821  0.9211     0.8821      1  
+          3      0.9525  0.9808     0.0704      2  
+chosen    4      0.9569  0.9911     0.0044      3  
+
+Prune method "none" penalty 2 nprune 4: selected 4 of 4 terms, and 3 of 3 predictors
+After backward pass GRSq 0.9569 RSq 0.991 
+
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
+> stopifnot(identical(a2$glm.list[[1]]$coefficients, a2a$glm.list[[1]]$coefficients))
+> 
+> a2c <- earth(SF ~ sex, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=0, pmethod="none")
+> a2update <- update(a2, SF ~ sex, trace=0)
+> check.models.equal(a2c, a2update, msg="a2c a2update")
+check.models.equal not identical: a2c a2update [but within numerical tolerances]
+> 
+> # build a standard GLM model for comparison
+> cat("a3: direct GLM a3:\n\n")
+a3: direct GLM a3:
+
+> a3 <- glm(SF ~ sex * ldose, family="binomial")
+> print(summary(a3))
+
+Call:
+glm(formula = SF ~ sex * ldose, family = "binomial")
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-1.39849  -0.32094  -0.07592   0.38220   1.10375  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    -1.1815     0.2853  -4.141 3.46e-05 ***
+sexmale         0.8808     0.3884   2.268   0.0234 *  
+ldose           0.9060     0.1671   5.422 5.89e-08 ***
+sexmale:ldose   0.3529     0.2700   1.307   0.1912    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 124.8756  on 11  degrees of freedom
+Residual deviance:   4.9937  on  8  degrees of freedom
+AIC: 43.104
+
+Number of Fisher Scoring iterations: 4
+
+> cat("-------------------------------------------------------------------------------\n\n")
+-------------------------------------------------------------------------------
+
+> 
+> # double response glm model with two binomial paired cols
+> SF.both <- cbind(SF, SF2)
+> cat("a4: double response glm model with two binomial paired cols\n\n")
+a4: double response glm model with two binomial paired cols
+
+> a4 <-  earth(SF.both ~ sex*ldose, glm=list(family="binomial"), trace=1)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4, 6, 8
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.7832 RSq 0.9839
+Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
+After backward pass GRSq 0.9393 RSq 0.9754 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+> print.earth.models(a4)
+
+Print a4 
+
+Earth selected 3 of 4 terms, and 2 of 3 predictors 
+Importance: ldose, sexmale, sexmale:ldose-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a4 
+
+Call: earth(formula=SF.both~sex*ldose, glm=list(family="binomial"), 
+      trace=1)
+
+GLM coefficients
+               numdead   numdead2
+(Intercept)  -3.473155 -3.2140605
+sexmale       1.100743  0.9311515
+h(ldose- -2)  1.064214  1.0759950
+
+Earth selected 3 of 4 terms, and 2 of 3 predictors 
+Importance: ldose, sexmale, sexmale:ldose-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a4 digits=3, details=TRUE
+
+Call: earth(formula=SF.both~sex*ldose, glm=list(family="binomial"), 
+      trace=1)
+
+earth coefficients
+             numdead numdead2
+(Intercept)    -1.44   -0.786
+h(ldose- -2)    3.64    3.714
+sexmale         3.17    2.667
+
+GLM coefficients
+             numdead numdead2
+(Intercept)    -3.47   -3.214
+h(ldose- -2)    1.06    1.076
+sexmale         1.10    0.931
+
+GLM numdead deviance residuals:
+    Min       1Q   Median       3Q      Max  
+-1.1054  -0.6534  -0.0222   0.4847   1.4294  
+
+GLM numdead coefficients (family binomial, link logit)
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.473      0.469   -7.41  1.2e-13
+h(ldose- -2)    1.064      0.131    8.12  4.7e-16
+sexmale         1.101      0.356    3.09   0.0020
+
+GLM numdead2 deviance residuals:
+   Min      1Q  Median      3Q     Max  
+-1.255  -0.736   0.203   0.691   1.330  
+
+GLM numdead2 coefficients (family binomial, link logit)
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.214      0.447   -7.19  6.3e-13
+h(ldose- -2)    1.076      0.131    8.20  2.4e-16
+sexmale         0.931      0.352    2.64   0.0082
+
+Number of cases: 12
+Earth selected 3 of 4 terms, and 2 of 3 predictors 
+Importance: ldose, sexmale, sexmale:ldose-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+          GCV  RSS  GRSq   RSq
+numdead  2.38  9.7 0.953 0.981
+numdead2 3.79 15.5 0.926 0.970
+All      6.17 25.2 0.939 0.975
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead              125 11          6.76  9          4         1
+numdead2             128 11          8.57  9          4         1
+
+evimp a4 
+
+        col used nsubsets        gcv          rss  
+ldose     2    1        2 100.000000 1 100.000000 1
+sexmale   1    1        1   5.432272 1   5.148163 1
+
+evimp a4 trim=FALSE
+
+                     col used nsubsets        gcv          rss  
+ldose                  2    1        2 100.000000 1 100.000000 1
+sexmale                1    1        1   5.432272 1   5.148163 1
+sexmale:ldose-unused   3    0        0   0.000000 1   0.000000 1
+-------------------------------------------------------------------------------
+
+> # repeat with bpairs arg
+> a4a <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=1)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4, 6, 8
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.7832 RSq 0.9839
+Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
+After backward pass GRSq 0.9393 RSq 0.9754 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+> stopifnot(identical(a4$glm.list[[1]]$coefficients, a4a$glm.list[[1]]$coefficients))
+> stopifnot(identical(a4$glm.list[[2]]$coefficients, a4a$glm.list[[2]]$coefficients))
+> a4update <- update(a4a, trace=0)
+> check.models.equal(a4update, a4a, msg="a4update a4a")
+check.models.equal not identical: a4update a4a [but within numerical tolerances]
+> 
+> # alternative way of specifying bpairs
+> a4aa <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(1,3)), trace=1)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4, 6, 8
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.7832 RSq 0.9839
+Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
+After backward pass GRSq 0.9393 RSq 0.9754 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+> check.models.equal(a4aa, a4a, msg="a4aa a4a")
+check.models.equal not identical: a4aa a4a [but within numerical tolerances]
+> 
+> a4d <- earth(SF.both ~ ldose, glm=list(fam="bino", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=0)
+> a4update <- update(a4a, form=SF.both ~ ldose)
+x is a 12 by 1 matrix: 1=ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.8153 RSq 0.9252
+Prune method "backward" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
+After backward pass GRSq 0.8883 RSq 0.9252 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 16.98403 (10 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 15.90252 (10 dof)   iters 4
+> check.models.equal(a4update, a4d, msg="a4update a4d no keepxy")
+check.models.equal not identical: a4update a4d no keepxy [but within numerical tolerances]
+> 
+> # titanic data, multiple responses (i.e. 3 level factor)
+> cat("a5: titanic data, multiple responses (i.e. 3 level factor)\n\n")
+a5: titanic data, multiple responses (i.e. 3 level factor)
+
+> a5 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
+> print.earth.models(a5)
+
+Print a5 
+
+Earth selected 9 of 17 terms, and 5 of 5 predictors 
+Importance: age, parch, survived, sibsp, sexmale
+Number of terms at each degree of interaction: 1 4 4
+
+earth
+          GCV      RSS        GRSq        RSq
+1st 0.1478715 148.5253 0.253819943 0.28210854
+2nd 0.1869804 187.8072 0.003405389 0.04118751
+3rd 0.1895587 190.3968 0.241872961 0.27061448
+All 0.5244105 526.7293 0.175229617 0.20649767
+
+GLM (family binomial, link logit)
+      null.deviance   df      deviance   df      iters converged
+1st        1223.308 1045      894.8141 1037          5         1
+2nd        1175.305 1045     1126.9441 1037          5         1
+3rd        1448.213 1045     1118.9411 1037          5         1
+
+Summary a5 
+
+Call: earth(formula=pclass~., data=etitanic, glm=list(family="binomial"), 
+      trace=0, degree=2)
+
+GLM coefficients
+                                1st         2nd         3rd
+(Intercept)             -2.66307135 -1.93136147  1.37992944
+survived                 2.84788552  1.06418271 -2.84378575
+sexmale                  1.42483431  0.96598862 -1.45239590
+h(sibsp-1)              -0.52879762 -0.64928949  0.79974678
+h(2-parch)               1.25518755  0.06534587 -1.29855706
+survived * sexmale      -1.25498201 -1.95099222  2.28554497
+survived * h(16-age)    -0.17824991  0.09390085  0.02011681
+h(55-age) * h(2-parch)  -0.04946408  0.00043737  0.04146455
+h(1-sibsp) * h(1-parch) -1.02162885 -0.21902436  1.12490799
+
+Earth selected 9 of 17 terms, and 5 of 5 predictors 
+Importance: age, parch, survived, sibsp, sexmale
+Number of terms at each degree of interaction: 1 4 4
+
+earth
+          GCV      RSS        GRSq        RSq
+1st 0.1478715 148.5253 0.253819943 0.28210854
+2nd 0.1869804 187.8072 0.003405389 0.04118751
+3rd 0.1895587 190.3968 0.241872961 0.27061448
+All 0.5244105 526.7293 0.175229617 0.20649767
+
+GLM (family binomial, link logit)
+      null.deviance   df      deviance   df      iters converged
+1st        1223.308 1045      894.8141 1037          5         1
+2nd        1175.305 1045     1126.9441 1037          5         1
+3rd        1448.213 1045     1118.9411 1037          5         1
+
+Summary a5 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(formula=pclass~., data=etitanic, glm=list(family="binomial"), 
+      trace=0, degree=2)
+
+earth coefficients
+                               1st         2nd        3rd
+(Intercept)              0.1396780  1.3822e-01  0.7221057
+survived                 0.3518559  1.6023e-01 -0.5120905
+h(sibsp-1)              -0.0479585 -6.7564e-02  0.1155224
+h(2-parch)               0.2173334  9.4235e-03 -0.2267568
+survived * h(16-age)    -0.0232585  1.8686e-02  0.0045728
+survived * sexmale      -0.0959323 -3.0327e-01  0.3992025
+sexmale                  0.1093674  1.3653e-01 -0.2458963
+h(55-age) * h(2-parch)  -0.0078473  3.5599e-05  0.0078117
+h(1-sibsp) * h(1-parch) -0.1623930 -3.2878e-02  0.1952714
+
+GLM coefficients
+                              1st         2nd       3rd
+(Intercept)             -2.663071 -1.93136147  1.379929
+survived                 2.847886  1.06418271 -2.843786
+h(sibsp-1)              -0.528798 -0.64928949  0.799747
+h(2-parch)               1.255188  0.06534587 -1.298557
+survived * h(16-age)    -0.178250  0.09390085  0.020117
+survived * sexmale      -1.254982 -1.95099222  2.285545
+sexmale                  1.424834  0.96598862 -1.452396
+h(55-age) * h(2-parch)  -0.049464  0.00043737  0.041465
+h(1-sibsp) * h(1-parch) -1.021629 -0.21902436  1.124908
+
+GLM 1st deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-2.02122  -0.68435  -0.35766   0.56892   2.66017  
+
+GLM 1st coefficients (family binomial, link logit)
+                          Estimate Std. Error  z value  Pr(>|z|)
+(Intercept)             -2.6630714  0.5298325  -5.0263 5.002e-07
+survived                 2.8478855  0.5104917   5.5787 2.423e-08
+h(sibsp-1)              -0.5287976  0.2365149  -2.2358 0.0253656
+h(2-parch)               1.2551876  0.1875848   6.6913 2.212e-11
+survived * h(16-age)    -0.1782499  0.0515714  -3.4564 0.0005475
+survived * sexmale      -1.2549820  0.5640362  -2.2250 0.0260811
+sexmale                  1.4248343  0.5092679   2.7978 0.0051451
+h(55-age) * h(2-parch)  -0.0494641  0.0044068 -11.2244 < 2.2e-16
+h(1-sibsp) * h(1-parch) -1.0216289  0.2129941  -4.7965 1.615e-06
+
+GLM 2nd deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-1.45407  -0.80675  -0.77534  -0.10402   2.07089  
+
+GLM 2nd coefficients (family binomial, link logit)
+                           Estimate  Std. Error z value  Pr(>|z|)
+(Intercept)             -1.93136147  0.37697795 -5.1233 3.003e-07
+survived                 1.06418271  0.34979070  3.0423 0.0023475
+h(sibsp-1)              -0.64928949  0.22307746 -2.9106 0.0036073
+h(2-parch)               0.06534587  0.17330956  0.3770 0.7061386
+survived * h(16-age)     0.09390085  0.02842944  3.3029 0.0009568
+survived * sexmale      -1.95099222  0.43722003 -4.4623 8.110e-06
+sexmale                  0.96598862  0.34300568  2.8162 0.0048588
+h(55-age) * h(2-parch)   0.00043737  0.00357988  0.1222 0.9027599
+h(1-sibsp) * h(1-parch) -0.21902436  0.19299092 -1.1349 0.2564195
+
+GLM 3rd deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-2.32939  -0.83909  -0.32160   0.89944   2.61933  
+
+GLM 3rd coefficients (family binomial, link logit)
+                          Estimate Std. Error z value  Pr(>|z|)
+(Intercept)              1.3799294  0.3534087  3.9046 9.437e-05
+survived                -2.8437858  0.3383356 -8.4052 < 2.2e-16
+h(sibsp-1)               0.7997468  0.1912028  4.1827 2.880e-05
+h(2-parch)              -1.2985571  0.1912192 -6.7909 1.114e-11
+survived * h(16-age)     0.0201168  0.0284533  0.7070    0.4796
+survived * sexmale       2.2855450  0.3990264  5.7278 1.017e-08
+sexmale                 -1.4523959  0.3219393 -4.5114 6.440e-06
+h(55-age) * h(2-parch)   0.0414645  0.0040611 10.2101 < 2.2e-16
+h(1-sibsp) * h(1-parch)  1.1249080  0.2035671  5.5260 3.276e-08
+
+Number of cases: 1046
+Earth selected 9 of 17 terms, and 5 of 5 predictors 
+Importance: age, parch, survived, sibsp, sexmale
+Number of terms at each degree of interaction: 1 4 4
+
+earth
+        GCV    RSS      GRSq      RSq
+1st 0.14787 148.53 0.2538199 0.282108
+2nd 0.18698 187.81 0.0034054 0.041188
+3rd 0.18956 190.40 0.2418730 0.270614
+All 0.52441 526.73 0.1752296 0.206498
+
+GLM (family binomial, link logit)
+      null.deviance   df      deviance   df      iters converged
+1st          1223.3 1045        894.81 1037          5         1
+2nd          1175.3 1045       1126.94 1037          5         1
+3rd          1448.2 1045       1118.94 1037          5         1
+
+evimp a5 
+
+         col used nsubsets       gcv         rss  
+age        3    1        8 100.00000 1 100.00000 1
+parch      5    1        8 100.00000 1 100.00000 1
+survived   1    1        7  63.44537 1  66.81445 1
+sibsp      4    1        5  16.22113 1  22.99755 1
+sexmale    2    1        4  11.82295 1  17.37608 1
+
+evimp a5 trim=FALSE
+
+         col used nsubsets       gcv         rss  
+age        3    1        8 100.00000 1 100.00000 1
+parch      5    1        8 100.00000 1 100.00000 1
+survived   1    1        7  63.44537 1  66.81445 1
+sibsp      4    1        5  16.22113 1  22.99755 1
+sexmale    2    1        4  11.82295 1  17.37608 1
+-------------------------------------------------------------------------------
+
+> 
+> a5d <- earth(pclass ~ .-age, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
+> a5update <- update(a5, form=pclass ~ .-age)
+> check.models.equal(a5update, a5d, msg="a5update a5d")
+check.models.equal not identical: a5update a5d [but within numerical tolerances]
+> 
+> a5d <- earth(pclass ~ .-age, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
+> a5update <- update(a5, form=pclass ~ .-age)
+> check.models.equal(a5update, a5d, msg="a5update a5d with keepxy")
+check.models.equal not identical: a5update a5d with keepxy [but within numerical tolerances]
+> 
+> # titanic data, one logical response
+> cat("a6: titanic data, one logical response\n\n")
+a6: titanic data, one logical response
+
+> pclass1 = (etitanic[,1] == "1st")
+> a6 <- earth(pclass1 ~ ., data=etitanic[,-1], degree=2, glm=list(family="binomial"), trace=1)
+x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
+y is a 1046 by 1 matrix: 1=pclass1
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached max number of terms 21
+After forward pass GRSq 0.2465 RSq 0.3031
+Prune method "backward" penalty 3 nprune 17: selected 10 of 17 terms, and 5 of 5 predictors
+After backward pass GRSq 0.2627 RSq 0.2941 
+GLM pclass1: null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
+> print.earth.models(a6)
+
+Print a6 
+
+Earth selected 10 of 17 terms, and 5 of 5 predictors 
+Importance: age, survived, parch, sibsp, sexmale
+Number of terms at each degree of interaction: 1 3 6
+earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
+
+GLM null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
+
+Summary a6 
+
+Call: earth(formula=pclass1~., data=etitanic[, -1], glm=list(family="binomial"), 
+      trace=1, degree=2)
+
+GLM coefficients
+                            pclass1
+(Intercept)             -2.15483815
+survived                 2.45709243
+h(age-54)                0.46637043
+h(2-parch)               1.14840644
+survived * h(51-age)    -0.03085682
+sexmale * h(age-26)      0.03606179
+h(age-55) * h(2-parch)  -0.28939382
+h(55-age) * h(2-parch)  -0.03469689
+h(sibsp-1) * h(2-parch) -0.75862068
+h(1-sibsp) * h(2-parch) -0.44868361
+
+Earth selected 10 of 17 terms, and 5 of 5 predictors 
+Importance: age, survived, parch, sibsp, sexmale
+Number of terms at each degree of interaction: 1 3 6
+earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
+
+GLM null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
+
+Summary a6 digits=3, details=TRUE
+
+Call: earth(formula=pclass1~., data=etitanic[, -1], glm=list(family="binomial"), 
+      trace=1, degree=2)
+
+earth coefficients
+                        pclass1
+(Intercept)              0.1304
+survived                 0.4744
+survived * h(51-age)    -0.0088
+h(2-parch)               0.1578
+h(sibsp-1) * h(2-parch) -0.0602
+h(1-sibsp) * h(2-parch) -0.0685
+sexmale * h(age-26)      0.0066
+h(age-55) * h(2-parch)  -0.0389
+h(55-age) * h(2-parch)  -0.0045
+h(age-54)                0.0643
+
+GLM coefficients
+                        pclass1
+(Intercept)             -2.1548
+survived                 2.4571
+survived * h(51-age)    -0.0309
+h(2-parch)               1.1484
+h(sibsp-1) * h(2-parch) -0.7586
+h(1-sibsp) * h(2-parch) -0.4487
+sexmale * h(age-26)      0.0361
+h(age-55) * h(2-parch)  -0.2894
+h(55-age) * h(2-parch)  -0.0347
+h(age-54)                0.4664
+
+GLM deviance residuals:
+   Min      1Q  Median      3Q     Max  
+-2.343  -0.650  -0.386   0.454   2.617  
+
+GLM coefficients (family binomial, link logit)
+                        Estimate Std. Error z value Pr(>|z|)
+(Intercept)             -2.15484    0.26659   -8.08  6.3e-16
+survived                 2.45709    0.33140    7.41  1.2e-13
+survived * h(51-age)    -0.03086    0.01212   -2.55    0.011
+h(2-parch)               1.14841    0.24647    4.66  3.2e-06
+h(sibsp-1) * h(2-parch) -0.75862    0.32618   -2.33    0.020
+h(1-sibsp) * h(2-parch) -0.44868    0.10926   -4.11  4.0e-05
+sexmale * h(age-26)      0.03606    0.01524    2.37    0.018
+h(age-55) * h(2-parch)  -0.28939    0.11543   -2.51    0.012
+h(55-age) * h(2-parch)  -0.03470    0.00748   -4.64  3.5e-06
+h(age-54)                0.46637    0.21418    2.18    0.029
+
+Number of cases: 1046
+Earth selected 10 of 17 terms, and 5 of 5 predictors 
+Importance: age, survived, parch, sibsp, sexmale
+Number of terms at each degree of interaction: 1 3 6
+earth GCV 0.146    RSS 146    GRSq 0.263    RSq 0.294
+
+GLM null.deviance 1223 (1045 dof)   deviance 899 (1036 dof)   iters 5
+
+evimp a6 
+
+         col used nsubsets        gcv          rss  
+age        3    1        9 100.000000 1 100.000000 1
+survived   1    1        8  40.089657 1  45.118516 1
+parch      5    1        5   5.680862 1  10.881834 1
+sibsp      4    1        4   4.582762 1   8.727465 1
+sexmale    2    1        3   2.496725 1   5.732125 1
+
+evimp a6 trim=FALSE
+
+         col used nsubsets        gcv          rss  
+age        3    1        9 100.000000 1 100.000000 1
+survived   1    1        8  40.089657 1  45.118516 1
+parch      5    1        5   5.680862 1  10.881834 1
+sibsp      4    1        4   4.582762 1   8.727465 1
+sexmale    2    1        3   2.496725 1   5.732125 1
+-------------------------------------------------------------------------------
+
+> 
+> # titanic data, one response which is a two level factor
+> cat("a7: titanic data, one response which is a two level factor\n\n")
+a7: titanic data, one response which is a two level factor
+
+> a7 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=1)
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+y is a 1046 by 1 matrix: 1=male
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached max number of terms 21
+After forward pass GRSq 0.3425 RSq 0.3858
+Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
+After backward pass GRSq 0.355 RSq 0.3825 
+GLM male: null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
+> print.earth.models(a7)
+
+Print a7 
+
+Earth selected 10 of 15 terms, and 6 of 6 predictors 
+Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
+Number of terms at each degree of interaction: 1 2 7
+earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
+
+GLM null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
+
+Summary a7 
+
+Call: earth(formula=sex~., data=etitanic, glm=list(family="binomial"), 
+      trace=1, degree=2)
+
+GLM coefficients
+                              male
+(Intercept)              1.8467663
+pclass3rd               -2.8044243
+survived                -3.5703913
+pclass2nd * survived    -0.7864156
+pclass3rd * survived     1.6791880
+pclass3rd * h(3-parch)   0.5987717
+survived * h(16-age)     0.2112001
+h(25-age) * h(3-parch)  -0.0289967
+h(sibsp-2) * h(3-parch)  0.5923304
+h(2-sibsp) * h(3-parch)  0.2100782
+
+Earth selected 10 of 15 terms, and 6 of 6 predictors 
+Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
+Number of terms at each degree of interaction: 1 2 7
+earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
+
+GLM null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
+
+Summary a7 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(formula=sex~., data=etitanic, glm=list(family="binomial"), 
+      trace=1, degree=2)
+
+earth coefficients
+                              male
+(Intercept)              0.8061976
+survived                -0.6293690
+survived * h(16-age)     0.0389243
+h(25-age) * h(3-parch)  -0.0050294
+pclass3rd * survived     0.2606447
+h(sibsp-2) * h(3-parch)  0.1062343
+h(2-sibsp) * h(3-parch)  0.0302976
+pclass3rd               -0.5044026
+pclass3rd * h(3-parch)   0.1380229
+pclass2nd * survived    -0.1343256
+
+GLM coefficients
+                             male
+(Intercept)              1.846766
+survived                -3.570391
+survived * h(16-age)     0.211200
+h(25-age) * h(3-parch)  -0.028997
+pclass3rd * survived     1.679188
+h(sibsp-2) * h(3-parch)  0.592330
+h(2-sibsp) * h(3-parch)  0.210078
+pclass3rd               -2.804424
+pclass3rd * h(3-parch)   0.598772
+pclass2nd * survived    -0.786416
+
+GLM deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-2.51037  -0.70996   0.35670   0.56578   2.10072  
+
+GLM coefficients (family binomial, link logit)
+                          Estimate Std. Error  z value  Pr(>|z|)
+(Intercept)              1.8467663  0.3326603   5.5515 2.832e-08
+survived                -3.5703913  0.3098767 -11.5220 < 2.2e-16
+survived * h(16-age)     0.2112001  0.0355011   5.9491 2.696e-09
+h(25-age) * h(3-parch)  -0.0289967  0.0088431  -3.2790 0.0010417
+pclass3rd * survived     1.6791880  0.3928026   4.2749 1.912e-05
+h(sibsp-2) * h(3-parch)  0.5923304  0.1616979   3.6632 0.0002491
+h(2-sibsp) * h(3-parch)  0.2100782  0.0507478   4.1396 3.478e-05
+pclass3rd               -2.8044243  0.5270413  -5.3211 1.032e-07
+pclass3rd * h(3-parch)   0.5987717  0.1740645   3.4399 0.0005818
+pclass2nd * survived    -0.7864156  0.3099715  -2.5371 0.0111788
+
+Number of cases: 1046
+Earth selected 10 of 15 terms, and 6 of 6 predictors 
+Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
+Number of terms at each degree of interaction: 1 2 7
+earth GCV 0.15079    RSS 150.72    GRSq 0.35503    RSq 0.38251
+
+GLM null.deviance 1379.6 (1045 dof)   deviance 937.02 (1036 dof)   iters 5
+
+evimp a7 
+
+          col used nsubsets         gcv          rss  
+survived    3    1        9 100.0000000 1 100.000000 1
+pclass3rd   2    1        8  19.4351486 1  24.329924 1
+parch       6    1        6  13.3685900 1  17.002027 1
+age         4    1        5   6.4001465 1   9.798418 1
+sibsp       5    1        4   4.5087239 1   7.258397 1
+pclass2nd   1    1        1   0.5526548 1   1.283877 1
+
+evimp a7 trim=FALSE
+
+          col used nsubsets         gcv          rss  
+survived    3    1        9 100.0000000 1 100.000000 1
+pclass3rd   2    1        8  19.4351486 1  24.329924 1
+parch       6    1        6  13.3685900 1  17.002027 1
+age         4    1        5   6.4001465 1   9.798418 1
+sibsp       5    1        4   4.5087239 1   7.258397 1
+pclass2nd   1    1        1   0.5526548 1   1.283877 1
+-------------------------------------------------------------------------------
+
+> 
+> a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
+> a7dupdate <- update(a7, form=sex ~ .-pclass)
+update.earth: using 1046 by 6 data argument from original call to earth
+x is a 1046 by 4 matrix: 1=survived, 2=age, 3=sibsp, 4=parch
+y is a 1046 by 1 matrix: 1=male
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached max number of terms 21
+After forward pass GRSq 0.3095 RSq 0.3646
+Prune method "backward" penalty 3 nprune 18: selected 7 of 18 terms, and 4 of 4 predictors
+After backward pass GRSq 0.333 RSq 0.352 
+GLM male: null.deviance 1379.574 (1045 dof)   deviance 977.9563 (1039 dof)   iters 4
+> check.models.equal(a7dupdate, a7d, msg="a7update a7d")
+check.models.equal not identical: a7update a7d [but within numerical tolerances]
+> 
+> a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
+> a7dupdate <- update(a7, form=sex ~ .-pclass)
+update.earth: using 1046 by 6 data argument from original call to earth
+x is a 1046 by 4 matrix: 1=survived, 2=age, 3=sibsp, 4=parch
+y is a 1046 by 1 matrix: 1=male
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached max number of terms 21
+After forward pass GRSq 0.3095 RSq 0.3646
+Prune method "backward" penalty 3 nprune 18: selected 7 of 18 terms, and 4 of 4 predictors
+After backward pass GRSq 0.333 RSq 0.352 
+GLM male: null.deviance 1379.574 (1045 dof)   deviance 977.9563 (1039 dof)   iters 4
+> check.models.equal(a7dupdate, a7d, msg="a7update a7d with keepxy")
+check.models.equal not identical: a7update a7d with keepxy [but within numerical tolerances]
+> 
+> subset. <- rep(TRUE, nrow(etitanic))
+> subset.[1:10] <- FALSE
+> a7e <- earth(sex ~ ., subset=subset., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
+> a7eupdate <- update(a7, subset=subset.)
+update.earth: using 1046 by 6 data argument from original call to earth
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+y is a 1046 by 1 matrix: 1=male
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached max number of terms 21
+After forward pass GRSq 0.3378 RSq 0.388
+Prune method "backward" penalty 3 nprune 17: selected 11 of 17 terms, and 6 of 6 predictors
+After backward pass GRSq 0.3494 RSq 0.3805 
+GLM male: null.deviance 1365.015 (1035 dof)   deviance 923.7842 (1025 dof)   iters 5
+> check.models.equal(a7eupdate, a7e, msg="a7update a7e")
+check.models.equal not identical: a7update a7e [but within numerical tolerances]
+> 
+> subset. <- 1:nrow(etitanic) # another way of specifying a subset
+> subset.[1:10] <- 0
+> a7eeupdate <- update(a7, subset=subset.)
+update.earth: using 1046 by 6 data argument from original call to earth
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+y is a 1046 by 1 matrix: 1=male
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached max number of terms 21
+After forward pass GRSq 0.3378 RSq 0.388
+Prune method "backward" penalty 3 nprune 17: selected 11 of 17 terms, and 6 of 6 predictors
+After backward pass GRSq 0.3494 RSq 0.3805 
+GLM male: null.deviance 1365.015 (1035 dof)   deviance 923.7842 (1025 dof)   iters 5
+> check.models.equal(a7eeupdate, a7e, msg="a7update a7e with alternative subset")
+check.models.equal not identical: a7update a7e with alternative subset [but within numerical tolerances]
+> 
+> a7f <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family=binomial(link="probit")), trace=0)
+> a7fupdate <- update(a7, glm=list(family=binomial(link="probit")))
+update.earth: using 1046 by 6 data argument from original call to earth
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+y is a 1046 by 1 matrix: 1=male
+Skipped forward pass
+Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
+After backward pass GRSq 0.355 RSq 0.3825 
+GLM male: null.deviance 1379.574 (1045 dof)   deviance 936.1344 (1036 dof)   iters 5
+> check.models.equal(a7fupdate, a7f, msg="a7update a7f with link=probit")
+check.models.equal not identical: a7update a7f with link=probit [but within numerical tolerances]
+> 
+> a7 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), keepxy=1)
+> a7g <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family=binomial(link="probit")), trace=0)
+> a7gupdate <- update(a7, glm=list(family=binomial(link="probit")), trace=1)
+update.earth: using 1046 by 6 data saved by keepxy in original call to earth
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+y is a 1046 by 1 matrix: 1=male
+Skipped forward pass
+Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
+After backward pass GRSq 0.355 RSq 0.3825 
+GLM male: null.deviance 1379.574 (1045 dof)   deviance 936.1344 (1036 dof)   iters 5
+> check.models.equal(a7gupdate, a7g, msg="a7update a7g with link=probit and keepxy")
+check.models.equal not identical: a7update a7g with link=probit and keepxy [but within numerical tolerances]
+> 
+> a8 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), keepxy=1)
+> a8g <- earth(sex ~ ., data=etitanic[100:900,], degree=2, glm=list(family=binomial), trace=0)
+> a8gupdate <- update(a8, data=etitanic[100:900,], trace=1)
+x is a 801 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+y is a 801 by 1 matrix: 1=male
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached max number of terms 21
+After forward pass GRSq 0.3445 RSq 0.4084
+Prune method "backward" penalty 3 nprune 17: selected 8 of 17 terms, and 6 of 6 predictors
+After backward pass GRSq 0.3663 RSq 0.3937 
+GLM male: null.deviance 1053.094 (800 dof)   deviance 699.1533 (793 dof)   iters 5
+> check.models.equal(a8gupdate, a8g, msg="a8update a8g with new data")
+check.models.equal not identical: a8update a8g with new data [but within numerical tolerances]
+> 
+> # poisson models
+> 
+> counts <- c(18,17,15,20,10,20,25,13,12)
+> counts2 <- c(181,171,151,201,101,201,251,131,121)
+> outcome <- gl(3,1,9)
+> treatment <- gl(3,3)
+> d.AD <- data.frame(treatment, outcome, counts, counts2)
+> 
+> # one response poisson model
+> cat("a8: one response poisson model\n\n")
+a8: one response poisson model
+
+> a8 <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
+x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
+y is a 9 by 1 matrix: 1=counts
+Forward pass: minspan 4 endspan 10
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+1      0.0000 0.0000                                             1
+2     -0.2727 0.2841       0.2841    1     outcome2           0< 2       
+4     -0.8939 0.5265       0.2424    2     outcome3           0< 3       
+6     -6.5758 0.5265            0    -                                reject term
+
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq -6.576 RSq 0.5265
+Forward pass complete: 5 terms (3 terms used)
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds
+          1      0.0000  0.0000     0.0000      0  
+          2     -0.2727  0.2841    -0.2727      1  
+chosen    3     -0.8939  0.5265    -0.6212      2  
+
+Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
+After backward pass GRSq -0.894 RSq 0.5265 
+
+GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
+> print.earth.models(a8)
+
+Print a8 
+
+Earth selected 3 of 3 terms, and 2 of 4 predictors 
+Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
+
+GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
+
+Summary a8 
+
+Call: earth(formula=counts~outcome+treatment, glm=list(family=poisson()), 
+      trace=3, pmethod="none")
+
+GLM coefficients
+                counts
+(Intercept)  3.0445224
+outcome2    -0.4542553
+outcome3    -0.2929871
+
+Earth selected 3 of 3 terms, and 2 of 4 predictors 
+Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
+
+GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
+
+Summary a8 digits=3, details=TRUE
+
+Call: earth(formula=counts~outcome+treatment, glm=list(family=poisson()), 
+      trace=3, pmethod="none")
+
+earth coefficients
+            counts
+(Intercept)  21.00
+outcome2     -7.67
+outcome3     -5.33
+
+GLM coefficients
+            counts
+(Intercept)  3.045
+outcome2    -0.454
+outcome3    -0.293
+
+GLM deviance residuals:
+   Min      1Q  Median      3Q     Max  
+-0.967  -0.671  -0.170   0.847   1.049  
+
+GLM coefficients (family poisson, link log)
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)    3.045      0.126   24.17   <2e-16
+outcome2      -0.454      0.202   -2.25    0.025
+outcome3      -0.293      0.193   -1.52    0.128
+
+Number of cases: 9
+Earth selected 3 of 3 terms, and 2 of 4 predictors 
+Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+earth GCV 46.9    RSS 83.3    GRSq -0.894    RSq 0.527
+
+GLM null.deviance 10.6 (8 dof)   deviance 5.13 (6 dof)   iters 4
+
+evimp a8 
+
+         col used nsubsets        gcv         rss  
+outcome2   1    1        2 -100.00000 1 100.00000 1
+outcome3   2    1        1  -69.49153 0  46.04317 1
+
+evimp a8 trim=FALSE
+
+                  col used nsubsets        gcv         rss  
+outcome2            1    1        2 -100.00000 1 100.00000 1
+outcome3            2    1        1  -69.49153 0  46.04317 1
+treatment2-unused   3    0        0    0.00000 0   0.00000 1
+treatment3-unused   4    0        0    0.00000 1   0.00000 1
+-------------------------------------------------------------------------------
+
+> # build a standard GLM model for comparison
+> cat("a9: one response poisson model, standard GLM model for comparison\n\n")
+a9: one response poisson model, standard GLM model for comparison
+
+> a9 <- glm(counts ~ outcome + treatment, family="poisson")
+> cat("Direct GLM a9 summary:\n\n")
+Direct GLM a9 summary:
+
+> print(summary(a9))
+
+Call:
+glm(formula = counts ~ outcome + treatment, family = "poisson")
+
+Deviance Residuals: 
+       1         2         3         4         5         6         7         8  
+-0.67125   0.96272  -0.16965  -0.21999  -0.95552   1.04939   0.84715  -0.09167  
+       9  
+-0.96656  
+
+Coefficients:
+              Estimate Std. Error  z value Pr(>|z|)    
+(Intercept)  3.045e+00  1.709e-01   17.815   <2e-16 ***
+outcome2    -4.543e-01  2.022e-01   -2.247   0.0246 *  
+outcome3    -2.930e-01  1.927e-01   -1.520   0.1285    
+treatment2   8.717e-16  2.000e-01 4.36e-15   1.0000    
+treatment3   4.557e-16  2.000e-01 2.28e-15   1.0000    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 10.5814  on 8  degrees of freedom
+Residual deviance:  5.1291  on 4  degrees of freedom
+AIC: 56.761
+
+Number of Fisher Scoring iterations: 4
+
+> 
+> # two response poisson model
+> cat("a10: two response poisson model\n\n")
+a10: two response poisson model
+
+> a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), trace=1, pmethod="none")
+x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
+y is a 9 by 2 matrix: 1=counts, 2=counts2
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq -6.576 RSq 0.5265
+Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
+After backward pass GRSq -0.894 RSq 0.5265 
+GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
+GLM counts2: null.deviance 105.166 (8 dof)   deviance 50.96448 (6 dof)   iters 4
+> print.earth.models(a10)
+
+Print a10 
+
+Earth selected 3 of 3 terms, and 2 of 4 predictors 
+Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+             GCV       RSS       GRSq       RSq
+counts    46.875   83.3333 -0.8939394 0.5265152
+counts2 4687.500 8333.3333 -0.8939394 0.5265152
+All     4734.375 8416.6667 -0.8939394 0.5265152
+
+GLM (family poisson, link log)
+          null.deviance df      deviance df      iters converged
+counts         10.58145  8      5.129141  6          4         1
+counts2       105.16600  8     50.964475  6          4         1
+
+Summary a10 
+
+Call: earth(formula=cbind(counts, counts2)~outcome+treatment, 
+      glm=list(fam="po"), trace=1, pmethod="none")
+
+GLM coefficients
+                counts    counts2
+(Intercept)  3.0445224  5.3518581
+outcome2    -0.4542553 -0.4515339
+outcome3    -0.2929871 -0.2913750
+
+Earth selected 3 of 3 terms, and 2 of 4 predictors 
+Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+             GCV       RSS       GRSq       RSq
+counts    46.875   83.3333 -0.8939394 0.5265152
+counts2 4687.500 8333.3333 -0.8939394 0.5265152
+All     4734.375 8416.6667 -0.8939394 0.5265152
+
+GLM (family poisson, link log)
+          null.deviance df      deviance df      iters converged
+counts         10.58145  8      5.129141  6          4         1
+counts2       105.16600  8     50.964475  6          4         1
+
+Summary a10 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(formula=cbind(counts, counts2)~outcome+treatment, 
+      glm=list(fam="po"), trace=1, pmethod="none")
+
+earth coefficients
+             counts counts2
+(Intercept) 21.0000 211.000
+outcome2    -7.6667 -76.667
+outcome3    -5.3333 -53.333
+
+GLM coefficients
+              counts  counts2
+(Intercept)  3.04452  5.35186
+outcome2    -0.45426 -0.45153
+outcome3    -0.29299 -0.29138
+
+GLM counts deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-0.96656  -0.67125  -0.16965   0.84715   1.04939  
+
+GLM counts coefficients (family poisson, link log)
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)  3.04452    0.12599 24.1651  < 2e-16
+outcome2    -0.45426    0.20217 -2.2469  0.02465
+outcome3    -0.29299    0.19274 -1.5201  0.12849
+
+GLM counts2 deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-3.04594  -2.11738  -0.53474   2.67294   3.30873  
+
+GLM counts2 coefficients (family poisson, link log)
+             Estimate Std. Error  z value  Pr(>|z|)
+(Intercept)  5.351858   0.039746 134.6500 < 2.2e-16
+outcome2    -0.451534   0.063727  -7.0854 1.386e-12
+outcome3    -0.291375   0.060778  -4.7941 1.634e-06
+
+Number of cases: 9
+Earth selected 3 of 3 terms, and 2 of 4 predictors 
+Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+            GCV     RSS     GRSq     RSq
+counts    46.88   83.33 -0.89394 0.52651
+counts2 4687.50 8333.33 -0.89394 0.52651
+All     4734.37 8416.67 -0.89394 0.52651
+
+GLM (family poisson, link log)
+          null.deviance df      deviance df      iters converged
+counts           10.581  8        5.1291  6          4         1
+counts2         105.166  8       50.9645  6          4         1
+
+evimp a10 
+
+         col used nsubsets        gcv         rss  
+outcome2   1    1        2 -100.00000 1 100.00000 1
+outcome3   2    1        1  -69.49153 0  46.04317 1
+
+evimp a10 trim=FALSE
+
+                  col used nsubsets        gcv         rss  
+outcome2            1    1        2 -100.00000 1 100.00000 1
+outcome3            2    1        1  -69.49153 0  46.04317 1
+treatment2-unused   3    0        0    0.00000 0   0.00000 1
+treatment3-unused   4    0        0    0.00000 1   0.00000 1
+-------------------------------------------------------------------------------
+
+> 
+> # compare family=gaussian to standard earth model
+> cat("a11: compare family=gaussian to standard earth model\n\n")
+a11: compare family=gaussian to standard earth model
+
+> a11 <- earth(etitanic$sex ~ ., data=etitanic, degree=2, glm=list(family="gaussian"), trace=4)
+Call: earth(formula=etitanic$sex~., data=etitanic, glm=list(family="gaussian"), 
+      trace=4, degree=2)
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+First few rows of x are
+     pclass2nd pclass3rd survived     age sibsp parch
+[1,]         0         0        1 29.0000     0     0
+[2,]         0         0        1  0.9167     1     2
+[3,]         0         0        0  2.0000     1     2
+[4,]         0         0        0 30.0000     1     2
+[5,]         0         0        0 25.0000     1     2
+[6,]         0         0        1 48.0000     0     0
+y is a 1046 by 1 matrix: 1=male
+First few rows of y are
+     male
+[1,]    0
+[2,]    1
+[3,]    0
+[4,]    1
+[5,]    0
+[6,]    1
+Approximate memory use after expanding x and y matrices: 0.4 MBytes
+Forward pass: minspan 9 endspan 17
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+1      0.0000 0.0000                                             1
+2      0.2860 0.2894       0.2894    3     survived           0< 2       
+4      0.3055 0.3154      0.02598    6        parch           3  3   4   
+6      0.3164 0.3327      0.01723    4          age          16  5   6   2   
+8      0.3199 0.3425     0.009871    4          age          25  7   8   5   
+10     0.3279 0.3534      0.01087    2    pclass3rd           0< 9       2   
+12     0.3302 0.3619     0.008513    5        sibsp           2  10  11  5   
+14     0.3355 0.3700      0.00809    2    pclass3rd           0< 12      
+16     0.3415 0.3788     0.008795    2    pclass3rd           0< 13      5   
+18     0.3432 0.3834      0.00458    1    pclass2nd           0< 14      2   
+20     0.3425 0.3858     0.002437    4          age          26  15      2   
+
+Reached max number of terms 21
+After forward pass GRSq 0.3425 RSq 0.3858
+Forward pass complete: 21 terms (15 terms used)
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
+          1      0.0000  0.0000     0.0000      0  1
+          2      0.2860  0.2894     0.2860      1  1 2
+          3      0.2967  0.3034     0.0106      2  1 2 9
+          4      0.3076  0.3175     0.0109      2  1 2 9 12
+          5      0.3323  0.3450     0.0247      3  1 2 9 12 13
+          6      0.3390  0.3547     0.0067      4  1 2 6 9 12 13
+          7      0.3432  0.3619     0.0042      5  1 2 6 9 11 12 13
+          8      0.3472  0.3689     0.0041      5  1 2 6 9 10 11 12 13
+          9      0.3531  0.3776     0.0058      5  1 2 6 8 9 10 11 12 13
+chosen   10      0.3550  0.3825     0.0020      6  1 2 6 8 9 10 11 12 13 14
+         11      0.3520  0.3826    -0.0030      6  1 2 6 8 9 10 11 12 13 14 15
+         12      0.3511  0.3848    -0.0009      6  1 2 5 6 8 9 10 11 12 13 14 15
+         13      0.3488  0.3857    -0.0023      6  1 2 3 5 6 8 9 10 11 12 13 14 15
+         14      0.3457  0.3858    -0.0031      6  1 2 3 5 6 7 8 9 10 11 12 13 14 15
+         15      0.3425  0.3858    -0.0032      6  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
+After backward pass GRSq 0.355 RSq 0.3825 
+
+y arg to glm() is a 1046 by 1 matrix: 1=male
+First few rows of y arg to glm() are
+     male
+[1,]    0
+[2,]    1
+[3,]    0
+[4,]    1
+[5,]    0
+[6,]    1
+GLM male: null.deviance 244.0765 (1045 dof)   deviance 150.7153 (1036 dof)   iters 2
+> cat("\nsummary(a11, details=TRUE)\n\n", sep="")
+
+summary(a11, details=TRUE)
+
+> print(summary(a11, details=TRUE))
+Call: earth(formula=etitanic$sex~., data=etitanic, glm=list(family="gaussian"), 
+      trace=4, degree=2)
+
+earth coefficients
+                               male
+(Intercept)              0.80619755
+pclass3rd               -0.50440261
+survived                -0.62936905
+pclass2nd * survived    -0.13432561
+pclass3rd * survived     0.26064466
+pclass3rd * h(3-parch)   0.13802286
+survived * h(16-age)     0.03892431
+h(25-age) * h(3-parch)  -0.00502940
+h(sibsp-2) * h(3-parch)  0.10623429
+h(2-sibsp) * h(3-parch)  0.03029760
+
+GLM coefficients
+                               male
+(Intercept)              0.80619755
+pclass3rd               -0.50440261
+survived                -0.62936905
+pclass2nd * survived    -0.13432561
+pclass3rd * survived     0.26064466
+pclass3rd * h(3-parch)   0.13802286
+survived * h(16-age)     0.03892431
+h(25-age) * h(3-parch)  -0.00502940
+h(sibsp-2) * h(3-parch)  0.10623429
+h(2-sibsp) * h(3-parch)  0.03029760
+
+GLM deviance residuals:
+        Min           1Q       Median           3Q          Max  
+-0.98798317  -0.23742371   0.07236964   0.16350484   0.89690190  
+
+GLM coefficients (family gaussian, link identity)
+                            Estimate   Std. Error   t value   Pr(>|t|)
+(Intercept)              0.806197553  0.042134875  19.13374 < 2.22e-16
+survived                -0.629369047  0.037707293 -16.69091 < 2.22e-16
+survived * h(16-age)     0.038924307  0.005897477   6.60016 6.5442e-11
+h(25-age) * h(3-parch)  -0.005029401  0.001379986  -3.64453 0.00028118
+pclass3rd * survived     0.260644661  0.055399997   4.70478 2.8855e-06
+h(sibsp-2) * h(3-parch)  0.106234285  0.024515480   4.33336 1.6115e-05
+h(2-sibsp) * h(3-parch)  0.030297604  0.007320326   4.13883 3.7742e-05
+pclass3rd               -0.504402612  0.081581674  -6.18279 9.0457e-10
+pclass3rd * h(3-parch)   0.138022859  0.027974000   4.93397 9.3825e-07
+pclass2nd * survived    -0.134325609  0.046796406  -2.87043 0.00418259
+
+GLM dispersion parameter for gaussian family taken to be 0.1454780
+
+Number of cases: 1046
+Earth selected 10 of 15 terms, and 6 of 6 predictors 
+Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
+Number of terms at each degree of interaction: 1 2 7
+earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
+
+GLM null.deviance 244.0765 (1045 dof)   deviance 150.7153 (1036 dof)   iters 2
+> stopifnot(identical(a11$coefficients, a11$glm.coefficients))
+> cat("-------------------------------------------------------------------------------\n\n")
+-------------------------------------------------------------------------------
+
+> 
+> cat("a12: compare family=gaussian to standard earth model with two responses\n\n")
+a12: compare family=gaussian to standard earth model with two responses
+
+> a12 <- earth(cbind(etitanic$sex, (as.integer(etitanic$age)^2)) ~ ., data=etitanic, degree=2, glm=list(family="gaussian"), trace=4)
+Call: earth(formula=cbind(etitanic$sex, (as.integer(etitanic$age)^2))~
+      ., data=etitanic, glm=list(family="gaussian"), trace=4, 
+      degree=2)
+x is a 1046 by 5 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=sibsp, 5=parch
+First few rows of x are
+     pclass2nd pclass3rd survived sibsp parch
+[1,]         0         0        1     0     0
+[2,]         0         0        1     1     2
+[3,]         0         0        0     1     2
+[4,]         0         0        0     1     2
+[5,]         0         0        0     1     2
+[6,]         0         0        1     0     0
+y is a 1046 by 2 matrix: 1=y1, 2=y2
+First few rows of y are
+     y1   y2
+[1,]  1  841
+[2,]  2    0
+[3,]  1    4
+[4,]  2  900
+[5,]  1  625
+[6,]  2 2304
+Approximate memory use after expanding x and y matrices: 0.4 MBytes
+Forward pass: minspan 9 endspan 17
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+1      0.0000 0.0000                                             1
+2      0.1060 0.1103       0.1103    2    pclass3rd           0< 2       
+4      0.1653 0.1733      0.06303    1    pclass2nd           0< 3       
+6      0.2059 0.2210      0.04767    5        parch           2  4   5   
+8      0.2210 0.2396      0.01859    3     survived           0< 6       
+10     0.2223 0.2481     0.008525    5        parch           2  7   8   2   
+12     0.2234 0.2565      0.00837    4        sibsp           1  9   10  
+14     0.2219 0.2587     0.002244    5        parch           1  11      2   
+16     0.2204 0.2608     0.002136    3     survived           0< 12      2   
+18     0.2146 0.2627     0.001817    5        parch           1  13  14  8   
+20     0.2090 0.2647     0.002048    5        parch           1  15  16  4   
+
+Reached max number of terms 21
+After forward pass GRSq 0.209 RSq 0.2647
+Forward pass complete: 21 terms (16 terms used)
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
+          1      0.0000  0.0000     0.0000      0  1
+          2      0.1060  0.1103     0.1060      1  1 2
+          3      0.1653  0.1733     0.0593      2  1 2 3
+          4      0.1807  0.1925     0.0154      3  1 2 3 5
+          5      0.2059  0.2210     0.0251      3  1 2 3 4 5
+          6      0.2210  0.2396     0.0152      4  1 2 3 4 5 6
+          7      0.2260  0.2481     0.0050      4  1 2 3 4 5 6 7
+chosen    8      0.2298  0.2554     0.0038      5  1 2 3 4 5 6 7 9
+          9      0.2293  0.2585    -0.0005      5  1 2 3 4 5 6 7 9 11
+         10      0.2274  0.2603    -0.0019      5  1 2 3 4 5 6 7 9 11 12
+         11      0.2248  0.2615    -0.0025      5  1 2 3 4 5 6 7 9 11 12 13
+         12      0.2234  0.2637    -0.0015      5  1 2 3 4 5 6 7 9 11 12 13 15
+         13      0.2203  0.2644    -0.0031      5  1 2 3 4 5 6 7 8 9 11 12 13 15
+         14      0.2166  0.2646    -0.0037      5  1 2 3 4 5 6 7 8 9 11 12 13 15 16
+         15      0.2129  0.2647    -0.0037      5  1 2 3 4 5 6 7 8 9 11 12 13 14 15 16
+         16      0.2090  0.2647    -0.0039      5  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+
+Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 5 predictors
+After backward pass GRSq 0.2298 RSq 0.2554 
+
+y arg to glm() is a 1046 by 1 matrix: 1=y1
+First few rows of y arg to glm() are
+     y1
+[1,]  1
+[2,]  2
+[3,]  1
+[4,]  2
+[5,]  1
+[6,]  2
+GLM y1: null.deviance 244.0765 (1045 dof)   deviance 166.8796 (1038 dof)   iters 2
+y arg to glm() is a 1046 by 1 matrix: 1=y2
+First few rows of y arg to glm() are
+       y2
+[1,]  841
+[2,]    0
+[3,]    4
+[4,]  900
+[5,]  625
+[6,] 2304
+GLM y2: null.deviance 1022962131 (1045 dof)   deviance 761734680 (1038 dof)   iters 2
+> cat("\nsummary(a12, details=TRUE)\n\n", sep="")
+
+summary(a12, details=TRUE)
+
+> print(summary(a12, details=TRUE))
+Call: earth(formula=cbind(etitanic$sex, (as.integer(etitanic$age)^2))~
+      ., data=etitanic, glm=list(family="gaussian"), trace=4, 
+      degree=2)
+
+earth coefficients
+                                y1         y2
+(Intercept)             1.70676996  1626.0725
+pclass2nd              -0.02929185  -742.9765
+pclass3rd              -0.02427315 -1079.2907
+survived               -0.51708725  -323.3167
+h(sibsp-1)             -0.00568323  -150.5779
+h(parch-2)             -0.01268057  1222.2889
+h(2-parch)              0.09636135   190.5782
+pclass3rd * h(parch-2) -0.07463666  -867.0027
+
+GLM coefficients
+                                y1         y2
+(Intercept)             1.70676996  1626.0725
+pclass2nd              -0.02929185  -742.9765
+pclass3rd              -0.02427315 -1079.2907
+survived               -0.51708725  -323.3167
+h(sibsp-1)             -0.00568323  -150.5779
+h(parch-2)             -0.01268057  1222.2889
+h(2-parch)              0.09636135   190.5782
+pclass3rd * h(parch-2) -0.07463666  -867.0027
+
+GLM y1 deviance residuals:
+       Min          1Q      Median          3Q         Max  
+-0.8994927  -0.3531136   0.1247805   0.1297992   0.8516401  
+
+GLM y1 coefficients (family gaussian, link identity)
+                          Estimate  Std. Error   t value   Pr(>|t|)
+(Intercept)             1.70676996  0.04957698  34.42666 < 2.22e-16
+pclass3rd              -0.02427315  0.03184014  -0.76234    0.44603
+pclass2nd              -0.02929185  0.03481561  -0.84134    0.40035
+h(parch-2)             -0.01268057  0.11441777  -0.11083    0.91178
+h(2-parch)              0.09636135  0.02171928   4.43667 1.0111e-05
+survived               -0.51708725  0.02739347 -18.87630 < 2.22e-16
+pclass3rd * h(parch-2) -0.07463665  0.11946250  -0.62477    0.53226
+h(sibsp-1)             -0.00568323  0.02211253  -0.25701    0.79722
+
+GLM y1 dispersion parameter for gaussian family taken to be 0.1607703
+
+GLM y2 deviance residuals:
+       Min          1Q      Median          3Q         Max  
+-1718.2290   -527.9382   -198.9382    297.0618   4716.0878  
+
+GLM y2 coefficients (family gaussian, link identity)
+                          Estimate  Std. Error   t value   Pr(>|t|)
+(Intercept)             1626.07248   105.92058  15.35181 < 2.22e-16
+pclass3rd              -1079.29075    68.02605 -15.86584 < 2.22e-16
+pclass2nd               -742.97650    74.38311  -9.98851 < 2.22e-16
+h(parch-2)              1222.28888   244.45211   5.00012 6.7230e-07
+h(2-parch)               190.57824    46.40296   4.10703 4.3230e-05
+survived                -323.31673    58.52579  -5.52435 4.1804e-08
+pclass3rd * h(parch-2)  -867.00268   255.23009  -3.39695 0.00070727
+h(sibsp-1)              -150.57790    47.24314  -3.18730 0.00147899
+
+GLM y2 dispersion parameter for gaussian family taken to be 733848.4
+
+Number of cases: 1046
+Earth selected 8 of 16 terms, and 5 of 5 predictors 
+Importance: pclass3rd, pclass2nd, parch, survived, sibsp
+Number of terms at each degree of interaction: 1 6 1
+
+earth
+          GCV       RSS      GRSq       RSq
+y1       0.17       167 0.2927937 0.3162817
+y2  754695.48 761734680 0.2297830 0.2553638
+All 754695.65 761734847 0.2297830 0.2553638
+
+GLM (family gaussian, link identity)
+     null.deviance   df      deviance   df      iters converged
+y1    2.440765e+02 1045  1.668796e+02 1038          2         1
+y2    1.022962e+09 1045  7.617347e+08 1038          2         1
+> stopifnot(identical(a12$coefficients, a12$glm.coefficients))
+> 
+> # test to see how standard model.matrix does column numbering with formula
+> 
+> my.x1 <- as.numeric(ToothGrowth[,2]) # supp was VC or OJ
+> my.x2 <- as.numeric(ToothGrowth[,3]) # dose
+> my.input.mat <- cbind(my.x1, my.x2)
+> my.response <- ToothGrowth[,1]
+> a13 <- earth(my.response~my.input.mat, trace=1)
+x is a 60 by 2 matrix: 1=my.input.matmy.x1, 2=my.input.matmy.x2
+y is a 60 by 1 matrix: 1=my.response
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.6819 RSq 0.7623
+Prune method "backward" penalty 2 nprune 4: selected 4 of 4 terms, and 2 of 2 predictors
+After backward pass GRSq 0.7055 RSq 0.7623 
+> print(summary(a13, details=TRUE))
+Call: earth(formula=my.response~my.input.mat, trace=1)
+
+                       coefficients
+(Intercept)                  21.585
+h(my.input.matmy.x1-1)       -3.700
+h(my.input.matmy.x2-1)        6.365
+h(1-my.input.matmy.x2)      -18.260
+
+Number of cases: 60
+Selected 4 of 4 terms, and 2 of 2 predictors 
+Importance: my.input.matmy.x2, my.input.matmy.x1
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 17.52421    RSS 820.425    GRSq 0.705494    RSq 0.7623478
+> 
+> stop.if.not.identical <- function(msg, a, b)
++ {
++     if(!identical(a, b)) {
++        cat(msg, "not identical\n")
++        cat(deparse(substitute(a)), ":\n", sep="")
++        print(a)
++        cat(deparse(substitute(b)), ":\n", sep="")
++        print(b)
++        stop("test failed")
++     }
++     cat(msg, "identical\n")
++ }
+> 
+> # some matrix interface tests
+> 
+> # double response glm model with two binomial paired cols
+> SF.both <- cbind(SF, SF2)
+> df <- data.frame(sex, ldose)
+> aref <-  earth(SF.both ~ ., data=df, glm=list(family="binomial"), trace=1)
+x is a 12 by 2 matrix: 1=sexmale, 2=ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.881 RSq 0.9754
+Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
+After backward pass GRSq 0.9393 RSq 0.9754 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+> print.earth.models(aref)
+
+Print aref 
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary aref 
+
+Call: earth(formula=SF.both~., data=df, glm=list(family="binomial"), 
+      trace=1)
+
+GLM coefficients
+               numdead   numdead2
+(Intercept)  -3.473155 -3.2140605
+sexmale       1.100743  0.9311515
+h(ldose- -2)  1.064214  1.0759950
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary aref digits=3, details=TRUE
+
+Call: earth(formula=SF.both~., data=df, glm=list(family="binomial"), 
+      trace=1)
+
+earth coefficients
+             numdead numdead2
+(Intercept)    -1.44   -0.786
+h(ldose- -2)    3.64    3.714
+sexmale         3.17    2.667
+
+GLM coefficients
+             numdead numdead2
+(Intercept)    -3.47   -3.214
+h(ldose- -2)    1.06    1.076
+sexmale         1.10    0.931
+
+GLM numdead deviance residuals:
+    Min       1Q   Median       3Q      Max  
+-1.1054  -0.6534  -0.0222   0.4847   1.4294  
+
+GLM numdead coefficients (family binomial, link logit)
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.473      0.469   -7.41  1.2e-13
+h(ldose- -2)    1.064      0.131    8.12  4.7e-16
+sexmale         1.101      0.356    3.09   0.0020
+
+GLM numdead2 deviance residuals:
+   Min      1Q  Median      3Q     Max  
+-1.255  -0.736   0.203   0.691   1.330  
+
+GLM numdead2 coefficients (family binomial, link logit)
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.214      0.447   -7.19  6.3e-13
+h(ldose- -2)    1.076      0.131    8.20  2.4e-16
+sexmale         0.931      0.352    2.64   0.0082
+
+Number of cases: 12
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+          GCV  RSS  GRSq   RSq
+numdead  2.38  9.7 0.953 0.981
+numdead2 3.79 15.5 0.926 0.970
+All      6.17 25.2 0.939 0.975
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead              125 11          6.76  9          4         1
+numdead2             128 11          8.57  9          4         1
+
+evimp aref 
+
+        col used nsubsets        gcv          rss  
+ldose     2    1        2 100.000000 1 100.000000 1
+sexmale   1    1        1   5.432272 1   5.148163 1
+
+evimp aref trim=FALSE
+
+        col used nsubsets        gcv          rss  
+ldose     2    1        2 100.000000 1 100.000000 1
+sexmale   1    1        1   5.432272 1   5.148163 1
+-------------------------------------------------------------------------------
+
+> 
+> a21 <-  earth(data.frame(sex, ldose), SF.both, glm=list(family="binomial"), trace=1)
+x is a 12 by 2 matrix: 1=sexmale, 2=ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.881 RSq 0.9754
+Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
+After backward pass GRSq 0.9393 RSq 0.9754 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+> print.earth.models(a21)
+
+Print a21 
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a21 
+
+Call: earth(x=data.frame(sex, ldose), y=SF.both, glm=list(family="binomial"), 
+      trace=1)
+
+GLM coefficients
+               numdead   numdead2
+(Intercept)  -3.473155 -3.2140605
+sexmale       1.100743  0.9311515
+h(ldose- -2)  1.064214  1.0759950
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a21 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(x=data.frame(sex, ldose), y=SF.both, glm=list(family="binomial"), 
+      trace=1)
+
+earth coefficients
+             numdead numdead2
+(Intercept)  -1.4405 -0.78571
+h(ldose- -2)  3.6429  3.71429
+sexmale       3.1667  2.66667
+
+GLM coefficients
+             numdead numdead2
+(Intercept)  -3.4732 -3.21406
+h(ldose- -2)  1.0642  1.07600
+sexmale       1.1007  0.93115
+
+GLM numdead deviance residuals:
+      Min         1Q     Median         3Q        Max  
+-1.105398  -0.653432  -0.022249   0.484706   1.429444  
+
+GLM numdead coefficients (family binomial, link logit)
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.47316    0.46852 -7.4130 1.234e-13
+h(ldose- -2)  1.06421    0.13108  8.1190 4.702e-16
+sexmale       1.10074    0.35583  3.0935  0.001978
+
+GLM numdead2 deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-1.25549  -0.73593   0.20315   0.69113   1.32952  
+
+GLM numdead2 coefficients (family binomial, link logit)
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.21406    0.44682 -7.1932 6.330e-13
+h(ldose- -2)  1.07600    0.13124  8.1987 2.429e-16
+sexmale       0.93115    0.35232  2.6429  0.008219
+
+Number of cases: 12
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+            GCV     RSS    GRSq     RSq
+numdead  2.3761  9.7024 0.95249 0.98076
+numdead2 3.7901 15.4762 0.92646 0.97022
+All      6.1662 25.1786 0.93928 0.97541
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead           124.88 11        6.7571  9          4         1
+numdead2          128.03 11        8.5725  9          4         1
+
+evimp a21 
+
+        col used nsubsets        gcv          rss  
+ldose     2    1        2 100.000000 1 100.000000 1
+sexmale   1    1        1   5.432272 1   5.148163 1
+
+evimp a21 trim=FALSE
+
+        col used nsubsets        gcv          rss  
+ldose     2    1        2 100.000000 1 100.000000 1
+sexmale   1    1        1   5.432272 1   5.148163 1
+-------------------------------------------------------------------------------
+
+> check.models.equal(aref, a21, msg="aref a21")
+check.models.equal not identical: aref a21 [but within numerical tolerances]
+> 
+> a21 <-  earth(cbind(sex, ldose), SF.both, glm=list(family="binomial"), trace=1)
+x is a 12 by 2 matrix: 1=sex, 2=ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.881 RSq 0.9754
+Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
+After backward pass GRSq 0.9393 RSq 0.9754 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+> print.earth.models(a21)
+
+Print a21 
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sex
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a21 
+
+Call: earth(x=cbind(sex, ldose), y=SF.both, glm=list(family="binomial"), 
+      trace=1)
+
+GLM coefficients
+               numdead   numdead2
+(Intercept)  -3.473155 -3.2140605
+h(sex-1)      1.100743  0.9311515
+h(ldose- -2)  1.064214  1.0759950
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sex
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a21 digits=3, details=TRUE
+
+Call: earth(x=cbind(sex, ldose), y=SF.both, glm=list(family="binomial"), 
+      trace=1)
+
+earth coefficients
+             numdead numdead2
+(Intercept)    -1.44   -0.786
+h(ldose- -2)    3.64    3.714
+h(sex-1)        3.17    2.667
+
+GLM coefficients
+             numdead numdead2
+(Intercept)    -3.47   -3.214
+h(ldose- -2)    1.06    1.076
+h(sex-1)        1.10    0.931
+
+GLM numdead deviance residuals:
+    Min       1Q   Median       3Q      Max  
+-1.1054  -0.6534  -0.0222   0.4847   1.4294  
+
+GLM numdead coefficients (family binomial, link logit)
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.473      0.469   -7.41  1.2e-13
+h(ldose- -2)    1.064      0.131    8.12  4.7e-16
+h(sex-1)        1.101      0.356    3.09   0.0020
+
+GLM numdead2 deviance residuals:
+   Min      1Q  Median      3Q     Max  
+-1.255  -0.736   0.203   0.691   1.330  
+
+GLM numdead2 coefficients (family binomial, link logit)
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.214      0.447   -7.19  6.3e-13
+h(ldose- -2)    1.076      0.131    8.20  2.4e-16
+h(sex-1)        0.931      0.352    2.64   0.0082
+
+Number of cases: 12
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sex
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+          GCV  RSS  GRSq   RSq
+numdead  2.38  9.7 0.953 0.981
+numdead2 3.79 15.5 0.926 0.970
+All      6.17 25.2 0.939 0.975
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead              125 11          6.76  9          4         1
+numdead2             128 11          8.57  9          4         1
+
+evimp a21 
+
+      col used nsubsets        gcv          rss  
+ldose   2    1        2 100.000000 1 100.000000 1
+sex     1    1        1   5.432272 1   5.148163 1
+
+evimp a21 trim=FALSE
+
+      col used nsubsets        gcv          rss  
+ldose   2    1        2 100.000000 1 100.000000 1
+sex     1    1        1   5.432272 1   5.148163 1
+-------------------------------------------------------------------------------
+
+> # TODO does not match because different conversion of factor with cbind and earth, revisit
+> # check.models.equal(aref, a21, msg="aref a21")
+> 
+> df.both <- data.frame(SF, SF2)
+> a22 <-  earth(cbind(sex, ldose), df.both, glm=list(family="binomial"), trace=1)
+x is a 12 by 2 matrix: 1=sex, 2=ldose
+y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq 0.881 RSq 0.9754
+Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
+After backward pass GRSq 0.9393 RSq 0.9754 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+> print.earth.models(a22)
+
+Print a22 
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sex
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a22 
+
+Call: earth(x=cbind(sex, ldose), y=df.both, glm=list(family="binomial"), 
+      trace=1)
+
+GLM coefficients
+               numdead   numdead2
+(Intercept)  -3.473155 -3.2140605
+h(sex-1)      1.100743  0.9311515
+h(ldose- -2)  1.064214  1.0759950
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sex
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+              GCV       RSS      GRSq       RSq
+numdead  2.376093  9.702381 0.9524860 0.9807588
+numdead2 3.790087 15.476190 0.9264592 0.9702190
+All      6.166181 25.178571 0.9392766 0.9754095
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead         124.8756 11      6.757064  9          4         1
+numdead2        128.0299 11      8.572466  9          4         1
+
+Summary a22 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(x=cbind(sex, ldose), y=df.both, glm=list(family="binomial"), 
+      trace=1)
+
+earth coefficients
+             numdead numdead2
+(Intercept)  -1.4405 -0.78571
+h(ldose- -2)  3.6429  3.71429
+h(sex-1)      3.1667  2.66667
+
+GLM coefficients
+             numdead numdead2
+(Intercept)  -3.4732 -3.21406
+h(ldose- -2)  1.0642  1.07600
+h(sex-1)      1.1007  0.93115
+
+GLM numdead deviance residuals:
+      Min         1Q     Median         3Q        Max  
+-1.105398  -0.653432  -0.022249   0.484706   1.429444  
+
+GLM numdead coefficients (family binomial, link logit)
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.47316    0.46852 -7.4130 1.234e-13
+h(ldose- -2)  1.06421    0.13108  8.1190 4.702e-16
+h(sex-1)      1.10074    0.35583  3.0935  0.001978
+
+GLM numdead2 deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-1.25549  -0.73593   0.20315   0.69113   1.32952  
+
+GLM numdead2 coefficients (family binomial, link logit)
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.21406    0.44682 -7.1932 6.330e-13
+h(ldose- -2)  1.07600    0.13124  8.1987 2.429e-16
+h(sex-1)      0.93115    0.35232  2.6429  0.008219
+
+Number of cases: 12
+Earth selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: ldose, sex
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+earth
+            GCV     RSS    GRSq     RSq
+numdead  2.3761  9.7024 0.95249 0.98076
+numdead2 3.7901 15.4762 0.92646 0.97022
+All      6.1662 25.1786 0.93928 0.97541
+
+GLM (family binomial, link logit)
+           null.deviance df      deviance df      iters converged
+numdead           124.88 11        6.7571  9          4         1
+numdead2          128.03 11        8.5725  9          4         1
+
+evimp a22 
+
+      col used nsubsets        gcv          rss  
+ldose   2    1        2 100.000000 1 100.000000 1
+sex     1    1        1   5.432272 1   5.148163 1
+
+evimp a22 trim=FALSE
+
+      col used nsubsets        gcv          rss  
+ldose   2    1        2 100.000000 1 100.000000 1
+sex     1    1        1   5.432272 1   5.148163 1
+-------------------------------------------------------------------------------
+
+> # TODO does not match because different conversion of factor with cbind and earth, revisit
+> # check.models.equal(aref, a22, msg="a20 a22")
+> check.models.equal(a21, a22, msg="a21 a22")
+check.models.equal not identical: a21 a22 [but within numerical tolerances]
+> 
+> # --- predict with factors ------------------------------------------------------
+> 
+> # there is a lot of redundancy in this routine, it doesn't really matter
+> 
+> test.predict.with.factors <- function(trace)
++ {
++     cat("\n--- predict with single level factors and a single response, trace=", trace,
++         " ---\n\n", sep="")
++ 
++     cat("first do a quick test of predict.earth help page example\n")
++     a <- earth(Volume ~ ., data = trees)
++     if (trace) print(head(predict(a, trace=trace)))
++     if (trace) print(predict(a, c(10,80), trace=trace))
++ 
++     # test set A: prepare the data
++ 
++     ldose  <- rep(0:5, 2) - 2
++     # ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
++     ldose1 <- c(0.1, 1.2, 0.1, 1.2, 1.0, 0.1, 0.3, 1.4, 0.1, 1.2, 0.1, 0.9)
++     sex <- factor(rep(c("male", "female"), times=c(6,6)))
++     numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
++ 
++     sexmale <- (sex == "male")
++     am <-  earth(cbind(sexmale, ldose, ldose1), numdead, trace=trace, pmethod="none", degree=2)
++     af <-  earth(numdead ~ sex + ldose + ldose1, trace=trace, pmethod="none", degree=2)
++     check.models.equal(am, af, "predict with single level factors and a single response")
++ 
++     cat("A-20m head(predict(am, trace=", trace, ")\n", sep="")
++     pm <- predict(am, trace=trace)
++     if (trace) print(head(pm))
++ 
++     cat("A-20f head(predict(af, trace=", trace, ")\n", sep="")
++     pf <- predict(af, trace=trace)
++     if (trace) print(head(pf))
++     stop.if.not.identical("A-20", pm, pf)
++ 
++     cat("A-21m predict(am, newdata=c(sex[1], -2, 0.1), trace=", trace, "))\n", sep="")
++     pm <- predict(am, newdata=c(sex[1]=="male", -2, 0.1), trace=trace)
++     pm.ref <- pm
++     if (trace) print(pm)
++ 
++     cat("A-21f predict(af, newdata=c(sex[1], -2, 0.1), trace=", trace, "))\n", sep="")
++     pf <- predict(af, newdata=c(sex[1]=="male", -2, 0.1), trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-21", pm.ref, pf)
++ 
++     cat("A-22m predict(am, newdata=c(1, -2, 0.1), trace=", trace, ")) use numeric instead of factor sex\n", sep="")
++     pm <- predict(am, newdata=c(1, -2, 0.1), trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-22", pm.ref, pm)
++ 
++     cat("A-22f predict(af, newdata=c(1, -2, 0.1), trace=", trace, ")) use numeric instead of factor sex\n", sep="")
++     pf <- predict(af, newdata=c(1, -2, 0.1), trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-22", pm, pf)
++ 
++     cat("A-23m predict(am, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=", trace, ")) multiple rows as a vec\n", sep="")
++     pm <- predict(am, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=trace)
++     if (trace) print(pm)
++ 
++     cat("A-23f predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=", trace, ")) multiple rows as a vec\n", sep="")
++     pf <- predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-23", pm, pf)
++ 
++     cat("A-24m predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=", trace, ")) more multiple rows as a vec\n", sep="")
++     pm <- predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=trace)
++     if (trace) print(pm)
++     pm2.ref <- pm
++ 
++     cat("A-24f predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=", trace, ")) more multiple rows as a vec\n", sep="")
++     pf <- predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-24", pm, pf)
++ 
++     cat("A-25m predict(am, xpredict matrix trace=", trace, "\n", sep="")
++     new.data <- matrix(c(sex[1], sex[1], -2, -1, 0.1, 0.1), nrow=2)
++     pm <- predict(am, newdata=new.data, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-25", pm2.ref, pm)
++ 
++     cat("A-25f predict(af, xpredict matrix trace=", trace, "\n", sep="")
++     pf <- predict(af, newdata=new.data, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-25", pm, pf)
++ 
++     cat("A-26m predict(am, new.data with col names) trace=", trace, "\n", sep="")
++     new.data <- matrix(c(sex[1], sex[1], -2, -1, 0.1, 0.1), nrow=2)
++     colnames(new.data) <- c("sex", "ldose", "ldose1")
++     pm <- predict(am, newdata=new.data, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-26m", pm2.ref, pm)
++ 
++     cat("A-26f predict(af, new.data with col names) trace=", trace, "\n", sep="")
++     pf <- predict(af, newdata=new.data, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-26f", pm, pf)
++ 
++     cat("A-27m predict(am, new.data with out of order col names) trace=", trace, "\n", sep="")
++     new.data <- matrix(c(sex[1], sex[1], 0.1, 0.1, -2, -1), nrow=2)
++     colnames(new.data) <- c("sex", "ldose1", "ldose")
++     pm <- predict(am, newdata=new.data, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-27", pm2.ref, pm)
++ 
++     cat("A-27f predict(af, new.data with out of order col names) trace=", trace, "\n", sep="")
++     pf <- predict(af, newdata=new.data, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-27", pm, pf)
++ 
++     cat("A-28m predict(am, xdata.frame without col names) trace=", trace, "\n", sep="")
++     if (trace) print(pm)
++     stop.if.not.identical("A-28", pm2.ref, pm)
++ 
++     cat("A-28f predict(af, xdata.frame without col names) trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(c(sex[1], sex[1]), c(-2, -1), c(0.1, 0.1))
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-28", pm, pf)
++ 
++     cat("A-29m predict(am, xdata.frame with col names) trace=", trace, "\n", sep="")
++     xdata.frame.29 <- data.frame(sex[1], -2, 0.1)
++     colnames(xdata.frame.29) <- c("sex", "ldose", "ldose1")
++     pm <- predict(am, xdata.frame.29, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-29", pm.ref, pm)
++ 
++     cat("A-29f predict(af, xdata.frame with col names) trace=", trace, "\n", sep="")
++     pf <- predict(af, xdata.frame.29, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-29", pm, pf)
++ 
++     cat("A2-29m predict(am, xdata.frame with col names) trace=", trace, "\n", sep="")
++     xdata.frame.29.2 <- data.frame(c(sex[1], sex[1]), c(-2, -1), c(0.1, 0.1))
++     colnames(xdata.frame.29.2) <- c("sex", "ldose", "ldose1")
++     pm <- predict(am, xdata.frame.29.2, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A2-29", pm2.ref, pm)
++ 
++     cat("A2-29f predict(af, xdata.frame with col names) trace=", trace, "\n", sep="")
++     pf <- predict(af, xdata.frame.29.2, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A2-29", pm, pf)
++ 
++     cat("A-31m predict(am, xdata.frame, trace=", trace, ") data frame with factors and wrong col names\n", sep="")
++     xdata.frame <- data.frame(sex[1], -2, 0.1)
++     pm <- predict(am, xdata.frame, trace=trace)
++     stop.if.not.identical("A-31", pm.ref, pm)
++     if (trace) print(pm)
++ 
++     cat("A-31f predict(af, xdata.frame, trace=", trace, ") data frame with factors and wrong col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-31", pm, pf)
++ 
++     cat("A-31bm predict(am, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     xdata.frame <- data.frame(sex=sex[1], ldose=-2, ldose1=0.1)
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-31", pm.ref, pm)
++ 
++     cat("A-31bf predict(af, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-31b", pm, pf)
++ 
++     cat("A-32m predict(am, xdata.frame, trace=", trace, ") # data frame with names\n", sep="")
++     xdata.frame <- data.frame(sex[1], -2, 0.1)
++     colnames(xdata.frame) <- c("sex", "ldose", "ldose1")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-32", pm, pf)
++     stop.if.not.identical("A-32", pm.ref, pm)
++ 
++     cat("A-32f predict(af, xdata.frame, trace=", trace, ") # data frame with names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-32", pm, pf)
++ 
++     cat("A-42am predict(am, newdata=c(1, -2, 0.1), trace=", trace, ")) use numeric instead of factor sex\n", sep="")
++     pm <- predict(am, newdata=c(1, -2, 0.1), trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-42a", pm.ref, pm)
++ 
++     cat("A-42af predict(af, newdata=c(1, -2, 0.1), trace=", trace, ")) use numeric instead of factor sex\n", sep="")
++     pf <- predict(af, newdata=c(1, -2, 0.1), trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-42a", pm, pf)
++ 
++     cat("A-43am predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=", trace, ")) multiple rows as a vec\n", sep="")
++     pm <- predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=trace)
++     if (trace) print(pm)
++ 
++     cat("A-43af predict(am, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=", trace, ")) multiple rows as a vec\n", sep="")
++     pf <- predict(am, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-43a", pm, pf)
++ 
++     cat("A-44am predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=", trace, ")) more multiple rows as a vec\n", sep="")
++     pm <- predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-44a", pm2.ref, pm)
++ 
++     cat("A-44fm predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=", trace, ")) more multiple rows as a vec\n", sep="")
++     pf <- predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-44f", pm, pf)
++ 
++     cat("A-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     xdata.frame <- data.frame(sex[1], -2)
++     try.temp <- try(predict(am, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("A-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     xdata.frame <- data.frame(sex[1], -2)
++     try.temp <- try(predict(af, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("A-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     xdata.frame <- data.frame(-2, sex[1], 0.1)
++     colnames(xdata.frame) <- c("ldose", "sex", "ldose1")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-54", pm.ref, pm)
++ 
++     cat("A-54f predict(af, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-54", pm, pf)
++ 
++     cat("A-55m predict(am, xdata.frame, trace=", trace, ") data frame without col names\n", sep="")
++     xdata.frame <- data.frame(sex[c(1,7)], c(-2,-1), c(0.1, 0.1))
++     pm <- predict(am, xdata.frame, trace=trace)
++     pm3.ref <- pm
++     if (trace) print(pm)
++ 
++     cat("A-55f predict(af, xdata.frame, trace=", trace, ") data frame without col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-55", pm, pf)
++ 
++     cat("A-56m predict(am, xdata.frame, trace=", trace, ") # data frame with col names\n", sep="")
++     xdata.frame <- data.frame(sex[c(1,7)], c(-2,-1), c(0.1, 0.1))
++     colnames(xdata.frame) <- c("sex", "ldose", "ldose1")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-56", pm3.ref, pm)
++ 
++     cat("A-56f predict(af, xdata.frame, trace=", trace, ") # data frame with col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-56", pm, pf)
++ 
++     cat("A-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     xdata.frame <- data.frame(sex[c(1,7)], c(-2,-1))
++     tempm <- try(predict(am, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("A-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++     stop.if.not.identical("A-57", pm, pf)
++ 
++     cat("A-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     xdata.frame <- data.frame(c(-2,-1), sex[c(1,7)], c(0.1, 0.1))
++     colnames(xdata.frame) <- c("ldose", "sex", "ldose1")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-58", pm3.ref, pm)
++ 
++     cat("A-58f predict(af, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-58", pm, pf)
++ 
++     cat("A-59m predict(am, xdata.frame, trace=", trace, ") numeric where factor expected, expect forge on message\n", sep="")
++     xdata.frame.39 <- data.frame(c(sex[1], sex[7]), c(-2,-1), c(0.1, 0.1))
++     colnames(xdata.frame.39) <- c("sex", "ldose", "ldose1")
++     pm <- predict(am, xdata.frame.39, trace=trace)
++     if (trace) print(pm)
++     # stop.if.not.identical("A-59", pm3.ref, pm) # TODO fails but "forge on" message is correctly issued
++ 
++     cat("A-59f predict(af, xdata.frame, trace=", trace, ") numeric where factor expected, expect forge on message\n", sep="")
++     pf <- predict(af, xdata.frame.39, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-59", pm, pf)
++ 
++     cat("A-50m data frame without column names, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex[1], -2, 0.1)
++     colnames(xdata.frame) <- NULL
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-34", pm.ref, pm)
++ 
++     cat("A-60f data frame without column names, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex[1], -2, 0.1)
++     colnames(xdata.frame) <- NULL
++     pf <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-60", pm, pf)
++ 
++     cat("A-61f data frame without extra columns, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex=sex[1], extra1=99, ldose=-2, extra2=99, ldose1=0.1, extra3=sex[7])
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-61", pm, pf)
++ 
++     #-----------------------------------
++ 
++     my.x1 <- as.numeric(ToothGrowth[,2]) # supp was VC or OJ
++     my.x2 <- as.numeric(ToothGrowth[,3]) # dose
++     my.input.mat <- cbind(my.x1, my.x2)
++     my.response <- ToothGrowth[,1]
++ 
++     cat("A-68 input matrix to formula interface trace=", trace, ", expect error \"could not interpret\"\n", sep="")
++     a41 <- earth(my.response~my.input.mat, trace=trace)
++     try.temp <- try(predict(a41, c(2.1, 0.6), trace=trace)) #
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("A-69 above test but with properly named dataframe trace=", trace, "\n", sep="")
++     df <- data.frame(growth=my.response, supp=my.x1, dose=my.x2)
++     a42 <- earth(formula=growth~., data=df, trace=0)
++     p <- predict(a42, c(2.1, 0.6), trace=0) # now gives the correct result
++     if (trace) print(head(p))
++ 
++     cat("\n--- B predict with multiple level factors and a multiple real response, trace=", trace,
++         " ---\n\n", sep="")
++ 
++     # note that we can no now longer get away with using numerics for
++     # factors because factors have more than two levels
++ 
++     # test set B: prepare the data
++ 
++     ldose  <- rep(0:5, 2) - 2
++     ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
++     sex3 <- factor(rep(c("male", "female", "andro"), times=c(6,4,2)))
++     fac3 <- factor(c("lev2", "lev2", "lev1", "lev1", "lev3", "lev3",
++                      "lev2", "lev2", "lev1", "lev1", "lev3", "lev3"))
++     numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
++     numdead2 <- c(2,3,10,13,19,20,0,3,7,11,13,17)
++     numdeadboth <- cbind(numdead, numdead2)
++     isex <- as.double(sex3) # sex3 as an index
++     df <- data.frame(sex3, ldose, ldose1, fac3)
++     am <-  earth(df, numdeadboth, trace=trace, pmethod="none", degree=2)
++     af <-  earth(numdeadboth ~ ., data=df, trace=trace, pmethod="none", degree=2)
++     check.models.equal(am, af, "B predict with multiple level factors and a multiple real response")
++     cat("20m head(predict(am, trace=", trace, ")\n", sep="")
++     pm <- predict(am, trace=trace)
++     if (trace) print(head(pm))
++ 
++     cat("B-21f head(predict(af, trace=", trace, ")\n", sep="")
++     pf <- predict(af, trace=trace)
++     if (trace) print(head(pf))
++     stop.if.not.identical("B-20", pm, pf)
++ 
++     cat("B-31m predict(am, xdata.frame, trace=", trace, ") data frame with factors and wrong col names\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     pm <- predict(am, xdata.frame, trace=trace)
++     pm.ref <- pm
++     stop.if.not.identical("B-31", pm.ref, pm)
++     if (trace) print(pm)
++ 
++     cat("B-31f predict(af, xdata.frame, trace=", trace, ") data frame with factors and wrong col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-31", pm, pf)
++ 
++     cat("B-31bm predict(am, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     xdata.frame <- data.frame(sex3=sex3[1], ldose=-2, ldose1=0.1, fac3=fac3[1])
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("B-31", pm.ref, pm)
++ 
++     cat("B-31bf predict(af, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-31b", pm, pf)
++ 
++     cat("B-32m predict(am, xdata.frame, trace=", trace, ") # data frame with names\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     colnames(xdata.frame) <- c("sex3", "ldose", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("B-32", pm, pf)
++     stop.if.not.identical("B-32", pm.ref, pm)
++ 
++     cat("B-32f predict(af, xdata.frame, trace=", trace, ") # data frame with names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-32", pm, pf)
++ 
++     cat("B-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2)
++     try.temp <- try(predict(am, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("B-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     try.temp <- try(predict(af, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("B-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
++     colnames(xdata.frame) <- c("ldose", "sex3", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("B-54", pm.ref, pm)
++ 
++     cat("B-54f predict(af, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-54", pm, pf)
++ 
++     cat("B-55m predict(am, xdata.frame, trace=", trace, ") data frame without col names\n", sep="")
++     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1), c(0.1, 0.1), fac3[c(1,9)])
++     pm <- predict(am, xdata.frame, trace=trace)
++     pm3.ref <- pm
++     if (trace) print(pm)
++     cat("B-55m again, but with same x data for both reponses\n")
++     xdata.frame <- data.frame(sex3[c(1,1)], c(-2,-2), c(0.1, 0.1), fac3[c(1,1)])
++     pm <- predict(am, xdata.frame, trace=trace)
++     print(pm)
++ 
++     cat("B-55f predict(af, xdata.frame, trace=", trace, ") data frame without col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-55", pm, pf)
++ 
++     cat("B2-55bm predict(am, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     xdata.frame <- data.frame(sex3=sex3[c(1,7)], ldose=c(-2,-1), ldose1=c(0.1,0.1), fac3=fac3[c(1,9)])
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("B2-55", pm3.ref, pm)
++ 
++     cat("B2-55bf predict(af, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B2-55b", pm, pf)
++ 
++     cat("B-56m predict(am, xdata.frame, trace=", trace, ") # data frame with col names\n", sep="")
++     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1), c(0.1, 0.1), fac3[c(1,9)])
++     colnames(xdata.frame) <- c("sex3", "ldose", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("B-56", pm3.ref, pm)
++ 
++     cat("B-56f predict(af, xdata.frame, trace=", trace, ") # data frame with col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-56", pm, pf)
++ 
++     cat("B-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
++     tempm <- try(predict(am, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("B-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     try.temp <- try(predict(af, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++     stop.if.not.identical("B-57", pm, pf)
++ 
++     cat("B-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     xdata.frame <- data.frame(c(-2,-1), sex3[c(1,7)], c(0.1, 0.1),  fac3[c(1,9)])
++     colnames(xdata.frame) <- c("ldose", "sex3", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("B-58", pm3.ref, pm)
++ 
++     cat("B-58f predict(af, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-58", pm, pf)
++ 
++     cat("B-50m data frame without column names, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     colnames(xdata.frame) <- NULL
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("B-34", pm.ref, pm)
++ 
++     cat("B-60f data frame without column names, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     colnames(xdata.frame) <- NULL
++     pf <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-60", pm, pf)
++ 
++     cat("B-60f data frame without extra columns, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex3=sex3[1], extra1=99, ldose=-2, extra2=99,
++                                ldose1=0.1, fac3=fac3[1], extra3=sex3[7])
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("B-60f", pm, pf)
++ 
++     cat("\n--- C predict with multiple level factors and a 3 level factor response, trace=", trace,
++         " ---\n\n", sep="")
++ 
++     # test set C: prepare the data
++ 
++     ldose  <- rep(0:5, 2) - 2
++     ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
++     sex3 <- factor(rep(c("male", "female", "andro"), times=c(6,4,2)))
++     fac3 <- factor(c("lev2", "lev2", "lev1", "lev1", "lev3", "lev3",
++                      "lev2", "lev2", "lev1", "lev1", "lev3", "lev3"))
++     facdead <- factor(c("dead2", "dead2", "dead3", "dead1", "dead3", "dead3",
++                         "dead1", "dead2", "dead1", "dead1", "dead3", "dead3"))
++ 
++     isex <- as.double(sex3) # sex3 as an index
++     df <- data.frame(sex3=sex3, ldose=ldose, ldose1=ldose1, fac3=fac3)
++     am <-  earth(df, facdead, trace=trace, pmethod="none", degree=2)
++     df.with.response <- data.frame(sex3=sex3, ldose=ldose, ldose1=ldose1, facdead=facdead, fac3=fac3)
++     af <-  earth(facdead ~ ., data=df.with.response, trace=trace, pmethod="none", degree=2)
++     check.models.equal(am, af, "C predict with multiple level factors and a multiple real response")
++     cat("20m head(predict(am, trace=", trace, ")\n", sep="")
++     pm <- predict(am, trace=trace)
++     if (trace) print(head(pm))
++ 
++     cat("C-21f head(predict(af, trace=", trace, ")\n", sep="")
++     pf <- predict(af, trace=trace)
++     if (trace) print(head(pf))
++     stop.if.not.identical("C-20", pm, pf)
++ 
++     cat("C-31m predict(am, xdata.frame, trace=", trace, ") data frame with factors and wrong col names\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     pm <- predict(am, xdata.frame, trace=trace)
++     pm.ref <- pm
++     stop.if.not.identical("C-31", pm.ref, pm)
++     if (trace) print(pm)
++ 
++     cat("C-31f predict(af, xdata.frame, trace=", trace, ") data frame with factors and wrong col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-31", pm, pf)
++ 
++     cat("C-31bm predict(am, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     xdata.frame <- data.frame(sex3=sex3[1], ldose=-2, ldose1=0.1, fac3=fac3[1])
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("C-31", pm.ref, pm)
++ 
++     cat("C-31bf predict(af, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-31b", pm, pf)
++ 
++     cat("C-32m predict(am, xdata.frame, trace=", trace, ") # data frame with names\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     colnames(xdata.frame) <- c("sex3", "ldose", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("C-32", pm, pf)
++     stop.if.not.identical("C-32", pm.ref, pm)
++ 
++     cat("C-32f predict(af, xdata.frame, trace=", trace, ") # data frame with names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-32", pm, pf)
++ 
++     cat("C-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2)
++     try.temp <- try(predict(am, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("C-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     try.temp <- try(predict(af, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("C-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
++     colnames(xdata.frame) <- c("ldose", "sex3", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("C-54", pm.ref, pm)
++ 
++     cat("C-54f predict(af, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-54", pm, pf)
++ 
++     cat("C-55m predict(am, xdata.frame, trace=", trace, ") data frame without col names\n", sep="")
++     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1), c(0.1, 0.1), fac3[c(1,9)])
++     pm <- predict(am, xdata.frame, trace=trace)
++     pm3.ref <- pm
++     if (trace) print(pm)
++ 
++     cat("C-55f predict(af, xdata.frame, trace=", trace, ") data frame without col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-55", pm, pf)
++ 
++     cat("C2-55bm predict(am, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     xdata.frame <- data.frame(sex3=sex3[c(1,7)], ldose=c(-2,-1), ldose1=c(0.1,0.1), fac3=fac3[c(1,9)])
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("C2-55", pm3.ref, pm)
++ 
++     cat("C2-55bf predict(af, xdata.frame, trace=", trace, ") data frame col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C2-55b", pm, pf)
++ 
++     cat("C-56m predict(am, xdata.frame, trace=", trace, ") # data frame with col names\n", sep="")
++     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1), c(0.1, 0.1), fac3[c(1,9)])
++     colnames(xdata.frame) <- c("sex3", "ldose", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("C-56", pm3.ref, pm)
++ 
++     cat("C-56f predict(af, xdata.frame, trace=", trace, ") # data frame with col names\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-56", pm, pf)
++ 
++     cat("C-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
++     tempm <- try(predict(am, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++ 
++     cat("C-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
++     try.temp <- try(predict(af, xdata.frame, trace=trace))
++     if (class(try.temp) != "try-error")
++         stop("test failed")
++     stop.if.not.identical("C-57", pm, pf)
++ 
++     cat("C-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     xdata.frame <- data.frame(c(-2,-1), sex3[c(1,7)], c(0.1, 0.1),  fac3[c(1,9)])
++     colnames(xdata.frame) <- c("ldose", "sex3", "ldose1", "fac3")
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("C-58", pm3.ref, pm)
++ 
++     cat("C-58f predict(af, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-58", pm, pf)
++ 
++     cat("C-50m data frame without column names, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     colnames(xdata.frame) <- NULL
++     pm <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("C-34", pm.ref, pm)
++ 
++     cat("C-60f data frame without column names, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex3[1], -2, 0.1, fac3[1])
++     colnames(xdata.frame) <- NULL
++     pf <- predict(am, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-60", pm, pf)
++ 
++     cat("C-61f data frame without extra columns, trace=", trace, "\n", sep="")
++     xdata.frame <- data.frame(sex3=sex3[1], extra1=99, ldose=-2, extra2=99,
++                                ldose1=0.1, fac3=fac3[1], extra3=sex3[7])
++     pf <- predict(af, xdata.frame, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("C-61", pm, pf)
++ }
+> test.predict.with.factors(trace=1)
+
+--- predict with single level factors and a single response, trace=1 ---
+
+first do a quick test of predict.earth help page example
+predict.earth: returning earth fitted.values 
+       Volume
+[1,] 10.02257
+[2,] 10.88250
+[3,] 11.45579
+[4,] 16.32876
+[5,] 20.49373
+[6,] 22.21705
+predict.earth: x has no column names, adding column names: Girth Height
+predict.earth: x is a 1 by 2 matrix: 1=Girth, 2=Height
+Contents of x are
+  Girth Height
+1    10     80
+predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-12.9), 3=h(12.9-Girth), 4=h(Height-76)
+Contents of bx are
+     (Intercept) h(Girth-12.9) h(12.9-Girth) h(Height-76)
+[1,]           1             0           2.9            4
+predict.earth: returning earth predictions 
+       Volume
+[1,] 17.76888
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 1 matrix: 1=numdead
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 1 matrix: 1=numdead
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+After forward pass GRSq 0.9313 RSq 0.9987
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+check.models.equal not identical: predict with single level factors and a single response [but within numerical tolerances]
+A-20m head(predict(am, trace=1)
+predict.earth: returning earth fitted.values 
+        numdead
+[1,]  0.8203767
+[2,]  3.6433743
+[3,]  8.6055529
+[4,] 13.2468183
+[5,] 17.7471200
+[6,] 20.2833170
+A-20f head(predict(af, trace=1)
+predict.earth: returning earth fitted.values 
+        numdead
+[1,]  0.8203767
+[2,]  3.6433743
+[3,]  8.6055529
+[4,] 13.2468183
+[5,] 17.7471200
+[6,] 20.2833170
+A-20 identical
+A-21m predict(am, newdata=c(sex[1], -2, 0.1), trace=1))
+predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+Contents of x are
+     sexmale ldose ldose1
+[1,]       1    -2    0.1
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+A-21f predict(af, newdata=c(sex[1], -2, 0.1), trace=1))
+predict.earth: x has no column names, adding column names: sex ldose ldose1
+predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of x are
+  sex ldose ldose1
+1   1    -2    0.1
+Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
+Forging on regardless, first few rows of x are
+  sex ldose ldose1
+1   1    -2    0.1
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+A-21 identical
+A-22m predict(am, newdata=c(1, -2, 0.1), trace=1)) use numeric instead of factor sex
+predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+Contents of x are
+     sexmale ldose ldose1
+[1,]       1    -2    0.1
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+A-22 identical
+A-22f predict(af, newdata=c(1, -2, 0.1), trace=1)) use numeric instead of factor sex
+predict.earth: x has no column names, adding column names: sex ldose ldose1
+predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of x are
+  sex ldose ldose1
+1   1    -2    0.1
+Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
+Forging on regardless, first few rows of x are
+  sex ldose ldose1
+1   1    -2    0.1
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+A-22 identical
+A-23m predict(am, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multiple rows as a vec
+predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+Contents of x are
+     sexmale ldose ldose1
+[1,]       2    -2    0.1
+[2,]       2    -2    0.1
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           0                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+[2,] 0.8203767
+A-23f predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multiple rows as a vec
+predict.earth: x has no column names, adding column names: sex ldose ldose1
+predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -2    0.1
+Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
+Forging on regardless, first few rows of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -2    0.1
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           0                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+[2,] 0.8203767
+A-23 identical
+A-24m predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more multiple rows as a vec
+predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+Contents of x are
+     sexmale ldose ldose1
+[1,]       2    -2    0.1
+[2,]       2    -1    0.1
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           1                   2                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+[2,] 5.8895886
+A-24f predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more multiple rows as a vec
+predict.earth: x has no column names, adding column names: sex ldose ldose1
+predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
+Forging on regardless, first few rows of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           1                   2                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+[2,] 5.8895886
+A-24 identical
+A-25m predict(am, xpredict matrix trace=1
+predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+Contents of x are
+     sexmale ldose ldose1
+[1,]       2    -2    0.1
+[2,]       2    -1    0.1
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           1                   2                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+[2,] 5.8895886
+A-25 identical
+A-25f predict(af, xpredict matrix trace=1
+predict.earth: x has no column names, adding column names: sex ldose ldose1
+predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
+Forging on regardless, first few rows of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           1                   2                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.8203767
+[2,] 5.8895886
+A-25 identical
+A-26m predict(am, new.data with col names) trace=1
+predict.earth : x columns are in the wrong order, recreating x
+    x column names:        sex ldose ldose1
+    expected column names: sexmale ldose ldose1
+predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+Contents of x are
+     sexmale ldose ldose1
+[1,]      NA    -2    0.1
+[2,]      NA    -1    0.1
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                  NA                         0
+[2,]           1           1                  NA                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+predict.earth: returning earth predictions 
+     numdead
+[1,]      NA
+[2,]      NA
+A-26m not identical
+pm2.ref:
+       numdead
+[1,] 0.8203767
+[2,] 5.8895886
+pm:
+     numdead
+[1,]      NA
+[2,]      NA
+Error in stop.if.not.identical("A-26m", pm2.ref, pm) : test failed
+Calls: test.predict.with.factors -> stop.if.not.identical
+Execution halted
