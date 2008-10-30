@@ -503,6 +503,9 @@ plot2 <- function(
                 cex1 <- par("cex")      # persp needs an explicit cex arg
             else
                 cex1 <- cex
+            if(ntrace > 1)
+                cat(pred.names[i1], ":", pred.names[i2], " theta ", theta1, 
+                        " ylim ", ylim, " cex ", cex1, " phi ", phi, "\n", sep="")
             persp(x1, x2, y.predict, main=main, theta=theta1, phi=phi, col=col.persp,
                 ticktype=ticktype, shade=shade, zlim=ylim, cex=cex1,
                 zlab=ylab, xlab=pred.names[i1], ylab=pred.names[i2], ...)

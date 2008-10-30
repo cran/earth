@@ -1856,8 +1856,9 @@ static void PrintForwardStep(
             else
                 printf("%-3d     ", nUsedTerms-1+IOFFSET);
         }
-        fflush(stdout);
     }
+    if (nTraceGlobal)
+        fflush(stdout);
 }
 
 //-----------------------------------------------------------------------------
@@ -2050,9 +2051,11 @@ static void ForwardPass(
     // prevent possible minspan range problems, also prevent crash when nCases==0
     if (nCases < 8)
         error("need at least 8 rows in x, you have %d", nCases);
+#if 0 // removed for earth 2.0-6
     if (nCases < nPreds)    // (this check may not actually be necessary)
         warning("Need as many rows as columns in x (nrow %d ncol %d)",
                  nCases, nPreds);
+#endif
     if (nCases > 1e8)
         error("too many rows %d in input matrix, max is 1e8", nCases);
     if (nResp < 1)

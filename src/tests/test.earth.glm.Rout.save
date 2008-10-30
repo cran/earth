@@ -43,8 +43,10 @@ Loading required package: leaps
 +     cat("\nevimp", model.name, "\n\n")
 +     print(evimp(a))
 +     cat("\nevimp", model.name, "trim=FALSE\n\n")
-+     print(evimp(a, trim=FALSE))
++     ev <- evimp(a, trim=FALSE)
++     print(ev)
 +     plot(a, caption=model.name)
++     plot(ev)
 +     cat("-------------------------------------------------------------------------------\n\n")
 + }
 > 
@@ -109,6 +111,15 @@ chosen    5      0.7309  0.9978    -0.1856      3  1 2 3 4 5
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.731 RSq 0.9978 
 
+y arg to glm() is a 12 by 2 matrix: 1=numdead, 2=numalive
+First few rows of y arg to glm() are
+     numdead numalive
+[1,]       1       19
+[2,]       4       16
+[3,]       9       11
+[4,]      13        7
+[5,]      18        2
+[6,]      20        0
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > print.earth.models(a1)
 
@@ -1586,6 +1597,15 @@ chosen   10      0.3550  0.3825     0.0020      6  1 2 6 8 9 10 11 12 13 14
 Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
 After backward pass GRSq 0.355 RSq 0.3825 
 
+y arg to glm() is a 1046 by 1 matrix: 1=male
+First few rows of y arg to glm() are
+     male
+[1,]    0
+[2,]    1
+[3,]    0
+[4,]    1
+[5,]    0
+[6,]    1
 GLM male: null.deviance 244.0765 (1045 dof)   deviance 150.7153 (1036 dof)   iters 2
 > cat("\nsummary(a11, details=TRUE)\n\n", sep="")
 
@@ -1718,7 +1738,25 @@ chosen    8      0.2298  0.2554     0.0038      5  1 2 3 4 5 6 7 9
 Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 5 predictors
 After backward pass GRSq 0.2298 RSq 0.2554 
 
+y arg to glm() is a 1046 by 1 matrix: 1=y1
+First few rows of y arg to glm() are
+     y1
+[1,]  1
+[2,]  2
+[3,]  1
+[4,]  2
+[5,]  1
+[6,]  2
 GLM y1: null.deviance 244.0765 (1045 dof)   deviance 166.8796 (1038 dof)   iters 2
+y arg to glm() is a 1046 by 1 matrix: 1=y2
+First few rows of y arg to glm() are
+       y2
+[1,]  841
+[2,]    0
+[3,]    4
+[4,]  900
+[5,]  625
+[6,] 2304
 GLM y2: null.deviance 1022962131 (1045 dof)   deviance 761734680 (1038 dof)   iters 2
 > cat("\nsummary(a12, details=TRUE)\n\n", sep="")
 
@@ -1819,11 +1857,11 @@ After backward pass GRSq 0.7055 RSq 0.7623
 > print(summary(a13, details=TRUE))
 Call: earth(formula=my.response~my.input.mat, trace=1)
 
-                       my.response
-(Intercept)                 21.585
-h(my.input.matmy.x1-1)      -3.700
-h(my.input.matmy.x2-1)       6.365
-h(1-my.input.matmy.x2)     -18.260
+                       coefficients
+(Intercept)                  21.585
+h(my.input.matmy.x1-1)       -3.700
+h(my.input.matmy.x2-1)        6.365
+h(1-my.input.matmy.x2)      -18.260
 
 Number of cases: 60
 Selected 4 of 4 terms, and 2 of 2 predictors 
@@ -2437,12 +2475,12 @@ check.models.equal not identical: a21 a22 [but within numerical tolerances]
 +     colnames(new.data) <- c("sex", "ldose", "ldose1")
 +     pm <- predict(am, newdata=new.data, trace=trace)
 +     if (trace) print(pm)
-+     stop.if.not.identical("A-26", pm2.ref, pm)
++     stop.if.not.identical("A-26m", pm2.ref, pm)
 + 
 +     cat("A-26f predict(af, new.data with col names) trace=", trace, "\n", sep="")
 +     pf <- predict(af, newdata=new.data, trace=trace)
 +     if (trace) print(pf)
-+     stop.if.not.identical("A-26", pm, pf)
++     stop.if.not.identical("A-26f", pm, pf)
 + 
 +     cat("A-27m predict(am, new.data with out of order col names) trace=", trace, "\n", sep="")
 +     new.data <- matrix(c(sex[1], sex[1], 0.1, 0.1, -2, -1), nrow=2)
@@ -2674,6 +2712,67 @@ check.models.equal not identical: a21 a22 [but within numerical tolerances]
 +     a42 <- earth(formula=growth~., data=df, trace=0)
 +     p <- predict(a42, c(2.1, 0.6), trace=0) # now gives the correct result
 +     if (trace) print(head(p))
++ 
++     cat("Tests with not all predictors used in the model so can pass fewer columns\n")
++     # No factor tests done, they probably won't work in this setup.
++ 
++     # first for earth.default
++     dummy <- rep(0, 12)
++     am <-  earth(cbind(ldose, dummy, ldose1), numdead, trace=trace, pmethod="none", degree=2)
++     # prepare reference prediction, using all columns
++     newdata <- matrix(c(-2, 0, 0.1), ncol=3, nrow=1)
++     colnames(newdata) <- c("ldose", "dummy", "ldose1")
++     pm.ref <- predict(am, newdata=newdata, trace=trace)
++     if (trace) print(pm.ref)
++ 
++     cat("A-72m predict(am, newdata=newdata[two columns], trace=trace)\n")
++     newdata <- matrix(c(-2, 0.1), ncol=2, nrow=1)
++     colnames(newdata) <- c("ldose", "ldose1")
++     pm <- predict(am, newdata=newdata, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-72m", pm, pm.ref)
++ 
++     # prepare reference prediction, using all columns
++     newdata <- data.frame(cbind(ldose, dummy, ldose1))
++     print(newdata)
++     pm.ref <- predict(am, newdata=newdata, trace=trace)
++     if (trace) print(pm.ref)
++ 
++     cat("A-73m predict(am, newdata=newdata[two columns], trace=trace)\n")
++     newdata <- newdata[, c(1,3)]
++     pm <- predict(am, newdata=newdata, trace=trace)
++     if (trace) print(pm)
++     stop.if.not.identical("A-73m", pm, pm.ref)
++ 
++     # now for earth.formula
++     dummy <- rep(0, 12)
++     af <-  earth(numdead ~ ldose + dummy + ldose1, trace=trace, pmethod="none", degree=2)
++     # prepare reference prediction, using all columns
++     newdata <- matrix(c(-2, 0, 0.1), ncol=3, nrow=1)
++     colnames(newdata) <- c("ldose", "dummy", "ldose1")
++     newdata <- as.data.frame(newdata)
++     pf.ref <- predict(af, newdata=newdata, trace=trace)
++     if (trace) print(pf.ref)
++ 
++     cat("A-72f predict(af, newdata=newdata[two columns], trace=trace)\n")
++     newdata <- matrix(c(-2, 0.1), ncol=2, nrow=1)
++     colnames(newdata) <- c("ldose", "ldose1")
++     newdata <- as.data.frame(newdata)
++     pf <- predict(af, newdata=newdata, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-72f", pf, pf.ref)
++ 
++     # prepare reference prediction, using all columns
++     newdata <- data.frame(cbind(ldose, dummy, ldose1))
++     print(newdata)
++     pf.ref <- predict(af, newdata=newdata, trace=trace)
++     if (trace) print(pf.ref)
++ 
++     cat("A-73f predict(af, newdata=newdata[two columns], trace=trace)\n")
++     newdata <- newdata[, c(1,3)]
++     pf <- predict(af, newdata=newdata, trace=trace)
++     if (trace) print(pf)
++     stop.if.not.identical("A-73f", pf, pf.ref)
 + 
 +     cat("\n--- B predict with multiple level factors and a multiple real response, trace=", trace,
 +         " ---\n\n", sep="")
@@ -3294,7 +3393,7 @@ predict.earth: returning earth predictions
        numdead
 [1,] 0.8203767
 [2,] 5.8895886
-A-26 identical
+A-26m identical
 A-26f predict(af, new.data with col names) trace=1
 predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
@@ -3318,7 +3417,7 @@ predict.earth: returning earth predictions
        numdead
 [1,] 0.8203767
 [2,] 5.8895886
-A-26 identical
+A-26f identical
 A-27m predict(am, new.data with out of order col names) trace=1
 predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: sex ldose1 ldose
@@ -3970,6 +4069,231 @@ Error : model.frame.default could not interpret the data passed to predict.earth
 A-69 above test but with properly named dataframe trace=1
      growth
 [1,] 10.211
+Tests with not all predictors used in the model so can pass fewer columns
+x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+y is a 12 by 1 matrix: 1=numdead
+Forward pass term 1, 2, 4
+Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001)
+After forward pass GRSq 0.7375 RSq 0.9219
+Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 3 predictors
+After backward pass GRSq 0.8679 RSq 0.9211 
+predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+Contents of x are
+     ldose dummy ldose1
+[1,]    -2     0    0.1
+predict.earth: bx is a 1 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+Contents of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.1428571
+A-72m predict(am, newdata=newdata[two columns], trace=trace)
+predict.earth: x has missing columns, creating a new x with all cols
+predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+Contents of x are
+     ldose dummy ldose1
+[1,]    -2   999    0.1
+predict.earth: bx is a 1 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+Contents of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.1428571
+A-72m identical
+   ldose dummy ldose1
+1     -2     0    0.1
+2     -1     0    1.2
+3      0     0    0.1
+4      1     0    1.2
+5      2     0    1.0
+6      3     0    0.1
+7     -2     0    0.3
+8     -1     0    1.4
+9      0     0    0.1
+10     1     0    1.2
+11     2     0    0.1
+12     3     0    0.9
+predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+First few rows of x are
+  ldose dummy ldose1
+1    -2     0    0.1
+2    -1     0    1.2
+3     0     0    0.1
+4     1     0    1.2
+5     2     0    1.0
+6     3     0    0.1
+predict.earth: bx is a 12 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+First few rows of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+[2,]           1           1
+[3,]           1           2
+[4,]           1           3
+[5,]           1           4
+[6,]           1           5
+predict.earth: returning earth predictions 
+         numdead
+ [1,]  0.1428571
+ [2,]  3.7857143
+ [3,]  7.4285714
+ [4,] 11.0714286
+ [5,] 14.7142857
+ [6,] 18.3571429
+ [7,]  0.1428571
+ [8,]  3.7857143
+ [9,]  7.4285714
+[10,] 11.0714286
+[11,] 14.7142857
+[12,] 18.3571429
+A-73m predict(am, newdata=newdata[two columns], trace=trace)
+predict.earth: x has missing columns, creating a new x with all cols
+predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+First few rows of x are
+     ldose dummy ldose1
+[1,]    -2   999    0.1
+[2,]    -1   999    1.2
+[3,]     0   999    0.1
+[4,]     1   999    1.2
+[5,]     2   999    1.0
+[6,]     3   999    0.1
+predict.earth: bx is a 12 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+First few rows of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+[2,]           1           1
+[3,]           1           2
+[4,]           1           3
+[5,]           1           4
+[6,]           1           5
+predict.earth: returning earth predictions 
+         numdead
+ [1,]  0.1428571
+ [2,]  3.7857143
+ [3,]  7.4285714
+ [4,] 11.0714286
+ [5,] 14.7142857
+ [6,] 18.3571429
+ [7,]  0.1428571
+ [8,]  3.7857143
+ [9,]  7.4285714
+[10,] 11.0714286
+[11,] 14.7142857
+[12,] 18.3571429
+A-73m identical
+x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+y is a 12 by 1 matrix: 1=numdead
+Forward pass term 1, 2, 4
+Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001)
+After forward pass GRSq 0.7375 RSq 0.9219
+Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 3 predictors
+After backward pass GRSq 0.8679 RSq 0.9211 
+predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+Contents of x are
+  ldose dummy ldose1
+1    -2     0    0.1
+predict.earth: bx is a 1 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+Contents of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.1428571
+A-72f predict(af, newdata=newdata[two columns], trace=trace)
+predict.earth: x has missing columns, creating a new x with all cols
+predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+Contents of x are
+  ldose dummy ldose1
+1    -2   999    0.1
+predict.earth: bx is a 1 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+Contents of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+predict.earth: returning earth predictions 
+       numdead
+[1,] 0.1428571
+A-72f identical
+   ldose dummy ldose1
+1     -2     0    0.1
+2     -1     0    1.2
+3      0     0    0.1
+4      1     0    1.2
+5      2     0    1.0
+6      3     0    0.1
+7     -2     0    0.3
+8     -1     0    1.4
+9      0     0    0.1
+10     1     0    1.2
+11     2     0    0.1
+12     3     0    0.9
+predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+First few rows of x are
+  ldose dummy ldose1
+1    -2     0    0.1
+2    -1     0    1.2
+3     0     0    0.1
+4     1     0    1.2
+5     2     0    1.0
+6     3     0    0.1
+predict.earth: bx is a 12 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+First few rows of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+[2,]           1           1
+[3,]           1           2
+[4,]           1           3
+[5,]           1           4
+[6,]           1           5
+predict.earth: returning earth predictions 
+         numdead
+ [1,]  0.1428571
+ [2,]  3.7857143
+ [3,]  7.4285714
+ [4,] 11.0714286
+ [5,] 14.7142857
+ [6,] 18.3571429
+ [7,]  0.1428571
+ [8,]  3.7857143
+ [9,]  7.4285714
+[10,] 11.0714286
+[11,] 14.7142857
+[12,] 18.3571429
+A-73f predict(af, newdata=newdata[two columns], trace=trace)
+predict.earth: x has missing columns, creating a new x with all cols
+predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+First few rows of x are
+  ldose dummy ldose1
+1    -2   999    0.1
+2    -1   999    1.2
+3     0   999    0.1
+4     1   999    1.2
+5     2   999    1.0
+6     3   999    0.1
+predict.earth: bx is a 12 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
+First few rows of bx are
+     (Intercept) h(ldose--2)
+[1,]           1           0
+[2,]           1           1
+[3,]           1           2
+[4,]           1           3
+[5,]           1           4
+[6,]           1           5
+predict.earth: returning earth predictions 
+         numdead
+ [1,]  0.1428571
+ [2,]  3.7857143
+ [3,]  7.4285714
+ [4,] 11.0714286
+ [5,] 14.7142857
+ [6,] 18.3571429
+ [7,]  0.1428571
+ [8,]  3.7857143
+ [9,]  7.4285714
+[10,] 11.0714286
+[11,] 14.7142857
+[12,] 18.3571429
+A-73f identical
 
 --- B predict with multiple level factors and a multiple real response, trace=1 ---
 
@@ -4779,14 +5103,14 @@ Forging on regardless, first few rows of x are
 2   2    -1    0.1
 A-25 identical
 A-26m predict(am, new.data with col names) trace=0
-A-26 identical
+A-26m identical
 A-26f predict(af, new.data with col names) trace=0
 Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
 Forging on regardless, first few rows of x are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
-A-26 identical
+A-26f identical
 A-27m predict(am, new.data with out of order col names) trace=0
 A-27 identical
 A-27f predict(af, new.data with out of order col names) trace=0
@@ -4896,6 +5220,41 @@ A-61 identical
 A-68 input matrix to formula interface trace=0, expect error "could not interpret"
 Error : model.frame.default could not interpret the data passed to predict.earth
 A-69 above test but with properly named dataframe trace=0
+Tests with not all predictors used in the model so can pass fewer columns
+A-72m predict(am, newdata=newdata[two columns], trace=trace)
+A-72m identical
+   ldose dummy ldose1
+1     -2     0    0.1
+2     -1     0    1.2
+3      0     0    0.1
+4      1     0    1.2
+5      2     0    1.0
+6      3     0    0.1
+7     -2     0    0.3
+8     -1     0    1.4
+9      0     0    0.1
+10     1     0    1.2
+11     2     0    0.1
+12     3     0    0.9
+A-73m predict(am, newdata=newdata[two columns], trace=trace)
+A-73m identical
+A-72f predict(af, newdata=newdata[two columns], trace=trace)
+A-72f identical
+   ldose dummy ldose1
+1     -2     0    0.1
+2     -1     0    1.2
+3      0     0    0.1
+4      1     0    1.2
+5      2     0    1.0
+6      3     0    0.1
+7     -2     0    0.3
+8     -1     0    1.4
+9      0     0    0.1
+10     1     0    1.2
+11     2     0    0.1
+12     3     0    0.9
+A-73f predict(af, newdata=newdata[two columns], trace=trace)
+A-73f identical
 
 --- B predict with multiple level factors and a multiple real response, trace=0 ---
 

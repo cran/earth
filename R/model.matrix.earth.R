@@ -116,22 +116,55 @@ get.earth.x <- function(    # returns x expanded for factors
     trace   = 0,
     Callers.name)           # caller's name for trace messages
 {
-    fix.x.columns <- function(x, expected.colnames, stop.if.ncols.wrong)
+    # Given an x mat, return an x mat with column names equal to
+    # expected.colnames and with the columns in their correct order
+    # So the user can hand us an x mat without column names,
+    # or with named columns but in the wrong order, or an xmat containing
+    # only a needed subset of all the columns, etc.
+    # This code is a mess and doesn't handle all cases, just the common ones.
+
+    fix.x.columns <- function(x, expected.colnames)
     {
         col.names <- colnames(x)
+        ncol.names <- length(col.names)
+        nexpected <- length(expected.colnames)
         if(is.null(col.names)) {
             if(trace)
                 cat(Callers.name, ": x has no column names, ",
                     "adding column names: ", paste.with.space(expected.colnames),
                     "\n", sep="")
             col.names <- expected.colnames
-        } else if(length(col.names) != length(expected.colnames)) {
-            # if there are too many columns model.frame() will (try to) pick out
-            # the correct ones so no error message in that case
-            if(length(col.names) < length(expected.colnames) || stop.if.ncols.wrong)
-                stop1(Callers.name, ": x has ", length(col.names),
+         } else if(ncol.names < nexpected) {
+            # CHANGED Oct 2008: allow user to specify less than the expected
+            # nbr of columns -- which is ok if he specifies all predictors
+            # actually used by the model.
+
+            imatch <- pmatch(col.names, expected.colnames, nomatch=0)
+            if (any(imatch == 0)) {
+                # can't repair the error because there are colnames in x that aren't
+                # in expected.names (tends to happen with expanded factor names)
+                stop1(Callers.name, ": x has ", ncol.names,
                       " columns, expected ", length(expected.colnames),
                       " to match: ", paste.with.space(expected.colnames))
+            }
+            # Create a new x, putting the existing cols into their correct positions.
+            # Cols that aren't in the original x will end up as all 999s in the
+            # the recreated x; that doesn't matter if they are for predictors
+            # that are unused in the earth model.
+            # We use 999 instead of NA else the model matrix routines fail incorrectly
+            # because they don't like NAs when doing predictions.
+            if(trace)
+                cat(Callers.name, ": x has missing columns, ",
+                    "creating a new x with all cols\n", sep="")
+            imatch <- pmatch(expected.colnames, col.names, nomatch=0)
+            x.original <- x
+            x <- matrix(data=999, nrow=nrow(x), ncol=nexpected)
+            for (i in 1:nexpected)
+                if (imatch[i])
+                    x[,i] <- x.original[,imatch[i]]
+            col.names <- expected.colnames
+        } else if(ncol.names > nexpected) {
+            # TODO not sure what to do here (do nothing so old regression tests pass)
         } else {
             imatch <- pmatch(col.names, expected.colnames, nomatch=0)
             if(all(imatch == 0)) {
@@ -218,7 +251,7 @@ get.earth.x <- function(    # returns x expanded for factors
 
         x <- get.update.arg(data, "x", object, trace, Callers.name)
         x <- my.as.matrix(data)
-        x <- fix.x.columns(x, object$namesx, stop.if.ncols.wrong=TRUE)
+        x <- fix.x.columns(x, object$namesx)
         if(trace)
             print.matrix.info("x", x, Callers.name)
         x <- expand.arg(x, env)
@@ -228,7 +261,7 @@ get.earth.x <- function(    # returns x expanded for factors
         Terms <- delete.response(object$terms)
         data <- get.update.arg(data, "data", object, trace, Callers.name)
         data <- my.as.matrix(data)
-        data <- fix.x.columns(data, object$namesx, stop.if.ncols.wrong=FALSE)
+        data <- fix.x.columns(data, object$namesx)
         data <- as.data.frame(data)
         expected.nrows <- nrow(data)
         if(trace)

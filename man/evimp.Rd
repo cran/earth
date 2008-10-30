@@ -32,15 +32,15 @@ Is the number of subsets that include the variable (see below).\cr
 \code{rss}: ditto but for the RSS criterion.\cr
 
 The rows are sorted on the \code{nsubsets} criterion.
-This means that values in the \code{nsubsets} column decrease as you go down the column.
-(More accurately, they are are non-increasing).
+This means that values in the \code{nsubsets} column decrease as you go down the column
+(more accurately, they are non-increasing).
 The values in the \code{gcv} and \code{rss} columns decrease except where the
 \code{gcv} or \code{rss} ranking differs from the \code{nsubsets} ranking.\cr
 
 Additionally, there are unnamed columns after the \code{gcv} column and the \code{rss} column.
 These have a 0 where the ranking using the \code{gcv} or \code{rss} criteria differs from
 that using the \code{nsubsets} criterion.
-Equivalently,  there is a 0 for values that do not decrease as you go 
+In other words, there is a 0 for values that increase as you go 
 down the \code{gcv} or \code{rss} column.
 }
 \note{
@@ -49,7 +49,8 @@ down the \code{gcv} or \code{rss} column.
 Establishing predictor importance is in general a tricky and even controversial problem.
 There is no completely reliable way to estimate the importance of the variables
 in a standard MARS model,
-unless you make further lengthy tests after the model is built.
+unless you make further lengthy tests after the model is built
+(lengthy tests such as leave-one-out techniques).
 The \code{evimp} function just makes an educated (and in practice useful)
 guess as described below.
 
@@ -185,11 +186,14 @@ An example of conflicting importances
 Thanks to Max Kuhn for the original \code{evimp} code and for helpful discussions.
 }
 \seealso{
-  \code{\link{earth}}
+  \code{\link{earth}},
+  \code{\link{plot.evimp}}
 }
 \examples{
 data(ozone1)
 a <- earth(O3 ~ ., data=ozone1, degree=2)
-evimp(a, trim=FALSE)
+ev <- evimp(a, trim=FALSE)
+plot(ev)
+print(ev)
 }
 \keyword{models}

@@ -599,6 +599,11 @@ earth(cbind(Volume,lvol=log(Volume)) ~ ., data=trees)
 attach(trees)
 earth(data.frame(Girth,Height), data.frame(Volume,lvol=log(Volume)))
 }
+Don't use a plus sign on the left hand side of the "~".
+You may think that specifies a multiple response, but
+it \emph{adds} the columns you specify instead.
+That's an easy mistake to make.
+
 For more details on using residual errors averaged over multiple responses see section 4.1 of
 Hastie, Tibshirani, and Buja \emph{Flexible Discriminant Analysis by Optimal Scoring},
 JASA, December 1994 \url{http://www-stat.stanford.edu/~hastie/Papers/fda.pdf}.
@@ -1392,6 +1397,7 @@ is a more flexible way of achieving the same end.
   The primary references are
   the Friedman papers.  Readers may find the MARS section in Hastie, Tibshirani,
   and Friedman a more accessible introduction.  
+  The Wikipedia article gives an elementary introduction.
   Faraway takes a hands-on approach,
   using the \code{\link[=ozone1]{ozone}} data to compare \code{mda::mars} with other techniques.
   (If you use Faraway's examples with \code{earth} instead of \code{mars}, use \code{$bx}
@@ -1428,6 +1434,9 @@ is a more flexible way of achieving the same end.
 
   Miller, Alan (1990, 2nd ed. 2002) \emph{Subset Selection in Regression}
   \url{http://users.bigpond.net.au/amiller}
+
+  Wikipedia article on MARS
+  \url{http://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines}
 }
 \seealso{
   Start with \code{\link{summary.earth}}, \code{\link{plotmo}}, and \code{\link{evimp}}.

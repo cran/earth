@@ -29,7 +29,7 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
         cat(nlinpreds, " linear predictors", sep="")
     cat("\n")
 
-    print.estimated.predictor.importance(x)
+    print.one.line.evimp(x) # print estmated var importances on a single line
 
     nterms.per.degree <- get.nterms.per.degree(x, x$selected.terms)
     cat("Number of terms at each degree of interaction:", nterms.per.degree)
@@ -86,9 +86,9 @@ print.summary.earth <- function(
     ...)
 {
     my.print.call("Call: ", x$call)
-    cat("\n")
-    warn.if.dots.used("print.summary.earth", ...)
     nresp <- NCOL(x$coefficients)
+   	cat("\n")
+    warn.if.dots.used("print.summary.earth", ...)
     is.glm.model <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
     new.order <- reorder.earth(x, decomp=decomp)
     response.names <- colnames(x$coeff)
@@ -97,18 +97,20 @@ print.summary.earth <- function(
 
     if(!is.glm.model || details) {
         if(!is.null(x$strings)) {      # old style expression formatting?
-           for(iresp in 1:nresp) {
-               cat(response.names[iresp], " =\n", sep="")
-               cat(x$strings[iresp])
-               cat("\n")
+			for(iresp in 1:nresp) {
+				   cat(response.names[iresp], " =\n", sep="")
+				   cat(x$strings[iresp])
+				   cat("\n")
            }
         } else {
-            if(is.glm.model)
-                cat("earth coefficients\n") # remind user what these are
             rownames(x$coefficients) <- spaceout(rownames(x$coefficients))
             coef <- x$coefficients[new.order, , drop=FALSE]
             if(fixed.point)
                 coef <- my.fixed.point(coef, digits)
+            if(is.glm.model)
+                cat("earth coefficients\n") # remind user what these are
+			else if(nresp == 1)
+                colnames(coef) = "coefficients"
             print(coef, digits=digits)
             cat("\n")
         }

@@ -50,19 +50,19 @@ test 1: nrow(x) 10000 ncol(x) 100 degree 1 nk 51 trace 0
 Call: earth(x=x, y=y, trace=trace, nk=51, degree=degree, 
       minspan=0)
 
-                        y
-(Intercept)        -2.468
-h(x01- -0.395085)  -1.483
-h(-0.395085-x01)    2.795
-h(x01- -0.135719)   6.678
-h(x01-0.274708)   -10.315
-h(x01-0.752448)     8.166
-h(x02-0.809611)     0.948
-h(0.809611-x02)    -1.000
-h(x03- -0.588288)   4.299
-h(x03-0.0152946)   -2.000
-h(0.0152946-x03)    6.633
-h(x03-0.512949)     3.688
+                  coefficients
+(Intercept)             -2.468
+h(x01- -0.395085)       -1.483
+h(-0.395085-x01)         2.795
+h(x01- -0.135719)        6.678
+h(x01-0.274708)        -10.315
+h(x01-0.752448)          8.166
+h(x02-0.809611)          0.948
+h(0.809611-x02)         -1.000
+h(x03- -0.588288)        4.299
+h(x03-0.0152946)        -2.000
+h(0.0152946-x03)         6.633
+h(x03-0.512949)          3.688
 
 Selected 12 of 12 terms, and 3 of 100 predictors 
 Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...
@@ -194,12 +194,12 @@ After backward pass GRSq 0.8588 RSq 0.859
 Call: earth(x=x, y=y, trace=trace, nk=51, degree=degree, 
       minspan=0)
 
-                     y
-(Intercept)      1.677
-h(x01-0.761679)  0.923
-h(0.761679-x01) -1.008
-h(x02-0.907378)  1.014
-h(0.907378-x02) -1.000
+                coefficients
+(Intercept)            1.677
+h(x01-0.761679)        0.923
+h(0.761679-x01)       -1.008
+h(x02-0.907378)        1.014
+h(0.907378-x02)       -1.000
 
 Selected 5 of 5 terms, and 2 of 100 predictors 
 Importance: x02, x01, x03-unused, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...

@@ -42,8 +42,10 @@ print.earth.models <- function(a)
     cat("\nevimp", model.name, "\n\n")
     print(evimp(a))
     cat("\nevimp", model.name, "trim=FALSE\n\n")
-    print(evimp(a, trim=FALSE))
+    ev <- evimp(a, trim=FALSE)
+    print(ev)
     plot(a, caption=model.name)
+    plot(ev)
     cat("-------------------------------------------------------------------------------\n\n")
 }
 
@@ -358,12 +360,12 @@ test.predict.with.factors <- function(trace)
     colnames(new.data) <- c("sex", "ldose", "ldose1")
     pm <- predict(am, newdata=new.data, trace=trace)
     if (trace) print(pm)
-    stop.if.not.identical("A-26", pm2.ref, pm)
+    stop.if.not.identical("A-26m", pm2.ref, pm)
 
     cat("A-26f predict(af, new.data with col names) trace=", trace, "\n", sep="")
     pf <- predict(af, newdata=new.data, trace=trace)
     if (trace) print(pf)
-    stop.if.not.identical("A-26", pm, pf)
+    stop.if.not.identical("A-26f", pm, pf)
 
     cat("A-27m predict(am, new.data with out of order col names) trace=", trace, "\n", sep="")
     new.data <- matrix(c(sex[1], sex[1], 0.1, 0.1, -2, -1), nrow=2)
@@ -595,6 +597,67 @@ test.predict.with.factors <- function(trace)
     a42 <- earth(formula=growth~., data=df, trace=0)
     p <- predict(a42, c(2.1, 0.6), trace=0) # now gives the correct result
     if (trace) print(head(p))
+
+    cat("Tests with not all predictors used in the model so can pass fewer columns\n")
+    # No factor tests done, they probably won't work in this setup.
+
+    # first for earth.default
+    dummy <- rep(0, 12)
+    am <-  earth(cbind(ldose, dummy, ldose1), numdead, trace=trace, pmethod="none", degree=2)
+    # prepare reference prediction, using all columns
+    newdata <- matrix(c(-2, 0, 0.1), ncol=3, nrow=1)
+    colnames(newdata) <- c("ldose", "dummy", "ldose1")
+    pm.ref <- predict(am, newdata=newdata, trace=trace)
+    if (trace) print(pm.ref)
+
+    cat("A-72m predict(am, newdata=newdata[two columns], trace=trace)\n")
+    newdata <- matrix(c(-2, 0.1), ncol=2, nrow=1)
+    colnames(newdata) <- c("ldose", "ldose1")
+    pm <- predict(am, newdata=newdata, trace=trace)
+    if (trace) print(pm)
+    stop.if.not.identical("A-72m", pm, pm.ref)
+
+    # prepare reference prediction, using all columns
+    newdata <- data.frame(cbind(ldose, dummy, ldose1))
+    print(newdata)
+    pm.ref <- predict(am, newdata=newdata, trace=trace)
+    if (trace) print(pm.ref)
+
+    cat("A-73m predict(am, newdata=newdata[two columns], trace=trace)\n")
+    newdata <- newdata[, c(1,3)]
+    pm <- predict(am, newdata=newdata, trace=trace)
+    if (trace) print(pm)
+    stop.if.not.identical("A-73m", pm, pm.ref)
+
+    # now for earth.formula
+    dummy <- rep(0, 12)
+    af <-  earth(numdead ~ ldose + dummy + ldose1, trace=trace, pmethod="none", degree=2)
+    # prepare reference prediction, using all columns
+    newdata <- matrix(c(-2, 0, 0.1), ncol=3, nrow=1)
+    colnames(newdata) <- c("ldose", "dummy", "ldose1")
+    newdata <- as.data.frame(newdata)
+    pf.ref <- predict(af, newdata=newdata, trace=trace)
+    if (trace) print(pf.ref)
+
+    cat("A-72f predict(af, newdata=newdata[two columns], trace=trace)\n")
+    newdata <- matrix(c(-2, 0.1), ncol=2, nrow=1)
+    colnames(newdata) <- c("ldose", "ldose1")
+    newdata <- as.data.frame(newdata)
+    pf <- predict(af, newdata=newdata, trace=trace)
+    if (trace) print(pf)
+    stop.if.not.identical("A-72f", pf, pf.ref)
+
+    # prepare reference prediction, using all columns
+    newdata <- data.frame(cbind(ldose, dummy, ldose1))
+    print(newdata)
+    pf.ref <- predict(af, newdata=newdata, trace=trace)
+    if (trace) print(pf.ref)
+
+    cat("A-73f predict(af, newdata=newdata[two columns], trace=trace)\n")
+    newdata <- newdata[, c(1,3)]
+    pf <- predict(af, newdata=newdata, trace=trace)
+    if (trace) print(pf)
+    stop.if.not.identical("A-73f", pf, pf.ref)
 
     cat("\n--- B predict with multiple level factors and a multiple real response, trace=", trace,
         " ---\n\n", sep="")

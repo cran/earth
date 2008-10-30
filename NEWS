@@ -1,6 +1,11 @@
 Changes to Earth Package
 ------------------------
 
+2.0-6 Oct 30 2008
+    You can now pass only the needed subset of columns to predict.earth
+    Added plot.evimp
+    Removed spurious warning "Need as many rows as columns"
+
 2.0-5 Jul 14 2008 
     Touched up documentation for format.lm.
 

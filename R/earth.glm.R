@@ -111,8 +111,10 @@ earth.glm <- function(bx, y, weights, na.action, glm,
             check.yarg.for.binomial.glm(yarg, weights, glm$mustart, iycol < ncol(y))
         iycol <- iycol + 1
         stopif(is.null(colnames(yarg)))
+        if(trace >= 4)
+            print.matrix.info("y arg to glm()", yarg)
         g <- glm(yarg ~ ., family=family, data=bx.data.frame,
-                weights=weights, na.action=na.action, start=glm$start,
+                weights=glm$weights, na.action=na.action, start=glm$start,
                 etastart=glm$etastart, mustart=glm$mustart,
                 offset=glm$offset, control=control, model=TRUE, trace=(trace>=2),
                 method="glm.fit", x=TRUE, y=TRUE, contrasts=NULL)
@@ -213,7 +215,12 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
               "\" in \"glm\" argument\n",
               "These are always effectively TRUE")
 
-    earths.args <- c("formula", "weights", "subset")
+    # FIX Oct 2008: removed "weights" from list below to 
+    # allow weights for glm list. Needed for example in
+    # library(segmented); data(down); fit.e<-earth(cases/births~age,data=down,glm=list(family="binomial", weights=down$births))
+    # If no weights, get warning: non-integer #successes in a binomial glm
+    # TODO why does plotmo on above model not work?
+    earths.args <- c("formula", "subset")
 
     imatch <- pmatch(earths.args, arg.names)
     imatch <- imatch[!is.na(imatch)]

@@ -182,6 +182,8 @@ earth.default <- function(
     rval
 }
 
+# TODO: make sure default action is na.fail, it seems to be na.ignore at the moment
+
 earth.formula <- function(
     formula = stop("no 'formula' arg"), # intercept will be ignored
     data    = NULL,
@@ -358,8 +360,12 @@ earth.fit <- function(
     # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)
         stop1("\"nk\" ", nk, " is less than 1")
-    if(!identical(na.action, na.fail))
+	if (is.character(na.action)) {
+		if (is.na(pmatch(na.action, "na.fail")))
+        	stop("illegal \"na.action\", only na.action=na.fail is allowed")
+    } else if(!identical(na.action, na.fail))
         stop("illegal \"na.action\", only na.action=na.fail is allowed")
+   	na.action <- na.fail
     # TODO implementation of case weights is not complete so don't allow case weights
     if(!is.null(weights) &&
             !isTRUE(all.equal(weights, rep(weights[1], length(weights))))) {

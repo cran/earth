@@ -47,7 +47,7 @@ warn.if.dots.used <- function(func.name, ...)
 check.classname <- function(object, object.name, class.names)
 {
     if(!inherits(object, class.names))
-        stop("the class of \"", object.name, "\" is not \"",
+        stop1("the class of \"", object.name, "\" is not \"",
             paste(class.names, collapse="\" or \""), "\"")
 }
 
