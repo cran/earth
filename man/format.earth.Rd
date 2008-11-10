@@ -29,7 +29,8 @@ Return a string representing an \code{\link{earth}} expression.
   \item{style}{
     Formatting style. One of\cr
 \code{"h"} (default) more compact\cr
-\code{"pmax"} for those who prefer it and for compatibility with old versions of earth.
+\code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
+\code{"bf"} basis function format.
   }
   \item{colon.char}{
     Change colons in the returned string to colon.char.
@@ -109,5 +110,17 @@ cat(format(a, style="pmax")) # default formatting style prior to earth version 1
 #    +  5.75 * pmax(0,  Girth -   12.9)
 #    -  2.87 * pmax(0,   12.9 -  Girth)
 #    + 0.718 * pmax(0, Height -     76)
+
+cat(format(a, style="bf"))
+
+# yields:
+#    23.2
+#    +  5.75 * bf1
+#    -  2.87 * bf2
+#    + 0.718 * bf3
+#  
+#     bf1  h(Girth-12.9)
+#     bf2  h(12.9-Girth)
+#     bf3  h(Height-76)
 }
 \keyword{models}

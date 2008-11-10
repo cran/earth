@@ -19,7 +19,7 @@ options(digits=5)
 
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
-    cat("===", deparse(substitute(x)))
+    cat("===", deparse(substitute(x)), " ", sep="")
     if(expect.warning)
         cat(" expect warning -->")
     else if (NROW(x) > 1)
@@ -152,6 +152,7 @@ cat(format(a)) # basic tests of format.earth
 cat(format(a, digits=4))
 # cat(format(a, use.names=FALSE))
 cat(format(a, style="pmax"))
+cat(format(a, style="bf"))
 cat(format(a, use.names=FALSE, style="p"))
 a <- earth(Volume ~ Girth*Height, data = trees, pmethod="none")
 cat(format(a))
@@ -172,6 +173,7 @@ a <- mars(trees[,-3], trees[,3])
 a <- mars.to.earth(a)
 summary(a, digits = 2)
 printh(summary(a, digits=2))
+printh(summary(a, digits=2, style="bf"))
 cat("--- plot.earth.models.Rd ----------------------\n")
 if (PLOT)
     example(plot.earth.models)
@@ -408,6 +410,8 @@ ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
         "GRSq ratio", fite$grsq/mars.to.earth(fitm)$grsq,
         "\n")
     caption <- paste("itest ", itest, ": ", sModel, " degree=", degree, " nk=", nk, sep="")
+    printh(summary(fite))
+    printh(summary(fite, style="bf"))
     if(plotit) {
         fitme <- mars.to.earth(fitm)
         plotmo(fite, caption=paste("EARTH", caption))
@@ -432,6 +436,7 @@ itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=2, plotit=FALSE, te
 itest <- itest+1; test.earth(itest, funcNoise, nk=51, degree=1, plotit=FALSE, test.rsq=FALSE)
 itest <- itest+1; a <- test.earth(itest, funcNoise, nk=51, degree=2, plotit=FALSE, test.rsq=FALSE)
 printh(summary(a, fixed.point=FALSE)) # check that print summary works with intercept only model
+printh(summary(a, fixed.point=FALSE, style="bf")) # ditto
 printh(summary(a, details=1, fixed.point=FALSE))
 
 func1 <- function(x)
@@ -482,6 +487,7 @@ itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=2,  test.rsq=FALSE
 itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=10, test.rsq=FALSE)
 itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=1,  test.rsq=FALSE)
 itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=2,  test.rsq=FALSE)
+
 itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=10, test.rsq=FALSE)
 
 eqn56 <- function(x) # Friedman MARS paper equation 56
@@ -550,9 +556,13 @@ data.global <- cbind(robotArm(x.global), (x1.+1)/2, (x2.+2)/2, pi*(x3.+1), pi*(x
 colnames(x.global) <- c("l1", "l2", "theta1", "theta2", "phi")
 colnames(data.global) <- c("arm", "l1", "l2", "theta1", "theta2", "phi")
 itest <- itest+1; test.earth(itest, robotArm, nk=51, degree=1)
-itest <- itest+1; test.earth(itest, robotArm, nk=51, degree=10)
+itest <- itest+1; a87 <- test.earth(itest, robotArm, nk=51, degree=10)
+printh(summary(a87))
+printh(summary(a87, style="bf"))
 itest <- itest+1; test.earth(itest, robotArm, nk=201, degree=1)
-itest <- itest+1; test.earth(itest, robotArm, nk=201, degree=10)
+itest <- itest+1; a88 <- test.earth(itest, robotArm, nk=201, degree=10)
+printh(summary(a88))
+printh(summary(a88, style="bf"))
 
 cat("--- linear predictors -------------------------\n")
 
@@ -563,6 +573,7 @@ a <- earth(O3 ~ ., linpreds=TRUE, data = ozone1, pmethod="none", thresh=1e-10)
 printh(summary(a))
 alin <- lm(O3 ~ . - vh, data = ozone1)
 printh(summary(alin))
+printh(summary(alin, style="bf"))
 stopifnot(all.equal(as.double(predict(a)), as.double(predict(alin))))
 newdata <- data.frame(
         vh = c(5700,5701,5702),
@@ -611,7 +622,7 @@ itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y,
 
 x.global <- cbind(wind, humidity, temp, vis)
 y <- doy
-itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=2, nk=21)
+itest <- itest+1; a91 <- ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=2, nk=21)
 
 # this is a basic test of RegressAndFix (because this generates lin dep bx cols)
 
@@ -734,6 +745,7 @@ data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
 colnames(data.global) = c("func1", "func7", "x1", "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=1)
 printh(summary(a))
+printh(summary(a, style="bf"))
 if (PLOT) {
     plotmo(a, ycolumn=1)     # test generation of caption based on response name
     plotmo(a, ycolumn=2)
@@ -754,7 +766,9 @@ itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk
 x.global <- cbind(                                           x1, x2, x3, x4, x5)
 data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
 colnames(data.global) = NULL
-itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=2)
+itest <- itest+1; a70 <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=2)
+printh(summary(a70))
+printh(summary(a70, style="bf"))
 
 N1 <- 100
 set.seed(1)
@@ -1149,6 +1163,7 @@ printh(summary(a))
 printh(summary(a.longx))
 printh(summary(a.longy))
 printh(summary(a.longxy))
+printh(summary(a.longxy, style="bf"))
 
 cat("--- factors with x,y interface -------------------------\n")
 # this also tests for integer variables in the input matrix
@@ -1156,6 +1171,7 @@ data(etitanic)
 attach(etitanic)
 a1 <- earth(pclass, sex, degree=2, trace=2)        # x=unordered y=unordered
 printh(summary(a1))
+printh(summary(a1, style="bf"))
 if (PLOT)
     plot(a1)
 a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
@@ -1187,6 +1203,7 @@ cat("--- factors with formula interface -------------------------\n")
 # these correspond to the models above (except a7 which is a multiple response model)
 a1f <- earth(sex ~ pclass, degree=2, trace=2)        # x=unordered y=unordered
 printh(summary(a1f))
+printh(summary(a1f, style="bf"))
 if (PLOT)
     plot(a1f)
 a2f <- earth(pclass ~ sex, degree=2, trace=2)        # x=unordered y=unordered
@@ -1439,12 +1456,13 @@ printh(anova(a1), expect.warning=TRUE)
 printh(anova(a1, warn=FALSE))
 printh(family(a1))
 
-cat("--- thresh=0 -----------------------------------------\n")
-
-a.no.thresh <- earth(O3 ~ ., data = ozone1, thresh=0, nk=1000, degree=2, trace=4)
-printh(a.no.thresh)
-printh(summary(a.no.thresh))
-plotmo(a.no.thresh, degree1=1, degree2=c(4,9,16), clip=0, , caption="test with thresh=0")
+# TODO removed because causes different results on different machines
+# cat("--- thresh=0 -----------------------------------------\n")
+# 
+# a.no.thresh <- earth(O3 ~ ., data = ozone1, thresh=0, nk=1000, degree=2, trace=4)
+# printh(a.no.thresh)
+# printh(summary(a.no.thresh))
+# plotmo(a.no.thresh, degree1=1, degree2=c(4,9,16), clip=0, , caption="test with thresh=0")
 
 cat("--- ../../tests/test.earth.R -------------------------\n")
 

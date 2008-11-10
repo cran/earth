@@ -10,8 +10,8 @@ plotmo(object = stop("no 'object' arg"),
        degree1 = TRUE, degree2 = TRUE, ycolumn = 1,
        caption = if(do.par) NULL else "",
        ylim = NULL, clip = TRUE, inverse.func = NULL,
-       col.response = 0, pch.response = 1,
-       trace = FALSE, grid.func = median,
+       col.response = 0, pch.response = 1, trace = FALSE, 
+       grid.func = median, grid.levels = NULL,
        ndegree1 = 500, lty.degree1 = 1, col.degree1 = 1,
        se = 0, col.shade = "lightblue", col.se = 0, lty.se = 2,
        func = NULL, col.func = "pink", pch.func = 20, nrug = 0,
@@ -99,14 +99,25 @@ To start off, look at the arguments
   \item{grid.func}{
      Function applied to x columns to calculate the values for numeric predictors
      not on the axes.
-     (For factor predictors the first level is always used).
+     (For factor predictors, see the \code{grid.levels} argument below).
      Default is \code{\link{median}}.
      Examples:
 \preformatted{plotmo(a, grid.func = mean) # mean instead of median
 grid.func <- function(x) quantile(x)[2]   # 25\% quantile
 plotmo(a, grid.func = grid.func)
 }
-\emph{The following arguments are for degree1 (main effect) plots}
+  }
+  \item{grid.levels}{
+     This argument only applies if model x-matrix has factors.
+     It has the same purpose as the \code{grid.func} argument above but applies to
+     factor predictors, not numeric predictors.
+     It is a list specifying which factor level to use for factor predictors
+     not on the axes.  If specified, plotmo will print messages reminding you of how the levels are set.
+     Default is \code{NULL} meaning use the first level of each factor.
+\preformatted{a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
+plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
+}
+\bold{The following arguments are for degree1 (main effect) plots}
   }
   \item{ndegree1}{
      Maximum number of points in each degree1 plot.
@@ -158,7 +169,7 @@ plotmo(a, grid.func = grid.func)
      Plot character for \code{func} points.
      Default is 20.\cr
 
-  \emph{The following arguments are for degree2 plots}
+  \bold{The following arguments are for degree2 plots}
   }
   \item{type2}{
      Degree2 plot type.
@@ -176,7 +187,7 @@ plotmo(a, grid.func = grid.func)
   \item{ngrid}{
      Grid side length for degree2 plots. Default is \code{20}.\cr
 
-  \emph{The following settings are related to \code{par()} and are included so you can override the defaults.}
+  \bold{The following settings are related to \code{par()} and are included so you can override the defaults.}
   }
   \item{do.par}{
     Call \code{par()} for global settings as appropriate.
@@ -189,9 +200,8 @@ plotmo(a, grid.func = grid.func)
   }
   \item{theta}{
      Rotation argument for \code{\link{persp}}.
-     Default is \code{NA}, meaning
-     automatically rotate each graph so
-     the highest corner is furthest away.
+     Default is \code{NA}, meaning automatically rotate each graph so the highest corner is furthest away.
+     Use \code{theta=-45} for x and y increasing as you move into the paper.
   }
   \item{phi}{
      Phi argument for \code{\link{persp}}. Default is \code{30}.
@@ -228,9 +238,45 @@ plotmo(a, grid.func = grid.func)
 (but comes with the \code{\link{earth}} package).
 It is intended for models with quantitative responses.
 
-\bold{Limitations}
+\bold{The general idea}
 
-Factors are not yet supported (TODO we plan to fix this).
+Plotmo plots a degree1 plot by changing one predictor while holding 
+all other predictors at a constant value.
+For degree2 plots, plotmo changes two variables
+while holding all other predictors at a constant value.
+
+The question arises: what should that constant value be?
+For numerical predictors it is the median of the predictor values in the input matrix x;
+for factor predictors it is the first level of the factor.
+You can change those defaults with the \code{grid.func} and \code{grid.levels} arguments.
+
+Each graph shows only a thin slice of the data because most variables are constant.
+You should be aware of that when interpreting the graph.
+
+\bold{Details of operation}
+
+Let's say the model \code{object} has three predictors,
+\code{x1}, \code{x2}, and \code{x3} (all numeric)
+and \code{plotmo} is about to plot the degree1 plot for \code{x2}.
+\code{Plotmo} first builds an input matrix
+with \code{ndegree1} rows and with column names \code{x1}, \code{x2}, and \code{x3}.
+It sets all entries for the \code{x1} column to \code{x1}'s median value (actually,
+the value returned by \code{grid.func} applied to \code{x1}).
+Likewise for the \code{x3} column.
+It sets the \code{x2} column to an equally spaced sequence of values
+from \code{min(x2)} to \code{max(x2)}.
+Finally, it calls \code{\link{predict}}\code{(type="response")} with the newly created input matrix,
+and plots the predicted values against the sequence of \code{x2} values.
+
+Operation is similar for degree2 plots: all columns of the input
+matrix for \code{\link{predict}} are set to their medians except for the columns of the two
+predictors being plotted.
+
+Note that \code{plotmo} calls \code{\link{predict}} with new data and
+\code{type="response"}, whereas \code{\link{termplot}}
+calls \code{\link{predict}} with \code{type="terms"}.
+
+\bold{Limitations}
 
 NAs are not allowed.
 To prevent confusing error messages from \code{plotmo},
@@ -239,6 +285,8 @@ remove NAs before building your model.
 so you get an error message if you inadvertently have a NA).
 
 Weights are currently ignored, with a warning.
+
+Factor predictors are not supported on degree2 graphs (you will get a reminder message).
 
 To avoid confusing error messages from plotmo,
 keep the original formula you used to build the model simple.
@@ -261,29 +309,6 @@ A mesage like\cr
 means that \code{\link{model.frame.default}} cannot find all the variables in the data frame
 created by \code{plotmo}.
 
-\bold{Details of Operation}
-
-Let's say the model \code{object} has three predictors,
-\code{x1}, \code{x2}, and \code{x3} (all numeric)
-and \code{plotmo} is about to plot the \code{degree1} plot for \code{x2}.
-\code{Plotmo} first builds an input matrix
-with \code{ndegree1} rows and with column names \code{x1}, \code{x2}, and \code{x3}.
-It sets all entries for the \code{x1} column to \code{x1}'s median value (actually,
-the value returned by \code{grid.func} applied to \code{x1}).
-Likewise for the \code{x3} column.
-It sets the \code{x2} column to an equally spaced sequence of values
-from \code{min(x2)} to \code{max(x2)}.
-Finally, it calls \code{\link{predict}}\code{(type="response")} with the newly created input matrix,
-and plots the predicted values against the sequence of \code{x2} values.
-
-Operation is similar for \code{degree2} plots: all columns of the input
-matrix for \code{\link{predict}} are set to their medians except for the columns of the two
-predictors being plotted.
-
-Note that \code{plotmo} calls \code{\link{predict}} with new data and
-\code{type="response"}, whereas \code{\link{termplot}}
-calls \code{\link{predict}} with \code{type="terms"}.
-
 \bold{Minimum Requirements}
 
 \code{Plotmo} requires the following of the model object.
@@ -301,7 +326,7 @@ method that can be called with \code{se.fit=TRUE}.
 
 \itemize{
   \item \code{$x}, or \code{$call$formula}
-  (\code{formula} is required for \code{degree2} plots),
+  (\code{formula} is required for degree2 plots),
   or \code{$call$x}.
 
   \item \code{$y}, or \code{$call$formula}, or \code{$call$y}.

@@ -22,11 +22,12 @@ Predict with an \code{\link{earth}} model.
   }
   \item{type}{
      Type of prediction.
-     One of \code{"link"} (default), \code{"response"}, or \code{"earth"}.\cr\cr
+     One of \code{"link"} (default), \code{"response"}, \code{"earth"}, or \code{"term"}.\cr\cr
         The \code{"link"}, \code{"response"}, and \code{"earth"} choices all return the same value unless
         the earth model has a GLM component (i.e. unless the \code{glm} argument
         was used in the original call to \code{\link{earth}}).
-        See \code{\link{glm}} for a description of the \code{"link"} and \code{"response"} options.\cr\cr
+        See \code{\link{predict.glm}} for a description of the \code{"link"} and \code{"response"} options.
+        (In brief: for logistic models use \code{type="response"} to return probabilities.) \cr\cr
         \code{"terms"} returns an \code{"earth"} response suitable for \code{\link{termplot}}.
         Only the additive terms and the first response (for multi-response models) are returned.
         Also, \code{"terms"} always returns the earth (not GLM) terms.\cr\cr

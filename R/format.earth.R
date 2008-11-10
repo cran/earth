@@ -22,11 +22,21 @@
 #         -  2.8664516 * pmax(0,   12.9 -  Girth)
 #         + 0.71833643 * pmax(0, Height -     76)
 #
+# For style="bf" the result looks like this:
+#
+#         bf1: h(Girth-12.9)
+#         bf2: h(12.9-Girth)
+#         bf3: h(Height-76)
+#
+#         23
+#         +  5.7 * bf1
+#         -  2.9 * bf2
+#         + 0.72 * bf3
+#
 # decomp argument: see reorder.earth()
 #
 # The first arg is actually an object but called x for consistency with generic
 #
-# TODO would be nice to add an option to first list bx terms and then combine them
 # TODO would be nice to add an option to print in term importance order
 
 format.earth <- function(
@@ -93,6 +103,8 @@ format.one.response <- function( # called by format.earth
         s <- pastef(s, "\n")
         iterm <- iterm + 1
     }
+    if (pmatch(style, "bf", nomatch=0)) # append table of basis functions?
+        s <- paste(s, "\n", get.table.of.basis.functions(obj, new.order), sep="")
     s
 }
 
@@ -107,12 +119,14 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coefs
 # style argument:
 #   "h"    gives "h(survived-0) * h(16-age)"
 #   "pmax" gives "pmax(0, survived - 0) * pmax(0, 16 - age)"
+#   "bf"   gives basis functions e.g. "bf1" or "bf1 * bf3"
 
-get.term.strings <- function(obj, digits, use.names, style = c("h", "pmax"), neworder)
+get.term.strings <- function(obj, digits, use.names, style = c("h", "pmax", "bf"), neworder)
 {
-    style = switch(match.arg1(style),
+    switch(match.arg1(style),
         get.term.strings.h(obj, digits, use.names, neworder),    # "h"
-        get.term.strings.pmax(obj, digits, use.names, neworder)) # "pmax"
+        get.term.strings.pmax(obj, digits, use.names, neworder), # "pmax"
+        get.term.strings.bf(obj, digits, use.names, neworder))   # "bf"
 }
 
 get.term.strings.h <- function(obj, digits, use.names, new.order)
@@ -187,6 +201,61 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order)
     s
 }
 
+# return a data.frame, each row has 2 elements: the original and new basis function names
+get.bfs <- function(names)
+{                                           # Example: start of with names:
+                                            # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", ...
+    # make a single long string
+    s0 <- paste(names, collapse="")         # "(Intercept)h(temp-58)h(humidity-55)*h(temp-58)..."
+    # replace * with nothing
+    s1 <- gsub("*", "", s0, fixed=TRUE)     # "(Intercept)h(temp-58)h(humidity-55)h(temp-58)..."
+    # replace ) with )@ so @ are split points
+    s2 <- gsub(")", ")@", s1, fixed=TRUE)   # "(Intercept)@h(temp-58)@h(humidity-55)@h(temp-58)..."
+    # separate strings at split points
+    s3 <- strsplit(s2, split="@")[[1]]      # "(Intercept)", "h(temp-58)", "h(humidity-55)" "h(temp-58)", ...
+    # remove duplicate strings, result is a vector of all basis function names
+    original <- unique(s3)                  # "(Intercept)", "h(temp-58)", "h(humidity-55)" "h(temp-58)", ...
+
+    # -1 below so first term is bf1 (i.e. intercept is bf0, which is unused)
+    new <- paste("bf", seq_along(original)-1, sep="") # "bf1", "bf2", "bf3", ...
+
+    data.frame(original, new)
+}
+
+get.term.strings.bf <- function(obj, digits, use.names, new.order)
+{
+    # digits is unused
+
+    if(!use.names)
+        warning("use.names=FALSE ignored because style=\"h\"")
+
+    names <- colnames(obj$bx)[new.order]    # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", ...
+    bfs <- get.bfs(names)
+
+    # replace original names with names in new.bfs
+
+    if (nrow(bfs) > 1) for (i in 2:nrow(bfs)) { # start at 2 to skip intercept
+        names <- gsub(bfs[i,1], bfs[i,2], names, fixed=TRUE)
+    }
+    gsub("*", " * ", names, fixed=TRUE)     # put space around *
+}
+
+# Return a string like this:
+#   bf1: h(temp-58)
+#   bf2: h(234-ibt)
+#   bf3: h(200-vis)
+#   bf4: h(doy-92)
+
+get.table.of.basis.functions <- function(obj, new.order)
+{
+    names <- colnames(obj$bx)[new.order]
+    bfs <- get.bfs(names)
+    s <- ""
+    if (nrow(bfs) > 1) for (i in 2:nrow(bfs)) # start at 2 to skip intercept
+        s <- paste(s, sprintf("%6s  %s\n", bfs[i,2], bfs[i,1]), sep="")
+    s
+}
+
 # Return a string representing the linear model.
 # Example: a <- lm(Volume ~ ., data = trees); cat(format(a))
 # which yields:
@@ -200,14 +269,14 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order)
 # TODO this function doesn't really belong in the earth package
 
 format.lm <- function(
-    x           = stop("no 'x' arg"),  # "lm" object, also works for "glm" objects
+    x           = stop("no 'x' arg"),   # "lm" object, also works for "glm" objects
     digits      = getOption("digits"),
     use.names   = TRUE,
-    colon.char  = ":",      		   # convert colons in expression to this char
-    ...)                               # unused, for consistency with generic
+    colon.char  = ":",                  # convert colons in expression to this char
+    ...)                                # unused, for consistency with generic
 {
     get.name <- function(ipred)
-    {                                    # return "name" if possible, else "x[,i]"
+    {                               # return "name" if possible, else "x[,i]"
         pred.name <- pred.names[ipred]
         if(is.null(pred.name) || is.na(pred.name) || !use.names)
             pred.name <- paste("x[,", ipred, "]", sep="")
@@ -220,6 +289,7 @@ format.lm <- function(
     }
     check.classname(x, deparse(substitute(x)), "lm")
     dataClasses <- attr(x$terms, "dataClasses")
+    # TODO extend this function to handle factors
     if(any((dataClasses == "factor") | (dataClasses == "ordered")))
         stop("a predictor has class 'factor' and format.lm cannot handle that")
     coefs <- coef(x)

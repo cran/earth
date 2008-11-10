@@ -712,6 +712,105 @@ GCV 2.5    RSS 1388    GRSq 0.54    RSq 0.6
 > plot(a.rather.long.in.fact.very.long.name.for.the.modelC)
 > plotmo(a.rather.long.in.fact.very.long.name.for.the.modelC)
 > 
+> cat("==test plotmo with factors==\n")
+==test plotmo with factors==
+> data(etitanic)
+> a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
+> print(summary(a))
+Call: earth(formula=survived~pclass+sex+age, data=etitanic, 
+      degree=2)
+
+                    coefficients
+(Intercept)           0.93220339
+pclass3rd            -0.45851918
+sexmale              -0.51079029
+pclass2nd * sexmale  -0.26610468
+pclass3rd * sexmale   0.19376843
+sexmale * h(16-age)   0.03221793
+sexmale * h(age-25)  -0.00471276
+
+Selected 7 of 13 terms, and 4 of 4 predictors 
+Importance: sexmale, pclass3rd, pclass2nd, age
+Number of terms at each degree of interaction: 1 2 4
+GCV 0.1447330    RSS 146.7947    GRSq 0.4020269    RSq 0.4190703
+> plotmo(a, trace=Trace, caption="plotmo with facs: pclass+sex+age")
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass, sex 
+> plotmo(a, trace=Trace, clip=FALSE, degree2=FALSE, caption="plotmo (no degree2) with facs: pclass+sex+age")
+> plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2nd", sex="male"), 
++        caption="plotmo with grid.levels: pclass+sex+age")
+Note: setting pclass in the degree1 grid to [1] 2nd
+Note: setting sex in the degree1 grid to [1] male
+Note: setting pclass in the degree2 grid to [1] 2nd
+Note: setting sex in the degree2 grid to [1] male
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass, sex 
+> # in above tests, all degree2 terms use facs
+> # now build a model with some degree2 term that use facs, some that don't
+> a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2)
+> print(summary(a))
+Call: earth(formula=survived~pclass+age+sibsp, data=etitanic, 
+      degree=2)
+
+                       coefficients
+(Intercept)              0.75943263
+pclass2nd               -0.29012930
+pclass3rd               -0.46672100
+pclass2nd * h(17-age)    0.03912125
+pclass3rd * h(20-age)    0.02116640
+h(18-age) * h(sibsp-2)  -0.02049559
+h(age-18) * h(3-sibsp)  -0.00223959
+
+Selected 7 of 17 terms, and 4 of 4 predictors 
+Importance: pclass3rd, age, pclass2nd, sibsp
+Number of terms at each degree of interaction: 1 2 4
+GCV 0.2038652    RSS 206.7692    GRSq 0.1577188    RSq 0.1817255
+> plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms")
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+> plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms and grid.levels", 
++        grid.levels=list(pclass="2nd"))
+Note: setting pclass in the degree1 grid to [1] 2nd
+Note: setting pclass in the degree2 grid to [1] 2nd
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+> 
+> # more-or-less repeat above, but with glm models
+> a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2, glm=list(family=binomial))
+> print(summary(a))
+Call: earth(formula=survived~pclass+age+sibsp, data=etitanic, 
+      glm=list(family=binomial), degree=2)
+
+GLM coefficients
+                          survived
+(Intercept)             1.17956404
+pclass2nd              -1.28149404
+pclass3rd              -2.10225951
+pclass2nd * h(17-age)   0.48238644
+pclass3rd * h(20-age)   0.09843643
+h(18-age) * h(sibsp-2) -0.13400956
+h(age-18) * h(3-sibsp) -0.01091961
+
+Earth selected 7 of 17 terms, and 4 of 4 predictors 
+Importance: pclass3rd, age, pclass2nd, sibsp
+Number of terms at each degree of interaction: 1 2 4
+earth GCV 0.2038652    RSS 206.7692    GRSq 0.1577188    RSq 0.1817255
+
+GLM null.deviance 1414.620 (1045 dof)   deviance 1204.411 (1039 dof)   iters 7
+> plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms")
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+> plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms and grid.levels",
++        grid.levels=list(pclass="2nd"))
+Note: setting pclass in the degree1 grid to [1] 2nd
+Note: setting pclass in the degree2 grid to [1] 2nd
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+> # now with different type2's
+> plotmo(a, do.par=FALSE, type2="persp",   theta=-20, degree1=FALSE, grid.levels=list(pclass="2nd"))
+Note: setting pclass in the degree2 grid to [1] 2nd
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+> plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass="2nd"))
+Note: setting pclass in the degree2 grid to [1] 2nd
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+> plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"))
+Note: setting pclass in the degree2 grid to [1] 2nd
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+> 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot
 +     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

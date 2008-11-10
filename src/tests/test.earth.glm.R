@@ -46,6 +46,8 @@ print.earth.models <- function(a)
     print(ev)
     plot(a, caption=model.name)
     plot(ev)
+    cat("\nplotmo", model.name, "\n")
+    plotmo(a)
     cat("-------------------------------------------------------------------------------\n\n")
 }
 
@@ -107,6 +109,7 @@ check.models.equal(a2c, a2update, msg="a2c a2update")
 cat("a3: direct GLM a3:\n\n")
 a3 <- glm(SF ~ sex * ldose, family="binomial")
 print(summary(a3))
+plotmo(a3, caption="a3 <- glm(SF ~ sex * ldose, family=\"binomial\")")
 cat("-------------------------------------------------------------------------------\n\n")
 
 # double response glm model with two binomial paired cols
@@ -195,14 +198,15 @@ treatment <- gl(3,3)
 d.AD <- data.frame(treatment, outcome, counts, counts2)
 
 # one response poisson model
-cat("a8: one response poisson model\n\n")
-a8 <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
-print.earth.models(a8)
+cat("a8p: one response poisson model\n\n")
+a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
+print.earth.models(a8p)
 # build a standard GLM model for comparison
 cat("a9: one response poisson model, standard GLM model for comparison\n\n")
 a9 <- glm(counts ~ outcome + treatment, family="poisson")
 cat("Direct GLM a9 summary:\n\n")
 print(summary(a9))
+plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + treatment, family=\"poisson\")")
 
 # two response poisson model
 cat("a10: two response poisson model\n\n")

@@ -8,7 +8,7 @@ Summary method for \code{\link{earth}} objects.
 \usage{
 \method{summary}{earth}(object = stop("no 'object' arg"),
         details = FALSE, decomp = "anova", 
-        style = c("h", "pmax"), 
+        style = c("h", "pmax", "bf"), 
         digits = getOption("digits"), fixed.point=TRUE, \dots)
 
 \method{print}{summary.earth}(x = stop("no 'x' arg"),
@@ -40,7 +40,8 @@ Summary method for \code{\link{earth}} objects.
   \item{style}{
     Formatting style. One of\cr
 \code{"h"} (default) more compact\cr
-\code{"pmax"} for those who prefer it and for compatibility with old versions of earth.
+\code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
+\code{"bf"} basis function format.
   }
   \item{digits}{
     The number of significant digits.

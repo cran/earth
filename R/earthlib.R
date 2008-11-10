@@ -187,14 +187,14 @@ exists.and.not.null <- function(object, mode="any", argname="")
         else
             stop1(object, "illegal NA")
 
-# TODO removed until I can get this to work reliably
-#
-#   if(!exists(paste("'", object, "'", sep=""), where=parent.frame(), mode=mode))
-#       if(length(argname))
-#           stop1("you specified ", argname, "=", object,
-#               " but there is no such ", if(mode=="any") "object" else mode)
-#       else
-#           stop1(object, ": no such", if(mode=="any") "object" else mode)
+    # TODO removed until I can get this to work reliably
+    #
+    #   if(!exists(paste("'", object, "'", sep=""), where=parent.frame(), mode=mode))
+    #       if(length(argname))
+    #           stop1("you specified ", argname, "=", object,
+    #               " but there is no such ", if(mode=="any") "object" else mode)
+    #       else
+    #           stop1(object, ": no such", if(mode=="any") "object" else mode)
 
     return(TRUE)
 }

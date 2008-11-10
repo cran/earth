@@ -50,7 +50,7 @@ plotmo <- function(
     object      = stop("no 'object' arg"),
     degree1     = TRUE,     # index vector specifying main effect plots to include
     degree2     = TRUE,     # index vector specifying interaction plots to include
-    ycolumn     = 1,        # which column of response to use if response has multiple cols
+    ycolumn     = 1,        # which column of resp to use if response has multiple cols
 
     caption = if(do.par) NULL else "",
                             # overall caption
@@ -73,8 +73,10 @@ plotmo <- function(
 
     grid.func   = median,   # func applied to x columns to calc plot grid
 
+    grid.levels = NULL,     # list specifying which factor levels to use plot grid, default is first
+
                             # Following arguments are for degree1 plots
-    ndegree1    = 500,      # max number of points in degree1 plot (ndegree=-1 for nrow(x))
+    ndegree1    = 500,      # max nnbr of points in degree1 plot (ndegree=-1 for nrow(x))
     lty.degree1 = 1,        # line type for degree1 plots
     col.degree1 = 1,        # colour for degree1 plots
 
@@ -121,7 +123,7 @@ plotmo <- function(
             if(nsingles)    # if so, get ylims=c(miny, maxy) by calling with draw.plot=FALSE
                 ylims <- plot1(
                         object, degree1, ylim, ycolumn, clip, col.response, pch.response,
-                        inverse.func, grid.func,
+                        inverse.func, grid.func, grid.levels,
                         ndegree1, lty.degree1, col.degree1, se, lty.se,
                         col.se, col.shade, func, col.func, pch.func, nrug,
                         draw.plot=FALSE, x, y, Singles, ylims, func.arg, pred.names,
@@ -130,7 +132,7 @@ plotmo <- function(
             if(npairs)
                 ylims <- plot2(object, degree2, ylim, ycolumn, clip,
                             col.response, pch.response, inverse.func,
-                            grid.func, type2, ngrid, col.persp, col.image,
+                            grid.func, grid.levels, type2, ngrid, col.persp, col.image,
                             draw.plot=FALSE, x, y, Pairs, ylims, func.arg, pred.names,
                             ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
                             do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
@@ -142,7 +144,7 @@ plotmo <- function(
                 stop1("ylim argument is NULL but cannot generate ",
                     "ylim internally from predicted values")
             if(ntrace > 1)
-                ntrace <- ntrace - 1    # prevent same trace msgs again in plot1 and plot2
+                ntrace <- ntrace - 1 # prevent repeated trace msgs in plot1 and plot2
         }
         ylims   # calculated min,max vertical axis ylims
     }
@@ -150,17 +152,43 @@ plotmo <- function(
     get.caption.prefix <- function(y, ycolumn, caption)
     {
         if(!is.null(caption))
-            return(NULL)                # don't modify caption explictly set by user
+            return(NULL)             # don't modify caption explictly set by user
         colnames <- colnames(y)
         if(!is.null(colnames) && !is.null(colnames[1]) &&
            !is.na(colnames[1]) && colnames[1] != "")
             colnames[1]
-        # TODO following is not quite right: should test against nbr of cols from predict
-        # so response 1 is labelled uniformly
+        # TODO following is not quite right: should test against nbr of cols
+        # from predict so response 1 is labelled uniformly
         else if(ycolumn > 1)
             paste("Response", ycolumn)
         else
             NULL
+    }
+    # get object's glm family if there is one, returns a string or NULL
+    get.glm.family <- function(object, ycolumn)
+    {
+        family <- NULL
+        if(!is.null(object$glm.list[[ycolumn]])) # object class is "earth"
+            family <- object$glm.list[[ycolumn]]$family$family
+        else if(!is.null(object$family))         # object class is "glm" and similar
+            family <- object$family$family
+        family
+    }
+    get.clip.limits <- function(object, ycolumn, y) # return a vector with two elements
+    {
+        # Get glm family if there is one.  Needed because if there is a glm family
+        # we can't use y to establish clip.limits (because not in "response" scale)
+        # TODO this only works for the common glm cases?
+        #      so not e.g. for fam="pois", link="log"
+        family <- get.glm.family(object, ycolumn)
+        if (!is.null(family) &&
+                pmatch(family, c("binomial","quasibinomial"), nomatch=0))
+            clip.limits <- c(0,1) # binomial or quasibinomial model
+        else
+            clip.limits <- range(y, finite=TRUE)
+        if(trace)
+            cat("clip.limits", clip.limits, "\n")
+        clip.limits
     }
     # plotmo starts here
     plotmo.prolog(object)
@@ -174,11 +202,12 @@ plotmo <- function(
         se <- 2
     }
     if(!is.numeric(se) || se < 0 || se > 9)
-        stop1("'se' ", se, " is out of range, range is 0:9") # 9 is arbitrary
+        stop1("'se' ", se, " is out of range, range is 0...9") # 9 is arbitrary
     if(!missing(lty.se) && lty.se != 0 && col.se == 0)
         col.se <- 1  # needed if user sets just lty.se but doesn't set col.se
     if(se && (col.se == 0 || lty.se == 0) && col.shade == 0)
-        warning1("plotmo: 'se' ignored because (col.se == 0 || lty.se == 0) && col.shade == 0)")
+        warning1(
+          "plotmo: 'se' ignored because (col.se == 0 || lty.se == 0) && col.shade == 0)")
     if(se == 0 && (!missing(col.se) || !missing(lty.se) || !missing(col.shade)))
         warning1("plotmo: se color and linetype arguments ignored because se=0")
 
@@ -193,22 +222,19 @@ plotmo <- function(
     y <- get.plotmo.y(object, ycolumn, nrow(x), trace)
     caption.prefix <- get.caption.prefix(y, ycolumn, caption)
     y <- apply.inverse.func(y, ycolumn, trace, inverse.func, inverse.func.arg)
-    if(clip) {
-        clip.limits <- range(y, finite=TRUE)
-        if(trace)
-            cat("clip.limits", clip.limits, "\n")
-    }
+    if(clip)
+        clip.limits <- get.clip.limits(object, ycolumn, y)
     if(ndegree1 == -1)
         ndegree1 <- nrow(x)
     else if(ndegree1 < 1 || ndegree1 > 1e5)      # 1e5 is arbitrary
         stop1("illegal ndegree1 ", ndegree1, ", allowed range is 1 to 1e5 or -1")
 
     # Singles is a vector of indices of predictors for degree1 plots
-    Singles <- get.singles(object, degree1, pred.names, trace)
+    Singles <- get.singles(object, x, degree1, pred.names, trace)
     nsingles <- length(Singles)
     if(trace)
         if(length(Singles) > 0)
-            cat("singles", Singles, "\n")
+            cat("singles:", paste(Singles, pred.names[Singles], collapse=", "), "\n")
         else
             cat("no singles\n")
 
@@ -217,8 +243,8 @@ plotmo <- function(
     npairs <- nrow(Pairs)
     if(trace)
         if(nrow(Pairs) > 0) {
-            cat("pairs\n")
-            print(Pairs)
+            cat("pairs:\n")
+            print(matrix(paste(Pairs, pred.names[Pairs]), ncol=2))
         } else
             cat("no pairs\n")
 
@@ -250,9 +276,11 @@ plotmo <- function(
             make.space.for.bottom.axis()
         make.space.for.caption(caption)
     }
+    if(ntrace > 1)
+        ntrace <- ntrace - 1    # prevent repeated trace msgs in plot1 and plot2
     if(nsingles)
         plot1(object, degree1, ylim, ycolumn, clip, col.response, pch.response,
-            inverse.func, grid.func,
+            inverse.func, grid.func, grid.levels,
             ndegree1, lty.degree1, col.degree1, se, lty.se,
             col.se, col.shade, func, col.func, pch.func, nrug,
             draw.plot=TRUE, x, y, Singles, ylims, func.arg, pred.names,
@@ -274,7 +302,7 @@ plotmo <- function(
         }
         plot2(object, degree2, ylim, ycolumn, clip,
             col.response, pch.response, inverse.func,
-            grid.func, type2, ngrid, col.persp, col.image,
+            grid.func, grid.levels, type2, ngrid, col.persp, col.image,
             draw.plot=TRUE, x, y, Pairs, ylims, func.arg, pred.names,
             ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
             do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
@@ -291,9 +319,10 @@ plotmo <- function(
 plot1 <- function(
     # copy of args from plotmo, some have been tweaked slightly
     object, degree1, ylim, ycolumn, clip, col.response, pch.response,
-    inverse.func, grid.func,
+    inverse.func, grid.func, grid.levels,
     ndegree1, lty.degree1, col.degree1, se, lty.se, col.se, col.shade,
     func, col.func, pch.func, nrug,
+
 
     # args generated in plotmo, draw.plot=FALSE means get ylims but don't actually plot
     draw.plot, x, y, Singles, ylims, func.arg, pred.names,
@@ -351,9 +380,9 @@ plot1 <- function(
         if(is.null(ylim.org))           # same ylim for each graph?
             ylim <- ylims
         else if(is.na(ylim.org[1])) {   # each graph has its own ylim?
-            ylim <- range(y.predict, finite=TRUE)
+            ylim <- range1(y.predict, finite=TRUE)
             if(!is.null(y.se.lower))
-                ylim <- range(y.predict, y.se.lower, y.se.upper, finite=TRUE)
+                ylim <- range1(y.predict, y.se.lower, y.se.upper, finite=TRUE)
             if(any(!is.finite(ylim)))
                 stop1("ylim argument to plotmo is NA but cannot generate ",
                     "ylim internally from predicted values (predictor \"",
@@ -393,13 +422,19 @@ plot1 <- function(
     }
     # plot1 starts here
     if(ntrace)
-        cat("\n--plot1(draw.plot=", draw.plot, ")\n", sep="")
+        cat("\n--plot1(draw.plot=", draw.plot, ") ntrace ", ntrace, "\n", sep="")
+    check.grid.levels(grid.levels, pred.names)
     ylim.org <- ylim
     xgrid <- data.frame(matrix(0, ndegree1, ncol(x), byrow=TRUE))
     for(ipred in 1:ncol(x))
-        if(is.factor(x[,ipred]))
-            xgrid[,ipred] <- first.level(x[,ipred])
-        else
+        if(is.factor(x[,ipred])) {
+            lev <- get.level(x[,ipred], pred.names[ipred], grid.levels)
+            xgrid[,ipred] <- lev
+            if(draw.plot && !is.null(grid.levels)) {
+                cat("Note: setting", pred.names[ipred], "in the degree1 grid to ");
+                print(lev, max.levels=0)
+            }
+        } else
             xgrid[,ipred] <- grid.func(x[,ipred])
     warn.if.not.all.finite(xgrid, "'xgrid' for degree1 plots")
     colnames(xgrid) <- pred.names
@@ -415,10 +450,13 @@ plot1 <- function(
         ipred <- Singles[isingle] # ipred is the predictor index i.e. col in model mat
         xwork <- xgrid
         is.fac <- is.factor(x[,ipred])
-        if(is.fac)
-            xwork[,ipred] <- rep(sort(unique(x[,ipred])), length=ndegree1)  #TODO inefficient
-        else {
-            xrange <- range(x[,ipred], finite=TRUE)
+        if(is.fac) {
+            # TODO this is inefficient because
+            # (i)  it calls sort and unique
+            # (ii) there are lots of repeated rows in xwork
+            xwork[,ipred] <- rep(sort(unique(x[,ipred])), length=ndegree1)
+        } else {
+            xrange <- range1(x[,ipred], finite=TRUE)
             xwork[,ipred] <- seq(from=xrange[1], to=xrange[2], length=ndegree1)
         }
         y.predict <- plotmo.predict(object, xwork, se.fit=FALSE,
@@ -436,11 +474,11 @@ plot1 <- function(
                 rval$se.fit <- check.and.print.y(rval$se.fit, "predict with se=TRUE",
                                                  ycolumn, nrow(xwork), ntrace>1)
                 y.se.lower <- y.predict - se * rval$se.fit
-                y.se.lower <- apply.inverse.func(y.se.lower, ycolumn,
-                                                 ntrace>1, inverse.func, inverse.func.arg)
+                y.se.lower <- apply.inverse.func(y.se.lower, ycolumn, ntrace>1,
+                                                 inverse.func, inverse.func.arg)
                 y.se.upper <- y.predict + se * rval$se.fit
-                y.se.upper <- apply.inverse.func(y.se.upper, ycolumn,
-                                                 ntrace>1, inverse.func, inverse.func.arg)
+                y.se.upper <- apply.inverse.func(y.se.upper, ycolumn, ntrace>1,
+                                                 inverse.func, inverse.func.arg)
             } else if(ntrace > 1)
                 cat("no standard errs because is.null(rval$se.fit)\n")
             if(ntrace > 1)
@@ -448,9 +486,16 @@ plot1 <- function(
         }
         y.predict <- apply.inverse.func(y.predict, ycolumn,
                                         ntrace>1, inverse.func, inverse.func.arg)
-        if(clip)
-            y.predict[(y.predict < clip.limits[1]) | (y.predict > clip.limits[2])] <- NA
-        ylims <- range(ylims, y.predict, y.se.lower, y.se.upper, finite=TRUE)
+        if(clip) {
+            y.lt <- y.predict < clip.limits[1]
+            y.gt <- y.predict > clip.limits[2]
+            if (all(y.lt) || all(y.gt)) # TODO revisit for better error handling
+                warning1("plotmo: Can't clip y to ",
+                    clip.limits[1], " to ", clip.limits[2])
+            else
+                y.predict[y.lt | y.gt] <- NA
+        }
+        ylims <- range1(ylims, y.predict, y.se.lower, y.se.upper, finite=TRUE)
         if(draw.plot)
             draw.plot1()
     }
@@ -463,7 +508,7 @@ plot1 <- function(
 plot2 <- function(
     # copy of args from plotmo, some have been tweaked slightly
     object, degree2, ylim, ycolumn, clip, col.response, pch.response, inverse.func,
-    grid.func, type2, ngrid, col.persp, col.image,
+    grid.func, grid.levels, type2, ngrid, col.persp, col.image,
 
     # args generated in plotmo, draw.plot=FALSE means get ylims but don't actually plot
     draw.plot, x, y, Pairs, ylims, func.arg, pred.names,
@@ -504,7 +549,7 @@ plot2 <- function(
             else
                 cex1 <- cex
             if(ntrace > 1)
-                cat(pred.names[i1], ":", pred.names[i2], " theta ", theta1, 
+                cat(pred.names[i1], ":", pred.names[i2], " theta ", theta1,
                         " ylim ", ylim, " cex ", cex1, " phi ", phi, "\n", sep="")
             persp(x1, x2, y.predict, main=main, theta=theta1, phi=phi, col=col.persp,
                 ticktype=ticktype, shade=shade, zlim=ylim, cex=cex1,
@@ -538,7 +583,7 @@ plot2 <- function(
         if(is.null(ylim))           # same ylim for each graph?
             ylim <- ylims
         else if(is.na(ylim[1])) {   # each graph has its own ylim?
-            ylim <- range(y.predict, finite=TRUE)
+            ylim <- range1(y.predict, finite=TRUE)
             if(any(!is.finite(ylim)))
                 stop1("ylim argument to plotmo is NA but cannot generate ",
                     "ylim internally from predicted values (predictors \"",
@@ -553,25 +598,44 @@ plot2 <- function(
     # plot2 starts here
     if(ntrace)
         cat("\n--plot2(draw.plot=", draw.plot, ")\n", sep="")
+    check.grid.levels(grid.levels, pred.names)
     ngrid <- min(ngrid, nrow(x), na.rm=TRUE)
-    # each row of xgrid is identical, each row is the col medians of x, or 0 for col factors
-    grid.func1 <- function(x) if(is.factor(x)) first.level(x) else grid.func(x)
+    # each row of xgrid is identical, each row is the col
+    # median for that row of x (or selected level for factors)
+    grid.func1 <- function(x)
+        if(is.factor(x)) get.level(x, NULL, NULL) else grid.func(x)
     xgrid.row <- lapply(x, grid.func1)  # one row of xgrid
+    for(ipred in 1:ncol(x))             # fix factor levels TODO combine with above?
+        if (is.factor(x[,ipred])) {
+            lev <- get.level(x[,ipred], pred.names[ipred], grid.levels)
+            xgrid.row[[ipred]] <- lev
+            if(draw.plot && !is.null(grid.levels)) {
+                cat("Note: setting", pred.names[ipred], "in the degree2 grid to ");
+                print(lev, max.levels=0)
+            }
+        }
     xgrid <- data.frame(xgrid.row)
     xgrid[1:ngrid^2, ] <- xgrid.row
     warn.if.not.all.finite(xgrid, "'xgrid' for degree2 plots")
     colnames(xgrid) <- pred.names
-    range1 <- function(x)  if(is.factor(x)) range(as.numeric(levels(x))) else range(x)
     xranges <- sapply(x, range1)
     stopifnot(npairs > 0)
+    ignored.factors.msg <- NULL # reminder message to user
     for(ipair in 1:npairs) {
         i1 <- Pairs[ipair,1]    # index of first predictor
         i2 <- Pairs[ipair,2]    # index of second predictor
-        if(is.factor(xgrid[,i1] || xgrid[,i2]))
-            next                #TODO for now, factors can't be plotted
+        #TODO for now, factors can't be plotted
+        if(is.factor(xgrid[,i1]) || is.factor(xgrid[,i2])) {
+            if(is.factor(xgrid[,i1]))
+                ignored.factors.msg <- c(ignored.factors.msg, pred.names[i1])
+            if(is.factor(xgrid[,i2]))
+                ignored.factors.msg <- c(ignored.factors.msg, pred.names[i2])
+            next
+        }
         x1 <- seq(from=xranges[1,i1], to=xranges[2,i1], length=ngrid)
         x2 <- seq(from=xranges[1,i2], to=xranges[2,i2], length=ngrid)
-        # xwork is a grid of x vals, all x vals are medians (or 1st fac) except at i1 and i2
+        # xwork is a grid of x vals, all x vals are medians (or selected
+        # factor level) except at i1 and i2
         xwork <- xgrid
         xwork[, i1] <- rep(x1, ngrid)
         xwork[, i2] <- rep(x2, rep(ngrid, ngrid))
@@ -583,16 +647,67 @@ plot2 <- function(
         y.predict <- matrix(y.predict, ncol=ngrid, nrow=ngrid)
         if(clip)
             y.predict[y.predict < clip.limits[1] | y.predict > clip.limits[2]] <- NA
-        ylims <- range(ylims, y.predict, finite=TRUE)
+        ylims <- range1(ylims, y.predict, finite=TRUE)
         if(draw.plot)
             draw.plot2(type2)
     }
+    # test on draw.plot below prevents same mesage being printed twice
+    if(draw.plot && !is.null(ignored.factors.msg))
+        cat("Note: plotmo cannot use factors as axes for degree2 plots,",
+            "so skipping degree2 plots for:",
+            paste.with.comma(unique(ignored.factors.msg)),
+            "\n")
     ylims
 }
 
-first.level <- function(x)  # return the first level in the factor x
+range1 <- function(x, ...)
 {
-    as.factor(levels(x)[1])
+    if(is.factor(x))
+        c(1, nlevels(x))
+    else
+        range(x, ...)
+}
+
+# sanity check of grid.levels arg
+# actual levels will be checked in get.level
+
+check.grid.levels <- function(grid.levels, pred.names)
+{
+    if (!is.null(grid.levels)) {
+        if (!is.list(grid.levels))
+            stop1("grid.levels must be a list. ",
+                 "Example: grid.levels=list(sex=\"male\")")
+        names. <- names(unlist(grid.levels)) # get list element names
+        for (name in names.)
+            if (length(grep(paste("^", name, "$", sep=""), pred.names)) == 0)
+                stop1("illegal predictor name \"", name, "\" in grid.levels")
+    }
+}
+
+# This returns a factor level by looking for the level associated
+# with pred.name in grid.levels.
+# Here, grid.levels is a list e.g. list(pclass="2nd", sex="female")
+#
+# If it finds the pred.name, it returns the specified level in x
+# else it returns the first level in x
+
+get.level <- function(x, pred.name, grid.levels)
+{
+    ilev <- 1                                       # by default use the first level
+    lev.names <- levels(x)
+    if(!is.null(pred.name) && !is.null(grid.levels)) {
+        lev.name <- grid.levels[[pred.name]]
+        if (!is.null(lev.name)) {                   # lev.name is in grid.levels?
+            ilev <- lev.names == lev.name
+            ilev <- which(ilev)
+            if (length(ilev) != 1)
+                stop1("illegal level \"", lev.name,
+                   "\" specified for \"", pred.name,
+                   "\" in grid.levels (allowed levels are ",
+                   paste.quoted.names(lev.names), ")")
+        }
+    }
+    factor(lev.names, levels=lev.names)[ilev]
 }
 
 # check that y is good
@@ -608,6 +723,10 @@ check.and.print.y <- function(y, msg, ycolumn, expected.len, trace, subset.=NULL
                     use.as.col.index=TRUE, allow.negative.indices=FALSE)
     if(NCOL(y) > 1)
         y <- y[, ycolumn, drop=FALSE]
+    # convert dataframe to matrix, needed for test.earth.glm.R test a21
+    # TODO revisit
+    if (is.data.frame(y))
+        y <- as.matrix(y)
     if(NCOL(y) > 1)
         stop1("'ycolumn' specifies more than one column")
     if(NROW(y) > 1 && NCOL(y) > 1) {
@@ -619,7 +738,7 @@ check.and.print.y <- function(y, msg, ycolumn, expected.len, trace, subset.=NULL
             NROW(y), " x ", NCOL(y), " with colnames ",
             if(NCOL(y) > 1) paste.quoted.names(colnames(y)) else "")
     }
-    if(any(!is.double(y))) # convert logical or whatever vector to double
+    if(any(!is.double(y))) # convert logical or whatever to double
         y <- as.vector(y, mode="numeric")
     if(NROW(y) == 1 && NCOL(y) > 1)
         y <- as.vector(y[,1])
@@ -728,9 +847,11 @@ strip.formula.string <- function(form)
 # Given the term.labels, return an npairs x 2 matrix specifying
 # which predictors are pairs. The elements in the returned matrix are col indices of x.
 #
-# It works like this: extract substrings from each term.label that look like predictor pairs
-# and qualify them as a valid pair if both predictors in the pair are in pred.names.
-# The following combos of x1 and x2 would be considered pairs: "x1*x2" "x1:x2" "s(x1,x2)"
+# It works like this: extract substrings from each term.label that look
+# like predictor pairs and qualify them as a valid pair if both predictors
+# in the pair are in pred.names.
+#
+# The following combos of x1 and x2 are considered pairs: "x1*x2" "x1:x2" "s(x1,x2)"
 #
 # This routine is not infallible but works for the commonly used formulas.
 
@@ -756,7 +877,7 @@ get.pairs.from.term.labels <- function(term.labels, pred.names, trace=TRUE)
             start <- igrep[i]
             stop <- start + attr(igrep, "match.length")[i] - 1
             Pair <- substr(s, start=start, stop=stop)
-            Pair <- strsplit(Pair, ":")[[1]]            # Pair is now c("ident1","ident2")
+            Pair <- strsplit(Pair, ":")[[1]]    # Pair is now c("ident1","ident2")
             ipred1 <- which(pred.names == Pair[1])
             ipred2 <- which(pred.names == Pair[2])
             if(trace)
@@ -771,7 +892,7 @@ get.pairs.from.term.labels <- function(term.labels, pred.names, trace=TRUE)
     unique(matrix(Pairs, ncol=2, byrow=TRUE))
 }
 
-get.subset <- function(object, trace)   # called by get.plotmo.x.default and get.plotmo.y.default
+get.subset <- function(object, trace) # called by get.plotmo.x.default and get.plotmo.y.default
 {
     subset. <- object$subset
     if(is.null(subset.)) {
@@ -801,7 +922,7 @@ plotmo.prolog <- function(object) UseMethod("plotmo.prolog")
 
 plotmo.prolog.default <- function(object)
 {
-    # Here we just establish with some sort of plausibility that object is a model object
+    # Here we just establish with some sort of plausibility that object is a model obj.
     # The general idea is to let the user know what is going on if plotmo fails later.
 
     if(is.null(coef(object)))
@@ -819,7 +940,7 @@ plotmo.predict <- function(object, newdata, se.fit,
 {
     if(trace) {
         if(ipred2 == 0)
-            cat("\nplotmo.predict for \"", pred.names[ipred1], "\" ", sep="")
+            cat("\nplotmo.predict for predictor \"", pred.names[ipred1], "\" ", sep="")
         else
             cat("\nplotmo.predict for predictors \"",
                 pred.names[ipred1], "\" and \"", pred.names[ipred2], "\" ", sep="")
@@ -831,7 +952,8 @@ plotmo.predict <- function(object, newdata, se.fit,
     UseMethod("plotmo.predict")
 }
 
-plotmo.predict.default <- function(object, newdata, se.fit, pred.names,ipred1,ipred2,trace)
+plotmo.predict.default <- function(object, newdata, se.fit,
+                                   pred.names, ipred1, ipred2, trace)
 {
     if(se.fit)
         predict(object, newdata=newdata, trace=trace, type="response", se.fit=TRUE)
@@ -846,13 +968,14 @@ plotmo.predict.default <- function(object, newdata, se.fit, pred.names,ipred1,ip
 # order as the predictors in the formula.
 #
 # The default function tries hard to get x regardless of the model.
-# Note that the alternative approach of simply calling the standard model.matrix wouldn't
-# get us what we want here because it can return columns with headings like "ns(x3,4)"
-# whereas we want the "naked" predictor x3.
+# Note that the alternative approach of simply calling the standard
+# model.matrix wouldn't get us what we want here because it can return
+# columns with headings like "ns(x3,4)" whereas we want the "naked" predictor x3.
 #
 # The n=2 and n=3 in the calls to eval.parent() take us to the caller of plotmo.
 #
-# TODO get.plotmo.x.default uses a nasty "formula string manipulation" hack, must be a better way?
+# TODO get.plotmo.x.default uses a nasty "formula string manipulation"
+#      hack, must be a better way?
 
 get.plotmo.x <- function(object, trace=FALSE)
 {
@@ -894,7 +1017,7 @@ get.plotmo.x.default <- function(
         Call$formula <- parse(text=stripped.formula)[[1]]
 
         if(trace)
-            my.print.call("about to call", Call)
+            my.print.call("about to call ", Call)
 
         if(length(grep(".+~", stripped.formula)))       # has response?
             x <- eval.parent(Call, n=3)[,-1]            # then remove response
@@ -985,7 +1108,8 @@ get.plotmo.x.default <- function(
 }
 
 #------------------------------------------------------------------------------
-# get.plotmo.y is similar to model.response but can deal with models created without a formula
+# get.plotmo.y is similar to model.response but can deal with models
+# created without a formula
 # The n=2 and n=3 in the calls to eval.parent() take us to the caller of plotmo.
 
 get.plotmo.y <- function(object, ycolumn, expected.len, trace)
@@ -1028,7 +1152,7 @@ get.plotmo.y.default <- function(
         Call$na.action <- na.fail
         stripped.formula <- strip.formula.string(formula.as.string)
         Call <- eval.parent(Call, n=3)
-        model.response(Call, "numeric")
+        model.response(Call, type="any")
     }
     bady <- function(y)
     {
@@ -1083,21 +1207,22 @@ get.plotmo.y.default <- function(
 # The default method simply returns the indices of all predictors
 # See also get.singles.earth
 
-get.singles <- function(object, degree1, pred.names, trace)
+get.singles <- function(object, x, degree1, pred.names, trace=FALSE)
 {
     if(trace)
         cat("\n--get.singles\n\n")
     UseMethod("get.singles")
 }
 
-get.singles.default <- function(object, degree1, pred.names, trace)
+get.singles.default <- function(object, x, degree1, pred.names, trace)
 {
     check.index.vec("degree1", degree1, pred.names)
     (1:length(pred.names))[degree1]
 }
 
 #------------------------------------------------------------------------------
-# Each row of the returned Pairs matrix is the indices of two predictors for a degree2 plot
+# Each row of the returned Pairs matrix is the indices of two predictors
+# for a degree2 plot
 # The indices are col numbers in the x matrix
 # See also get.pairs.earth
 

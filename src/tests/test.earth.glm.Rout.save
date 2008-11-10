@@ -47,6 +47,8 @@ Loading required package: leaps
 +     print(ev)
 +     plot(a, caption=model.name)
 +     plot(ev)
++     cat("\nplotmo", model.name, "\n")
++     plotmo(a)
 +     cat("-------------------------------------------------------------------------------\n\n")
 + }
 > 
@@ -206,6 +208,9 @@ evimp a1 trim=FALSE
 ldose     2    1        4 100.00000 1 100.0000000 1
 sexmale   1    1        3 -18.73263 1   7.6848001 1
 ldose1    3    1        2 -31.37693 1   0.9614167 1
+
+plotmo a1 
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
 -------------------------------------------------------------------------------
 
 > a1update <- update(a1, trace=0)
@@ -472,6 +477,8 @@ evimp a2 trim=FALSE
 ldose           2    1        3 100.0000000 1 100.000000 1
 sexmale         1    1        2   7.8086158 1   7.061559 1
 sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
+
+plotmo a2 
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -539,6 +546,8 @@ AIC: 43.104
 
 Number of Fisher Scoring iterations: 4
 
+> plotmo(a3, caption="a3 <- glm(SF ~ sex * ldose, family=\"binomial\")")
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
 > cat("-------------------------------------------------------------------------------\n\n")
 -------------------------------------------------------------------------------
 
@@ -668,6 +677,8 @@ evimp a4 trim=FALSE
 ldose                  2    1        2 100.000000 1 100.000000 1
 sexmale                1    1        1   5.432272 1   5.148163 1
 sexmale:ldose-unused   3    0        0   0.000000 1   0.000000 1
+
+plotmo a4 
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -887,6 +898,9 @@ parch      5    1        8 100.00000 1 100.00000 1
 survived   1    1        7  63.44537 1  66.81445 1
 sibsp      4    1        5  16.22113 1  22.99755 1
 sexmale    2    1        4  11.82295 1  17.37608 1
+
+plotmo a5 
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
 -------------------------------------------------------------------------------
 
 > 
@@ -1023,6 +1037,9 @@ survived   1    1        8  40.089657 1  45.118516 1
 parch      5    1        5   5.680862 1  10.881834 1
 sibsp      4    1        4   4.582762 1   8.727465 1
 sexmale    2    1        3   2.496725 1   5.732125 1
+
+plotmo a6 
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
 -------------------------------------------------------------------------------
 
 > 
@@ -1150,6 +1167,9 @@ parch       6    1        6  13.3685900 1  17.002027 1
 age         4    1        5   6.4001465 1   9.798418 1
 sibsp       5    1        4   4.5087239 1   7.258397 1
 pclass2nd   1    1        1   0.5526548 1   1.283877 1
+
+plotmo a7 
+Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
 -------------------------------------------------------------------------------
 
 > 
@@ -1260,10 +1280,10 @@ check.models.equal not identical: a8update a8g with new data [but within numeric
 > d.AD <- data.frame(treatment, outcome, counts, counts2)
 > 
 > # one response poisson model
-> cat("a8: one response poisson model\n\n")
-a8: one response poisson model
+> cat("a8p: one response poisson model\n\n")
+a8p: one response poisson model
 
-> a8 <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
+> a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
 x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 1 matrix: 1=counts
 Forward pass: minspan 4 endspan 10
@@ -1287,9 +1307,9 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.894 RSq 0.5265 
 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
-> print.earth.models(a8)
+> print.earth.models(a8p)
 
-Print a8 
+Print a8p 
 
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
@@ -1298,7 +1318,7 @@ earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
 GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 
-Summary a8 
+Summary a8p 
 
 Call: earth(formula=counts~outcome+treatment, glm=list(family=poisson()), 
       trace=3, pmethod="none")
@@ -1316,7 +1336,7 @@ earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
 GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 
-Summary a8 digits=3, details=TRUE
+Summary a8p digits=3, details=TRUE
 
 Call: earth(formula=counts~outcome+treatment, glm=list(family=poisson()), 
       trace=3, pmethod="none")
@@ -1351,19 +1371,21 @@ earth GCV 46.9    RSS 83.3    GRSq -0.894    RSq 0.527
 
 GLM null.deviance 10.6 (8 dof)   deviance 5.13 (6 dof)   iters 4
 
-evimp a8 
+evimp a8p 
 
          col used nsubsets        gcv         rss  
 outcome2   1    1        2 -100.00000 1 100.00000 1
 outcome3   2    1        1  -69.49153 0  46.04317 1
 
-evimp a8 trim=FALSE
+evimp a8p trim=FALSE
 
                   col used nsubsets        gcv         rss  
 outcome2            1    1        2 -100.00000 1 100.00000 1
 outcome3            2    1        1  -69.49153 0  46.04317 1
 treatment2-unused   3    0        0    0.00000 0   0.00000 1
 treatment3-unused   4    0        0    0.00000 1   0.00000 1
+
+plotmo a8p 
 -------------------------------------------------------------------------------
 
 > # build a standard GLM model for comparison
@@ -1403,6 +1425,9 @@ AIC: 56.761
 
 Number of Fisher Scoring iterations: 4
 
+> plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + treatment, family=\"poisson\")")
+Note: setting outcome in the degree1 grid to [1] 2
+Note: setting treatment in the degree1 grid to [1] 1
 > 
 > # two response poisson model
 > cat("a10: two response poisson model\n\n")
@@ -1529,6 +1554,8 @@ outcome2            1    1        2 -100.00000 1 100.00000 1
 outcome3            2    1        1  -69.49153 0  46.04317 1
 treatment2-unused   3    0        0    0.00000 0   0.00000 1
 treatment3-unused   4    0        0    0.00000 1   0.00000 1
+
+plotmo a10 
 -------------------------------------------------------------------------------
 
 > 
@@ -2006,6 +2033,8 @@ evimp aref trim=FALSE
         col used nsubsets        gcv          rss  
 ldose     2    1        2 100.000000 1 100.000000 1
 sexmale   1    1        1   5.432272 1   5.148163 1
+
+plotmo aref 
 -------------------------------------------------------------------------------
 
 > 
@@ -2128,6 +2157,8 @@ evimp a21 trim=FALSE
         col used nsubsets        gcv          rss  
 ldose     2    1        2 100.000000 1 100.000000 1
 sexmale   1    1        1   5.432272 1   5.148163 1
+
+plotmo a21 
 -------------------------------------------------------------------------------
 
 > check.models.equal(aref, a21, msg="aref a21")
@@ -2252,6 +2283,8 @@ evimp a21 trim=FALSE
       col used nsubsets        gcv          rss  
 ldose   2    1        2 100.000000 1 100.000000 1
 sex     1    1        1   5.432272 1   5.148163 1
+
+plotmo a21 
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -2377,6 +2410,8 @@ evimp a22 trim=FALSE
       col used nsubsets        gcv          rss  
 ldose   2    1        2 100.000000 1 100.000000 1
 sex     1    1        1   5.432272 1   5.148163 1
+
+plotmo a22 
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -3125,8 +3160,8 @@ predict.earth: returning earth fitted.values
 [4,] 16.32876
 [5,] 20.49373
 [6,] 22.21705
-predict.earth: x has no column names, adding column names: Girth Height
-predict.earth: x is a 1 by 2 matrix: 1=Girth, 2=Height
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
   Girth Height
 1    10     80
@@ -3172,8 +3207,8 @@ predict.earth: returning earth fitted.values
 [6,] 20.2833170
 A-20 identical
 A-21m predict(am, newdata=c(sex[1], -2, 0.1), trace=1))
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       1    -2    0.1
@@ -3187,8 +3222,8 @@ predict.earth: returning earth predictions
        numdead
 [1,] 0.8203767
 A-21f predict(af, newdata=c(sex[1], -2, 0.1), trace=1))
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   1    -2    0.1
@@ -3207,8 +3242,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-21 identical
 A-22m predict(am, newdata=c(1, -2, 0.1), trace=1)) use numeric instead of factor sex
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       1    -2    0.1
@@ -3223,8 +3258,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-22 identical
 A-22f predict(af, newdata=c(1, -2, 0.1), trace=1)) use numeric instead of factor sex
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   1    -2    0.1
@@ -3243,8 +3278,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-22 identical
 A-23m predict(am, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multiple rows as a vec
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       2    -2    0.1
@@ -3262,8 +3297,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 [2,] 0.8203767
 A-23f predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multiple rows as a vec
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3287,8 +3322,8 @@ predict.earth: returning earth predictions
 [2,] 0.8203767
 A-23 identical
 A-24m predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more multiple rows as a vec
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       2    -2    0.1
@@ -3306,8 +3341,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 [2,] 5.8895886
 A-24f predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more multiple rows as a vec
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3331,8 +3366,8 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-24 identical
 A-25m predict(am, xpredict matrix trace=1
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       2    -2    0.1
@@ -3351,8 +3386,8 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-25 identical
 A-25f predict(af, xpredict matrix trace=1
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3376,7 +3411,7 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-25 identical
 A-26m predict(am, new.data with col names) trace=1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
      sex ldose ldose1
 [1,]   2    -2    0.1
@@ -3395,7 +3430,7 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-26m identical
 A-26f predict(af, new.data with col names) trace=1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3419,10 +3454,10 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-26f identical
 A-27m predict(am, new.data with out of order col names) trace=1
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: sex ldose1 ldose
     New columns: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
      sex ldose ldose1
 [1,]   2    -2    0.1
@@ -3441,10 +3476,10 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-27 identical
 A-27f predict(af, new.data with out of order col names) trace=1
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: sex ldose1 ldose
     New columns: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3473,10 +3508,10 @@ A-28m predict(am, xdata.frame without col names) trace=1
 [2,] 5.8895886
 A-28 identical
 A-28f predict(af, xdata.frame without col names) trace=1
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: c.sex.1...sex.1.. c..2...1. c.0.1..0.1.
     New names: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3500,7 +3535,7 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-28 identical
 A-29m predict(am, xdata.frame with col names) trace=1
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3515,7 +3550,7 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-29 identical
 A-29f predict(af, xdata.frame with col names) trace=1
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3530,7 +3565,7 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-29 identical
 A2-29m predict(am, xdata.frame with col names) trace=1
-predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3549,7 +3584,7 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A2-29 identical
 A2-29f predict(af, xdata.frame with col names) trace=1
-predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3573,10 +3608,10 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A2-29 identical
 A-31m predict(am, xdata.frame, trace=1) data frame with factors and wrong col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex.1. X.2 X0.1
     New names: sexmale ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
 Contents of x are
   sexmale ldose ldose1
 1    male    -2    0.1
@@ -3591,10 +3626,10 @@ A-31 identical
        numdead
 [1,] 0.8203767
 A-31f predict(af, xdata.frame, trace=1) data frame with factors and wrong col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex.1. X.2 X0.1
     New names: sex ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3609,7 +3644,7 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-31 identical
 A-31bm predict(am, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3624,7 +3659,7 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-31 identical
 A-31bf predict(af, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3639,7 +3674,7 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-31b identical
 A-32m predict(am, xdata.frame, trace=1) # data frame with names
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3655,7 +3690,7 @@ predict.earth: returning earth predictions
 A-32 identical
 A-32 identical
 A-32f predict(af, xdata.frame, trace=1) # data frame with names
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3670,8 +3705,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-32 identical
 A-42am predict(am, newdata=c(1, -2, 0.1), trace=1)) use numeric instead of factor sex
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       1    -2    0.1
@@ -3686,8 +3721,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-42a identical
 A-42af predict(af, newdata=c(1, -2, 0.1), trace=1)) use numeric instead of factor sex
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   1    -2    0.1
@@ -3706,8 +3741,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-42a identical
 A-43am predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multiple rows as a vec
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3730,8 +3765,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 [2,] 0.8203767
 A-43af predict(am, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multiple rows as a vec
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       2    -2    0.1
@@ -3750,8 +3785,8 @@ predict.earth: returning earth predictions
 [2,] 0.8203767
 A-43a identical
 A-44am predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more multiple rows as a vec
-predict.earth: x has no column names, adding column names: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3775,8 +3810,8 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-44a identical
 A-44fm predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more multiple rows as a vec
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 Contents of x are
      sexmale ldose ldose1
 [1,]       2    -2    0.1
@@ -3795,14 +3830,14 @@ predict.earth: returning earth predictions
 [2,] 5.8895886
 A-44f identical
 A-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
 A-53f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 3 to match: sex ldose ldose1
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 3 to match: sex ldose ldose1
 A-54m predict(am, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex ldose1
     New columns: sexmale ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3817,10 +3852,10 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-54 identical
 A-54f predict(af, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex ldose1
     New columns: sex ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
@@ -3835,10 +3870,10 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-54 identical
 A-55m predict(am, xdata.frame, trace=1) data frame without col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex.c.1..7.. c..2...1. c.0.1..0.1.
     New names: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
 Contents of x are
   sexmale ldose ldose1
 1    male    -2    0.1
@@ -3856,10 +3891,10 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 [2,] 3.5363410
 A-55f predict(af, xdata.frame, trace=1) data frame without col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex.c.1..7.. c..2...1. c.0.1..0.1.
     New names: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
      sex ldose ldose1
 1   male    -2    0.1
@@ -3878,7 +3913,7 @@ predict.earth: returning earth predictions
 [2,] 3.5363410
 A-55 identical
 A-56m predict(am, xdata.frame, trace=1) # data frame with col names
-predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
      sex ldose ldose1
 1   male    -2    0.1
@@ -3897,7 +3932,7 @@ predict.earth: returning earth predictions
 [2,] 3.5363410
 A-56 identical
 A-56f predict(af, xdata.frame, trace=1) # data frame with col names
-predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
      sex ldose ldose1
 1   male    -2    0.1
@@ -3916,14 +3951,14 @@ predict.earth: returning earth predictions
 [2,] 3.5363410
 A-56 identical
 A-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
 A-57f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
 A-57 identical
 A-58m predict(am, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex ldose1
     New columns: sexmale ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
      sex ldose ldose1
 1   male    -2    0.1
@@ -3942,10 +3977,10 @@ predict.earth: returning earth predictions
 [2,] 3.5363410
 A-58 identical
 A-58f predict(af, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex ldose1
     New columns: sex ldose ldose1
-predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
      sex ldose ldose1
 1   male    -2    0.1
@@ -3964,7 +3999,7 @@ predict.earth: returning earth predictions
 [2,] 3.5363410
 A-58 identical
 A-59m predict(am, xdata.frame, trace=1) numeric where factor expected, expect forge on message
-predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -3982,7 +4017,7 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 [2,] 4.7129648
 A-59f predict(af, xdata.frame, trace=1) numeric where factor expected, expect forge on message
-predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
@@ -4006,8 +4041,8 @@ predict.earth: returning earth predictions
 [2,] 4.7129648
 A-59 identical
 A-50m data frame without column names, trace=1
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
 Contents of x are
   sexmale ldose ldose1
 1    male    -2    0.1
@@ -4022,8 +4057,8 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-34 identical
 A-60f data frame without column names, trace=1
-predict.earth: x has no column names, adding column names: sexmale ldose ldose1
-predict.earth: x is a 1 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sexmale ldose ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sexmale (factor), 2=ldose, 3=ldose1
 Contents of x are
   sexmale ldose ldose1
 1    male    -2    0.1
@@ -4038,7 +4073,7 @@ predict.earth: returning earth predictions
 [1,] 0.8203767
 A-60 identical
 A-61f data frame without extra columns, trace=1
-predict.earth: x is a 1 by 6 matrix: 1=sex (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=extra3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 6 matrix: 1=sex (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=extra3 (factor)
 Contents of x are
    sex extra1 ldose extra2 ldose1 extra3
 1 male     99    -2     99    0.1 female
@@ -4060,12 +4095,12 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.6819 RSq 0.7623
 Prune method "backward" penalty 2 nprune 4: selected 4 of 4 terms, and 2 of 2 predictors
 After backward pass GRSq 0.7055 RSq 0.7623 
-predict.earth: x has no column names, adding column names: my.x1 my.x2
-predict.earth: x is a 1 by 2 matrix: 1=my.x1, 2=my.x2
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: my.x1 my.x2
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=my.x1, 2=my.x2
 Contents of x are
   my.x1 my.x2
 1   2.1   0.6
-Error : model.frame.default could not interpret the data passed to predict.earth
+Error : model.frame.default could not interpret the data passed to get.earth.x from model.matrix.earth from predict.earth
 A-69 above test but with properly named dataframe trace=1
      growth
 [1,] 10.211
@@ -4077,7 +4112,7 @@ Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001)
 After forward pass GRSq 0.7375 RSq 0.9219
 Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 3 predictors
 After backward pass GRSq 0.8679 RSq 0.9211 
-predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 Contents of x are
      ldose dummy ldose1
 [1,]    -2     0    0.1
@@ -4089,8 +4124,8 @@ predict.earth: returning earth predictions
        numdead
 [1,] 0.1428571
 A-72m predict(am, newdata=newdata[two columns], trace=trace)
-predict.earth: x has missing columns, creating a new x with all cols
-predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 Contents of x are
      ldose dummy ldose1
 [1,]    -2   999    0.1
@@ -4115,7 +4150,7 @@ A-72m identical
 10     1     0    1.2
 11     2     0    0.1
 12     3     0    0.9
-predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 First few rows of x are
   ldose dummy ldose1
 1    -2     0    0.1
@@ -4148,8 +4183,8 @@ predict.earth: returning earth predictions
 [11,] 14.7142857
 [12,] 18.3571429
 A-73m predict(am, newdata=newdata[two columns], trace=trace)
-predict.earth: x has missing columns, creating a new x with all cols
-predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 First few rows of x are
      ldose dummy ldose1
 [1,]    -2   999    0.1
@@ -4189,7 +4224,7 @@ Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001)
 After forward pass GRSq 0.7375 RSq 0.9219
 Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 3 predictors
 After backward pass GRSq 0.8679 RSq 0.9211 
-predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 Contents of x are
   ldose dummy ldose1
 1    -2     0    0.1
@@ -4201,8 +4236,8 @@ predict.earth: returning earth predictions
        numdead
 [1,] 0.1428571
 A-72f predict(af, newdata=newdata[two columns], trace=trace)
-predict.earth: x has missing columns, creating a new x with all cols
-predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 Contents of x are
   ldose dummy ldose1
 1    -2   999    0.1
@@ -4227,7 +4262,7 @@ A-72f identical
 10     1     0    1.2
 11     2     0    0.1
 12     3     0    0.9
-predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 First few rows of x are
   ldose dummy ldose1
 1    -2     0    0.1
@@ -4260,8 +4295,8 @@ predict.earth: returning earth predictions
 [11,] 14.7142857
 [12,] 18.3571429
 A-73f predict(af, newdata=newdata[two columns], trace=trace)
-predict.earth: x has missing columns, creating a new x with all cols
-predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 First few rows of x are
   ldose dummy ldose1
 1    -2   999    0.1
@@ -4338,10 +4373,10 @@ predict.earth: returning earth fitted.values
 [6,] 20.851943 21.153279
 B-20 identical
 B-31m predict(am, xdata.frame, trace=1) data frame with factors and wrong col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.1. X.2 X0.1 fac3.1.
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4356,10 +4391,10 @@ B-31 identical
       numdead numdead2
 [1,] 1.184457 1.773767
 B-31f predict(af, xdata.frame, trace=1) data frame with factors and wrong col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.1. X.2 X0.1 fac3.1.
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4374,7 +4409,7 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-31 identical
 B-31bm predict(am, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4389,7 +4424,7 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-31 identical
 B-31bf predict(af, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4404,7 +4439,7 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-31b identical
 B-32m predict(am, xdata.frame, trace=1) # data frame with names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4420,7 +4455,7 @@ predict.earth: returning earth predictions
 B-32 identical
 B-32 identical
 B-32f predict(af, xdata.frame, trace=1) # data frame with names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4435,14 +4470,14 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-32 identical
 B-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-53f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-54m predict(am, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4457,10 +4492,10 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-54 identical
 B-54f predict(af, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4475,10 +4510,10 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-54 identical
 B-55m predict(am, xdata.frame, trace=1) data frame without col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.c.1..7.. c..2...1. c.0.1..0.1. fac3.c.1..9..
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4496,10 +4531,10 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 [2,] 3.100445 3.912609
 B-55m again, but with same x data for both reponses
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.c.1..1.. c..2...2. c.0.1..0.1. fac3.c.1..1..
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4517,10 +4552,10 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 [2,] 1.184457 1.773767
 B-55f predict(af, xdata.frame, trace=1) data frame without col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.c.1..1.. c..2...2. c.0.1..0.1. fac3.c.1..1..
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4539,7 +4574,7 @@ predict.earth: returning earth predictions
 [2,] 1.184457 1.773767
 B-55 identical
 B2-55bm predict(am, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4558,7 +4593,7 @@ predict.earth: returning earth predictions
 [2,] 3.100445 3.912609
 B2-55 identical
 B2-55bf predict(af, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4577,7 +4612,7 @@ predict.earth: returning earth predictions
 [2,] 3.100445 3.912609
 B2-55b identical
 B-56m predict(am, xdata.frame, trace=1) # data frame with col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4596,7 +4631,7 @@ predict.earth: returning earth predictions
 [2,] 3.100445 3.912609
 B-56 identical
 B-56f predict(af, xdata.frame, trace=1) # data frame with col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4615,15 +4650,15 @@ predict.earth: returning earth predictions
 [2,] 3.100445 3.912609
 B-56 identical
 B-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-57f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-57 identical
 B-58m predict(am, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4642,10 +4677,10 @@ predict.earth: returning earth predictions
 [2,] 3.100445 3.912609
 B-58 identical
 B-58f predict(af, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4664,8 +4699,8 @@ predict.earth: returning earth predictions
 [2,] 3.100445 3.912609
 B-58 identical
 B-50m data frame without column names, trace=1
-predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4680,8 +4715,8 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-34 identical
 B-60f data frame without column names, trace=1
-predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4696,7 +4731,7 @@ predict.earth: returning earth predictions
 [1,] 1.184457 1.773767
 B-60 identical
 B-60f data frame without extra columns, trace=1
-predict.earth: x is a 1 by 7 matrix: 1=sex3 (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=fac3 (factor), 7=extra3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 7 matrix: 1=sex3 (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=fac3 (factor), 7=extra3 (factor)
 Contents of x are
   sex3 extra1 ldose extra2 ldose1 fac3 extra3
 1 male     99    -2     99    0.1 lev2 female
@@ -4748,10 +4783,10 @@ predict.earth: returning earth fitted.values
 [6,]  5.544942e-18 -9.905203e-18 1.000
 C-20 identical
 C-31m predict(am, xdata.frame, trace=1) data frame with factors and wrong col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.1. X.2 X0.1 fac3.1.
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4764,10 +4799,10 @@ C-31 identical
             dead1 dead2 dead3
 [1,] 2.775558e-16 0.875 0.125
 C-31f predict(af, xdata.frame, trace=1) data frame with factors and wrong col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.1. X.2 X0.1 fac3.1.
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4780,7 +4815,7 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-31 identical
 C-31bm predict(am, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4793,7 +4828,7 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-31 identical
 C-31bf predict(af, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4806,7 +4841,7 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-31b identical
 C-32m predict(am, xdata.frame, trace=1) # data frame with names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4820,7 +4855,7 @@ predict.earth: returning earth predictions
 C-32 identical
 C-32 identical
 C-32f predict(af, xdata.frame, trace=1) # data frame with names
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4833,14 +4868,14 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-32 identical
 C-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-53f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-54m predict(am, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4853,10 +4888,10 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-54 identical
 C-54f predict(af, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -4869,10 +4904,10 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-54 identical
 C-55m predict(am, xdata.frame, trace=1) data frame without col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.c.1..7.. c..2...1. c.0.1..0.1. fac3.c.1..9..
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4887,10 +4922,10 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C-55f predict(af, xdata.frame, trace=1) data frame without col names
-predict.earth: unexpected x column names, renaming columns
+get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.c.1..7.. c..2...1. c.0.1..0.1. fac3.c.1..9..
     New names: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4906,7 +4941,7 @@ predict.earth: returning earth predictions
 [2,] 1.000000e+00 -0.125 0.125
 C-55 identical
 C2-55bm predict(am, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4922,7 +4957,7 @@ predict.earth: returning earth predictions
 [2,] 1.000000e+00 -0.125 0.125
 C2-55 identical
 C2-55bf predict(af, xdata.frame, trace=1) data frame col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4938,7 +4973,7 @@ predict.earth: returning earth predictions
 [2,] 1.000000e+00 -0.125 0.125
 C2-55b identical
 C-56m predict(am, xdata.frame, trace=1) # data frame with col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4954,7 +4989,7 @@ predict.earth: returning earth predictions
 [2,] 1.000000e+00 -0.125 0.125
 C-56 identical
 C-56f predict(af, xdata.frame, trace=1) # data frame with col names
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4970,15 +5005,15 @@ predict.earth: returning earth predictions
 [2,] 1.000000e+00 -0.125 0.125
 C-56 identical
 C-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-57f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-57 identical
 C-58m predict(am, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -4994,10 +5029,10 @@ predict.earth: returning earth predictions
 [2,] 1.000000e+00 -0.125 0.125
 C-58 identical
 C-58f predict(af, xdata.frame, trace=1) # data frame with cols in different order
-predict.earth: x columns are in the wrong order, correcting the column order
+get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
     New columns: sex3 ldose ldose1 fac3
-predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
@@ -5013,8 +5048,8 @@ predict.earth: returning earth predictions
 [2,] 1.000000e+00 -0.125 0.125
 C-58 identical
 C-50m data frame without column names, trace=1
-predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -5027,8 +5062,8 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-34 identical
 C-60f data frame without column names, trace=1
-predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
-predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
@@ -5041,7 +5076,7 @@ predict.earth: returning earth predictions
 [1,] 2.775558e-16 0.875 0.125
 C-60 identical
 C-61f data frame without extra columns, trace=1
-predict.earth: x is a 1 by 7 matrix: 1=sex3 (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=fac3 (factor), 7=extra3 (factor)
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 7 matrix: 1=sex3 (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=fac3 (factor), 7=extra3 (factor)
 Contents of x are
   sex3 extra1 ldose extra2 ldose1 fac3 extra3
 1 male     99    -2     99    0.1 lev2 female
@@ -5181,9 +5216,9 @@ A-44a identical
 A-44fm predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=0)) more multiple rows as a vec
 A-44f identical
 A-53m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
 A-53f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 3 to match: sex ldose ldose1
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 3 to match: sex ldose ldose1
 A-54m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 A-54 identical
 A-54f predict(af, xdata.frame, trace=0) # data frame with cols in different order
@@ -5196,7 +5231,7 @@ A-56 identical
 A-56f predict(af, xdata.frame, trace=0) # data frame with col names
 A-56 identical
 A-57m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 3 to match: sexmale ldose ldose1
 A-57f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
 A-57 identical
 A-58m predict(am, xdata.frame, trace=0) # data frame with cols in different order
@@ -5218,7 +5253,7 @@ A-60 identical
 A-61f data frame without extra columns, trace=0
 A-61 identical
 A-68 input matrix to formula interface trace=0, expect error "could not interpret"
-Error : model.frame.default could not interpret the data passed to predict.earth
+Error : model.frame.default could not interpret the data passed to get.earth.x from model.matrix.earth from predict.earth
 A-69 above test but with properly named dataframe trace=0
 Tests with not all predictors used in the model so can pass fewer columns
 A-72m predict(am, newdata=newdata[two columns], trace=trace)
@@ -5282,9 +5317,9 @@ B-32 identical
 B-32f predict(af, xdata.frame, trace=0) # data frame with names
 B-32 identical
 B-53m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-53f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-54m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 B-54 identical
 B-54f predict(af, xdata.frame, trace=0) # data frame with cols in different order
@@ -5305,9 +5340,9 @@ B-56 identical
 B-56f predict(af, xdata.frame, trace=0) # data frame with col names
 B-56 identical
 B-57m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-57f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 B-57 identical
 B-58m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 B-58 identical
@@ -5340,9 +5375,9 @@ C-32 identical
 C-32f predict(af, xdata.frame, trace=0) # data frame with names
 C-32 identical
 C-53m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-53f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-54m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 C-54 identical
 C-54f predict(af, xdata.frame, trace=0) # data frame with cols in different order
@@ -5359,9 +5394,9 @@ C-56 identical
 C-56f predict(af, xdata.frame, trace=0) # data frame with col names
 C-56 identical
 C-57m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-57f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
+Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
 C-57 identical
 C-58m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 C-58 identical
@@ -5450,7 +5485,7 @@ No 'data' argument to earth so ignoring keepxy for 'data'
 > 
 > newdata <- data.frame(sex=sex[1], ldose=2)
 > c1b.predict <- predict(c1b, newdata, trace=1)
-predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
    sex ldose
 1 male     2
@@ -5464,7 +5499,7 @@ predict.earth: returning glm link predictions
 c1b OK
 > 
 > c1b.link.predict <- predict(c1b, newdata, type="link", trace=1) # should be same as above because default is link
-predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
    sex ldose
 1 male     2
@@ -5488,7 +5523,7 @@ c1b type=earth OK
 > 
 > newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 > c1b.predict <- predict(c1b, newdata, trace=1)
-predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
      sex ldose
 1   male    -2
@@ -5508,7 +5543,7 @@ predict.earth: returning glm link predictions
 c1b multiple rows OK
 > 
 > c1b.predict <- predict(c1b, newdata, type="response", trace=1)
-predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
      sex ldose
 1   male    -2
@@ -5560,7 +5595,7 @@ After backward pass GRSq 0.9525 RSq 0.9808
 > 
 > newdata <- data.frame(sex=sex[1], ldose=2)
 > c2.predict <- predict(c2, newdata, trace=1)
-predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
    sex ldose
 1 male     2
@@ -5574,7 +5609,7 @@ predict.earth: returning glm link predictions
 c2 OK
 > 
 > c2.link.predict <- predict(c2, newdata, type="link", trace=1) # should be same as above because default is link
-predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
    sex ldose
 1 male     2
@@ -5607,7 +5642,7 @@ c2 column1 multiple rows type=response OK
 c2 column2 multiple rows type=response OK
 > 
 > c2.predict <- predict(c2, newdata, type="earth", trace=1)
-predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
      sex ldose
 1   male    -2
@@ -5624,7 +5659,7 @@ Contents of bx are
 predict.earth: returning earth (not glm) predictions 
 > stopifnot(dim(c2.predict) == c(4,2))
 > check.fuzzy.equal(c2.predict[,1], predict(c2e, newdata, trace=1), fuzz=1e-10, msg="c2 column1 multiple rows type=earth", verbose=TRUE)
-predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
      sex ldose
 1   male    -2
@@ -5641,7 +5676,7 @@ Contents of bx are
 predict.earth: returning earth predictions 
 c2 column1 multiple rows type=earth OK
 > check.fuzzy.equal(c2.predict[,2], predict(c2e, newdata, trace=1), fuzz=1e-10, msg="c2 column2 multiple rows type=earth", verbose=TRUE)
-predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
      sex ldose
 1   male    -2

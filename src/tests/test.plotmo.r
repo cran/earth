@@ -536,6 +536,33 @@ print(summary(a.rather.long.in.fact.very.long.name.for.the.modelC, digits = 2))
 plot(a.rather.long.in.fact.very.long.name.for.the.modelC)
 plotmo(a.rather.long.in.fact.very.long.name.for.the.modelC)
 
+cat("==test plotmo with factors==\n")
+data(etitanic)
+a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
+print(summary(a))
+plotmo(a, trace=Trace, caption="plotmo with facs: pclass+sex+age")
+plotmo(a, trace=Trace, clip=FALSE, degree2=FALSE, caption="plotmo (no degree2) with facs: pclass+sex+age")
+plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2nd", sex="male"), 
+       caption="plotmo with grid.levels: pclass+sex+age")
+# in above tests, all degree2 terms use facs
+# now build a model with some degree2 term that use facs, some that don't
+a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2)
+print(summary(a))
+plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms")
+plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms and grid.levels", 
+       grid.levels=list(pclass="2nd"))
+
+# more-or-less repeat above, but with glm models
+a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2, glm=list(family=binomial))
+print(summary(a))
+plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms")
+plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms and grid.levels",
+       grid.levels=list(pclass="2nd"))
+# now with different type2's
+plotmo(a, do.par=FALSE, type2="persp",   theta=-20, degree1=FALSE, grid.levels=list(pclass="2nd"))
+plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass="2nd"))
+plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"))
+
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

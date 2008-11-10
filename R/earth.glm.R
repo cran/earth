@@ -219,9 +219,7 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
     # allow weights for glm list. Needed for example in
     # library(segmented); data(down); fit.e<-earth(cases/births~age,data=down,glm=list(family="binomial", weights=down$births))
     # If no weights, get warning: non-integer #successes in a binomial glm
-    # TODO why does plotmo on above model not work?
     earths.args <- c("formula", "subset")
-
     imatch <- pmatch(earths.args, arg.names)
     imatch <- imatch[!is.na(imatch)]
     if(any(imatch)) {
