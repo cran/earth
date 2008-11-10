@@ -109,6 +109,9 @@ Users who are interested in GLM models will want to look at the \code{glm} argum
   }
   \item{na.action}{
      NA action. Default is \code{na.fail}, and only \code{na.fail} is supported.
+     (Why? Because adding support to \code{earth} for other NA actions is easy, but making 
+     sure that is handled correctly internally in \code{predict}, \code{plotmo}, etc. is tricky.
+     It is simpler to make the user remove NAs before calling earth).
   }
   \item{glm}{
      NULL (default) or a list of arguments to \code{\link{glm}}.
@@ -1002,8 +1005,7 @@ Pass \code{warn=FALSE} to these functions to turn of just these warnings.\cr\cr
 \bold{FREQUENTLY ASKED QUESTIONS}\cr\cr
 \bold{What are your plans for earth?}
 
-We would like to get \code{plotmo} working with factors.
-Then functions for model cross-validation.
+We would like to add functions for model cross-validation.
 Proper support of weights (to allow boosting) would be nice too.
 
 \bold{How can I establish variable importance?}
@@ -1397,7 +1399,7 @@ is a more flexible way of achieving the same end.
   The primary references are
   the Friedman papers.  Readers may find the MARS section in Hastie, Tibshirani,
   and Friedman a more accessible introduction.  
-  The Wikipedia article gives an elementary introduction.
+  The Wikipedia article is recommended for an elementary introduction.
   Faraway takes a hands-on approach,
   using the \code{\link[=ozone1]{ozone}} data to compare \code{mda::mars} with other techniques.
   (If you use Faraway's examples with \code{earth} instead of \code{mars}, use \code{$bx}

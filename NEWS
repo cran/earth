@@ -1,6 +1,12 @@
 Changes to Earth Package
 ------------------------
 
+2.1-0 Nov 15 2008
+    plotmo now has better support for factors and for glm models
+    na.action (always na.fail) is now handled as documented in earth.formula
+    Added style="bf" to format.earth and summary.earth
+    Fixed a few minor bugs and touched up documentation for evimp
+
 2.0-6 Oct 30 2008
     You can now pass only the needed subset of columns to predict.earth
     Added plot.evimp

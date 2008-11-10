@@ -143,6 +143,11 @@ earth.default <- function(
         my.print.call("Call: ", Call)
     if(!is.null(Call$data))
         stop1("\"data\" argument not allowed in earth.default")
+    if (is.character(na.action)) {
+        if (is.na(pmatch(na.action, "na.fail")))
+            stop1("illegal \"na.action\", only na.action=na.fail is allowed")
+    } else if(!identical(na.action, na.fail))
+        stop1("illegal \"na.action\", only na.action=na.fail is allowed")
     if(keepxy) {
         x.org <- x
         y.org <- y
@@ -182,8 +187,6 @@ earth.default <- function(
     rval
 }
 
-# TODO: make sure default action is na.fail, it seems to be na.ignore at the moment
-
 earth.formula <- function(
     formula = stop("no 'formula' arg"), # intercept will be ignored
     data    = NULL,
@@ -222,11 +225,14 @@ earth.formula <- function(
         stop1("\"y\" argument not allowed in earth.formula")
     Call2 <- match.call(expand.dots=FALSE)
 
-    # subset, weights, na.action handled in earth.fit, so match only on formula and data
+    # subset and weights handled in earth.fit, so match only on formula, data, and na.action
 
-    m <- match(c("formula", "data"), names(Call2), 0)
+    m <- match(c("formula", "data", "na.action"), names(Call2), 0)
     mf <- Call2[c(1, m)]
     mf[[1]] <- as.name("model.frame")
+    if(!is.null(mf$na.action))
+        stop1("\"na.action\" argument is not allowed (it is set internally to na.fail)")
+    mf$na.action <- na.fail
     mf <- eval.parent(mf)
 
     # expand factors in x, convert to double matrix, add colnames
@@ -360,12 +366,12 @@ earth.fit <- function(
     # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)
         stop1("\"nk\" ", nk, " is less than 1")
-	if (is.character(na.action)) {
-		if (is.na(pmatch(na.action, "na.fail")))
-        	stop("illegal \"na.action\", only na.action=na.fail is allowed")
+    if (is.character(na.action)) {
+        if (is.na(pmatch(na.action, "na.fail")))
+            stop1("illegal \"na.action\", only na.action=na.fail is allowed")
     } else if(!identical(na.action, na.fail))
-        stop("illegal \"na.action\", only na.action=na.fail is allowed")
-   	na.action <- na.fail
+        stop1("illegal \"na.action\", only na.action=na.fail is allowed")
+    na.action <- na.fail
     # TODO implementation of case weights is not complete so don't allow case weights
     if(!is.null(weights) &&
             !isTRUE(all.equal(weights, rep(weights[1], length(weights))))) {
@@ -941,7 +947,8 @@ predict.earth <- function(
         } else {        # user supplied newdata
             env <- parent.frame()
             bx <- model.matrix.earth(object, newdata, env=env,
-                                     trace=trace, Callers.name="predict.earth")
+                                     trace=trace,
+                                     Callers.name="model.matrix.earth from predict.earth")
             if(trace)
                  print.matrix.info("bx", bx, "predict.earth")
             if(is.null(object$glm.list) || type=="earth") {
@@ -1343,7 +1350,7 @@ update.earth <- function(
 # Method functions for generics in models.R
 # All standard method funcs are supported, I think, or give a warning.
 # TODO Some of the functions that give just a warning could possibly give
-# a meaningingful value.
+# a meaningful value.
 
 deviance.earth <- function(object, warn=TRUE, ...)
 {
@@ -1466,20 +1473,45 @@ extractAIC.earth <- function(fit, scale = 0, k = 2, warn=TRUE, ...)
 
 #-----------------------------------------------------------------------------
 # Method functions for plotmo.R
-# We look at the built model to determine singles and pairs -- this is a
-# better approach for earth than that used in get.singles.default and
-# get.pairs.default because it knows which predictors are unused and it
-# knows which predictors were paired up during model building.
 
-get.singles.earth <- function(object, degree1, pred.names, trace)
+# get.singles.earth and get.pairs.earth exist because we need to look at
+# the built earth model to determine singles and pairs, because:
+#
+# (i)  get.singles.default and get.pairs.default return ALL singles and
+#      pairs, even if unused
+#
+# (ii) earth CREATES pairs,  whereas lm will only have pairs if forms such
+#      as x1:x2 of x1*x2 appear in the formula
+
+get.singles.earth <- function(object, x, degree1, pred.names, trace)
 {
-    Singles <- NULL
+    check.classname(object, deparse(substitute(object)), "earth")
     dataClasses <- attr(object$terms, "dataClasses")
-    if(any((dataClasses == "factor") | (dataClasses == "ordered")))
-        stop1("a predictor has class \"factor\"") # model.matrix cols are messed up by factors
-    else {
-        # selected is all degree 1 terms
-        selected <- object$selected.terms[
+    if(any((dataClasses == "factor") | (dataClasses == "ordered"))) {
+        # NOV 2008: new code, only use if factors in x
+        # TODO this can give extra predictors if variable names alias
+        #      e.g. "x" and "x1" are both variable names
+        used.colnames <- apply(object$dirs, 2, any1)
+        colnames <- colnames(object$dirs)[used.colnames]
+        used.preds <- NULL
+        for (ipred in seq_along(object$namesx.org)) {
+            if (is.factor(x[,ipred])) {
+                # This knows how to deal with expanded factor names because
+                # it e.g. looks for "^pclass" in "pclass3rd"
+                if (length(grep(paste("^", object$namesx.org[ipred], sep=""), colnames)) > 0)
+                    used.preds = c(used.preds, ipred)
+            } else {
+                # exact match
+                if (length(grep(paste("^", object$namesx.org[ipred], "$", sep=""), colnames)) > 0)
+                    used.preds = c(used.preds, ipred)
+                used.preds = c(used.preds, ipred)
+            }
+        }
+        Singles <- unique(used.preds)
+    } else {
+        # original code, use if no factors in x
+        Singles <- NULL
+        selected <- object$selected.terms[  # selected is all degree 1 terms
                         reorder.earth(object, decomp="anova", degree=1, min.degree=1)]
         if(length(selected) > 0)
             Singles <- unique(
@@ -1492,6 +1524,7 @@ get.singles.earth <- function(object, degree1, pred.names, trace)
         Singles <- Singles[degree1]
     }
     Singles # Singles is a vector of indices of predictors for degree1 plots
+
 }
 
 get.pairs.earth <- function(object, x, degree2, pred.names, trace=FALSE)
@@ -1505,9 +1538,30 @@ get.pairs.earth <- function(object, x, degree2, pred.names, trace=FALSE)
     Pairs <- unique(matrix(Pairs, ncol=2, byrow=TRUE))
     if(nrow(Pairs) == 0 && is.specified(degree2))
         warning1("\"degree2\" specified but no degree2 plots")
-    if(nrow(Pairs) > 0) {
+    if(nrow(Pairs) > 0) { # any pairs?
         check.index.vec("degree2", degree2, Pairs)
         Pairs <- Pairs[degree2, , drop=FALSE]
+        if(nrow(Pairs) && any(sapply(x, is.factor))) { # any columns in x are factors?
+            # Pairs works off expanded factor names, so replace each name with
+            # with index of original variable name
+            # TODO this can give wrong results if variable names alias
+            #      e.g. if "x" and "x1" are both variable names
+            #      this takes the LAST of the matching names so correct with "x" "x1" but not "x1" "x"
+            dir.colnames <- colnames(object$dirs)
+            prednames <- object$namesx.org
+            prednames.hat <- paste("^", prednames, sep="")
+            for (i in 1:nrow(Pairs))
+                for (j in 1:2) {
+                    ipred1 <- 0
+                    for (ipred in seq_along(prednames.hat))
+                        if (length(grep(prednames.hat[ipred], dir.colnames[Pairs[i, j]])) > 0)
+                            ipred1 <- ipred
+                    if (ipred1 == 0)
+                        stop1("internal error: illegal ipred1 in get.pairs.earth")
+                    Pairs[i, j] <- ipred1
+                }
+            Pairs <- unique(Pairs)  # unique is needed if multiple factors were converted to single predictor
+        }
     }
     Pairs
 }

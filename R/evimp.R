@@ -133,46 +133,46 @@ plot.evimp <- function(
     col.nsubsets = "black",     # color of nsubsets line
     lty.nsubsets = 1,           # line type of nsubsets line
 
-    type.gcv = "l",             # plot type for gcv graph, 
+    type.gcv = "l",             # plot type for gcv graph,
     col.gcv = "slateblue",      # as above but for the gcv plot
     lty.gcv = 1,
 
-    type.rss = "l",		# as above but for the rss plot
+    type.rss = "l",             # as above but for the rss plot
     col.rss = "darkgray",
     lty.rss = 1,
 
-    cex.legend = 1,            	# cex for legend strings, use if want the legend to be smaller
-    x.legend = nrow(x),		# x position of legend, use 0 for no legend
+    cex.legend = 1,             # cex for legend strings, use if want the legend to be smaller
+    x.legend = nrow(x),         # x position of legend, use 0 for no legend
     y.legend = x[1,"nsubsets"], # y position of legend
 
     main = "Variable importance", # main title
-    ...)                    	# extra args passed to plotting and method funcs
+    ...)                        # extra args passed to plotting and method funcs
 {
     # make sure that all evimp columns are present (extra columns are ok)
     if (any(pmatch(c("col", "used", "nsubsets", "gcv"), colnames(x), nomatch=0) == 0))
         stop("x is not an evimp matrix")
 
     max.subsets <- x[1,"nsubsets"]
-    nrows <- nrow(x)        			    # number of vars
+    nrows <- nrow(x)                                # number of vars
     # TODO what is the proper way of doing the bottom.margin calculation?
     bottom.margin = cex.var * max(2, .7 * max(nchar(rownames(x))) - 6)
-    par(oma=c(bottom.margin,0,0,3))		    # b,l,t,r: big bottom and right margins
-    plot(x[,"nsubsets"], ylim=c(0, max.subsets), type=type.nsubsets, 
+    par(oma=c(bottom.margin,0,0,3))                 # b,l,t,r: big bottom and right margins
+    plot(x[,"nsubsets"], ylim=c(0, max.subsets), type=type.nsubsets,
          xlab="", xaxt="n", ylab="nsubsets",
          main=main, lty=lty.nsubsets, col=col.nsubsets)
     lines(max.subsets * x[,"rss"] / 100, type=type.gcv, lty=lty.rss, col=col.rss)
     # plot gcv second so it goes on top of rss (gcv arguably more important than rss)
     lines(max.subsets * x[,"gcv"] / 100, type=type.rss, lty=lty.gcv, col=col.gcv)
     if (!is.null(x.legend) && x.legend != 0)
-	legend(x=x.legend, y = y.legend, xjust=1,   # top right corner by default
-	       legend=c("nsubsets", "gcv", "rss"),
-	       col=c(col.nsubsets, col.gcv, col.rss),
-	       lty=c(lty.nsubsets, lty.gcv, lty.rss),
-	       bg="white", cex=cex.legend)
+        legend(x=x.legend, y = y.legend, xjust=1,   # top right corner by default
+               legend=c("nsubsets", "gcv", "rss"),
+               col=c(col.nsubsets, col.gcv, col.rss),
+               lty=c(lty.nsubsets, lty.gcv, lty.rss),
+               bg="white", cex=cex.legend)
      # right hand axis: normalized rss/gcv values, always 0...100
      # TODO how to get the x position in the call to text correct for all window sizes?
      axis(side=4, # col.axis=col.gcv,
-          at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets), 
+          at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets),
           labels=c(0,20,40,60,80,100))
      text(x=nrows + nrows / 4, y = max.subsets/2, "normalized gcv or rss",
           xpd=NA, # no clip to plot region
@@ -180,7 +180,7 @@ plot.evimp <- function(
      # bottom axis: variable names
      labels <- paste(rownames(x), sprintf("%4d", x[,"col"]))
      # axis() ignores the cex parameter (a bug?), so set cex globally
-     old.par <- par(cex=cex.var) 
+     old.par <- par(cex=cex.var)
      on.exit(par(old.par))
      axis(side=1, at=seq(1,nrows,by=1), labels=labels, las=3)
      invisible()

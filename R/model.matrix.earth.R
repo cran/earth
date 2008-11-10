@@ -20,6 +20,7 @@
 
 # If model.frame can't interpret the data passed to it it silently
 # returns the fitted values.  This routine makes that not silent.
+# Note: model.frame is a standard R library function (it's in stats/R/models.R).
 
 check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name)
 {
@@ -103,7 +104,7 @@ get.bx <- function(x, which.terms, dirs, cuts)
         bx[, ibx] <- temp1
         ibx <- ibx + 1
     }
-    colnames(bx) <- rownames(dirs[which.terms,])
+    colnames(bx) <- rownames(dirs[which.terms,,drop=FALSE])
     bx
 }
 
@@ -206,8 +207,8 @@ get.earth.x <- function(    # returns x expanded for factors
     }
     # Return x with matrix dimensions.
     # If x is already a matrix this does nothing.
-    # Else allow x to be a vector if its length is an integer
-    # multiple of the number of columns in the original x
+    # Else allow x to be a vector if its length is an integer multiple
+    # of the number of columns in the original x
 
     my.as.matrix <- function(x)
     {
@@ -346,7 +347,7 @@ model.matrix.earth <- function(     # returns bx
             cat(Callers.name, ": returning object$bx\n", sep="")
         return(object$bx)
     }
-    x <- get.earth.x(object, data=x, env, trace, Callers.name)
+    x <- get.earth.x(object, data=x, env, trace, paste("get.earth.x from", Callers.name))
     if(is.null(which.terms))
         which.terms <- object$selected.terms
     if(!is.null(subset)) {

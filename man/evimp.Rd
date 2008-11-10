@@ -44,6 +44,41 @@ In other words, there is a 0 for values that increase as you go
 down the \code{gcv} or \code{rss} column.
 }
 \note{
+\bold{Introduction to variable importance}
+
+What exactly is variable importance?
+A working definition is that a variable's importance is a measure
+of the effect that observed changes to the variable have on the observed response.
+It is this measure of importance that \code{evimp} tries to estimate.
+
+You might say that you can measure a variable's importance 
+by changing the variable's value and measuring how the response changes.
+However, except in special situations, there are problems with this because:
+
+(i) it assumes we can change the variable, which is usually not the case.
+For example, in the \code{\link{trees}} data, 
+we cannot simply generate a new tree of arbitrary height.
+
+(ii) it assumes that changes to a variable occur in isolation.
+In practice, a variable is usually tied to other variables,
+and a change to the variable would never occur without simultaneous
+changes to other variables. 
+For example, in the \code{\link{trees}} data, a change to the height
+is associated with a change in the girth.
+
+Variable importance in the equation that MARS derives from the data is another matter.
+For example, if two variables are highly correlated,
+MARS will usually drop one when building the model.
+Both variables have the same importance in the data but
+not in the MARS equation (the one variable does not even appear in the equation).
+A section has a few words on how to use \code{\link{plotmo}}
+to estimate variable importance in the MARS equation.
+
+[Note: this section was written in response to several emails about \code{evimp}.
+%A common confusion is equating variable importance in the MARS equation to the 
+%variable importance in the data.
+Your comments would be appreciated.]
+
 \bold{Estimating variable importance}
 
 Establishing predictor importance is in general a tricky and even controversial problem.
@@ -82,6 +117,7 @@ and thus appear less important than unused variables.
 
 Note that using RSq's and GRSq's instead of RSS's and GCV's
 would give identical estimates of variable importance.
+(RSq and GRSq are defined in the Value section of the \code{\link{earth}} help page).
 
 \bold{Example}
 
@@ -123,11 +159,7 @@ columns have a 0 if the corresponding criterion increases instead of decreasing
 We see that \code{ibh} is considered less important than \code{dpg} using the \code{nsubsets}
 criterion, but not with the \code{gcv} and \code{rss} criteria.
 
-\bold{Other techniques}
-
-Running \code{\link{plotmo}} with \code{ylim=NULL} (the default)
-gives an idea of which predictors make the largest changes to the predicted value
-(but only with all other predictors at their median values).
+\bold{Using drop1 to estimate variable importance}
 
 You can also use \code{\link{drop1}} (assuming you are using the formula interface to earth).
 Calling \code{drop1(my.earth.model)} will delete each predictor in turn from your model,
@@ -153,6 +185,21 @@ You can set \code{trace=0} by updating your model before calling \code{\link{dro
 Do it like this:\cr
 \code{my.model <- \link{update.earth}(my.model, trace=0)}.
 
+\bold{Estimating variable importance in the MARS equation}
+
+Running \code{\link{plotmo}} with \code{ylim=NULL} (the default)
+gives an idea of which predictors in the MARS equation
+make the largest changes to the predicted value
+(but only with all other predictors at their median values).
+
+Note that there is only a loose relationship between variable importance
+in the MARS equation and variable importance in the data --- 
+see the Introduction section above.
+
+% One can question if it is valid
+% to estimate variable importance using model subsets that are not part of the final model.
+% It is even possible for a variable to be rated as important yet not appear in the final model.
+
 \bold{Remarks}
 
 This function is useful in practice but the following issues can make it misleading.
@@ -162,7 +209,8 @@ the set of basis terms created by the forward pass can change a lot.
 So estimates of predictor importance can be unreliable
 because they can vary with even slightly different training data.
 
-Colinear (or related) variables can mask each other's importance, just as in linear models.
+Colinear (or otherwise related) variables can mask each other's importance, 
+just as in linear models.
 This means that if two predictors are closely related, the forward pass will
 somewhat arbitrarily choose one over the other.
 The chosen predictor will incorrectly appear more important.
@@ -172,10 +220,6 @@ thus interaction terms are counted more than once
 and get a total higher weighting than additive terms (questionably).
 Each variable gets equal credit in interaction terms even though
 one variable in that term may be far more important than the other.
-
-One can question if it is valid
-to estimate variable importance using model subsets that are not part of the final model.
-It is even possible for a variable to be rated as important yet not appear in the final model.
 
 An example of conflicting importances
 (however, the results are fine with the default \code{pmethod}):\cr

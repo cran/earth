@@ -87,7 +87,7 @@ print.summary.earth <- function(
 {
     my.print.call("Call: ", x$call)
     nresp <- NCOL(x$coefficients)
-   	cat("\n")
+        cat("\n")
     warn.if.dots.used("print.summary.earth", ...)
     is.glm.model <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
     new.order <- reorder.earth(x, decomp=decomp)
@@ -97,10 +97,10 @@ print.summary.earth <- function(
 
     if(!is.glm.model || details) {
         if(!is.null(x$strings)) {      # old style expression formatting?
-			for(iresp in 1:nresp) {
-				   cat(response.names[iresp], " =\n", sep="")
-				   cat(x$strings[iresp])
-				   cat("\n")
+                        for(iresp in 1:nresp) {
+                                   cat(response.names[iresp], " =\n", sep="")
+                                   cat(x$strings[iresp])
+                                   cat("\n")
            }
         } else {
             rownames(x$coefficients) <- spaceout(rownames(x$coefficients))
@@ -109,7 +109,7 @@ print.summary.earth <- function(
                 coef <- my.fixed.point(coef, digits)
             if(is.glm.model)
                 cat("earth coefficients\n") # remind user what these are
-			else if(nresp == 1)
+                        else if(nresp == 1)
                 colnames(coef) = "coefficients"
             print(coef, digits=digits)
             cat("\n")
@@ -159,15 +159,16 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
     object  = stop("no 'object' arg"),
     details = FALSE,
     decomp  = "anova",        # see reorder.earth for legal decomp values
-    style   = c("h", "pmax"), # use "pmax" for old earth style earth expression formatting
+    style   = c("h", "pmax", "bf"), # use "pmax" for old earth style earth expression formatting
     digits  = getOption("digits"),
     fixed.point = TRUE,       # see help page
     ...)                      # extra args passed on to format.earth
 {
     rval <- object
-    style = switch(match.arg1(style),
-        NULL,
-        rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style))
+    switch(match.arg1(style),
+        NULL,                                                                              # "h"
+        rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style), # "pmax"
+        rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style)) # "bf"
     rval$details     <- details  # ditto
     rval$decomp      <- decomp
     rval$digits      <- digits   # allows us to pass digits arg on to print.summary.earth
