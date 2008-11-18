@@ -20,7 +20,8 @@ evimp(obj, trim=TRUE)
 A matrix showing the relative importances of the variables in the model.
 There is a a row for each variable.
 The row name is the variable name, but with \code{-unused} appended 
-if the variable does not appear in the final model.\cr
+if the variable does not appear in the final model.
+See also the example later.\cr
 
 The columns of the matrix are:\cr
 \code{col}: column index of the variable in the \code{x} argument to \code{earth}.\cr
@@ -29,15 +30,16 @@ Equivalently, 0 if the row name has a \code{-unused} suffix. \cr
 \code{nsubsets}: variable importance using the "number of subsets" criterion.
 Is the number of subsets that include the variable (see below).\cr
 \code{gcv}: variable importance using the GCV criterion (see below).\cr
-\code{rss}: ditto but for the RSS criterion.\cr
+\code{rss}: variable importance using the RSS criterion.\cr
 
 The rows are sorted on the \code{nsubsets} criterion.
 This means that values in the \code{nsubsets} column decrease as you go down the column
 (more accurately, they are non-increasing).
-The values in the \code{gcv} and \code{rss} columns decrease except where the
+The values in the \code{gcv} and \code{rss} columns 
+are also non-increasing except where the
 \code{gcv} or \code{rss} ranking differs from the \code{nsubsets} ranking.\cr
 
-Additionally, there are unnamed columns after the \code{gcv} column and the \code{rss} column.
+For convenience, there are unnamed columns after the \code{gcv} column and the \code{rss} column.
 These have a 0 where the ranking using the \code{gcv} or \code{rss} criteria differs from
 that using the \code{nsubsets} criterion.
 In other words, there is a 0 for values that increase as you go 
@@ -50,6 +52,15 @@ What exactly is variable importance?
 A working definition is that a variable's importance is a measure
 of the effect that observed changes to the variable have on the observed response.
 It is this measure of importance that \code{evimp} tries to estimate.
+
+Variable importance in the \emph{equation that MARS derives from the data}
+is another matter.
+For example, if two variables are highly correlated,
+MARS will usually drop one when building the model.
+Both variables have the same importance in the data but
+not in the MARS equation (one variable does not even appear in the equation).
+A section below has a few words on how to use \code{\link{plotmo}}
+to estimate variable importance in the MARS equation.
 
 You might say that you can measure a variable's importance 
 by changing the variable's value and measuring how the response changes.
@@ -65,14 +76,6 @@ and a change to the variable would never occur without simultaneous
 changes to other variables. 
 For example, in the \code{\link{trees}} data, a change to the height
 is associated with a change in the girth.
-
-Variable importance in the equation that MARS derives from the data is another matter.
-For example, if two variables are highly correlated,
-MARS will usually drop one when building the model.
-Both variables have the same importance in the data but
-not in the MARS equation (the one variable does not even appear in the equation).
-A section has a few words on how to use \code{\link{plotmo}}
-to estimate variable importance in the MARS equation.
 
 [Note: this section was written in response to several emails about \code{evimp}.
 %A common confusion is equating variable importance in the MARS equation to the 
