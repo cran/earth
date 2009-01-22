@@ -181,7 +181,7 @@ plotmo <- function(
         # TODO this only works for the common glm cases?
         #      so not e.g. for fam="pois", link="log"
         family <- get.glm.family(object, ycolumn)
-        if (!is.null(family) &&
+        if(!is.null(family) &&
                 pmatch(family, c("binomial","quasibinomial"), nomatch=0))
             clip.limits <- c(0,1) # binomial or quasibinomial model
         else
@@ -489,7 +489,7 @@ plot1 <- function(
         if(clip) {
             y.lt <- y.predict < clip.limits[1]
             y.gt <- y.predict > clip.limits[2]
-            if (all(y.lt) || all(y.gt)) # TODO revisit for better error handling
+            if(all(y.lt) || all(y.gt)) # TODO revisit for better error handling
                 warning1("plotmo: Can't clip y to ",
                     clip.limits[1], " to ", clip.limits[2])
             else
@@ -606,7 +606,7 @@ plot2 <- function(
         if(is.factor(x)) get.level(x, NULL, NULL) else grid.func(x)
     xgrid.row <- lapply(x, grid.func1)  # one row of xgrid
     for(ipred in 1:ncol(x))             # fix factor levels TODO combine with above?
-        if (is.factor(x[,ipred])) {
+        if(is.factor(x[,ipred])) {
             lev <- get.level(x[,ipred], pred.names[ipred], grid.levels)
             xgrid.row[[ipred]] <- lev
             if(draw.plot && !is.null(grid.levels)) {
@@ -653,10 +653,10 @@ plot2 <- function(
     }
     # test on draw.plot below prevents same mesage being printed twice
     if(draw.plot && !is.null(ignored.factors.msg))
-        cat("Note: plotmo cannot use factors as axes for degree2 plots,",
-            "so skipping degree2 plots for:",
+        cat("Note: plotmo cannot use factors as axes for degree2 plots,\n",
+            "      so skipping degree2 plots for: ",
             paste.with.comma(unique(ignored.factors.msg)),
-            "\n")
+            "\n", sep="")
     ylims
 }
 
@@ -673,13 +673,13 @@ range1 <- function(x, ...)
 
 check.grid.levels <- function(grid.levels, pred.names)
 {
-    if (!is.null(grid.levels)) {
-        if (!is.list(grid.levels))
+    if(!is.null(grid.levels)) {
+        if(!is.list(grid.levels))
             stop1("grid.levels must be a list. ",
                  "Example: grid.levels=list(sex=\"male\")")
         names. <- names(unlist(grid.levels)) # get list element names
-        for (name in names.)
-            if (length(grep(paste("^", name, "$", sep=""), pred.names)) == 0)
+        for(name in names.)
+            if(length(grep(paste("^", name, "$", sep=""), pred.names)) == 0)
                 stop1("illegal predictor name \"", name, "\" in grid.levels")
     }
 }
@@ -697,10 +697,10 @@ get.level <- function(x, pred.name, grid.levels)
     lev.names <- levels(x)
     if(!is.null(pred.name) && !is.null(grid.levels)) {
         lev.name <- grid.levels[[pred.name]]
-        if (!is.null(lev.name)) {                   # lev.name is in grid.levels?
+        if(!is.null(lev.name)) {                   # lev.name is in grid.levels?
             ilev <- lev.names == lev.name
             ilev <- which(ilev)
-            if (length(ilev) != 1)
+            if(length(ilev) != 1)
                 stop1("illegal level \"", lev.name,
                    "\" specified for \"", pred.name,
                    "\" in grid.levels (allowed levels are ",
@@ -725,7 +725,7 @@ check.and.print.y <- function(y, msg, ycolumn, expected.len, trace, subset.=NULL
         y <- y[, ycolumn, drop=FALSE]
     # convert dataframe to matrix, needed for test.earth.glm.R test a21
     # TODO revisit
-    if (is.data.frame(y))
+    if(is.data.frame(y))
         y <- as.matrix(y)
     if(NCOL(y) > 1)
         stop1("'ycolumn' specifies more than one column")
@@ -1266,3 +1266,17 @@ get.pairs.default <- function(object, x, degree2, pred.names, trace=FALSE)
     }
     Pairs
 }
+
+#------------------------------------------------------------------------------
+# define method function because don't want bogus warnings from plotmo.prolog.default
+plotmo.prolog.bagEarth <- function(object) NULL
+
+get.pairs.bagEarth <- function(object, x, degree2, pred.names, trace)
+{
+    pairs <- matrix(0, nrow=0, ncol=2)
+    for(i in 1:length(object$fit))     # TODO could probably be vectorized
+        pairs <- rbind(pairs, get.pairs(object$fit[[i]], x, degree2, pred.names, trace))
+    pairs <- unique(pairs)
+    pairs[order(pairs[,1], pairs[,2]),]
+}
+

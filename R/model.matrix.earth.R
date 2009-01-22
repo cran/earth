@@ -62,8 +62,8 @@ generate.colnames <- function(x, is.y.arg=FALSE, xname=NULL)
         # copy valid names in colnames(x) to names
 
         col.names <- colnames(x)
-        for (i in 1:NCOL(x))
-            if (good.name(col.names[i]))
+        for(i in 1:NCOL(x))
+            if(good.name(col.names[i]))
                 names.[i] <- col.names[i]
     }
     # if any name is still "", convert it to an "xN" style name
@@ -130,7 +130,7 @@ get.earth.x <- function(    # returns x expanded for factors
         ncol.names <- length(col.names)
         nexpected <- length(expected.colnames)
         if(is.null(col.names)) {
-            if(trace)
+            if(trace >= 1)
                 cat(Callers.name, ": x has no column names, ",
                     "adding column names: ", paste.with.space(expected.colnames),
                     "\n", sep="")
@@ -141,7 +141,7 @@ get.earth.x <- function(    # returns x expanded for factors
             # actually used by the model.
 
             imatch <- pmatch(col.names, expected.colnames, nomatch=0)
-            if (any(imatch == 0)) {
+            if(any(imatch == 0)) {
                 # can't repair the error because there are colnames in x that aren't
                 # in expected.names (tends to happen with expanded factor names)
                 stop1(Callers.name, ": x has ", ncol.names,
@@ -154,14 +154,14 @@ get.earth.x <- function(    # returns x expanded for factors
             # that are unused in the earth model.
             # We use 999 instead of NA else the model matrix routines fail incorrectly
             # because they don't like NAs when doing predictions.
-            if(trace)
+            if(trace >= 1)
                 cat(Callers.name, ": x has missing columns, ",
                     "creating a new x with all cols\n", sep="")
             imatch <- pmatch(expected.colnames, col.names, nomatch=0)
             x.original <- x
             x <- matrix(data=999, nrow=nrow(x), ncol=nexpected)
-            for (i in 1:nexpected)
-                if (imatch[i])
+            for(i in 1:nexpected)
+                if(imatch[i])
                     x[,i] <- x.original[,imatch[i]]
             col.names <- expected.colnames
         } else if(ncol.names > nexpected) {
@@ -169,7 +169,7 @@ get.earth.x <- function(    # returns x expanded for factors
         } else {
             imatch <- pmatch(col.names, expected.colnames, nomatch=0)
             if(all(imatch == 0)) {
-                   if(trace)
+                   if(trace >= 1)
                         cat(Callers.name,
                             ": unexpected x column names, renaming columns\n",
                             "    Old names: ", paste.with.space(col.names), "\n",
@@ -193,7 +193,7 @@ get.earth.x <- function(    # returns x expanded for factors
                                 "    New columns: ", paste.with.space(expected.colnames),
                                 "\n", sep="")
                    if(length(imatch) == ncol(x)) {
-                       if(trace)
+                       if(trace >= 1)
                            cat(sprintf(s, ", correcting the column order"), sep="")
                        x <- x[,imatch]
                        col.names <- col.names[imatch]
@@ -217,13 +217,18 @@ get.earth.x <- function(    # returns x expanded for factors
             if(floor(nrows) == nrows)
                 dim(x) <- c(nrow=nrows, ncol=length(x) / nrows)
             else
-                stop1(Callers.name,
-                    ": could not convert vector x to matrix because\n",
-                    "       length(x) ", length(x),
-                    " is not a multiple of the number ", ncol(object$namesx),
+                stop1(Callers.name, ":\n",
+                    "       could not convert vector x to matrix because ",
+                    "length(x) ", length(x), "\n",
+                    "       is not a multiple of the number ", 
+                    if(length(ncol(object$namesx))) ncol(object$namesx) else 0,
                     " of predictors ",
                     "\n       Expected predictors: ",
-                    paste.with.space(colnames(object$namesx)))
+                    if(is.null(colnames(object$namesx)))
+                        "none?"
+                    else 
+                        paste.with.space(colnames(object$namesx))
+                    )
         }
         x
     }
@@ -231,12 +236,12 @@ get.earth.x <- function(    # returns x expanded for factors
     {
         if(ncol(x) != ncol(object$dirs)) {
             stop1(Callers.name,
-                     ": the number ", NCOL(x),
-                     " of columns of x after factor expansion\n",
-                     "does not match the number ", NCOL(object$dirs),
+                     ": the number ", NCOL(x), " of columns of x\n",
+                     "(after factor expansion) does not match the number ", 
+                     NCOL(object$dirs),
                      " of columns of the earth object",
-                     "\n  expanded x:  ", paste.with.space(colnames(x)),
-                     "\n  object$dirs: ", paste.with.space(colnames(object$dirs)),
+                     "\n    expanded x:  ", paste.with.space(colnames(x)),
+                     "\n    object$dirs: ", paste.with.space(colnames(object$dirs)),
                      "\nPossible remedy: check factors in the input data")
         }
     }
@@ -253,7 +258,7 @@ get.earth.x <- function(    # returns x expanded for factors
         x <- get.update.arg(data, "x", object, trace, Callers.name)
         x <- my.as.matrix(data)
         x <- fix.x.columns(x, object$namesx)
-        if(trace)
+        if(trace >= 1)
             print.matrix.info("x", x, Callers.name)
         x <- expand.arg(x, env)
     } else {
@@ -265,7 +270,7 @@ get.earth.x <- function(    # returns x expanded for factors
         data <- fix.x.columns(data, object$namesx)
         data <- as.data.frame(data)
         expected.nrows <- nrow(data)
-        if(trace)
+        if(trace >= 1)
             print.matrix.info("x", data, Callers.name)
         data <- model.frame(Terms, data)
         classes <- attr(Terms, "dataClasses")
@@ -308,7 +313,7 @@ get.update.arg <- function(arg, argname, object,
         temp. <- try(eval.parent(object[[argname, exact=TRUE]], n=2), silent=TRUE)
         if(!is.null(temp.) && class(temp.) != "try-error") {
             arg <- object[[argname, exact=TRUE]]
-            if(trace1)
+            if(trace1 >= 1)
                 cat(Callers.name, ": using ",
                     NROW(temp.), " by ", NCOL(temp.), " ", argname,
                     " saved by keepxy in original call to earth\n", sep="")
@@ -316,7 +321,7 @@ get.update.arg <- function(arg, argname, object,
             temp. <- try(eval.parent(object$call[[argname, exact=TRUE]], n=2), silent=TRUE)
             if(!is.null(temp.) && class(temp.) != "try-error") {
                 arg <- object$call[[argname, exact=TRUE]]
-                if(trace1)
+                if(trace1 >= 1)
                     cat(Callers.name, ": using ",
                         NROW(temp.), " by ", NCOL(temp.), " ", argname,
                         " argument from original call to earth\n", sep="")
@@ -336,14 +341,14 @@ model.matrix.earth <- function(     # returns bx
     which.terms  = NULL,
     ...,                                 # unused, for generic method comparibility
     env          = parent.frame(),
-    trace        = FALSE,
+    trace        = 0,
     Callers.name = "model.matrix.earth") # caller's name for trace messages
 {
     warn.if.dots.used("model.matrix.earth", ...)
     check.classname(object, deparse(substitute(object)), "earth")
     trace <- check.trace.arg(trace)
     if(is.null(x) && is.null(subset) && is.null(which.terms)) {
-        if(trace)
+        if(trace >= 1)
             cat(Callers.name, ": returning object$bx\n", sep="")
         return(object$bx)
     }

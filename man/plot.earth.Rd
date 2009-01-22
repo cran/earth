@@ -48,36 +48,36 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
     \emph{For all the col arguments, 0 means don't plot the corresponding graph element.}
   }
   \item{col.rsq}{
-    Colour of RSq line in model selection plot.
+    Color of RSq line in model selection plot.
     Default is \code{"lightblue"}.
   }
   \item{col.loess}{
-    Colour of \code{\link{loess}} line in residuals plot.
+    Color of \code{\link{loess}} line in residuals plot.
     Default is \code{col.rsq}.
     Generating the loess line occasionally causes warnings such as
     "Warning: pseudoinverse used".
     To get rid of these warnings, set \code{col.loess=0}
   }
   \item{col.qq}{
-    Colour of QQ line.
+    Color of QQ line.
     Default is \code{col.rsq}.
   }
   \item{col.grid}{
-    Colour of grid lines in cumulative distribution plot.  Default is \code{"grey"}.
+    Color of grid lines in cumulative distribution plot.  Default is \code{"grey"}.
   }
   \item{col.vline}{
-    Colour of vertical line at best model in model plot.  Default is \code{"grey"}.
+    Color of vertical line at best model in model plot.  Default is \code{"grey"}.
   }
   \item{lty.vline}{
     Line type of vertical line at best model in model plot.  Default is \code{3}.
   }
   \item{col.legend}{
-    Colour of legend (inside plot area) of model plot.
+    Color of legend (inside plot area) of model plot.
     Default is \code{1}, meaning draw a legend.
     Use \code{0} for no legend.
   }
   \item{col.npreds}{
-     Colour of the "number of predictors" plot within the model plot.
+     Color of the "number of predictors" plot within the model plot.
      Default is \code{1}.
      Use \code{0} for no "number of predictors" plot.
   }
@@ -107,7 +107,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
     is the largest GRSq or RSq value.
   }
   \item{jitter}{
-    Jitter applied to GRSq and RSq values to minimise over-plotting.
+    Jitter applied to GRSq and RSq values to minimize over-plotting.
     Default is \code{0}, meaning no jitter.
     A typical useful value is 0.01.
   }
@@ -119,7 +119,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
   \item{legend.pos}{
     \code{NULL} (default) means position legend automatically.  Else specify \code{c(x,y)}
-    in user coords.\cr
+    in user coordinates.\cr
 
      \emph{The following settings are related to \code{par()} and are included so you can override the defaults.}
   }

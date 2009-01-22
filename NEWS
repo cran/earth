@@ -1,6 +1,25 @@
 Changes to Earth Package
 ------------------------
 
+2.2-1 Jan 22 2009
+    Added cross validation i.e. the nfold and stratify parameters.
+
+    We now scale y before the forward pass, for better numeric stability in 
+    the forward pass with very big or very small y's. 
+    For the old behaviour, set earth's new argument scale.y=FALSE.
+
+    Added get.pairs.bagEarth so plotmo prints degree2 plots for caret:bagEarth models.
+
+    Changes internal to earth.c:
+        High values of trace argument are treated differently
+        ServiceR (to allow interrupts) is called more consistently for large datasets
+        Delta RSS handling is simplified
+        Changed some var names for consistency
+     The last two were a byproduct of experimental changes to earth that 
+     were not included in this release.
+
+     Changed documentation to American English.
+
 2.1-2 Nov 18 2008
     Touched up evimp help page.
 

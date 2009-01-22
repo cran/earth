@@ -124,7 +124,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     dimnames(object$cuts)   <- list(term.names, pred.names)
     colnames(object$x) <- term.names[selected.terms]
     rownames(object$coefficients)  <- term.names[selected.terms]
-    response.names <- generate.colnames(object$coefficients, is.y.arg=TRUE, xname=NULL)
+    response.names <- generate.colnames(object$fitted.values, is.y.arg=TRUE, xname=NULL)
     colnames(object$fitted.values) <- response.names
     colnames(object$residuals)     <- response.names
     colnames(object$coefficients)  <- response.names

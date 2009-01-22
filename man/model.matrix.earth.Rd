@@ -9,7 +9,7 @@ Get the basis matrix of an \code{\link{earth}} object.
     x = NULL, subset = NULL, which.terms = NULL,
     \dots,
     env = parent.frame(),
-    trace = FALSE,
+    trace = 0,
     Callers.name = "model.matrix.earth")
 }
 \arguments{
@@ -38,7 +38,7 @@ Get the basis matrix of an \code{\link{earth}} object.
      For internal use.
   }
   \item{trace}{
-     Default FALSE. Set to TRUE to see which data \code{model.matrix.earth} is using.
+     Default 0. Set to non-zero to see which data \code{model.matrix.earth} is using.
   }
   \item{Callers.name}{
      For internal use.

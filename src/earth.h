@@ -27,7 +27,7 @@ void ForwardPassR(              // for use by R
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
     const double x[],           // in: nCases x nPreds
     const double y[],           // in: nCases x nResp
-    const double weightsArg[],  // in: nCases x 1, can be R_NilValue
+    const double WeightsArg[],  // in: nCases x 1, can be R_NilValue
     const int *pnCases,         // in: number of rows in x and elements in y
     const int *pnResp,          // in: number of cols in y
     const int *pnPreds,         // in: number of cols in x
@@ -39,7 +39,7 @@ void ForwardPassR(              // for use by R
     const int *pnFastK,           // in: Fast MARS K
     const double *pFastBeta,      // in: Fast MARS ageing coef
     const double *pNewVarPenalty, // in: penalty for adding a new variable
-    const int LinPreds[],         // in: 1 x nPreds, 1 if predictor must enter linearly
+    const int  LinPreds[],        // in: 1 x nPreds, 1 if predictor must enter linearly
     const SEXP Allowed,           // in: constraints function
     const int *pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
@@ -55,7 +55,7 @@ void EvalSubsetsUsingXtxR(     // for use by R
     const int    *pnMaxTerms,  // in
     const double bx[],         // in: MARS basis matrix, all cols must be independent
     const double y[],          // in: nCases * nResp
-    const double weights[]);   // in: nCases x 1, can be R_NilValue
+    const double Weights[]);   // in: nCases x 1, can be R_NilValue
 
 void RegressR(          // for testing earth routine Regress from R
     double       Betas[],       // out: nUsedCols * nResp
@@ -66,7 +66,7 @@ void RegressR(          // for testing earth routine Regress from R
     int          iPivots[],     // out: nCols, can be NULL
     const double x[],           // in: nCases x nCols
     const double y[],           // in: nCases x nResp
-    const double weightss[],    // in: nCases x 1, sqrt of weights
+    const double Weightss[],    // in: nCases x 1, sqrt of Weights
     const int    *pnCases,      // in: number of rows in x and in y
     const int    *pnResp,       // in: number of cols in y
     int          *pnCols,       // in: number of columns in x, some may not be used
@@ -87,7 +87,7 @@ void Earth(
     double Betas[],         // out: nMaxTerms x nResp
     const double x[],       // in: nCases x nPreds
     const double y[],       // in: nCases x nResp
-    const double weightsArg[], // in: nCases, can be NULL
+    const double WeightsArg[], // in: nCases, can be NULL
     const int nCases,       // in: number of rows in x and elements in y
     const int nResp,        // in: number of cols in y
     const int nPreds,       // in: number of cols in x

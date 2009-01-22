@@ -149,7 +149,7 @@ plot.evimp <- function(
     ...)                        # extra args passed to plotting and method funcs
 {
     # make sure that all evimp columns are present (extra columns are ok)
-    if (any(pmatch(c("col", "used", "nsubsets", "gcv"), colnames(x), nomatch=0) == 0))
+    if(any(pmatch(c("col", "used", "nsubsets", "gcv"), colnames(x), nomatch=0) == 0))
         stop("x is not an evimp matrix")
 
     max.subsets <- x[1,"nsubsets"]
@@ -163,7 +163,7 @@ plot.evimp <- function(
     lines(max.subsets * x[,"rss"] / 100, type=type.gcv, lty=lty.rss, col=col.rss)
     # plot gcv second so it goes on top of rss (gcv arguably more important than rss)
     lines(max.subsets * x[,"gcv"] / 100, type=type.rss, lty=lty.gcv, col=col.gcv)
-    if (!is.null(x.legend) && x.legend != 0)
+    if(!is.null(x.legend) && x.legend != 0)
         legend(x=x.legend, y = y.legend, xjust=1,   # top right corner by default
                legend=c("nsubsets", "gcv", "rss"),
                col=c(col.nsubsets, col.gcv, col.rss),

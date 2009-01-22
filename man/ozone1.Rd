@@ -4,25 +4,19 @@
 \description{
 Ozone readings in Los Angeles, with incomplete cases removed.}
 \format{
-  \item{O3}{daily maximum of the hourly average ozone concentrations in Upland, CA.
-  }
-  \item{vh}{500 millibar pressure height, measured at the Vandenberg air force base.
-  }
-  \item{wind}{wind speed in mph at LAX airport.
-  }
-  \item{humidity}{humidity in percent at LAX.
-  }
-  \item{temp}{Sandburg Air Force Base temperature in degrees Fahrenheit.
-  }
-  \item{ibh}{temperature inversion base height in feet.
-  }
-  \item{dpg}{pressure gradient from LAX to Daggert in mm Hg.
-  }
-  \item{ibt}{inversion base temperature at LAX in degrees Fahrenheit.
-  }
-  \item{vis}{visibility at LAX in miles.
-  }
-  \item{doy}{day of the year.
+  A data frame with 330 observations on 10 variables.
+
+  \tabular{ll}{
+      \code{O3} \tab daily maximum of the hourly average ozone concentrations in Upland, CA\cr
+      \code{vh} \tab 500 millibar pressure height, measured at the Vandenberg air force base\cr
+      \code{wind} \tab wind speed in mph at LAX airport\cr
+      \code{humidity} \tab humidity in percent at LAX\cr
+      \code{temp} \tab Sandburg Air Force Base temperature in degrees Fahrenheit\cr
+      \code{ibh} \tab temperature inversion base height in feet\cr
+      \code{dpg} \tab pressure gradient from LAX to Daggert in mm Hg\cr
+      \code{ibt} \tab inversion base temperature at LAX in degrees Fahrenheit\cr
+      \code{vis} \tab visibility at LAX in miles\cr
+      \code{doy} \tab day of the year\cr
   }
 }
 \source{

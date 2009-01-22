@@ -83,7 +83,9 @@ check.and.standarize.wp <- function(wp, expected.len)
     sqrt(standardize.weights(wp, meanw))
 }
 
-check.weights <- function(w, expected.len, wname) # used for "weights" and "wp"
+# following is used for "weights" and "wp"
+
+check.weights <- function(w, expected.len, wname)
 {
     if(!is.vector(w))
         stop1("\"", wname, "\" is not a vector")
@@ -130,11 +132,14 @@ earth.default <- function(
     y       = stop("no 'y' arg"),
     weights = NULL,         # case weights
     wp      = NULL,         # response column weights
+    scale.y = (NCOL(y)==1), # TRUE to scale y in the forward pass
     subset  = NULL,         # which rows in x to use
     na.action = na.fail,    # only legal value is na.fail
     glm     = NULL,
-    trace   = 0,            #
+    trace   = 0,
     keepxy  = FALSE,        # true to retain x and y in returned value
+    nfold   = 0,            # cross validation folds, 0 means no cross validation
+    stratify = TRUE,        # stratify levels in cross validation folds
     ...)                    # passed on to earth.fit
 {
     trace <- check.trace.arg(trace)
@@ -143,8 +148,8 @@ earth.default <- function(
         my.print.call("Call: ", Call)
     if(!is.null(Call$data))
         stop1("\"data\" argument not allowed in earth.default")
-    if (is.character(na.action)) {
-        if (is.na(pmatch(na.action, "na.fail")))
+    if(is.character(na.action)) {
+        if(is.na(pmatch(na.action, "na.fail")))
             stop1("illegal \"na.action\", only na.action=na.fail is allowed")
     } else if(!identical(na.action, na.fail))
         stop1("illegal \"na.action\", only na.action=na.fail is allowed")
@@ -153,7 +158,7 @@ earth.default <- function(
         y.org <- y
     }
     xname <- deparse(substitute(x))
-    if (is.vector(x))
+    if(is.vector(x))
         namesx.org <-  xname    # ensure x always has a name
     else
         namesx.org <- colnames(x)
@@ -167,11 +172,13 @@ earth.default <- function(
     y <- expand.arg(y, env, is.y.arg=TRUE, deparse(substitute(y)))
     rownames(y) <- possibly.delete.rownames(y)
 
-    rval <- earth.fit(x=x, y=y, weights=weights, wp=wp, subset=subset,
-                      na.action=na.action, glm=glm, trace=trace, ...)
+    rval <- earth.fit(x=x, y=y, weights=weights, wp=wp, scale.y=scale.y,
+                      subset=subset, na.action=na.action, glm=glm,
+                      trace=trace, ...)
     rval$call <- Call
     rval$namesx.org <- namesx.org # name chosen not to alias with rval$x
     rval$namesx <- namesx         # ditto
+    rval$wp <- wp
     if(keepxy) {
         rval$x <- x.org
         # following ruse is needed else vector y's lose their name
@@ -182,7 +189,25 @@ earth.default <- function(
         rval$y <- y.org
         rval$subset <- subset
         rval$weights <- weights
-        rval$wp <- wp
+    }
+    # earth.cv will return null unless nfold>1
+    # subset parameter was already checked in earth.fit so it's safe to use it here
+    cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
+                   if(is.null(subset)) y else y[subset,,drop=FALSE],
+                   weights, wp, scale.y, subset, na.action,
+                   glm, trace, keepxy, nfold, stratify, ...)
+    if(!is.null(cv)) {
+         rval$cv.list = cv$list.
+         rval$cv.nterms = cv$nterms
+         rval$cv.nvars = cv$nvars
+         rval$cv.rsq.tab = cv$rsq.tab
+         rval$cv.maxerr.tab = cv$maxerr.tab
+         rval$cv.deviance.tab = cv$deviance.tab
+         rval$cv.calib.int.tab = cv$calib.int.tab
+         rval$cv.calib.slope.tab = cv$calib.slope.tab
+         rval$cv.auc.tab = cv$auc.tab
+         rval$cv.cor.tab = cv$cor.tab
+         rval$cv.groups = cv$groups
     }
     rval
 }
@@ -192,11 +217,14 @@ earth.formula <- function(
     data    = NULL,
     weights = NULL,         # case weights
     wp      = NULL,         # response column weights
+    scale.y = (NCOL(y)==1), # TRUE to scale y in the forward pass
     subset  = NULL,         # which rows in x to use
     na.action = na.fail,    # only legal value is na.fail
     glm     = NULL,
     trace   = 0,
     keepxy  = FALSE,        # true to retain x and y in returned value
+    nfold  = 0,             # cross validation folds, 0 means no cross validation
+    stratify = TRUE,        # stratify levels in cross validation folds
     ...)                    # passed on to earth.fit
 {
     # get x column names from model frame
@@ -246,7 +274,7 @@ earth.formula <- function(
         warning1("ignored -1 in formula (earth objects always have an intercept)")
     # strip white space for better reading earth formula for e.g. earth(y~I(X-3))
     # because model.matrix inserts spaces around the minus
-    if (!is.null(colnames(x)))
+    if(!is.null(colnames(x)))
         colnames(x) <- strip.white.space(colnames(x))
 
     # expand factors in y, convert to double matrix, add colnames
@@ -263,22 +291,42 @@ earth.formula <- function(
     y <- expand.arg(y, env, is.y.arg=TRUE, xname=yname)
     rownames(y) <- possibly.delete.rownames(y)
 
-    rval <- earth.fit(x=x, y=y, weights=weights, wp=wp, subset=subset,
-                      na.action=na.action, glm=glm, trace=trace, ...)
+    rval <- earth.fit(x=x, y=y, weights=weights, wp=wp, scale.y=scale.y,
+                      subset=subset, na.action=na.action, glm=glm,
+                      trace=trace, ...)
 
     rval$namesx.org <- get.namesx(mf)
     rval$namesx <- make.unique(rval$namesx.org)
     rval$terms <- terms.
     rval$call <- Call
+    rval$wp <- wp
 
     if(keepxy) {
         if(!is.null(data))
             rval$data <- data
-        else if(trace)
+        else if(trace >= 1)
             cat("No 'data' argument to earth so ignoring keepxy for 'data'\n")
         rval$subset <- subset
         rval$weights <- weights
-        rval$wp <- wp
+    }
+    # earth.cv will return null unless nfold>1
+    # subset parameter was already checked in earth.fit so it's safe to use it here
+    cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
+                   if(is.null(subset)) y else y[subset,,drop=FALSE],
+                   weights, wp, scale.y, subset, na.action,
+                   glm, trace, keepxy,  nfold, stratify, ...)
+    if(!is.null(cv)) {
+         rval$cv.rsq.tab = cv$rsq.tab
+         rval$cv.maxerr.tab = cv$maxerr.tab
+         rval$cv.deviance.tab = cv$deviance.tab
+         rval$cv.calib.int.tab = cv$calib.int.tab
+         rval$cv.calib.slope.tab = cv$calib.slope.tab
+         rval$cv.auc.tab = cv$auc.tab
+         rval$cv.cor.tab = cv$cor.tab
+         rval$cv.groups = cv$groups
+         rval$cv.nterms = cv$nterms
+         rval$cv.nvars = cv$nvars
+         rval$cv.list = cv$list.
     }
     rval
 }
@@ -292,6 +340,7 @@ earth.fit <- function(
     y       = stop("no 'y' arg"), # NAs are not allowed in x or y, an error msg if so
     weights = NULL,         # case weights
     wp      = NULL,         # response column weights
+    scale.y = (NCOL(y)==1), # TRUE to scale y in the forward pass
     subset  = NULL,         # which rows in x to use
     na.action = na.fail,    # only legal value is na.fail
     glm     = NULL,         # lst with same args as glm() plus additional experimental arg bpairs
@@ -341,7 +390,7 @@ earth.fit <- function(
     Print.pruning.pass = print.pruning.pass, # function used to print pruning pass results
     Force.xtx.prune    = FALSE, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
     Use.beta.cache     = TRUE,  # TRUE to use beta cache, for speed
-    ...)                    # unused
+    ...)                        # unused
 {
     check.no.family.arg.to.earth(...)
     warn.if.dots.used("earth.fit", ...)
@@ -366,8 +415,8 @@ earth.fit <- function(
     # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)
         stop1("\"nk\" ", nk, " is less than 1")
-    if (is.character(na.action)) {
-        if (is.na(pmatch(na.action, "na.fail")))
+    if(is.character(na.action)) {
+        if(is.na(pmatch(na.action, "na.fail")))
             stop1("illegal \"na.action\", only na.action=na.fail is allowed")
     } else if(!identical(na.action, na.fail))
         stop1("illegal \"na.action\", only na.action=na.fail is allowed")
@@ -414,10 +463,9 @@ earth.fit <- function(
     }
     if(!is.null(glm.bpairs))
         y <- y[, glm.bpairs, drop=FALSE]
-
     if(is.null(Object)) {
         env <- parent.frame()
-        rval <- forward.pass(x, y, standardized.weights, trace, penalty,
+        rval <- forward.pass(x, y, standardized.weights, scale.y, trace, penalty,
                              nk, degree, linpreds,
                              allowed, thresh, minspan, newvar.penalty,
                              fast.k, fast.beta, Use.beta.cache,
@@ -534,8 +582,7 @@ earth.fit <- function(
         residuals      = residuals,     # ncases (after subset) x nresp
         coefficients   = coefficients,  # selected terms only: nselected x nresp
 
-        penalty        = penalty,       # copy of penalty argument
-        ppenalty       = penalty),      # copy of penalty argument, deprecated
+        penalty        = penalty),      # copy of penalty argument
     class = "earth")
 
     if(!is.null(glm.list)) {
@@ -598,23 +645,23 @@ eval.model.subsets.with.leaps <- function(
     }
     if(is.null(weights))
         rprune <- leaps.setup(x=bx, y=y,
-                 force.in=1,        # make sure intercept is in model
-                 force.out=NULL,
-                 intercept=FALSE,   # we have an intercept so leaps.setup must not add one
-                 nvmax=nprune, nbest=1, warn.dep=TRUE)
+                    force.in=1,        # make sure intercept is in model
+                    force.out=NULL,
+                    intercept=FALSE,   # we have an intercept so leaps.setup must not add one
+                    nvmax=nprune, nbest=1, warn.dep=TRUE)
     else
         rprune <- leaps.setup(x=bx, y=y, wt=weights,
-                 force.in=1,
-                 force.out=NULL,
-                 intercept=FALSE,
-                 nvmax=nprune, nbest=1, warn.dep=TRUE)
+                    force.in=1,
+                    force.out=NULL,
+                    intercept=FALSE,
+                    nvmax=nprune, nbest=1, warn.dep=TRUE)
 
     rprune <- switch(match.arg1(pmethod),
-                leaps.backward(rprune),     # "backward"
-                leaps.backward(rprune),     # "none"
-                leaps.exhaustive(rprune, really.big=TRUE),
-                leaps.forward(rprune),
-                leaps.seqrep(rprune))
+                    leaps.backward(rprune),     # "backward"
+                    leaps.backward(rprune),     # "none"
+                    leaps.exhaustive(rprune, really.big=TRUE),
+                    leaps.forward(rprune),
+                    leaps.seqrep(rprune))
     if(pacify)
         cat("\n")
     rss.per.subset <- as.vector(rprune$ress) # convert from n x 1 mat to vector
@@ -686,7 +733,7 @@ eval.model.subsets.using.xtx <- function(
 }
 
 forward.pass <- function(x, y, weights,  # must be all double
-                         trace, penalty, nk, degree, linpreds,
+                         scale.y, trace, penalty, nk, degree, linpreds,
                          allowed, thresh, minspan, newvar.penalty,
                          fast.k, fast.beta, Use.beta.cache,
                          n.allowedfunc.args, env)
@@ -721,6 +768,20 @@ forward.pass <- function(x, y, weights,  # must be all double
     if(nbytes > 1e7)  # need more than 10 MBytes to build model?
         gc()
 
+    # CHANGED Jan 22, 2009: scale y for better stability in the forward pass
+    if(scale.y) {
+        y.scaled = scale(y)
+        # make sure that scaling was ok
+        i <- which(attr(y.scaled,"scaled:scale") == 0)
+        if(length(i)) {
+            if(ncol(y) > 1)
+                stop1("cannot scale column ", i[1], " of y (values are all equal to ", y[1,i], ")")
+            else
+                stop1("cannot scale y (values are all equal to ", y[1,1], ")")
+        }
+    } else
+        y.scaled = y
+
     on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interupts
 
     rval <- .C("ForwardPassR",
@@ -729,7 +790,7 @@ forward.pass <- function(x, y, weights,  # must be all double
         dirs = matrix(0, nrow=nk, ncol=npreds), # out: double Dirs[]
         cuts = matrix(0, nrow=nk, ncol=npreds), # out: double Cuts[]
         x,                              # in: const double x[]
-        y,                              # in: const double y[]
+        y.scaled,                       # in: const double y[]
         weights,                        # in: const double weightsArg[]
         as.integer(nrow(x)),            # in: const int *pnCases
         as.integer(ncol(y)),            # in: const int *pnResp
@@ -922,7 +983,7 @@ predict.earth <- function(
 {
     print.which <- function(trace, object, msg)
     {
-        if(trace)
+        if(trace >= 1)
             if(is.null(object$glm.list))
                 cat("predict.earth: returning earth", msg, "\n")
             else
@@ -935,7 +996,7 @@ predict.earth <- function(
                 print.which(trace, object, "fitted.values")
                 return(object$fitted.values)
             } else {    # glm predictions
-                if(trace)
+                if(trace >= 1)
                     cat("predict.earth: returning glm fitted.values\n")
                 rval <- matrix(0, nrow=nrow(object$fitted.values),
                                   ncol=ncol(object$fitted.values))
@@ -949,13 +1010,13 @@ predict.earth <- function(
             bx <- model.matrix.earth(object, newdata, env=env,
                                      trace=trace,
                                      Callers.name="model.matrix.earth from predict.earth")
-            if(trace)
+            if(trace >= 1)
                  print.matrix.info("bx", bx, "predict.earth")
             if(is.null(object$glm.list) || type=="earth") {
                 print.which(trace, object, "predictions")
                 return(bx %*% object$coefficients)
             } else {    # glm predictions
-                if(trace)
+                if(trace >= 1)
                     cat("predict.earth: returning glm", type, "predictions\n")
                 rval <- matrix(0, nrow=nrow(bx),
                                   ncol=ncol(object$fitted.values))
@@ -1315,9 +1376,13 @@ update.earth <- function(
             do.forward.pass <- TRUE
         # conservative approach: always do forward pass if bpairs
         # argument used even if it hasn't changed
-        else if (!is.null((dots$glm)$b) || !is.null((Call$glm)$b)) {
-            if(trace)
+        else if(!is.null((dots$glm)$b) || !is.null((Call$glm)$b)) {
+            if(trace >= 1)
                 cat("update.earth: forcing forward pass because bpairs argument used\n")
+            do.forward.pass <- TRUE
+        } else if(!is.null(dots$nfold) || !is.null(Call$nfold)) {
+            if(trace >= 1)
+                cat("update.earth: forcing forward pass because nfold argument used\n")
             do.forward.pass <- TRUE
         }
         existing <- !is.na(match(names(dots), names(Call)))
@@ -1411,14 +1476,14 @@ residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=
         if(is.null(g))
             stop1("residuals.earth: type \"", type, "\" can only be used on earth-glm models")
         colnames <- ""
-        for (imodel in seq_along(g)) {
+        for(imodel in seq_along(g)) {
             rval1 <- residuals(g[[imodel]], type)
-            if (imodel == 1)
+            if(imodel == 1)
                 rval <- rval1
-            if (NROW(rval1) != NROW(rval)) # should never happen
+            if(NROW(rval1) != NROW(rval)) # should never happen
                 stop1("residuals.earth: glm.list[[", imodel, "]] does ",
                       "not conform to glm.list[[", 1, "]] (residuals have a different length)")
-            if (imodel > 1) {
+            if(imodel > 1) {
                 colnames <- c(colnames)
                 rval <- cbind(rval, rval1)
             }
@@ -1438,14 +1503,14 @@ residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=
                   arg.name="type")
     rval <- switch(itype,
         object$residuals,                               # earth
-        if (is.null(object$glm.list)) object$residuals  # deviance
+        if(is.null(object$glm.list)) object$residuals  # deviance
             else glm.resids(object, type),
         glm.resids(object, type),                       # pearson
         glm.resids(object, type),                       # working
         glm.resids(object, type),                       # response
         glm.resids(object, type))                       # partial
 
-    if (type != "partial")
+    if(type != "partial")
         colnames(rval) <- colnames(object$residuals)
     rownames(rval) <- case.names(object)
     rval
@@ -1494,15 +1559,15 @@ get.singles.earth <- function(object, x, degree1, pred.names, trace)
         used.colnames <- apply(object$dirs, 2, any1)
         colnames <- colnames(object$dirs)[used.colnames]
         used.preds <- NULL
-        for (ipred in seq_along(object$namesx.org)) {
-            if (is.factor(x[,ipred])) {
+        for(ipred in seq_along(object$namesx.org)) {
+            if(is.factor(x[,ipred])) {
                 # This knows how to deal with expanded factor names because
                 # it e.g. looks for "^pclass" in "pclass3rd"
-                if (length(grep(paste("^", object$namesx.org[ipred], sep=""), colnames)) > 0)
+                if(length(grep(paste("^", object$namesx.org[ipred], sep=""), colnames)) > 0)
                     used.preds = c(used.preds, ipred)
             } else {
                 # exact match
-                if (length(grep(paste("^", object$namesx.org[ipred], "$", sep=""), colnames)) > 0)
+                if(length(grep(paste("^", object$namesx.org[ipred], "$", sep=""), colnames)) > 0)
                     used.preds = c(used.preds, ipred)
                 used.preds = c(used.preds, ipred)
             }
@@ -1550,13 +1615,13 @@ get.pairs.earth <- function(object, x, degree2, pred.names, trace=FALSE)
             dir.colnames <- colnames(object$dirs)
             prednames <- object$namesx.org
             prednames.hat <- paste("^", prednames, sep="")
-            for (i in 1:nrow(Pairs))
-                for (j in 1:2) {
+            for(i in 1:nrow(Pairs))
+                for(j in 1:2) {
                     ipred1 <- 0
-                    for (ipred in seq_along(prednames.hat))
-                        if (length(grep(prednames.hat[ipred], dir.colnames[Pairs[i, j]])) > 0)
+                    for(ipred in seq_along(prednames.hat))
+                        if(length(grep(prednames.hat[ipred], dir.colnames[Pairs[i, j]])) > 0)
                             ipred1 <- ipred
-                    if (ipred1 == 0)
+                    if(ipred1 == 0)
                         stop1("internal error: illegal ipred1 in get.pairs.earth")
                     Pairs[i, j] <- ipred1
                 }

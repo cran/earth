@@ -307,12 +307,30 @@ is.binomial <- function(family) # return true if family is binom or quasibinom
     )
 }
 
+is.poisson <- function(family) # return true if family is poisson or quasipoisson
+{
+    (
+        (is.character(family) &&            # e.g. "poisson"
+            (substr(family, 1, 1) == "p" ||
+             substr(family, 1, 6) == "quasip"))
+        ||
+        (class(family) == "function" &&     # e.g. poisson
+            (identical(body(family), body(poisson)) ||
+             identical(body(family), body(quasipoisson))))
+        ||
+        (class(family) == "family" &&       # e.g. poisson()
+            (family$family == "poisson" ||
+             family$family == "quasipoisson"))
+    )
+}
+
 # called from print.summary.earth
 
 print.earth.glm <- function(obj, digits, fixed.point)    # obj is an earth object
 {
     glm.list <- obj$glm.list
     nresp <- length(glm.list)
+
     cat("\nGLM ")
     if(nresp == 1)
         print.one.earth.glm(glm.list[[1]], digits)
@@ -321,19 +339,14 @@ print.earth.glm <- function(obj, digits, fixed.point)    # obj is an earth objec
              glm.list[[1]]$family$link, ")\n", sep="")
 
         a <- matrix(nrow=nresp, ncol=6)
+        colnames(a) <- c("null.deviance", "df", "deviance", "df", "iters", "converged")
         rownames(a) <- colnames(obj$fitted.values)
         for(iresp in 1:nresp) {
-             g <- glm.list[[iresp]]
-             a[iresp,] <- c(g$null.deviance, g$df.null,
-                            g$deviance, g$df.residual,
-                            g$iter, g$converged)
+            g <- glm.list[[iresp]]
+            a[iresp,] <- c(g$null.deviance, g$df.null,
+                           g$deviance, g$df.residual,
+                           g$iter, g$converged)
         }
-        # put spaces in column names for nice column spacing in print
-
-        colnames(a) <- c("  null.deviance", "df",
-                         "     deviance", "df",
-                         "     iters", "converged")
-
         if(fixed.point)
             a <- my.fixed.point(a, digits)
         print(a, digits=digits)

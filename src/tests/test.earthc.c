@@ -189,10 +189,10 @@ static double func4_6(const double x[], const int iResponse)
 
 // functions for testing NewVarPenalty
 
-static double func1colinear(const double x[], const int iResponse) 
+static double func1collinear(const double x[], const int iResponse) 
     { return x[0] + x[1] + .1 * RandGauss(); }
 
-static double func2colinear(const double x[], const int iResponse) 
+static double func2collinear(const double x[], const int iResponse) 
     { return cos(x[0]) + cos(x[1]) + .1 * RandGauss(); }
 
 //-----------------------------------------------------------------------------
@@ -204,7 +204,7 @@ static void TestEarth(char sTestName[],
                 const double ForwardStepThresh,
                 const int K, const double FastBeta, const double NewVarPenalty,
                 const int seed, 
-                const double Colinear = 0)
+                const double Collinear = 0)
 {
     #define y_(iCase,iResponse) y[(iCase) + (iResponse)*(nCases)]
 
@@ -237,9 +237,9 @@ static void TestEarth(char sTestName[],
             x[iCase + iPred * nCases] = xtemp;
             xVec[iPred] = x[iCase + iPred * nCases];
         }
-        if (Colinear > 0) {
+        if (Collinear > 0) {
             // copy column 0 to 1 with added noise
-            double xtemp =  x[iCase] + Colinear * RandGauss();
+            double xtemp =  x[iCase] + Collinear * RandGauss();
             x[iCase + 1 * nCases] = xtemp;
             xVec[1] = xtemp;
         }
@@ -331,7 +331,7 @@ int main(void)
   TestEarth("x0 N=10",                     func0,       10,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 N=1000",                   func0,     1000,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 + noise N=1000",           func0,     1000,        1,   1+1,          2,       51,     3,true,0.001,20,0,0,99);
-  TestEarth("x0 + x1 N=1000",              func1,     1000,        1,     2,          2,       11,     6,true,0.001,20,0,0,99);
+  TestEarth("x0 + x1 N=1000",              func1,     1000,        1,     2,          2,       11,     7,true,0.001,20,0,0,99);
   TestEarth("x0 + x1 + noise N=1000",      func1,     1000,        1,   2+8,          2,       51,     0,true,0.001,20,0,0,99);
   TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 + x1 + x0*x1 N=1000",      func2,     1000,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
@@ -385,9 +385,9 @@ int main(void)
 
   // test NewVarPenalty                     func    nCases     nResp nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B  NP  s Colin
 
-  TestEarth("cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0",
-                                   func2colinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0, 0.0,99,.005);
-  TestEarth("cos(x1) + cos(x), x1 and x2 xcolinear, NewVarPenalty=0.05",
-                                   func2colinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0,0.05,99,.005);
+  TestEarth("cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0",
+                                   func2collinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0, 0.0,99,.005);
+  TestEarth("cos(x1) + cos(x), x1 and x2 xcollinear, NewVarPenalty=0.05",
+                                   func2collinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0,0.05,99,.005);
   return 0;
 }

@@ -28,6 +28,8 @@ To start off, look at the arguments
   \code{ylim},
   \code{clip}, and
   \code{do.par}.
+You will also need the \code{ycolumn} argument if your model has multiple responses
+(which will be the case if your response is a factor with more than two levels).
 
   \item{object}{
         Model object.
@@ -87,7 +89,7 @@ To start off, look at the arguments
      with \code{family=binomial}, because the plotted response is already a probability.
   }
   \item{col.response}{
-     Colour of response values (actually, the response sites in degree2 plots).
+     Color of response values (actually, the response sites in degree2 plots).
      Here "response" refers to the original data used to build the model.
      Default is 0, meaning don't plot the response.
      Ignored by \code{persp} plots.
@@ -128,7 +130,7 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
      Line type of degree 1 plots.  Default is \code{1}.
   }
   \item{col.degree1}{
-     Colour of degree 1 plots.  Default is \code{1}.
+     Color of degree 1 plots.  Default is \code{1}.
   }
   \item{nrug}{
      Number of points in (jittered) rug.
@@ -143,11 +145,11 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
      (examples are \code{\link{predict.lm}} but not \code{\link{predict.earth}}).
   }
   \item{col.shade}{
-     Colour of \code{se} shading.  Default is \code{"lightblue"}.
+     Color of \code{se} shading.  Default is \code{"lightblue"}.
      Set to \code{0} for no shading.
   }
   \item{col.se}{
-     Colour of \code{se} lines.  Default is \code{0} meaning no lines just shading.
+     Color of \code{se} lines.  Default is \code{0} meaning no lines just shading.
   }
   \item{lty.se}{
      Line type of \code{se} lines.  Default is \code{2}.
@@ -162,7 +164,7 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
      Set \code{trace=TRUE} to see the column names and first few rows of this dataframe.
   }
   \item{col.func}{
-     Colour of \code{func} points.
+     Color of \code{func} points.
      Default is \code{"pink"}.
   }
   \item{pch.func}{
@@ -176,12 +178,12 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
      One of \code{"persp"} (default), \code{"contour"}, or \code{"image"}.
   }
   \item{col.persp}{
-     Colour of \code{\link{persp}} surface. Default is \code{"lightblue"}.
-     Set to 0 for no colour.
+     Color of \code{\link{persp}} surface. Default is \code{"lightblue"}.
+     Set to 0 for no color.
   }
   \item{col.image}{
-     Colours of \code{\link{image}} plot. Default is \code{grey(0:9/10)}.
-     The default excludes \code{grey(1)} because that is the "colour" of clipped
+     Colors of \code{\link{image}} plot. Default is \code{grey(0:9/10)}.
+     The default excludes \code{grey(1)} because that is the "color" of clipped
      values, see \code{clip}.
   }
   \item{ngrid}{
@@ -245,7 +247,7 @@ all other predictors at a constant value.
 For degree2 plots, plotmo changes two variables
 while holding all other predictors at a constant value.
 
-The question arises: what should that constant value be?
+The question arises: what should the constant be for each predictor?
 For numerical predictors it is the median of the predictor values in the input matrix x;
 for factor predictors it is the first level of the factor.
 You can change those defaults with the \code{grid.func} and \code{grid.levels} arguments.
@@ -292,7 +294,7 @@ To avoid confusing error messages from plotmo,
 keep the original formula you used to build the model simple.
 By default (i.e. when using \code{get.plotmo.x.default} and \code{get.pairs.default}),
 \code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
-This crude approach is not infallible but works for the common formulae.
+This crude approach is not infallible but works for the common formulas.
 It determines which predictors are paired by looking for
 forms such as \code{"x1:x2"} or \code{"x1*x2"} in the model formula.
 
@@ -300,7 +302,7 @@ Variable names containing \$ are not supported.
 The work around is to build the model using temporary variables
 or to use \code{\link{attach}}.
 
-\code{Plotmo} can get confused by predictors in formulae which use indexing, such as \code{x[,3]}.
+\code{Plotmo} can get confused by predictors in formulas which use indexing, such as \code{x[,3]}.
 The symptom is usually a message along the lines\cr
 \code{Error in model.frame: invalid type (list) for variable 'x[,3]'}.
 

@@ -31,6 +31,8 @@ paste.quoted.names <- function(names) # add quotes and comma seperators
 
 strip.white.space <- function(s) gsub("[ \t\n]", "", s)
 
+printf <- function(format, ...) cat(sprintf(format, ...))  # like c printf
+
 pastef <- function(s, format, ...)          # paste the c printf style args to s
     paste(s, sprintf(format, ...), sep="")
 
