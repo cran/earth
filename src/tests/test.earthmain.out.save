@@ -1,6 +1,6 @@
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.9797 0.9813       0.9813    1       0.42  2   3   
 4      0.9856 0.9873     0.006021    1       0.63  4       

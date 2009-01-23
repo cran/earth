@@ -10,9 +10,9 @@ diff test.earth.glm.Rout test.earth.glm.Rout.save
 @if %errorlevel% equ 0 goto good2:
 @echo === Files are different ===
 @exit /B %errorlevel%
+:good2
 @rem test.earth.glm.save.ps is too big to be included in the release
 @rem so it is stored elsewhere
-:good2
 diff -w Rplots.ps ..\..\.#\test.earth.glm.save.ps 
 @if %errorlevel% equ 0 goto good3:
 @echo === Files are different ===

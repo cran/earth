@@ -2,7 +2,8 @@
 \alias{contr.earth.response}
 \title{Contrasts for the "earth" response}
 \description{
-Contrasts function for factors in the "earth" response
+Contrasts function for factors in the "earth" response.
+For internal use by earth.
 }
 \usage{
 contr.earth.response(x, base, contrasts)

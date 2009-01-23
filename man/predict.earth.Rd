@@ -18,7 +18,7 @@ Predict with an \code{\link{earth}} model.
     Make predictions using \code{newdata}, which
     can be a dataframe, a matrix, or a vector with length equal to a multiple of the row length
     of the original input matrix \code{x}.
-    Default is NULL, meaning return \code{object}'s fitted values.
+    Default is NULL, meaning return the fitted values from the training set.
   }
   \item{type}{
      Type of prediction.

@@ -42,28 +42,28 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     is the largest GRSq or RSq.
   }
   \item{jitter}{
-    Jitter applied to GRSq and RSq values to minimise over-plotting.
+    Jitter applied to GRSq and RSq values to minimize over-plotting.
     Default is \code{0}, meaning no jitter.
     A typical useful value is 0.01.
   }
   \item{}{
     \emph{For all the col arguments below, 0 means do not plot the corresponding graph element.
-          You can use vectors of colours for the col arguments.
+          You can use vectors of colors for the col arguments.
     }
   }
   \item{col.grsq}{
-    Vector of colours for the GRSq plot.
+    Vector of colors for the GRSq plot.
     The default is \code{discrete.plot.cols(length(x))} which is vector
-    of distinguishable colours, the first three of which are also distinguishable on
+    of distinguishable colors, the first three of which are also distinguishable on
     a monochrome printer.
-    You can examine the colours using \code{earth:::discrete.plot.cols()}.
+    You can examine the colors using \code{earth:::discrete.plot.cols()}.
   }
   \item{col.rsq}{
-    Vector of colours for the RSq plot.
+    Vector of colors for the RSq plot.
     Default is \code{0}, meaning no RSq plot.
   }
   \item{col.npreds}{
-    Vector of colours for the "number of predictors" plot within the model selection plot.
+    Vector of colors for the "number of predictors" plot within the model selection plot.
 
     Default is \code{0}, meaning no "number of predictors" plot.
 
@@ -71,14 +71,14 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
   }
   \item{col.cum}{
-    Vector of colours for the cumulative distribution plot.
+    Vector of colors for the cumulative distribution plot.
     The special value \code{NULL} (default) means borrow \code{col.grsq}
     (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
   }
   \item{col.vline}{
     A vertical line is drawn for each object
     to show which model size was chosen for that object.
-    The colour of the line is \code{col.vline}.
+    The color of the line is \code{col.vline}.
     Default is \code{"grey"}.
   }
   \item{lty.vline}{
@@ -95,7 +95,7 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   }
   \item{legend.pos}{
     The special value \code{NULL} (default) means position the legend automatically.
-    Else specify \code{c(x,y)} in user coords.
+    Else specify \code{c(x,y)} in user coordinates.
   }
   \item{legend.text}{
     Vector of strings to use as legend text.

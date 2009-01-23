@@ -1,7 +1,7 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.8.0  (2008-10-26 Ra 1.2.0)"
+[1] "R version 2.8.1  (2009-01-20 Ra 1.2.4)"
 > 
 > library(earth)
 Loading required package: leaps
@@ -78,7 +78,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.05 MBytes
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.8115 0.8570        0.857    2         disp       167.6  2   3   
 4      0.7730 0.8750      0.01805    3           hp         123  4   5   
@@ -146,7 +146,7 @@ GLM survived: null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)   ite
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-earth GCV 0.13986    RSS 140.48    GRSq 0.42215    RSq 0.44405
+Earth GCV 0.13986    RSS 140.48    GRSq 0.42215    RSq 0.44405
 
 GLM null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)   iters 5
 > 
@@ -166,7 +166,7 @@ GLM etitanic[,2]: null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)  
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-earth GCV 0.13986    RSS 140.48    GRSq 0.42215    RSq 0.44405
+Earth GCV 0.13986    RSS 140.48    GRSq 0.42215    RSq 0.44405
 
 GLM null.deviance 1414.6 (1045 dof)   deviance 879.69 (1037 dof)   iters 5
 > 
@@ -187,7 +187,7 @@ Earth selected 8 of 10 terms, and 4 of 5 predictors
 Importance: age, survived, sibsp, parch, sexmale-unused
 Number of terms at each degree of interaction: 1 7 (additive model)
 
-earth
+Earth
         GCV    RSS       GRSq      RSq
 1st 0.14834 150.75  0.2514487 0.271371
 2nd 0.18855 191.61 -0.0049713 0.021776
@@ -195,10 +195,10 @@ earth
 All 0.52966 538.25  0.1669694 0.189140
 
 GLM (family binomial, link logit)
-      null.deviance   df      deviance   df      iters converged
-1st          1223.3 1045         920.8 1038          5         1
-2nd          1175.3 1045        1147.5 1038          5         1
-3rd          1448.2 1045        1142.8 1038          5         1
+    null.deviance   df deviance   df iters converged
+1st        1223.3 1045    920.8 1038     5         1
+2nd        1175.3 1045   1147.5 1038     5         1
+3rd        1448.2 1045   1142.8 1038     5         1
 > 
 > ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
 > sex <- factor(rep(c("male", "female"), times=c(6,6)))
@@ -220,7 +220,7 @@ GLM numdead: null.deviance 124.88 (11 dof)   deviance 5.566 (9 dof)   iters 4
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
-earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
+Earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
 
 GLM null.deviance 124.88 (11 dof)   deviance 5.566 (9 dof)   iters 4
 > 
@@ -245,16 +245,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
              GCV     RSS    GRSq     RSq
 numdead   2.3761  9.7024 0.95249 0.98076
 numdead2 15.7738 64.4095 0.70798 0.88175
 All      18.1499 74.1119 0.82552 0.92934
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead          124.876 11         6.757  9          4         1
-numdead2          91.625 11        16.067  9          4         1
+         null.deviance df deviance df iters converged
+numdead        124.876 11    6.757  9     4         1
+numdead2        91.625 11   16.067  9     4         1
 > 
 > counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 > outcome <- gl(3,1,9)
@@ -275,7 +275,7 @@ GLM counts: null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-earth GCV 46.875    RSS 83.333    GRSq -0.89394    RSq 0.52652
+Earth GCV 46.875    RSS 83.333    GRSq -0.89394    RSq 0.52652
 
 GLM null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
 > 
@@ -300,7 +300,7 @@ sexmale        TRUE
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
-earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
+Earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
 
 GLM null.deviance 504.25 (11 dof)   deviance 9.7024 (9 dof)   iters 2
 > 
@@ -481,9 +481,6 @@ h(Height-63)  0.314
 $penalty
 [1] 2
 
-$ppenalty
-[1] 2
-
 $namesx.org
 [1] "Girth"  "Height"
 
@@ -609,7 +606,7 @@ x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0910 0.0980      0.09797    3          age          26  2   3   
 4      0.1525 0.1622       0.0642    1     survived           0< 4       
@@ -2411,7 +2408,7 @@ linear predictors 3=humidity 8=vis
 Approximate memory use after expanding x and y matrices: 0.2 MBytes
 Forward pass: minspan 8 endspan 15
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.6493 0.6599       0.6599    4         temp          58  2   3   
 4      0.6903 0.7088      0.04898    5          ibh        1108  4   5   
@@ -3341,15 +3338,15 @@ Selected 14 of 14 terms, and 5 of 5 predictors
 Importance: l1, l2, theta1, theta2, phi
 Number of terms at each degree of interaction: 1 11 2
 
-         GCV    RSS    GRSq     RSq
-y1  0.073080 3.2318 0.60884 0.82351
-y2  0.026114 1.1548 0.99945 0.99975
-All 0.099193 4.3866 0.99976 0.99989
+           GCV    RSS    GRSq     RSq
+arm   0.073080 3.2318 0.60884 0.82351
+eqn56 0.026114 1.1548 0.99945 0.99975
+All   0.099193 4.3866 0.99976 0.99989
 ===summary(fitme) 
 Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[, 
       1:2], degree=degree, nk=nk)
 
-                                          y1       y2
+                                         arm    eqn56
 (Intercept)                         1.137120 16.81727
 h(l1-0.434659)                      0.754467  2.79229
 h(l1-0.712515)                      0.220952  9.08473
@@ -3369,10 +3366,10 @@ Selected 14 of 14 terms, and 5 of 5 predictors
 Importance: l1, l2, theta1, theta2, phi
 Number of terms at each degree of interaction: 1 11 2
 
-         GCV    RSS    GRSq     RSq
-y1  0.073080 3.2318 0.60884 0.82351
-y2  0.026114 1.1548 0.99945 0.99975
-All 0.099193 4.3866 0.99976 0.99989
+           GCV    RSS    GRSq     RSq
+arm   0.073080 3.2318 0.60884 0.82351
+eqn56 0.026114 1.1548 0.99945 0.99975
+All   0.099193 4.3866 0.99976 0.99989
 Selected 11 of 11 terms, and 5 of 5 predictors 
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
@@ -3987,7 +3984,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.02 MBytes
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    2       Volume        15.6< 2       
 
@@ -4088,7 +4085,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.02 MBytes
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.9937 0.9953       0.9953    2       Volume        25.6  2   3   
 4      0.9915 0.9954    0.0001622    1       Height          80  4   5   reject term
@@ -4340,7 +4337,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.04 MBytes
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
@@ -4383,7 +4380,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.04 MBytes
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
@@ -4426,7 +4423,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.04 MBytes
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
@@ -4473,7 +4470,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.04 MBytes
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
@@ -4562,7 +4559,7 @@ x is a 1046 by 2 matrix: 1=2nd, 2=3rd
 y is a 1046 by 1 matrix: 1=sex
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0133 0.0180      0.01797    2          3rd           0< 2       
 4      0.0116 0.0210     0.003025    1          2nd           0< 3       
@@ -4606,7 +4603,7 @@ x is a 1046 by 1 matrix: 1=sex
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0073 0.0120      0.01202    1          sex           0< 2       
 4      0.0025 0.0120            0    -                                reject term
@@ -4640,7 +4637,7 @@ x is a 1046 by 2 matrix: 1=2nd, 2=3rd
 y is a 1046 by 1 matrix: 1=age
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.1094 0.1136       0.1136    2          3rd           0< 2       
 4      0.1640 0.1720      0.05838    1          2nd           0< 3       
@@ -4671,7 +4668,7 @@ x is a 1046 by 1 matrix: 1=age
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0893 0.0980      0.09797    1          age          26  2   3   
 4      0.0891 0.1021     0.004178    1          age          55  4       
@@ -4708,7 +4705,7 @@ x is a 1046 by 3 matrix: 1=survived, 2=sexmale, 3=age
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0893 0.0980      0.09797    3          age          26  2   3   
 4      0.1500 0.1622       0.0642    1     survived           0< 4       
@@ -4756,7 +4753,7 @@ x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, 6=
 y is a 1046 by 1 matrix: 1=survived
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.2860 0.2894       0.2894    3      sexmale           0< 2       
 4      0.3297 0.3361      0.04669    2    pclass3rd           0< 3       
@@ -4801,7 +4798,7 @@ x is a 1046 by 4 matrix: 1=survived, 2=sexmale, 3=sibsp, 4=parch
 y is a 1046 by 4 matrix: 1=pclass1st, 2=pclass2nd, 3=pclass3rd, 4=age
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0813 0.0901      0.09011    4        parch           2  2   3   
 4      0.1049 0.1219      0.03183    3        sibsp           1  4   5   
@@ -4855,7 +4852,7 @@ x is a 1046 by 2 matrix: 1=pclass2nd, 2=pclass3rd
 y is a 1046 by 1 matrix: 1=male
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0133 0.0180      0.01797    2    pclass3rd           0< 2       
 4      0.0116 0.0210     0.003025    1    pclass2nd           0< 3       
@@ -4899,7 +4896,7 @@ x is a 1046 by 1 matrix: 1=sexmale
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0073 0.0120      0.01202    1      sexmale           0< 2       
 4      0.0025 0.0120            0    -                                reject term
@@ -4933,7 +4930,7 @@ x is a 1046 by 2 matrix: 1=pclass2nd, 2=pclass3rd
 y is a 1046 by 1 matrix: 1=age
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.1094 0.1136       0.1136    2    pclass3rd           0< 2       
 4      0.1640 0.1720      0.05838    1    pclass2nd           0< 3       
@@ -4964,7 +4961,7 @@ x is a 1046 by 1 matrix: 1=age
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0893 0.0980      0.09797    1          age          26  2   3   
 4      0.0891 0.1021     0.004178    1          age          55  4       
@@ -5001,7 +4998,7 @@ x is a 1046 by 3 matrix: 1=survived, 2=sexmale, 3=age
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.0893 0.0980      0.09797    3          age          26  2   3   
 4      0.1500 0.1622       0.0642    1     survived           0< 4       
@@ -5050,7 +5047,7 @@ x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, 6=
 y is a 1046 by 1 matrix: 1=survived
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.2860 0.2894       0.2894    3      sexmale           0< 2       
 4      0.3297 0.3361      0.04669    2    pclass3rd           0< 3       
@@ -5106,7 +5103,7 @@ x is a 30 by 1 matrix: 1=ff
 y is a 30 by 1 matrix: 1=vowels
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.2907 0.4729       0.4729    1           ff          19  2   3   
 4      0.1620 0.4729            0    -                                reject term
@@ -5135,7 +5132,7 @@ x is a 30 by 1 matrix: 1=vowels
 y is a 30 by 1 matrix: 1=ff
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.3877 0.4693       0.4693    1       vowels           0< 2       
 4      0.2858 0.4693            0    -                                reject term
@@ -5207,6 +5204,8 @@ y2  0.00087336 0.066104 0.99145 0.9934
 All 0.02211043 1.673539 0.93810 0.9522
 > e1$call <- NULL
 > e2$call <- NULL
+> e1$wp <- NULL
+> e2$wp <- NULL
 > stopifnot(identical(e1, e2))
 > e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(.001,1))
 > printh(e3)
@@ -5681,7 +5680,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.2 MBytes
 Forward pass: minspan 8 endspan 15
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.6493 0.6599       0.6599    4         temp          58  2   3   
 4      0.6903 0.7088      0.04898    5          ibh        1108  4   5   

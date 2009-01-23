@@ -6,18 +6,16 @@ Titanic data with incomplete cases,
 passenger names, and other details removed.
 }
 \format{
-    \item{pclass}{passenger class, unordered factor: 1st 2nd 3rd
-    }
-    \item{survived}{integer: 0 or 1
-    }
-    \item{sex}{unordered factor: male female
-    }
-    \item{age}{age in years, double: min 0.167 max 80.0
-    }
-    \item{sibsp}{number of siblings or spouses aboard, integer: 0...8
-    }
-    \item{parch}{number of parents or children aboard, integer: 0...6
-    }
+  A data frame with 1046 observations on 6 variables.
+
+  \tabular{ll}{
+      \code{pclass}   \tab passenger class, unordered factor: 1st 2nd 3rd\cr
+      \code{survived} \tab integer: 0 or 1\cr
+      \code{sex}      \tab unordered factor: male female\cr
+      \code{age}      \tab age in years, double: min 0.167 max 80.0\cr
+      \code{sibsp}    \tab number of siblings or spouses aboard, integer: 0...8\cr
+      \code{parch}    \tab number of parents or children aboard, integer: 0...6\cr
+  }
 }
 \source{
 This dataset is included in the earth package because it is a convenient
@@ -30,7 +28,7 @@ See also:\cr
 
 For this version of the Titanic data,
 passenger details and incomplete cases were deleted
-and the name changed to \code{etitanic} to minimise confusion with other
+and the name changed to \code{etitanic} to minimize confusion with other
 versions ("e" because it is part of the earth package).
 
 Contents of etitanic:

@@ -36,8 +36,8 @@ mars.to.earth(object)
 
 \bold{Weights}
 
-  \code{mda::mars} normalises \code{wp} to (euclidean) length 1;
-  \code{earth} normalises
+  \code{mda::mars} normalizes \code{wp} to (euclidean) length 1;
+  \code{earth} normalizes
   \code{wp} to length equal to the number of responses i.e. the number
   of columns in \code{y}.  This change was made so an all 1s \code{wp}
   (or in fact any all constant \code{wp}) is equivalent to using no \code{wp}.

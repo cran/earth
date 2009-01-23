@@ -4,7 +4,6 @@
 
 print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.point=TRUE, ...)
 {
-
     form <- function(x, pad)
     {
         sprintf("%-*s", digits+pad,
@@ -29,7 +28,7 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
         cat(nlinpreds, " linear predictors", sep="")
     cat("\n")
 
-    print.one.line.evimp(x) # print estmated var importances on a single line
+    print.one.line.evimp(x) # print estimated var importances on a single line
 
     nterms.per.degree <- get.nterms.per.degree(x, x$selected.terms)
     cat("Number of terms at each degree of interaction:", nterms.per.degree)
@@ -40,34 +39,47 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
         "\n", sep="")
 
     nresp <- NCOL(x$coefficients)
+    is.cv <- !is.null(x$cv.list)
+    ilast <- nrow(x$cv.rsq.tab)
 
     if(nresp > 1) {
         # create a matrix and print that
 
-        a <- matrix(nrow=nresp+1, ncol=4)
+        a <- matrix(nrow=nresp+1, ncol=4 + is.cv)
         rownames(a) <- c(colnames(x$fitted.values), "All")
-        colnames(a) <- c("GCV", "RSS", "GRSq", "RSq")
-        for(iresp in 1:nresp)
-             a[iresp,] <- c(x$gcv.per.response[iresp],
-                            x$rss.per.response[iresp],
-                            x$grsq.per.response[iresp],
-                            x$rsq.per.response[iresp])
-
-        a[nresp+1,] <- c(x$gcv, x$rss, x$grsq, x$rsq)  # final row for "All"
+        colnames. <- c("GCV", "RSS", "GRSq", "RSq")
+        if(is.cv)
+            colnames. <- c(colnames., "CV-RSq")
+        colnames(a) <- colnames.
+        for(iresp in 1:nresp) {
+            a[iresp,1:4] <- c(x$gcv.per.response[iresp],
+                              x$rss.per.response[iresp],
+                              x$grsq.per.response[iresp],
+                              x$rsq.per.response[iresp])
+            if(is.cv)
+                a[iresp,5] <- x$cv.rsq.tab[ilast,iresp]
+        }
+        # final row for "All"
+        a[nresp+1,1:4] <- c(x$gcv, x$rss, x$grsq, x$rsq)
+        if(is.cv)
+            a[nresp+1,5] <- x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)]
         cat("\n")
         if(!is.null(x$glm.list))
-            cat("earth\n") # remind user
+            cat("Earth\n") # remind user
         if(fixed.point)
            a <- my.fixed.point(a, digits)
         print(a, digits=digits)
     } else {
         if(!is.null(x$glm.list))
-            cat("earth ")   # remind user
+            cat("Earth ")   # remind user
         cat("GCV ",   format(x$gcv,  digits=digits),
             "    RSS ",  format(x$rss,  digits=digits),
             "    GRSq ", format(x$grsq, digits=digits),
-            "    RSq ",  format(x$rsq,  digits=digits),
-            "\n", sep="")
+            "    RSq ",  format(x$rsq,  digits=digits), sep="")
+        if(is.cv)
+            cat("    CV-RSq ",
+                format(x$cv.rsq.tab[ilast,1], digits=digits), sep="")
+        cat("\n")
     }
     if(print.glm && !is.null(x$glm.list))
         print.earth.glm(x, digits, fixed.point)
@@ -89,33 +101,33 @@ print.summary.earth <- function(
     nresp <- NCOL(x$coefficients)
         cat("\n")
     warn.if.dots.used("print.summary.earth", ...)
-    is.glm.model <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
+    is.glm <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
     new.order <- reorder.earth(x, decomp=decomp)
-    response.names <- colnames(x$coeff)
+    response.names <- colnames(x$fitted.values)
 
     # print coefficients
 
-    if(!is.glm.model || details) {
+    if(!is.glm || details) {
         if(!is.null(x$strings)) {      # old style expression formatting?
-                        for(iresp in 1:nresp) {
-                                   cat(response.names[iresp], " =\n", sep="")
-                                   cat(x$strings[iresp])
-                                   cat("\n")
+            for(iresp in 1:nresp) {
+                cat(response.names[iresp], " =\n", sep="")
+                cat(x$strings[iresp])
+                cat("\n")
            }
         } else {
             rownames(x$coefficients) <- spaceout(rownames(x$coefficients))
             coef <- x$coefficients[new.order, , drop=FALSE]
             if(fixed.point)
                 coef <- my.fixed.point(coef, digits)
-            if(is.glm.model)
-                cat("earth coefficients\n") # remind user what these are
+            if(is.glm)
+                cat("Earth coefficients\n") # remind user what these are
                         else if(nresp == 1)
                 colnames(coef) = "coefficients"
             print(coef, digits=digits)
             cat("\n")
         }
     }
-    if(is.glm.model) {
+    if(is.glm) {
         if(!is.null(x$strings)) {      # old style expression formatting?
            for(iresp in 1:nresp) {
                g <- x$glm.list[[iresp]]
@@ -134,13 +146,16 @@ print.summary.earth <- function(
             cat("\n")
         }
         if(details) for(iresp in 1:nresp)
-           print.glm.details(x$glm.list[[iresp]], nresp, digits, my.fixed.point, response.names[iresp])
+           print.glm.details(x$glm.list[[iresp]], nresp, digits, 
+                             my.fixed.point, response.names[iresp])
     }
     if(details)
         cat("Number of cases: ", nrow(x$residuals), "\n", sep="")
     print.earth(x, digits, print.glm=FALSE)
     if(!is.null(x$glm.list))
         print.earth.glm(x, digits, fixed.point)
+    if(!is.null(x$cv.list))
+        print.cv(x)
     invisible(x)
 }
 

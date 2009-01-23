@@ -1260,6 +1260,8 @@ e2 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(1,1))
 printh(e2)
 e1$call <- NULL
 e2$call <- NULL
+e1$wp <- NULL
+e2$wp <- NULL
 stopifnot(identical(e1, e2))
 e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(.001,1))
 printh(e3)

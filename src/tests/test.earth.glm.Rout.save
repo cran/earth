@@ -91,7 +91,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.02 MBytes
 Forward pass: minspan 4 endspan 10
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.8679 0.9211       0.9211    2        ldose          -2< 2       
 4      0.9603 0.9882      0.06708    1      sexmale           0< 3       2   
@@ -130,7 +130,7 @@ Print a1
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
-earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 
@@ -150,7 +150,7 @@ h(ldose- -2) * h(ldose1-0.1) -0.06981786
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
-earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 
@@ -159,7 +159,7 @@ Summary a1 digits=3, details=TRUE
 Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family="binomial"), 
       trace=4, pmethod="none", degree=2)
 
-earth coefficients
+Earth coefficients
                              numdead
 (Intercept)                    0.820
 h(ldose- -2)                   2.716
@@ -191,7 +191,7 @@ Number of cases: 12
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
-earth GCV 13.5    RSS 1.12    GRSq 0.731    RSq 0.998
+Earth GCV 13.5    RSS 1.12    GRSq 0.731    RSq 0.998
 
 GLM null.deviance 125 (11 dof)   deviance 4.96 (7 dof)   iters 4
 
@@ -210,7 +210,8 @@ sexmale   1    1        3 -18.73263 1   7.6848001 1
 ldose1    3    1        2 -31.37693 1   0.9614167 1
 
 plotmo a1 
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
 
 > a1update <- update(a1, trace=0)
@@ -313,7 +314,7 @@ GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
-earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
 > print(summary(a1h)) # ditto
@@ -332,7 +333,7 @@ h(ldose- -2) * h(ldose1-0.1) -0.06924441
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
-earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
 > check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
@@ -363,7 +364,7 @@ h(ldose- -2) * h(I(ldose1-3)- -2.9) -0.06981786
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, I(ldose1-3)
 Number of terms at each degree of interaction: 1 2 2
-earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > 
@@ -375,7 +376,7 @@ x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass: minspan 4 endspan 10
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.8821 0.9211       0.9211    2        ldose          -2< 2       
 4      0.9525 0.9808      0.05966    1      sexmale           0< 3       
@@ -403,7 +404,7 @@ Print a2
 Earth selected 4 of 4 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 3 (additive model)
-earth GCV 2.157714    RSS 4.495238    GRSq 0.9568528    RSq 0.9910853
+Earth GCV 2.157714    RSS 4.495238    GRSq 0.9568528    RSq 0.9910853
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
 
@@ -422,7 +423,7 @@ h(sexmale:ldose- -2)  0.3529130
 Earth selected 4 of 4 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 3 (additive model)
-earth GCV 2.157714    RSS 4.495238    GRSq 0.9568528    RSq 0.9910853
+Earth GCV 2.157714    RSS 4.495238    GRSq 0.9568528    RSq 0.9910853
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
 
@@ -431,7 +432,7 @@ Summary a2 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 Call: earth(formula=SF~sex*ldose, glm=list(fa="b"), trace=3, 
       pmethod="none")
 
-earth coefficients
+Earth coefficients
                       numdead
 (Intercept)          -2.01905
 h(ldose- -2)          3.25714
@@ -460,7 +461,7 @@ Number of cases: 12
 Earth selected 4 of 4 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 3 (additive model)
-earth GCV 2.1577    RSS 4.4952    GRSq 0.95685    RSq 0.99109
+Earth GCV 2.1577    RSS 4.4952    GRSq 0.95685    RSq 0.99109
 
 GLM null.deviance 124.88 (11 dof)   deviance 4.9937 (8 dof)   iters 4
 
@@ -487,7 +488,7 @@ x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass: minspan 4 endspan 10
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.8821 0.9211       0.9211    2        ldose          -2< 2       
 4      0.9525 0.9808      0.05966    1      sexmale           0< 3       
@@ -547,7 +548,8 @@ AIC: 43.104
 Number of Fisher Scoring iterations: 4
 
 > plotmo(a3, caption="a3 <- glm(SF ~ sex * ldose, family=\"binomial\")")
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: sex
 > cat("-------------------------------------------------------------------------------\n\n")
 -------------------------------------------------------------------------------
 
@@ -575,16 +577,16 @@ Earth selected 3 of 4 terms, and 2 of 3 predictors
 Importance: ldose, sexmale, sexmale:ldose-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a4 
 
@@ -601,23 +603,23 @@ Earth selected 3 of 4 terms, and 2 of 3 predictors
 Importance: ldose, sexmale, sexmale:ldose-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a4 digits=3, details=TRUE
 
 Call: earth(formula=SF.both~sex*ldose, glm=list(family="binomial"), 
       trace=1)
 
-earth coefficients
+Earth coefficients
              numdead numdead2
 (Intercept)    -1.44   -0.786
 h(ldose- -2)    3.64    3.714
@@ -654,16 +656,16 @@ Earth selected 3 of 4 terms, and 2 of 3 predictors
 Importance: ldose, sexmale, sexmale:ldose-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
           GCV  RSS  GRSq   RSq
 numdead  2.38  9.7 0.953 0.981
 numdead2 3.79 15.5 0.926 0.970
 All      6.17 25.2 0.939 0.975
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead              125 11          6.76  9          4         1
-numdead2             128 11          8.57  9          4         1
+         null.deviance df deviance df iters converged
+numdead            125 11     6.76  9     4         1
+numdead2           128 11     8.57  9     4         1
 
 evimp a4 
 
@@ -739,7 +741,7 @@ Earth selected 9 of 17 terms, and 5 of 5 predictors
 Importance: age, parch, survived, sibsp, sexmale
 Number of terms at each degree of interaction: 1 4 4
 
-earth
+Earth
           GCV      RSS        GRSq        RSq
 1st 0.1478715 148.5253 0.253819943 0.28210854
 2nd 0.1869804 187.8072 0.003405389 0.04118751
@@ -747,10 +749,10 @@ earth
 All 0.5244105 526.7293 0.175229617 0.20649767
 
 GLM (family binomial, link logit)
-      null.deviance   df      deviance   df      iters converged
-1st        1223.308 1045      894.8141 1037          5         1
-2nd        1175.305 1045     1126.9441 1037          5         1
-3rd        1448.213 1045     1118.9411 1037          5         1
+    null.deviance   df  deviance   df iters converged
+1st      1223.308 1045  894.8141 1037     5         1
+2nd      1175.305 1045 1126.9441 1037     5         1
+3rd      1448.213 1045 1118.9411 1037     5         1
 
 Summary a5 
 
@@ -773,7 +775,7 @@ Earth selected 9 of 17 terms, and 5 of 5 predictors
 Importance: age, parch, survived, sibsp, sexmale
 Number of terms at each degree of interaction: 1 4 4
 
-earth
+Earth
           GCV      RSS        GRSq        RSq
 1st 0.1478715 148.5253 0.253819943 0.28210854
 2nd 0.1869804 187.8072 0.003405389 0.04118751
@@ -781,17 +783,17 @@ earth
 All 0.5244105 526.7293 0.175229617 0.20649767
 
 GLM (family binomial, link logit)
-      null.deviance   df      deviance   df      iters converged
-1st        1223.308 1045      894.8141 1037          5         1
-2nd        1175.305 1045     1126.9441 1037          5         1
-3rd        1448.213 1045     1118.9411 1037          5         1
+    null.deviance   df  deviance   df iters converged
+1st      1223.308 1045  894.8141 1037     5         1
+2nd      1175.305 1045 1126.9441 1037     5         1
+3rd      1448.213 1045 1118.9411 1037     5         1
 
 Summary a5 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(formula=pclass~., data=etitanic, glm=list(family="binomial"), 
       trace=0, degree=2)
 
-earth coefficients
+Earth coefficients
                                1st         2nd        3rd
 (Intercept)              0.1396780  1.3822e-01  0.7221057
 survived                 0.3518559  1.6023e-01 -0.5120905
@@ -868,7 +870,7 @@ Earth selected 9 of 17 terms, and 5 of 5 predictors
 Importance: age, parch, survived, sibsp, sexmale
 Number of terms at each degree of interaction: 1 4 4
 
-earth
+Earth
         GCV    RSS      GRSq      RSq
 1st 0.14787 148.53 0.2538199 0.282108
 2nd 0.18698 187.81 0.0034054 0.041188
@@ -876,10 +878,10 @@ earth
 All 0.52441 526.73 0.1752296 0.206498
 
 GLM (family binomial, link logit)
-      null.deviance   df      deviance   df      iters converged
-1st          1223.3 1045        894.81 1037          5         1
-2nd          1175.3 1045       1126.94 1037          5         1
-3rd          1448.2 1045       1118.94 1037          5         1
+    null.deviance   df deviance   df iters converged
+1st        1223.3 1045   894.81 1037     5         1
+2nd        1175.3 1045  1126.94 1037     5         1
+3rd        1448.2 1045  1118.94 1037     5         1
 
 evimp a5 
 
@@ -900,7 +902,8 @@ sibsp      4    1        5  16.22113 1  22.99755 1
 sexmale    2    1        4  11.82295 1  17.37608 1
 
 plotmo a5 
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
 
 > 
@@ -935,7 +938,7 @@ Print a6
 Earth selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, parch, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
-earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
+Earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
 
 GLM null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
 
@@ -960,7 +963,7 @@ h(1-sibsp) * h(2-parch) -0.44868361
 Earth selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, parch, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
-earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
+Earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
 
 GLM null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
 
@@ -969,7 +972,7 @@ Summary a6 digits=3, details=TRUE
 Call: earth(formula=pclass1~., data=etitanic[, -1], glm=list(family="binomial"), 
       trace=1, degree=2)
 
-earth coefficients
+Earth coefficients
                         pclass1
 (Intercept)              0.1304
 survived                 0.4744
@@ -1016,7 +1019,7 @@ Number of cases: 1046
 Earth selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, parch, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
-earth GCV 0.146    RSS 146    GRSq 0.263    RSq 0.294
+Earth GCV 0.146    RSS 146    GRSq 0.263    RSq 0.294
 
 GLM null.deviance 1223 (1045 dof)   deviance 899 (1036 dof)   iters 5
 
@@ -1039,7 +1042,8 @@ sibsp      4    1        4   4.582762 1   8.727465 1
 sexmale    2    1        3   2.496725 1   5.732125 1
 
 plotmo a6 
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: sex 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
 
 > 
@@ -1063,7 +1067,7 @@ Print a7
 Earth selected 10 of 15 terms, and 6 of 6 predictors 
 Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 7
-earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
+Earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
 
 GLM null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
 
@@ -1088,7 +1092,7 @@ h(2-sibsp) * h(3-parch)  0.2100782
 Earth selected 10 of 15 terms, and 6 of 6 predictors 
 Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 7
-earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
+Earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
 
 GLM null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
 
@@ -1097,7 +1101,7 @@ Summary a7 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 Call: earth(formula=sex~., data=etitanic, glm=list(family="binomial"), 
       trace=1, degree=2)
 
-earth coefficients
+Earth coefficients
                               male
 (Intercept)              0.8061976
 survived                -0.6293690
@@ -1144,7 +1148,7 @@ Number of cases: 1046
 Earth selected 10 of 15 terms, and 6 of 6 predictors 
 Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 7
-earth GCV 0.15079    RSS 150.72    GRSq 0.35503    RSq 0.38251
+Earth GCV 0.15079    RSS 150.72    GRSq 0.35503    RSq 0.38251
 
 GLM null.deviance 1379.6 (1045 dof)   deviance 937.02 (1036 dof)   iters 5
 
@@ -1169,7 +1173,8 @@ sibsp       5    1        4   4.5087239 1   7.258397 1
 pclass2nd   1    1        1   0.5526548 1   1.283877 1
 
 plotmo a7 
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 -------------------------------------------------------------------------------
 
 > 
@@ -1288,7 +1293,7 @@ x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 1 matrix: 1=counts
 Forward pass: minspan 4 endspan 10
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2     -0.2727 0.2841       0.2841    1     outcome2           0< 2       
 4     -0.8939 0.5265       0.2424    2     outcome3           0< 3       
@@ -1314,7 +1319,7 @@ Print a8p
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
+Earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
 GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 
@@ -1332,7 +1337,7 @@ outcome3    -0.2929871
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
+Earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
 GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 
@@ -1341,7 +1346,7 @@ Summary a8p digits=3, details=TRUE
 Call: earth(formula=counts~outcome+treatment, glm=list(family=poisson()), 
       trace=3, pmethod="none")
 
-earth coefficients
+Earth coefficients
             counts
 (Intercept)  21.00
 outcome2     -7.67
@@ -1367,7 +1372,7 @@ Number of cases: 9
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-earth GCV 46.9    RSS 83.3    GRSq -0.894    RSq 0.527
+Earth GCV 46.9    RSS 83.3    GRSq -0.894    RSq 0.527
 
 GLM null.deviance 10.6 (8 dof)   deviance 5.13 (6 dof)   iters 4
 
@@ -1451,16 +1456,16 @@ Earth selected 3 of 3 terms, and 2 of 4 predictors
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
              GCV       RSS       GRSq       RSq
 counts    46.875   83.3333 -0.8939394 0.5265152
 counts2 4687.500 8333.3333 -0.8939394 0.5265152
 All     4734.375 8416.6667 -0.8939394 0.5265152
 
 GLM (family poisson, link log)
-          null.deviance df      deviance df      iters converged
-counts         10.58145  8      5.129141  6          4         1
-counts2       105.16600  8     50.964475  6          4         1
+        null.deviance df  deviance df iters converged
+counts       10.58145  8  5.129141  6     4         1
+counts2     105.16600  8 50.964475  6     4         1
 
 Summary a10 
 
@@ -1477,23 +1482,23 @@ Earth selected 3 of 3 terms, and 2 of 4 predictors
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
              GCV       RSS       GRSq       RSq
 counts    46.875   83.3333 -0.8939394 0.5265152
 counts2 4687.500 8333.3333 -0.8939394 0.5265152
 All     4734.375 8416.6667 -0.8939394 0.5265152
 
 GLM (family poisson, link log)
-          null.deviance df      deviance df      iters converged
-counts         10.58145  8      5.129141  6          4         1
-counts2       105.16600  8     50.964475  6          4         1
+        null.deviance df  deviance df iters converged
+counts       10.58145  8  5.129141  6     4         1
+counts2     105.16600  8 50.964475  6     4         1
 
 Summary a10 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(formula=cbind(counts, counts2)~outcome+treatment, 
       glm=list(fam="po"), trace=1, pmethod="none")
 
-earth coefficients
+Earth coefficients
              counts counts2
 (Intercept) 21.0000 211.000
 outcome2    -7.6667 -76.667
@@ -1530,16 +1535,16 @@ Earth selected 3 of 3 terms, and 2 of 4 predictors
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
             GCV     RSS     GRSq     RSq
 counts    46.88   83.33 -0.89394 0.52651
 counts2 4687.50 8333.33 -0.89394 0.52651
 All     4734.37 8416.67 -0.89394 0.52651
 
 GLM (family poisson, link log)
-          null.deviance df      deviance df      iters converged
-counts           10.581  8        5.1291  6          4         1
-counts2         105.166  8       50.9645  6          4         1
+        null.deviance df deviance df iters converged
+counts         10.581  8   5.1291  6     4         1
+counts2       105.166  8  50.9645  6     4         1
 
 evimp a10 
 
@@ -1587,7 +1592,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.4 MBytes
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.2860 0.2894       0.2894    3     survived           0< 2       
 4      0.3055 0.3154      0.02598    6        parch           3  3   4   
@@ -1642,7 +1647,7 @@ summary(a11, details=TRUE)
 Call: earth(formula=etitanic$sex~., data=etitanic, glm=list(family="gaussian"), 
       trace=4, degree=2)
 
-earth coefficients
+Earth coefficients
                                male
 (Intercept)              0.80619755
 pclass3rd               -0.50440261
@@ -1691,7 +1696,7 @@ Number of cases: 1046
 Earth selected 10 of 15 terms, and 6 of 6 predictors 
 Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 7
-earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
+Earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
 
 GLM null.deviance 244.0765 (1045 dof)   deviance 150.7153 (1036 dof)   iters 2
 > stopifnot(identical(a11$coefficients, a11$glm.coefficients))
@@ -1727,7 +1732,7 @@ First few rows of y are
 Approximate memory use after expanding x and y matrices: 0.4 MBytes
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      0.1060 0.1103       0.1103    2    pclass3rd           0< 2       
 4      0.1653 0.1733      0.06303    1    pclass2nd           0< 3       
@@ -1794,7 +1799,7 @@ Call: earth(formula=cbind(etitanic$sex, (as.integer(etitanic$age)^2))~
       ., data=etitanic, glm=list(family="gaussian"), trace=4, 
       degree=2)
 
-earth coefficients
+Earth coefficients
                                 y1         y2
 (Intercept)             1.70676996  1626.0725
 pclass2nd              -0.02929185  -742.9765
@@ -1855,16 +1860,16 @@ Earth selected 8 of 16 terms, and 5 of 5 predictors
 Importance: pclass3rd, pclass2nd, parch, survived, sibsp
 Number of terms at each degree of interaction: 1 6 1
 
-earth
+Earth
           GCV       RSS      GRSq       RSq
 y1       0.17       167 0.2927937 0.3162817
 y2  754695.48 761734680 0.2297830 0.2553638
 All 754695.65 761734847 0.2297830 0.2553638
 
 GLM (family gaussian, link identity)
-     null.deviance   df      deviance   df      iters converged
-y1    2.440765e+02 1045  1.668796e+02 1038          2         1
-y2    1.022962e+09 1045  7.617347e+08 1038          2         1
+   null.deviance   df     deviance   df iters converged
+y1  2.440765e+02 1045 1.668796e+02 1038     2         1
+y2  1.022962e+09 1045 7.617347e+08 1038     2         1
 > stopifnot(identical(a12$coefficients, a12$glm.coefficients))
 > 
 > # test to see how standard model.matrix does column numbering with formula
@@ -1932,16 +1937,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary aref 
 
@@ -1958,23 +1963,23 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary aref digits=3, details=TRUE
 
 Call: earth(formula=SF.both~., data=df, glm=list(family="binomial"), 
       trace=1)
 
-earth coefficients
+Earth coefficients
              numdead numdead2
 (Intercept)    -1.44   -0.786
 h(ldose- -2)    3.64    3.714
@@ -2011,16 +2016,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
           GCV  RSS  GRSq   RSq
 numdead  2.38  9.7 0.953 0.981
 numdead2 3.79 15.5 0.926 0.970
 All      6.17 25.2 0.939 0.975
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead              125 11          6.76  9          4         1
-numdead2             128 11          8.57  9          4         1
+         null.deviance df deviance df iters converged
+numdead            125 11     6.76  9     4         1
+numdead2           128 11     8.57  9     4         1
 
 evimp aref 
 
@@ -2056,16 +2061,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a21 
 
@@ -2082,23 +2087,23 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a21 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(x=data.frame(sex, ldose), y=SF.both, glm=list(family="binomial"), 
       trace=1)
 
-earth coefficients
+Earth coefficients
              numdead numdead2
 (Intercept)  -1.4405 -0.78571
 h(ldose- -2)  3.6429  3.71429
@@ -2135,16 +2140,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
             GCV     RSS    GRSq     RSq
 numdead  2.3761  9.7024 0.95249 0.98076
 numdead2 3.7901 15.4762 0.92646 0.97022
 All      6.1662 25.1786 0.93928 0.97541
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead           124.88 11        6.7571  9          4         1
-numdead2          128.03 11        8.5725  9          4         1
+         null.deviance df deviance df iters converged
+numdead         124.88 11   6.7571  9     4         1
+numdead2        128.03 11   8.5725  9     4         1
 
 evimp a21 
 
@@ -2182,16 +2187,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a21 
 
@@ -2208,23 +2213,23 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a21 digits=3, details=TRUE
 
 Call: earth(x=cbind(sex, ldose), y=SF.both, glm=list(family="binomial"), 
       trace=1)
 
-earth coefficients
+Earth coefficients
              numdead numdead2
 (Intercept)    -1.44   -0.786
 h(ldose- -2)    3.64    3.714
@@ -2261,16 +2266,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
           GCV  RSS  GRSq   RSq
 numdead  2.38  9.7 0.953 0.981
 numdead2 3.79 15.5 0.926 0.970
 All      6.17 25.2 0.939 0.975
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead              125 11          6.76  9          4         1
-numdead2             128 11          8.57  9          4         1
+         null.deviance df deviance df iters converged
+numdead            125 11     6.76  9     4         1
+numdead2           128 11     8.57  9     4         1
 
 evimp a21 
 
@@ -2309,16 +2314,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a22 
 
@@ -2335,23 +2340,23 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
               GCV       RSS      GRSq       RSq
 numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead         124.8756 11      6.757064  9          4         1
-numdead2        128.0299 11      8.572466  9          4         1
+         null.deviance df deviance df iters converged
+numdead       124.8756 11 6.757064  9     4         1
+numdead2      128.0299 11 8.572466  9     4         1
 
 Summary a22 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(x=cbind(sex, ldose), y=df.both, glm=list(family="binomial"), 
       trace=1)
 
-earth coefficients
+Earth coefficients
              numdead numdead2
 (Intercept)  -1.4405 -0.78571
 h(ldose- -2)  3.6429  3.71429
@@ -2388,16 +2393,16 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
             GCV     RSS    GRSq     RSq
 numdead  2.3761  9.7024 0.95249 0.98076
 numdead2 3.7901 15.4762 0.92646 0.97022
 All      6.1662 25.1786 0.93928 0.97541
 
 GLM (family binomial, link logit)
-           null.deviance df      deviance df      iters converged
-numdead           124.88 11        6.7571  9          4         1
-numdead2          128.03 11        8.5725  9          4         1
+         null.deviance df deviance df iters converged
+numdead         124.88 11   6.7571  9     4         1
+numdead2        128.03 11   8.5725  9     4         1
 
 evimp a22 
 
@@ -5983,7 +5988,7 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
                 GCV       RSS        GRSq        RSq
 numdead   2.3760933  9.702381  0.95248599 0.98075879
 fac3A     0.2145773  0.876190  0.18862974 0.67142857
@@ -6003,27 +6008,27 @@ numdead.2 2.3760933  9.702381  0.95248599 0.98075879
 All       9.8233236 40.111905  0.93574668 0.97398006
 
 GLM (family binomial, link logit)
-            null.deviance df      deviance df      iters converged
-numdead         124.87559 11      6.757064  9          4         1
-fac3A            15.27634 11      0.000000  9         25         0
-fac3B            13.49604 11     12.684034  9          4         1
-fac3C            16.30064 11      0.000000  9         25         0
-fac4P            13.49604 11      0.000000  9         25         0
-fac4Q            13.49604 11      0.000000  9         25         0
-fac4R            13.49604 11      0.000000  9         25         0
-fac4S            13.49604 11      0.000000  9         25         0
-numdead.1       105.91731 11      2.709378  9          4         1
-sex              16.63553 11      0.000000  9         23         1
-fac4.1P          13.49604 11      0.000000  9         25         0
-fac4.1Q          13.49604 11      0.000000  9         25         0
-fac4.1R          13.49604 11      0.000000  9         25         0
-fac4.1S          13.49604 11      0.000000  9         25         0
-numdead.2        84.92686 11      1.525354  9          4         1
+          null.deviance df  deviance df iters converged
+numdead       124.87559 11  6.757064  9     4         1
+fac3A          15.27634 11  0.000000  9    25         0
+fac3B          13.49604 11 12.684034  9     4         1
+fac3C          16.30064 11  0.000000  9    25         0
+fac4P          13.49604 11  0.000000  9    25         0
+fac4Q          13.49604 11  0.000000  9    25         0
+fac4R          13.49604 11  0.000000  9    25         0
+fac4S          13.49604 11  0.000000  9    25         0
+numdead.1     105.91731 11  2.709378  9     4         1
+sex            16.63553 11  0.000000  9    23         1
+fac4.1P        13.49604 11  0.000000  9    25         0
+fac4.1Q        13.49604 11  0.000000  9    25         0
+fac4.1R        13.49604 11  0.000000  9    25         0
+fac4.1S        13.49604 11  0.000000  9    25         0
+numdead.2      84.92686 11  1.525354  9     4         1
 > print(summary(c7, details=1))
 Call: earth(x=data.frame(sex, ldose), y=big.dataframe2, glm=list(family="binomial"), 
       trace=1, keepxy=1, pmethod="none", degree=1)
 
-earth coefficients
+Earth coefficients
                numdead      fac3A      fac3B       fac3C      fac4P      fac4Q
 (Intercept)  -1.440476  0.2857143 0.05952381  0.65476190  0.3214286 -0.3214286
 sexmale       3.166667  0.6666667 0.16666667 -0.83333333  0.5000000  0.5000000
@@ -6206,7 +6211,7 @@ Earth selected 3 of 3 terms, and 2 of 2 predictors
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-earth
+Earth
                 GCV       RSS        GRSq        RSq
 numdead   2.3760933  9.702381  0.95248599 0.98075879
 fac3A     0.2145773  0.876190  0.18862974 0.67142857
@@ -6226,22 +6231,22 @@ numdead.2 2.3760933  9.702381  0.95248599 0.98075879
 All       9.8233236 40.111905  0.93574668 0.97398006
 
 GLM (family binomial, link logit)
-            null.deviance df      deviance df      iters converged
-numdead         124.87559 11      6.757064  9          4         1
-fac3A            15.27634 11      0.000000  9         25         0
-fac3B            13.49604 11     12.684034  9          4         1
-fac3C            16.30064 11      0.000000  9         25         0
-fac4P            13.49604 11      0.000000  9         25         0
-fac4Q            13.49604 11      0.000000  9         25         0
-fac4R            13.49604 11      0.000000  9         25         0
-fac4S            13.49604 11      0.000000  9         25         0
-numdead.1       105.91731 11      2.709378  9          4         1
-sex              16.63553 11      0.000000  9         23         1
-fac4.1P          13.49604 11      0.000000  9         25         0
-fac4.1Q          13.49604 11      0.000000  9         25         0
-fac4.1R          13.49604 11      0.000000  9         25         0
-fac4.1S          13.49604 11      0.000000  9         25         0
-numdead.2        84.92686 11      1.525354  9          4         1
+          null.deviance df  deviance df iters converged
+numdead       124.87559 11  6.757064  9     4         1
+fac3A          15.27634 11  0.000000  9    25         0
+fac3B          13.49604 11 12.684034  9     4         1
+fac3C          16.30064 11  0.000000  9    25         0
+fac4P          13.49604 11  0.000000  9    25         0
+fac4Q          13.49604 11  0.000000  9    25         0
+fac4R          13.49604 11  0.000000  9    25         0
+fac4S          13.49604 11  0.000000  9    25         0
+numdead.1     105.91731 11  2.709378  9     4         1
+sex            16.63553 11  0.000000  9    23         1
+fac4.1P        13.49604 11  0.000000  9    25         0
+fac4.1Q        13.49604 11  0.000000  9    25         0
+fac4.1R        13.49604 11  0.000000  9    25         0
+fac4.1S        13.49604 11  0.000000  9    25         0
+numdead.2      84.92686 11  1.525354  9     4         1
 > stopifnot(colnames(c7$coef) == c("numdead", "fac3A", "fac3B", "fac3C",
 +                                  "fac4P", "fac4Q", "fac4R", "fac4S",
 +                                   "numdead.1", "sex",
@@ -6432,7 +6437,7 @@ GLM volumei: null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iter
 Earth selected 2 of 3 terms, and 1 of 1 predictors 
 Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
-earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
+Earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
 
 GLM null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
 > a <- earth(x1, cbind(volumei, 100-volumei), glm=list(family=binomial))
@@ -6451,7 +6456,7 @@ GLM volumei: null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iter
 Earth selected 2 of 3 terms, and 1 of 1 predictors 
 Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
-earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
+Earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
 
 GLM null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
 > 

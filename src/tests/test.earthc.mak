@@ -2,7 +2,7 @@
 
 all: test.earthc.out
 
-R_DIR="C:\Program Files\r\R-2.8.0"
+R_DIR="C:\Program Files\r\R-2.8.1"
 
 INCL=-I$(R_DIR)\src\include -I.
 

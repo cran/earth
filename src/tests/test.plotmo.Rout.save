@@ -5,7 +5,7 @@
 > # Stephen Milborrow, Petaluma Jan 2007
 > 
 > print(R.version.string)
-[1] "R version 2.8.0  (2008-10-26 Ra 1.2.0)"
+[1] "R version 2.8.1  (2009-01-20 Ra 1.2.4)"
 > 
 > Trace = FALSE
 > 
@@ -219,7 +219,7 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.4-1 
+This is mgcv 1.4-1.1 
 > set.seed(1)
 > caption <- "test plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -418,7 +418,7 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.4-1 
+This is mgcv 1.4-1.1 
 > set.seed(1)
 > caption <- "test se=2, plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -504,7 +504,7 @@ Warning in newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
 +    detach("package:gam")
 > caption <- "test wind=factor, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
 > library(mgcv)
-This is mgcv 1.4-1 
+This is mgcv 1.4-1.1 
 > a <- gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)
 > plotmo(a, se=1, caption=caption, trace=Trace)
 > caption <- "test wind=factor, clip=TRUE, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
@@ -734,7 +734,8 @@ Importance: sexmale, pclass3rd, pclass2nd, age
 Number of terms at each degree of interaction: 1 2 4
 GCV 0.1447330    RSS 146.7947    GRSq 0.4020269    RSq 0.4190703
 > plotmo(a, trace=Trace, caption="plotmo with facs: pclass+sex+age")
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass, sex 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass, sex
 > plotmo(a, trace=Trace, clip=FALSE, degree2=FALSE, caption="plotmo (no degree2) with facs: pclass+sex+age")
 > plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2nd", sex="male"), 
 +        caption="plotmo with grid.levels: pclass+sex+age")
@@ -742,7 +743,8 @@ Note: setting pclass in the degree1 grid to [1] 2nd
 Note: setting sex in the degree1 grid to [1] male
 Note: setting pclass in the degree2 grid to [1] 2nd
 Note: setting sex in the degree2 grid to [1] male
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass, sex 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass, sex
 > # in above tests, all degree2 terms use facs
 > # now build a model with some degree2 term that use facs, some that don't
 > a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2)
@@ -764,12 +766,14 @@ Importance: pclass3rd, age, pclass2nd, sibsp
 Number of terms at each degree of interaction: 1 2 4
 GCV 0.2038652    RSS 206.7692    GRSq 0.1577188    RSq 0.1817255
 > plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms")
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 > plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms and grid.levels", 
 +        grid.levels=list(pclass="2nd"))
 Note: setting pclass in the degree1 grid to [1] 2nd
 Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 > 
 > # more-or-less repeat above, but with glm models
 > a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2, glm=list(family=binomial))
@@ -790,26 +794,31 @@ h(age-18) * h(3-sibsp) -0.01091961
 Earth selected 7 of 17 terms, and 4 of 4 predictors 
 Importance: pclass3rd, age, pclass2nd, sibsp
 Number of terms at each degree of interaction: 1 2 4
-earth GCV 0.2038652    RSS 206.7692    GRSq 0.1577188    RSq 0.1817255
+Earth GCV 0.2038652    RSS 206.7692    GRSq 0.1577188    RSq 0.1817255
 
 GLM null.deviance 1414.620 (1045 dof)   deviance 1204.411 (1039 dof)   iters 7
 > plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms")
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 > plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms and grid.levels",
 +        grid.levels=list(pclass="2nd"))
 Note: setting pclass in the degree1 grid to [1] 2nd
 Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 > # now with different type2's
 > plotmo(a, do.par=FALSE, type2="persp",   theta=-20, degree1=FALSE, grid.levels=list(pclass="2nd"))
 Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 > plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass="2nd"))
 Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 > plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"))
 Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots, so skipping degree2 plots for: pclass 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: pclass
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

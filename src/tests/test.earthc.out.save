@@ -2,7 +2,7 @@
 TEST 1: noise N=1000
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.0016 0.0116      0.01157    1     0.8587  2   3   
 4     -0.0019 0.0131     0.001543    1     0.9374  4       
@@ -33,7 +33,7 @@ TEST 1: FUNCTION noise N=1000
 TEST 2: x0 N=10
 Forward pass: minspan 4 endspan 10
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      1.0000 1.0000            1    1    -0.9681< 2       
 
@@ -58,7 +58,7 @@ TEST 2: FUNCTION x0 N=10
 TEST 3: x0 N=1000
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      1.0000 1.0000            1    1    -0.9987< 2       
 
@@ -83,7 +83,7 @@ TEST 3: FUNCTION x0 N=1000
 TEST 4: x0 + noise N=1000
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      1.0000 1.0000            1    1    -0.9994< 2       
 
@@ -106,46 +106,46 @@ TEST 4: FUNCTION x0 + noise N=1000
 
 =============================================================================
 TEST 5: x0 + x1 N=1000
-earth.c version 1.4
+earth.c version 2.0
 Approximate memory use after expanding x and y matrices: 0.2 MBytes
 BetaCache 0.002 Mb
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 
 |Searching for new term 2                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 268.48       BestRssDeltaSoFar 268.482 (lin pred) 
-|                  Case  163 Cut       -0.706  RssDelta 269.4        BestRssDeltaSoFar
-|Parent 1  Pred 2  Case    1 Cut      -0.9987< RssDelta 270.37       BestRssDeltaSoFar 0.974256 (lin pred) 
-|                  Case  946 Cut       0.8338  RssDelta 270.52       BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 268.48       BestRssDeltaForTermSoFar 268.482 (lin pred) 
+|                  Case  163 Cut       -0.706  RssDelta 269.4        BestRssDeltaForTermSoFar
+|Parent 1  Pred 2  Case    1 Cut      -0.9987< RssDelta 270.37       BestRssDeltaForTermSoFar 0.974256 (lin pred) 
+|                  Case  946 Cut       0.8338  RssDelta 270.52       BestRssDeltaForTermSoFar
 
 2      0.4781 0.4833       0.4833    2     0.8338  2   3   
 
 |Searching for new term 4                      RssDelta 0
-|Parent 2  Pred 1  Case    1 Cut      -0.9987< RssDelta 8.0457       BestRssDeltaSoFar 8.04573 (lin pred) 
-|                  Case  289 Cut      -0.5069  RssDelta 8.0648       BestRssDeltaSoFar
+|Parent 2  Pred 1  Case    1 Cut      -0.9987< RssDelta 8.0457       BestRssDeltaForTermSoFar 8.04573 (lin pred) 
+|                  Case  289 Cut      -0.5069  RssDelta 8.0648       BestRssDeltaForTermSoFar
 |Parent 2  Pred 2                                                    skip (pred is in parent)
-|Parent 3  Pred 1  Case    1 Cut      -0.9987< RssDelta 218.58       BestRssDeltaSoFar 210.511 (lin pred) 
-|                  Case  217 Cut      -0.6186  RssDelta 218.7        BestRssDeltaSoFar
+|Parent 3  Pred 1  Case    1 Cut      -0.9987< RssDelta 218.58       BestRssDeltaForTermSoFar 210.511 (lin pred) 
+|                  Case  217 Cut      -0.6186  RssDelta 218.7        BestRssDeltaForTermSoFar
 |Parent 3  Pred 2                                                    skip (pred is in parent)
-|Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 280.81       BestRssDeltaSoFar 62.1147 (lin pred) 
-|                  Case  901 Cut       0.7026  RssDelta 280.83       BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 280.81       BestRssDeltaForTermSoFar 62.1147 (lin pred) 
+|                  Case  901 Cut       0.7026  RssDelta 280.83       BestRssDeltaForTermSoFar
 |Parent 1  Pred 2  
 
 4      0.9848 0.9851       0.5017    1     0.7026  4   5   
 
 |Searching for new term 6                      RssDelta 0
 |Parent 5  Pred 1                                                    skip (pred is in parent)
-|Parent 5  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0079213    BestRssDeltaSoFar 0.00792126 (lin pred) 
-|                  Case  946 Cut       0.8338  RssDelta 0.011519     BestRssDeltaSoFar
+|Parent 5  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0079213    BestRssDeltaForTermSoFar 0.00792126 (lin pred) 
+|                  Case  946 Cut       0.8338  RssDelta 0.011519     BestRssDeltaForTermSoFar
 |Parent 4  Pred 1                                                    skip (pred is in parent)
 |Parent 4  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0018915    
 |Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 0            
-|                  Case  982 Cut       0.9411  RssDelta 0.014144     BestRssDeltaSoFar
+|                  Case  982 Cut       0.9411  RssDelta 0.014144     BestRssDeltaForTermSoFar
 |Parent 1  Pred 2  Case    1 Cut      -0.9987< RssDelta 0            
 |Parent 3  Pred 1  Case    1 Cut      -0.9987< RssDelta 0.0068694    
-|                  Case  442 Cut       -0.237  RssDelta 0.022549     BestRssDeltaSoFar
+|                  Case  442 Cut       -0.237  RssDelta 0.022549     BestRssDeltaForTermSoFar
 |Parent 3  Pred 2                                                    skip (pred is in parent)
 |Parent 2  Pred 1  Case    1 Cut      -0.9987< RssDelta 0.00058621   
 |Parent 2  Pred 2                                                    skip (pred is in parent)
@@ -196,7 +196,7 @@ RESULT 6: GRSq 0.986762 RSq 0.987025 nTerms 5 of 5 of 51 [99.99 secs]
 TEST 7: x0 + x1 + x0*x1 N=30
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.3635 0.5640        0.564    2    -0.1126  2   3   
 4      0.8640 0.9253       0.3612    1    -0.9681< 4       2   
@@ -234,7 +234,7 @@ TEST 7: FUNCTION x0 + x1 + x0*x1 N=30
 TEST 8: x0 + x1 + x0*x1 N=1000
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.4248 0.4306       0.4306    1     0.5988  2   3   
 4      0.8261 0.8296        0.399    2     0.9691  4   5   
@@ -271,7 +271,7 @@ TEST 8: FUNCTION x0 + x1 + x0*x1 N=1000
 TEST 9: cos(x0) + x1 N=1000
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.9398 0.9404       0.9404    2    -0.7267  2   3   
 4      0.9968 0.9968      0.05644    1    -0.0713  4   5   
@@ -309,7 +309,7 @@ TEST 9: FUNCTION cos(x0) + x1 N=1000
 TEST 10: sin(2*x0)+2*x1*.5*x0*x1
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.6849 0.6881       0.6881    2     0.9691  2   3   
 4      0.9765 0.9770       0.2889    1    -0.6885  4   5   
@@ -352,7 +352,7 @@ TEST 10: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 TEST 11: sin(2*x0)+2*x1*.5*x0*x1
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.6743 0.6776       0.6776    2     0.8212  2   3   
 4      0.9745 0.9750       0.2974    1    -0.7087  4   5   
@@ -413,7 +413,7 @@ TEST 12: FUNCTION 3rd order, mi=2 ni=11
 TEST 13: 3rd order, mi=2 ni=51
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.4311 0.4368       0.4368    6     0.8068  2   3   
 4      0.5666 0.5753       0.1385    1      0.155  4   5   
@@ -458,7 +458,7 @@ TEST 13: FUNCTION 3rd order, mi=2 ni=51
 TEST 14: 3rd order, mi=3
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.4311 0.4368       0.4368    6     0.8068  2   3   
 4      0.5666 0.5753       0.1385    1      0.155  4   5   
@@ -470,7 +470,7 @@ Forward pass: minspan 9 endspan 17
 16     0.9590 0.9622      0.01851    3    -0.3528  16  17  11  
 18     0.9668 0.9697     0.007518    3    -0.6292  18  19  10  
 20     0.9872 0.9884      0.01865    3         -1< 20      
-22     0.9921 0.9929     0.004583    5     0.9335  21  22  15  15  
+22     0.9921 0.9929     0.004583    5     0.9335  21  22  15  
 24     0.9999 0.9999     0.006932    5     0.9335  23  24  9   
 
 Reached max RSq (RSq 0.999873 > 0.999)
@@ -536,7 +536,7 @@ TEST 14: FUNCTION 3rd order, mi=3
 TEST 15: 5 preds + noise
 Forward pass: minspan 7 endspan 14
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.2071 0.2464       0.2464    5     0.1493  2   3   
 4      0.2970 0.3659       0.1195    3     0.2062  4   5   
@@ -608,7 +608,7 @@ TEST 15: FUNCTION 5 preds + noise
 TEST 16: 5 preds clean
 Forward pass: minspan 7 endspan 14
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.1216 0.1652       0.1652    5    -0.1472  2   3   
 4      0.2422 0.3165       0.1512    6    -0.5677  4   5   2   
@@ -689,7 +689,7 @@ TEST 16: FUNCTION 5 preds clean
 TEST 17: 10 preds + noise
 Forward pass: minspan 7 endspan 14
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.1510 0.1931       0.1931    9     0.2431  2   3   
 4      0.2443 0.3184       0.1252   10     0.6516  4   5   
@@ -787,7 +787,7 @@ TEST 17: FUNCTION 10 preds + noise
 TEST 18: 20 preds + noise, N=100
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.1735 0.2549       0.2549    3    -0.6312  2   3   
 4      0.2331 0.3802       0.1253   17     0.2258  4   5   
@@ -884,7 +884,7 @@ TEST 18: FUNCTION 20 preds + noise, N=100
 TEST 19: 20 preds + noise, N=400
 Forward pass: minspan 8 endspan 15
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.0655 0.0888      0.08879   14     0.7196  2   3   
 4      0.1286 0.1717      0.08292   11    -0.6241  4   5   3   
@@ -1030,7 +1030,7 @@ TEST 19: FUNCTION 20 preds + noise, N=400
 TEST 20: 3rd order, mi=3, +noise
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.4020 0.4080        0.408    6     0.0444  2   3   
 4      0.5677 0.5763       0.1684    1    -0.2875  4   5   
@@ -1113,7 +1113,7 @@ TEST 20: FUNCTION 3rd order, mi=3, +noise
 TEST 21: eqn56 mi=1 N=100
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.1893 0.2535       0.2535    1     0.1297  2   3   
 4      0.1764 0.3041      0.05059    2     0.2746  4   5   
@@ -1206,7 +1206,7 @@ TEST 21: FUNCTION eqn56 mi=1 N=100
 TEST 22: eqn56 mi=2 N=100
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.1720 0.2535       0.2535    1     0.1297  2   3   
 4      0.1890 0.3446      0.09106    2     0.6822  4   5   2   
@@ -1304,26 +1304,26 @@ TEST 22: FUNCTION eqn56 mi=2 N=100
 TEST 23: eqn56 mi=10 N=100
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.1720 0.2535       0.2535    1     0.1297  2   3   
 4      0.1890 0.3446      0.09106    2     0.6822  4   5   2   
 6      0.2717 0.4757       0.1311    2     0.5765  6   7   
 8      0.2959 0.5517      0.07597    4      0.395  8   9   6   
-10     0.3230 0.6217      0.07008    1    -0.0493  10  11  9   9   
+10     0.3230 0.6217      0.07008    1    -0.0493  10  11  9   
 12     0.2781 0.6493      0.02758    9    -0.2794  12  13  6   
-14     0.2827 0.7002      0.05093    3     0.0872  14  15  9   9   
-16     0.4352 0.7821      0.08181    3    -0.2912  16      9   9   
-18     0.7374 0.9067       0.1247    6    -0.0943  17      16  16  16  
-20     0.7922 0.9323       0.0256    3     0.2178  18      12  12  
+14     0.2827 0.7002      0.05093    3     0.0872  14  15  9   
+16     0.4352 0.7821      0.08181    3    -0.2912  16      9   
+18     0.7374 0.9067       0.1247    6    -0.0943  17      16  
+20     0.7922 0.9323       0.0256    3     0.2178  18      12  
 22     0.8498 0.9553        0.023    1     0.6521  19      
-24     0.8849 0.9689      0.01354    5    -0.2641  20      8   8   
+24     0.8849 0.9689      0.01354    5    -0.2641  20      8   
 26     0.9084 0.9776     0.008697    3    -0.9919< 21      6   
-28     0.9145 0.9811     0.003589    7     -0.706  22      13  13  
+28     0.9145 0.9811     0.003589    7     -0.706  22      13  
 30     0.9345 0.9871     0.005911    2     0.2746  23      
-32     0.9465 0.9906     0.003542    6    -0.0943  24      11  11  11  
+32     0.9465 0.9906     0.003542    6    -0.0943  24      11  
 34     0.9727 0.9963     0.005686    8     0.0418  25  26  6   
-36     0.9866 0.9984     0.002139    5    -0.3903  27      20  20  20  
+36     0.9866 0.9984     0.002139    5    -0.3903  27      20  
 38     0.9855 0.9988    0.0003338    7     0.3901  28  29  reject term
 
 Reached delta RSq threshold (DeltaRSq 0.000333837 < 0.001)
@@ -1393,24 +1393,24 @@ TEST 23: FUNCTION eqn56 mi=10 N=100
 
 =============================================================================
 TEST 24: x0 + x1 + x0*x1 N=30
-earth.c version 1.4
+earth.c version 2.0
 Approximate memory use after expanding x and y matrices: 0.07 MBytes
 BetaCache 0.040 Mb
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 
 |Searching for new term 2                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaSoFar 8.77768 (lin pred) 
-|                  Case   16 Cut      -0.2974  RssDelta 8.9582       BestRssDeltaSoFar
-|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaSoFar 1.06756 (lin pred) 
-|                  Case   16 Cut      -0.1126  RssDelta 10.491       BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaForTermSoFar 8.77768 (lin pred) 
+|                  Case   16 Cut      -0.2974  RssDelta 8.9582       BestRssDeltaForTermSoFar
+|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaForTermSoFar 1.06756 (lin pred) 
+|                  Case   16 Cut      -0.1126  RssDelta 10.491       BestRssDeltaForTermSoFar
 
 2      0.3635 0.5640        0.564    2    -0.1126  2   3   
 
 |Searching for new term 4                      RssDelta 0
-|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaSoFar 6.71869 (lin pred) 
+|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaForTermSoFar 6.71869 (lin pred) 
 |Parent 2  Pred 2                                                    skip (pred is in parent)
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.089228     
 |Parent 3  Pred 2                                                    skip (pred is in parent)
@@ -1423,8 +1423,8 @@ Forward pass: minspan 5 endspan 12
 |Parent 4                                                            skip (nFactorsInTerm 2)
 |Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
 |Parent 2  Pred 2                                                    skip (pred is in parent)
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.87164      BestRssDeltaSoFar 0.871643 (lin pred) 
-|                  Case   16 Cut      -0.2974  RssDelta 0.89183      BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.87164      BestRssDeltaForTermSoFar 0.871643 (lin pred) 
+|                  Case   16 Cut      -0.2974  RssDelta 0.89183      BestRssDeltaForTermSoFar
 |Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.12546      
 |Parent 3  Pred 2                                                    skip (pred is in parent)
@@ -1434,10 +1434,10 @@ Forward pass: minspan 5 endspan 12
 |Searching for new term 8                      RssDelta 0
 |Parent 5                                                            skip (nFactorsInTerm 101)
 |Parent 6  Pred 1                                                    skip (pred is in parent)
-|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      BestRssDeltaSoFar 0.345944 (lin pred) 
+|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      BestRssDeltaForTermSoFar 0.345944 (lin pred) 
 |Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
 |Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
-|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaSoFar 0.152025 (lin pred) 
+|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaForTermSoFar 0.152025 (lin pred) 
 |Parent 3  Pred 2                                                    skip (pred is in parent)
 |Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
 |Parent 2  Pred 2                                                    skip (pred is in parent)
@@ -1494,24 +1494,24 @@ TEST 24: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 N=30
-earth.c version 1.4
+earth.c version 2.0
 Approximate memory use after expanding x and y matrices: 0.07 MBytes
 BetaCache 0.040 Mb
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 
 |Searching for new term 2                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaSoFar 8.77768 (lin pred) 
-|                  Case   16 Cut      -0.2974  RssDelta 8.9582       BestRssDeltaSoFar
-|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaSoFar 1.06756 (lin pred) 
-|                  Case   16 Cut      -0.1126  RssDelta 10.491       BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaForTermSoFar 8.77768 (lin pred) 
+|                  Case   16 Cut      -0.2974  RssDelta 8.9582       BestRssDeltaForTermSoFar
+|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaForTermSoFar 1.06756 (lin pred) 
+|                  Case   16 Cut      -0.1126  RssDelta 10.491       BestRssDeltaForTermSoFar
 
 2      0.3635 0.5640        0.564    2    -0.1126  2   3   
 
 |Searching for new term 4                      RssDelta 0
-|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaSoFar 6.71869 (lin pred) 
+|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaForTermSoFar 6.71869 (lin pred) 
 |Parent 2  Pred 2                                                    skip (pred is in parent)
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.089228     
 |Parent 3  Pred 2                                                    skip (pred is in parent)
@@ -1524,8 +1524,8 @@ Forward pass: minspan 5 endspan 12
 |Parent 4                                                            skip (nFactorsInTerm 2)
 |Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
 |Parent 2  Pred 2                                                    skip (pred is in parent)
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.87164      BestRssDeltaSoFar 0.871643 (lin pred) 
-|                  Case   16 Cut      -0.2974  RssDelta 0.89183      BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.87164      BestRssDeltaForTermSoFar 0.871643 (lin pred) 
+|                  Case   16 Cut      -0.2974  RssDelta 0.89183      BestRssDeltaForTermSoFar
 |Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.12546      
 |Parent 3  Pred 2                                                    skip (pred is in parent)
@@ -1535,10 +1535,10 @@ Forward pass: minspan 5 endspan 12
 |Searching for new term 8                      RssDelta 0
 |Parent 5                                                            skip (nFactorsInTerm 101)
 |Parent 6  Pred 1                                                    skip (pred is in parent)
-|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      BestRssDeltaSoFar 0.345944 (lin pred) 
+|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      BestRssDeltaForTermSoFar 0.345944 (lin pred) 
 |Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
 |Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
-|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaSoFar 0.152025 (lin pred) 
+|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaForTermSoFar 0.152025 (lin pred) 
 |Parent 3  Pred 2                                                    skip (pred is in parent)
 
 8      1.0000 1.0000      0.02677    1    -0.9681< 7       3   
@@ -1592,24 +1592,24 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
-earth.c version 1.4
+earth.c version 2.0
 Approximate memory use after expanding x and y matrices: 0.07 MBytes
 BetaCache 0.040 Mb
 Forward pass: minspan 5 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 
 |Searching for new term 2                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaSoFar 8.77768 (lin pred) 
-|                  Case   16 Cut      -0.2974  RssDelta 8.9582       BestRssDeltaSoFar
-|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaSoFar 1.06756 (lin pred) 
-|                  Case   16 Cut      -0.1126  RssDelta 10.491       BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaForTermSoFar 8.77768 (lin pred) 
+|                  Case   16 Cut      -0.2974  RssDelta 8.9582       BestRssDeltaForTermSoFar
+|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaForTermSoFar 1.06756 (lin pred) 
+|                  Case   16 Cut      -0.1126  RssDelta 10.491       BestRssDeltaForTermSoFar
 
 2      0.3635 0.5640        0.564    2    -0.1126  2   3   
 
 |Searching for new term 4                      RssDelta 0
-|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaSoFar 6.71869 (lin pred) 
+|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 6.7187       BestRssDeltaForTermSoFar 6.71869 (lin pred) 
 |Parent 2  Pred 2                                                    skip (pred is in parent)
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.089228     
 |Parent 3  Pred 2                                                    skip (pred is in parent)
@@ -1622,8 +1622,8 @@ Forward pass: minspan 5 endspan 12
 |Parent 4                                                            skip (nFactorsInTerm 2)
 |Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
 |Parent 2  Pred 2                                                    skip (pred is in parent)
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.87164      BestRssDeltaSoFar 0.871643 (lin pred) 
-|                  Case   16 Cut      -0.2974  RssDelta 0.89183      BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.87164      BestRssDeltaForTermSoFar 0.871643 (lin pred) 
+|                  Case   16 Cut      -0.2974  RssDelta 0.89183      BestRssDeltaForTermSoFar
 |Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
 |Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.12546      
 |Parent 3  Pred 2                                                    skip (pred is in parent)
@@ -1633,10 +1633,10 @@ Forward pass: minspan 5 endspan 12
 |Searching for new term 8                      RssDelta 0
 |Parent 5                                                            skip (nFactorsInTerm 101)
 |Parent 6  Pred 1                                                    skip (pred is in parent)
-|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      BestRssDeltaSoFar 0.345944 (lin pred) 
+|Parent 6  Pred 2  Case    1 Cut       -0.963< RssDelta 0.34594      BestRssDeltaForTermSoFar 0.345944 (lin pred) 
 |Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
 |Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
-|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaSoFar 0.152025 (lin pred) 
+|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.49797      BestRssDeltaForTermSoFar 0.152025 (lin pred) 
 |Parent 3  Pred 2                                                    skip (pred is in parent)
 
 8      1.0000 1.0000      0.02677    1    -0.9681< 7       3   
@@ -1693,7 +1693,7 @@ TEST 27: x0|x+x1+noise N=30
 Approximate memory use after expanding x and y matrices: 0.1 MBytes
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.5396 0.5761       0.5761    1     0.4371  2   3   
 4      0.9891 0.9908       0.4147    2     0.0313  4   5   
@@ -1733,7 +1733,7 @@ TEST 28: x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
 Approximate memory use after expanding x and y matrices: 0.1 MBytes
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.4677 0.5098       0.5098    1     0.1441  2   3   
 4      0.8107 0.8401       0.3303    2     0.2735  4   5   
@@ -1772,39 +1772,39 @@ Response 2:
 
 =============================================================================
 TEST 29: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
-earth.c version 1.4
+earth.c version 2.0
 Approximate memory use after expanding x and y matrices: 0.1 MBytes
 BetaCache 0.040 Mb
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 
 |Searching for new term 2                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9936< RssDelta 63.453       BestRssDeltaSoFar 63.4534 (lin pred) 
-|                  Case   71 Cut       0.1441  RssDelta 64.773       BestRssDeltaSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9936< RssDelta 63.453       BestRssDeltaForTermSoFar 63.4534 (lin pred) 
+|                  Case   71 Cut       0.1441  RssDelta 64.773       BestRssDeltaForTermSoFar
 |Parent 1  Pred 2  Case    1 Cut      -0.9801< RssDelta 55.48        
 
 2      0.4563 0.5098       0.5098    1     0.1441  2   3   
 
 |Searching for new term 4                      RssDelta 0
 |Parent 2  Pred 1                                                    skip (pred is in parent)
-|Parent 2  Pred 2  Case    1 Cut      -0.9801< RssDelta 40.014       BestRssDeltaSoFar 40.0144 (lin pred) 
-|                  Case   61 Cut       0.0425  RssDelta 40.053       BestRssDeltaSoFar
+|Parent 2  Pred 2  Case    1 Cut      -0.9801< RssDelta 40.014       BestRssDeltaForTermSoFar 40.0144 (lin pred) 
+|                  Case   61 Cut       0.0425  RssDelta 40.053       BestRssDeltaForTermSoFar
 |Parent 3  Pred 1                                                    skip (pred is in parent)
 |Parent 3  Pred 2  Case    1 Cut      -0.9801< RssDelta 2.9247       
 |Parent 1  Pred 1  
-|Parent 1  Pred 2  Case    1 Cut      -0.9801< RssDelta 41.342       BestRssDeltaSoFar 1.28976 (lin pred) 
-|                  Case   78 Cut       0.2735  RssDelta 41.958       BestRssDeltaSoFar
+|Parent 1  Pred 2  Case    1 Cut      -0.9801< RssDelta 41.342       BestRssDeltaForTermSoFar 1.28976 (lin pred) 
+|                  Case   78 Cut       0.2735  RssDelta 41.958       BestRssDeltaForTermSoFar
 
 4      0.8021 0.8401       0.3303    2     0.2735  4   5   
 
 |Searching for new term 6                      RssDelta 0
-|Parent 4  Pred 1  Case    1 Cut      -0.9936< RssDelta 11.007       BestRssDeltaSoFar 11.0069 (lin pred) 
-|                  Case   67 Cut       0.0523  RssDelta 11.03        BestRssDeltaSoFar
+|Parent 4  Pred 1  Case    1 Cut      -0.9936< RssDelta 11.007       BestRssDeltaForTermSoFar 11.0069 (lin pred) 
+|                  Case   67 Cut       0.0523  RssDelta 11.03        BestRssDeltaForTermSoFar
 |Parent 4  Pred 2                                                    skip (pred is in parent)
-|Parent 5  Pred 1  Case    1 Cut      -0.9936< RssDelta 18.458       BestRssDeltaSoFar 7.42748 (lin pred) 
-|                  Case   49 Cut      -0.3074  RssDelta 18.463       BestRssDeltaSoFar
+|Parent 5  Pred 1  Case    1 Cut      -0.9936< RssDelta 18.458       BestRssDeltaForTermSoFar 7.42748 (lin pred) 
+|                  Case   49 Cut      -0.3074  RssDelta 18.463       BestRssDeltaForTermSoFar
 |Parent 5  Pred 2                                                    skip (pred is in parent)
 |Parent 1  Pred 1  Case    1 Cut      -0.9936< RssDelta 0            
 |Parent 1  Pred 2  Case    1 Cut      -0.9801< RssDelta 0            
@@ -1819,14 +1819,14 @@ Forward pass: minspan 7 endspan 13
 |Parent 6                                                            skip (nFactorsInTerm 2)
 |Parent 7                                                            skip (nFactorsInTerm 2)
 |Parent 5  Pred 1  Case    1 Cut      -0.9936< RssDelta 0            
-|                  Case   79 Cut       0.2453  RssDelta 0.00083673   BestRssDeltaSoFar
+|                  Case   79 Cut       0.2453  RssDelta 0.00083673   BestRssDeltaForTermSoFar
 |Parent 5  Pred 2                                                    skip (pred is in parent)
 |Parent 3  Pred 1                                                    skip (pred is in parent)
-|Parent 3  Pred 2  Case    1 Cut      -0.9801< RssDelta 1.1227       BestRssDeltaSoFar 1.12187 (lin pred) 
-|                  Case   79 Cut       0.3205  RssDelta 1.5951       BestRssDeltaSoFar
+|Parent 3  Pred 2  Case    1 Cut      -0.9801< RssDelta 1.1227       BestRssDeltaForTermSoFar 1.12187 (lin pred) 
+|                  Case   79 Cut       0.3205  RssDelta 1.5951       BestRssDeltaForTermSoFar
 |Parent 2  Pred 1                                                    skip (pred is in parent)
 |Parent 2  Pred 2  Case    1 Cut      -0.9801< RssDelta 0.43851      
-|Parent 4  Pred 1  Case    1 Cut      -0.9936< RssDelta 1.8524       BestRssDeltaSoFar 0.257339 (lin pred) 
+|Parent 4  Pred 1  Case    1 Cut      -0.9936< RssDelta 1.8524       BestRssDeltaForTermSoFar 0.257339 (lin pred) 
 |Parent 4  Pred 2                                                    skip (pred is in parent)
 |Parent 1  Pred 1  Case    1 Cut      -0.9936< RssDelta 0            
 |Parent 1  Pred 2  Case    1 Cut      -0.9801< RssDelta 0            
@@ -1898,7 +1898,7 @@ Response 2:
 TEST 30: x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
 Forward pass: minspan 6 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.5313 0.6221       0.6221    2      0.164  2   3   
 4      0.9861 0.9912       0.3691    1    -0.5373  4   5   
@@ -1945,7 +1945,7 @@ Response 2:
 TEST 31: x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
 Forward pass: minspan 6 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.2870 0.4251       0.4251    2    -0.4898  2   3   
 4      0.9085 0.9420        0.517    1    -0.7267  4   5   
@@ -2006,7 +2006,7 @@ Response 3:
 TEST 32: |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
 Forward pass: minspan 6 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.2870 0.4251       0.4251    2    -0.4898  2   3   
 4      0.9085 0.9420        0.517    1    -0.7267  4   5   
@@ -2067,7 +2067,7 @@ Response 3:
 TEST 33: sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
 Forward pass: minspan 6 endspan 12
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.2870 0.4251       0.4251    2    -0.4898  2   3   
 4      0.9085 0.9420        0.517    1    -0.7267  4   5   
@@ -2128,7 +2128,7 @@ Response 3:
 TEST 34: sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
 Forward pass: minspan 9 endspan 17
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.3833 0.3894       0.3894    2     0.9479  2   3   
 4      0.6155 0.6232       0.2337    1    -0.6772  4   5   
@@ -2213,10 +2213,10 @@ Response 2:
 +1.07     * max(0, x[4]     -     -0.696) * max(0, -0.525    -      x[5]) // 17
 
 =============================================================================
-TEST 35: cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0
+TEST 35: cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.8681 0.8785       0.8785    1    -0.0891  2   3   
 4      0.8869 0.9002      0.02169    2    0.44803  4       
@@ -2239,7 +2239,7 @@ Backward pass complete: selected 5 terms of 5, GRSq 0.919874 RSq 0.932301
 
 RESULT 35: GRSq 0.919874 RSq 0.932301 nTerms 5 of 5 of 51 [99.99 secs]
 
-TEST 35: FUNCTION cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0
+TEST 35: FUNCTION cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0
 2.44                                      // 0
 +0.547    * max(0, x[0]     -    -0.0891) // 1
 -1.59     * max(0, -0.0891   -      x[0]) // 2
@@ -2247,10 +2247,10 @@ TEST 35: FUNCTION cos(x1) + cos(x2), x1 and x2 xcolinear, NewVarPenalty=0
 -0.93     * max(0, x[1]     -     -0.612) // 4
 
 =============================================================================
-TEST 36: cos(x1) + cos(x), x1 and x2 xcolinear, NewVarPenalty=0.05
+TEST 36: cos(x1) + cos(x), x1 and x2 xcollinear, NewVarPenalty=0.05
 Forward pass: minspan 7 endspan 13
 
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   Parents
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 1      0.0000 0.0000                               1
 2      0.8604 0.8714       0.8714    1    -0.0891  2   3   
 4      0.8783 0.8926       0.0212    1     0.4491  4       
@@ -2273,7 +2273,7 @@ Backward pass complete: selected 5 terms of 5, GRSq 0.91851 RSq 0.931148
 
 RESULT 36: GRSq 0.91851 RSq 0.931148 nTerms 5 of 5 of 51 [99.99 secs]
 
-TEST 36: FUNCTION cos(x1) + cos(x), x1 and x2 xcolinear, NewVarPenalty=0.05
+TEST 36: FUNCTION cos(x1) + cos(x), x1 and x2 xcollinear, NewVarPenalty=0.05
 2.43                                      // 0
 +0.548    * max(0, x[0]     -    -0.0891) // 1
 -1.57     * max(0, -0.0891   -      x[0]) // 2

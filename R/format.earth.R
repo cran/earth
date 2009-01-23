@@ -103,7 +103,7 @@ format.one.response <- function( # called by format.earth
         s <- pastef(s, "\n")
         iterm <- iterm + 1
     }
-    if (pmatch(style, "bf", nomatch=0)) # append table of basis functions?
+    if(pmatch(style, "bf", nomatch=0)) # append table of basis functions?
         s <- paste(s, "\n", get.table.of.basis.functions(obj, new.order), sep="")
     s
 }
@@ -234,24 +234,24 @@ get.term.strings.bf <- function(obj, digits, use.names, new.order)
 
     # replace original names with names in new.bfs
 
-    if (nrow(bfs) > 1) for (i in 2:nrow(bfs)) { # start at 2 to skip intercept
+    if(nrow(bfs) > 1) for(i in 2:nrow(bfs)) { # start at 2 to skip intercept
         names <- gsub(bfs[i,1], bfs[i,2], names, fixed=TRUE)
     }
     gsub("*", " * ", names, fixed=TRUE)     # put space around *
 }
 
 # Return a string like this:
-#   bf1: h(temp-58)
-#   bf2: h(234-ibt)
-#   bf3: h(200-vis)
-#   bf4: h(doy-92)
+#   bf1  h(temp-58)
+#   bf2  h(234-ibt)
+#   bf3  h(200-vis)
+#   bf4  h(doy-92)
 
 get.table.of.basis.functions <- function(obj, new.order)
 {
     names <- colnames(obj$bx)[new.order]
     bfs <- get.bfs(names)
     s <- ""
-    if (nrow(bfs) > 1) for (i in 2:nrow(bfs)) # start at 2 to skip intercept
+    if(nrow(bfs) > 1) for(i in 2:nrow(bfs)) # start at 2 to skip intercept
         s <- paste(s, sprintf("%6s  %s\n", bfs[i,2], bfs[i,1]), sep="")
     s
 }
