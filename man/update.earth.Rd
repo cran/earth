@@ -31,6 +31,7 @@ If only the following arguments are used, a forward pass
 is unnecessary, and \code{update.earth} will perform only the pruning pass.
 This is usually much faster for large models.
 \preformatted{
+     object
      glm
      trace
      nprune

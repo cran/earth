@@ -879,7 +879,7 @@ plt.rt> data(ozone1)
 
 plt.rt> a <- earth(O3 ~ ., data = ozone1, degree = 2)
 
-plt.rt> plot(a, col.npreds = 1, cum.grid = "none")
+plt.rt> plot(a, cum.grid = "none")
 > cat("--- predict.earth.Rd ----------------------\n")
 --- predict.earth.Rd ----------------------
 > example(predict.earth)

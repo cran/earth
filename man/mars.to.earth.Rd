@@ -36,16 +36,17 @@ mars.to.earth(object)
 
 \bold{Weights}
 
-  \code{mda::mars} normalizes \code{wp} to (euclidean) length 1;
+  Note that the \code{w} argument is is actually silently ignored by \code{mars}.
+  The equivalent \code{earth} argument \code{weights} is also not yet supported, 
+  and you will get a warning.
+
+  \code{mars} normalizes \code{wp} to (euclidean) length 1;
   \code{earth} normalizes
-  \code{wp} to length equal to the number of responses i.e. the number
+  \code{wp} to length equal to the number of responses, i.e., the number
   of columns in \code{y}.  This change was made so an all 1s \code{wp}
   (or in fact any all constant \code{wp}) is equivalent to using no \code{wp}.
 
-  Note that the \code{w} argument is is actually ignored
-  internally by \code{mda::mars}.
-
-  If the original call to \code{mda::mars} used the \code{w} or \code{wp} arguments,
+  If the original call to \code{mars} used the \code{w} or \code{wp} arguments,
   \code{mars.to.earth} will run \code{\link{update.earth}} to force consistency.
   This could modify the model, so a warning is issued.
 }

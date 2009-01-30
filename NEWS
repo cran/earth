@@ -1,6 +1,10 @@
 Changes to Earth Package
 ------------------------
 
+2.2-2 Jan 30 2009
+    Doc touchups
+    Cross validation MaxErr is now signed
+
 2.2-1 Jan 22 2009
     Added cross validation i.e. the nfold and stratify parameters.
 

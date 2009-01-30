@@ -106,7 +106,7 @@ a7 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), tr
 printh(a7$cv.nterms)
 printh(a7$cv.nvars)
 printh(a7$cv.rsq.tab)
-printh(a6$cv.maxerr.tab)
+printh(a7$cv.maxerr.tab)
 printh(a7$cv.deviance.tab)
 printh(a7$cv.auc.tab)
 printh(a7$cv.calib.int.tab)

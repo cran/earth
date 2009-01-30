@@ -29,7 +29,7 @@ Get the basis matrix of an \code{\link{earth}} object.
   }
   \item{which.terms}{
     Which terms to use.
-    Default is NULL, meaning use \code{object$which.terms}.
+    Default is NULL, meaning use \code{object$selected.terms}.
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
@@ -41,7 +41,7 @@ Get the basis matrix of an \code{\link{earth}} object.
      Default 0. Set to non-zero to see which data \code{model.matrix.earth} is using.
   }
   \item{Callers.name}{
-     For internal use.
+     For internal use (used by earth in trace messages).
   }
 }
 \value{
@@ -54,8 +54,9 @@ Get the basis matrix of an \code{\link{earth}} object.
 The format of \code{bx} is described in \code{\link{earth}}.
 The basis matrix \code{bx} can be used, for example,
 as the input matrix to \code{\link{lm}} or \code{\link{glm}} as shown below.
-This is precisely what earth does internally when earth's \code{glm}
-argument is used.
+In fact, that is what earth does internally --- 
+it calls \code{\link{lm.fit}}, 
+and additionally \code{\link{glm}} if earth's \code{glm} argument is used.
 }
 \seealso{
   \code{\link{earth}},
