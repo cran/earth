@@ -22,8 +22,8 @@ Return a string representing an \code{\link{earth}} expression.
     If \code{TRUE} (default), use variable names.  Else use names of the form \code{x[,1]}.
   }
   \item{decomp}{One of\cr
-\code{"anova"}  (default) order the terms using the "anova decomposition"
-          i.e. in increasing order of interaction\cr
+\code{"anova"}  (default) order the terms using the "anova decomposition",
+i.e., in increasing order of interaction\cr
 \code{"none"}   order the terms as created during the earth forward pass.\cr
   }
   \item{style}{
@@ -34,7 +34,7 @@ Return a string representing an \code{\link{earth}} expression.
   }
   \item{colon.char}{
     Change colons in the returned string to colon.char.
-    Default is ":" i.e. no change.
+    Default is ":", i.e., no change.
     Specifying \code{colon.char="*"} can be useful in some contexts to change
     names of the form \code{x1:x2} to \code{x1*x2}.
   }
@@ -49,10 +49,6 @@ If there are multiple responses, \code{format.earth} will return multiple string
 
 If there are embedded GLM model(s), the string(s) for the GLM model(s)
 come after the strings for the standard earth model(s).
-}
-\seealso{
-  \code{\link{earth}},
-  \code{\link{pmax}},
 }
 \note{
 The FAQ section for \code{\link{earth}} has some comments on the \code{"anova"} ordering.
@@ -80,8 +76,7 @@ predict(a, c(10,80))  # yields 17.82973, but is slower
 The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr
 \code{format.lm(x, digits=getOption("digits"), use.names=TRUE, colon.char=":")}\cr
-(Strictly speaking, \code{format.lm} doesn't belong in the
-earth package.) Example:
+(Strictly speaking, \code{format.lm} doesn't belong in the earth package.) Example:
 \preformatted{
 a <- lm(Volume ~ Height*Girth, data = trees)
 cat(format(a, colon.char="*"))
@@ -92,6 +87,10 @@ cat(format(a, colon.char="*"))
 #    -  5.86 * Girth
 #    + 0.135 * Height*Girth
 }
+}
+\seealso{
+  \code{\link{earth}},
+  \code{\link{pmax}},
 }
 \examples{
 a <- earth(Volume ~ ., data = trees)

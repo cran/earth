@@ -18,7 +18,7 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     A list of one or more \code{\link{earth}} objects,
     or a single \code{\link{earth}} object.
     This is the only required argument.
-    (This argument is called 'x' for consistency with the generic \code{\link{plot}}).
+    (This argument is called 'x' for consistency with the generic \code{\link{plot}}.)
   }
   \item{which}{
     Which plots to plot: 1 model, 2 cumulative distribution of residuals.
@@ -119,7 +119,7 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   }
 }
 \note{
-   This function ignores GLM components of the earth model, if any.
+   This function ignores GLM and cross-validation components of the earth model, if any.
 }
 \seealso{
   \code{\link{earth}},

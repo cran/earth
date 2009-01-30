@@ -29,13 +29,13 @@ An example for a 3 level factor with levels \code{A}, \code{B}, and \code{C}:
     C 0 0 1
 }
 }
-\seealso{
-  \code{\link{contrasts}}
-}
 \note{
 Earth uses this function internally.
 You shouldn't need it.
 It is made publicly available only because it seems that is necessary
 for \code{model.matrix}.
+}
+\seealso{
+  \code{\link{contrasts}}
 }
 \keyword{models}

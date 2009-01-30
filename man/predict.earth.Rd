@@ -24,7 +24,7 @@ Predict with an \code{\link{earth}} model.
      Type of prediction.
      One of \code{"link"} (default), \code{"response"}, \code{"earth"}, or \code{"term"}.\cr\cr
         The \code{"link"}, \code{"response"}, and \code{"earth"} choices all return the same value unless
-        the earth model has a GLM component (i.e. unless the \code{glm} argument
+        the earth model has a GLM component (i.e., unless the \code{glm} argument
         was used in the original call to \code{\link{earth}}).
         See \code{\link{predict.glm}} for a description of the \code{"link"} and \code{"response"} options.
         (In brief: for logistic models use \code{type="response"} to return probabilities.) \cr\cr

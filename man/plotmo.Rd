@@ -101,7 +101,7 @@ You will also need the \code{ycolumn} argument if your model has multiple respon
   \item{grid.func}{
      Function applied to x columns to calculate the values for numeric predictors
      not on the axes.
-     (For factor predictors, see the \code{grid.levels} argument below).
+     (For factor predictors, see the \code{grid.levels} argument below.)
      Default is \code{\link{median}}.
      Examples:
 \preformatted{plotmo(a, grid.func = mean) # mean instead of median
@@ -135,7 +135,7 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
   \item{nrug}{
      Number of points in (jittered) rug.
      Default is \code{0} meaning no rug.
-     Special value \code{-1} for all i.e. \code{nrow(x)}.
+     Special value \code{-1} for all, i.e., \code{nrow(x)}.
   }
   \item{se}{
      Draw standard error bands at plus and minus \code{se} times the pointwise standard errors.
@@ -247,12 +247,12 @@ all other predictors at a constant value.
 For degree2 plots, plotmo changes two variables
 while holding all other predictors at a constant value.
 
-The question arises: what should the constant be for each predictor?
+The question arises: what should the constant value be for each predictor?
 For numerical predictors it is the median of the predictor values in the input matrix x;
 for factor predictors it is the first level of the factor.
 You can change those defaults with the \code{grid.func} and \code{grid.levels} arguments.
 
-Each graph shows only a thin slice of the data because most variables are constant.
+Each graph shows only a thin slice of the data because most variables are fixed.
 You should be aware of that when interpreting the graph.
 
 \bold{Details of operation}
@@ -284,7 +284,7 @@ NAs are not allowed.
 To prevent confusing error messages from \code{plotmo},
 remove NAs before building your model.
 (To be safe, you can use \code{na.action=na.fail} when building your model
-so you get an error message if you inadvertently have a NA).
+so you get an error message if you inadvertently have a NA.)
 
 Weights are currently ignored, with a warning.
 
@@ -292,7 +292,7 @@ Factor predictors are not supported on degree2 graphs (you will get a reminder m
 
 To avoid confusing error messages from plotmo,
 keep the original formula you used to build the model simple.
-By default (i.e. when using \code{get.plotmo.x.default} and \code{get.pairs.default}),
+By default (i.e., when using \code{get.plotmo.x.default} and \code{get.pairs.default}),
 \code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
 This crude approach is not infallible but works for the common formulas.
 It determines which predictors are paired by looking for
@@ -319,11 +319,7 @@ as described in the next section.
 
 1) \code{object} must have a \code{\link{predict}} method that supports \code{type=response}.
 
-2) for standard error bands (see the \code{se} argument),
-\code{object} must have a \code{\link{predict}}
-method that can be called with \code{se.fit=TRUE}.
-
-3) \code{object} must have the following two components
+2) \code{object} must have the following two components
 (which are searched for in the order given for each):
 
 \itemize{
@@ -333,6 +329,10 @@ method that can be called with \code{se.fit=TRUE}.
 
   \item \code{$y}, or \code{$call$formula}, or \code{$call$y}.
 }
+3) for optional standard error bands (see the \code{se} argument),
+\code{object} must have a \code{\link{predict}}
+method that can be called with \code{se.fit=TRUE}.
+
 
 \bold{Extending plotmo}
 

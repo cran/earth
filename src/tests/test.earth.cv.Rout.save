@@ -65,7 +65,7 @@ GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.91978
 Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
 
           CV-RSq         sd   MaxErr       sd
-Volume 0.9197869 0.02648073 9.680184 1.928534
+Volume 0.9197869 0.02648073 11.80043 11.80451
 > 
 > cat("a0a: trees with matrix interface\n\n")
 a0a: trees with matrix interface
@@ -103,7 +103,7 @@ GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.91978
 Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
 
              CV-RSq         sd   MaxErr       sd
-trees[,3] 0.9197869 0.02648073 9.680184 1.928534
+trees[,3] 0.9197869 0.02648073 11.80043 11.80451
 > 
 > cat("a1: trees with trace enabled\n\n")
 a1: trees with trace enabled
@@ -175,8 +175,8 @@ GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.91925
 
 Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
 
-          CV-RSq         sd   MaxErr        sd
-Volume 0.9192508 0.03774736 8.762917 0.4904539
+          CV-RSq         sd   MaxErr      sd
+Volume 0.9192508 0.03774736 9.104375 9.95649
 > 
 > # test correct operation of update
 > 
@@ -227,8 +227,8 @@ GCV 15.89613    RSS 346.6381    GRSq 0.9430674    RSq 0.9572373    CV-RSq 0.9181
 
 Cross validation: nterms 2.00 sd 0.00  nvars 1.00 sd 0.00
 
-          CV-RSq         sd  MaxErr       sd
-Volume 0.9181651 0.01526891 9.37894 4.147175
+          CV-RSq         sd   MaxErr       sd
+Volume 0.9181651 0.01526891 13.92195 11.30786
 > cat("a4 <- update(a0, nfold=0, trace=.5)  # should not do cv\n")
 a4 <- update(a0, nfold=0, trace=.5)  # should not do cv
 > set.seed(4)
@@ -275,11 +275,11 @@ fold 3 0.4236844 0.4236844
 mean   0.4195998 0.4195998
 > printh(a6$cv.maxerr.tab)
 === a6$cv.maxerr.tab
-       survived.      mean
-fold 1 0.9796898 0.9796898
-fold 2 0.9419355 0.9419355
-fold 3 0.9817507 0.9817507
-mean   0.9677920 0.9677920
+        survived.        max
+fold 1 -0.9796898 -0.9796898
+fold 2 -0.9419355 -0.9419355
+fold 3  0.9817507  0.9817507
+max     0.9817507  0.9817507
 > printh(a6$cv.deviance.tab)
 === a6$cv.deviance.tab
        survived.      mean
@@ -379,8 +379,8 @@ GLM null.deviance 1414.620 (1045 dof)   deviance 879.6865 (1037 dof)   iters 5
 
 Cross validation: nterms 8.00 sd 0.00  nvars 6.00 sd 0.00
 
-             CV-RSq          sd  MeanDev          sd    CalibInt        sd CalibSlope         sd       AUC          sd   MaxErr         sd
-survived. 0.4195998 0.008397701 0.882317 0.007023351 -0.05321924 0.2220821  0.9330999 0.04482305 0.8589323 0.009686925 0.967792 0.02241609
+             CV-RSq          sd  MeanDev          sd    CalibInt        sd CalibSlope         sd       AUC          sd    MaxErr       sd
+survived. 0.4195998 0.008397701 0.882317 0.007023351 -0.05321924 0.2220821  0.9330999 0.04482305 0.8589323 0.009686925 0.9817507 1.121698
 > # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a6)
 Note: plotmo cannot use factors as axes for degree2 plots,
@@ -466,8 +466,8 @@ GLM null.deviance 1414.620 (1045 dof)   deviance 879.6865 (1037 dof)   iters 5
 
 Cross validation: nterms 8.00 sd 1.00  nvars 5.67 sd 0.58
 
-             CV-RSq         sd   MeanDev         sd    CalibInt        sd CalibSlope         sd       AUC         sd    MaxErr         sd
-survived. 0.4184198 0.02862230 0.8918238 0.03930843 -0.03602589 0.2542560  0.9306365 0.04545197 0.8566624 0.01778565 0.9691426 0.01273509
+             CV-RSq         sd   MeanDev         sd    CalibInt        sd CalibSlope         sd       AUC         sd    MaxErr       sd
+survived. 0.4184198 0.02862230 0.8918238 0.03930843 -0.03602589 0.2542560  0.9306365 0.04545197 0.8566624 0.01778565 0.9833688 1.116122
 > 
 > cat("a7: titanic data, multiple responses (i.e. 3 level factor)\n\n")
 a7: titanic data, multiple responses (i.e. 3 level factor)
@@ -520,13 +520,20 @@ fold  8 0.36232604 -0.028478458 0.2358955 0.18991435
 fold  9 0.23086288 -0.052895449 0.1825549 0.12017410
 fold 10 0.23358058  0.027100201 0.2049521 0.15521096
 mean    0.26596382  0.014984952 0.2463685 0.17577242
-> printh(a6$cv.maxerr.tab)
-=== a6$cv.maxerr.tab
-       survived.      mean
-fold 1 0.9796898 0.9796898
-fold 2 0.9419355 0.9419355
-fold 3 0.9817507 0.9817507
-mean   0.9677920 0.9677920
+> printh(a7$cv.maxerr.tab)
+=== a7$cv.maxerr.tab
+              1st       2nd        3rd       max
+fold  1 0.8607793 0.8914164  0.9100528 0.9100528
+fold  2 0.9683228 0.9029180  0.9046677 0.9683228
+fold  3 0.9524979 0.8610439  0.8476686 0.9524979
+fold  4 0.9581823 0.9283720  0.8452368 0.9581823
+fold  5 0.9229414 0.8197531  0.9487363 0.9487363
+fold  6 0.9370042 0.8673994 -0.8718848 0.9370042
+fold  7 0.9169577 0.8940714  0.9761476 0.9761476
+fold  8 0.9195484 0.8734055  0.9563154 0.9563154
+fold  9 0.9580783 0.9199930  0.9651847 0.9651847
+fold 10 0.9422649 0.8360985  0.9288422 0.9422649
+max     0.9683228 0.9283720  0.9761476 0.9761476
 > printh(a7$cv.deviance.tab)
 === a7$cv.deviance.tab
               1st      2nd       3rd      mean
@@ -694,10 +701,10 @@ GLM (family binomial, link logit)
 Cross validation: nterms 10.10 sd 1.29  nvars 5.00 sd 0.00
 
          CV-RSq         sd   MeanDev         sd     CalibInt         sd CalibSlope        sd       AUC         sd    MaxErr         sd
-1st  0.26596382 0.09184350 0.8844721 0.10959878 -0.034348176 0.20627597  0.9777748 0.2474768 0.8263734 0.05213096 0.9336577 0.03116940
-2nd  0.01498495 0.03405852 1.1069975 0.03708661 -0.358665451 0.32302805  0.6794101 0.3120312 0.5884683 0.04489851 0.8794471 0.03481448
-3rd  0.24636849 0.06982025 1.1150865 0.10582007  0.009103356 0.09559957  0.9348915 0.2375146 0.7917589 0.04163518 0.9154737 0.04793811
-mean 0.17577242 0.04845123 1.0355187 0.06252226 -0.127970090 0.10928290  0.8640255 0.1606206 0.7355335 0.02740644 0.9095262 0.02011460
+1st  0.26596382 0.09184350 0.8844721 0.10959878 -0.034348176 0.20627597  0.9777748 0.2474768 0.8263734 0.05213096 0.9683228 0.03116940
+2nd  0.01498495 0.03405852 1.1069975 0.03708661 -0.358665451 0.32302805  0.6794101 0.3120312 0.5884683 0.04489851 0.9283720 0.03481448
+3rd  0.24636849 0.06982025 1.1150865 0.10582007  0.009103356 0.09559957  0.9348915 0.2375146 0.7917589 0.04163518 0.9761476 0.56856152
+mean 0.17577242 0.04845123 1.0355187 0.06252226 -0.127970090 0.10928290  0.8640255 0.1606206 0.7355335 0.02740644 0.9761476 0.01876029
 > # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a7, ycolumn=1)
 Note: plotmo cannot use factors as axes for degree2 plots,
@@ -840,11 +847,11 @@ GLM (family binomial, link logit)
 
 Cross validation: nterms 10.30 sd 1.34  nvars 4.90 sd 0.32
 
-         CV-RSq         sd   MeanDev         sd    CalibInt        sd CalibSlope        sd       AUC         sd    MaxErr         sd
-1st  0.26310978 0.09422215 0.9023556 0.10748205 -0.06577181 0.2278086  0.9378338 0.2341596 0.8195213 0.05248342 0.9346550 0.03307998
-2nd  0.02693394 0.04273529 1.0974946 0.05038243 -0.27888961 0.4363072  0.7533543 0.4401612 0.6204113 0.06956040 0.8980891 0.03579026
-3rd  0.23864380 0.07698700 1.1147967 0.10377543  0.01235836 0.1221649  0.9358917 0.2557327 0.7884306 0.04685326 0.9169468 0.06912448
-mean 0.11651108 0.04212217 1.0619272 0.04971028 -0.17801646 0.2727428  0.8267577 0.2928027 0.6938372 0.04618862 0.9091738 0.02502466
+         CV-RSq         sd   MeanDev         sd    CalibInt        sd CalibSlope        sd       AUC         sd     MaxErr         sd
+1st  0.26310978 0.09422215 0.9023556 0.10748205 -0.06577181 0.2278086  0.9378338 0.2341596 0.8195213 0.05248342  0.9711449 0.77315970
+2nd  0.02693394 0.04273529 1.0974946 0.05038243 -0.27888961 0.4363072  0.7533543 0.4401612 0.6204113 0.06956040  0.9449113 0.03579026
+3rd  0.23864380 0.07698700 1.1147967 0.10377543  0.01235836 0.1221649  0.9358917 0.2557327 0.7884306 0.04685326 -0.9685261 0.87150815
+mean 0.11651108 0.04212217 1.0619272 0.04971028 -0.17801646 0.2727428  0.8267577 0.2928027 0.6938372 0.04618862  0.9711449 0.60745479
 > 
 > # poisson models
 > 
@@ -900,8 +907,8 @@ GLM null.deviance 41.6537 (35 dof)   deviance 18.97441 (31 dof)   iters 4
 
 Cross validation: nterms 5.00 sd 0.00  nvars 4.00 sd 0.00
 
-          CV-RSq         sd   MeanDev         sd  CalibInt        sd CalibSlope        sd       cor         sd  MaxErr        sd
-counts 0.5425704 0.03429234 0.6069364 0.09448224 0.1383789 0.4758972  0.9510036 0.1366423 0.7425405 0.04373341 5.15077 0.4308785
+          CV-RSq         sd   MeanDev         sd  CalibInt        sd CalibSlope        sd       cor         sd   MaxErr       sd
+counts 0.5425704 0.03429234 0.6069364 0.09448224 0.1383789 0.4758972  0.9510036 0.1366423 0.7425405 0.04373341 5.625547 5.849157
 > # two response poisson model
 > cat("a10: two response poisson model\n\n")
 a10: two response poisson model
@@ -961,10 +968,10 @@ counts2      418.8258 35 204.97309 32     4         1
 
 Cross validation: nterms 5.00 sd 0.00  nvars 4.00 sd 0.00
 
-             CV-RSq        sd   MeanDev        sd  CalibInt       sd CalibSlope        sd       cor        sd    MaxErr        sd
-counts   0.01192611 0.8203755 0.9011027 0.1269893 0.8518902 1.599211  0.7113432 0.5215928 0.5585294 0.2861361  6.232142 0.5515933
-counts2 -0.14133055 1.0326875 9.6527867 1.9456886 1.1479040 2.649913  0.7787410 0.5080124 0.5806144 0.1866414 61.615637 7.9466444
-mean    -0.06470222 0.9252687 5.2769447 1.0360944 0.9998971 2.117370  0.7450421 0.5131495 0.5695719 0.2362784 33.923890 4.2392623
+             CV-RSq        sd   MeanDev        sd  CalibInt       sd CalibSlope        sd       cor        sd     MaxErr       sd
+counts   0.01192611 0.8203755 0.9011027 0.1269893 0.8518902 1.599211  0.7113432 0.5215928 0.5585294 0.2861361   6.609942  7.01380
+counts2 -0.14133055 1.0326875 9.6527867 1.9456886 1.1479040 2.649913  0.7787410 0.5080124 0.5806144 0.1866414 -68.872387 73.40375
+mean    -0.06470222 0.9252687 5.2769447 1.0360944 0.9998971 2.117370  0.7450421 0.5131495 0.5695719 0.2362784 -68.872387 73.40375
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

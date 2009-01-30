@@ -23,7 +23,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   \item{x}{
     An \code{\link{earth}} object.
     This is the only required argument.
-    (This argument is called "x" for consistency with the generic \code{\link{plot}}).
+    (This argument is called "x" for consistency with the generic \code{\link{plot}}.)
   }
   \item{which}{
     Which plots to plot. Default is \code{1:4}, meaning all.\cr
@@ -169,6 +169,6 @@ This usually means that the x- and y-axis scales are both 0 to 1.
 \examples{
 data(ozone1)
 a <- earth(O3 ~ ., data = ozone1, degree = 2)
-plot(a, col.npreds = 1, cum.grid = "none")
+plot(a, cum.grid = "none")
 }
 \keyword{models}
