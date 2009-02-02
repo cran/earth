@@ -1,6 +1,11 @@
 Changes to Earth Package
 ------------------------
 
+2.2-3 Feb 2 2009
+    Added levels to the return value
+    Added type=class and thresh arguments to predict.earth
+    Thanks to Max Kuhn for suggesting these improvements
+
 2.2-2 Jan 30 2009
     Doc touchups
     Cross validation MaxErr is now signed
@@ -8,8 +13,8 @@ Changes to Earth Package
 2.2-1 Jan 22 2009
     Added cross validation i.e. the nfold and stratify parameters.
 
-    We now scale y before the forward pass, for better numeric stability in 
-    the forward pass with very big or very small y's. 
+    We now scale y before the forward pass, for better numeric stability in
+    the forward pass with very big or very small y's.
     For the old behaviour, set earth's new argument scale.y=FALSE.
 
     Added get.pairs.bagEarth so plotmo prints degree2 plots for caret:bagEarth models.
@@ -19,7 +24,7 @@ Changes to Earth Package
         ServiceR (to allow interrupts) is called more consistently for large datasets
         Delta RSS handling is simplified
         Changed some var names for consistency
-     The last two were a byproduct of experimental changes to earth that 
+     The last two were a byproduct of experimental changes to earth that
      were not included in this release.
 
      Changed documentation to American English.
@@ -38,13 +43,13 @@ Changes to Earth Package
     Added plot.evimp
     Removed spurious warning "Need as many rows as columns"
 
-2.0-5 Jul 14 2008 
+2.0-5 Jul 14 2008
     Touched up documentation for format.lm.
 
-2.0-4 June 22 2008 
+2.0-4 June 22 2008
     Touched up code and documentation for a zero thresh value.
 
-2.0-3 June 22 2008 
+2.0-3 June 22 2008
 
 Zero values are now allowed for earth's "thresh" parameter (previously if
     you used thresh=0, thresh was clamped internally to 1e-10).
@@ -53,17 +58,17 @@ Zero values are now allowed for earth's "thresh" parameter (previously if
 Changed "valid.names" argument of format.earth and format.lm to "colon.char"
     which achieves the same end more simply.
 
-2.0-2 June 15 2008 
+2.0-2 June 15 2008
 
 Added column names to results of mars.to.earth, allows use of evimp.
 Added valid.names argument to format.earth and format.lm.
 
-2.0-1 June 10 2008 
+2.0-1 June 10 2008
 
 Added "namesx" and "first" arguments to the "allowed" function.
 evimp() for a scalar x now returns a matrix (I added a missing drop=FALSE).
 
-2.0-0 June 07 2008 
+2.0-0 June 07 2008
 
 Added support for glms and factors (but plotmo does not yet support factors).
 Added variable importance function "evimp".

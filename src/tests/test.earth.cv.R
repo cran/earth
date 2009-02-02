@@ -22,6 +22,19 @@ printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a
         print(x)
 }
 
+# print contents of earth.model, for sanity checking that all fields are present as usual
+# but strip big fields to reduce amount of printing
+
+print.stripped.earth.model <- function(a, model.name)
+{
+    a$bx <- NULL
+    a$fitted.values <- NULL
+    a$residuals <- NULL
+    cat("print.stripped.earth.model(", model.name, ")\n", sep="")
+    print.default(a)
+    cat("-------------------------------------------------------------------------------\n\n")
+}
+
 cat("a0: trees\n\n")
 
 set.seed(23)
@@ -29,6 +42,7 @@ a0 <- earth(Volume ~ ., data = trees, trace=0.5, nfold=3)
 printh(a0$cv.rsq.tab)
 printh(a0)
 printh(summary(a0))
+print.stripped.earth.model(a0, "a0")
 
 cat("a0a: trees with matrix interface\n\n")
 
@@ -37,6 +51,7 @@ a0a <- earth(trees[,-3], trees[,3], trace=0.5, nfold=3)
 stopifnot(!identical(a0$cv.rsq.tab,a0a$cv.rsq.tab))
 printh(a0a)
 printh(summary(a0a))
+print.stripped.earth.model(a0a, "a0a")
 
 cat("a1: trees with trace enabled\n\n")
 

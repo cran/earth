@@ -6,8 +6,8 @@ Predict with an \code{\link{earth}} model.
 }
 \usage{
 \method{predict}{earth}(object = stop("no 'object' arg"), newdata = NULL,
-                        type = c("link", "response", "earth", "terms"),
-                        trace = FALSE, \dots)
+                        type = c("link", "response", "earth", "class", "terms"),
+                        thresh = .5, trace = FALSE, \dots)
 }
 \arguments{
   \item{object}{
@@ -22,15 +22,13 @@ Predict with an \code{\link{earth}} model.
   }
   \item{type}{
      Type of prediction.
-     One of \code{"link"} (default), \code{"response"}, \code{"earth"}, or \code{"term"}.\cr\cr
-        The \code{"link"}, \code{"response"}, and \code{"earth"} choices all return the same value unless
-        the earth model has a GLM component (i.e., unless the \code{glm} argument
-        was used in the original call to \code{\link{earth}}).
-        See \code{\link{predict.glm}} for a description of the \code{"link"} and \code{"response"} options.
-        (In brief: for logistic models use \code{type="response"} to return probabilities.) \cr\cr
-        \code{"terms"} returns an \code{"earth"} response suitable for \code{\link{termplot}}.
-        Only the additive terms and the first response (for multi-response models) are returned.
-        Also, \code{"terms"} always returns the earth (not GLM) terms.\cr\cr
+     One of \code{"link"} (default), \code{"response"}, \code{"earth"}, \code{"class"}, or \code{"term"}.
+     See the \bold{Note} below.
+  }
+  \item{thresh}{
+    Probability threshold from 0 to 1, default is .5.
+    Only applies for binomial models with a binary response.
+    See the \bold{Note} below.
   }
   \item{trace}{
      Default FALSE. Set to TRUE to see which data, subset, etc.  \code{predict.earth} is using.
@@ -40,8 +38,54 @@ Predict with an \code{\link{earth}} model.
   }
 }
 \value{
-If \code{type="terms"},  a matrix with each column showing the contribution of a predictor.
-Else the predicted values (a matrix for multiple response models).\cr
+The predicted values (a matrix for multiple response models).
+Except if \code{type="terms"}, then a matrix with each column showing the contribution of a predictor.
+}
+\note{
+\bold{Predicting with standard earth models}
+
+    Use the default \code{type = c("link")}.
+
+    Actually, the \code{"link"}, \code{"response"}, and \code{"earth"} 
+    choices all return the same value unless the \code{glm} argument
+    was used in the original call to \code{\link{earth}},
+    and "class" is illegal unless the model is a binomial model.
+
+\bold{Predicting with GLM models}
+
+    This section applies to earth models with a GLM component, i.e., 
+    when the \code{glm} argument was used
+    in the original call to \code{\link{earth}}.
+
+    The \code{"link"} and \code{"response"} options:
+    see \code{\link{predict.glm}} for a description of these.
+    In brief: for logistic models 
+    use \code{type="link"} to get log-odds and 
+    \code{type="response"} to get probabilities.
+
+    Use option \code{"earth"} to get the linear fit (this gives the prediction you would get
+    if your original call to earth had no \code{glm} argument).
+
+    Use option \code{"class"} to get the predicted class.
+    This is legal only for binomial models where \code{y} is logical or factor.
+    Option \code{"class"} works as follows:
+
+    (i) When \code{y} is a \emph{logical}, predict TRUE if
+    the predicted probability is greater than \code{thresh}.
+
+    (ii) When \code{y} is a \emph{two level factor}, 
+    predict the second level if its probability is more than \code{thresh}.
+    In other words: with the default \code{thresh=.5}, 
+    predict the most probable level 
+
+    (iii) When \code{y} is a \emph{three or more level factor}, 
+    predict the most probable level (and \code{thresh} is ignored).
+
+\bold{Predicting with "terms"}
+
+    The \code{"terms"} option returns a \code{"link"} response suitable for \code{\link{termplot}}.
+    Only the additive terms and the first response (for multi-response models) are returned.
+    Also, \code{"terms"} always returns the earth (not GLM) terms.
 }
 \seealso{
   \code{\link{earth}},

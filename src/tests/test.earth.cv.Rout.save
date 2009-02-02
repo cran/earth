@@ -23,6 +23,19 @@ Loading required package: leaps
 +         print(x)
 + }
 > 
+> # print contents of earth.model, for sanity checking that all fields are present as usual
+> # but strip big fields to reduce amount of printing
+> 
+> print.stripped.earth.model <- function(a, model.name)
++ {
++     a$bx <- NULL
++     a$fitted.values <- NULL
++     a$residuals <- NULL
++     cat("print.stripped.earth.model(", model.name, ")\n", sep="")
++     print.default(a)
++     cat("-------------------------------------------------------------------------------\n\n")
++ }
+> 
 > cat("a0: trees\n\n")
 a0: trees
 
@@ -66,6 +79,158 @@ Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
 
           CV-RSq         sd   MaxErr       sd
 Volume 0.9197869 0.02648073 11.80043 11.80451
+> print.stripped.earth.model(a0, "a0")
+print.stripped.earth.model(a0)
+$dirs
+              Girth Height
+(Intercept)       0      0
+h(Girth-12.9)     1      0
+h(12.9-Girth)    -1      0
+h(Height-76)      0      1
+h(76-Height)      0     -1
+
+$cuts
+              Girth Height
+(Intercept)     0.0      0
+h(Girth-12.9)  12.9      0
+h(12.9-Girth)  12.9      0
+h(Height-76)    0.0     76
+h(76-Height)    0.0     76
+
+$selected.terms
+[1] 1 2 3 4
+
+$prune.terms
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    0    0    0    0
+[2,]    1    2    0    0    0
+[3,]    1    2    3    0    0
+[4,]    1    2    3    4    0
+[5,]    1    2    3    4    5
+
+$rss
+[1] 213.4354
+
+$rsq
+[1] 0.9736697
+
+$gcv
+[1] 11.48697
+
+$grsq
+[1] 0.958859
+
+$rss.per.response
+[1] 213.4354
+
+$rsq.per.response
+[1] 0.9736697
+
+$gcv.per.response
+[1] 11.48697
+
+$grsq.per.response
+[1] 0.958859
+
+$rss.per.subset
+[1] 8106.0839  748.0006  346.6381  213.4354  187.4676
+
+$gcv.per.subset
+[1] 279.20956  29.57656  15.89613  11.48697  12.00722
+
+$coefficients
+                  Volume
+(Intercept)   23.2082436
+h(Girth-12.9)  5.7459616
+h(12.9-Girth) -2.8664516
+h(Height-76)   0.7183364
+
+$penalty
+[1] 2
+
+$namesx.org
+[1] "Girth"  "Height"
+
+$namesx
+[1] "Girth"  "Height"
+
+$terms
+Volume ~ Girth + Height
+attr(,"variables")
+list(Volume, Girth, Height)
+attr(,"factors")
+       Girth Height
+Volume     0      0
+Girth      1      0
+Height     0      1
+attr(,"term.labels")
+[1] "Girth"  "Height"
+attr(,"order")
+[1] 1 1
+attr(,"intercept")
+[1] 1
+attr(,"response")
+[1] 1
+attr(,".Environment")
+<environment: R_GlobalEnv>
+attr(,"predvars")
+list(Volume, Girth, Height)
+attr(,"dataClasses")
+   Volume     Girth    Height 
+"numeric" "numeric" "numeric" 
+
+$call
+earth(formula = Volume ~ ., data = trees, trace = 0.5, nfold = 3)
+
+$cv.rsq.tab
+          Volume      mean
+fold 1 0.9120121 0.9120121
+fold 2 0.8980638 0.8980638
+fold 3 0.9492847 0.9492847
+mean   0.9197869 0.9197869
+
+$cv.maxerr.tab
+          Volume       max
+fold 1 -9.209696 -9.209696
+fold 2 -8.030428 -8.030428
+fold 3 11.800427 11.800427
+max    11.800427 11.800427
+
+$cv.groups
+ [1] 3 1 2 3 1 2 3 3 2 3 2 3 1 3 2 3 2 2 1 1 1 1 2 2 1 1 2 3 1 1 3
+
+$cv.nterms
+  fold 1   fold 2   fold 3     mean 
+2.000000 3.000000 3.000000 2.666667 
+
+$cv.nvars
+  fold 1   fold 2   fold 3     mean 
+1.000000 2.000000 2.000000 1.666667 
+
+$cv.list
+$cv.list[[1]]
+Selected 2 of 3 terms, and 1 of 2 predictors 
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 21.11046    RSS 305.0461    GRSq 0.9330548    RSq 0.9464068
+
+$cv.list[[2]]
+Selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 23.08273    RSS 281.3894    GRSq 0.9333423    RSq 0.957339
+
+$cv.list[[3]]
+Selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 19.03958    RSS 232.1016    GRSq 0.9052593    RSq 0.939366
+
+
+attr(,"class")
+[1] "earth"
+-------------------------------------------------------------------------------
+
 > 
 > cat("a0a: trees with matrix interface\n\n")
 a0a: trees with matrix interface
@@ -104,6 +269,133 @@ Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
 
              CV-RSq         sd   MaxErr       sd
 trees[,3] 0.9197869 0.02648073 11.80043 11.80451
+> print.stripped.earth.model(a0a, "a0a")
+print.stripped.earth.model(a0a)
+$dirs
+              Girth Height
+(Intercept)       0      0
+h(Girth-12.9)     1      0
+h(12.9-Girth)    -1      0
+h(Height-76)      0      1
+h(76-Height)      0     -1
+
+$cuts
+              Girth Height
+(Intercept)     0.0      0
+h(Girth-12.9)  12.9      0
+h(12.9-Girth)  12.9      0
+h(Height-76)    0.0     76
+h(76-Height)    0.0     76
+
+$selected.terms
+[1] 1 2 3 4
+
+$prune.terms
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    0    0    0    0
+[2,]    1    2    0    0    0
+[3,]    1    2    3    0    0
+[4,]    1    2    3    4    0
+[5,]    1    2    3    4    5
+
+$rss
+[1] 213.4354
+
+$rsq
+[1] 0.9736697
+
+$gcv
+[1] 11.48697
+
+$grsq
+[1] 0.958859
+
+$rss.per.response
+[1] 213.4354
+
+$rsq.per.response
+[1] 0.9736697
+
+$gcv.per.response
+[1] 11.48697
+
+$grsq.per.response
+[1] 0.958859
+
+$rss.per.subset
+[1] 8106.0839  748.0006  346.6381  213.4354  187.4676
+
+$gcv.per.subset
+[1] 279.20956  29.57656  15.89613  11.48697  12.00722
+
+$coefficients
+               trees[,3]
+(Intercept)   23.2082436
+h(Girth-12.9)  5.7459616
+h(12.9-Girth) -2.8664516
+h(Height-76)   0.7183364
+
+$penalty
+[1] 2
+
+$call
+earth(x = trees[, -3], y = trees[, 3], trace = 0.5, nfold = 3)
+
+$namesx.org
+[1] "Girth"  "Height"
+
+$namesx
+[1] "Girth"  "Height"
+
+$cv.list
+$cv.list[[1]]
+Selected 2 of 3 terms, and 1 of 2 predictors 
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 21.11046    RSS 305.0461    GRSq 0.9330548    RSq 0.9464068
+
+$cv.list[[2]]
+Selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 23.08273    RSS 281.3894    GRSq 0.9333423    RSq 0.957339
+
+$cv.list[[3]]
+Selected 3 of 3 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 19.03958    RSS 232.1016    GRSq 0.9052593    RSq 0.939366
+
+
+$cv.nterms
+  fold 1   fold 2   fold 3     mean 
+2.000000 3.000000 3.000000 2.666667 
+
+$cv.nvars
+  fold 1   fold 2   fold 3     mean 
+1.000000 2.000000 2.000000 1.666667 
+
+$cv.rsq.tab
+       trees[,3]      mean
+fold 1 0.9120121 0.9120121
+fold 2 0.8980638 0.8980638
+fold 3 0.9492847 0.9492847
+mean   0.9197869 0.9197869
+
+$cv.maxerr.tab
+       trees[,3]       max
+fold 1 -9.209696 -9.209696
+fold 2 -8.030428 -8.030428
+fold 3 11.800427 11.800427
+max    11.800427 11.800427
+
+$cv.groups
+ [1] 3 1 2 3 1 2 3 3 2 3 2 3 1 3 2 3 2 2 1 1 1 1 2 2 1 1 2 3 1 1 3
+
+attr(,"class")
+[1] "earth"
+-------------------------------------------------------------------------------
+
 > 
 > cat("a1: trees with trace enabled\n\n")
 a1: trees with trace enabled
