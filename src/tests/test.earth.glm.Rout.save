@@ -52,6 +52,19 @@ Loading required package: leaps
 +     cat("-------------------------------------------------------------------------------\n\n")
 + }
 > 
+> # print contents of earth.model, for sanity checking that all fields are present as usual
+> # but strip big fields to reduce amount of printing
+> 
+> print.stripped.earth.model <- function(a, model.name)
++ {
++     a$bx <- NULL
++     a$fitted.values <- NULL
++     a$residuals <- NULL
++     cat("print.stripped.earth.model(", model.name, ")\n", sep="")
++     print.default(a)
++     cat("-------------------------------------------------------------------------------\n\n")
++ }
+> 
 > # binomial models
 > 
 > ldose  <- rep(0:5, 2) - 2
@@ -683,6 +696,145 @@ sexmale:ldose-unused   3    0        0   0.000000 1   0.000000 1
 plotmo a4 
 -------------------------------------------------------------------------------
 
+> print.stripped.earth.model(a4, "a4")
+print.stripped.earth.model(a4)
+$dirs
+                    sexmale ldose sexmale:ldose
+(Intercept)               0     0             0
+h(ldose--2)               0     1             0
+sexmale                   1     0             0
+h(sexmale:ldose--2)       0     0             1
+
+$cuts
+                    sexmale ldose sexmale:ldose
+(Intercept)               0     0             0
+h(ldose--2)               0    -2             0
+sexmale                   0     0             0
+h(sexmale:ldose--2)       0     0            -2
+
+$selected.terms
+[1] 1 2 3
+
+$prune.terms
+     [,1] [,2] [,3] [,4]
+[1,]    1    0    0    0
+[2,]    1    2    0    0
+[3,]    1    2    3    0
+[4,]    1    2    3    4
+
+$rss
+[1] 25.17857
+
+$rsq
+[1] 0.9754096
+
+$gcv
+[1] 6.166181
+
+$grsq
+[1] 0.9392766
+
+$rss.per.response
+[1]  9.70238 15.47619
+
+$rsq.per.response
+[1] 0.9807588 0.9702190
+
+$gcv.per.response
+[1] 2.376093 3.790087
+
+$grsq.per.response
+[1] 0.9524860 0.9264592
+
+$rss.per.subset
+[1] 1023.91667   76.59524   25.17857   16.51429
+
+$gcv.per.subset
+[1] 101.545455  11.347443   6.166181   7.926857
+
+$coefficients
+              numdead   numdead2
+(Intercept) -1.440476 -0.7857143
+h(ldose--2)  3.642857  3.7142857
+sexmale      3.166667  2.6666667
+
+$penalty
+[1] 2
+
+$glm.list
+$glm.list[[1]]
+
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+
+Coefficients:
+  (Intercept)  `h(ldose--2)`        sexmale  
+       -3.473          1.064          1.101  
+
+Degrees of Freedom: 11 Total (i.e. Null);  9 Residual
+Null Deviance:	    124.9 
+Residual Deviance: 6.757 	AIC: 42.87 
+
+$glm.list[[2]]
+
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+
+Coefficients:
+  (Intercept)  `h(ldose--2)`        sexmale  
+      -3.2141         1.0760         0.9312  
+
+Degrees of Freedom: 11 Total (i.e. Null);  9 Residual
+Null Deviance:	    128 
+Residual Deviance: 8.572 	AIC: 44.6 
+
+
+$glm.coefficients
+              numdead   numdead2
+(Intercept) -3.473155 -3.2140605
+h(ldose--2)  1.064214  1.0759950
+sexmale      1.100743  0.9311515
+
+$glm.bpairs
+[1]  TRUE FALSE  TRUE FALSE
+
+$namesx.org
+[1] "sex"   "ldose"
+
+$namesx
+[1] "sex"   "ldose"
+
+$terms
+SF.both ~ sex * ldose
+attr(,"variables")
+list(SF.both, sex, ldose)
+attr(,"factors")
+        sex ldose sex:ldose
+SF.both   0     0         0
+sex       1     0         1
+ldose     0     1         1
+attr(,"term.labels")
+[1] "sex"       "ldose"     "sex:ldose"
+attr(,"order")
+[1] 1 1 2
+attr(,"intercept")
+[1] 1
+attr(,"response")
+[1] 1
+attr(,".Environment")
+<environment: R_GlobalEnv>
+attr(,"predvars")
+list(SF.both, sex, ldose)
+attr(,"dataClasses")
+    SF.both         sex       ldose 
+"nmatrix.4"    "factor"   "numeric" 
+
+$call
+earth(formula = SF.both ~ sex * ldose, glm = list(family = "binomial"), 
+    trace = 1)
+
+attr(,"class")
+[1] "earth"
+-------------------------------------------------------------------------------
+
 > # repeat with bpairs arg
 > a4a <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=1)
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
@@ -906,6 +1058,248 @@ Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
 
+> printh(a5$levels)
+=== a5$levels
+[1] "1st" "2nd" "3rd"
+> print.stripped.earth.model(a5, "a5")
+print.stripped.earth.model(a5)
+$dirs
+                      survived sexmale age sibsp parch
+(Intercept)                  0       0   0     0     0
+h(age-26)                    0       0   1     0     0
+h(26-age)                    0       0  -1     0     0
+survived                     1       0   0     0     0
+h(sibsp-1)                   0       0   0     1     0
+h(1-sibsp)                   0       0   0    -1     0
+h(parch-2)                   0       0   0     0     1
+h(2-parch)                   0       0   0     0    -1
+survived*h(age-16)           1       0   1     0     0
+survived*h(16-age)           1       0  -1     0     0
+survived*sexmale             1       1   0     0     0
+sexmale                      0       1   0     0     0
+h(age-55)*h(2-parch)         0       0   1     0    -1
+h(55-age)*h(2-parch)         0       0  -1     0    -1
+h(1-sibsp)*h(parch-1)        0       0   0    -1     1
+h(1-sibsp)*h(1-parch)        0       0   0    -1    -1
+h(age-54)                    0       0   1     0     0
+
+$cuts
+                      survived sexmale age sibsp parch
+(Intercept)                  0       0   0     0     0
+h(age-26)                    0       0  26     0     0
+h(26-age)                    0       0  26     0     0
+survived                     0       0   0     0     0
+h(sibsp-1)                   0       0   0     1     0
+h(1-sibsp)                   0       0   0     1     0
+h(parch-2)                   0       0   0     0     2
+h(2-parch)                   0       0   0     0     2
+survived*h(age-16)           0       0  16     0     0
+survived*h(16-age)           0       0  16     0     0
+survived*sexmale             0       0   0     0     0
+sexmale                      0       0   0     0     0
+h(age-55)*h(2-parch)         0       0  55     0     2
+h(55-age)*h(2-parch)         0       0  55     0     2
+h(1-sibsp)*h(parch-1)        0       0   0     1     1
+h(1-sibsp)*h(1-parch)        0       0   0     1     1
+h(age-54)                    0       0  54     0     0
+
+$selected.terms
+[1]  1  4  5  8 10 11 12 14 16
+
+$prune.terms
+      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+ [1,]    1    0    0    0    0    0    0    0    0     0     0     0     0
+ [2,]    1   14    0    0    0    0    0    0    0     0     0     0     0
+ [3,]    1    4   14    0    0    0    0    0    0     0     0     0     0
+ [4,]    1    4    8   14    0    0    0    0    0     0     0     0     0
+ [5,]    1    4    8   14   16    0    0    0    0     0     0     0     0
+ [6,]    1    4    8   11   14   16    0    0    0     0     0     0     0
+ [7,]    1    4    8   11   12   14   16    0    0     0     0     0     0
+ [8,]    1    4    5    8   11   12   14   16    0     0     0     0     0
+ [9,]    1    4    5    8   10   11   12   14   16     0     0     0     0
+[10,]    1    4    5    8   10   11   12   14   16    17     0     0     0
+[11,]    1    4    5    8   10   11   12   13   14    16    17     0     0
+[12,]    1    4    5    7    8   10   11   12   13    14    16    17     0
+[13,]    1    3    4    5    7    8   10   11   12    13    14    16    17
+[14,]    1    3    4    5    7    8    9   10   11    12    13    14    16
+[15,]    1    3    4    5    6    7    8    9   10    11    12    13    14
+[16,]    1    3    4    5    6    7    8    9   10    11    12    13    14
+[17,]    1    2    3    4    5    6    7    8    9    10    11    12    13
+      [,14] [,15] [,16] [,17]
+ [1,]     0     0     0     0
+ [2,]     0     0     0     0
+ [3,]     0     0     0     0
+ [4,]     0     0     0     0
+ [5,]     0     0     0     0
+ [6,]     0     0     0     0
+ [7,]     0     0     0     0
+ [8,]     0     0     0     0
+ [9,]     0     0     0     0
+[10,]     0     0     0     0
+[11,]     0     0     0     0
+[12,]     0     0     0     0
+[13,]     0     0     0     0
+[14,]    17     0     0     0
+[15,]    16    17     0     0
+[16,]    15    16    17     0
+[17,]    14    15    16    17
+
+$rss
+[1] 526.7293
+
+$rsq
+[1] 0.2064977
+
+$gcv
+[1] 0.5244105
+
+$grsq
+[1] 0.1752296
+
+$rss.per.response
+[1] 148.5253 187.8072 190.3968
+
+$rsq.per.response
+[1] 0.28210854 0.04118751 0.27061448
+
+$gcv.per.response
+[1] 0.1478715 0.1869804 0.1895587
+
+$grsq.per.response
+[1] 0.253819943 0.003405389 0.241872961
+
+$rss.per.subset
+ [1] 663.8031 618.3144 587.1155 558.2529 550.5473 546.0083 539.0533 532.1400
+ [9] 526.7293 526.1097 522.0963 519.3960 516.5436 515.0676 514.2161 513.5054
+[17] 513.3259
+
+$gcv.per.subset
+ [1] 0.6358261 0.5950986 0.5677911 0.5424834 0.5375831 0.5357360 0.5314825
+ [8] 0.5272225 0.5244105 0.5263582 0.5249065 0.5247609 0.5244530 0.5255400
+[15] 0.5272719 0.5291595 0.5316095
+
+$coefficients
+                               1st           2nd          3rd
+(Intercept)            0.139677983  0.1382163301  0.722105687
+survived               0.351855854  0.1602346217 -0.512090476
+h(sibsp-1)            -0.047958497 -0.0675639271  0.115522424
+h(2-parch)             0.217333399  0.0094234505 -0.226756850
+survived*h(16-age)    -0.023258457  0.0186856516  0.004572806
+survived*sexmale      -0.095932289 -0.3032702269  0.399202516
+sexmale                0.109367428  0.1365288369 -0.245896265
+h(55-age)*h(2-parch)  -0.007847314  0.0000355992  0.007811715
+h(1-sibsp)*h(1-parch) -0.162393009 -0.0328783910  0.195271400
+
+$penalty
+[1] 3
+
+$glm.list
+$glm.list[[1]]
+
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+
+Coefficients:
+            (Intercept)                 survived             `h(sibsp-1)`  
+               -2.66307                  2.84789                 -0.52880  
+           `h(2-parch)`     `survived*h(16-age)`       `survived*sexmale`  
+                1.25519                 -0.17825                 -1.25498  
+                sexmale   `h(55-age)*h(2-parch)`  `h(1-sibsp)*h(1-parch)`  
+                1.42483                 -0.04946                 -1.02163  
+
+Degrees of Freedom: 1045 Total (i.e. Null);  1037 Residual
+Null Deviance:	    1223 
+Residual Deviance: 894.8 	AIC: 912.8 
+
+$glm.list[[2]]
+
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+
+Coefficients:
+            (Intercept)                 survived             `h(sibsp-1)`  
+             -1.9313615                1.0641827               -0.6492895  
+           `h(2-parch)`     `survived*h(16-age)`       `survived*sexmale`  
+              0.0653459                0.0939009               -1.9509922  
+                sexmale   `h(55-age)*h(2-parch)`  `h(1-sibsp)*h(1-parch)`  
+              0.9659886                0.0004374               -0.2190244  
+
+Degrees of Freedom: 1045 Total (i.e. Null);  1037 Residual
+Null Deviance:	    1175 
+Residual Deviance: 1127 	AIC: 1145 
+
+$glm.list[[3]]
+
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+
+Coefficients:
+            (Intercept)                 survived             `h(sibsp-1)`  
+                1.37993                 -2.84379                  0.79975  
+           `h(2-parch)`     `survived*h(16-age)`       `survived*sexmale`  
+               -1.29856                  0.02012                  2.28554  
+                sexmale   `h(55-age)*h(2-parch)`  `h(1-sibsp)*h(1-parch)`  
+               -1.45240                  0.04146                  1.12491  
+
+Degrees of Freedom: 1045 Total (i.e. Null);  1037 Residual
+Null Deviance:	    1448 
+Residual Deviance: 1119 	AIC: 1137 
+
+
+$glm.coefficients
+                              1st          2nd         3rd
+(Intercept)           -2.66307135 -1.931361472  1.37992944
+survived               2.84788552  1.064182711 -2.84378575
+h(sibsp-1)            -0.52879762 -0.649289486  0.79974678
+h(2-parch)             1.25518755  0.065345867 -1.29855706
+survived*h(16-age)    -0.17824991  0.093900852  0.02011681
+survived*sexmale      -1.25498201 -1.950992216  2.28554497
+sexmale                1.42483431  0.965988623 -1.45239590
+h(55-age)*h(2-parch)  -0.04946408  0.000437374  0.04146455
+h(1-sibsp)*h(1-parch) -1.02162885 -0.219024356  1.12490799
+
+$namesx.org
+[1] "survived" "sex"      "age"      "sibsp"    "parch"   
+
+$namesx
+[1] "survived" "sex"      "age"      "sibsp"    "parch"   
+
+$levels
+[1] "1st" "2nd" "3rd"
+
+$terms
+pclass ~ survived + sex + age + sibsp + parch
+attr(,"variables")
+list(pclass, survived, sex, age, sibsp, parch)
+attr(,"factors")
+         survived sex age sibsp parch
+pclass          0   0   0     0     0
+survived        1   0   0     0     0
+sex             0   1   0     0     0
+age             0   0   1     0     0
+sibsp           0   0   0     1     0
+parch           0   0   0     0     1
+attr(,"term.labels")
+[1] "survived" "sex"      "age"      "sibsp"    "parch"   
+attr(,"order")
+[1] 1 1 1 1 1
+attr(,"intercept")
+[1] 1
+attr(,"response")
+[1] 1
+attr(,".Environment")
+<environment: R_GlobalEnv>
+attr(,"predvars")
+list(pclass, survived, sex, age, sibsp, parch)
+attr(,"dataClasses")
+   pclass  survived       sex       age     sibsp     parch 
+ "factor" "numeric"  "factor" "numeric" "numeric" "numeric" 
+
+$call
+earth(formula = pclass ~ ., data = etitanic, glm = list(family = "binomial"), 
+    trace = 0, degree = 2)
+
+attr(,"class")
+[1] "earth"
+-------------------------------------------------------------------------------
+
 > 
 > a5d <- earth(pclass ~ .-age, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 > a5update <- update(a5, form=pclass ~ .-age)
@@ -1046,6 +1440,220 @@ Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
 
+> printh(a6$levels) # expect levels to be NULL
+=== a6$levels
+[1] FALSE  TRUE
+> print.stripped.earth.model(a6, "a6")
+print.stripped.earth.model(a6)
+$dirs
+                      survived sexmale age sibsp parch
+(Intercept)                  0       0   0     0     0
+h(age-26)                    0       0   1     0     0
+h(26-age)                    0       0  -1     0     0
+survived                     1       0   0     0     0
+survived*h(age-51)           1       0   1     0     0
+survived*h(51-age)           1       0  -1     0     0
+h(parch-2)                   0       0   0     0     1
+h(2-parch)                   0       0   0     0    -1
+h(age-26)*h(sibsp-2)         0       0   1     1     0
+h(age-26)*h(2-sibsp)         0       0   1    -1     0
+h(sibsp-1)*h(2-parch)        0       0   0     1    -1
+h(1-sibsp)*h(2-parch)        0       0   0    -1    -1
+sexmale*h(age-26)            0       1   1     0     0
+h(age-55)*h(2-parch)         0       0   1     0    -1
+h(55-age)*h(2-parch)         0       0  -1     0    -1
+h(age-54)                    0       0   1     0     0
+h(age-17)                    0       0   1     0     0
+
+$cuts
+                      survived sexmale age sibsp parch
+(Intercept)                  0       0   0     0     0
+h(age-26)                    0       0  26     0     0
+h(26-age)                    0       0  26     0     0
+survived                     0       0   0     0     0
+survived*h(age-51)           0       0  51     0     0
+survived*h(51-age)           0       0  51     0     0
+h(parch-2)                   0       0   0     0     2
+h(2-parch)                   0       0   0     0     2
+h(age-26)*h(sibsp-2)         0       0  26     2     0
+h(age-26)*h(2-sibsp)         0       0  26     2     0
+h(sibsp-1)*h(2-parch)        0       0   0     1     2
+h(1-sibsp)*h(2-parch)        0       0   0     1     2
+sexmale*h(age-26)            0       0  26     0     0
+h(age-55)*h(2-parch)         0       0  55     0     2
+h(55-age)*h(2-parch)         0       0  55     0     2
+h(age-54)                    0       0  54     0     0
+h(age-17)                    0       0  17     0     0
+
+$selected.terms
+ [1]  1  4  6  8 11 12 13 14 15 16
+
+$prune.terms
+      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+ [1,]    1    0    0    0    0    0    0    0    0     0     0     0     0
+ [2,]    1    2    0    0    0    0    0    0    0     0     0     0     0
+ [3,]    1    2    4    0    0    0    0    0    0     0     0     0     0
+ [4,]    1    2    4    6    0    0    0    0    0     0     0     0     0
+ [5,]    1    2    3    4    6    0    0    0    0     0     0     0     0
+ [6,]    1    4    6    8   12   13    0    0    0     0     0     0     0
+ [7,]    1    4    6    8   14   15   16    0    0     0     0     0     0
+ [8,]    1    4    6    8   12   14   15   16    0     0     0     0     0
+ [9,]    1    4    6    8   12   13   14   15   16     0     0     0     0
+[10,]    1    4    6    8   11   12   13   14   15    16     0     0     0
+[11,]    1    4    6    8   11   12   13   14   15    16    17     0     0
+[12,]    1    2    4    6    8   11   12   13   14    15    16    17     0
+[13,]    1    2    3    4    6    8   11   12   13    14    15    16    17
+[14,]    1    2    3    4    6    7    8   11   12    13    14    15    16
+[15,]    1    2    3    4    6    7    8   10   11    12    13    14    15
+[16,]    1    2    3    4    6    7    8    9   10    11    12    13    14
+[17,]    1    2    3    4    5    6    7    8    9    10    11    12    13
+      [,14] [,15] [,16] [,17]
+ [1,]     0     0     0     0
+ [2,]     0     0     0     0
+ [3,]     0     0     0     0
+ [4,]     0     0     0     0
+ [5,]     0     0     0     0
+ [6,]     0     0     0     0
+ [7,]     0     0     0     0
+ [8,]     0     0     0     0
+ [9,]     0     0     0     0
+[10,]     0     0     0     0
+[11,]     0     0     0     0
+[12,]     0     0     0     0
+[13,]     0     0     0     0
+[14,]    17     0     0     0
+[15,]    16    17     0     0
+[16,]    15    16    17     0
+[17,]    14    15    16    17
+
+$rss
+[1] 146.0441
+
+$rsq
+[1] 0.2941013
+
+$gcv
+[1] 0.1461131
+
+$grsq
+[1] 0.2626931
+
+$rss.per.response
+[1] 146.0441
+
+$rsq.per.response
+[1] 0.2941013
+
+$gcv.per.response
+[1] 0.1461131
+
+$grsq.per.response
+[1] 0.2626931
+
+$rss.per.subset
+ [1] 206.8910 173.4973 156.0461 152.9408 152.6654 151.1495 149.8386 148.0161
+ [9] 146.8058 146.0441 145.8513 145.6449 145.1884 144.6296 144.3070 144.1910
+[17] 144.1905
+
+$gcv.per.subset
+ [1] 0.1981713 0.1669830 0.1509100 0.1486205 0.1490704 0.1483059 0.1477342
+ [8] 0.1466483 0.1461596 0.1461131 0.1466364 0.1471493 0.1474115 0.1475702
+[15] 0.1479709 0.1485866 0.1493263
+
+$coefficients
+                           pclass1
+(Intercept)            0.130384980
+survived               0.474359984
+survived*h(51-age)    -0.008835517
+h(2-parch)             0.157779506
+h(sibsp-1)*h(2-parch) -0.060166349
+h(1-sibsp)*h(2-parch) -0.068500969
+sexmale*h(age-26)      0.006566997
+h(age-55)*h(2-parch)  -0.038910867
+h(55-age)*h(2-parch)  -0.004491528
+h(age-54)              0.064255122
+
+$penalty
+[1] 3
+
+$glm.list
+$glm.list[[1]]
+
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+
+Coefficients:
+            (Intercept)                 survived     `survived*h(51-age)`  
+               -2.15484                  2.45709                 -0.03086  
+           `h(2-parch)`  `h(sibsp-1)*h(2-parch)`  `h(1-sibsp)*h(2-parch)`  
+                1.14841                 -0.75862                 -0.44868  
+    `sexmale*h(age-26)`   `h(age-55)*h(2-parch)`   `h(55-age)*h(2-parch)`  
+                0.03606                 -0.28939                 -0.03470  
+            `h(age-54)`  
+                0.46637  
+
+Degrees of Freedom: 1045 Total (i.e. Null);  1036 Residual
+Null Deviance:	    1223 
+Residual Deviance: 898.9 	AIC: 918.9 
+
+
+$glm.coefficients
+                          pclass1
+(Intercept)           -2.15483815
+survived               2.45709243
+survived*h(51-age)    -0.03085682
+h(2-parch)             1.14840644
+h(sibsp-1)*h(2-parch) -0.75862068
+h(1-sibsp)*h(2-parch) -0.44868361
+sexmale*h(age-26)      0.03606179
+h(age-55)*h(2-parch)  -0.28939382
+h(55-age)*h(2-parch)  -0.03469689
+h(age-54)              0.46637043
+
+$namesx.org
+[1] "survived" "sex"      "age"      "sibsp"    "parch"   
+
+$namesx
+[1] "survived" "sex"      "age"      "sibsp"    "parch"   
+
+$levels
+[1] FALSE  TRUE
+
+$terms
+pclass1 ~ survived + sex + age + sibsp + parch
+attr(,"variables")
+list(pclass1, survived, sex, age, sibsp, parch)
+attr(,"factors")
+         survived sex age sibsp parch
+pclass1         0   0   0     0     0
+survived        1   0   0     0     0
+sex             0   1   0     0     0
+age             0   0   1     0     0
+sibsp           0   0   0     1     0
+parch           0   0   0     0     1
+attr(,"term.labels")
+[1] "survived" "sex"      "age"      "sibsp"    "parch"   
+attr(,"order")
+[1] 1 1 1 1 1
+attr(,"intercept")
+[1] 1
+attr(,"response")
+[1] 1
+attr(,".Environment")
+<environment: R_GlobalEnv>
+attr(,"predvars")
+list(pclass1, survived, sex, age, sibsp, parch)
+attr(,"dataClasses")
+  pclass1  survived       sex       age     sibsp     parch 
+"logical" "numeric"  "factor" "numeric" "numeric" "numeric" 
+
+$call
+earth(formula = pclass1 ~ ., data = etitanic[, -1], glm = list(family = "binomial"), 
+    trace = 1, degree = 2)
+
+attr(,"class")
+[1] "earth"
+-------------------------------------------------------------------------------
+
 > 
 > # titanic data, one response which is a two level factor
 > cat("a7: titanic data, one response which is a two level factor\n\n")
@@ -1177,6 +1785,211 @@ Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
 -------------------------------------------------------------------------------
 
+> printh(a7$levels)
+=== a7$levels
+[1] "female" "male"  
+> print.stripped.earth.model(a7, "a7")
+print.stripped.earth.model(a7)
+$dirs
+                      pclass2nd pclass3rd survived age sibsp parch
+(Intercept)                   0         0        0   0     0     0
+survived                      0         0        1   0     0     0
+h(parch-3)                    0         0        0   0     0     1
+h(3-parch)                    0         0        0   0     0    -1
+survived*h(age-16)            0         0        1   1     0     0
+survived*h(16-age)            0         0        1  -1     0     0
+h(age-25)*h(3-parch)          0         0        0   1     0    -1
+h(25-age)*h(3-parch)          0         0        0  -1     0    -1
+pclass3rd*survived            0         1        1   0     0     0
+h(sibsp-2)*h(3-parch)         0         0        0   0     1    -1
+h(2-sibsp)*h(3-parch)         0         0        0   0    -1    -1
+pclass3rd                     0         1        0   0     0     0
+pclass3rd*h(3-parch)          0         1        0   0     0    -1
+pclass2nd*survived            1         0        1   0     0     0
+survived*h(age-26)            0         0        1   1     0     0
+
+$cuts
+                      pclass2nd pclass3rd survived age sibsp parch
+(Intercept)                   0         0        0   0     0     0
+survived                      0         0        0   0     0     0
+h(parch-3)                    0         0        0   0     0     3
+h(3-parch)                    0         0        0   0     0     3
+survived*h(age-16)            0         0        0  16     0     0
+survived*h(16-age)            0         0        0  16     0     0
+h(age-25)*h(3-parch)          0         0        0  25     0     3
+h(25-age)*h(3-parch)          0         0        0  25     0     3
+pclass3rd*survived            0         0        0   0     0     0
+h(sibsp-2)*h(3-parch)         0         0        0   0     2     3
+h(2-sibsp)*h(3-parch)         0         0        0   0     2     3
+pclass3rd                     0         0        0   0     0     0
+pclass3rd*h(3-parch)          0         0        0   0     0     3
+pclass2nd*survived            0         0        0   0     0     0
+survived*h(age-26)            0         0        0  26     0     0
+
+$selected.terms
+ [1]  1  2  6  8  9 10 11 12 13 14
+
+$prune.terms
+      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+ [1,]    1    0    0    0    0    0    0    0    0     0     0     0     0
+ [2,]    1    2    0    0    0    0    0    0    0     0     0     0     0
+ [3,]    1    2    9    0    0    0    0    0    0     0     0     0     0
+ [4,]    1    2    9   12    0    0    0    0    0     0     0     0     0
+ [5,]    1    2    9   12   13    0    0    0    0     0     0     0     0
+ [6,]    1    2    6    9   12   13    0    0    0     0     0     0     0
+ [7,]    1    2    6    9   11   12   13    0    0     0     0     0     0
+ [8,]    1    2    6    9   10   11   12   13    0     0     0     0     0
+ [9,]    1    2    6    8    9   10   11   12   13     0     0     0     0
+[10,]    1    2    6    8    9   10   11   12   13    14     0     0     0
+[11,]    1    2    6    8    9   10   11   12   13    14    15     0     0
+[12,]    1    2    5    6    8    9   10   11   12    13    14    15     0
+[13,]    1    2    3    5    6    8    9   10   11    12    13    14    15
+[14,]    1    2    3    5    6    7    8    9   10    11    12    13    14
+[15,]    1    2    3    4    5    6    7    8    9    10    11    12    13
+      [,14] [,15]
+ [1,]     0     0
+ [2,]     0     0
+ [3,]     0     0
+ [4,]     0     0
+ [5,]     0     0
+ [6,]     0     0
+ [7,]     0     0
+ [8,]     0     0
+ [9,]     0     0
+[10,]     0     0
+[11,]     0     0
+[12,]     0     0
+[13,]     0     0
+[14,]    15     0
+[15,]    14    15
+
+$rss
+[1] 150.7153
+
+$rsq
+[1] 0.3825081
+
+$gcv
+[1] 0.1507864
+
+$grsq
+[1] 0.3550334
+
+$rss.per.response
+[1] 150.7153
+
+$rsq.per.response
+[1] 0.3825081
+
+$gcv.per.response
+[1] 0.1507864
+
+$grsq.per.response
+[1] 0.3550334
+
+$rss.per.subset
+ [1] 244.0765 173.4300 170.0254 166.5886 159.8632 157.4918 155.7449 154.0322
+ [9] 151.9139 150.7153 150.6820 150.1499 149.9420 149.9095 149.9090
+
+$gcv.per.subset
+ [1] 0.2337895 0.1669182 0.1644292 0.1618828 0.1560988 0.1545288 0.1535575
+ [8] 0.1526087 0.1512452 0.1507864 0.1514931 0.1517008 0.1522379 0.1529575
+[15] 0.1537151
+
+$coefficients
+                              male
+(Intercept)            0.806197553
+survived              -0.629369047
+survived*h(16-age)     0.038924307
+h(25-age)*h(3-parch)  -0.005029401
+pclass3rd*survived     0.260644661
+h(sibsp-2)*h(3-parch)  0.106234285
+h(2-sibsp)*h(3-parch)  0.030297604
+pclass3rd             -0.504402612
+pclass3rd*h(3-parch)   0.138022859
+pclass2nd*survived    -0.134325609
+
+$penalty
+[1] 3
+
+$glm.list
+$glm.list[[1]]
+
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+
+Coefficients:
+            (Intercept)                 survived     `survived*h(16-age)`  
+                1.84677                 -3.57039                  0.21120  
+ `h(25-age)*h(3-parch)`     `pclass3rd*survived`  `h(sibsp-2)*h(3-parch)`  
+               -0.02900                  1.67919                  0.59233  
+`h(2-sibsp)*h(3-parch)`                pclass3rd   `pclass3rd*h(3-parch)`  
+                0.21008                 -2.80442                  0.59877  
+   `pclass2nd*survived`  
+               -0.78642  
+
+Degrees of Freedom: 1045 Total (i.e. Null);  1036 Residual
+Null Deviance:	    1380 
+Residual Deviance: 937 	AIC: 957 
+
+
+$glm.coefficients
+                             male
+(Intercept)            1.84676630
+survived              -3.57039128
+survived*h(16-age)     0.21120008
+h(25-age)*h(3-parch)  -0.02899673
+pclass3rd*survived     1.67918799
+h(sibsp-2)*h(3-parch)  0.59233041
+h(2-sibsp)*h(3-parch)  0.21007815
+pclass3rd             -2.80442434
+pclass3rd*h(3-parch)   0.59877169
+pclass2nd*survived    -0.78641561
+
+$namesx.org
+[1] "pclass"   "survived" "age"      "sibsp"    "parch"   
+
+$namesx
+[1] "pclass"   "survived" "age"      "sibsp"    "parch"   
+
+$levels
+[1] "female" "male"  
+
+$terms
+sex ~ pclass + survived + age + sibsp + parch
+attr(,"variables")
+list(sex, pclass, survived, age, sibsp, parch)
+attr(,"factors")
+         pclass survived age sibsp parch
+sex           0        0   0     0     0
+pclass        1        0   0     0     0
+survived      0        1   0     0     0
+age           0        0   1     0     0
+sibsp         0        0   0     1     0
+parch         0        0   0     0     1
+attr(,"term.labels")
+[1] "pclass"   "survived" "age"      "sibsp"    "parch"   
+attr(,"order")
+[1] 1 1 1 1 1
+attr(,"intercept")
+[1] 1
+attr(,"response")
+[1] 1
+attr(,".Environment")
+<environment: R_GlobalEnv>
+attr(,"predvars")
+list(sex, pclass, survived, age, sibsp, parch)
+attr(,"dataClasses")
+      sex    pclass  survived       age     sibsp     parch 
+ "factor"  "factor" "numeric" "numeric" "numeric" "numeric" 
+
+$call
+earth(formula = sex ~ ., data = etitanic, glm = list(family = "binomial"), 
+    trace = 1, degree = 2)
+
+attr(,"class")
+[1] "earth"
+-------------------------------------------------------------------------------
+
 > 
 > a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 > a7dupdate <- update(a7, form=sex ~ .-pclass)
@@ -1191,6 +2004,9 @@ After backward pass GRSq 0.333 RSq 0.352
 GLM male: null.deviance 1379.574 (1045 dof)   deviance 977.9563 (1039 dof)   iters 4
 > check.models.equal(a7dupdate, a7d, msg="a7update a7d")
 check.models.equal not identical: a7update a7d [but within numerical tolerances]
+> printh(a7d$levels)
+=== a7d$levels
+[1] "female" "male"  
 > 
 > a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
 > a7dupdate <- update(a7, form=sex ~ .-pclass)
@@ -5450,15 +6266,15 @@ predict.earth: returning glm fitted.values
 c1a fitted values, type=default link, keepxy=0 OK
 > c1a.predict <- predict(c1a, type="link", trace=1)
 predict.earth: returning glm fitted.values
-> c1ag.predict <- predict(c1ag, type="link", trace=1)
+> c1ag.predict <- predict(c1ag, type="li", trace=1)
 > check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=link, keepxy=0", verbose=TRUE)
 c1a fitted values, type=link, keepxy=0 OK
 > c1a.predict <- predict(c1a, type="response", trace=1)
 predict.earth: returning glm fitted.values
-> c1ag.predict <- predict(c1ag, type="response", trace=1)
+> c1ag.predict <- predict(c1ag, type="resp", trace=1)
 > check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=response, keepxy=0", verbose=TRUE)
 c1a fitted values, type=response, keepxy=0 OK
-> c1a.predict <- predict(c1a, type="earth", trace=1)
+> c1a.predict <- predict(c1a, type="e", trace=1)
 predict.earth: returning earth (not glm) fitted.values 
 > c1ae.predict <- predict(c1ae, trace=1)
 predict.earth: returning earth fitted.values 
@@ -5516,7 +6332,7 @@ predict.earth: returning glm link predictions
 > check.fuzzy.equal(c1b.link.predict, c1b.predict, fuzz=1e-10, msg="c1b link", verbose=TRUE)
 c1b link OK
 > 
-> c1b.predict <- predict(c1b, newdata, type="response")
+> c1b.predict <- predict(c1b, newdata, type="r")
 > stopifnot(dim(c1b.predict) == c(1,1))
 > check.fuzzy.equal(c1b.predict, predict(c1bg, newdata, type="response"), fuzz=1e-10, msg="c1b type=response", verbose=TRUE)
 c1b type=response OK
@@ -5738,6 +6554,10 @@ predict.earth: returning earth fitted.values
 > check.fuzzy.equal(c3a.predict, c3ae.predict, fuzz=1e-10, msg="c3a fitted values, type=earth, keepxy=0", verbose=TRUE)
 c3a fitted values, type=earth, keepxy=0 OK
 > 
+> c3a.response.predict <- predict(c3a, type="response")
+> c3a.class.predict <- predict(c3a,type="class")
+> stopifnot(c3a.class.predict == (c3a.response.predict > .5))
+> 
 > cat("c3b: single response glm model with a boolean response, fitted values, keepxy=1\n")
 c3b: single response glm model with a boolean response, fitted values, keepxy=1
 > 
@@ -5776,6 +6596,10 @@ predict.earth: returning earth fitted.values
 > check.fuzzy.equal(c3b.predict, c3be.predict, fuzz=1e-10, msg="c3b fitted values, type=earth, keepxy=0", verbose=TRUE)
 c3b fitted values, type=earth, keepxy=0 OK
 > 
+> c3b.response.predict <- predict(c3b, type="response")
+> c3b.class.predict <- predict(c3b,type="class")
+> stopifnot(c3b.class.predict == (c3b.response.predict > .5))
+> 
 > cat("c3c: single response glm model with a boolean response\n")
 c3c: single response glm model with a boolean response
 > 
@@ -5813,6 +6637,21 @@ c3c multiple rows OK
 > stopifnot(dim(c3c.predict) == c(4,1))
 > check.fuzzy.equal(c3c.predict, predict(c3cg, newdata, type="response"), fuzz=1e-10, msg="c3c multiple rows type=response", verbose=TRUE)
 c3c multiple rows type=response OK
+> 
+> c3c.response.predict <- predict(c3c, type="response")
+> c3c.class.predict <- predict(c3c,type="class")
+> stopifnot(c3c.class.predict == (c3c.response.predict > .5))
+> 
+> cat("c3d: single response glm model with a two level factor response\n")
+c3d: single response glm model with a two level factor response
+> cat("Expect \"did not converge warnings\", it doesn't matter for our purposes here\n")
+Expect "did not converge warnings", it doesn't matter for our purposes here
+> myfac <- gl(2, 3, length=12, labels = c("Control", "Treat"))
+> c3d <-  earth(myfac ~ ldose + sex, data=data1, glm=list(family="binomial"), trace=0, pmethod="none", degree=1)
+Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
+  fitted probabilities numerically 0 or 1 occurred
+> c3d.class.predict <- predict(c3d,type="cl") # we also test here that the type can be abbreviated
+> stopifnot(c3d.class.predict == myfac)
 > 
 > cat("c4: multiple response glm model with a factor response\n")
 c4: multiple response glm model with a factor response

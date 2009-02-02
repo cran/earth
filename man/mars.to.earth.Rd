@@ -17,7 +17,7 @@ mars.to.earth(object)
   with skeletal versions of \code{rss.per.subset},
   \code{gcv.per.subset}, and \code{prune.terms}.\cr
 
-  You can fully initialise these components by calling \code{\link{update.earth}}
+  You can fully initialize these components by calling \code{\link{update.earth}}
   after \code{mars.to.earth}, but if you do this \code{selected.terms} may change.
   However with \code{pmethod="backward"} a change is unlikely ---
   \code{selected.terms} would change only if GCVs are so close that numerical errors

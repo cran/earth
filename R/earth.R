@@ -169,6 +169,11 @@ earth.default <- function(
     env <- parent.frame()
     x <- expand.arg(x, env, FALSE, xname=xname)
     rownames(x) <- possibly.delete.rownames(x)
+    ylevels <- levels(y)          # save levels if any before expanding y
+    if(is.logical(y))
+        ylevels = c(FALSE, TRUE)  # needed for predict.earth(type="class")
+    if(is.logical(y))
+        ylevels = c(FALSE, TRUE)
     y <- expand.arg(y, env, is.y.arg=TRUE, deparse(substitute(y)))
     rownames(y) <- possibly.delete.rownames(y)
 
@@ -178,6 +183,7 @@ earth.default <- function(
     rval$call <- Call
     rval$namesx.org <- namesx.org # name chosen not to alias with rval$x
     rval$namesx <- namesx         # ditto
+    rval$levels <- ylevels
     rval$wp <- wp
     if(keepxy) {
         rval$x <- x.org
@@ -280,6 +286,9 @@ earth.formula <- function(
     # expand factors in y, convert to double matrix, add colnames
 
     y <- model.response(mf, "any")  # "any" means factors are allowed
+    ylevels <- levels(y)            # save levels if any before expanding y
+    if(is.logical(y))
+        ylevels = c(FALSE, TRUE)    # needed for predict.earth(type="class")
     terms. <- attr(mf, "terms")
     yname <- NULL                   # yname=NULL means let expand.arg choose name
     if(is.vector(y)) {
@@ -297,6 +306,7 @@ earth.formula <- function(
 
     rval$namesx.org <- get.namesx(mf)
     rval$namesx <- make.unique(rval$namesx.org)
+    rval$levels <- ylevels
     rval$terms <- terms.
     rval$call <- Call
     rval$wp <- wp
@@ -966,111 +976,6 @@ possibly.delete.rownames <- function(x)
         NULL
     else
         rownames(x)
-}
-
-# predict.earth returns multiple columns for multiple response models
-
-predict.earth <- function(
-    object  = stop("no 'object' arg"),
-    newdata = NULL,
-    type    = c("link", "response", "earth", "terms"),
-                        # "link" and "response" and "earth" are same unless glm model
-                        # "terms" always returns the earth not glm terms
-                        # "terms" returns just the additive terms!
-                        # and just the first response if more than one
-    trace   = FALSE,
-    ...)                # unused
-{
-    print.which <- function(trace, object, msg)
-    {
-        if(trace >= 1)
-            if(is.null(object$glm.list))
-                cat("predict.earth: returning earth", msg, "\n")
-            else
-                cat("predict.earth: returning earth (not glm)", msg, "\n")
-    }
-    get.predicted.response <- function(object, newdata, type)
-    {
-        if(is.null(newdata)) {
-            if(is.null(object$glm.list) || type=="earth") {
-                print.which(trace, object, "fitted.values")
-                return(object$fitted.values)
-            } else {    # glm predictions
-                if(trace >= 1)
-                    cat("predict.earth: returning glm fitted.values\n")
-                rval <- matrix(0, nrow=nrow(object$fitted.values),
-                                  ncol=ncol(object$fitted.values))
-                colnames(rval) <- colnames(object$fitted.values)
-                for(i in 1:length(object$glm.list))
-                    rval[,i] = predict.glm(object$glm.list[[i]], type=type)
-                return(rval)
-            }
-        } else {        # user supplied newdata
-            env <- parent.frame()
-            bx <- model.matrix.earth(object, newdata, env=env,
-                                     trace=trace,
-                                     Callers.name="model.matrix.earth from predict.earth")
-            if(trace >= 1)
-                 print.matrix.info("bx", bx, "predict.earth")
-            if(is.null(object$glm.list) || type=="earth") {
-                print.which(trace, object, "predictions")
-                return(bx %*% object$coefficients)
-            } else {    # glm predictions
-                if(trace >= 1)
-                    cat("predict.earth: returning glm", type, "predictions\n")
-                rval <- matrix(0, nrow=nrow(bx),
-                                  ncol=ncol(object$fitted.values))
-                colnames(rval) <- colnames(object$fitted.values)
-                #TODO should be eval or eval.parent?
-                bx <- eval.parent(bx[,-1, drop=FALSE]) # -1 to drop intercept
-                bx.data.frame <- as.data.frame(bx)
-                for(i in 1:length(object$glm.list)) {
-                    rval[,i] = predict.glm(object$glm.list[[i]],
-                                           newdata=bx.data.frame, type=type)
-                    check.nrows(nrow(bx), nrow(rval),
-                                nrow(object$fitted.values), "predict.earth")
-                }
-                return(rval)
-            }
-        }
-    }
-    # returns just enough for termplot to work
-    get.terms <- function(object, newdata)
-    {
-        if(!is.null(object$glm.list))
-            warning1("predict.earth: returning the earth (not glm) terms")
-        env <- parent.frame()
-        bx <- model.matrix.earth(object, x=newdata, env=env,
-                                 trace=trace, Callers.name="predict.earth")
-        dirs <- object$dirs[object$selected.terms, ]
-        # retain only additive terms
-        additive.terms <- get.degrees.per.term(dirs) == 1
-        bx <- bx[, additive.terms, drop=FALSE]
-        dirs <- dirs[additive.terms, , drop=FALSE]
-        coefs <- object$coefficients[additive.terms, 1, drop=FALSE]
-        additive.preds <- colSums(abs(dirs)) != 0
-        dirs <- dirs[, additive.preds, drop=FALSE]
-        var.names <- variable.names(object, use.names=TRUE)[additive.preds]
-        termMat <- matrix(0, nrow=nrow(bx), ncol=ncol(dirs))
-        colnames(termMat) <- var.names
-        if(ncol(bx) > 1)
-            for(ipred in 1:ncol(dirs))
-                for(iterm in 1:ncol(bx))
-                    if(dirs[iterm, ipred])
-                        termMat[, ipred] = termMat[, ipred] + coefs[iterm] * bx[, iterm]
-
-        termMat
-    }
-    # predict.earth starts here
-
-    check.classname(object, deparse(substitute(object)), "earth")
-    warn.if.dots.used("predict.earth", ...)
-    trace <- check.trace.arg(trace)
-    switch(match.arg1(type),
-        get.predicted.response(object, newdata, "link"),     # "link"
-        get.predicted.response(object, newdata, "response"), # "response"
-        get.predicted.response(object, newdata, "earth"),    # "earth"
-        get.terms(object, newdata))                          # "terms"
 }
 
 print.linpreds <- function(linpreds, x)

@@ -78,8 +78,8 @@ For cross validation, use the \code{nfold} argument.
 %      Default is NULL, meaning no case weights.
 %      If specified, \code{weights} must have length equal to \code{nrow(x)}
 %      before applying \code{subset}.\cr
-% %      You do not need to normalise \code{weights} --- earth does that.
-% %      \code{wp} is normalised so that its elements sum to
+% %      You do not need to normalize \code{weights} --- earth does that.
+% %      \code{wp} is normalized so that its elements sum to
 % %      \code{nrow(x)} and all residuals calculated in the forward and pruning
 % %      pass are weighted by the the corresponding element of \code{weights}.
 % %      Zero values are converted to a small non zero value.
@@ -99,11 +99,11 @@ For cross validation, use the \code{nfold} argument.
 %      Earth uses \code{wp} as follows:
 %      It normalizes \code{wp} as follows \code{wp <- sqrt(wp / mean(wp))}
 %      It multiplies each column of \code{y} by the corresponding
-%      element of the normalised \code{wp}.
+%      element of the normalized \code{wp}.
 %      It runs its internal MARS machine with the modified \code{y}.
 %      Finally, after running the machine it divides each column of
 %      \code{fitted.values}, \code{residuals}, and \code{coefficients} by the
-%      corresponding element of the normalised \code{wp}.
+%      corresponding element of the normalized \code{wp}.
   }
   \item{scale.y}{
     \code{\link[=scale]{Scale}} \code{y} in the forward pass for better numeric stability
@@ -510,6 +510,11 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
   \item{namesx.org}{
      Original column names of \code{x}.
   }
+  \item{levels}{
+     Levels of \code{y} if \code{y} is a \code{\link{factor}}\cr
+     \code{c(FALSE,TRUE)} if \code{y} is \code{\link{logical}}\cr
+     Else NULL
+  }
   \item{wp}{
      Copy of the \code{wp} argument to earth.\cr\cr
   \bold{The following fields appear only if earth's argument \code{keepxy} is TRUE.}
@@ -862,8 +867,8 @@ In distinction, a standard \code{\link[=contrasts]{treatment contrast}}
 in a model with an intercept would have no first "A" column 
 (to prevent linear dependencies on the rhs of the model formula).
 
-This expansion to multiple
-columns means that earth will build a multiple response model
+This expansion to multiple columns (which only happens for factors with more than two levels)
+means that earth will build a multiple response model
 as described in the "Multiple responses" section above.
 
 % [TODO ordered factors should be treated differently?]\cr

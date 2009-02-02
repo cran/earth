@@ -51,6 +51,19 @@ print.earth.models <- function(a)
     cat("-------------------------------------------------------------------------------\n\n")
 }
 
+# print contents of earth.model, for sanity checking that all fields are present as usual
+# but strip big fields to reduce amount of printing
+
+print.stripped.earth.model <- function(a, model.name)
+{
+    a$bx <- NULL
+    a$fitted.values <- NULL
+    a$residuals <- NULL
+    cat("print.stripped.earth.model(", model.name, ")\n", sep="")
+    print.default(a)
+    cat("-------------------------------------------------------------------------------\n\n")
+}
+
 # binomial models
 
 ldose  <- rep(0:5, 2) - 2
@@ -117,6 +130,7 @@ SF.both <- cbind(SF, SF2)
 cat("a4: double response glm model with two binomial paired cols\n\n")
 a4 <-  earth(SF.both ~ sex*ldose, glm=list(family="binomial"), trace=1)
 print.earth.models(a4)
+print.stripped.earth.model(a4, "a4")
 # repeat with bpairs arg
 a4a <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=1)
 stopifnot(identical(a4$glm.list[[1]]$coefficients, a4a$glm.list[[1]]$coefficients))
@@ -136,6 +150,8 @@ check.models.equal(a4update, a4d, msg="a4update a4d no keepxy")
 cat("a5: titanic data, multiple responses (i.e. 3 level factor)\n\n")
 a5 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 print.earth.models(a5)
+printh(a5$levels)
+print.stripped.earth.model(a5, "a5")
 
 a5d <- earth(pclass ~ .-age, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 a5update <- update(a5, form=pclass ~ .-age)
@@ -150,15 +166,20 @@ cat("a6: titanic data, one logical response\n\n")
 pclass1 = (etitanic[,1] == "1st")
 a6 <- earth(pclass1 ~ ., data=etitanic[,-1], degree=2, glm=list(family="binomial"), trace=1)
 print.earth.models(a6)
+printh(a6$levels) # expect levels to be NULL
+print.stripped.earth.model(a6, "a6")
 
 # titanic data, one response which is a two level factor
 cat("a7: titanic data, one response which is a two level factor\n\n")
 a7 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=1)
 print.earth.models(a7)
+printh(a7$levels)
+print.stripped.earth.model(a7, "a7")
 
 a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 a7dupdate <- update(a7, form=sex ~ .-pclass)
 check.models.equal(a7dupdate, a7d, msg="a7update a7d")
+printh(a7d$levels)
 
 a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
 a7dupdate <- update(a7, form=sex ~ .-pclass)
@@ -1020,12 +1041,12 @@ c1a.predict <- predict(c1a, trace=1)
 c1ag.predict <- predict(c1ag, trace=1)
 check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=default link, keepxy=0", verbose=TRUE)
 c1a.predict <- predict(c1a, type="link", trace=1)
-c1ag.predict <- predict(c1ag, type="link", trace=1)
+c1ag.predict <- predict(c1ag, type="li", trace=1)
 check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=link, keepxy=0", verbose=TRUE)
 c1a.predict <- predict(c1a, type="response", trace=1)
-c1ag.predict <- predict(c1ag, type="response", trace=1)
+c1ag.predict <- predict(c1ag, type="resp", trace=1)
 check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=response, keepxy=0", verbose=TRUE)
-c1a.predict <- predict(c1a, type="earth", trace=1)
+c1a.predict <- predict(c1a, type="e", trace=1)
 c1ae.predict <- predict(c1ae, trace=1)
 check.fuzzy.equal(c1a.predict, c1ae.predict, fuzz=1e-10, msg="c1a fitted values, type=earth, keepxy=0", verbose=TRUE)
 
@@ -1042,7 +1063,7 @@ check.fuzzy.equal(c1b.predict, predict(c1bg, newdata), fuzz=1e-10, msg="c1b", ve
 c1b.link.predict <- predict(c1b, newdata, type="link", trace=1) # should be same as above because default is link
 check.fuzzy.equal(c1b.link.predict, c1b.predict, fuzz=1e-10, msg="c1b link", verbose=TRUE)
 
-c1b.predict <- predict(c1b, newdata, type="response")
+c1b.predict <- predict(c1b, newdata, type="r")
 stopifnot(dim(c1b.predict) == c(1,1))
 check.fuzzy.equal(c1b.predict, predict(c1bg, newdata, type="response"), fuzz=1e-10, msg="c1b type=response", verbose=TRUE)
 
@@ -1120,6 +1141,10 @@ c3a.predict <- predict(c3a, type="earth", trace=1)
 c3ae.predict <- predict(c3ae, trace=1)
 check.fuzzy.equal(c3a.predict, c3ae.predict, fuzz=1e-10, msg="c3a fitted values, type=earth, keepxy=0", verbose=TRUE)
 
+c3a.response.predict <- predict(c3a, type="response")
+c3a.class.predict <- predict(c3a,type="class")
+stopifnot(c3a.class.predict == (c3a.response.predict > .5))
+
 cat("c3b: single response glm model with a boolean response, fitted values, keepxy=1\n")
 
 c3b <-  earth(mybool ~ sex + ldose, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=1)
@@ -1138,6 +1163,10 @@ check.fuzzy.equal(c3b.predict, c3bg.predict, fuzz=1e-10, msg="c3b fitted values,
 c3b.predict <- predict(c3b, type="earth", trace=1)
 c3be.predict <- predict(c3be, trace=1)
 check.fuzzy.equal(c3b.predict, c3be.predict, fuzz=1e-10, msg="c3b fitted values, type=earth, keepxy=0", verbose=TRUE)
+
+c3b.response.predict <- predict(c3b, type="response")
+c3b.class.predict <- predict(c3b,type="class")
+stopifnot(c3b.class.predict == (c3b.response.predict > .5))
 
 cat("c3c: single response glm model with a boolean response\n")
 
@@ -1163,6 +1192,17 @@ check.fuzzy.equal(c3c.predict, predict(c3cg, newdata), fuzz=1e-7, msg="c3c multi
 c3c.predict <- predict(c3c, newdata, type="response")
 stopifnot(dim(c3c.predict) == c(4,1))
 check.fuzzy.equal(c3c.predict, predict(c3cg, newdata, type="response"), fuzz=1e-10, msg="c3c multiple rows type=response", verbose=TRUE)
+
+c3c.response.predict <- predict(c3c, type="response")
+c3c.class.predict <- predict(c3c,type="class")
+stopifnot(c3c.class.predict == (c3c.response.predict > .5))
+
+cat("c3d: single response glm model with a two level factor response\n")
+cat("Expect \"did not converge warnings\", it doesn't matter for our purposes here\n")
+myfac <- gl(2, 3, length=12, labels = c("Control", "Treat"))
+c3d <-  earth(myfac ~ ldose + sex, data=data1, glm=list(family="binomial"), trace=0, pmethod="none", degree=1)
+c3d.class.predict <- predict(c3d,type="cl") # we also test here that the type can be abbreviated
+stopifnot(c3d.class.predict == myfac)
 
 cat("c4: multiple response glm model with a factor response\n")
 fac3 <- factor(rep(c("A", "B", "C"), times=c(4,3,5)))

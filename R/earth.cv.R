@@ -37,7 +37,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
         }
     }
     if(any(table(groups) == 0))
-        stop1("Not enough data to do ", nfold, 
+        stop1("Not enough data to do ", nfold,
               " fold cross validation (a CV test set is empty)")
     is.binomial <- is.poisson <- FALSE
     if(!is.null(glm)) {
@@ -62,15 +62,15 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
     rownames(maxerr.tab) <- c(paste("fold ", sprintf(format.string, 1:nfold), sep=""), "max")
 
     # the following remain NULL unless is.binomial or is.poisson
-    deviance.tab <- calib.int.tab <- calib.slope.tab <- test.tab <- NULL 
+    deviance.tab <- calib.int.tab <- calib.slope.tab <- test.tab <- NULL
     if(is.binomial || is.poisson) {
         deviance.tab    <- matrix(0, nrow=nfold+1, ncol=1+nresp) # mean deviance
         calib.int.tab   <- matrix(0, nrow=nfold+1, ncol=1+nresp)
         calib.slope.tab <- matrix(0, nrow=nfold+1, ncol=1+nresp)
         test.tab        <- matrix(0, nrow=nfold+1, ncol=1+nresp) # binomial auc, poisson cor
-        colnames(deviance.tab) <- colnames(calib.int.tab) <- 
+        colnames(deviance.tab) <- colnames(calib.int.tab) <-
             colnames(calib.slope.tab) <- colnames(test.tab) <- augmented.resp.names
-        rownames(deviance.tab) <- rownames(calib.int.tab) <- 
+        rownames(deviance.tab) <- rownames(calib.int.tab) <-
             rownames(calib.slope.tab) <- rownames(test.tab) <- augmented.fold.names
     }
     ilast <- ncol(rsq.tab) # index of final "mean" column in tables
@@ -91,7 +91,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
         ytest <- y[test.subset,,drop=FALSE]
         yhat <- predict(fit, newdata=x[test.subset,,drop=FALSE], type="earth")
         if(is.binomial || is.poisson)
-            response.yhat <- 
+            response.yhat <-
                 predict(fit, newdata=x[test.subset,,drop=FALSE], type="response")
 
         # fill in this fold's row in summary tabs
@@ -100,31 +100,31 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
             rsq.tab[ifold, iresp] <-
                 get.rsq(var(yhat[,iresp] - ytest[,iresp]), var(ytest[,iresp]))
             if(is.binomial) {
-                deviance.tab[ifold, iresp] <- 
+                deviance.tab[ifold, iresp] <-
                     get.binomial.deviance(response.yhat[,iresp], ytest[,iresp])
                 calib <- get.binomial.calib(response.yhat[,iresp], ytest[,iresp])
                 calib.int.tab[ifold, iresp]   <- calib[1]
                 calib.slope.tab[ifold, iresp] <- calib[2]
-                maxerr.tab[ifold, iresp] <- 
+                maxerr.tab[ifold, iresp] <-
                     get.maxerr(ytest[,iresp] - response.yhat[,iresp])
                 test.tab[ifold, iresp] <-
                     get.auc(response.yhat[,iresp], ytest[,iresp])
             }
             else if(is.poisson) {
-                deviance.tab[ifold, iresp] <- 
+                deviance.tab[ifold, iresp] <-
                     get.poisson.deviance(response.yhat[,iresp], ytest[,iresp])
                 calib <- get.poisson.calib(response.yhat[,iresp], ytest[,iresp])
                 calib.int.tab[ifold, iresp]   <- calib[1]
                 calib.slope.tab[ifold, iresp] <- calib[2]
                 maxerr.tab[ifold, iresp] <-
                     get.maxerr(ytest[,iresp] - response.yhat[,iresp])
-                test.tab[ifold, iresp] <- 
+                test.tab[ifold, iresp] <-
                     cor(response.yhat[,iresp], ytest[,iresp])
             }
             else {
-                maxerr.tab[ifold, iresp] <- 
+                maxerr.tab[ifold, iresp] <-
                     get.maxerr(ytest[,iresp] - yhat[,iresp])
-	    	}
+            }
         }
         nvars[ifold] <- get.nused.preds.per.subset(fit$dirs, fit$selected.terms)
         nterms[ifold] <- length(fit$selected.terms)
@@ -170,8 +170,8 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
         trace.fold(-1, trace, y, TRUE, TRUE, ndigits, rsq.tab[ilast,])
         cat("\n")
     }
-    list(rsq.tab=rsq.tab, 
-         maxerr.tab=maxerr.tab, 
+    list(rsq.tab=rsq.tab,
+         maxerr.tab=maxerr.tab,
          deviance.tab=deviance.tab,
          calib.int.tab=calib.int.tab,
          calib.slope.tab=calib.slope.tab,
@@ -253,13 +253,13 @@ get.maxerr <- function(errs) # get signed max absolute err; if matrix then of ea
     if(NCOL(errs) == 1)
         rv <- errs[which.max(abs(errs))]
     else {
-		rv <- double(NCOL(errs))
-		for(icol in 1:NCOL(errs)) {
-			col <- errs[,icol]
-			rv[icol] <- col[which.max(abs(col))]
-		}
-   	}
-	rv
+        rv <- double(NCOL(errs))
+        for(icol in 1:NCOL(errs)) {
+            col <- errs[,icol]
+            rv[icol] <- col[which.max(abs(col))]
+        }
+    }
+    rv
 }
 print.cv <- function(x) # called from print.earth for cross validated models
 {
@@ -267,8 +267,8 @@ print.cv <- function(x) # called from print.earth for cross validated models
     nresp <- NCOL(x$coefficients)
     ilast <- nrow(x$cv.rsq.tab) # index of "mean" row in summary tables
     cat("\n")
-    printf("Cross validation: nterms %.2f sd %.2f  nvars %.2f sd %.2f\n\n", 
-        x$cv.nterms[ilast], sd(x$cv.nterms[-ilast]), 
+    printf("Cross validation: nterms %.2f sd %.2f  nvars %.2f sd %.2f\n\n",
+        x$cv.nterms[ilast], sd(x$cv.nterms[-ilast]),
         x$cv.nvars[ilast], sd(x$cv.nvars[-ilast]))
 
     # is.binomial is true if x is a cross-validated binomial model
@@ -280,7 +280,7 @@ print.cv <- function(x) # called from print.earth for cross validated models
     tab <- matrix(0, ncol=4 + (is.binomial || is.poisson) * 8, nrow=nresp+1)
     colnames. <- c("CV-RSq", "sd")
     if(is.binomial || is.poisson)
-        colnames. <- c(colnames., "MeanDev", "sd", 
+        colnames. <- c(colnames., "MeanDev", "sd",
                                   "CalibInt", "sd", "CalibSlope", "sd")
     if(is.binomial)
         colnames. <- c(colnames., "AUC", "sd")
