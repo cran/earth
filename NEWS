@@ -1,6 +1,14 @@
 Changes to Earth Package
 ------------------------
 
+2.3-0 Feb 18 2009
+    Added the plotd function
+    Removed some restrictions on type="class" in predict.earth
+    Added sqrt. argument to evimp
+    Added more grid lines to cumul density plot in plot.earth
+    Added a help page section on interpreting the graphs in plot.earth
+    Miscellaneous other touchups to code and docs
+
 2.2-3 Feb 2 2009
     Added levels to the return value
     Added type=class and thresh arguments to predict.earth

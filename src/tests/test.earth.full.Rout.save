@@ -119,8 +119,8 @@ After backward pass GRSq -6.511 RSq 0.9297
 > a <- earth(Volume ~ ., data = trees[train.subset, ])
 > yhat <- predict(a, newdata = trees[test.subset, ])
 > y <- trees$Volume[test.subset]
-> printh(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
-===1 - sum((y - yhat)^2)/sum((y - mean(y))^2) [1] 0.9464
+> printh(sum((yhat - mean(yhat))^2) / sum((y - mean(y))^2)) # print R-Squared
+===sum((yhat - mean(yhat))^2)/sum((y - mean(y))^2) [1] 0.83864
 > get.used.pred.names <- function(obj) # obj is an earth object
 + {
 +   any1 <- function(x) any(x != 0)    # like any but no warning if x is double
@@ -879,7 +879,7 @@ plt.rt> data(ozone1)
 
 plt.rt> a <- earth(O3 ~ ., data = ozone1, degree = 2)
 
-plt.rt> plot(a, cum.grid = "none")
+plt.rt> plot(a)
 > cat("--- predict.earth.Rd ----------------------\n")
 --- predict.earth.Rd ----------------------
 > example(predict.earth)
@@ -980,21 +980,21 @@ evimp> data(ozone1)
 
 evimp> a <- earth(O3 ~ ., data=ozone1, degree=2)
 
-evimp> ev <- evimp(a, trim=FALSE)
+evimp> ev <- evimp(a, trim=FALSE, sqrt.=TRUE)
 
 evimp> plot(ev)
 
 evimp> print(ev)
-          col used nsubsets       gcv        rss  
-temp        4    1       10 100.00000 1 100.0000 1
-humidity    3    1        8  12.67630 1  14.7840 1
-ibt         7    1        8  12.67630 1  14.7840 1
-doy         9    1        7  11.26486 1  12.9257 1
-dpg         6    1        5   6.75351 1   7.8376 1
-ibh         5    1        4   9.57740 0  10.4551 0
-vis         8    1        4   4.38438 1   5.2952 1
-wind        2    1        1   0.74076 1   0.9771 1
-vh-unused   1    0        0   0.00000 1   0.0000 1
+          col used nsubsets      gcv        rss  
+temp        4    1       10 100.0000 1 100.0000 1
+humidity    3    1        8  35.6038 1  38.4500 1
+ibt         7    1        8  35.6038 1  38.4500 1
+doy         9    1        7  33.5632 1  35.9523 1
+dpg         6    1        5  25.9875 1  27.9958 1
+ibh         5    1        4  30.9474 0  32.3344 0
+vis         8    1        4  20.9389 1  23.0114 1
+wind        2    1        1   8.6068 1   9.8848 1
+vh-unused   1    0        0   0.0000 1   0.0000 1
 > cat("--- plot.evimp.Rd ------------------------\n")
 --- plot.evimp.Rd ------------------------
 > example(plot.evimp)

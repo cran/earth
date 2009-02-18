@@ -18,11 +18,11 @@
 }
 \seealso{
   \code{\link{earth}},
-  \code{\link{evimp}},
+  \code{\link{evimp}}
 }
 \examples{
 data(ozone1)
 a <- earth(O3 ~ ., data=ozone1, degree=2)
-evimp(a) # implictly calls print.evimp
+evimp(a) # implicitly calls print.evimp
 }
 \keyword{models}

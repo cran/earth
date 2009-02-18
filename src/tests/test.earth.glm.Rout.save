@@ -25,7 +25,7 @@ Loading required package: leaps
 > 
 > count <- 0
 > 
-> print.earth.models <- function(a)
+> print.earth.models <- function(a, do.plotd=TRUE)
 + {
 +     model.name <- deparse(substitute(a))
 +     cat("\nPrint", model.name, "\n\n")
@@ -49,6 +49,12 @@ Loading required package: leaps
 +     plot(ev)
 +     cat("\nplotmo", model.name, "\n")
 +     plotmo(a)
++     if (do.plotd) {
++         cat("\nplotd", model.name, "\n")
++         plotd(a, main=paste("plotd", model.name))
++         plotd(a, main=paste("plotd hist", model.name), hist=1)
++         plotd(a, main=paste("plotd hist type=\"class\"", model.name), hist=1, type="class", legend.extra=TRUE)
++     }
 +     cat("-------------------------------------------------------------------------------\n\n")
 + }
 > 
@@ -225,8 +231,16 @@ ldose1    3    1        2 -31.37693 1   0.9614167 1
 plotmo a1 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
+
+plotd a1 
 -------------------------------------------------------------------------------
 
+> printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
+=== evimp(a1, trim = FALSE, sqrt = TRUE)
+        col used nsubsets       gcv          rss  
+ldose     2    1        4 100.00000 1 100.000000 1
+sexmale   1    1        3 -43.28121 1  27.721472 1
+ldose1    3    1        2 -56.01511 1   9.805186 1
 > a1update <- update(a1, trace=0)
 > check.models.equal(a1, a1update, msg="a1update a1")
 check.models.equal not identical: a1update a1 [but within numerical tolerances]
@@ -493,6 +507,8 @@ sexmale         1    1        2   7.8086158 1   7.061559 1
 sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
 
 plotmo a2 
+
+plotd a2 
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -582,7 +598,7 @@ Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a4)
+> print.earth.models(a4, FALSE)
 
 Print a4 
 
@@ -1056,6 +1072,8 @@ sexmale    2    1        4  11.82295 1  17.37608 1
 plotmo a5 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
+
+plotd a5 
 -------------------------------------------------------------------------------
 
 > printh(a5$levels)
@@ -1438,6 +1456,8 @@ sexmale    2    1        3   2.496725 1   5.732125 1
 plotmo a6 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
+
+plotd a6 
 -------------------------------------------------------------------------------
 
 > printh(a6$levels) # expect levels to be NULL
@@ -1783,6 +1803,8 @@ pclass2nd   1    1        1   0.5526548 1   1.283877 1
 plotmo a7 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
+
+plotd a7 
 -------------------------------------------------------------------------------
 
 > printh(a7$levels)
@@ -2128,7 +2150,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.894 RSq 0.5265 
 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
-> print.earth.models(a8p)
+> print.earth.models(a8p, FALSE)
 
 Print a8p 
 
@@ -2264,7 +2286,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.894 RSq 0.5265 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 GLM counts2: null.deviance 105.166 (8 dof)   deviance 50.96448 (6 dof)   iters 4
-> print.earth.models(a10)
+> print.earth.models(a10, FALSE)
 
 Print a10 
 
@@ -2745,7 +2767,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(aref)
+> print.earth.models(aref, FALSE) # TODO investigate why FALSE is needed
 
 Print aref 
 
@@ -2869,7 +2891,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21)
+> print.earth.models(a21, FALSE)
 
 Print a21 
 
@@ -2995,7 +3017,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21)
+> print.earth.models(a21, FALSE)
 
 Print a21 
 
@@ -3122,7 +3144,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a22)
+> print.earth.models(a22, FALSE)
 
 Print a22 
 
@@ -5158,21 +5180,21 @@ y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10, 12
 Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
 After forward pass GRSq 0.9392 RSq 0.992
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
 After backward pass GRSq 0.5201 RSq 0.991 
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, 6=fac3lev3
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10, 12
 Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
 After forward pass GRSq 0.9392 RSq 0.992
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
 After backward pass GRSq 0.5201 RSq 0.991 
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 check.models.equal not identical: B predict with multiple level factors and a multiple real response [but within numerical tolerances]
 20m head(predict(am, trace=1)
 predict.earth: returning earth fitted.values 
@@ -6114,12 +6136,12 @@ A-73f identical
 
 --- B predict with multiple level factors and a multiple real response, trace=0 ---
 
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
-Warning: GCV effective number 13.5 of parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 check.models.equal not identical: B predict with multiple level factors and a multiple real response [but within numerical tolerances]
 20m head(predict(am, trace=0)
 B-21f head(predict(af, trace=0)

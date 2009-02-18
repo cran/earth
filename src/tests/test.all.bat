@@ -25,6 +25,9 @@
 @echo.
 @call test.earth.cv.bat
                         @if errorlevel 1 goto error
+@echo.
+@call test.plotd.bat
+                        @if errorlevel 1 goto error
 @goto done
 :error
 @echo ==== ERROR ====

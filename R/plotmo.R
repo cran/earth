@@ -3,6 +3,7 @@
 # Comments containing "TODO" mark known issues.
 # Stephen Milborrow Sep 2006 Cape Town
 #
+# TODO bug: ycolumn sometimes refers to original y, sometime to expanded y
 # TODO are n=* correct in calls to try(eval.parent())?
 # TODO weights are ignored
 # TODO persp cex handling is not right, because of special handling needed for persp
@@ -50,7 +51,8 @@ plotmo <- function(
     object      = stop("no 'object' arg"),
     degree1     = TRUE,     # index vector specifying main effect plots to include
     degree2     = TRUE,     # index vector specifying interaction plots to include
-    ycolumn     = 1,        # which column of resp to use if response has multiple cols
+    ycolumn     = 1,        # which column of resp to use
+    type        = "response", # type passed on to predict
 
     caption = if(do.par) NULL else "",
                             # overall caption
@@ -122,15 +124,15 @@ plotmo <- function(
         if(is.null(ylim)) { # user wants same vertical ylims for all graphs?
             if(nsingles)    # if so, get ylims=c(miny, maxy) by calling with draw.plot=FALSE
                 ylims <- plot1(
-                        object, degree1, ylim, ycolumn, clip, col.response, pch.response,
-                        inverse.func, grid.func, grid.levels,
+                        object, degree1, ylim, ycolumn, type, clip, col.response, 
+                        pch.response, inverse.func, grid.func, grid.levels,
                         ndegree1, lty.degree1, col.degree1, se, lty.se,
                         col.se, col.shade, func, col.func, pch.func, nrug,
                         draw.plot=FALSE, x, y, Singles, ylims, func.arg, pred.names,
                         ntrace, inverse.func.arg, clip.limits, nfigs,
                         main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
             if(npairs)
-                ylims <- plot2(object, degree2, ylim, ycolumn, clip,
+                ylims <- plot2(object, degree2, ylim, ycolumn, type, clip,
                             col.response, pch.response, inverse.func,
                             grid.func, grid.levels, type2, ngrid, col.persp, col.image,
                             draw.plot=FALSE, x, y, Pairs, ylims, func.arg, pred.names,
@@ -211,6 +213,9 @@ plotmo <- function(
     if(se == 0 && (!missing(col.se) || !missing(lty.se) || !missing(col.shade)))
         warning1("plotmo: se color and linetype arguments ignored because se=0")
 
+    if(!is.na(pmatch(type, "terms")))
+        stop1("type=\"terms\" is not allowed by plotmo")
+
     x <- get.plotmo.x(object, trace)
     warn.if.not.all.finite(x, "'x' after calling get.plotmo.x()")
     if(trace) {
@@ -279,8 +284,8 @@ plotmo <- function(
     if(ntrace > 1)
         ntrace <- ntrace - 1    # prevent repeated trace msgs in plot1 and plot2
     if(nsingles)
-        plot1(object, degree1, ylim, ycolumn, clip, col.response, pch.response,
-            inverse.func, grid.func, grid.levels,
+        plot1(object, degree1, ylim, ycolumn, type, clip, col.response, 
+            pch.response, inverse.func, grid.func, grid.levels,
             ndegree1, lty.degree1, col.degree1, se, lty.se,
             col.se, col.shade, func, col.func, pch.func, nrug,
             draw.plot=TRUE, x, y, Singles, ylims, func.arg, pred.names,
@@ -300,14 +305,14 @@ plotmo <- function(
                 }
             make.space.for.caption(caption)
         }
-        plot2(object, degree2, ylim, ycolumn, clip,
+        plot2(object, degree2, ylim, ycolumn, type, clip,
             col.response, pch.response, inverse.func,
             grid.func, grid.levels, type2, ngrid, col.persp, col.image,
             draw.plot=TRUE, x, y, Pairs, ylims, func.arg, pred.names,
             ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
             do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
     }
-    print.caption(caption, trim=must.trim.caption)
+    show.caption(caption, trim=must.trim.caption)
     invisible()
 }
 
@@ -318,11 +323,10 @@ plotmo <- function(
 
 plot1 <- function(
     # copy of args from plotmo, some have been tweaked slightly
-    object, degree1, ylim, ycolumn, clip, col.response, pch.response,
+    object, degree1, ylim, ycolumn, type, clip, col.response, pch.response,
     inverse.func, grid.func, grid.levels,
     ndegree1, lty.degree1, col.degree1, se, lty.se, col.se, col.shade,
     func, col.func, pch.func, nrug,
-
 
     # args generated in plotmo, draw.plot=FALSE means get ylims but don't actually plot
     draw.plot, x, y, Singles, ylims, func.arg, pred.names,
@@ -459,7 +463,7 @@ plot1 <- function(
             xrange <- range1(x[,ipred], finite=TRUE)
             xwork[,ipred] <- seq(from=xrange[1], to=xrange[2], length=ndegree1)
         }
-        y.predict <- plotmo.predict(object, xwork, se.fit=FALSE,
+        y.predict <- plotmo.predict(object, xwork, type=type, se.fit=FALSE,
                                     pred.names, ipred, 0, ntrace>1)
         y.predict <- check.and.print.y(y.predict, "plotmo.predict",
                                        ycolumn, nrow(xwork), ntrace>1)
@@ -468,7 +472,7 @@ plot1 <- function(
         if(se != 0) {
             if(ntrace > 1)
                 cat("begin se handling, ")
-            rval <- plotmo.predict(object, xwork, se.fit=TRUE,
+            rval <- plotmo.predict(object, xwork, type=type, se.fit=TRUE,
                                    pred.names, ipred, 0, ntrace>1)
             if(typeof(rval) == "list" && !is.null(rval$se.fit)) {
                 rval$se.fit <- check.and.print.y(rval$se.fit, "predict with se=TRUE",
@@ -507,8 +511,8 @@ plot1 <- function(
 
 plot2 <- function(
     # copy of args from plotmo, some have been tweaked slightly
-    object, degree2, ylim, ycolumn, clip, col.response, pch.response, inverse.func,
-    grid.func, grid.levels, type2, ngrid, col.persp, col.image,
+    object, degree2, ylim, ycolumn, type, clip, col.response, pch.response, 
+    inverse.func, grid.func, grid.levels, type2, ngrid, col.persp, col.image,
 
     # args generated in plotmo, draw.plot=FALSE means get ylims but don't actually plot
     draw.plot, x, y, Pairs, ylims, func.arg, pred.names,
@@ -639,7 +643,7 @@ plot2 <- function(
         xwork <- xgrid
         xwork[, i1] <- rep(x1, ngrid)
         xwork[, i2] <- rep(x2, rep(ngrid, ngrid))
-        y.predict <- plotmo.predict(object, xwork, se.fit=FALSE,
+        y.predict <- plotmo.predict(object, xwork, type=type, se.fit=FALSE,
                                     pred.names, i1, i2, ntrace>1)
         y.predict <- apply.inverse.func(y.predict, ycolumn,
                                         ntrace>1, inverse.func, inverse.func.arg)
@@ -935,7 +939,7 @@ plotmo.prolog.default <- function(object)
 }
 
 #------------------------------------------------------------------------------
-plotmo.predict <- function(object, newdata, se.fit,
+plotmo.predict <- function(object, newdata, type, se.fit,
                             pred.names, ipred1, ipred2, trace)
 {
     if(trace) {
@@ -952,13 +956,13 @@ plotmo.predict <- function(object, newdata, se.fit,
     UseMethod("plotmo.predict")
 }
 
-plotmo.predict.default <- function(object, newdata, se.fit,
+plotmo.predict.default <- function(object, newdata, type, se.fit,
                                    pred.names, ipred1, ipred2, trace)
 {
     if(se.fit)
-        predict(object, newdata=newdata, trace=trace, type="response", se.fit=TRUE)
+        predict(object, newdata=newdata, trace=trace, type=type, se.fit=TRUE)
     else
-        predict(object, newdata=newdata, trace=trace, type="response")
+        predict(object, newdata=newdata, trace=trace, type=type)
 }
 
 #------------------------------------------------------------------------------
@@ -1112,7 +1116,11 @@ get.plotmo.x.default <- function(
 # created without a formula
 # The n=2 and n=3 in the calls to eval.parent() take us to the caller of plotmo.
 
-get.plotmo.y <- function(object, ycolumn, expected.len, trace)
+get.plotmo.y <- function(
+    object = stop("no 'object' arg"),
+    ycolumn,            # which column of response to use if response has multiple cols
+    expected.len,
+    trace)
 {
     if(trace)
         cat("\n--get.plotmo.y\n\n")
@@ -1123,7 +1131,7 @@ get.plotmo.y.default <- function(
     object = stop("no 'object' arg"),
     ycolumn,            # which column of response to use if response has multiple cols
     expected.len,
-    trace)
+    trace)              
 {
     get.y.from.formula <- function(object)
     {
@@ -1279,4 +1287,3 @@ get.pairs.bagEarth <- function(object, x, degree2, pred.names, trace)
     pairs <- unique(pairs)
     pairs[order(pairs[,1], pairs[,2]),]
 }
-

@@ -125,6 +125,7 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   \code{\link{earth}},
   \code{\link{plot.earth}},
   \code{\link{plot.earth.models}},
+  \code{\link{plotd}},
   \code{\link{plotmo}}
 }
 \examples{

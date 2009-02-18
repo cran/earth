@@ -47,7 +47,7 @@ A character representation of the earth object.
 
 If there are multiple responses, \code{format.earth} will return multiple strings.
 
-If there are embedded GLM model(s), the string(s) for the GLM model(s)
+If there are embedded GLM model(s), the strings for the GLM model(s)
 come after the strings for the standard earth model(s).
 }
 \note{

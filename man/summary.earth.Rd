@@ -33,9 +33,10 @@ Summary method for \code{\link{earth}} objects.
     by earth to select the regression terms.
   }
   \item{decomp}{
-    See \code{\link{format.earth}} for legal \code{decomp} values.
+    Specify how terms are ordered.
     Default is \code{"anova"}.
     Use \code{"none"} to order the terms as created by the forward.pass.
+    See \code{\link{format.earth}} for a full description.
   }
   \item{style}{
     Formatting style. One of\cr

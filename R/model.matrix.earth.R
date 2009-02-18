@@ -305,14 +305,18 @@ get.earth.x <- function(    # returns x expanded for factors
 # The "arg" argument is from the current call to update or predict
 
 get.update.arg <- function(arg, argname, object,
-                           trace1, Callers.name="update.earth", print.trace=TRUE)
+                           trace1, Callers.name="update.earth", print.trace=TRUE,
+                           reeval=TRUE) # TODO hack
 {
     if(!print.trace) # print.trace arg prevents recursion issues with trace
         trace1 = FALSE
     if(is.null(arg)) {
         temp. <- try(eval.parent(object[[argname, exact=TRUE]], n=2), silent=TRUE)
         if(!is.null(temp.) && class(temp.) != "try-error") {
-            arg <- object[[argname, exact=TRUE]]
+            if(reeval)
+                arg <- object[[argname, exact=TRUE]]
+            else
+                arg <- temp.
             if(trace1 >= 1)
                 cat(Callers.name, ": using ",
                     NROW(temp.), " by ", NCOL(temp.), " ", argname,
@@ -320,7 +324,10 @@ get.update.arg <- function(arg, argname, object,
         } else {
             temp. <- try(eval.parent(object$call[[argname, exact=TRUE]], n=2), silent=TRUE)
             if(!is.null(temp.) && class(temp.) != "try-error") {
-                arg <- object$call[[argname, exact=TRUE]]
+                if(reeval)
+                    arg <- object$call[[argname, exact=TRUE]]
+                else
+                    arg <- temp.
                 if(trace1 >= 1)
                     cat(Callers.name, ": using ",
                         NROW(temp.), " by ", NCOL(temp.), " ", argname,

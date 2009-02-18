@@ -18,16 +18,18 @@ Predict with an \code{\link{earth}} model.
     Make predictions using \code{newdata}, which
     can be a dataframe, a matrix, or a vector with length equal to a multiple of the row length
     of the original input matrix \code{x}.
+    Note that this more flexible than the predict methods for most R models.
     Default is NULL, meaning return the fitted values from the training set.
   }
   \item{type}{
      Type of prediction.
-     One of \code{"link"} (default), \code{"response"}, \code{"earth"}, \code{"class"}, or \code{"term"}.
+     One of \code{"link"} (default), \code{"response"}, \code{"earth"}, \code{"class"}, or \code{"terms"}.
      See the \bold{Note} below.
   }
   \item{thresh}{
-    Probability threshold from 0 to 1, default is .5.
-    Only applies for binomial models with a binary response.
+    Threshold, typically a value between 0 and 1 when predicting a probability.
+    Only applies when \code{type="class"}). 
+    Default is .5.
     See the \bold{Note} below.
   }
   \item{trace}{
@@ -44,14 +46,13 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
 \note{
 \bold{Predicting with standard earth models}
 
-    Use the default \code{type = c("link")}.
+    Use the default \code{type="link"}.
 
     Actually, the \code{"link"}, \code{"response"}, and \code{"earth"} 
     choices all return the same value unless the \code{glm} argument
-    was used in the original call to \code{\link{earth}},
-    and "class" is illegal unless the model is a binomial model.
+    was used in the original call to \code{\link{earth}}.
 
-\bold{Predicting with GLM models}
+\bold{Predicting with earth-GLM models}
 
     This section applies to earth models with a GLM component, i.e., 
     when the \code{glm} argument was used
@@ -66,19 +67,26 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
     Use option \code{"earth"} to get the linear fit (this gives the prediction you would get
     if your original call to earth had no \code{glm} argument).
 
+\bold{Predicting with "class"}
+
     Use option \code{"class"} to get the predicted class.
-    This is legal only for binomial models where \code{y} is logical or factor.
-    Option \code{"class"} works as follows:
+    With option \code{"class"}, this function first makes predictions with
+    \code{type="response"} and then assigns the predicted values to classes as follows:
 
     (i) When \code{y} is a \emph{logical}, predict TRUE if
     the predicted probability is greater than \code{thresh}.
 
-    (ii) When \code{y} is a \emph{two level factor}, 
-    predict the second level if its probability is more than \code{thresh}.
-    In other words: with the default \code{thresh=.5}, 
-    predict the most probable level 
+    (ii) When \code{y} is a \emph{numeric}, predict TRUE if
+    the predicted value is greater than \code{thresh}.
+    Actually, this is identical to the above case,
+    although \code{thresh} here may legitimately be a value
+    outside the 0...1 range.
 
-    (iii) When \code{y} is a \emph{three or more level factor}, 
+    (iii) When \code{y} is a \emph{two level factor}, 
+    predict the second level if its probability is more than \code{thresh}.
+    In other words, with the default \code{thresh=.5} predict the most probable level.
+
+    (iv) When \code{y} is a \emph{three or more level factor}, 
     predict the most probable level (and \code{thresh} is ignored).
 
 \bold{Predicting with "terms"}

@@ -171,9 +171,9 @@ earth.default <- function(
     rownames(x) <- possibly.delete.rownames(x)
     ylevels <- levels(y)          # save levels if any before expanding y
     if(is.logical(y))
-        ylevels = c(FALSE, TRUE)  # needed for predict.earth(type="class")
+        ylevels <- c(FALSE, TRUE)  # needed for predict.earth(type="class")
     if(is.logical(y))
-        ylevels = c(FALSE, TRUE)
+        ylevels <- c(FALSE, TRUE)
     y <- expand.arg(y, env, is.y.arg=TRUE, deparse(substitute(y)))
     rownames(y) <- possibly.delete.rownames(y)
 
@@ -203,17 +203,17 @@ earth.default <- function(
                    weights, wp, scale.y, subset, na.action,
                    glm, trace, keepxy, nfold, stratify, ...)
     if(!is.null(cv)) {
-         rval$cv.list = cv$list.
-         rval$cv.nterms = cv$nterms
-         rval$cv.nvars = cv$nvars
-         rval$cv.rsq.tab = cv$rsq.tab
-         rval$cv.maxerr.tab = cv$maxerr.tab
-         rval$cv.deviance.tab = cv$deviance.tab
-         rval$cv.calib.int.tab = cv$calib.int.tab
-         rval$cv.calib.slope.tab = cv$calib.slope.tab
-         rval$cv.auc.tab = cv$auc.tab
-         rval$cv.cor.tab = cv$cor.tab
-         rval$cv.groups = cv$groups
+         rval$cv.list <- cv$list.
+         rval$cv.nterms <- cv$nterms
+         rval$cv.nvars <- cv$nvars
+         rval$cv.rsq.tab <- cv$rsq.tab
+         rval$cv.maxerr.tab <- cv$maxerr.tab
+         rval$cv.deviance.tab <- cv$deviance.tab
+         rval$cv.calib.int.tab <- cv$calib.int.tab
+         rval$cv.calib.slope.tab <- cv$calib.slope.tab
+         rval$cv.auc.tab <- cv$auc.tab
+         rval$cv.cor.tab <- cv$cor.tab
+         rval$cv.groups <- cv$groups
     }
     rval
 }
@@ -229,7 +229,7 @@ earth.formula <- function(
     glm     = NULL,
     trace   = 0,
     keepxy  = FALSE,        # true to retain x and y in returned value
-    nfold  = 0,             # cross validation folds, 0 means no cross validation
+    nfold   = 0,            # cross validation folds, 0 means no cross validation
     stratify = TRUE,        # stratify levels in cross validation folds
     ...)                    # passed on to earth.fit
 {
@@ -288,7 +288,7 @@ earth.formula <- function(
     y <- model.response(mf, "any")  # "any" means factors are allowed
     ylevels <- levels(y)            # save levels if any before expanding y
     if(is.logical(y))
-        ylevels = c(FALSE, TRUE)    # needed for predict.earth(type="class")
+        ylevels <- c(FALSE, TRUE)    # needed for predict.earth(type="class")
     terms. <- attr(mf, "terms")
     yname <- NULL                   # yname=NULL means let expand.arg choose name
     if(is.vector(y)) {
@@ -326,17 +326,17 @@ earth.formula <- function(
                    weights, wp, scale.y, subset, na.action,
                    glm, trace, keepxy,  nfold, stratify, ...)
     if(!is.null(cv)) {
-         rval$cv.rsq.tab = cv$rsq.tab
-         rval$cv.maxerr.tab = cv$maxerr.tab
-         rval$cv.deviance.tab = cv$deviance.tab
-         rval$cv.calib.int.tab = cv$calib.int.tab
-         rval$cv.calib.slope.tab = cv$calib.slope.tab
-         rval$cv.auc.tab = cv$auc.tab
-         rval$cv.cor.tab = cv$cor.tab
-         rval$cv.groups = cv$groups
-         rval$cv.nterms = cv$nterms
-         rval$cv.nvars = cv$nvars
-         rval$cv.list = cv$list.
+         rval$cv.rsq.tab <- cv$rsq.tab
+         rval$cv.maxerr.tab <- cv$maxerr.tab
+         rval$cv.deviance.tab <- cv$deviance.tab
+         rval$cv.calib.int.tab <- cv$calib.int.tab
+         rval$cv.calib.slope.tab <- cv$calib.slope.tab
+         rval$cv.auc.tab <- cv$auc.tab
+         rval$cv.cor.tab <- cv$cor.tab
+         rval$cv.groups <- cv$groups
+         rval$cv.nterms <- cv$nterms
+         rval$cv.nvars <- cv$nvars
+         rval$cv.list <- cv$list.
     }
     rval
 }
@@ -596,9 +596,9 @@ earth.fit <- function(
     class = "earth")
 
     if(!is.null(glm.list)) {
-        rval$glm.list         = glm.list   # list of glm models, NULL if none
-        rval$glm.coefficients = glm.coefs  # matrix of glm coefs, nselected x nresp
-        rval$glm.bpairs       = glm.bpairs # will be null unless paired binomial cols
+        rval$glm.list         <- glm.list   # list of glm models, NULL if none
+        rval$glm.coefficients <- glm.coefs  # matrix of glm coefs, nselected x nresp
+        rval$glm.bpairs       <- glm.bpairs # will be null unless paired binomial cols
     }
     rval
 }
@@ -780,7 +780,7 @@ forward.pass <- function(x, y, weights,  # must be all double
 
     # CHANGED Jan 22, 2009: scale y for better stability in the forward pass
     if(scale.y) {
-        y.scaled = scale(y)
+        y.scaled <- scale(y)
         # make sure that scaling was ok
         i <- which(attr(y.scaled,"scaled:scale") == 0)
         if(length(i)) {
@@ -790,7 +790,7 @@ forward.pass <- function(x, y, weights,  # must be all double
                 stop1("cannot scale y (values are all equal to ", y[1,1], ")")
         }
     } else
-        y.scaled = y
+        y.scaled <- y
 
     on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interupts
 
@@ -911,8 +911,8 @@ get.gcv <- function(    # default Get.crit function
     nparams <- effective.nbr.of.params(ntermsVec, nknotsVec, penalty)
 
     if(max(nparams, na.rm=TRUE) >= ncases)
-        warning1("GCV effective number ", max(nparams, na.rm=TRUE),
-                 " of parameters >= number ", ncases, " of cases")
+        warning1("effective number ", max(nparams, na.rm=TRUE),
+                 " of GCV parameters >= number ", ncases, " of cases")
 
     rss.per.subset / (ncases * (1 - nparams/ncases)^2)
 }
@@ -1047,7 +1047,7 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
     dirs)
 {
     nselected <- length(selected.terms)
-    prev.grsq = 0
+    prev.grsq <- 0
     if(trace >= 3) {
         cat("Subset size        GRSq     RSq  DeltaGRSq nPreds")
         if(trace >= 4)
@@ -1100,7 +1100,7 @@ pruning.pass <- function(x, y, weights, subset,
             nprune <- nterms
         if(nprune > nterms) {
             warning1("specified \"nprune\" ", nprune,
-                    " is greater than the number ", nterms, "of available model terms ",
+                    " is greater than the number ", nterms, " of available model terms ",
                     "\nForcing \"nprune\" to ", nterms)
             nprune <- nterms
         }
@@ -1402,7 +1402,7 @@ residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=
         warning1("residuals.earth: returning earth (not glm) residuals")
 
     if(is.null(type))
-        type = "earth"
+        type <- "earth"
     itype <- match.choices(type,
                   choices=c("earth", "deviance", "pearson", "working", "response", "partial"),
                   arg.name="type")
@@ -1469,12 +1469,12 @@ get.singles.earth <- function(object, x, degree1, pred.names, trace)
                 # This knows how to deal with expanded factor names because
                 # it e.g. looks for "^pclass" in "pclass3rd"
                 if(length(grep(paste("^", object$namesx.org[ipred], sep=""), colnames)) > 0)
-                    used.preds = c(used.preds, ipred)
+                    used.preds <- c(used.preds, ipred)
             } else {
                 # exact match
                 if(length(grep(paste("^", object$namesx.org[ipred], "$", sep=""), colnames)) > 0)
-                    used.preds = c(used.preds, ipred)
-                used.preds = c(used.preds, ipred)
+                    used.preds <- c(used.preds, ipred)
+                used.preds <- c(used.preds, ipred)
             }
         }
         Singles <- unique(used.preds)

@@ -178,6 +178,7 @@ a <- glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)
 plotmo(a, do.par=FALSE, caption=caption, col.response="pink", clip=FALSE, nrug=-1, ylim=c(0,1),
     main="glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)", trace=Trace)
 termplot(a)
+plotmo(a, type="link", main="type=\"link\" glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)", trace=Trace)
 
 set.seed(1)
 caption <- "test glm(lot2~log(u),data=clotting,family=Gamma)"
@@ -188,6 +189,7 @@ clotting <- data.frame(u = u, lota = lota)
 a <- glm(lota ~ log(u), data=clotting, family=Gamma)
 plotmo(a, do.par=FALSE, caption=caption, col.response=3, clip=FALSE, nrug=-1, trace=Trace)
 termplot(a)
+plotmo(a, type="link", caption=paste("type=\"link\"", caption))
 
 if(length(grep("package:gam", search())))
     detach("package:gam")
@@ -558,10 +560,15 @@ print(summary(a))
 plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms")
 plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms and grid.levels",
        grid.levels=list(pclass="2nd"))
+plotmo(a, type="earth", ylim=c(0, 1), caption="type=\"earth\" plotmo glm with mixed fac and non-fac degree2 terms")
+plotmo(a, type="link", ylim=c(0, 1), caption="type=\"link\" plotmo glm with mixed fac and non-fac degree2 terms")
+plotmo(a, type="class", ylim=c(0, 1), caption="type=\"class\" plotmo glm with mixed fac and non-fac degree2 terms")
+plotmo(a, type="response", ylim=c(0, 1), caption="type=\"response\" plotmo glm with mixed fac and non-fac degree2 terms")
 # now with different type2's
 plotmo(a, do.par=FALSE, type2="persp",   theta=-20, degree1=FALSE, grid.levels=list(pclass="2nd"))
 plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass="2nd"))
 plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"))
+plotmo(a, do.par=FALSE, type="earth", type2="image", degree1=FALSE, grid.levels=list(pclass="2nd"))
 
 if(!interactive()) {
     dev.off()         # finish postscript plot

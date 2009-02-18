@@ -30,12 +30,16 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
 1)  model selection (GRSq plot)\cr
 2)  cumulative distribution of absolute values of residuals\cr
 3)  residuals versus fitted values\cr
-4)  QQ.
+4)  QQ plot of residuals
   }
   \item{ycolumn}{
      Specify which column of the response to plot if the model has multiple responses.
      Default is 1.
-     This argument does not affect the model selection plot which is always across all responses.
+     This argument does not affect the model selection plot which is always across all responses.\cr
+TODO there is an issue in the handling of \code{ycolumn} for multiple
+level factor responses.
+Does \code{ycolumn} refer to the column in the observed or predicted response?
+
   }
   \item{caption}{
     Overall caption.  The default value is
@@ -141,6 +145,153 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
 }
 \note{
+\bold{Interpreting the \code{plot.earth} graphs}
+
+For concreteness, the description below is based 
+on the graphs plotted by \code{example(plot.earth)}.
+The graphs plotted by \code{plot.earth}, apart from the Model Selection graph, are
+standard tools used in residual analysis and more information 
+can be found in most linear regression textbooks.
+
+One should be wary of over-interpretation of the graphs,
+since the residuals are measured on the training data rather than on new data.
+In linear models that is usually not an issue, but for flexible models
+like MARS the residuals measured on the training data give an
+optimistic view of the model's predictive ability.
+
+\bold{Nomenclature}.
+% The \emph{response value} is the observed response value.
+% The \emph{fitted value} is a synonym for the \emph{predicted value} on the training data.
+The \emph{residuals} are the differences between the values predicted by the model
+and the corresponding response values.
+In this help page the residuals are all measured on the training data.
+The \emph{residual sum of squares} (RSS) is the sum of the squared values of the residuals.
+\emph{R-Squared} (RSq) is a normalized form of the RSS, 
+and, depending on the model, varies from 0
+(a model that always predicts the same value i.e. the mean observed response value)
+to 1 (a model that perfectly predicts the responses in the training data).
+The \emph{Generalized Cross Validation} (GCV) 
+is a form of the mean RSS penalized by the effective number of model parameters.
+More details can be found in the FAQ section of the \code{\link{earth}} help page.
+The \emph{GRSq} normalizes the GCV in the same way that the RSq normalizes
+the RSS.
+The GCV and GRSq are measures of the generalization ability of the model,
+i.e., how well the model would predict using data not in the training set.
+There is some arbitrariness in their values since the effective
+number of model parameters is a just an estimate in MARS models.
+
+In the \bold{Model Selection} graph,
+the RSq and GRSq run together at first, but diverge as the number of terms increases.
+This is typical behavior, and what we are seeing is an increased penalty
+being applied to the GCV as the number of model parameters increases.
+The vertical gray dotted line is positioned at the maximum GRSq
+and indicates that the best model has 11 terms and uses all 8 predictors
+(the number of predictors is shown by the black dotted line).
+The graph also shows the number of predictors and terms we would need
+if we were prepared to accept a lower GRSq (use the earth parameter \code{nprune}
+to trim the model).
+
+The \bold{Cumulative Distribution} graph
+shows the cumulative distribution of the absolute values of residuals.
+What we would ideally like to see is a graph that starts at 0 and shoots up quickly to 1.
+In the example graph, the median absolute residual is about 2.2
+(look at the vertical gray line for 50\%).
+We see that 95\% of the absolute values of residuals are less than about 7.1
+(look at the vertical gray line for 95\%).
+So in the training data,
+95\% of the time the predicted value is within 7.1 units of the observed value.
+
+The \bold{Residuals vs Fitted} graph
+shows the residual for each value of the predicted response.
+By comparing the scales of the axes one can get an immediate
+idea of the size of the residuals relative to the predicted values.
+
+Ideally the residuals should show constant variance
+i.e. the residuals should remain evenly spread out as the fitted values increase.
+However, here we see heteroscedasity --- the residuals spread out in a "<" shape.
+There is a decrease in the accuracy of the predictions as the predicted value increases.
+% This indicates that variable selection in the MARS pruning pass
+% will be biased towards large fitted values, i.e.,
+% rather than treating the full range of the response fairly, the pruning pass 
+% in our example model will favor MARS terms that better fit large response values.
+% (Variable selection is done using linear fits on the MARS basis functions.
+% Variable selection is based on comparing GCVs and GCVs are derived from RSSs.
+% In our example model, the bigger residuals at larger fitted values
+% imply that larger fitted values have more ability to affect the RSS.)
+To reduce the heteroscedasity,
+we could refit the model after performing a transform on the response.
+A \code{log} transform, for instance, would even out the residuals:\preformatted{
+    a1 <- earth(log(O3) ~ ., data = ozone1, degree = 2)
+    plot(a1)
+}
+Transforming the data may cause other problems,
+such as mismatches to a known underlying physical model or
+difficulties in interpretation,
+so it's best to consult (or become) an expert on the type of data being modeled
+(in this case, ozone pollution data).
+
+The pale blue line is a \code{\link{loess}} fit.
+(Readers not familar with \code{loess} fits can think of them as fancy moving averages.)
+In this instance it shows that the mean residual is more or less constant 
+except at low fitted values.
+The end effect is possibly due to failure of the model in that region because
+of smaller residuals, but cause and effect get tangled here.
+Compare the residuals of the the earth model to the linear model, and note
+how the pattern of residuals show that the earth is more succesful 
+at modeling non-linearities in the data:
+\preformatted{
+    a2 <- lm(O3 ~ ., data = ozone1)
+    plot(a2, which=1)
+}
+One should always eyeball the residuals themselves rather than blindly
+trusting the \code{loess} fit, which is itself an approximation.
+However, in our example earth model the \code{loess} line appears reliable.
+
+Cases 192, 193, and 226 have the largest residuals and
+fall suspiciously into a separate cluster.
+(If overplotting makes the labels hard to read,
+reduce the number of labels with the \code{id.n} argument of \code{plot.earth}.)
+As a general rule, it is worthwhile investigating cases with large residuals.
+Perhaps they should be excluded them when building the model.
+On the other hand, it is possible that they cases reveal something important about the data
+that could warrant changes to the model.
+In our example it is also worthwhile looking at cases
+with \emph{small} residuals because of non-linearity in that region.
+To see the example input matrix ordered on the magnitude of the residuals,
+use \code{ozone1[order(abs(a$residuals)),]}.
+
+Sometimes groups of residuals appear in a series of straight lines with slopes of -1.
+This effect is slightly visible in the example graph.
+These lines usually do not indicate a problem.
+They are are formed when a set of plotted points has the same observed
+value, commonly due to discretization in the measurement of the
+observed value.
+
+The \bold{Normal Q-Q} graph
+compares the distribution of the residuals to a normal distribution.
+If the residuals are distributed normally they will lie on the line.
+Following R convention, the abscissa is the normal axis
+and the ordinate is the residual axis;
+some popular books have it the other way round.
+In our example,
+we see divergence from normality in the left tail --- 
+the left tail of the distribution is fatter than that of a normal distribution.
+Once again, we see that cases 192, 193, and 226 have the largest residuals.
+
+\bold{About \code{plot.earth} and earth-glm models}
+
+"Earth-glm" models are models created with a \code{glm} argument to \code{earth}.
+
+In earth-glm models, much of the analysis in the above section does not apply because
+in these models the residuals are not assumed to have a normal distribution.
+
+Note that the residuals plotted by \code{plot.earth}
+are residuals from earth's call to \code{\link{lm}} after the pruning pass, 
+not \code{\link{glm}} residuals
+That is, \code{plot.earth} ignores the \code{glm} part of the model, if any.
+
+For earth-glm models, \code{\link{plotd}} can be useful.
+
 \bold{Why doesn't \code{plot.earth} print GLM information?}
 
 It's just too much to display.
@@ -151,6 +302,7 @@ a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial))
 par(mfrow=c(2,2))
 plot(a$glm.list[[1]])
 }
+
 \bold{I want to add lines or points to the RSq plot,
 and am having trouble getting my axis scaling right. Help?}
 
@@ -164,11 +316,12 @@ This usually means that the x- and y-axis scales are both 0 to 1.
 \seealso{
   \code{\link{earth}},
   \code{\link{plot.earth.models}},
+  \code{\link{plotd}},
   \code{\link{plotmo}}
 }
 \examples{
 data(ozone1)
 a <- earth(O3 ~ ., data = ozone1, degree = 2)
-plot(a, cum.grid = "none")
+plot(a)
 }
 \keyword{models}

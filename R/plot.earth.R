@@ -210,7 +210,7 @@ plot.earth <- function(
         plot.residuals(fitted.values, residuals)
     if(show[4])
         plot.qq(residuals)
-    print.caption(caption, trim=must.trim.caption)
+    show.caption(caption, trim=must.trim.caption)
     invisible()
 }
 
@@ -302,6 +302,11 @@ plot.earth.models <- function(  # compare earth models by plotting them
     objects <- x
     if(!is.list(objects))       # note that is.list returns TRUE for a single object
         stop1("'x' is not an \"earth\" object or a list of \"earth\" objects")
+    # check for a common error, using plot.earth.models(mod1, mod2) instead
+    # of plot.earth.models(list(mod1, mod2)) instead
+    if(inherits(which, "earth"))
+        stop1("use plot.earth.models(list(model1, model2)), ",
+              "not plot.earth.models(model1, model2)")
     if(typeof(objects[[1]]) != "list") # if user specified just one object, convert to list
         objects <- list(objects)
     for(imodel in seq_along(objects))
@@ -405,7 +410,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
         if(col.legend != 0 && length(objects) > 1)
             do.legend(xmax=xlim[2])
         }
-    print.caption(caption, trim=must.trim.caption)
+    show.caption(caption, trim=must.trim.caption)
     invisible()
 }
 
@@ -573,18 +578,20 @@ plot.cum <- function(           # plot cumulative distribution of absolute resid
         ngrid <- match.choices(cum.grid[1], c("none", "grid", "percentages"), "cum.grid")
         if(ngrid >= 2) {
             # add annotated grid lines, unattractive but useful
-            for(h in c(0,.05,.10,.25,.5,.75,.90,.95,1)) # horizontal lines
+            for(h in c(0,.25,.5,.75,.90,.95,1)) # horizontal lines
                 abline(h=h, lty=1, col=col.grid)
-            q <- quantile(abs.residuals)
-            for(v in q)    # vertical lines at 0,25,50,75,100% quantiles
+            q <- quantile(abs.residuals, probs=c(0, .25, .50, .75, .9, .95, 1))
+            for(v in q)    # vertical lines at 0,25,50,75,90,95,100% quantiles
                 abline(v=v, lty=1, col=col.grid)
             if(ngrid >= 3) {
-                cex1 <- .7
+                cex1 <- .75
                 text(x=0,    y=1.02, "0%",   offset=0, cex=cex1)
                 text(x=q[2], y=1.02, "25%",  offset=0, cex=cex1)
                 text(x=q[3], y=1.02, "50%",  offset=0, cex=cex1)
                 text(x=q[4], y=1.02, "75%",  offset=0, cex=cex1)
-                text(x=q[5], y=1.02, "100%", offset=0, cex=cex1)
+                text(x=q[5], y=1.02, "90%",  offset=0, cex=cex1)
+                text(x=q[6], y=1.02, "95%",  offset=0, cex=cex1)
+                text(x=q[7], y=1.02, "100%", offset=0, cex=cex1)
             }
             plot.stepfun(cum, add=TRUE, verticals=TRUE, # replot data over grid
                 xlim=xlim, col.points=0, col.hor=col, col.vert=col, ...)

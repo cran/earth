@@ -24,7 +24,7 @@ printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a
 
 count <- 0
 
-print.earth.models <- function(a)
+print.earth.models <- function(a, do.plotd=TRUE)
 {
     model.name <- deparse(substitute(a))
     cat("\nPrint", model.name, "\n\n")
@@ -48,6 +48,12 @@ print.earth.models <- function(a)
     plot(ev)
     cat("\nplotmo", model.name, "\n")
     plotmo(a)
+    if (do.plotd) {
+        cat("\nplotd", model.name, "\n")
+        plotd(a, main=paste("plotd", model.name))
+        plotd(a, main=paste("plotd hist", model.name), hist=1)
+        plotd(a, main=paste("plotd hist type=\"class\"", model.name), hist=1, type="class", legend.extra=TRUE)
+    }
     cat("-------------------------------------------------------------------------------\n\n")
 }
 
@@ -79,6 +85,7 @@ SF2 <- cbind(numdead2, numalive2=20 - numdead2)
 cat("a1: single response glm model but with a binomial pair of y columns, with ldose1 data degree=2\n\n")
 a1 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=4, pmethod="none", degree=2)
 print.earth.models(a1)
+printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
 a1update <- update(a1, trace=0)
 check.models.equal(a1, a1update, msg="a1update a1")
 
@@ -129,7 +136,7 @@ cat("---------------------------------------------------------------------------
 SF.both <- cbind(SF, SF2)
 cat("a4: double response glm model with two binomial paired cols\n\n")
 a4 <-  earth(SF.both ~ sex*ldose, glm=list(family="binomial"), trace=1)
-print.earth.models(a4)
+print.earth.models(a4, FALSE)
 print.stripped.earth.model(a4, "a4")
 # repeat with bpairs arg
 a4a <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=1)
@@ -221,7 +228,7 @@ d.AD <- data.frame(treatment, outcome, counts, counts2)
 # one response poisson model
 cat("a8p: one response poisson model\n\n")
 a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
-print.earth.models(a8p)
+print.earth.models(a8p, FALSE)
 # build a standard GLM model for comparison
 cat("a9: one response poisson model, standard GLM model for comparison\n\n")
 a9 <- glm(counts ~ outcome + treatment, family="poisson")
@@ -232,7 +239,7 @@ plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + 
 # two response poisson model
 cat("a10: two response poisson model\n\n")
 a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), trace=1, pmethod="none")
-print.earth.models(a10)
+print.earth.models(a10, FALSE)
 
 # compare family=gaussian to standard earth model
 cat("a11: compare family=gaussian to standard earth model\n\n")
@@ -276,20 +283,20 @@ stop.if.not.identical <- function(msg, a, b)
 SF.both <- cbind(SF, SF2)
 df <- data.frame(sex, ldose)
 aref <-  earth(SF.both ~ ., data=df, glm=list(family="binomial"), trace=1)
-print.earth.models(aref)
+print.earth.models(aref, FALSE) # TODO investigate why FALSE is needed
 
 a21 <-  earth(data.frame(sex, ldose), SF.both, glm=list(family="binomial"), trace=1)
-print.earth.models(a21)
+print.earth.models(a21, FALSE)
 check.models.equal(aref, a21, msg="aref a21")
 
 a21 <-  earth(cbind(sex, ldose), SF.both, glm=list(family="binomial"), trace=1)
-print.earth.models(a21)
+print.earth.models(a21, FALSE)
 # TODO does not match because different conversion of factor with cbind and earth, revisit
 # check.models.equal(aref, a21, msg="aref a21")
 
 df.both <- data.frame(SF, SF2)
 a22 <-  earth(cbind(sex, ldose), df.both, glm=list(family="binomial"), trace=1)
-print.earth.models(a22)
+print.earth.models(a22, FALSE)
 # TODO does not match because different conversion of factor with cbind and earth, revisit
 # check.models.equal(aref, a22, msg="a20 a22")
 check.models.equal(a21, a22, msg="a21 a22")

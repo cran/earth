@@ -8,10 +8,10 @@
 \method{plot}{evimp}(x = stop("no 'x' arg"),
     cex.var = 1,
     type.nsubsets = "l", col.nsubsets = "black", lty.nsubsets = 1,
-    type.gcv = "l", col.gcv = "slateblue", lty.gcv = 1,
-    type.rss = "l", col.rss = "darkgray", lty.rss = 1,
+    type.gcv = "l", col.gcv = "lightblue", lty.gcv = 1,
+    type.rss = "l", col.rss = "gray60", lty.rss = 1,
     cex.legend = 1, x.legend = nrow(x), y.legend = x[1,"nsubsets"],
-    main = "Variable importance", \dots)
+    main = "Variable importance", do.par=TRUE, \dots)
 }
 \arguments{
   \item{x}{
@@ -56,6 +56,11 @@
   \item{main}{
       Main title.
       Default is "Variable importance".
+  }
+  \item{do.par}{
+    Call \code{par()} for global settings as appropriate.
+    Default is \code{TRUE}, which sets \code{oma=c(bottom.margin,0,0,3), cex=cex.var}.
+    Set to \code{FALSE} if you want to append figures to an existing plot.
   }
   \item{\dots}{
        Extra arguments passed to plotting functions.
