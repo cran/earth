@@ -88,7 +88,7 @@ For cross validation, use the \code{nfold} argument.
      Vector of response weights.
      Default is NULL, meaning no response weights.
      If specified, \code{wp} must have an element for each column of
-     \code{y} after factors have been expanded.\cr
+     \code{y} (after \code{\link[=factor]{factors}}, if any, have been expanded).\cr
      Note for \code{mda::mars} users:
      earth's internal normalization of \code{wp} is different from \code{mars}.
      Earth uses \code{wp<-sqrt(wp/mean(wp))}
@@ -284,7 +284,7 @@ For cross validation, use the \code{nfold} argument.
      The current version of the \code{\link[leaps]{leaps}} package
      used during pruning does not allow user interrupts
      (i.e., you have to kill your R session to interrupt;
-      in Windows you can use \code{tskill}).
+     in Windows hit Ctl-Alt-Delete or from the command line use \code{tskill}).
   }
   \item{nprune}{
      Maximum number of terms (including intercept) in the pruned model.
@@ -351,6 +351,7 @@ For cross validation, use the \code{nfold} argument.
     \code{1-rss/rss.null}.
      R-Squared of the model (calculated over all responses).
      A measure of how well the model fits the training data.
+     Note that \code{rss.null} is \code{sum((y - mean(y))^2)}.
   }
   \item{gcv}{
      Generalized Cross Validation (GCV) of the model (summed over all responses)
@@ -425,7 +426,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
      The first element \code{selected.terms[1]} is always 1, the intercept.
   }
   \item{prune.terms}{
-     A matrix specifying which terms appear in which subsets.
+     A matrix specifying which terms appear in which pruning pass subsets.
      The row index of \code{prune.terms} is the model size.
      (The model size is the number of terms in the model.
      The intercept is considered to be a term.)
@@ -489,7 +490,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
     after factors in \code{y} have been expanded.
     Each column holds the least squares coefficients from regressing that
     column of \code{y} on \code{bx}.
-    The first row holds the intercept coefficients.
+    The first row holds the intercept coefficient(s).
   }
   \item{penalty}{
      The GCV penalty used during pruning.
@@ -558,9 +559,9 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
       i.e., \code{ncol(y)} after factors in \code{y} have been expanded.
       The first \code{nresponse} elements of a row are the RSq's on 
       the left-out data for each response of the model generated at that row's fold.
-      The final column holds the row mean (a weighted mean is used if \code{wp} if specified).
+      The final column holds the row mean (a weighted mean if \code{wp} if specified).
       The final row of the table holds the column means.
-      (The values in this row are the CV-RSqs printed by \link{summary.earth}.)
+      The values in this row are the CV-RSqs printed by \link{summary.earth}.
 \cr\cr
       Example for a single response model:
 \preformatted{            y  mean
@@ -583,7 +584,11 @@ mean   0.929 0.955 0.952 0.946
    }
    \item{cv.maxerr.tab}{
       Like \code{cv.rsq.tab} but is the \code{MaxErr} at each fold.
-      Also, aggregrates results using the signed max absolute value instead of the mean.
+      This is the signed max absolute value at each fold, where
+      the \emph{signed max absolute value} is the maximum of the absolute difference
+      between the predicted and observed response values, multiplied
+      by \code{-1} if the sign of the difference is negative.
+      Also, results are aggregrated using the signed max absolute value instead of the mean.
    }
    \item{cv.deviance.tab}{
       Like \code{cv.rsq.tab} but is the \code{MeanDev} at each fold.
@@ -708,9 +713,10 @@ if some responses have a very small number of successes.
 
 Note that automatic scaling of \code{y} (via the \code{scale.y} argument)
 does not take place if \code{y} has multiple columns.
-Therefore you may want to scale your \code{y} columns before calling earth
+You may want to scale your \code{y} columns before calling earth
 so each \code{y} column gets the appropriate weight during model building
-(the RSS for large \code{y}'s is bigger than that for small \code{y}'s).
+(a \code{y} column with a big variance will influence the
+model more than a column with a small variance).
 You could do this by calling \code{\link{scale}} before invoking \code{earth},
 or by setting the \code{scale.y} argument, or by using the
 the \code{wp} argument.
@@ -839,11 +845,13 @@ print(a6$coefficients == a6$glm.coefficients)  # all TRUE
 \bold{Factors in x}:
 Earth treats factors in \code{x} in
 the same way as standard R models such as \code{\link{lm}}
-(where \code{x} is taken to mean the right side of the formula).
+(where \code{x} is taken to mean the right hand side of the formula).
 Thus factors are expanded using the current setting
 of \code{\link{options}("\link{contrasts}")}.
 
 \bold{Factors in y}:
+Earth treats factors in the response in a non-standard way that makes use
+of earth's ability to handle multiple responses.
 A \emph{two level factor} (or logical) is converted to a single indicator column of 1s and 0s.
 A \emph{factor with three or more levels}
 is converted into \code{k} indicator columns of 1s and 0s, where \code{k} is the number of levels
@@ -864,7 +872,7 @@ A B C  # one column for each factor level
 ...
 }
 In distinction, a standard \code{\link[=contrasts]{treatment contrast}} 
-in a model with an intercept would have no first "A" column 
+on the rhs of a model with an intercept would have no first "A" column 
 (to prevent linear dependencies on the rhs of the model formula).
 
 This expansion to multiple columns (which only happens for factors with more than two levels)
@@ -1021,7 +1029,7 @@ the following can increase the speed of the forward pass:
 i) decreasing \code{fast.k}\cr
 ii) decreasing \code{nk} (because fewer forward pass terms)\cr
 iii) decreasing \code{degree}\cr
-iv) increasing \code{threshold} (because fewer forward pass terms)\cr
+iv) increasing \code{thresh} (because fewer forward pass terms)\cr
 v) increasing \code{min.span}.
 
 The backward pass is normally much faster than the forward pass,
@@ -1110,9 +1118,9 @@ CV fold 3: CV-RSq 0.622  ntrain-nz 384 ntest-nz 43
 }
 shows that for cross validation fold number 3,
 the RSq on the test set (i.e., the left-out data) is 0.622.
-The printout also shows the number of non-zero values in the fold's
-training set and test set.
-This is useful if you have a factor response and want to check
+The printout also shows the number of non-zero values in the observed response 
+in the fold's training set and test set.
+This is useful if you have a binary or factor response and want to check
 that you have enough examples of each factor level in each fold.
 With the \code{stratify} argument (which is enabled by default),
 earth attempts to keep the numbers of each level
@@ -1133,7 +1141,10 @@ and their standard deviation across folds.
 
 \bold{CV-RSq} cross validated R-Squared, identical to CV-RSq for non-glm models
 
-\bold{MaxErr} signed maximum absolute difference between the predicted and observed response
+\bold{MaxErr} signed max absolute difference between the predicted and observed response.
+  This is the maximum of the absolute differences
+  between the predicted and observed response values, multiplied
+  by \code{-1} if the sign of the difference is negative.
 
 \bold{MeanDev} deviation divided by the response length
 
@@ -1175,7 +1186,7 @@ Logistic Regression, and Survival Analysis}
 
 % \bold{Balancing prediction error in multiple response models}
 % 
-% If the number of occurences of one class is much larger than the others,
+% If the number of occurrences of one class is much larger than the others,
 % then earth, trying to minimize the overall error, will keep the
 % error rate low on the large class while letting the error on
 % the small classes increase.
@@ -1316,7 +1327,7 @@ With \code{thresh=0}, the measured GRSq
 (and thus the efficacy of the pruning pass)
 should be treated with skepticism,
 especially if you get the warning\cr
-\code{GCV effective number P of parameters >= number N of cases}.
+\code{effective number of GCV parameters >= number of cases}.
 
 \bold{Why do I get fewer terms than \code{nprune}?}
 
@@ -1349,13 +1360,13 @@ and prune it back (by specifying a small \code{nprune}).
 This is better than directly building a small model by
 specifying a small \code{nk}, because the pruning pass can look at all the
 terms whereas the forward pass can only see one term ahead.
-However, it is much faster building a small model with a small \code{nk}.
+However, it is much faster building a small model by specifying a small \code{nk}.
 
 \bold{Can you give an example of the \code{linpreds} argument?}
 
 With \code{linpreds} you can specify which predictors should enter linearly,
 instead of in hinge functions.
-The \code{lindeps} argument does not stipulate that a predictor \emph{must} enter the model,
+The \code{linpreds} argument does not stipulate that a predictor \emph{must} enter the model,
 only that if it enters it should enter linearly.
 Starting with
 \preformatted{
@@ -1470,7 +1481,7 @@ terms will also effectively inhibit higher degrees too, because
 there will be no degree 2 terms for earth to extend to degree 3.
 
 You can expect model building to be about 10\% slower with an \code{allowed} function
-because of the time taken to invoked the \code{allowed} function.
+because of the time taken to invoke the \code{allowed} function.
 
 \bold{Using predictor names instead of indices in the "allowed" function.}
 You can use predictor names instead of indices using
@@ -1552,7 +1563,7 @@ This could change as the state of the art advances.
 
 \bold{What about bagging MARS?}
 
-Max Kuhn's \code{caret} package provides functions for bagging MARS
+The \code{caret} package provides functions for bagging MARS
 (and for parameter selection).
 
 \bold{What is a GCV, in simple terms?}
@@ -1571,9 +1582,9 @@ But that can be painfully slow.
 As an alternative, for certain forms of model we can use a formula to
 approximate the error that would be determined by leave-one-out
 validation --- that approximation is the GCV.
-The formula adjusts (i.e., increases) the training RSS to take into
+The formula adjusts (i.e., increases) the mean training RSS to take into
 account the flexibility of the model.
-Summarizing, the GCV approximates the RSS that would
+Summarizing, the GCV approximates the mean RSS that would
 be measured on independent data.
 Even when the approximation is not that good,
 it is usually good enough for comparing models during pruning.
@@ -1586,8 +1597,8 @@ GCV stands for "Generalized Cross Validation", a perhaps misleading term.
 % Actual cross validation during pruning would choose terms for each subset that
 % are different in general from those selected by the RSS on the full training set.
 
-The \code{GRSq} measure used in the earth package standarizes the raw GCV,
-in the same way that R-Squared standarizes the RSS.
+The \code{GRSq} measure used in the earth package standardizes the raw GCV,
+in the same way that R-Squared standardizes the RSS.
 
 \bold{If GCVs are so important, why don't linear models use them?}
 
@@ -1680,7 +1691,8 @@ is a more flexible way of achieving the same end.
   \url{http://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines}
 }
 \seealso{
-  Start with \code{\link{summary.earth}}, \code{\link{plotmo}}, and \code{\link{evimp}}.
+  Start with \code{\link{summary.earth}}, \code{\link{plot.earth}}, 
+  \code{\link{plotmo}}, and \code{\link{evimp}}.
 
   \code{\link{etitanic}},
   \code{\link{evimp}},
@@ -1690,6 +1702,7 @@ is a more flexible way of achieving the same end.
   \code{\link{ozone1}},
   \code{\link{plot.earth.models}},
   \code{\link{plot.earth}},
+  \code{\link{plotd}},
   \code{\link{plotmo}},
   \code{\link{predict.earth}},
   \code{\link{residuals.earth}},

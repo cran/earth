@@ -54,12 +54,12 @@ Get the basis matrix of an \code{\link{earth}} object.
 The format of \code{bx} is described in \code{\link{earth}}.
 The basis matrix \code{bx} can be used, for example,
 as the input matrix to \code{\link{lm}} or \code{\link{glm}} as shown below.
-In fact, that is what earth does internally --- 
+In fact, that is what earth does internally after the pruning pass --- 
 it calls \code{\link{lm.fit}}, 
 and additionally \code{\link{glm}} if earth's \code{glm} argument is used.
 }
 \seealso{
-  \code{\link{earth}},
+  \code{\link{earth}}
 }
 \examples{
 data(trees)
@@ -83,7 +83,7 @@ summary(a, decomp = "none") # "none" to print terms in same seq as a.lm below
 bx <- model.matrix(a)               # equivalent to bx <- a$bx
 a.lm <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
 summary(a.lm)                       # yields same coeffs as above summary
-                                    # displayed p values are not meaningful
+                                    # displayed t values are not meaningful
 # yields:
 #  Call:
 #  lm(formula = trees$Volume ~ bx[, -1])

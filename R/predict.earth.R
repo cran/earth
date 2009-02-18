@@ -9,7 +9,7 @@ predict.earth <- function(
                         # "terms" always returns the earth not glm terms
                         # "terms" returns just the additive terms!
                         # and just the first response if more than one
-    thresh  = .5,
+    thresh  = .5,       # only used if type="class"
     trace   = FALSE,
     ...)                # unused, for compatibility with generic predict
 {
@@ -21,8 +21,8 @@ predict.earth <- function(
             else
                 cat("predict.earth: returning earth (not glm)", msg, "\n")
     }
-    convert.response.to.class <- function(resp, object, thresh) # resp is a matrix
-    {
+    convert.response.to.class <- function(resp, ylevels, thresh) # resp is a matrix
+    {                                                            # return a vector
         which1 <- function(row, thresh) # row is a scalar or a vector
         {
             if(length(row) > 1)
@@ -31,26 +31,27 @@ predict.earth <- function(
                 which. <- if(row > thresh) 2 else 1
             which.
         }
-        resp <- object$levels[apply(resp, 1, which1, thresh)]
-        if(is.character(object$levels))
-            resp <- factor(resp, levels = object$levels)
+        if(is.null(ylevels)) # should never happen
+            stop1("cannot use type=\"class\" with this model")
+        resp <- ylevels[apply(resp, 1, which1, thresh)]
+        if(is.character(ylevels))
+            resp <- factor(resp, levels = ylevels)
         resp
     }
     get.predicted.response <- function(object, newdata, type)
     {
         is.type.class <- FALSE
+        ylevels <- object$levels
         if(type=="class") {
-            if(is.null(object$glm.list) || is.null(object$levels))
-                stop1("predict.earth: ",
-                     "\"class\" can only be used for binomial models ",
-                     "with a logical or factor response")
             is.type.class <- TRUE
             type <- "response" # we want predicted probabilities
+            if(is.null(ylevels))
+                ylevels <- c(FALSE, TRUE)
         }
         if(is.null(newdata)) {
             if(is.null(object$glm.list) || type=="earth") {
                 print.is.earth(trace, object, "fitted.values")
-                return(object$fitted.values)
+                rval <- object$fitted.values
             } else {    # glm predictions
                 if(trace >= 1)
                     cat("predict.earth: returning glm fitted.values\n")
@@ -59,9 +60,6 @@ predict.earth <- function(
                 colnames(rval) <- colnames(object$fitted.values)
                 for(i in 1:length(object$glm.list))
                     rval[,i] = predict.glm(object$glm.list[[i]], type=type)
-                if(is.type.class)
-                    rval <- convert.response.to.class(rval, object, thresh)
-                return(rval)
             }
         } else {        # user supplied newdata
             env <- parent.frame()
@@ -72,7 +70,7 @@ predict.earth <- function(
                  print.matrix.info("bx", bx, "predict.earth")
             if(is.null(object$glm.list) || type=="earth") {
                 print.is.earth(trace, object, "predictions")
-                return(bx %*% object$coefficients)
+                rval <- bx %*% object$coefficients
             } else {    # glm predictions
                 if(trace >= 1)
                     cat("predict.earth: returning glm", type, "predictions\n")
@@ -88,11 +86,11 @@ predict.earth <- function(
                     check.nrows(nrow(bx), nrow(rval),
                                 nrow(object$fitted.values), "predict.earth")
                 }
-                if(is.type.class)
-                    rval <- convert.response.to.class(rval, object, thresh)
-                return(rval)
             }
         }
+        if(is.type.class)
+            rval <- convert.response.to.class(rval, ylevels, thresh)
+        rval
     }
     # returns just enough for termplot to work
     get.terms <- function(object, newdata)

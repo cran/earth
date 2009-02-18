@@ -43,7 +43,7 @@ test.subset <- (1:nrow(trees))[-train.subset]
 a <- earth(Volume ~ ., data = trees[train.subset, ])
 yhat <- predict(a, newdata = trees[test.subset, ])
 y <- trees$Volume[test.subset]
-printh(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
+printh(sum((yhat - mean(yhat))^2) / sum((y - mean(y))^2)) # print R-Squared
 get.used.pred.names <- function(obj) # obj is an earth object
 {
   any1 <- function(x) any(x != 0)    # like any but no warning if x is double

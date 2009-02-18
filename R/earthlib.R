@@ -46,6 +46,15 @@ warn.if.dots.used <- function(func.name, ...)
                  paste.quoted.names(names(dots)))
 }
 
+# issue a warning if a dots argument is not in allowed.args
+stop.if.dot.arg.not.allowed <- function(func.name, allowed.args, ...)
+{
+    dots <- names(match.call(expand.dots=FALSE)$...)
+    nomatch <- dots[pmatch(dots, allowed.args, nomatch=0) == 0]
+    if(length(nomatch))
+        stop1(func.name, " unrecognized argument \"", nomatch[1], "\"")
+}
+
 check.classname <- function(object, object.name, class.names)
 {
     if(!inherits(object, class.names))
@@ -228,24 +237,24 @@ my.print.call <- function(msg, Call)
     if(!is.null(Call$x)) {
         x. <- Call$x
         if(length(paste(substitute(x.))) > 100)
-            Call$x = paste("[", NROW(Call$x), ",", NCOL(Call$x),
+            Call$x <- paste("[", NROW(Call$x), ",", NCOL(Call$x),
                             "]-too-long-to-display", sep="")
     }
     if(!is.null(Call$y)) {
         y. <- Call$y
         if(length(paste(substitute(y.))) > 100)
-            Call$y = paste("[", NROW(Call$y), ",", NCOL(Call$y),
+            Call$y <- paste("[", NROW(Call$y), ",", NCOL(Call$y),
                             "]-too-long-to-display", sep="")
     }
     s <- format(Call)
     if(length(s) > 8) {
         s <- s[1:8]
-        s[8] = paste(s[8], "\netc.")
+        s[8] <- paste(s[8], "\netc.")
     }
     s <- gsub("[ \t\n]", "", s)                 # remove white space
 
     # add newlines and prefix (spaces prefix all lines except the first)
-    spaces. = sprintf("%*s", nchar(msg), " ")   # nchar spaces
+    spaces. <- sprintf("%*s", nchar(msg), " ")   # nchar spaces
 
     s <- gsub(",", ", ", s)                     # replace comma with comma space
     s <- paste(s, collapse=paste("\n", spaces., sep=""), sep="")
@@ -287,21 +296,24 @@ get.caption.from.call <- function(caption, object)
 # an error message "plot.new has not been called yet"
 # TODO the trimming code overtrims
 
-print.caption <- function(caption, trim=FALSE)
+show.caption <- function(caption, trim=0, show=TRUE)
 {
     len.caption <- nchar(caption)
     if(len.caption > 0) {
         if(trim) {
+            if(is.logical(trim))
+                trim <- 1
             # trim caption to fit
-            len <- len.caption / strwidth(caption, "figure")
+            len <- len.caption * trim / strwidth(caption, "figure")
             caption <- substr(caption, 1, len)
             # append ellipsis if chars deleted
             if(len < len.caption)
                 caption <- paste(caption, "...", sep="")
         }
-        mtext(caption, outer=TRUE, font=2, line=1.5, cex=1)
+        if(show)
+            mtext(caption, outer=TRUE, font=2, line=1.5, cex=1)
     }
-    NULL
+    caption
 }
 
 # the make.space functions should only be called if do.par is FALSE

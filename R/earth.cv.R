@@ -32,7 +32,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
         # If y was originally a factor before expansion to multiple columns, this is
         # equivalent to having the same numbers of each factor level in each fold.
         for(iresp in 1:ncol(y)) {
-            yset = y[,iresp] != 0
+            yset <- y[,iresp] != 0
             groups[yset] <- sample(rep(1:nfold, length=sum(yset)))
         }
     }

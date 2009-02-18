@@ -1,6 +1,5 @@
 # evimp.R: estimate variable importances in an earth object
 
-
 # Return a vector of predictor indexes for predictors that are used
 # in the final model
 
@@ -29,7 +28,7 @@ print.one.line.evimp <- function(obj) # obj is an "earth" obj
     cat("\n")
 }
 
-evimp <- function(obj, trim=TRUE) # see help page for description
+evimp <- function(obj, trim=TRUE, sqrt.=FALSE) # see help page for description
 {
     # convert col numbers in predtab to col numbers in importances
     as.icriti <- function(icrit) c(3,4,6)[icrit]
@@ -101,8 +100,14 @@ evimp <- function(obj, trim=TRUE) # see help page for description
             # normalize importances
 
             max <- max(abs(importances[,icriti]))
-            if(max != 0)
-                importances[,icriti] <- 100 * importances[,icriti] / max
+            if(max != 0) {
+                if(sqrt.) {
+                    temp <- sqrt(abs(importances[,icriti]) / max)
+                    signs <- ifelse(importances[,icriti] < 0, -1, 1)
+                    importances[,icriti] <- 100 * signs * temp
+                } else
+                    importances[,icriti] <- 100 * importances[,icriti] / max
+            }
         }
 
     if(trim) {
@@ -134,11 +139,11 @@ plot.evimp <- function(
     lty.nsubsets = 1,           # line type of nsubsets line
 
     type.gcv = "l",             # plot type for gcv graph,
-    col.gcv = "slateblue",      # as above but for the gcv plot
+    col.gcv = "lightblue",      # as above but for the gcv plot
     lty.gcv = 1,
 
     type.rss = "l",             # as above but for the rss plot
-    col.rss = "darkgray",
+    col.rss = "gray60",
     lty.rss = 1,
 
     cex.legend = 1,             # cex for legend strings, use if want the legend to be smaller
@@ -146,6 +151,7 @@ plot.evimp <- function(
     y.legend = x[1,"nsubsets"], # y position of legend
 
     main = "Variable importance", # main title
+    do.par = TRUE,              # call par() as appropriate
     ...)                        # extra args passed to plotting and method funcs
 {
     # make sure that all evimp columns are present (extra columns are ok)
@@ -154,9 +160,13 @@ plot.evimp <- function(
 
     max.subsets <- x[1,"nsubsets"]
     nrows <- nrow(x)                                # number of vars
-    # TODO what is the proper way of doing the bottom.margin calculation?
-    bottom.margin = cex.var * max(2, .7 * max(nchar(rownames(x))) - 6)
-    par(oma=c(bottom.margin,0,0,3))                 # b,l,t,r: big bottom and right margins
+    if(do.par) {
+        old.par <- par(no.readonly=TRUE)
+        on.exit(par(old.par))
+        # TODO what is the proper way of doing the bottom.margin calculation?
+        bottom.margin <- cex.var * max(2, .7 * max(nchar(rownames(x))) - 6)
+        par(oma=c(bottom.margin,0,0,3))                 # b,l,t,r: big bottom and right margins
+    }
     plot(x[,"nsubsets"], ylim=c(0, max.subsets), type=type.nsubsets,
          xlab="", xaxt="n", ylab="nsubsets",
          main=main, lty=lty.nsubsets, col=col.nsubsets)
@@ -169,19 +179,19 @@ plot.evimp <- function(
                col=c(col.nsubsets, col.gcv, col.rss),
                lty=c(lty.nsubsets, lty.gcv, lty.rss),
                bg="white", cex=cex.legend)
-     # right hand axis: normalized rss/gcv values, always 0...100
-     # TODO how to get the x position in the call to text correct for all window sizes?
-     axis(side=4, # col.axis=col.gcv,
-          at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets),
-          labels=c(0,20,40,60,80,100))
-     text(x=nrows + nrows / 4, y = max.subsets/2, "normalized gcv or rss",
-          xpd=NA, # no clip to plot region
-          srt=90) # rotate text
-     # bottom axis: variable names
-     labels <- paste(rownames(x), sprintf("%4d", x[,"col"]))
-     # axis() ignores the cex parameter (a bug?), so set cex globally
-     old.par <- par(cex=cex.var)
-     on.exit(par(old.par))
-     axis(side=1, at=seq(1,nrows,by=1), labels=labels, las=3)
-     invisible()
+    # right hand axis: normalized rss/gcv values, always 0...100
+    # TODO how to get the x position in the call to text correct for all window sizes?
+    axis(side=4, # col.axis=col.gcv,
+         at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets),
+         labels=c(0,20,40,60,80,100))
+    text(x=nrows + nrows / 4, y = max.subsets/2, "normalized gcv or rss",
+         xpd=NA, # no clip to plot region
+         srt=90) # rotate text
+    # bottom axis: variable names
+    labels <- paste(rownames(x), sprintf("%4d", x[,"col"]))
+    # axis() ignores the cex parameter (a bug?), so set cex globally
+    if(do.par || cex.var != 1)
+        par(cex=cex.var)
+    axis(side=1, at=seq(1,nrows,by=1), labels=labels, las=3)
+    invisible()
 }

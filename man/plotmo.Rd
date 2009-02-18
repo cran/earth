@@ -7,7 +7,7 @@ or two predictors while holding all the other predictors constant.
 }
 \usage{
 plotmo(object = stop("no 'object' arg"),
-       degree1 = TRUE, degree2 = TRUE, ycolumn = 1,
+       degree1 = TRUE, degree2 = TRUE, ycolumn = 1, type="response",
        caption = if(do.par) NULL else "",
        ylim = NULL, clip = TRUE, inverse.func = NULL,
        col.response = 0, pch.response = 1, trace = FALSE, 
@@ -29,7 +29,8 @@ To start off, look at the arguments
   \code{clip}, and
   \code{do.par}.
 You will also need the \code{ycolumn} argument if your model has multiple responses
-(which will be the case if your response is a factor with more than two levels).
+(which will be the case for \code{\link{earth}} models if your response is a 
+factor with more than two levels).
 
   \item{object}{
         Model object.
@@ -49,6 +50,11 @@ You will also need the \code{ycolumn} argument if your model has multiple respon
   \item{ycolumn}{
      Specify which column of the response to plot if the model has multiple responses.
      Default is 1.
+  }
+  \item{type}{
+    type parameter passed onto \code{\link{predict}}.
+    Default is \code{"response"}.
+    See \code{\link{predict.earth}} for other values for earth models.
   }
   \item{caption}{
     Overall caption.  The default value is
@@ -242,8 +248,8 @@ It is intended for models with quantitative responses.
 
 \bold{The general idea}
 
-Plotmo plots a degree1 plot by changing one predictor while holding 
-all other predictors at a constant value.
+Plotmo plots a degree1 plot of predicted values 
+by changing one predictor while holding all other predictors at a constant value.
 For degree2 plots, plotmo changes two variables
 while holding all other predictors at a constant value.
 
@@ -267,14 +273,14 @@ the value returned by \code{grid.func} applied to \code{x1}).
 Likewise for the \code{x3} column.
 It sets the \code{x2} column to an equally spaced sequence of values
 from \code{min(x2)} to \code{max(x2)}.
-Finally, it calls \code{\link{predict}}\code{(type="response")} with the newly created input matrix,
+Finally, it calls \code{\link{predict}}\code{(type=type)} with the newly created input matrix,
 and plots the predicted values against the sequence of \code{x2} values.
 
 Operation is similar for degree2 plots: all columns of the input
 matrix for \code{\link{predict}} are set to their medians except for the columns of the two
 predictors being plotted.
 
-Note that \code{plotmo} calls \code{\link{predict}} with new data and
+Note that by default \code{plotmo} calls \code{\link{predict}} with new data and
 \code{type="response"}, whereas \code{\link{termplot}}
 calls \code{\link{predict}} with \code{type="terms"}.
 
@@ -378,21 +384,24 @@ data(ozone1)
 a <- earth(O3 ~ ., data = ozone1, degree = 2)
 plotmo(a)
 
-# example with some arguments:
-# plotmo(a, caption = "example", ylim = NULL, degree1 = c(1,2,4),
-#   degree2 = 4, col.response = 3, clip = FALSE, ticktype = "d", theta = -30)
+\dontrun{
+  # example with some arguments
 
-# examples using functions other than earth:
-#
-# plotmo(lm(O3 ~ log(temp) + humidity*temp, data=ozone1), se=2)
-#
-# library(gam)
-# data(airquality)
-# airquality <- na.omit(airquality)  # plotmo doesn't know how to deal with NAs
-# plotmo(gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality))
-#
-# library(mgcv)
-# plotmo(gam(O3 ~ s(doy) + s(humidity,temp), data=ozone1), se=2, ylim=NA)
+  plotmo(a, caption = "example", ylim = NULL, degree1 = c(1,2,4),
+  degree2 = 4, col.response = 3, clip = FALSE, ticktype = "d", theta = -30)
+
+  # examples using functions other than earth
+
+  plotmo(lm(O3 ~ log(temp) + humidity*temp, data=ozone1), se=2)
+
+  library(gam)
+  data(airquality)
+  airquality <- na.omit(airquality)  # plotmo doesn't know how to deal with NAs
+  plotmo(gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality))
+
+  library(mgcv)
+  plotmo(gam(O3 ~ s(doy) + s(humidity,temp), data=ozone1), se=2, ylim=NA)
+}
 }
 \keyword{models}
 \keyword{regression}
