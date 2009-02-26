@@ -77,7 +77,7 @@ plotd(a, main="histogram", hist=TRUE)
 plotd(a, main="histogram, type=class", 
       hist=TRUE, type="class", 
       col=c("brown", "black"), 
-      legend.pos=c(.2,500), legend.cex=.7, legend.extra=TRUE)
+      legend.pos=c(.2,500), legend.cex=.7, legend.extra=TRUE, labels=TRUE)
 
 # test plotd with a logical response
 
@@ -92,7 +92,7 @@ plotd(a2, main="binary, default hist", hist=TRUE)
 lm1 <- lm(survived ~ ., data=etitanic)
 plotd(lm1)
 plotd(lm1, main="lm1, survived")
-plotd(lm1, hist=1, main="lm1, survived, hist=1")
+plotd(lm1, hist=1, main="lm1, survived, hist=1, labels=1", labels=1)
 
 lm2 <- lm(unclass(pclass)-1 ~ ., data=etitanic)
 plotd(lm2)

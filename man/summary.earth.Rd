@@ -8,7 +8,7 @@ Summary method for \code{\link{earth}} objects.
 \usage{
 \method{summary}{earth}(object = stop("no 'object' arg"),
         details = FALSE, decomp = "anova", 
-        style = c("h", "pmax", "bf"), 
+        style = c("h", "pmax", "max", "bf"), 
         digits = getOption("digits"), fixed.point=TRUE, \dots)
 
 \method{print}{summary.earth}(x = stop("no 'x' arg"),
@@ -26,7 +26,7 @@ Summary method for \code{\link{earth}} objects.
   }
   \item{details}{
     Default is FALSE.
-    Use TRUE for \code{\link{earth}}
+    Use TRUE 
     to print more information about \code{\link{earth}}--\code{\link{glm}} models.
     But note that the displayed P-values of the GLM coefficients
     are meaningless because of the amount of preprocessing
@@ -42,6 +42,7 @@ Summary method for \code{\link{earth}} objects.
     Formatting style. One of\cr
 \code{"h"} (default) more compact\cr
 \code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
+\code{"max"} is the same as \code{"pmax"} but prints \code{max} rather than \code{pmax}\cr
 \code{"bf"} basis function format.
   }
   \item{digits}{
@@ -82,6 +83,8 @@ but with the following extra components.
   \item{fixed.point}{
     The corresponding arguments, passed on to \code{print.summary.earth}.
   }
+}
+\note{
 The printed \code{Estimated importance} uses \code{\link{evimp}}
 with the \code{nsubsets} criterion.
 The most important predictor is printed first, and so on.

@@ -1,6 +1,13 @@
 Changes to Earth Package
 ------------------------
 
+2.3-1 Feb 26 2009
+    Doc touchups
+    Added leaps::: prefix needed for new version of the leaps package
+    Added style="max" to summary.earth
+    Added labels param to plotd
+    Reordered some of earth's arguments
+
 2.3-0 Feb 18 2009
     Added the plotd function
     Removed some restrictions on type="class" in predict.earth

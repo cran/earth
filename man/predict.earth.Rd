@@ -18,8 +18,8 @@ Predict with an \code{\link{earth}} model.
     Make predictions using \code{newdata}, which
     can be a dataframe, a matrix, or a vector with length equal to a multiple of the row length
     of the original input matrix \code{x}.
-    Note that this more flexible than the predict methods for most R models.
-    Default is NULL, meaning return the fitted values from the training set.
+    Note that this is more flexible than the predict methods for most R models.
+    Default is NULL, meaning return values predicted from the training set.
   }
   \item{type}{
      Type of prediction.
@@ -28,7 +28,7 @@ Predict with an \code{\link{earth}} model.
   }
   \item{thresh}{
     Threshold, typically a value between 0 and 1 when predicting a probability.
-    Only applies when \code{type="class"}). 
+    Only applies when \code{type="class"}. 
     Default is .5.
     See the \bold{Note} below.
   }

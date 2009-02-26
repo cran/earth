@@ -8,7 +8,7 @@ Draw a plot of the distribution of the predicted values for each class.
 plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL, 
     main=NULL, xlab="Predicted Value", ylab=if(hist) "Count" else "Density",
     lty = 1, col = c("grey60", 1, "lightblue", "brown", "pink", 2, 3, 4),
-    borders = NULL, zero.line=FALSE,
+    borders = NULL, labels=FALSE, zero.line=FALSE,
     legend = TRUE, legend.names = NULL, legend.pos = NULL,
     legend.cex = .8, legend.bg = "white", legend.extra = FALSE,
     vline.col = 0, vline.thresh = thresh, vline.lty = 1,
@@ -31,12 +31,13 @@ plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL,
     for example see \code{\link{predict.earth}}.
     Typically you would set \code{hist=TRUE} if \code{type="class"}.
   }
-  \item{thresh }{
+  \item{thresh}{
     Passed to \code{\link{predict.earth}} (only used if \code{type="class"}).
     Default is \code{.5}.
     Also used as a default for the \code{vline.thresh} argument (see below).
+    Also used for multiple column numeric responses.
   }
-  \item{xlim }{
+  \item{xlim}{
     limits of the x axis.
     The default \code{NULL} means determine these limits automatically,
     else specify \code{c(xmin,xmax)}.
@@ -55,59 +56,63 @@ plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL,
     y axis label.
     Default is \code{if(hist) "Count" else "Density"}.
   }
-  \item{lty }{
+  \item{lty}{
     per class line types for the plotted lines.
     Default is 1 for all lines.
   }
-  \item{col }{
+  \item{col}{
     per class graph colors.
     The first few colors of the default are intended to be
     easily distinguishable on both color displays and monochrome printers.
   }
-  \item{borders }{
+  \item{borders}{
     per class border colors for \code{\link{hist}} plot.
     Only used if \code{hist=TRUE}.
     The default \code{NULL} means use the values in the \code{col} argument.
+  }
+  \item{labels}{
+    TRUE to draw counts or rounded densities on \code{\link{hist}} plot.
+    Default is \code{FALSE}.
   }
   \item{zero.line}{
     parameter for \code{\link{plot.density}}.
     Only used if \code{hist=FALSE}.
     Default is \code{FALSE}.
   }
-  \item{legend }{
+  \item{legend}{
     \code{TRUE} (default) to draw a legend
   }
-  \item{legend.names }{
+  \item{legend.names}{
     class names in legend.
     The default \code{NULL} means determine these automatically.
   }
-  \item{legend.pos }{
+  \item{legend.pos}{
     position of the legend.
     The default \code{NULL} means try to position the legend automatically,
     else specify \code{c(x,y)}.
   }
-  \item{legend.cex }{
+  \item{legend.cex}{
     \code{cex} for \code{\link{legend}}.
     Default is \code{.8}.
     Make this smaller for a smaller legend.
   }
-  \item{legend.bg }{
+  \item{legend.bg}{
    \code{bg} color for \code{\link{legend}}.
    Default is \code{"white"}.
   }
-  \item{legend.extra }{
+  \item{legend.extra}{
     show number of occurrences of each class.
     Default is \code{FALSE}.
   }
-  \item{vline.col }{
+  \item{vline.col}{
     color of vertical line.
     Default is 0, meaning no vertical line.
     The vertical line is intended to indicate class separation.
   }
-  \item{vline.thresh }{
+  \item{vline.thresh}{
     x position of vertical line.  Default is \code{thresh}.
   }
-  \item{vline.lty }{
+  \item{vline.lty}{
     line type of vertical line.
     Default is 1.
   }
@@ -139,7 +144,7 @@ plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL,
   the model, and with the \code{type} specified above.
   It then separates the predicted values into classes,
   where the class for each predicted value
-  is determined by the class (i.e. factor level) of the observed response.
+  is determined by the class of the observed response.
   Finally, it calls \code{\link{density}} (or \code{\link{hist}}
   if \code{hist=TRUE}) for each class-specific set of values,
   and plots the results.
@@ -161,12 +166,12 @@ plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL,
   If the \emph{observed response is a factor and the predicted response 
   is a single numeric column}, \code{plotd} partitions the predicted 
   response into two classes --- the first level
-  of the factor in the observed response versus all other levels.
+  of the factor (in the observed response) versus all others.
 
   If the \emph{observed response is a factor and the predicted response 
   is a single \emph{factor} column}, \code{plotd} partitions the predicted
   response into the levels of the observed response.
-  This occurs for earth models using predictions with \code{type="class")}.
+  This occurs for earth models using predictions with \code{type="class"}.
 
   If the \emph{observed response is a factor and the predicted response 
   has multiple numeric columns}, 
@@ -175,18 +180,21 @@ plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL,
   This type of response occurs for earth models where the observed response 
   is a factor with two or more levels 
   (see the "Factors" section on the \code{\link{earth}} help page).
-  In this case, the predicted values for each factor are taken to be 
+  The number of classes is taken to be the number of factor levels,
+  or, equivalently, the number of columns in the predicted response.
+  The predicted values for each factor are taken to be 
   those elements of each column of the predicted response
   which match the column's factor level in the observed response.
   The remaining elements in the column are not plotted.
 
-  If the \emph{observed response has multiple numeric columns and the predicted response 
-  has multiple numeric columns}, 
+  If the \emph{observed response has multiple numeric (or logical) columns 
+  and the predicted response has the same number of numeric (or logical) columns}, 
   \code{plotd} assumes each column of the predicted response corresponds
   to a column in the observed response.
   This type of response occurs for \code{\link{lm}} or earth models where the observed response 
   has multiple numeric or logical columns.
-  It selects the elements in a column of a predicted response
+  The number of classes is taken to be the number of columns in the response.
+  In this situation, \code{plotd} selects the elements in a column of a predicted response
   matching elements in the corresponding column in the observed response
   which are greater than \code{thresh}.
   The remaining elements in the column are not plotted.

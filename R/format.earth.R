@@ -22,6 +22,8 @@
 #         -  2.8664516 * pmax(0,   12.9 -  Girth)
 #         + 0.71833643 * pmax(0, Height -     76)
 #
+# Style="max" is the same as "pmax" but prints "max" rather than "pmax".
+#
 # For style="bf" the result looks like this:
 #
 #         bf1: h(Girth-12.9)
@@ -119,14 +121,17 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coefs
 # style argument:
 #   "h"    gives "h(survived-0) * h(16-age)"
 #   "pmax" gives "pmax(0, survived - 0) * pmax(0, 16 - age)"
+#   "max"  gives "max(0, survived - 0) * max(0, 16 - age)"
 #   "bf"   gives basis functions e.g. "bf1" or "bf1 * bf3"
 
-get.term.strings <- function(obj, digits, use.names, style = c("h", "pmax", "bf"), neworder)
+get.term.strings <- function(obj, digits, use.names, 
+                             style = c("h", "pmax", "max", "bf"), neworder)
 {
     switch(match.arg1(style),
-        get.term.strings.h(obj, digits, use.names, neworder),    # "h"
-        get.term.strings.pmax(obj, digits, use.names, neworder), # "pmax"
-        get.term.strings.bf(obj, digits, use.names, neworder))   # "bf"
+        get.term.strings.h(obj, digits, use.names, neworder),            # "h"
+        get.term.strings.pmax(obj, digits, use.names, neworder, "pmax"), # "pmax"
+        get.term.strings.pmax(obj, digits, use.names, neworder, "max"),  # "max"
+        get.term.strings.bf(obj, digits, use.names, neworder))           # "bf"
 }
 
 get.term.strings.h <- function(obj, digits, use.names, new.order)
@@ -141,7 +146,7 @@ get.term.strings.h <- function(obj, digits, use.names, new.order)
 
 # TODO need to add factor simplification to this routine
 
-get.term.strings.pmax <- function(obj, digits, use.names, new.order)
+get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
 {
     # get.width returns the width for printing elements of the earth expression.
     # This is used to keep things lined up without too much white space.
@@ -181,13 +186,13 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order)
                                     prefix, width=width,
                                     var.names[ipred], width=width, "")
                 else if(dir[ipred] == -1)
-                    s[iterm] <- pastef(s[iterm], "%spmax(0, %s - %*s) ",
-                                     prefix, format(cut[ipred],
+                    s[iterm] <- pastef(s[iterm], "%s%s(0, %s - %*s) ",
+                                     prefix, funcname, format(cut[ipred],
                                      width=width, digits=digits),
                                      width, var.names[ipred])
                 else if(dir[ipred] == 1)
-                    s[iterm] <- pastef(s[iterm], "%spmax(0, %*s - %s) ",
-                                     prefix, width=width, var.names[ipred],
+                    s[iterm] <- pastef(s[iterm], "%s%s(0, %*s - %s) ",
+                                     prefix, funcname, width=width, var.names[ipred],
                                      format(cut[ipred], width=width,
                                      digits=digits))
                 else
