@@ -16,6 +16,7 @@ plotd <- function(object,   # object is a model object
     lty = 1,                # linetypes for the plotted lines
     col = c("grey60", 1, "lightblue", "brown", "pink", 2, 3, 4), # cols for plotted lines
     borders = NULL,         # border colors for hist plot, NULL means use col
+    labels = FALSE,         # labels parameter for hist plot, only TRUE or FALSE
     zero.line = FALSE,      # parameter for density plot, only used if hist=FALSE
     legend = TRUE,          # TRUE to draw a legend
     legend.names = NULL,    # NULL means auto, else specify a vector of strings,
@@ -28,6 +29,16 @@ plotd <- function(object,   # object is a model object
     vline.lty = 1,          # line type of vertical line
     ...)                    # passed on to density or hist
 {
+    if(typeof(object) != "list")
+        stop1("'", deparse(substitute(object)), "' is not a model object")
+    if(is.null(coef(object)))
+        warning1("'", deparse(substitute(object)),
+            "' doesn't look like a model object, because the coef component is NULL")
+    if(is.numeric(labels))
+        labels <- as.logical(labels)
+    if(!is.logical(labels) || length(labels) != 1)
+        stop1("labels parameter must be a logical")
+
     # issue an error message if a dots argument is not in allowed.args
     # allowed.args is the list of arguments accepted by density() or hist()
     # but excluding the ones we have subsumed for our own use and those
@@ -75,7 +86,7 @@ plotd <- function(object,   # object is a model object
     # get y limits of density plot
 
     ymax <- -1
-    for (iclass in 1:nclasses) {
+    for(iclass in 1:nclasses) {
         if(hist) # need y component so hist can be treated like density below
             densities[[iclass]]$y <- densities[[iclass]]$counts
         ymax <- max(ymax, densities[[iclass]]$y)
@@ -97,7 +108,8 @@ plotd <- function(object,   # object is a model object
 
     if(hist) # plot.hist
         plot(densities[[1]], xlim=xlim, ylim=c(0, ymax), col=col[1],
-             main=main, xlab=xlab, ylab=ylab, lty=lty[1], border=borders[1])
+             main=main, xlab=xlab, ylab=ylab, lty=lty[1], 
+             border=borders[1], labels=labels)
     else # plot.density
         plot(densities[[1]], xlim=xlim, ylim=c(0, ymax), col=col[1],
              main=main, xlab=xlab, ylab=ylab, lty=lty[1], zero.line=zero.line)
@@ -105,9 +117,10 @@ plotd <- function(object,   # object is a model object
     # overlay the remaining graphs
 
     stopifnot(nclasses >= 2)
-    for (iclass in 2:nclasses)
+    for(iclass in 2:nclasses)
         if(hist) # lines.histogram
-            lines(densities[[iclass]], col=NULL, lty=lty[iclass], border=borders[iclass])
+            lines(densities[[iclass]], col=NULL, lty=lty[iclass], 
+                  border=borders[iclass], labels=labels)
         else # lines.density
             lines(densities[[iclass]], col=col[iclass], lty=lty[iclass])
 
@@ -221,7 +234,7 @@ get.predictions.per.class <- function(object, type, thresh)
                 stop1("length(levels) < 2")
             if(is.factor(yhat)) {
                 # factor yhat, split into nlevels classes
-                for (iclass in 1:length(levels)) {
+                for(iclass in 1:length(levels)) {
                     level <- levels[iclass]
                     yhat.per.class[[iclass]] <- yhat[y == level]
                     len <- length(yhat.per.class[[iclass]])
@@ -273,7 +286,7 @@ get.predictions.per.class <- function(object, type, thresh)
             cannot.use("ncol(yhat)>1, yhat not numeric")
         if(is.factor(y) && NCOL(y) == 1) {
             levels <- levels(y)
-            for (iclass in 1:ncol(yhat)) {
+            for(iclass in 1:ncol(yhat)) {
                 level <- levels[iclass]
                 yhat.per.class[[iclass]] <- yhat[y == level, iclass]
                 check.min(yhat.per.class[[iclass]], level)
@@ -283,7 +296,7 @@ get.predictions.per.class <- function(object, type, thresh)
             }
             names(yhat.per.class) <- levels(y)
         } else if(is.numeric(y) && NCOL(y) == NCOL(yhat)) {
-            for (iclass in 1:ncol(yhat)) {
+            for(iclass in 1:ncol(yhat)) {
                 yhat.per.class[[iclass]] <- yhat[y[,iclass] > thresh, iclass]
                 check.min(yhat.per.class[[iclass]], "y > thresh")
                 if(length(yhat.per.class[[iclass]]) == length(yhat[,iclass]))

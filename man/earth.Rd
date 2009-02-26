@@ -26,9 +26,10 @@ and "Fast MARS".
 \method{earth}{fit}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
     weights = NULL, wp = NULL, scale.y = (NCOL(y)==1), subset = NULL,
     na.action = na.fail, glm = NULL, trace = 0,
-    penalty = if(degree > 1) 3 else 2, nk = max(21, 2 * ncol(x) + 1),
-    degree = 1, linpreds = FALSE, allowed = NULL, thresh = 0.001,
+    nk = max(21, 2 * ncol(x) + 1), degree = 1, 
+    penalty = if(degree > 1) 3 else 2, thresh = 0.001, 
     minspan = 0, newvar.penalty = 0, fast.k = 20, fast.beta = 1, 
+    linpreds = FALSE, allowed = NULL,
     pmethod = "backward", nprune = NULL, Object = NULL,
     Get.crit = get.gcv, Eval.model.subsets = eval.model.subsets,
     Print.pruning.pass = print.pruning.pass, Force.xtx.prune = FALSE,
@@ -140,15 +141,6 @@ For cross validation, use the \code{nfold} argument.
 
      \bold{The following arguments are for the forward pass.}
   }
-  \item{penalty}{
-    Generalized Cross Validation (GCV) penalty per knot.
-    Default is \code{if(degree>1) 3 else 2}.
-    A value of 0 penalizes only terms, not knots.
-    The value -1 is a special case, meaning no penalty, so GCV=RSS/n.
-    Theory suggests values in the range of about 2 to 4.
-    In practice, for big data sets larger values can be useful to force a smaller model.
-    The FAQ section below has some information on GCVs.
-  }
   \item{nk}{
      Maximum number of model terms before pruning.
      Includes the intercept.
@@ -162,37 +154,14 @@ For cross validation, use the \code{nfold} argument.
      Maximum degree of interaction (Friedman's \eqn{mi}).
      Default is 1, meaning build an additive model (i.e., no interaction terms).
   }
-  \item{linpreds}{
-     Index vector specifying which predictors should enter linearly, as in \code{\link{lm}}.\cr
-     The default is FALSE, meaning all predictors enter
-     in the standard MARS fashion, i.e., in hinge functions.\cr
-     A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
-     after factors have been expanded.
-     Examples are given in the FAQ section below.\cr
-     Note: in the current implementation, the GCV penalty for predictors
-     that enter linearly is the same as that for predictors with knots.
-     That is not quite correct; linear terms should be penalized less.
-  }
-  \item{allowed}{
-     Function specifying which predictors can interact and how.
-     Default is NULL, meaning all standard MARS terms are allowed.\cr
-     Earth calls the \code{allowed} function just before adding a term
-     in the forward pass.
-     If \code{allowed} returns TRUE the term goes into the model as usual;
-     if \code{allowed} returns FALSE the term is discarded.
-     Examples are given in the FAQ section below.\cr
-     Your \code{allowed} function should have the following prototype\cr
-     \code{allowed <- function(degree, pred, parents, namesx, first) \{.....\}}\cr
-     where\cr
-        \code{degree} is the interaction degree of the candidate term.
-              Will be 1 for additive terms.\cr
-        \code{pred} is the index of the candidate predictor.
-             A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
-             after factors have been expanded.\cr
-        \code{parents} is the candidate parent term's row in \code{dirs}.\cr
-        \code{namesx} is optional and if present is the column names of \code{x} after factors have been expanded.\cr
-        \code{first} is optional and if present is TRUE the first time your \code{allowed} function is invoked for
-        the current model, and thereafter FALSE.
+  \item{penalty}{
+    Generalized Cross Validation (GCV) penalty per knot.
+    Default is \code{if(degree>1) 3 else 2}.
+    A value of 0 penalizes only terms, not knots.
+    The value -1 is a special case, meaning no penalty, so GCV=RSS/n.
+    Theory suggests values in the range of about 2 to 4.
+    In practice, for big data sets larger values can be useful to force a smaller model.
+    The FAQ section below has some information on GCVs.
   }
   \item{thresh}{
      Forward stepping threshold.
@@ -245,6 +214,38 @@ For cross validation, use the \code{nfold} argument.
      Fast MARS paper section 3.1.
      Default is 1.
      A value of 0 sometimes gives better results.
+  }
+  \item{linpreds}{
+     Index vector specifying which predictors should enter linearly, as in \code{\link{lm}}.\cr
+     The default is FALSE, meaning all predictors enter
+     in the standard MARS fashion, i.e., in hinge functions.\cr
+     A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
+     after factors have been expanded.
+     Examples are given in the FAQ section below.\cr
+     Note: in the current implementation, the GCV penalty for predictors
+     that enter linearly is the same as that for predictors with knots.
+     That is not quite correct; linear terms should be penalized less.
+  }
+  \item{allowed}{
+     Function specifying which predictors can interact and how.
+     Default is NULL, meaning all standard MARS terms are allowed.\cr
+     Earth calls the \code{allowed} function just before adding a term
+     in the forward pass.
+     If \code{allowed} returns TRUE the term goes into the model as usual;
+     if \code{allowed} returns FALSE the term is discarded.
+     Examples are given in the FAQ section below.\cr
+     Your \code{allowed} function should have the following prototype\cr
+     \code{allowed <- function(degree, pred, parents, namesx, first) \{.....\}}\cr
+     where\cr
+        \code{degree} is the interaction degree of the candidate term.
+              Will be 1 for additive terms.\cr
+        \code{pred} is the index of the candidate predictor.
+             A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
+             after factors have been expanded.\cr
+        \code{parents} is the candidate parent term's row in \code{dirs}.\cr
+        \code{namesx} is optional and if present is the column names of \code{x} after factors have been expanded.\cr
+        \code{first} is optional and if present is TRUE the first time your \code{allowed} function is invoked for
+        the current model, and thereafter FALSE.
   }
   \item{nfold}{
      Number of cross validation folds.
@@ -561,7 +562,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
       the left-out data for each response of the model generated at that row's fold.
       The final column holds the row mean (a weighted mean if \code{wp} if specified).
       The final row of the table holds the column means.
-      The values in this row are the CV-RSqs printed by \link{summary.earth}.
+      The values in this final row are the CV-RSqs printed by \link{summary.earth}.
 \cr\cr
       Example for a single response model:
 \preformatted{            y  mean
@@ -1261,7 +1262,8 @@ Pass \code{warn=FALSE} to these functions to turn of just these warnings.\cr\cr
 \bold{FREQUENTLY ASKED QUESTIONS}\cr\cr
 \bold{What are your plans for earth?}
 
-We would like to add support of case weights (to allow boosting).
+We would like to add support of case weights (to allow boosting),
+but that won't happen anytime soon.
 
 \bold{How can I establish variable importance?}
 
@@ -1582,10 +1584,10 @@ But that can be painfully slow.
 As an alternative, for certain forms of model we can use a formula to
 approximate the error that would be determined by leave-one-out
 validation --- that approximation is the GCV.
-The formula adjusts (i.e., increases) the mean training RSS to take into
+The formula adjusts (i.e., increases) the training RSS to take into
 account the flexibility of the model.
-Summarizing, the GCV approximates the mean RSS that would
-be measured on independent data.
+Summarizing, the GCV approximates the RSS (divided by the number of cases)
+that would be measured on independent data.
 Even when the approximation is not that good,
 it is usually good enough for comparing models during pruning.
 
@@ -1602,10 +1604,17 @@ in the same way that R-Squared standardizes the RSS.
 
 \bold{If GCVs are so important, why don't linear models use them?}
 
+First a few words about overfitting.
+An overfit model fits the training data well but will not give good predictions on new data.
+The idea is that the training data captures the underlying structure
+in the system being modeled plus noise.
+We want to model the underlying structure and ignore the noise.
+An overfit model models the specific realization of noise in the training data
+and thus is too specific to the training data.
+
 The more flexible a model, the more its propensity to overfit the training data.
-(An overfit model fits the training data well but will not give good predictions on new data.)
 Linear models are constrained, with usually only a few parameters,
-and don't have the tendency to overfit the data like more flexible models such as MARS.
+and don't have the tendency to overfit like more flexible models such as MARS.
 This means that for linear models, the RSS on the data used to build the model is usually an
 adequate measure of generalization ability.
 

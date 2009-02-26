@@ -174,7 +174,8 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
     object  = stop("no 'object' arg"),
     details = FALSE,
     decomp  = "anova",        # see reorder.earth for legal decomp values
-    style   = c("h", "pmax", "bf"), # use "pmax" for old earth style earth expression formatting
+    style   = c("h", "pmax", "max", "bf"), 
+                              # use "pmax" for old earth style earth expression formatting
     digits  = getOption("digits"),
     fixed.point = TRUE,       # see help page
     ...)                      # extra args passed on to format.earth
@@ -183,6 +184,7 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
     switch(match.arg1(style),
         NULL,                                                                              # "h"
         rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style), # "pmax"
+        rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style), # "max"
         rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style)) # "bf"
     rval$details     <- details  # ditto
     rval$decomp      <- decomp

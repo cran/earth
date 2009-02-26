@@ -74,7 +74,7 @@ factor with more than two levels).
      (where "y" is actually "z" on degree2 plots).
      The limits are the min and max values of y across all (degree1 and degree2) plots.
      If \code{col.response!=0} then the original response is
-     included in the min and max calculation.\cr
+     also included in the min and max calculation.\cr
 
      \code{NA} each graph has its own y limits.\cr
 
@@ -253,7 +253,7 @@ by changing one predictor while holding all other predictors at a constant value
 For degree2 plots, plotmo changes two variables
 while holding all other predictors at a constant value.
 
-The question arises: what should the constant value be for each predictor?
+The question arises: what should the constant be for each predictor?
 For numerical predictors it is the median of the predictor values in the input matrix x;
 for factor predictors it is the first level of the factor.
 You can change those defaults with the \code{grid.func} and \code{grid.levels} arguments.

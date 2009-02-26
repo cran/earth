@@ -357,21 +357,17 @@ earth.fit <- function(
     trace = 0,              # 0 none 1 overview 2 forward 3 pruning
                             # 4 model mats, memory use, more pruning, etc. 5  ...
 
+    nk      = max(21, 2 * ncol(x) + 1),
+                            # max number of model terms including intercept
+
+    degree         = 1,     # max degree of interaction (1=additive model) (Friedman's mi)
+
     penalty = if(degree > 1) 3 else 2,
                             # GCV penalty per knot:
                             #   0 penalizes only terms (not knots)
                             #   special case -1 means no penalty (so GRSq==RSq)
 
                             # Following affect forward pass only, not pruning pass
-
-    nk      = max(21, 2 * ncol(x) + 1),
-                            # max number of model terms including intercept
-
-    degree         = 1,     # max degree of interaction (1=additive model) (Friedman's mi)
-
-    linpreds       = FALSE, # index vector specifying which preds must enter linearly
-
-    allowed        = NULL,  # constraint function specifying allowed interactions
 
     thresh         = 0.001, # used as one of the conditions to stop adding terms in forw pass
                             # stop if RSqDelta<thresh or 1-RSq<thresh
@@ -386,6 +382,10 @@ earth.fit <- function(
 
                             # Following affect pruning only, not forward pass
                             # If you change these, update prune.only.args too!
+
+    linpreds       = FALSE, # index vector specifying which preds must enter linearly
+
+    allowed        = NULL,  # constraint function specifying allowed interactions
 
     pmethod = "backward",   # for legal values see eval.model.subsets.*
     nprune  = NULL,         # max nbr of terms (including intercept) in prune subset
@@ -654,24 +654,24 @@ eval.model.subsets.with.leaps <- function(
         flush.console()
     }
     if(is.null(weights))
-        rprune <- leaps.setup(x=bx, y=y,
+        rprune <- leaps:::leaps.setup(x=bx, y=y,
                     force.in=1,        # make sure intercept is in model
                     force.out=NULL,
                     intercept=FALSE,   # we have an intercept so leaps.setup must not add one
                     nvmax=nprune, nbest=1, warn.dep=TRUE)
     else
-        rprune <- leaps.setup(x=bx, y=y, wt=weights,
+        rprune <- leaps:::leaps.setup(x=bx, y=y, wt=weights,
                     force.in=1,
                     force.out=NULL,
                     intercept=FALSE,
                     nvmax=nprune, nbest=1, warn.dep=TRUE)
 
     rprune <- switch(match.arg1(pmethod),
-                    leaps.backward(rprune),     # "backward"
-                    leaps.backward(rprune),     # "none"
-                    leaps.exhaustive(rprune, really.big=TRUE),
-                    leaps.forward(rprune),
-                    leaps.seqrep(rprune))
+                    leaps:::leaps.backward(rprune),     # "backward"
+                    leaps:::leaps.backward(rprune),     # "none"
+                    leaps:::leaps.exhaustive(rprune, really.big=TRUE),
+                    leaps:::leaps.forward(rprune),
+                    leaps:::leaps.seqrep(rprune))
     if(pacify)
         cat("\n")
     rss.per.subset <- as.vector(rprune$ress) # convert from n x 1 mat to vector
@@ -1408,7 +1408,7 @@ residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=
                   arg.name="type")
     rval <- switch(itype,
         object$residuals,                               # earth
-        if(is.null(object$glm.list)) object$residuals  # deviance
+        if(is.null(object$glm.list)) object$residuals   # deviance
             else glm.resids(object, type),
         glm.resids(object, type),                       # pearson
         glm.resids(object, type),                       # working

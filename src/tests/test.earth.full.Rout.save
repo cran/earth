@@ -705,6 +705,11 @@ frmt.r> cat(format(a, style="bf"))
   +   5.746 * pmax(0,  Girth -   12.9) 
   -  2.8665 * pmax(0,   12.9 -  Girth) 
   + 0.71834 * pmax(0, Height -     76) 
+> cat(format(a, style="max"))
+  23.208
+  +   5.746 * max(0,  Girth -   12.9) 
+  -  2.8665 * max(0,   12.9 -  Girth) 
+  + 0.71834 * max(0, Height -     76) 
 > cat(format(a, style="bf"))
   23.208
   +   5.746 * bf1
@@ -719,6 +724,11 @@ frmt.r> cat(format(a, style="bf"))
   +   5.746 * pmax(0, x[,1] -  12.9) 
   -  2.8665 * pmax(0,  12.9 - x[,1]) 
   + 0.71834 * pmax(0, x[,2] -    76) 
+> cat(format(a, use.names=FALSE, style="m"))
+  23.208
+  +   5.746 * max(0, x[,1] -  12.9) 
+  -  2.8665 * max(0,  12.9 - x[,1]) 
+  + 0.71834 * max(0, x[,2] -    76) 
 > a <- earth(Volume ~ Girth*Height, data = trees, pmethod="none")
 > cat(format(a))
   22.106

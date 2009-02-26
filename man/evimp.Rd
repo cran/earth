@@ -17,7 +17,7 @@ evimp(obj, trim=TRUE, sqrt.=FALSE)
   }
   \item{sqrt.}{
     Default is FALSE.
-    If TRUE, take the sqrt of the GCV and RSS importances before
+    If TRUE, take the \code{\link{sqrt}} of the GCV and RSS importances before
     normalizing to 0 to 100.
     This arguably gives a better indication of relative importances
     because the raw importances are calculated using a sum of squares.

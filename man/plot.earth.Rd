@@ -171,7 +171,8 @@ and, depending on the model, varies from 0
 (a model that always predicts the same value i.e. the mean observed response value)
 to 1 (a model that perfectly predicts the responses in the training data).
 The \emph{Generalized Cross Validation} (GCV) 
-is a form of the mean RSS penalized by the effective number of model parameters.
+is a form of the RSS penalized by the effective number of model parameters
+(and divided by the number of observations).
 More details can be found in the FAQ section of the \code{\link{earth}} help page.
 The \emph{GRSq} normalizes the GCV in the same way that the RSq normalizes
 the RSS.
@@ -180,7 +181,7 @@ i.e., how well the model would predict using data not in the training set.
 There is some arbitrariness in their values since the effective
 number of model parameters is a just an estimate in MARS models.
 
-In the \bold{Model Selection} graph,
+In the example \bold{Model Selection} graph,
 the RSq and GRSq run together at first, but diverge as the number of terms increases.
 This is typical behavior, and what we are seeing is an increased penalty
 being applied to the GCV as the number of model parameters increases.
@@ -208,7 +209,7 @@ idea of the size of the residuals relative to the predicted values.
 
 Ideally the residuals should show constant variance
 i.e. the residuals should remain evenly spread out as the fitted values increase.
-However, here we see heteroscedasity --- the residuals spread out in a "<" shape.
+However, in the example graph we see heteroscedasity --- the residuals spread out in a "<" shape.
 There is a decrease in the accuracy of the predictions as the predicted value increases.
 % This indicates that variable selection in the MARS pruning pass
 % will be biased towards large fitted values, i.e.,
@@ -236,8 +237,8 @@ In this instance it shows that the mean residual is more or less constant
 except at low fitted values.
 The end effect is possibly due to failure of the model in that region because
 of smaller residuals, but cause and effect get tangled here.
-Compare the residuals of the the earth model to the linear model, and note
-how the pattern of residuals show that the earth is more succesful 
+Compare the residuals of the earth model to the linear model, and notice
+how the pattern of residuals show that the earth model is more succesful 
 at modeling non-linearities in the data:
 \preformatted{
     a2 <- lm(O3 ~ ., data = ozone1)
@@ -252,8 +253,8 @@ fall suspiciously into a separate cluster.
 (If overplotting makes the labels hard to read,
 reduce the number of labels with the \code{id.n} argument of \code{plot.earth}.)
 As a general rule, it is worthwhile investigating cases with large residuals.
-Perhaps they should be excluded them when building the model.
-On the other hand, it is possible that they cases reveal something important about the data
+Perhaps they should be excluded when building the model.
+On the other hand, it is possible that they reveal something important about the data
 that could warrant changes to the model.
 In our example it is also worthwhile looking at cases
 with \emph{small} residuals because of non-linearity in that region.

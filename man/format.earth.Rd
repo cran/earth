@@ -30,6 +30,7 @@ i.e., in increasing order of interaction\cr
     Formatting style. One of\cr
 \code{"h"} (default) more compact\cr
 \code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
+\code{"max"} is the same as \code{"pmax"} but prints \code{max} rather than \code{pmax}\cr
 \code{"bf"} basis function format.
   }
   \item{colon.char}{
