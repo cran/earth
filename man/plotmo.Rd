@@ -28,9 +28,7 @@ To start off, look at the arguments
   \code{ylim},
   \code{clip}, and
   \code{do.par}.
-You will also need the \code{ycolumn} argument if your model has multiple responses
-(which will be the case for \code{\link{earth}} models if your response is a 
-factor with more than two levels).
+You will also need the \code{ycolumn} argument if your model has multiple responses.
 
   \item{object}{
         Model object.
@@ -377,7 +375,8 @@ milboATsonicPERIODnet \url{http://www.milbo.users.sonic.net}.
 \seealso{
   \code{\link{termplot}},
   \code{\link{plot.earth}},
-  \code{\link{plot.earth.models}}
+  \code{\link{plot.earth.models}},
+  \code{\link{plotd}}
 }
 \examples{
 data(ozone1)
@@ -388,7 +387,7 @@ plotmo(a)
   # example with some arguments
 
   plotmo(a, caption = "example", ylim = NULL, degree1 = c(1,2,4),
-  degree2 = 4, col.response = 3, clip = FALSE, ticktype = "d", theta = -30)
+    degree2 = 4, col.response = 3, clip = FALSE, ticktype = "d", theta = -30)
 
   # examples using functions other than earth
 

@@ -25,7 +25,7 @@ Loading required package: leaps
 > 
 > count <- 0
 > 
-> print.earth.models <- function(a, do.plotd=TRUE)
+> print.earth.models <- function(a)
 + {
 +     model.name <- deparse(substitute(a))
 +     cat("\nPrint", model.name, "\n\n")
@@ -49,12 +49,6 @@ Loading required package: leaps
 +     plot(ev)
 +     cat("\nplotmo", model.name, "\n")
 +     plotmo(a)
-+     if (do.plotd) {
-+         cat("\nplotd", model.name, "\n")
-+         plotd(a, main=paste("plotd", model.name))
-+         plotd(a, main=paste("plotd hist", model.name), hist=1)
-+         plotd(a, main=paste("plotd hist type=\"class\"", model.name), hist=1, type="class", legend.extra=TRUE)
-+     }
 +     cat("-------------------------------------------------------------------------------\n\n")
 + }
 > 
@@ -231,8 +225,6 @@ ldose1    3    1        2 -31.37693 1   0.9614167 1
 plotmo a1 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
-
-plotd a1 
 -------------------------------------------------------------------------------
 
 > printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
@@ -507,8 +499,6 @@ sexmale         1    1        2   7.8086158 1   7.061559 1
 sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
 
 plotmo a2 
-
-plotd a2 
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -598,7 +588,7 @@ Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a4, FALSE)
+> print.earth.models(a4)
 
 Print a4 
 
@@ -1072,8 +1062,6 @@ sexmale    2    1        4  11.82295 1  17.37608 1
 plotmo a5 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
-
-plotd a5 
 -------------------------------------------------------------------------------
 
 > printh(a5$levels)
@@ -1456,8 +1444,6 @@ sexmale    2    1        3   2.496725 1   5.732125 1
 plotmo a6 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
-
-plotd a6 
 -------------------------------------------------------------------------------
 
 > printh(a6$levels) # expect levels to be NULL
@@ -1803,8 +1789,6 @@ pclass2nd   1    1        1   0.5526548 1   1.283877 1
 plotmo a7 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
-
-plotd a7 
 -------------------------------------------------------------------------------
 
 > printh(a7$levels)
@@ -2150,7 +2134,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.894 RSq 0.5265 
 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
-> print.earth.models(a8p, FALSE)
+> print.earth.models(a8p)
 
 Print a8p 
 
@@ -2286,7 +2270,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.894 RSq 0.5265 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 GLM counts2: null.deviance 105.166 (8 dof)   deviance 50.96448 (6 dof)   iters 4
-> print.earth.models(a10, FALSE)
+> print.earth.models(a10)
 
 Print a10 
 
@@ -2767,7 +2751,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(aref, FALSE) # TODO investigate why FALSE is needed
+> print.earth.models(aref)
 
 Print aref 
 
@@ -2891,7 +2875,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21, FALSE)
+> print.earth.models(a21)
 
 Print a21 
 
@@ -3017,7 +3001,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21, FALSE)
+> print.earth.models(a21)
 
 Print a21 
 
@@ -3144,7 +3128,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a22, FALSE)
+> print.earth.models(a22)
 
 Print a22 
 

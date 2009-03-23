@@ -166,7 +166,8 @@ The \emph{residuals} are the differences between the values predicted by the mod
 and the corresponding response values.
 In this help page the residuals are all measured on the training data.
 The \emph{residual sum of squares} (RSS) is the sum of the squared values of the residuals.
-\emph{R-Squared} (RSq) is a normalized form of the RSS, 
+\emph{R-Squared} (RSq, also called the \emph{coefficient of determination}) 
+is a normalized form of the RSS, 
 and, depending on the model, varies from 0
 (a model that always predicts the same value i.e. the mean observed response value)
 to 1 (a model that perfectly predicts the responses in the training data).
@@ -266,7 +267,7 @@ This effect is slightly visible in the example graph.
 These lines usually do not indicate a problem.
 They are are formed when a set of plotted points has the same observed
 value, commonly due to discretization in the measurement of the
-observed value.
+observed response.
 
 The \bold{Normal Q-Q} graph
 compares the distribution of the residuals to a normal distribution.

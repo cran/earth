@@ -1,6 +1,6 @@
 \name{print.evimp}
 \alias{print.evimp}
-\title{Print an evimp object}
+\title{Print an "evimp" object}
 \description{
     Print an \code{\link{evimp}} object.
     Just a simple utility that drops the class field when printing.

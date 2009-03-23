@@ -59,13 +59,13 @@ GCV 11    RSS 213    GRSq 0.96    RSq 0.97
 Call: earth(formula=mpg~., data=mtcars, trace=4, pmethod="none")
 x is a 32 by 10 matrix: 1=cyl, 2=disp, 3=hp, 4=drat, 5=wt, 6=qsec, 7=vs, 8=am, 9=gear, 10=carb
 First few rows of x are
-                  cyl disp  hp drat    wt  qsec vs am gear carb
-Mazda RX4           6  160 110 3.90 2.620 16.46  0  1    4    4
-Mazda RX4 Wag       6  160 110 3.90 2.875 17.02  0  1    4    4
-Datsun 710          4  108  93 3.85 2.320 18.61  1  1    4    1
-Hornet 4 Drive      6  258 110 3.08 3.215 19.44  1  0    3    1
-Hornet Sportabout   8  360 175 3.15 3.440 17.02  0  0    3    2
-Valiant             6  225 105 2.76 3.460 20.22  1  0    3    1
+     cyl disp  hp drat    wt  qsec vs am gear carb
+[1,]   6  160 110 3.90 2.620 16.46  0  1    4    4
+[2,]   6  160 110 3.90 2.875 17.02  0  1    4    4
+[3,]   4  108  93 3.85 2.320 18.61  1  1    4    1
+[4,]   6  258 110 3.08 3.215 19.44  1  0    3    1
+[5,]   8  360 175 3.15 3.440 17.02  0  0    3    2
+[6,]   6  225 105 2.76 3.460 20.22  1  0    3    1
 y is a 32 by 1 matrix: 1=mpg
 First few rows of y are
       mpg

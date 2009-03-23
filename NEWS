@@ -1,6 +1,10 @@
 Changes to Earth Package
 ------------------------
 
+2.3-2 Mar 23 2009
+    Extended plotd
+    Doc touchups
+    
 2.3-1 Feb 26 2009
     Doc touchups
     Added leaps::: prefix needed for new version of the leaps package

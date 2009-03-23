@@ -45,15 +45,16 @@ Get the basis matrix of an \code{\link{earth}} object.
   }
 }
 \value{
-  A \code{bx} matrix of the same form returned by \code{\link{earth}}.\cr
+  A basis matrix \code{bx} of the same form returned by \code{\link{earth}}.\cr
 
   If \code{x}, \code{subset}, and \code{which.terms} are all NULL, this
   function returns the object's \code{bx}.  In this case, it is perhaps easier
   to simply use \code{object$bx}.\cr
 
 The format of \code{bx} is described in \code{\link{earth}}.
-The basis matrix \code{bx} can be used, for example,
-as the input matrix to \code{\link{lm}} or \code{\link{glm}} as shown below.
+The matrix \code{bx} can be used
+as the input matrix to \code{\link{lm}} or \code{\link{glm}}, 
+as shown below in the example.
 In fact, that is what earth does internally after the pruning pass --- 
 it calls \code{\link{lm.fit}}, 
 and additionally \code{\link{glm}} if earth's \code{glm} argument is used.
