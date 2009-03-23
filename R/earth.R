@@ -992,49 +992,6 @@ print.linpreds <- function(linpreds, x)
     }
 }
 
-# summarize a matrix
-
-print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL, details=TRUE)
-{
-    if(!is.null(Callers.name))
-        cat(Callers.name, ": ", sep="")
-    cat(xname, " is a ", NROW(x), " by ", NCOL(x), " matrix: ", sep="")
-    if(is.null(bpairs))
-        bpairs <- rep(TRUE, NCOL(x))
-    colnames <- colnames(x)
-    if(is.null(colnames))
-        colnames <- rep("", NCOL(x))
-    stopifnot(length(bpairs) == length(colnames))
-    icol <- 0
-    for(i in 1:length(colnames)) {
-        if(bpairs[i]) {
-            icol <- icol+1
-            cat(icol, "=", sep="")
-        } else
-            cat(" (paired with ")
-        if(nchar(colnames[i]))
-            cat(colnames[i])
-        if(class(x[,i]) != "numeric")
-            cat(" (", class(x[,i]), ")", sep="")
-        else if(typeof(x[,i]) != "double")
-            cat(" (", mode(x[,i]), ")", sep="")
-        if(!bpairs[i])
-            cat(")")
-        if(i < length(colnames) && (i == length(colnames) || bpairs[i+1]))
-            cat(", ")
-    }
-    cat("\n")
-    if(details) {
-        if(NROW(x) <= 6) { # head prints 6 rows
-            cat("Contents of ", xname, " are\n", sep="")
-            print(x)
-        } else {
-            cat("First few rows of ", xname, " are\n", sep="")
-            print(head(x))
-        }
-    }
-}
-
 print.pruning.pass <- function(     # this is the default Print.pruning.pass
     trace,
     pmethod,

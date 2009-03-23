@@ -1,8 +1,8 @@
 \name{mars.to.earth}
 \alias{mars.to.earth}
-\title{Convert a "mars" object to an "earth" object}
+\title{Convert a "mars" object from the "mda" package to an "earth" object}
 \description{
-Convert a \code{\link[mda]{mars}} object to an \code{\link{earth}} object
+Convert a \code{\link[mda]{mars}} object from the "mda" package to an \code{\link{earth}} object
 }
 \usage{
 mars.to.earth(object)
@@ -36,7 +36,7 @@ mars.to.earth(object)
 
 \bold{Weights}
 
-  Note that the \code{w} argument is is actually silently ignored by \code{mars}.
+  Note that the \code{w} argument is is actually ignored by \code{mars}.
   The equivalent \code{earth} argument \code{weights} is also not yet supported, 
   and you will get a warning.
 
@@ -46,7 +46,7 @@ mars.to.earth(object)
   of columns in \code{y}.  This change was made so an all 1s \code{wp}
   (or in fact any all constant \code{wp}) is equivalent to using no \code{wp}.
 
-  If the original call to \code{mars} used the \code{w} or \code{wp} arguments,
+  If the original call to \code{mars} used the \code{wp} argument,
   \code{mars.to.earth} will run \code{\link{update.earth}} to force consistency.
   This could modify the model, so a warning is issued.
 }

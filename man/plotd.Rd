@@ -5,48 +5,79 @@
 Draw a plot of the distribution of the predicted values for each class.
 }
 \usage{
-plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL, 
-    main=NULL, xlab="Predicted Value", ylab=if(hist) "Count" else "Density",
-    lty = 1, col = c("grey60", 1, "lightblue", "brown", "pink", 2, 3, 4),
-    borders = NULL, labels=FALSE, zero.line=FALSE,
-    legend = TRUE, legend.names = NULL, legend.pos = NULL,
-    legend.cex = .8, legend.bg = "white", legend.extra = FALSE,
-    vline.col = 0, vline.thresh = thresh, vline.lty = 1,
-    ...)
+plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
+      trace = FALSE, xlim = NULL, ylim = NULL, jitter = FALSE, main=NULL,
+      xlab = "Predicted Value", ylab = if(hist) "Count" else "Density",
+      lty = 1, col = c("grey70", 1, "lightblue", "brown", "pink", 2, 3, 4),
+      fill = if(hist) col[1] else 0,
+      breaks = "Sturges", labels = FALSE,
+      kernel = "gaussian", adjust = 1, zero.line = FALSE,
+      legend = TRUE, legend.names = NULL, legend.pos = NULL,
+      legend.cex = .8, legend.bg = "white", legend.extra = FALSE,
+      vline.col = 0, vline.thresh = .5, vline.lty = 1, vline.lwd = 1,
+      err.thresh = vline.thresh, err.col = 0, err.border = 0, err.lwd = 1,
+      xaxt = "s", yaxt = "s", xaxis.cex = 1, sd.thresh = 0.01, ...)
 }
 \arguments{
-  To start off, look at the arguments \code{object}, \code{hist}, and \code{type}.
-  \item{object}{
-    model object.
-    Typically a model which predicts a class or a class probability.
+  To start off, look at the arguments \code{obj}, \code{hist}, \code{type}.\cr
+  For predict methods with multiple column responses, see the \code{nresponse} argument.\cr
+  For factor responses with more than two levels, see the \code{dichot} argument.
+  \item{obj}{
+    Model object.
+    Typically a model which predicts a class or a class discriminant.
   }
   \item{hist}{
-    \code{FALSE} (default) to call \code{\link{density}} internally\cr
-    \code{TRUE} to call \code{\link{hist}} internally
+    \code{FALSE} (default) to call \code{\link{density}} internally.\cr
+    \code{TRUE} to call \code{\link{hist}} internally.
   }
   \item{type}{
-    type parameter passed on to \code{\link{predict}}.
+    Type parameter passed to \code{\link{predict}}.
     Default is \code{"response"}.
-    See the predict method for your object to see other values;
-    for example see \code{\link{predict.earth}}.
+    See the predict method for your object for possible values;
+    for example see \code{\link{predict.glm}} or \code{\link[earth]{predict.earth}}.
     Typically you would set \code{hist=TRUE} if \code{type="class"}.
   }
-  \item{thresh}{
-    Passed to \code{\link{predict.earth}} (only used if \code{type="class"}).
-    Default is \code{.5}.
-    Also used as a default for the \code{vline.thresh} argument (see below).
-    Also used for multiple column numeric responses.
+  \item{nresponse}{
+     Column index for predicted responses with multiple columns.
+     The default is \code{NULL}, meaning use all columns of the predicted response.
+  }
+  \item{dichot}{
+     Dichotimise the predicted response.
+     This argument is ignored except for models where the observed response 
+     is a factor with more than two levels 
+     and the predicted response is a numeric vector.
+     The default \code{FALSE} separates the response into a group for each factor.
+     With \code{dichot=TRUE} the response is separated into just two groups:
+     the first level of the factor versus the remaining levels.
+  }
+  \item{trace}{
+     Default \code{FALSE}.
+     Use \code{TRUE} or \code{1} to trace \code{plotd} ---
+     useful to see how \code{plotd}
+     partitions the predicted response into classes.
+     Use \code{2} for a full dump of the internal matrices.
   }
   \item{xlim}{
-    limits of the x axis.
+    Limits of the x axis.
     The default \code{NULL} means determine these limits automatically,
     else specify \code{c(xmin,xmax)}.
   }
+  \item{ylim}{
+    Limits of the y axis.
+    The default \code{NULL} means determine these limits automatically,
+    else specify \code{c(ymin,ymax)}.
+  }
+  \item{jitter}{
+     Jitter the histograms or densities horizontally to minimize overplotting.
+     Default \code{FALSE}.
+     Specify \code{TRUE} to automatically calculate the jitter,
+     else specify a numeric jitter value.
+  }
   \item{main}{
-    main graph title. Values:\cr
+    Main title. Values:\cr
        \code{"string"} string\cr
        \code{""} no title\cr
-       \code{NULL} (default) generate a title from the \code{$call} component of the model object.
+       \code{NULL} (default) generate a title from the call.
   }
   \item{xlab}{
     x axis label.
@@ -57,88 +88,143 @@ plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL,
     Default is \code{if(hist) "Count" else "Density"}.
   }
   \item{lty}{
-    per class line types for the plotted lines.
-    Default is 1 for all lines.
+    Per class line types for the plotted lines.
+    Default is 1 (which gets recycled for all lines).
   }
   \item{col}{
-    per class graph colors.
+    Per class line colors.
     The first few colors of the default are intended to be
     easily distinguishable on both color displays and monochrome printers.
   }
-  \item{borders}{
-    per class border colors for \code{\link{hist}} plot.
+  \item{fill}{
+    Fill color for the plot for the first class.
+    For \code{hist=FALSE}, the default is 0, i.e., no fill.
+    For \code{hist=TRUE}, the default is the first element in the \code{col} argument.
+  }
+  \item{breaks}{
+    Passed to \code{\link{hist}}.
     Only used if \code{hist=TRUE}.
-    The default \code{NULL} means use the values in the \code{col} argument.
+    Default is \code{"Sturges"}.
+    When \code{type="class"}, setting \code{breaks} to a low number 
+    can be used to widen the histogram bars 
   }
   \item{labels}{
-    TRUE to draw counts or rounded densities on \code{\link{hist}} plot.
+    \code{TRUE} to draw counts on the \code{\link{hist}} plot.
+    Only used if \code{hist=TRUE}.
     Default is \code{FALSE}.
   }
+  \item{kernel}{
+    Passed to \code{\link{density}}.
+    Only used if \code{hist=FALSE}.
+    Default is \code{"gaussian"}.
+  }
+  \item{adjust}{
+    Passed to \code{\link{density}}.
+    Only used if \code{hist=FALSE}.
+    Default is \code{1}.
+  }
   \item{zero.line}{
-    parameter for \code{\link{plot.density}}.
+    Passed to \code{\link{plot.density}}.
     Only used if \code{hist=FALSE}.
     Default is \code{FALSE}.
   }
   \item{legend}{
-    \code{TRUE} (default) to draw a legend
+    \code{TRUE} (default) to draw a legend, else \code{FALSE}.
   }
   \item{legend.names}{
-    class names in legend.
+    Class names in legend.
     The default \code{NULL} means determine these automatically.
   }
   \item{legend.pos}{
-    position of the legend.
-    The default \code{NULL} means try to position the legend automatically,
+    Position of the legend.
+    The default \code{NULL} means position the legend automatically,
     else specify \code{c(x,y)}.
   }
   \item{legend.cex}{
-    \code{cex} for \code{\link{legend}}.
+    \code{cex} for \code{\link[graphics]{legend}}.
     Default is \code{.8}.
-    Make this smaller for a smaller legend.
   }
   \item{legend.bg}{
-   \code{bg} color for \code{\link{legend}}.
+   \code{bg} color for \code{\link[graphics]{legend}}.
    Default is \code{"white"}.
   }
   \item{legend.extra}{
-    show number of occurrences of each class.
+    Show (in the legend) the number of occurrences of each class.
     Default is \code{FALSE}.
   }
-  \item{vline.col}{
-    color of vertical line.
-    Default is 0, meaning no vertical line.
-    The vertical line is intended to indicate class separation.
-  }
   \item{vline.thresh}{
-    x position of vertical line.  Default is \code{thresh}.
+    Horizontal position of optional vertical line.  
+    Default is \code{0.5}.
+    The vertical line is intended to indicate class separation.
+    If you use this, don't forget to set \code{vline.col}.
+  }
+  \item{vline.col}{
+    Color of vertical line.
+    Default is 0, meaning no vertical line.
   }
   \item{vline.lty}{
-    line type of vertical line.
+    Line type of vertical line.
+    Default is \code{1}.
+  }
+  \item{vline.lwd}{
+    Line width of vertical line.
+    Default is \code{1}.
+  }
+  \item{err.thresh}{
+    x axis value specifying the error shading threshold.
+    See \code{err.col}.
+    Default is \code{vline.thresh}.
+  }
+  \item{err.col}{
+    Specify up to three colors to shade the "error areas" of the density plot.
+    The default is \code{0}, meaning no error shading.
+    This argument is ignored unless \code{hist=FALSE}.
+    If there are more than two classes, \code{err.col} uses only the first two.
+    This argument is best explained by running an example:\preformatted{
+data(etitanic)
+earth.model <- earth(survived ~ ., data=etitanic)
+plotd(earth.model, vline.col=1, err.col=c(2,3,4))
+      }
+    The three areas are (i) the error area to the left of the threshold,
+    (ii) the error area to the right of the threshold, and,
+    (iii) the reducible error area.
+    If less than three values are specified, \code{plotd} re-uses values in a sensible manner.
+    Use values of \code{0} to skip areas.
+    Disjoint regions are not handled well by the current implementation.
+  }
+  \item{err.border}{
+    Borders around the error shading.
+    Default is \code{0}, meaning no borders, else specify up to three colors.
+  }
+  \item{err.lwd}{
+    Line widths of borders of the error shading.
+    Default is \code{1}, else specify up to three line widths.
+  }
+  \item{xaxt}{
+    Default is \code{"s"}.
+    Use \code{xaxt="n"} for no x axis.
+  }
+  \item{yaxt}{
+    Default is \code{"s"}.
+    Use \code{yaxt="n"} for no y axis.
+  }
+  \item{xaxis.cex}{
+    Only used if \code{hist=TRUE} and \code{type="class"}.
+    Specify size of class labels drawn on the x axis.
     Default is 1.
   }
+  \item{sd.thresh}{
+    Minimum acceptable standard deviation for a density.
+    Default is \code{0.01}.
+    Densities with a standard deviation less than \code{sd.thresh} 
+    will not be plotted (a warning will be issued and the legend
+    will say \code{"not plotted"}).
+  }
   \item{\dots}{
-    extra arguments passed to \code{\link{density}} or \code{\link{hist}}.
-    Arguments for \code{\link{hist}} which affect only plotting 
-    are not allowed (you will get an error message).
+    Extra arguments passed to the predict method for the object.
   }
 }
 \note{
-  This function estimates distributions with the
-  \code{\link{density}} and \code{\link{hist}} functions,
-  and also calls \code{\link{plot.density}} and \code{\link{plot.histogram}}.
-  For an overview of the issues involved, see Venables and Ripley MASS section 5.6.
-
-  This function is included in the \code{\link{earth}} package
-  but can also be used with other models.  Example: \preformatted{
-      data(etitanic)
-      glm.model <- glm(survived ~ ., data=etitanic, family=binomial)
-      plotd(glm.model)
-  } or even: \preformatted{
-      lm.model <- lm(survived ~ ., data=etitanic)
-      plotd(lm.model)
-  }
-  \bold{How plotd works}
-
   This function calls \code{\link{predict}}
   with the data originally used to build
   the model, and with the \code{type} specified above.
@@ -149,74 +235,126 @@ plotd(object, hist = FALSE, type="response", thresh = .5, xlim = NULL,
   if \code{hist=TRUE}) for each class-specific set of values,
   and plots the results.
 
+  This function estimates distributions with the
+  \code{\link{density}} and \code{\link{hist}} functions,
+  and also calls \code{\link{plot.density}} and \code{\link{plot.histogram}}.
+  For an overview see Venables and Ripley MASS section 5.6.
+
   \bold{Partitioning the response into classes}
 
-  Considerable effort is made to partition the predicted response 
+  Considerable effort is made to partition the predicted response
   into classes in a sensible way.
-  The general idea is that the observed response is the reference
-  used to partition the predicted response into classes.
-  This section gives details.
+  This is not always possible for multiple column responses and the \code{nresponse} argument
+  should be used where necessary.
+  The partitioning details depend on the types and numbers of columns in the observed
+  and predicted responses.
+  These in turn depend on the model object and the \code{type} argument.
 
-  If the \emph{observed response is numeric or logical}, 
-  \code{plotd} separates the predicted response values into two groups corresponding to
-  \emph{zero-or-less} and \emph{greater-than-zero} observed responses.
-  Thus \code{plotd} does what you would expect when the observed response is a
-  \code{\link{logical}}, or if your model predicts \code{-1} and \code{1}.
+  Use the \code{trace} argument to see how \code{plotd} partitions the
+  response for your model.
 
-  If the \emph{observed response is a factor and the predicted response 
-  is a single numeric column}, \code{plotd} partitions the predicted 
-  response into two classes --- the first level
-  of the factor (in the observed response) versus all others.
+  \bold{Degenerate densities}
 
-  If the \emph{observed response is a factor and the predicted response 
-  is a single \emph{factor} column}, \code{plotd} partitions the predicted
-  response into the levels of the observed response.
-  This occurs for earth models using predictions with \code{type="class"}.
+  A message such as\cr
+      \code{Warning: standard deviation of "male" density is 0,  density is degenerate?}\cr
+  means that the density for that class will not be plotted 
+  (the legend will say \code{"not plotted"}).
 
-  If the \emph{observed response is a factor and the predicted response 
-  has multiple numeric columns}, 
-  \code{plotd} assumes each column of the predicted response corresponds
-  to a dummy variable for a factor level.
-  This type of response occurs for earth models where the observed response 
-  is a factor with two or more levels 
-  (see the "Factors" section on the \code{\link{earth}} help page).
-  The number of classes is taken to be the number of factor levels,
-  or, equivalently, the number of columns in the predicted response.
-  The predicted values for each factor are taken to be 
-  those elements of each column of the predicted response
-  which match the column's factor level in the observed response.
-  The remaining elements in the column are not plotted.
+  Set \code{sd.thresh=0} to get rid of this check,
+  but be aware that histograms (and sometimes x axis labels)
+  for degenerate densitites will be misleading.
 
-  If the \emph{observed response has multiple numeric (or logical) columns 
-  and the predicted response has the same number of numeric (or logical) columns}, 
-  \code{plotd} assumes each column of the predicted response corresponds
-  to a column in the observed response.
-  This type of response occurs for \code{\link{lm}} or earth models where the observed response 
-  has multiple numeric or logical columns.
-  The number of classes is taken to be the number of columns in the response.
-  In this situation, \code{plotd} selects the elements in a column of a predicted response
-  matching elements in the corresponding column in the observed response
-  which are greater than \code{thresh}.
-  The remaining elements in the column are not plotted.
+  \bold{Using plotd for various models}
+
+  This function is included in the \code{\link[earth]{earth}} package
+  but can also be used with other models.
+
+  Example with \code{\link{glm}}: \preformatted{
+      library(earth); data(etitanic)
+      glm.model <- glm(sex ~ ., data=etitanic, family=binomial)
+      plotd(glm.model)
+  }
+  Example with \code{\link{lm}}:\preformatted{
+      library(earth); data(etitanic)
+      lm.model <- lm(as.numeric(sex) ~ ., data=etitanic)
+      plotd(lm.model)
+  }
+%   Example with \code{\link[rpart]{rpart}}:\preformatted{
+%        library(rpart); library(earth); data(etitanic)
+%        rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
+%        # note that plotd's default type="response" is not accepted by rpart
+%        plotd(rpart.model, type="prob", nresponse=1)
+%        plotd(rpart.model, type="prob", nresponse=2)
+%        plotd(rpart.model, type="class", hist=TRUE, labels=TRUE)
+%   }
+  \bold{Using plotd with lda}
+
+    The \code{plotd} function has special handling for \code{\link[MASS]{lda}} objects.
+    For such objects, the \code{type} argument can take one of the
+    following values:
+
+    \code{"response"} (default) linear discriminant\cr
+    \code{"ld"} same as \code{"response"}\cr
+    \code{"class"} predicted classes\cr
+    \code{"posterior"} posterior probabilities
+
+    Example:\preformatted{
+    library(MASS); library(earth); data(etitanic)
+    lda.model <- lda(sex ~ ., data=etitanic)
+    plotd(lda.model) # linear discriminant by default
+    plotd(lda.model, type="class", hist=TRUE, labels=TRUE)
+    }
+    This handling of \code{type} is handled internally by \code{plotd} 
+    and \code{type} is not passed to \code{\link[MASS]{predict.lda}}
+    (\code{type} is used merely to select fields in the list
+    returned by \code{predict.lda}).
+    The type names can be abbreviated down to a single character.
+
+    For objects created with \code{\link[MASS]{lda.matrix}} 
+    (as opposed to \code{\link[MASS]{lda.formula}}),
+    \code{plotd} blindly assumes that the \code{grouping} argument was the second argument.
+
+    \code{plotd} does not yet support objects created with \code{\link[MASS]{lda.data.frame}}.
+
+    For \code{lda} responses with more than two factor levels,
+    use the \code{nresponse} argument to
+    select a column in the predicted response.
+    Thus with the default \code{type="response"},
+    use \code{nresponse=1} to select just the first linear discriminant.
+    The default \code{nresponse=NULL} selects all columns,
+    which is typically not what you want for \code{lda} models.
+    Example:\preformatted{
+    library(MASS); library(earth);
+    set.seed(1)      # optional, for reproducibility
+    example(lda)     # creates a model called "z"
+    plot(z, dimen=1) # invokes plot.lda from the MASS package
+    plotd(z, nresponse=1, hist=1) # equivalent using plotd
+                                  # nresponse=1 selects first linear discr.
+    }
+    The \code{dichot=TRUE} argument is also useful for \code{lda}
+    responses with more than two factor levels.
+
+  \bold{TODO}
+
+  Handle degenerate densities in a more useful way.\cr
+  Add \code{freq} argument for \code{\link{hist}}.
 }
 \seealso{
-  \code{\link{earth}}, \code{\link{plot.earth}}, \code{\link{plotmo}}\cr
   \code{\link{density}}, \code{\link{plot.density}}\cr
-  \code{\link{hist}}, \code{\link{plot.histogram}}
-
+  \code{\link{hist}}, \code{\link{plot.histogram}}\cr
+  \code{\link[earth]{earth}}, \code{\link[earth]{plot.earth}}, \code{\link[earth]{plotmo}}\cr
 }
 \examples{
-old.par <- par(no.readonly=TRUE); par(mfrow=c(2,2)); 
-par(mar=c(4, 3, 1.7, 0.5)); par(mgp=c(1.6, 0.6, 0))
+old.par <- par(no.readonly=TRUE); par(mfrow=c(2,2));
+par(mar=c(4, 3, 1.7, 0.5)); par(mgp=c(1.6, 0.6, 0)); par(cex = 0.8)
 data(etitanic)
-a <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
+fit <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
 
-plotd(a, main="plotd default")
+plotd(fit)
 
-plotd(a, main="histogram", hist=TRUE, legend.pos=c(.25,220))
+plotd(fit, hist=TRUE, legend.pos=c(.25,220))
 
-plotd(a, main="histogram, type=class", hist=TRUE, type="class",
-      legend.pos=c(.14,500), legend.extra=TRUE)
+plotd(fit, hist=TRUE, type="class", labels=TRUE, xlab="", xaxis.cex=.8)
 
 par(old.par)
 }

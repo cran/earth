@@ -58,11 +58,9 @@ Using \code{format.earth}, perhaps after hand editing the returned string,
 you can create an alternative to \code{predict.earth}.
 For example:
 \preformatted{
-as.func <- function(
-               object, digits = 8, use.names = FALSE, ...)
+as.func <- function(object, digits = 8, use.names = FALSE, ...)
   eval(parse(text=paste(
-    "function(x)\n",
-    "{\n",
+    "function(x){\n",
     "if(is.vector(x))\n",
     "  x <- matrix(x, nrow = 1, ncol = length(x))\n",
     "with(as.data.frame(x),\n",
@@ -71,8 +69,8 @@ as.func <- function(
     "}\n", sep = "")))
 a <- earth(Volume ~ ., data = trees)
 my.func <- as.func(a, use.names = FALSE)
-my.func(c(10,80))     # yields 17.82973
-predict(a, c(10,80))  # yields 17.82973, but is slower
+my.func(c(10,80))     # yields 17.769
+predict(a, c(10,80))  # yields 17.769, but is slower
 }
 The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr

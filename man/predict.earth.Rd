@@ -27,7 +27,7 @@ Predict with an \code{\link{earth}} model.
      See the \bold{Note} below.
   }
   \item{thresh}{
-    Threshold, typically a value between 0 and 1 when predicting a probability.
+    Threshold, a value between 0 and 1 when predicting a probability.
     Only applies when \code{type="class"}. 
     Default is .5.
     See the \bold{Note} below.
@@ -46,7 +46,7 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
 \note{
 \bold{Predicting with standard earth models}
 
-    Use the default \code{type="link"}.
+    Use the default \code{type="link"}, or possibly \code{type="class"}.
 
     Actually, the \code{"link"}, \code{"response"}, and \code{"earth"} 
     choices all return the same value unless the \code{glm} argument
@@ -93,7 +93,8 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
 
     The \code{"terms"} option returns a \code{"link"} response suitable for \code{\link{termplot}}.
     Only the additive terms and the first response (for multi-response models) are returned.
-    Also, \code{"terms"} always returns the earth (not GLM) terms.
+    Also, \code{"terms"} always returns the earth terms, and ignores the GLM component
+    of the model, if any.
 }
 \seealso{
   \code{\link{earth}},

@@ -158,7 +158,7 @@ For cross validation, use the \code{nfold} argument.
     Generalized Cross Validation (GCV) penalty per knot.
     Default is \code{if(degree>1) 3 else 2}.
     A value of 0 penalizes only terms, not knots.
-    The value -1 is a special case, meaning no penalty, so GCV=RSS/n.
+    The value -1 is treated specially to mean no penalty, so GCV=RSS/n.
     Theory suggests values in the range of about 2 to 4.
     In practice, for big data sets larger values can be useful to force a smaller model.
     The FAQ section below has some information on GCVs.
@@ -470,7 +470,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
     }
   \item{gcv.per.subset}{
      A vector of the GCV for each model in \code{prune.terms}.
-     Length is is \code{nprune}.
+     Length is \code{nprune}.
      For multiple responses, the GCV is summed over all responses for each subset.
      The null GCV (i.e., the GCV of an intercept-only model) is \code{gcv.per.subset[1]}.
      The \code{gcv} above is \code{gcv.per.subset[length(selected.terms)]}.
@@ -585,11 +585,11 @@ mean   0.929 0.955 0.952 0.946
    }
    \item{cv.maxerr.tab}{
       Like \code{cv.rsq.tab} but is the \code{MaxErr} at each fold.
-      This is the signed max absolute value at each fold, where
-      the \emph{signed max absolute value} is the maximum of the absolute difference
+      This is the signed max absolute value at each fold.
+      Also, results are aggregrated using the signed max absolute value instead of the mean.
+      The \emph{signed max absolute value} is the maximum of the absolute difference
       between the predicted and observed response values, multiplied
       by \code{-1} if the sign of the difference is negative.
-      Also, results are aggregrated using the signed max absolute value instead of the mean.
    }
    \item{cv.deviance.tab}{
       Like \code{cv.rsq.tab} but is the \code{MeanDev} at each fold.
@@ -785,11 +785,11 @@ see how earth expands the input matrices
 1. \emph{Two-level factor or logical response.}
 The response is converted to a single column of 1s and 0s.
 \preformatted{
-a1 <- earth(survived ~ ., data=etitanic,   # c.f. Harrell "Reg Mod Strat" ch. 12
+a1 <- earth(survived ~ ., data=etitanic, # c.f. Harrell "Reg Mod Strat" ch. 12
              degree=2, trace=1,
              glm=list(family=binomial))
 
-a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
+a1a <- earth(etitanic[,-2], etitanic[,2], # equivalent but using earth.default
              degree=2, trace=1,
              glm=list(family=binomial))
 }
@@ -1002,9 +1002,9 @@ It saves the RSS and term numbers for each such subset in \code{rss.per.subset}
 and \code{prune.terms}.
 It then applies the \code{Get.crit} function with \code{penalty}
 to \code{rss.per.subset} to yield \code{gcv.per.subset}.
-It updates \code{bx} by keeping only the \code{selected.terms}.
 Finally it chooses the model with the lowest value in \code{gcv.per.subset},
-and puts its term numbers into \code{selected.terms}.
+puts its term numbers into \code{selected.terms},
+and updates \code{bx} by keeping only the \code{selected.terms}.
 
 After the pruning pass, earth runs \code{\link{lm.fit}} to determine the
 \code{fitted.values}, \code{residuals}, and \code{coefficients}, by regressing
@@ -1703,19 +1703,19 @@ is a more flexible way of achieving the same end.
   Start with \code{\link{summary.earth}}, \code{\link{plot.earth}}, 
   \code{\link{plotmo}}, and \code{\link{evimp}}.
 
-  \code{\link{etitanic}},
-  \code{\link{evimp}},
-  \code{\link{format.earth}},
-  \code{\link{mars.to.earth}},
-  \code{\link{model.matrix.earth}},
-  \code{\link{ozone1}},
-  \code{\link{plot.earth.models}},
-  \code{\link{plot.earth}},
-  \code{\link{plotd}},
-  \code{\link{plotmo}},
-  \code{\link{predict.earth}},
-  \code{\link{residuals.earth}},
-  \code{\link{summary.earth}},
+  \code{\link{etitanic}}\cr
+  \code{\link{evimp}}\cr
+  \code{\link{format.earth}}\cr
+  \code{\link{mars.to.earth}}\cr
+  \code{\link{model.matrix.earth}}\cr
+  \code{\link{ozone1}}\cr
+  \code{\link{plot.earth.models}}\cr
+  \code{\link{plot.earth}}\cr
+  \code{\link{plotd}}\cr
+  \code{\link{plotmo}}\cr
+  \code{\link{predict.earth}}\cr
+  \code{\link{residuals.earth}}\cr
+  \code{\link{summary.earth}}\cr
   \code{\link{update.earth}}
 }
 \examples{

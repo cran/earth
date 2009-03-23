@@ -46,14 +46,14 @@ warn.if.dots.used <- function(func.name, ...)
                  paste.quoted.names(names(dots)))
 }
 
-# issue a warning if a dots argument is not in allowed.args
-stop.if.dot.arg.not.allowed <- function(func.name, allowed.args, ...)
-{
-    dots <- names(match.call(expand.dots=FALSE)$...)
-    nomatch <- dots[pmatch(dots, allowed.args, nomatch=0) == 0]
-    if(length(nomatch))
-        stop1(func.name, " unrecognized argument \"", nomatch[1], "\"")
-}
+# # issue a warning if a dots argument is not in allowed.args
+# stop.if.dot.arg.not.allowed <- function(func.name, allowed.args, ...)
+# {
+#     dots <- names(match.call(expand.dots=FALSE)$...)
+#     nomatch <- dots[pmatch(dots, allowed.args, nomatch=0) == 0]
+#     if(length(nomatch))
+#         stop1(func.name, " unrecognized argument \"", nomatch[1], "\"")
+# }
 
 check.classname <- function(object, object.name, class.names)
 {
@@ -415,4 +415,59 @@ first.non.matching.arg <- function(s1, s2)
     while(i >= 1 && substr(s2, i, i) != "," && substr(s2, i, i) != "(")
         i <- i - 1  # move backwards to character following comma or "("
     return(i+1)
+}
+
+# summarize a matrix
+
+print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL, 
+                              details=TRUE, all.rows=FALSE)
+{
+    if(!is.null(Callers.name))
+        cat(Callers.name, ": ", sep="")
+    cat(xname, " is a ", NROW(x), " by ", NCOL(x), " matrix: ", sep="")
+    if(is.null(bpairs))
+        bpairs <- rep(TRUE, NCOL(x))
+    colnames <- colnames(x)
+    if(is.null(colnames))
+        colnames <- rep("", NCOL(x))
+    stopifnot(length(bpairs) == length(colnames))
+    icol <- 0
+    for(i in 1:length(colnames)) {
+        if(bpairs[i]) {
+            icol <- icol+1
+            cat(icol, "=", sep="")
+        } else
+            cat(" (paired with ")
+        if(nchar(colnames[i]))
+            cat(colnames[i])
+        else
+            cat("UNNAMED")
+        if(NCOL(x) > 1)
+            xi <- x[,i]
+        else
+            xi <- x
+        if(!(class(xi) == "numeric" || class(xi) == "matrix"))
+            cat(" (", class(xi), ")", sep="")
+        else if(typeof(xi) != "double")
+            cat(" (", mode(xi), ")", sep="")
+        if(!bpairs[i])
+            cat(")")
+        if(i < length(colnames) && (i == length(colnames) || bpairs[i+1]))
+            cat(", ")
+    }
+    cat("\n")
+    if(details) {
+        rownames(x) <- NULL
+        if(all.rows || NROW(x) <= 6) { # head prints 6 rows
+            cat("Contents of ", xname, " are\n", sep="")
+            print(x)
+        } else {
+            rowstring <- if(class(x) == "numeric" || class(x) == "factor") 
+                             "elements" 
+                         else 
+                             "rows"
+            cat("First few ", rowstring, " of ", xname, " are\n", sep="")
+            print(head(x))
+        }
+    }
 }
