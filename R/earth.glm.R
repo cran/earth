@@ -46,7 +46,7 @@ check.yarg.for.binomial.glm <- function(yarg, weights, mustart, more.y.columns)
 }
 
 # Note that on entry get.glm.arg has already checked the glm argument
-# All args except bx and glm.bpairs are direct copies of args to earth.fit.
+# All args except bx, glm, and glm.bpairs are direct copies of args to earth.fit.
 
 earth.glm <- function(bx, y, weights, na.action, glm,
                       trace, glm.bpairs, response.name)
@@ -68,9 +68,6 @@ earth.glm <- function(bx, y, weights, na.action, glm,
 
     if(is.null(weights))
        weights <- rep(1, ncases)
-    offset <- glm$offset
-    if(is.null(glm$offset))
-       offset <- rep(0, ncases)
     control <- glm$control
     if(is.null(control))
        control <- glm.control()
@@ -113,10 +110,13 @@ earth.glm <- function(bx, y, weights, na.action, glm,
         stopif(is.null(colnames(yarg)))
         if(trace >= 4)
             print.matrix.info("y arg to glm()", yarg)
-        g <- glm(yarg ~ ., family=family, data=bx.data.frame,
-                weights=glm$weights, na.action=na.action, start=glm$start,
-                etastart=glm$etastart, mustart=glm$mustart,
-                offset=glm$offset, control=control, model=TRUE, trace=(trace>=2),
+
+        # FIXED (earth 2.3-4): removed offset etc. arguments because of 
+        # difficulties evaluating them later in the correct environment.
+
+        g <- glm(yarg ~ ., family=family, data=bx.data.frame, 
+                weights=glm$weights, na.action=na.action, 
+                control=control, model=TRUE, trace=(trace>=2),
                 method="glm.fit", x=TRUE, y=TRUE, contrasts=NULL)
 
         if(trace == 0 && !g$converged) # give a message specific to this reponse
@@ -155,7 +155,8 @@ get.glm.family <- function(family, env)
 # user hasn't specified, say, subset as a glm argument. The subset
 # should only be specified as an earth argument so the subset is the
 # same for earth and glm.
-# TODO Not sure about glm's offset argument and also offset in formula, for now allow.
+# FIXED (earth 2.3-4): disallow offset etc. arguments because of 
+# difficulties evaluating them later in the correct environment.
 
 get.glm.arg <- function(glm)    # glm arg is earth's glm arg
 {
@@ -163,18 +164,15 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
 
     match.glm.arg <- function(glm)
     {
-        glm.args <- c(  # standard glm args plus "control" args, plus "bpairs"
-            "formula", "family", "data", "weights", "subset", "na.action",
-            "start", "etastart", "mustart", "offset", "control", "model",
-            "method", "x", "y", "contrasts",
-            "epsilon", "maxit", "trace",
-            "bpairs")
+        glm.args <- c("formula", "family", "data", "weights", "subset", 
+            "na.action", "control", "model", "method", "x", "y", 
+            "contrasts", "epsilon", "maxit", "trace", "bpairs")
 
         for(i in 1:length(glm)) {
             j <- pmatch(names(glm)[[i]], glm.args, nomatch=0)
             if(j == 0)
-                stop1("earth: illegal argument \"",
-                      names(glm)[[i]], "\" in glm argument")
+                stop1("earth: \"",
+                      names(glm)[[i]], "\" is not supported in glm argument to earth")
             names(glm)[[i]] <- glm.args[j]
         }
         # expand family argument if it is a string
@@ -215,7 +213,7 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
               "\" in \"glm\" argument\n",
               "These are always effectively TRUE")
 
-    # FIX Oct 2008: removed "weights" from list below to 
+    # FIXED Oct 2008: removed "weights" from list below to
     # allow weights for glm list. Needed for example in
     # library(segmented); data(down); fit.e<-earth(cases/births~age,data=down,glm=list(family="binomial", weights=down$births))
     # If no weights, get warning: non-integer #successes in a binomial glm
