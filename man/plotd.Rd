@@ -3,6 +3,11 @@
 \title{Plot the distribution of predictions for each class}
 \description{
 Draw a plot of the distribution of the predicted values for each class.
+Can be used for \code{\link[earth]{earth}} models, but also for models built by
+\code{\link{lm}},
+\code{\link{glm}},
+\code{\link[MASS]{lda}},
+etc.
 }
 \usage{
 plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
@@ -305,16 +310,16 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
     plotd(lda.model, type="class", hist=TRUE, labels=TRUE)
     }
     This handling of \code{type} is handled internally by \code{plotd} 
-    and \code{type} is not passed to \code{\link[MASS]{predict.lda}}
+    and \code{type} is not passed to \code{predict.lda}
     (\code{type} is used merely to select fields in the list
     returned by \code{predict.lda}).
     The type names can be abbreviated down to a single character.
 
-    For objects created with \code{\link[MASS]{lda.matrix}} 
-    (as opposed to \code{\link[MASS]{lda.formula}}),
+    For objects created with \code{lda.matrix} 
+    (as opposed to \code{lda.formula}),
     \code{plotd} blindly assumes that the \code{grouping} argument was the second argument.
 
-    \code{plotd} does not yet support objects created with \code{\link[MASS]{lda.data.frame}}.
+    \code{plotd} does not yet support objects created with \code{lda.data.frame}.
 
     For \code{lda} responses with more than two factor levels,
     use the \code{nresponse} argument to

@@ -353,7 +353,7 @@ earth.fit <- function(
     scale.y = (NCOL(y)==1), # TRUE to scale y in the forward pass
     subset  = NULL,         # which rows in x to use
     na.action = na.fail,    # only legal value is na.fail
-    glm     = NULL,         # lst with same args as glm() plus additional experimental arg bpairs
+    glm = NULL,             # glm parameter from earth.formula or earth.default
     trace = 0,              # 0 none 1 overview 2 forward 3 pruning
                             # 4 model mats, memory use, more pruning, etc. 5  ...
 

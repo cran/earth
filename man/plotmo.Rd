@@ -389,7 +389,7 @@ plotmo(a)
   plotmo(a, caption = "example", ylim = NULL, degree1 = c(1,2,4),
     degree2 = 4, col.response = 3, clip = FALSE, ticktype = "d", theta = -30)
 
-  # examples using functions other than earth
+  # examples using functions other than earth (the models are more or less bogus)
 
   plotmo(lm(O3 ~ log(temp) + humidity*temp, data=ozone1), se=2)
 

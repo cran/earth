@@ -92,10 +92,11 @@ a1c <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial()), trace=1, p
 check.models.equal(a1, a1c, msg="a1 a1c")
 a1d <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), trace=1, pmethod="none", degree=2)
 check.models.equal(a1, a1d, msg="a1 a1d")
-a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod="none", degree=2)
-check.models.equal(a1, a1e, msg="a1 a1e")
-a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod="none", degree=2)
-check.models.equal(a1, a1f, msg="a1 a1f")
+# Removed for earth 2.3.3 because offset is no longer supported
+# a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod="none", degree=2)
+# check.models.equal(a1, a1e, msg="a1 a1e")
+# a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod="none", degree=2)
+# check.models.equal(a1, a1f, msg="a1 a1f")
 a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod="none", degree=2)
 check.models.equal(a1, a1g, msg="a1 a1g")
 # following should cause a "did not converge warning" because maxit=2

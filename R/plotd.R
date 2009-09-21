@@ -209,7 +209,7 @@ plotd <- function(obj,      # obj is a model object
         }
     # optional vertical line at vline.thresh
 
-    if(!is.null(vline.col))
+    if(!is.null(vline.col) && vline.col != 0)
         abline(v=vline.thresh, col=vline.col, lty=vline.lty, lwd=vline.lwd)
 
     # Redo optional error region shading if it has borders, because the

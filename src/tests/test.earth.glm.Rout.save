@@ -282,28 +282,11 @@ After backward pass GRSq 0.731 RSq 0.9978
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > check.models.equal(a1, a1d, msg="a1 a1d")
 check.models.equal not identical: a1 a1d [but within numerical tolerances]
-> a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod="none", degree=2)
-x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
-y is a 12 by 2 matrix: 1=numdead (paired with numalive)
-Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
-After forward pass GRSq 0.9313 RSq 0.9987
-Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
-> check.models.equal(a1, a1e, msg="a1 a1e")
-check.models.equal not identical: a1 a1e [but within numerical tolerances]
-> a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod="none", degree=2)
-x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
-y is a 12 by 2 matrix: 1=numdead (paired with numalive)
-Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
-After forward pass GRSq 0.9313 RSq 0.9987
-Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
-> check.models.equal(a1, a1f, msg="a1 a1f")
-check.models.equal not identical: a1 a1f [but within numerical tolerances]
+> # Removed for earth 2.3.3 because offset is no longer supported
+> # a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod="none", degree=2)
+> # check.models.equal(a1, a1e, msg="a1 a1e")
+> # a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod="none", degree=2)
+> # check.models.equal(a1, a1f, msg="a1 a1f")
 > a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod="none", degree=2)
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
@@ -770,7 +753,7 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
   (Intercept)  `h(ldose--2)`        sexmale  
@@ -782,7 +765,7 @@ Residual Deviance: 6.757 	AIC: 42.87
 
 $glm.list[[2]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
   (Intercept)  `h(ldose--2)`        sexmale  
@@ -1202,7 +1185,7 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1218,7 +1201,7 @@ Residual Deviance: 894.8 	AIC: 912.8
 
 $glm.list[[2]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1234,7 +1217,7 @@ Residual Deviance: 1127 	AIC: 1145
 
 $glm.list[[3]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1585,7 +1568,7 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
             (Intercept)                 survived     `survived*h(51-age)`  
@@ -1921,7 +1904,7 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, start = glm$start,      etastart = glm$etastart, mustart = glm$mustart, offset = glm$offset,      control = control, model = TRUE, method = "glm.fit", x = TRUE,      y = TRUE, contrasts = NULL, trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
             (Intercept)                 survived     `survived*h(16-age)`  
