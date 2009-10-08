@@ -71,6 +71,13 @@ earth.glm <- function(bx, y, weights, na.action, glm,
     control <- glm$control
     if(is.null(control))
        control <- glm.control()
+    # FIXED (earth 2.3-5): get control params
+    if(!is.null(glm$epsilon))
+       control$epsilon <- glm$epsilon
+    if(!is.null(glm$maxit))
+       control$maxit <- glm$maxit
+    if(!is.null(glm$trace))
+       control$trace <- glm$trace
     env <- parent.frame()
     family <- get.glm.family(glm$family, env=env)
     is.binomial <- is.binomial(family)

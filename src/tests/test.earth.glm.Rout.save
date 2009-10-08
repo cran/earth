@@ -47,6 +47,13 @@ Loading required package: leaps
 +     print(ev)
 +     plot(a, caption=model.name)
 +     plot(ev)
++     if (!is.null(a$glm.list)) {
++         control <- a$glm.list[[1]]$control
++         family <- a$glm.list[[1]]$family
++         cat("\nglm params: epsilon", control$epsilon,
++             "maxit", control$maxit, "trace", control$trace,
++             "family", family$family, "link", family$link, "\n")
++     }
 +     cat("\nplotmo", model.name, "\n")
 +     plotmo(a)
 +     cat("-------------------------------------------------------------------------------\n\n")
@@ -222,6 +229,8 @@ ldose     2    1        4 100.00000 1 100.0000000 1
 sexmale   1    1        3 -18.73263 1   7.6848001 1
 ldose1    3    1        2 -31.37693 1   0.9614167 1
 
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
+
 plotmo a1 
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
@@ -312,14 +321,19 @@ Deviance = 4.956514 Iterations - 2
 Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
   algorithm did not converge
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
-> print(a1h)          # check that "did not converge" is printed
+> print.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
+
+Print a1h 
+
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
-> print(summary(a1h)) # ditto
+
+Summary a1h 
+
 Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family=binomial(link="logit"), 
       control=glm.control(epsilon=1e-08, maxit=2, trace=TRUE)), 
       trace=1, pmethod="none", degree=2)
@@ -338,8 +352,315 @@ Number of terms at each degree of interaction: 1 2 2
 Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
+
+Summary a1h decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family=binomial(link="logit"), 
+      control=glm.control(epsilon=1e-08, maxit=2, trace=TRUE)), 
+      trace=1, pmethod="none", degree=2)
+
+Earth coefficients
+                              numdead
+(Intercept)                   0.82038
+h(ldose- -2)                  2.71596
+sexmale * h(ldose- -2)        1.17662
+h(ldose- -2) * h(ldose1-0.1)  0.82649
+h(ldose1-0.1)                -1.79884
+
+GLM coefficients
+                               numdead
+(Intercept)                  -2.974693
+h(ldose- -2)                  0.920241
+sexmale * h(ldose- -2)        0.412494
+h(ldose- -2) * h(ldose1-0.1) -0.069244
+h(ldose1-0.1)                 0.119353
+
+GLM deviance residuals:
+       Min          1Q      Median          3Q         Max  
+-1.4279365  -0.3761911   0.0031938   0.4076809   0.9937841  
+
+GLM coefficients (family binomial, link logit)
+                              Estimate Std. Error z value  Pr(>|z|)
+(Intercept)                  -2.974693   0.552676 -5.3823 7.352e-08
+h(ldose- -2)                  0.920241   0.193835  4.7476 2.059e-06
+sexmale * h(ldose- -2)        0.412494   0.125575  3.2848  0.001020
+h(ldose- -2) * h(ldose1-0.1) -0.069244   0.266797 -0.2595  0.795219
+h(ldose1-0.1)                 0.119353   0.714913  0.1669  0.867411
+
+Number of cases: 12
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+Earth GCV 13.455    RSS 1.1213    GRSq 0.73094    RSq 0.99778
+
+GLM null.deviance 124.88 (11 dof)   deviance 4.9565 (7 dof)   iters 2 did not converge
+
+evimp a1h 
+
+        col used nsubsets       gcv           rss  
+ldose     2    1        4 100.00000 1 100.0000000 1
+sexmale   1    1        3 -18.73263 1   7.6848001 1
+ldose1    3    1        2 -31.37693 1   0.9614167 1
+
+evimp a1h trim=FALSE
+
+        col used nsubsets       gcv           rss  
+ldose     2    1        4 100.00000 1 100.0000000 1
+sexmale   1    1        3 -18.73263 1   7.6848001 1
+ldose1    3    1        2 -31.37693 1   0.9614167 1
+
+glm params: epsilon 1e-08 maxit 2 trace TRUE family binomial link logit 
+
+plotmo a1h 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: sex
+-------------------------------------------------------------------------------
+
 > check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
 check.models.equal not identical: a1 a1h [but within numerical tolerances]
+> stopifnot(a1h$glm.list[[1]]$control$maxit == 2)
+> # equivalent way of specifying maxit
+> a1h2 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8),maxit=2), pmethod="none", degree=2)
+Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
+  algorithm did not converge
+earth glm numdead: did not converge after 2 iterations
+> check.models.equal(a1h, a1h2, msg="a1h a1h2")
+check.models.equal not identical: a1h a1h2 [but within numerical tolerances]
+> stopifnot(a1h2$glm.list[[1]]$control$maxit == 2)
+> 
+> # check update, also check params are carried forward properly with update
+> a1h.update1 <- update(a1h, glm=list(family=binomial(link="probit"), maxit=8))
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead (paired with numalive)
+Skipped forward pass
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
+After backward pass GRSq 0.731 RSq 0.9978 
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 3.830772 (7 dof)   iters 5
+> stopifnot(a1h.update1$glm.list[[1]]$control$maxit == 8)
+> print.earth.models(a1h.update1)
+
+Print a1h.update1 
+
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+
+GLM null.deviance 124.8756 (11 dof)   deviance 3.830772 (7 dof)   iters 5
+
+Summary a1h.update1 
+
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family=binomial(link="probit"), 
+      maxit=8), trace=1, pmethod="none", degree=2, Object=a1h)
+
+GLM coefficients
+                                 numdead
+(Intercept)                  -1.74796732
+h(ldose- -2)                  0.54167612
+h(ldose1-0.1)                 0.04688993
+sexmale * h(ldose- -2)        0.24112957
+h(ldose- -2) * h(ldose1-0.1) -0.03281325
+
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+Earth GCV 13.45533    RSS 1.121278    GRSq 0.7309378    RSq 0.9977763
+
+GLM null.deviance 124.8756 (11 dof)   deviance 3.830772 (7 dof)   iters 5
+
+Summary a1h.update1 digits=3, details=TRUE
+
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family=binomial(link="probit"), 
+      maxit=8), trace=1, pmethod="none", degree=2, Object=a1h)
+
+Earth coefficients
+                             numdead
+(Intercept)                    0.820
+h(ldose- -2)                   2.716
+sexmale * h(ldose- -2)         1.177
+h(ldose- -2) * h(ldose1-0.1)   0.827
+h(ldose1-0.1)                 -1.799
+
+GLM coefficients
+                             numdead
+(Intercept)                  -1.7480
+h(ldose- -2)                  0.5417
+sexmale * h(ldose- -2)        0.2411
+h(ldose- -2) * h(ldose1-0.1) -0.0328
+h(ldose1-0.1)                 0.0469
+
+GLM deviance residuals:
+    Min       1Q   Median       3Q      Max  
+-1.2949  -0.3225   0.0672   0.3699   0.7815  
+
+GLM coefficients (family binomial, link probit)
+                             Estimate Std. Error z value Pr(>|z|)
+(Intercept)                   -1.7480     0.2989   -5.85  5.0e-09
+h(ldose- -2)                   0.5417     0.1071    5.06  4.2e-07
+sexmale * h(ldose- -2)         0.2411     0.0712    3.39  0.00071
+h(ldose- -2) * h(ldose1-0.1)  -0.0328     0.1478   -0.22  0.82432
+h(ldose1-0.1)                  0.0469     0.3905    0.12  0.90441
+
+Number of cases: 12
+Earth selected 5 of 5 terms, and 3 of 3 predictors 
+Importance: ldose, sexmale, ldose1
+Number of terms at each degree of interaction: 1 2 2
+Earth GCV 13.5    RSS 1.12    GRSq 0.731    RSq 0.998
+
+GLM null.deviance 125 (11 dof)   deviance 3.83 (7 dof)   iters 5
+
+evimp a1h.update1 
+
+        col used nsubsets       gcv           rss  
+ldose     2    1        4 100.00000 1 100.0000000 1
+sexmale   1    1        3 -18.73263 1   7.6848001 1
+ldose1    3    1        2 -31.37693 1   0.9614167 1
+
+evimp a1h.update1 trim=FALSE
+
+        col used nsubsets       gcv           rss  
+ldose     2    1        4 100.00000 1 100.0000000 1
+sexmale   1    1        3 -18.73263 1   7.6848001 1
+ldose1    3    1        2 -31.37693 1   0.9614167 1
+
+glm params: epsilon 1e-08 maxit 8 trace FALSE family binomial link probit 
+
+plotmo a1h.update1 
+Note: plotmo cannot use factors as axes for degree2 plots,
+      so skipping degree2 plots for: sex
+-------------------------------------------------------------------------------
+
+> a1h.update2 <- update(a1h, glm=list(family=gaussian, maxit=9), degree=1)
+x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
+y is a 12 by 2 matrix: 1=numdead, 2=numalive
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 8.50718e-05 < 0.001)
+After forward pass GRSq 0.9073 RSq 0.9808
+Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 3 predictors
+After backward pass GRSq 0.9525 RSq 0.9808 
+GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
+GLM numalive: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
+> stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
+> print.earth.models(a1h.update2)
+
+Print a1h.update2 
+
+Earth selected 3 of 3 terms, and 2 of 3 predictors 
+Importance: ldose, sexmale, ldose1-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+Earth
+              GCV       RSS     GRSq       RSq
+numdead  2.376093  9.702381 0.952486 0.9807588
+numalive 2.376093  9.702381 0.952486 0.9807588
+All      4.752187 19.404762 0.952486 0.9807588
+
+GLM (family gaussian, link identity)
+         null.deviance df deviance df iters converged
+numdead         504.25 11  9.70238  9     2         1
+numalive        504.25 11  9.70238  9     2         1
+
+Summary a1h.update2 
+
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family=gaussian, 
+      maxit=9), trace=1, pmethod="none", degree=1)
+
+GLM coefficients
+               numdead  numalive
+(Intercept)  -1.440476 21.440476
+sexmale       3.166667 -3.166667
+h(ldose- -2)  3.642857 -3.642857
+
+Earth selected 3 of 3 terms, and 2 of 3 predictors 
+Importance: ldose, sexmale, ldose1-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+Earth
+              GCV       RSS     GRSq       RSq
+numdead  2.376093  9.702381 0.952486 0.9807588
+numalive 2.376093  9.702381 0.952486 0.9807588
+All      4.752187 19.404762 0.952486 0.9807588
+
+GLM (family gaussian, link identity)
+         null.deviance df deviance df iters converged
+numdead         504.25 11  9.70238  9     2         1
+numalive        504.25 11  9.70238  9     2         1
+
+Summary a1h.update2 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(formula=SF~sex+ldose+ldose1, glm=list(family=gaussian, 
+      maxit=9), trace=1, pmethod="none", degree=1)
+
+Earth coefficients
+             numdead numalive
+(Intercept)  -1.4405  21.4405
+h(ldose- -2)  3.6429  -3.6429
+sexmale       3.1667  -3.1667
+
+GLM coefficients
+             numdead numalive
+(Intercept)  -1.4405  21.4405
+h(ldose- -2)  3.6429  -3.6429
+sexmale       3.1667  -3.1667
+
+GLM numdead deviance residuals:
+      Min         1Q     Median         3Q        Max  
+-1.369048  -0.738095   0.023810   0.386905   1.702381  
+
+GLM numdead coefficients (family gaussian, link identity)
+             Estimate Std. Error t value  Pr(>|t|)
+(Intercept)  -1.44048    0.61007 -2.3612 0.0425192
+h(ldose- -2)  3.64286    0.17550 20.7567 6.542e-09
+sexmale       3.16667    0.59946  5.2826 0.0005054
+
+GLM numdead dispersion parameter for gaussian family taken to be 1.078042
+
+GLM numalive deviance residuals:
+      Min         1Q     Median         3Q        Max  
+-1.702381  -0.386905  -0.023810   0.738095   1.369048  
+
+GLM numalive coefficients (family gaussian, link identity)
+             Estimate Std. Error  t value  Pr(>|t|)
+(Intercept)  21.44048    0.61007  35.1445 6.043e-11
+h(ldose- -2) -3.64286    0.17550 -20.7567 6.542e-09
+sexmale      -3.16667    0.59946  -5.2826 0.0005054
+
+GLM numalive dispersion parameter for gaussian family taken to be 1.078042
+
+Number of cases: 12
+Earth selected 3 of 3 terms, and 2 of 3 predictors 
+Importance: ldose, sexmale, ldose1-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+Earth
+            GCV     RSS    GRSq     RSq
+numdead  2.3761  9.7024 0.95249 0.98076
+numalive 2.3761  9.7024 0.95249 0.98076
+All      4.7522 19.4048 0.95249 0.98076
+
+GLM (family gaussian, link identity)
+         null.deviance df deviance df iters converged
+numdead         504.25 11   9.7024  9     2         1
+numalive        504.25 11   9.7024  9     2         1
+
+evimp a1h.update2 
+
+        col used nsubsets        gcv       rss  
+ldose     2    1        2 100.000000 1 100.000 1
+sexmale   1    1        1   7.385946 1   6.083 1
+
+evimp a1h.update2 trim=FALSE
+
+              col used nsubsets        gcv       rss  
+ldose           2    1        2 100.000000 1 100.000 1
+sexmale         1    1        1   7.385946 1   6.083 1
+ldose1-unused   3    0        0   0.000000 1   0.000 1
+
+glm params: epsilon 1e-08 maxit 9 trace FALSE family gaussian link identity 
+
+plotmo a1h.update2 
+-------------------------------------------------------------------------------
+
 > 
 > # basic check with an I in formula
 > a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod="none", degree=2)
@@ -429,43 +750,43 @@ Earth GCV 2.157714    RSS 4.495238    GRSq 0.9568528    RSq 0.9910853
 
 GLM null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
 
-Summary a2 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+Summary a2 digits=3, details=TRUE
 
 Call: earth(formula=SF~sex*ldose, glm=list(fa="b"), trace=3, 
       pmethod="none")
 
 Earth coefficients
-                      numdead
-(Intercept)          -2.01905
-h(ldose- -2)          3.25714
-sexmale               2.78095
-h(sexmale:ldose- -2)  0.77143
+                     numdead
+(Intercept)           -2.019
+h(ldose- -2)           3.257
+sexmale                2.781
+h(sexmale:ldose- -2)   0.771
 
 GLM coefficients
-                      numdead
-(Intercept)          -3.69937
-h(ldose- -2)          0.90604
-sexmale               0.88081
-h(sexmale:ldose- -2)  0.35291
+                     numdead
+(Intercept)           -3.699
+h(ldose- -2)           0.906
+sexmale                0.881
+h(sexmale:ldose- -2)   0.353
 
 GLM deviance residuals:
-      Min         1Q     Median         3Q        Max  
--1.398493  -0.320939  -0.075918   0.382202   1.103746  
+    Min       1Q   Median       3Q      Max  
+-1.3985  -0.3209  -0.0759   0.3822   1.1037  
 
 GLM coefficients (family binomial, link logit)
-                     Estimate Std. Error z value  Pr(>|z|)
-(Intercept)          -3.69937    0.51117 -7.2371 4.584e-13
-h(ldose- -2)          0.90604    0.16710  5.4221 5.891e-08
-sexmale               0.88081    0.38842  2.2677   0.02335
-h(sexmale:ldose- -2)  0.35291    0.26999  1.3071   0.19117
+                     Estimate Std. Error z value Pr(>|z|)
+(Intercept)            -3.699      0.511   -7.24  4.6e-13
+h(ldose- -2)            0.906      0.167    5.42  5.9e-08
+sexmale                 0.881      0.388    2.27    0.023
+h(sexmale:ldose- -2)    0.353      0.270    1.31    0.191
 
 Number of cases: 12
 Earth selected 4 of 4 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 3 (additive model)
-Earth GCV 2.1577    RSS 4.4952    GRSq 0.95685    RSq 0.99109
+Earth GCV 2.16    RSS 4.50    GRSq 0.957    RSq 0.991
 
-GLM null.deviance 124.88 (11 dof)   deviance 4.9937 (8 dof)   iters 4
+GLM null.deviance 125 (11 dof)   deviance 4.99 (8 dof)   iters 4
 
 evimp a2 
 
@@ -480,6 +801,8 @@ evimp a2 trim=FALSE
 ldose           2    1        3 100.0000000 1 100.000000 1
 sexmale         1    1        2   7.8086158 1   7.061559 1
 sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a2 
 -------------------------------------------------------------------------------
@@ -616,42 +939,42 @@ GLM (family binomial, link logit)
 numdead       124.8756 11 6.757064  9     4         1
 numdead2      128.0299 11 8.572466  9     4         1
 
-Summary a4 digits=3, details=TRUE
+Summary a4 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(formula=SF.both~sex*ldose, glm=list(family="binomial"), 
       trace=1)
 
 Earth coefficients
              numdead numdead2
-(Intercept)    -1.44   -0.786
-h(ldose- -2)    3.64    3.714
-sexmale         3.17    2.667
+(Intercept)  -1.4405 -0.78571
+h(ldose- -2)  3.6429  3.71429
+sexmale       3.1667  2.66667
 
 GLM coefficients
              numdead numdead2
-(Intercept)    -3.47   -3.214
-h(ldose- -2)    1.06    1.076
-sexmale         1.10    0.931
+(Intercept)  -3.4732 -3.21406
+h(ldose- -2)  1.0642  1.07600
+sexmale       1.1007  0.93115
 
 GLM numdead deviance residuals:
-    Min       1Q   Median       3Q      Max  
--1.1054  -0.6534  -0.0222   0.4847   1.4294  
+      Min         1Q     Median         3Q        Max  
+-1.105398  -0.653432  -0.022249   0.484706   1.429444  
 
 GLM numdead coefficients (family binomial, link logit)
-             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    -3.473      0.469   -7.41  1.2e-13
-h(ldose- -2)    1.064      0.131    8.12  4.7e-16
-sexmale         1.101      0.356    3.09   0.0020
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.47316    0.46852 -7.4130 1.234e-13
+h(ldose- -2)  1.06421    0.13108  8.1190 4.702e-16
+sexmale       1.10074    0.35583  3.0935  0.001978
 
 GLM numdead2 deviance residuals:
-   Min      1Q  Median      3Q     Max  
--1.255  -0.736   0.203   0.691   1.330  
+     Min        1Q    Median        3Q       Max  
+-1.25549  -0.73593   0.20315   0.69113   1.32952  
 
 GLM numdead2 coefficients (family binomial, link logit)
-             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    -3.214      0.447   -7.19  6.3e-13
-h(ldose- -2)    1.076      0.131    8.20  2.4e-16
-sexmale         0.931      0.352    2.64   0.0082
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.21406    0.44682 -7.1932 6.330e-13
+h(ldose- -2)  1.07600    0.13124  8.1987 2.429e-16
+sexmale       0.93115    0.35232  2.6429  0.008219
 
 Number of cases: 12
 Earth selected 3 of 4 terms, and 2 of 3 predictors 
@@ -659,15 +982,15 @@ Importance: ldose, sexmale, sexmale:ldose-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
 Earth
-          GCV  RSS  GRSq   RSq
-numdead  2.38  9.7 0.953 0.981
-numdead2 3.79 15.5 0.926 0.970
-All      6.17 25.2 0.939 0.975
+            GCV     RSS    GRSq     RSq
+numdead  2.3761  9.7024 0.95249 0.98076
+numdead2 3.7901 15.4762 0.92646 0.97022
+All      6.1662 25.1786 0.93928 0.97541
 
 GLM (family binomial, link logit)
          null.deviance df deviance df iters converged
-numdead            125 11     6.76  9     4         1
-numdead2           128 11     8.57  9     4         1
+numdead         124.88 11   6.7571  9     4         1
+numdead2        128.03 11   8.5725  9     4         1
 
 evimp a4 
 
@@ -681,6 +1004,8 @@ evimp a4 trim=FALSE
 ldose                  2    1        2 100.000000 1 100.000000 1
 sexmale                1    1        1   5.432272 1   5.148163 1
 sexmale:ldose-unused   3    0        0   0.000000 1   0.000000 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a4 
 -------------------------------------------------------------------------------
@@ -929,82 +1254,82 @@ GLM (family binomial, link logit)
 2nd      1175.305 1045 1126.9441 1037     5         1
 3rd      1448.213 1045 1118.9411 1037     5         1
 
-Summary a5 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+Summary a5 digits=3, details=TRUE
 
 Call: earth(formula=pclass~., data=etitanic, glm=list(family="binomial"), 
       trace=0, degree=2)
 
 Earth coefficients
-                               1st         2nd        3rd
-(Intercept)              0.1396780  1.3822e-01  0.7221057
-survived                 0.3518559  1.6023e-01 -0.5120905
-h(sibsp-1)              -0.0479585 -6.7564e-02  0.1155224
-h(2-parch)               0.2173334  9.4235e-03 -0.2267568
-survived * h(16-age)    -0.0232585  1.8686e-02  0.0045728
-survived * sexmale      -0.0959323 -3.0327e-01  0.3992025
-sexmale                  0.1093674  1.3653e-01 -0.2458963
-h(55-age) * h(2-parch)  -0.0078473  3.5599e-05  0.0078117
-h(1-sibsp) * h(1-parch) -0.1623930 -3.2878e-02  0.1952714
+                            1st      2nd     3rd
+(Intercept)              0.1397  0.13822  0.7221
+survived                 0.3519  0.16023 -0.5121
+h(sibsp-1)              -0.0480 -0.06756  0.1155
+h(2-parch)               0.2173  0.00942 -0.2268
+survived * h(16-age)    -0.0233  0.01869  0.0046
+survived * sexmale      -0.0959 -0.30327  0.3992
+sexmale                  0.1094  0.13653 -0.2459
+h(55-age) * h(2-parch)  -0.0078  0.00004  0.0078
+h(1-sibsp) * h(1-parch) -0.1624 -0.03288  0.1953
 
 GLM coefficients
-                              1st         2nd       3rd
-(Intercept)             -2.663071 -1.93136147  1.379929
-survived                 2.847886  1.06418271 -2.843786
-h(sibsp-1)              -0.528798 -0.64928949  0.799747
-h(2-parch)               1.255188  0.06534587 -1.298557
-survived * h(16-age)    -0.178250  0.09390085  0.020117
-survived * sexmale      -1.254982 -1.95099222  2.285545
-sexmale                  1.424834  0.96598862 -1.452396
-h(55-age) * h(2-parch)  -0.049464  0.00043737  0.041465
-h(1-sibsp) * h(1-parch) -1.021629 -0.21902436  1.124908
+                            1st     2nd     3rd
+(Intercept)             -2.6631 -1.9314  1.3799
+survived                 2.8479  1.0642 -2.8438
+h(sibsp-1)              -0.5288 -0.6493  0.7997
+h(2-parch)               1.2552  0.0653 -1.2986
+survived * h(16-age)    -0.1782  0.0939  0.0201
+survived * sexmale      -1.2550 -1.9510  2.2855
+sexmale                  1.4248  0.9660 -1.4524
+h(55-age) * h(2-parch)  -0.0495  0.0004  0.0415
+h(1-sibsp) * h(1-parch) -1.0216 -0.2190  1.1249
 
 GLM 1st deviance residuals:
-     Min        1Q    Median        3Q       Max  
--2.02122  -0.68435  -0.35766   0.56892   2.66017  
+   Min      1Q  Median      3Q     Max  
+-2.021  -0.684  -0.358   0.569   2.660  
 
 GLM 1st coefficients (family binomial, link logit)
-                          Estimate Std. Error  z value  Pr(>|z|)
-(Intercept)             -2.6630714  0.5298325  -5.0263 5.002e-07
-survived                 2.8478855  0.5104917   5.5787 2.423e-08
-h(sibsp-1)              -0.5287976  0.2365149  -2.2358 0.0253656
-h(2-parch)               1.2551876  0.1875848   6.6913 2.212e-11
-survived * h(16-age)    -0.1782499  0.0515714  -3.4564 0.0005475
-survived * sexmale      -1.2549820  0.5640362  -2.2250 0.0260811
-sexmale                  1.4248343  0.5092679   2.7978 0.0051451
-h(55-age) * h(2-parch)  -0.0494641  0.0044068 -11.2244 < 2.2e-16
-h(1-sibsp) * h(1-parch) -1.0216289  0.2129941  -4.7965 1.615e-06
+                        Estimate Std. Error z value Pr(>|z|)
+(Intercept)             -2.66307    0.52983   -5.03  5.0e-07
+survived                 2.84789    0.51049    5.58  2.4e-08
+h(sibsp-1)              -0.52880    0.23651   -2.24  0.02537
+h(2-parch)               1.25519    0.18758    6.69  2.2e-11
+survived * h(16-age)    -0.17825    0.05157   -3.46  0.00055
+survived * sexmale      -1.25498    0.56404   -2.23  0.02608
+sexmale                  1.42483    0.50927    2.80  0.00515
+h(55-age) * h(2-parch)  -0.04946    0.00441  -11.22  < 2e-16
+h(1-sibsp) * h(1-parch) -1.02163    0.21299   -4.80  1.6e-06
 
 GLM 2nd deviance residuals:
-     Min        1Q    Median        3Q       Max  
--1.45407  -0.80675  -0.77534  -0.10402   2.07089  
+   Min      1Q  Median      3Q     Max  
+-1.454  -0.807  -0.775  -0.104   2.071  
 
 GLM 2nd coefficients (family binomial, link logit)
-                           Estimate  Std. Error z value  Pr(>|z|)
-(Intercept)             -1.93136147  0.37697795 -5.1233 3.003e-07
-survived                 1.06418271  0.34979070  3.0423 0.0023475
-h(sibsp-1)              -0.64928949  0.22307746 -2.9106 0.0036073
-h(2-parch)               0.06534587  0.17330956  0.3770 0.7061386
-survived * h(16-age)     0.09390085  0.02842944  3.3029 0.0009568
-survived * sexmale      -1.95099222  0.43722003 -4.4623 8.110e-06
-sexmale                  0.96598862  0.34300568  2.8162 0.0048588
-h(55-age) * h(2-parch)   0.00043737  0.00357988  0.1222 0.9027599
-h(1-sibsp) * h(1-parch) -0.21902436  0.19299092 -1.1349 0.2564195
+                         Estimate Std. Error z value Pr(>|z|)
+(Intercept)             -1.931361   0.376978   -5.12  3.0e-07
+survived                 1.064183   0.349791    3.04  0.00235
+h(sibsp-1)              -0.649289   0.223077   -2.91  0.00361
+h(2-parch)               0.065346   0.173310    0.38  0.70614
+survived * h(16-age)     0.093901   0.028429    3.30  0.00096
+survived * sexmale      -1.950992   0.437220   -4.46  8.1e-06
+sexmale                  0.965989   0.343006    2.82  0.00486
+h(55-age) * h(2-parch)   0.000437   0.003580    0.12  0.90276
+h(1-sibsp) * h(1-parch) -0.219024   0.192991   -1.13  0.25642
 
 GLM 3rd deviance residuals:
-     Min        1Q    Median        3Q       Max  
--2.32939  -0.83909  -0.32160   0.89944   2.61933  
+   Min      1Q  Median      3Q     Max  
+-2.329  -0.839  -0.322   0.899   2.619  
 
 GLM 3rd coefficients (family binomial, link logit)
-                          Estimate Std. Error z value  Pr(>|z|)
-(Intercept)              1.3799294  0.3534087  3.9046 9.437e-05
-survived                -2.8437858  0.3383356 -8.4052 < 2.2e-16
-h(sibsp-1)               0.7997468  0.1912028  4.1827 2.880e-05
-h(2-parch)              -1.2985571  0.1912192 -6.7909 1.114e-11
-survived * h(16-age)     0.0201168  0.0284533  0.7070    0.4796
-survived * sexmale       2.2855450  0.3990264  5.7278 1.017e-08
-sexmale                 -1.4523959  0.3219393 -4.5114 6.440e-06
-h(55-age) * h(2-parch)   0.0414645  0.0040611 10.2101 < 2.2e-16
-h(1-sibsp) * h(1-parch)  1.1249080  0.2035671  5.5260 3.276e-08
+                        Estimate Std. Error z value Pr(>|z|)
+(Intercept)              1.37993    0.35341    3.90  9.4e-05
+survived                -2.84379    0.33834   -8.41  < 2e-16
+h(sibsp-1)               0.79975    0.19120    4.18  2.9e-05
+h(2-parch)              -1.29856    0.19122   -6.79  1.1e-11
+survived * h(16-age)     0.02012    0.02845    0.71     0.48
+survived * sexmale       2.28554    0.39903    5.73  1.0e-08
+sexmale                 -1.45240    0.32194   -4.51  6.4e-06
+h(55-age) * h(2-parch)   0.04146    0.00406   10.21  < 2e-16
+h(1-sibsp) * h(1-parch)  1.12491    0.20357    5.53  3.3e-08
 
 Number of cases: 1046
 Earth selected 9 of 17 terms, and 5 of 5 predictors 
@@ -1012,17 +1337,17 @@ Importance: age, parch, survived, sibsp, sexmale
 Number of terms at each degree of interaction: 1 4 4
 
 Earth
-        GCV    RSS      GRSq      RSq
-1st 0.14787 148.53 0.2538199 0.282108
-2nd 0.18698 187.81 0.0034054 0.041188
-3rd 0.18956 190.40 0.2418730 0.270614
-All 0.52441 526.73 0.1752296 0.206498
+      GCV RSS    GRSq    RSq
+1st 0.148 148 0.25382 0.2821
+2nd 0.187 188 0.00341 0.0412
+3rd 0.190 190 0.24187 0.2706
+All 0.524 527 0.17523 0.2065
 
 GLM (family binomial, link logit)
     null.deviance   df deviance   df iters converged
-1st        1223.3 1045   894.81 1037     5         1
-2nd        1175.3 1045  1126.94 1037     5         1
-3rd        1448.2 1045  1118.94 1037     5         1
+1st          1223 1045      895 1037     5         1
+2nd          1175 1045     1127 1037     5         1
+3rd          1448 1045     1119 1037     5         1
 
 evimp a5 
 
@@ -1041,6 +1366,8 @@ parch      5    1        8 100.00000 1 100.00000 1
 survived   1    1        7  63.44537 1  66.81445 1
 sibsp      4    1        5  16.22113 1  22.99755 1
 sexmale    2    1        4  11.82295 1  17.37608 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a5 
 Note: plotmo cannot use factors as axes for degree2 plots,
@@ -1350,61 +1677,61 @@ Earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
 
 GLM null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
 
-Summary a6 digits=3, details=TRUE
+Summary a6 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(formula=pclass1~., data=etitanic[, -1], glm=list(family="binomial"), 
       trace=1, degree=2)
 
 Earth coefficients
-                        pclass1
-(Intercept)              0.1304
-survived                 0.4744
-survived * h(51-age)    -0.0088
-h(2-parch)               0.1578
-h(sibsp-1) * h(2-parch) -0.0602
-h(1-sibsp) * h(2-parch) -0.0685
-sexmale * h(age-26)      0.0066
-h(age-55) * h(2-parch)  -0.0389
-h(55-age) * h(2-parch)  -0.0045
-h(age-54)                0.0643
+                           pclass1
+(Intercept)              0.1303850
+survived                 0.4743600
+survived * h(51-age)    -0.0088355
+h(2-parch)               0.1577795
+h(sibsp-1) * h(2-parch) -0.0601663
+h(1-sibsp) * h(2-parch) -0.0685010
+sexmale * h(age-26)      0.0065670
+h(age-55) * h(2-parch)  -0.0389109
+h(55-age) * h(2-parch)  -0.0044915
+h(age-54)                0.0642551
 
 GLM coefficients
-                        pclass1
-(Intercept)             -2.1548
-survived                 2.4571
-survived * h(51-age)    -0.0309
-h(2-parch)               1.1484
-h(sibsp-1) * h(2-parch) -0.7586
-h(1-sibsp) * h(2-parch) -0.4487
-sexmale * h(age-26)      0.0361
-h(age-55) * h(2-parch)  -0.2894
-h(55-age) * h(2-parch)  -0.0347
-h(age-54)                0.4664
+                          pclass1
+(Intercept)             -2.154838
+survived                 2.457092
+survived * h(51-age)    -0.030857
+h(2-parch)               1.148406
+h(sibsp-1) * h(2-parch) -0.758621
+h(1-sibsp) * h(2-parch) -0.448684
+sexmale * h(age-26)      0.036062
+h(age-55) * h(2-parch)  -0.289394
+h(55-age) * h(2-parch)  -0.034697
+h(age-54)                0.466370
 
 GLM deviance residuals:
-   Min      1Q  Median      3Q     Max  
--2.343  -0.650  -0.386   0.454   2.617  
+     Min        1Q    Median        3Q       Max  
+-2.34339  -0.64954  -0.38648   0.45406   2.61742  
 
 GLM coefficients (family binomial, link logit)
-                        Estimate Std. Error z value Pr(>|z|)
-(Intercept)             -2.15484    0.26659   -8.08  6.3e-16
-survived                 2.45709    0.33140    7.41  1.2e-13
-survived * h(51-age)    -0.03086    0.01212   -2.55    0.011
-h(2-parch)               1.14841    0.24647    4.66  3.2e-06
-h(sibsp-1) * h(2-parch) -0.75862    0.32618   -2.33    0.020
-h(1-sibsp) * h(2-parch) -0.44868    0.10926   -4.11  4.0e-05
-sexmale * h(age-26)      0.03606    0.01524    2.37    0.018
-h(age-55) * h(2-parch)  -0.28939    0.11543   -2.51    0.012
-h(55-age) * h(2-parch)  -0.03470    0.00748   -4.64  3.5e-06
-h(age-54)                0.46637    0.21418    2.18    0.029
+                          Estimate Std. Error z value  Pr(>|z|)
+(Intercept)             -2.1548382  0.2665944 -8.0828 6.328e-16
+survived                 2.4570924  0.3313962  7.4144 1.222e-13
+survived * h(51-age)    -0.0308568  0.0121175 -2.5465   0.01088
+h(2-parch)               1.1484064  0.2464715  4.6594 3.171e-06
+h(sibsp-1) * h(2-parch) -0.7586207  0.3261834 -2.3257   0.02003
+h(1-sibsp) * h(2-parch) -0.4486836  0.1092563 -4.1067 4.013e-05
+sexmale * h(age-26)      0.0360618  0.0152384  2.3665   0.01796
+h(age-55) * h(2-parch)  -0.2893938  0.1154265 -2.5072   0.01217
+h(55-age) * h(2-parch)  -0.0346969  0.0074824 -4.6371 3.533e-06
+h(age-54)                0.4663704  0.2141793  2.1775   0.02945
 
 Number of cases: 1046
 Earth selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, parch, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
-Earth GCV 0.146    RSS 146    GRSq 0.263    RSq 0.294
+Earth GCV 0.14611    RSS 146.04    GRSq 0.26269    RSq 0.2941
 
-GLM null.deviance 1223 (1045 dof)   deviance 899 (1036 dof)   iters 5
+GLM null.deviance 1223.3 (1045 dof)   deviance 898.9 (1036 dof)   iters 5
 
 evimp a6 
 
@@ -1423,6 +1750,8 @@ survived   1    1        8  40.089657 1  45.118516 1
 parch      5    1        5   5.680862 1  10.881834 1
 sibsp      4    1        4   4.582762 1   8.727465 1
 sexmale    2    1        3   2.496725 1   5.732125 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a6 
 Note: plotmo cannot use factors as axes for degree2 plots,
@@ -1693,61 +2022,61 @@ Earth GCV 0.1507864    RSS 150.7153    GRSq 0.3550334    RSq 0.3825081
 
 GLM null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
 
-Summary a7 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+Summary a7 digits=3, details=TRUE
 
 Call: earth(formula=sex~., data=etitanic, glm=list(family="binomial"), 
       trace=1, degree=2)
 
 Earth coefficients
-                              male
-(Intercept)              0.8061976
-survived                -0.6293690
-survived * h(16-age)     0.0389243
-h(25-age) * h(3-parch)  -0.0050294
-pclass3rd * survived     0.2606447
-h(sibsp-2) * h(3-parch)  0.1062343
-h(2-sibsp) * h(3-parch)  0.0302976
-pclass3rd               -0.5044026
-pclass3rd * h(3-parch)   0.1380229
-pclass2nd * survived    -0.1343256
+                           male
+(Intercept)              0.8062
+survived                -0.6294
+survived * h(16-age)     0.0389
+h(25-age) * h(3-parch)  -0.0050
+pclass3rd * survived     0.2606
+h(sibsp-2) * h(3-parch)  0.1062
+h(2-sibsp) * h(3-parch)  0.0303
+pclass3rd               -0.5044
+pclass3rd * h(3-parch)   0.1380
+pclass2nd * survived    -0.1343
 
 GLM coefficients
-                             male
-(Intercept)              1.846766
-survived                -3.570391
-survived * h(16-age)     0.211200
-h(25-age) * h(3-parch)  -0.028997
-pclass3rd * survived     1.679188
-h(sibsp-2) * h(3-parch)  0.592330
-h(2-sibsp) * h(3-parch)  0.210078
-pclass3rd               -2.804424
-pclass3rd * h(3-parch)   0.598772
-pclass2nd * survived    -0.786416
+                          male
+(Intercept)              1.847
+survived                -3.570
+survived * h(16-age)     0.211
+h(25-age) * h(3-parch)  -0.029
+pclass3rd * survived     1.679
+h(sibsp-2) * h(3-parch)  0.592
+h(2-sibsp) * h(3-parch)  0.210
+pclass3rd               -2.804
+pclass3rd * h(3-parch)   0.599
+pclass2nd * survived    -0.786
 
 GLM deviance residuals:
-     Min        1Q    Median        3Q       Max  
--2.51037  -0.70996   0.35670   0.56578   2.10072  
+   Min      1Q  Median      3Q     Max  
+-2.510  -0.710   0.357   0.566   2.101  
 
 GLM coefficients (family binomial, link logit)
-                          Estimate Std. Error  z value  Pr(>|z|)
-(Intercept)              1.8467663  0.3326603   5.5515 2.832e-08
-survived                -3.5703913  0.3098767 -11.5220 < 2.2e-16
-survived * h(16-age)     0.2112001  0.0355011   5.9491 2.696e-09
-h(25-age) * h(3-parch)  -0.0289967  0.0088431  -3.2790 0.0010417
-pclass3rd * survived     1.6791880  0.3928026   4.2749 1.912e-05
-h(sibsp-2) * h(3-parch)  0.5923304  0.1616979   3.6632 0.0002491
-h(2-sibsp) * h(3-parch)  0.2100782  0.0507478   4.1396 3.478e-05
-pclass3rd               -2.8044243  0.5270413  -5.3211 1.032e-07
-pclass3rd * h(3-parch)   0.5987717  0.1740645   3.4399 0.0005818
-pclass2nd * survived    -0.7864156  0.3099715  -2.5371 0.0111788
+                        Estimate Std. Error z value Pr(>|z|)
+(Intercept)              1.84677    0.33266    5.55  2.8e-08
+survived                -3.57039    0.30988  -11.52  < 2e-16
+survived * h(16-age)     0.21120    0.03550    5.95  2.7e-09
+h(25-age) * h(3-parch)  -0.02900    0.00884   -3.28  0.00104
+pclass3rd * survived     1.67919    0.39280    4.27  1.9e-05
+h(sibsp-2) * h(3-parch)  0.59233    0.16170    3.66  0.00025
+h(2-sibsp) * h(3-parch)  0.21008    0.05075    4.14  3.5e-05
+pclass3rd               -2.80442    0.52704   -5.32  1.0e-07
+pclass3rd * h(3-parch)   0.59877    0.17406    3.44  0.00058
+pclass2nd * survived    -0.78642    0.30997   -2.54  0.01118
 
 Number of cases: 1046
 Earth selected 10 of 15 terms, and 6 of 6 predictors 
 Importance: survived, pclass3rd, parch, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 7
-Earth GCV 0.15079    RSS 150.72    GRSq 0.35503    RSq 0.38251
+Earth GCV 0.151    RSS 151    GRSq 0.355    RSq 0.383
 
-GLM null.deviance 1379.6 (1045 dof)   deviance 937.02 (1036 dof)   iters 5
+GLM null.deviance 1380 (1045 dof)   deviance 937 (1036 dof)   iters 5
 
 evimp a7 
 
@@ -1768,6 +2097,8 @@ parch       6    1        6  13.3685900 1  17.002027 1
 age         4    1        5   6.4001465 1   9.798418 1
 sibsp       5    1        4   4.5087239 1   7.258397 1
 pclass2nd   1    1        1   0.5526548 1   1.283877 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a7 
 Note: plotmo cannot use factors as axes for degree2 plots,
@@ -2146,40 +2477,40 @@ Earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
 GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 
-Summary a8p digits=3, details=TRUE
+Summary a8p decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(formula=counts~outcome+treatment, glm=list(family=poisson()), 
       trace=3, pmethod="none")
 
 Earth coefficients
-            counts
-(Intercept)  21.00
-outcome2     -7.67
-outcome3     -5.33
+             counts
+(Intercept) 21.0000
+outcome2    -7.6667
+outcome3    -5.3333
 
 GLM coefficients
-            counts
-(Intercept)  3.045
-outcome2    -0.454
-outcome3    -0.293
+              counts
+(Intercept)  3.04452
+outcome2    -0.45426
+outcome3    -0.29299
 
 GLM deviance residuals:
-   Min      1Q  Median      3Q     Max  
--0.967  -0.671  -0.170   0.847   1.049  
+     Min        1Q    Median        3Q       Max  
+-0.96656  -0.67125  -0.16965   0.84715   1.04939  
 
 GLM coefficients (family poisson, link log)
             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    3.045      0.126   24.17   <2e-16
-outcome2      -0.454      0.202   -2.25    0.025
-outcome3      -0.293      0.193   -1.52    0.128
+(Intercept)  3.04452    0.12599 24.1651  < 2e-16
+outcome2    -0.45426    0.20217 -2.2469  0.02465
+outcome3    -0.29299    0.19274 -1.5201  0.12849
 
 Number of cases: 9
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 46.9    RSS 83.3    GRSq -0.894    RSq 0.527
+Earth GCV 46.875    RSS 83.333    GRSq -0.89394    RSq 0.52652
 
-GLM null.deviance 10.6 (8 dof)   deviance 5.13 (6 dof)   iters 4
+GLM null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
 
 evimp a8p 
 
@@ -2194,6 +2525,8 @@ outcome2            1    1        2 -100.00000 1 100.00000 1
 outcome3            2    1        1  -69.49153 0  46.04317 1
 treatment2-unused   3    0        0    0.00000 0   0.00000 1
 treatment3-unused   4    0        0    0.00000 1   0.00000 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a8p 
 -------------------------------------------------------------------------------
@@ -2298,42 +2631,42 @@ GLM (family poisson, link log)
 counts       10.58145  8  5.129141  6     4         1
 counts2     105.16600  8 50.964475  6     4         1
 
-Summary a10 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+Summary a10 digits=3, details=TRUE
 
 Call: earth(formula=cbind(counts, counts2)~outcome+treatment, 
       glm=list(fam="po"), trace=1, pmethod="none")
 
 Earth coefficients
-             counts counts2
-(Intercept) 21.0000 211.000
-outcome2    -7.6667 -76.667
-outcome3    -5.3333 -53.333
+            counts counts2
+(Intercept)  21.00   211.0
+outcome2     -7.67   -76.7
+outcome3     -5.33   -53.3
 
 GLM coefficients
-              counts  counts2
-(Intercept)  3.04452  5.35186
-outcome2    -0.45426 -0.45153
-outcome3    -0.29299 -0.29138
+            counts counts2
+(Intercept)  3.045   5.352
+outcome2    -0.454  -0.452
+outcome3    -0.293  -0.291
 
 GLM counts deviance residuals:
-     Min        1Q    Median        3Q       Max  
--0.96656  -0.67125  -0.16965   0.84715   1.04939  
+   Min      1Q  Median      3Q     Max  
+-0.967  -0.671  -0.170   0.847   1.049  
 
 GLM counts coefficients (family poisson, link log)
             Estimate Std. Error z value Pr(>|z|)
-(Intercept)  3.04452    0.12599 24.1651  < 2e-16
-outcome2    -0.45426    0.20217 -2.2469  0.02465
-outcome3    -0.29299    0.19274 -1.5201  0.12849
+(Intercept)    3.045      0.126   24.17   <2e-16
+outcome2      -0.454      0.202   -2.25    0.025
+outcome3      -0.293      0.193   -1.52    0.128
 
 GLM counts2 deviance residuals:
-     Min        1Q    Median        3Q       Max  
--3.04594  -2.11738  -0.53474   2.67294   3.30873  
+   Min      1Q  Median      3Q     Max  
+-3.046  -2.117  -0.535   2.673   3.309  
 
 GLM counts2 coefficients (family poisson, link log)
-             Estimate Std. Error  z value  Pr(>|z|)
-(Intercept)  5.351858   0.039746 134.6500 < 2.2e-16
-outcome2    -0.451534   0.063727  -7.0854 1.386e-12
-outcome3    -0.291375   0.060778  -4.7941 1.634e-06
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)   5.3519     0.0397  134.65  < 2e-16
+outcome2     -0.4515     0.0637   -7.09  1.4e-12
+outcome3     -0.2914     0.0608   -4.79  1.6e-06
 
 Number of cases: 9
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
@@ -2341,15 +2674,15 @@ Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
 Earth
-            GCV     RSS     GRSq     RSq
-counts    46.88   83.33 -0.89394 0.52651
-counts2 4687.50 8333.33 -0.89394 0.52651
-All     4734.37 8416.67 -0.89394 0.52651
+         GCV  RSS   GRSq   RSq
+counts    47   83 -0.894 0.526
+counts2 4688 8333 -0.894 0.526
+All     4734 8417 -0.894 0.526
 
 GLM (family poisson, link log)
         null.deviance df deviance df iters converged
-counts         10.581  8   5.1291  6     4         1
-counts2       105.166  8  50.9645  6     4         1
+counts           10.6  8     5.13  6     4         1
+counts2         105.2  8    50.96  6     4         1
 
 evimp a10 
 
@@ -2364,6 +2697,8 @@ outcome2            1    1        2 -100.00000 1 100.00000 1
 outcome3            2    1        1  -69.49153 0  46.04317 1
 treatment2-unused   3    0        0    0.00000 0   0.00000 1
 treatment3-unused   4    0        0    0.00000 1   0.00000 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a10 
 -------------------------------------------------------------------------------
@@ -2779,42 +3114,42 @@ GLM (family binomial, link logit)
 numdead       124.8756 11 6.757064  9     4         1
 numdead2      128.0299 11 8.572466  9     4         1
 
-Summary aref digits=3, details=TRUE
+Summary aref decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(formula=SF.both~., data=df, glm=list(family="binomial"), 
       trace=1)
 
 Earth coefficients
              numdead numdead2
-(Intercept)    -1.44   -0.786
-h(ldose- -2)    3.64    3.714
-sexmale         3.17    2.667
+(Intercept)  -1.4405 -0.78571
+h(ldose- -2)  3.6429  3.71429
+sexmale       3.1667  2.66667
 
 GLM coefficients
              numdead numdead2
-(Intercept)    -3.47   -3.214
-h(ldose- -2)    1.06    1.076
-sexmale         1.10    0.931
+(Intercept)  -3.4732 -3.21406
+h(ldose- -2)  1.0642  1.07600
+sexmale       1.1007  0.93115
 
 GLM numdead deviance residuals:
-    Min       1Q   Median       3Q      Max  
--1.1054  -0.6534  -0.0222   0.4847   1.4294  
+      Min         1Q     Median         3Q        Max  
+-1.105398  -0.653432  -0.022249   0.484706   1.429444  
 
 GLM numdead coefficients (family binomial, link logit)
-             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    -3.473      0.469   -7.41  1.2e-13
-h(ldose- -2)    1.064      0.131    8.12  4.7e-16
-sexmale         1.101      0.356    3.09   0.0020
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.47316    0.46852 -7.4130 1.234e-13
+h(ldose- -2)  1.06421    0.13108  8.1190 4.702e-16
+sexmale       1.10074    0.35583  3.0935  0.001978
 
 GLM numdead2 deviance residuals:
-   Min      1Q  Median      3Q     Max  
--1.255  -0.736   0.203   0.691   1.330  
+     Min        1Q    Median        3Q       Max  
+-1.25549  -0.73593   0.20315   0.69113   1.32952  
 
 GLM numdead2 coefficients (family binomial, link logit)
-             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    -3.214      0.447   -7.19  6.3e-13
-h(ldose- -2)    1.076      0.131    8.20  2.4e-16
-sexmale         0.931      0.352    2.64   0.0082
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.21406    0.44682 -7.1932 6.330e-13
+h(ldose- -2)  1.07600    0.13124  8.1987 2.429e-16
+sexmale       0.93115    0.35232  2.6429  0.008219
 
 Number of cases: 12
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
@@ -2822,15 +3157,15 @@ Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
 Earth
-          GCV  RSS  GRSq   RSq
-numdead  2.38  9.7 0.953 0.981
-numdead2 3.79 15.5 0.926 0.970
-All      6.17 25.2 0.939 0.975
+            GCV     RSS    GRSq     RSq
+numdead  2.3761  9.7024 0.95249 0.98076
+numdead2 3.7901 15.4762 0.92646 0.97022
+All      6.1662 25.1786 0.93928 0.97541
 
 GLM (family binomial, link logit)
          null.deviance df deviance df iters converged
-numdead            125 11     6.76  9     4         1
-numdead2           128 11     8.57  9     4         1
+numdead         124.88 11   6.7571  9     4         1
+numdead2        128.03 11   8.5725  9     4         1
 
 evimp aref 
 
@@ -2843,6 +3178,8 @@ evimp aref trim=FALSE
         col used nsubsets        gcv          rss  
 ldose     2    1        2 100.000000 1 100.000000 1
 sexmale   1    1        1   5.432272 1   5.148163 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo aref 
 -------------------------------------------------------------------------------
@@ -2903,42 +3240,42 @@ GLM (family binomial, link logit)
 numdead       124.8756 11 6.757064  9     4         1
 numdead2      128.0299 11 8.572466  9     4         1
 
-Summary a21 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+Summary a21 digits=3, details=TRUE
 
 Call: earth(x=data.frame(sex, ldose), y=SF.both, glm=list(family="binomial"), 
       trace=1)
 
 Earth coefficients
              numdead numdead2
-(Intercept)  -1.4405 -0.78571
-h(ldose- -2)  3.6429  3.71429
-sexmale       3.1667  2.66667
+(Intercept)    -1.44   -0.786
+h(ldose- -2)    3.64    3.714
+sexmale         3.17    2.667
 
 GLM coefficients
              numdead numdead2
-(Intercept)  -3.4732 -3.21406
-h(ldose- -2)  1.0642  1.07600
-sexmale       1.1007  0.93115
+(Intercept)    -3.47   -3.214
+h(ldose- -2)    1.06    1.076
+sexmale         1.10    0.931
 
 GLM numdead deviance residuals:
-      Min         1Q     Median         3Q        Max  
--1.105398  -0.653432  -0.022249   0.484706   1.429444  
+    Min       1Q   Median       3Q      Max  
+-1.1054  -0.6534  -0.0222   0.4847   1.4294  
 
 GLM numdead coefficients (family binomial, link logit)
-             Estimate Std. Error z value  Pr(>|z|)
-(Intercept)  -3.47316    0.46852 -7.4130 1.234e-13
-h(ldose- -2)  1.06421    0.13108  8.1190 4.702e-16
-sexmale       1.10074    0.35583  3.0935  0.001978
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.473      0.469   -7.41  1.2e-13
+h(ldose- -2)    1.064      0.131    8.12  4.7e-16
+sexmale         1.101      0.356    3.09   0.0020
 
 GLM numdead2 deviance residuals:
-     Min        1Q    Median        3Q       Max  
--1.25549  -0.73593   0.20315   0.69113   1.32952  
+   Min      1Q  Median      3Q     Max  
+-1.255  -0.736   0.203   0.691   1.330  
 
 GLM numdead2 coefficients (family binomial, link logit)
-             Estimate Std. Error z value  Pr(>|z|)
-(Intercept)  -3.21406    0.44682 -7.1932 6.330e-13
-h(ldose- -2)  1.07600    0.13124  8.1987 2.429e-16
-sexmale       0.93115    0.35232  2.6429  0.008219
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.214      0.447   -7.19  6.3e-13
+h(ldose- -2)    1.076      0.131    8.20  2.4e-16
+sexmale         0.931      0.352    2.64   0.0082
 
 Number of cases: 12
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
@@ -2946,15 +3283,15 @@ Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
 Earth
-            GCV     RSS    GRSq     RSq
-numdead  2.3761  9.7024 0.95249 0.98076
-numdead2 3.7901 15.4762 0.92646 0.97022
-All      6.1662 25.1786 0.93928 0.97541
+          GCV  RSS  GRSq   RSq
+numdead  2.38  9.7 0.953 0.981
+numdead2 3.79 15.5 0.926 0.970
+All      6.17 25.2 0.939 0.975
 
 GLM (family binomial, link logit)
          null.deviance df deviance df iters converged
-numdead         124.88 11   6.7571  9     4         1
-numdead2        128.03 11   8.5725  9     4         1
+numdead            125 11     6.76  9     4         1
+numdead2           128 11     8.57  9     4         1
 
 evimp a21 
 
@@ -2967,6 +3304,8 @@ evimp a21 trim=FALSE
         col used nsubsets        gcv          rss  
 ldose     2    1        2 100.000000 1 100.000000 1
 sexmale   1    1        1   5.432272 1   5.148163 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
 -------------------------------------------------------------------------------
@@ -3029,42 +3368,42 @@ GLM (family binomial, link logit)
 numdead       124.8756 11 6.757064  9     4         1
 numdead2      128.0299 11 8.572466  9     4         1
 
-Summary a21 digits=3, details=TRUE
+Summary a21 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(x=cbind(sex, ldose), y=SF.both, glm=list(family="binomial"), 
       trace=1)
 
 Earth coefficients
              numdead numdead2
-(Intercept)    -1.44   -0.786
-h(ldose- -2)    3.64    3.714
-h(sex-1)        3.17    2.667
+(Intercept)  -1.4405 -0.78571
+h(ldose- -2)  3.6429  3.71429
+h(sex-1)      3.1667  2.66667
 
 GLM coefficients
              numdead numdead2
-(Intercept)    -3.47   -3.214
-h(ldose- -2)    1.06    1.076
-h(sex-1)        1.10    0.931
+(Intercept)  -3.4732 -3.21406
+h(ldose- -2)  1.0642  1.07600
+h(sex-1)      1.1007  0.93115
 
 GLM numdead deviance residuals:
-    Min       1Q   Median       3Q      Max  
--1.1054  -0.6534  -0.0222   0.4847   1.4294  
+      Min         1Q     Median         3Q        Max  
+-1.105398  -0.653432  -0.022249   0.484706   1.429444  
 
 GLM numdead coefficients (family binomial, link logit)
-             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    -3.473      0.469   -7.41  1.2e-13
-h(ldose- -2)    1.064      0.131    8.12  4.7e-16
-h(sex-1)        1.101      0.356    3.09   0.0020
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.47316    0.46852 -7.4130 1.234e-13
+h(ldose- -2)  1.06421    0.13108  8.1190 4.702e-16
+h(sex-1)      1.10074    0.35583  3.0935  0.001978
 
 GLM numdead2 deviance residuals:
-   Min      1Q  Median      3Q     Max  
--1.255  -0.736   0.203   0.691   1.330  
+     Min        1Q    Median        3Q       Max  
+-1.25549  -0.73593   0.20315   0.69113   1.32952  
 
 GLM numdead2 coefficients (family binomial, link logit)
-             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    -3.214      0.447   -7.19  6.3e-13
-h(ldose- -2)    1.076      0.131    8.20  2.4e-16
-h(sex-1)        0.931      0.352    2.64   0.0082
+             Estimate Std. Error z value  Pr(>|z|)
+(Intercept)  -3.21406    0.44682 -7.1932 6.330e-13
+h(ldose- -2)  1.07600    0.13124  8.1987 2.429e-16
+h(sex-1)      0.93115    0.35232  2.6429  0.008219
 
 Number of cases: 12
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
@@ -3072,15 +3411,15 @@ Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
 Earth
-          GCV  RSS  GRSq   RSq
-numdead  2.38  9.7 0.953 0.981
-numdead2 3.79 15.5 0.926 0.970
-All      6.17 25.2 0.939 0.975
+            GCV     RSS    GRSq     RSq
+numdead  2.3761  9.7024 0.95249 0.98076
+numdead2 3.7901 15.4762 0.92646 0.97022
+All      6.1662 25.1786 0.93928 0.97541
 
 GLM (family binomial, link logit)
          null.deviance df deviance df iters converged
-numdead            125 11     6.76  9     4         1
-numdead2           128 11     8.57  9     4         1
+numdead         124.88 11   6.7571  9     4         1
+numdead2        128.03 11   8.5725  9     4         1
 
 evimp a21 
 
@@ -3093,6 +3432,8 @@ evimp a21 trim=FALSE
       col used nsubsets        gcv          rss  
 ldose   2    1        2 100.000000 1 100.000000 1
 sex     1    1        1   5.432272 1   5.148163 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
 -------------------------------------------------------------------------------
@@ -3156,42 +3497,42 @@ GLM (family binomial, link logit)
 numdead       124.8756 11 6.757064  9     4         1
 numdead2      128.0299 11 8.572466  9     4         1
 
-Summary a22 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+Summary a22 digits=3, details=TRUE
 
 Call: earth(x=cbind(sex, ldose), y=df.both, glm=list(family="binomial"), 
       trace=1)
 
 Earth coefficients
              numdead numdead2
-(Intercept)  -1.4405 -0.78571
-h(ldose- -2)  3.6429  3.71429
-h(sex-1)      3.1667  2.66667
+(Intercept)    -1.44   -0.786
+h(ldose- -2)    3.64    3.714
+h(sex-1)        3.17    2.667
 
 GLM coefficients
              numdead numdead2
-(Intercept)  -3.4732 -3.21406
-h(ldose- -2)  1.0642  1.07600
-h(sex-1)      1.1007  0.93115
+(Intercept)    -3.47   -3.214
+h(ldose- -2)    1.06    1.076
+h(sex-1)        1.10    0.931
 
 GLM numdead deviance residuals:
-      Min         1Q     Median         3Q        Max  
--1.105398  -0.653432  -0.022249   0.484706   1.429444  
+    Min       1Q   Median       3Q      Max  
+-1.1054  -0.6534  -0.0222   0.4847   1.4294  
 
 GLM numdead coefficients (family binomial, link logit)
-             Estimate Std. Error z value  Pr(>|z|)
-(Intercept)  -3.47316    0.46852 -7.4130 1.234e-13
-h(ldose- -2)  1.06421    0.13108  8.1190 4.702e-16
-h(sex-1)      1.10074    0.35583  3.0935  0.001978
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.473      0.469   -7.41  1.2e-13
+h(ldose- -2)    1.064      0.131    8.12  4.7e-16
+h(sex-1)        1.101      0.356    3.09   0.0020
 
 GLM numdead2 deviance residuals:
-     Min        1Q    Median        3Q       Max  
--1.25549  -0.73593   0.20315   0.69113   1.32952  
+   Min      1Q  Median      3Q     Max  
+-1.255  -0.736   0.203   0.691   1.330  
 
 GLM numdead2 coefficients (family binomial, link logit)
-             Estimate Std. Error z value  Pr(>|z|)
-(Intercept)  -3.21406    0.44682 -7.1932 6.330e-13
-h(ldose- -2)  1.07600    0.13124  8.1987 2.429e-16
-h(sex-1)      0.93115    0.35232  2.6429  0.008219
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept)    -3.214      0.447   -7.19  6.3e-13
+h(ldose- -2)    1.076      0.131    8.20  2.4e-16
+h(sex-1)        0.931      0.352    2.64   0.0082
 
 Number of cases: 12
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
@@ -3199,15 +3540,15 @@ Importance: ldose, sex
 Number of terms at each degree of interaction: 1 2 (additive model)
 
 Earth
-            GCV     RSS    GRSq     RSq
-numdead  2.3761  9.7024 0.95249 0.98076
-numdead2 3.7901 15.4762 0.92646 0.97022
-All      6.1662 25.1786 0.93928 0.97541
+          GCV  RSS  GRSq   RSq
+numdead  2.38  9.7 0.953 0.981
+numdead2 3.79 15.5 0.926 0.970
+All      6.17 25.2 0.939 0.975
 
 GLM (family binomial, link logit)
          null.deviance df deviance df iters converged
-numdead         124.88 11   6.7571  9     4         1
-numdead2        128.03 11   8.5725  9     4         1
+numdead            125 11     6.76  9     4         1
+numdead2           128 11     8.57  9     4         1
 
 evimp a22 
 
@@ -3220,6 +3561,8 @@ evimp a22 trim=FALSE
       col used nsubsets        gcv          rss  
 ldose   2    1        2 100.000000 1 100.000000 1
 sex     1    1        1   5.432272 1   5.148163 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a22 
 -------------------------------------------------------------------------------

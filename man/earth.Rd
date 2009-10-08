@@ -1496,6 +1496,8 @@ there will be no degree 2 terms for earth to extend to degree 3.
 
 You can expect model building to be about 10\% slower with an \code{allowed} function
 because of the time taken to invoke the \code{allowed} function.
+On the other hand, execution time can sometimes be faster
+because you are evaluating fewer potential MARS terms.
 
 \bold{Using predictor names instead of indices in the "allowed" function.}
 You can use predictor names instead of indices using
@@ -1582,6 +1584,8 @@ The \code{caret} package provides functions for bagging earth
 Our personal experience has been that bagging earth does not give models
 with better predictive ability.
 Your mileage may vary.
+(We used a modified version of earth that randomized the set of variables
+available at each forward step, as well as trying other approaches).
 
 \bold{What is a GCV, in simple terms?}
 

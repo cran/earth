@@ -46,6 +46,13 @@ print.earth.models <- function(a)
     print(ev)
     plot(a, caption=model.name)
     plot(ev)
+    if (!is.null(a$glm.list)) {
+        control <- a$glm.list[[1]]$control
+        family <- a$glm.list[[1]]$family
+        cat("\nglm params: epsilon", control$epsilon,
+            "maxit", control$maxit, "trace", control$trace,
+            "family", family$family, "link", family$link, "\n")
+    }
     cat("\nplotmo", model.name, "\n")
     plotmo(a)
     cat("-------------------------------------------------------------------------------\n\n")
@@ -101,9 +108,21 @@ a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),
 check.models.equal(a1, a1g, msg="a1 a1g")
 # following should cause a "did not converge warning" because maxit=2
 a1h <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8, maxit=2, trace=TRUE)), trace=1, pmethod="none", degree=2)
-print(a1h)          # check that "did not converge" is printed
-print(summary(a1h)) # ditto
+print.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
 check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
+stopifnot(a1h$glm.list[[1]]$control$maxit == 2)
+# equivalent way of specifying maxit
+a1h2 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8),maxit=2), pmethod="none", degree=2)
+check.models.equal(a1h, a1h2, msg="a1h a1h2")
+stopifnot(a1h2$glm.list[[1]]$control$maxit == 2)
+
+# check update, also check params are carried forward properly with update
+a1h.update1 <- update(a1h, glm=list(family=binomial(link="probit"), maxit=8))
+stopifnot(a1h.update1$glm.list[[1]]$control$maxit == 8)
+print.earth.models(a1h.update1)
+a1h.update2 <- update(a1h, glm=list(family=gaussian, maxit=9), degree=1)
+stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
+print.earth.models(a1h.update2)
 
 # basic check with an I in formula
 a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod="none", degree=2)

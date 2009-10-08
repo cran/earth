@@ -25,9 +25,9 @@ static bool First;
 // a function and has three arguments: degree, pred, parents.
 //
 // The "allowed" function has the following prototype, where
-// xnames is optional.
+// namesx and first are optional.
 //
-//     allowed <- function(degree, pred, parents, xnames)
+//     allowed <- function(degree, pred, parents, namesx, first)
 //     {
 //         ...
 //         TRUE   # return TRUE if allowed
@@ -37,7 +37,7 @@ static bool First;
 //       "pred" is column index in the input matrix x
 //       "parents" is an integer vector of parent predictors
 //                 (it's a copy of Dirs[iParent,]
-//       "xnames" is optional and is the colnames of the x arg
+//       "namesx" is optional and is the colnames of the x arg
 //                to earth, after factor expansion
 //       "first" is optional and is 1 the first time "allowed"
 //               is invoked for the current model
