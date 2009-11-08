@@ -51,28 +51,28 @@ Call: earth(x=x, y=y, trace=trace, nk=51, degree=degree,
       minspan=0)
 
                   coefficients
-(Intercept)             -2.468
-h(x01- -0.395085)       -1.483
-h(-0.395085-x01)         2.795
-h(x01- -0.135719)        6.678
-h(x01-0.274708)        -10.315
-h(x01-0.752448)          8.166
-h(x02-0.809611)          0.948
-h(0.809611-x02)         -1.000
-h(x03- -0.588288)        4.299
-h(x03-0.0152946)        -2.000
-h(0.0152946-x03)         6.633
-h(x03-0.512949)          3.688
+(Intercept)             -2.461
+h(x01- -0.394676)       -1.490
+h(-0.394676-x01)         2.794
+h(x01- -0.136189)        6.682
+h(x01-0.274633)        -10.309
+h(x01-0.752643)          8.168
+h(x02-0.811168)          0.947
+h(0.811168-x02)         -1.000
+h(x03- -0.587115)        4.296
+h(x03-0.0156478)        -1.996
+h(0.0156478-x03)         6.624
+h(x03-0.512949)          3.687
 
 Selected 12 of 12 terms, and 3 of 100 predictors 
 Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...
 Number of terms at each degree of interaction: 1 11 (additive model)
-GCV 0.0654    RSS 651    GRSq 0.971    RSq 0.971
+GCV 0.0652    RSS 649    GRSq 0.971    RSq 0.971
 > print(a1)
 Selected 12 of 12 terms, and 3 of 100 predictors 
 Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...
 Number of terms at each degree of interaction: 1 11 (additive model)
-GCV 0.0654    RSS 651    GRSq 0.971    RSq 0.971
+GCV 0.0652    RSS 649    GRSq 0.971    RSq 0.971
 > plot(a1)
 > plotmo(a1)
 > 
@@ -169,41 +169,40 @@ First few rows of y are
 [5,]  1.1888
 [6,]  0.4007
 Approximate memory use after expanding x and y matrices: 1e+01 MBytes
-Forward pass: minspan 12 endspan 20
+Forward pass: minspan 9 endspan 13
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
-2      0.4293 0.4298       0.4298    2          x02     0.90738  2   3   
-4      0.8588 0.8590       0.4292    1          x01     0.76168  4   5   
-6      0.8589 0.8592    0.0002234   81          x81     0.62835  6   7   reject term
+2      0.4293 0.4298       0.4298    2          x02     0.99615  2   3   
+4      0.8588 0.8590       0.4292    1          x01     0.76136  4   5   
+6      0.8589 0.8592    0.0002223   81          x81     0.62626  6   7   reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000223373 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000222344 < 0.001)
 After forward pass GRSq 0.8589 RSq 0.8592
 Forward pass complete: 5 terms
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
-          2      0.4292  0.4295     0.4292      1  1 3
-          3      0.8569  0.8570     0.4276      2  1 3 5
-          4      0.8587  0.8588     0.0018      2  1 3 4 5
-chosen    5      0.8588  0.8590     0.0001      2  1 2 3 4 5
+          2      0.4295  0.4297     0.4295      1  1 3
+          3      0.8570  0.8571     0.4275      2  1 3 5
+chosen    4      0.8588  0.8590     0.0018      2  1 3 4 5
+          5      0.8588  0.8590    -0.0000      2  1 2 3 4 5
 
-Prune method "backward" penalty 2 nprune 5: selected 5 of 5 terms, and 2 of 100 predictors
+Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 100 predictors
 After backward pass GRSq 0.8588 RSq 0.859 
 > print(summary(a2))
 Call: earth(x=x, y=y, trace=trace, nk=51, degree=degree, 
       minspan=0)
 
                 coefficients
-(Intercept)            1.677
-h(x01-0.761679)        0.923
-h(0.761679-x01)       -1.008
-h(x02-0.907378)        1.014
-h(0.907378-x02)       -1.000
+(Intercept)            1.765
+h(x01-0.761359)        0.923
+h(0.761359-x01)       -1.008
+h(0.996147-x02)       -1.000
 
-Selected 5 of 5 terms, and 2 of 100 predictors 
+Selected 4 of 5 terms, and 2 of 100 predictors 
 Importance: x02, x01, x03-unused, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...
-Number of terms at each degree of interaction: 1 4 (additive model)
+Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 0.110    RSS 1096    GRSq 0.859    RSq 0.859
 > 
 > if(!interactive()) {

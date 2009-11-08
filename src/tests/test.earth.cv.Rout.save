@@ -42,108 +42,111 @@ a0: trees
 > 
 > set.seed(23)
 > a0 <- earth(Volume ~ ., data = trees, trace=0.5, nfold=3)
-CV fold  1: CV-RSq 0.912  ntrain-nz 20 ntest-nz 11 
-CV fold  2: CV-RSq 0.898  ntrain-nz 21 ntest-nz 10 
-CV fold  3: CV-RSq 0.949  ntrain-nz 21 ntest-nz 10 
-CV all:     CV-RSq 0.920  ntrain-nz 31 
+CV fold  1: CV-RSq 0.953  ntrain-nz 20 ntest-nz 11 
+CV fold  2: CV-RSq 0.926  ntrain-nz 21 ntest-nz 10 
+CV fold  3: CV-RSq 0.973  ntrain-nz 21 ntest-nz 10 
+CV all:     CV-RSq 0.951  ntrain-nz 31 
 
 > printh(a0$cv.rsq.tab)
 === a0$cv.rsq.tab
           Volume      mean
-fold 1 0.9120121 0.9120121
-fold 2 0.8980638 0.8980638
-fold 3 0.9492847 0.9492847
-mean   0.9197869 0.9197869
+fold 1 0.9525513 0.9525513
+fold 2 0.9259537 0.9259537
+fold 3 0.9730188 0.9730188
+mean   0.9505079 0.9505079
 > printh(a0)
 === a0
-Selected 4 of 5 terms, and 2 of 2 predictors 
+Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.9197869
+GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
 > printh(summary(a0))
 === summary(a0)
 Call: earth(formula=Volume~., data=trees, trace=0.5, nfold=3)
 
-              coefficients
-(Intercept)     23.2082436
-h(Girth-12.9)    5.7459616
-h(12.9-Girth)   -2.8664516
-h(Height-76)     0.7183364
+             coefficients
+(Intercept)    27.2458996
+h(Girth-14)     6.1766918
+h(14-Girth)    -3.2662277
+h(Height-72)    0.4912072
 
-Selected 4 of 5 terms, and 2 of 2 predictors 
+Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.9197869
+GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
 
-Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
+Cross validation: nterms 4.00 sd 0.00  nvars 2.00 sd 0.00
 
-          CV-RSq         sd   MaxErr       sd
-Volume 0.9197869 0.02648073 11.80043 11.80451
+         CV-RSq         sd  MaxErr       sd
+Volume 0.950508 0.02359896 8.13921 8.473541
 > print.stripped.earth.model(a0, "a0")
 print.stripped.earth.model(a0)
 $dirs
               Girth Height
 (Intercept)       0      0
+h(Girth-14)       1      0
+h(14-Girth)      -1      0
+h(Height-72)      0      1
+h(72-Height)      0     -1
 h(Girth-12.9)     1      0
-h(12.9-Girth)    -1      0
-h(Height-76)      0      1
-h(76-Height)      0     -1
 
 $cuts
               Girth Height
 (Intercept)     0.0      0
+h(Girth-14)    14.0      0
+h(14-Girth)    14.0      0
+h(Height-72)    0.0     72
+h(72-Height)    0.0     72
 h(Girth-12.9)  12.9      0
-h(12.9-Girth)  12.9      0
-h(Height-76)    0.0     76
-h(76-Height)    0.0     76
 
 $selected.terms
 [1] 1 2 3 4
 
 $prune.terms
-     [,1] [,2] [,3] [,4] [,5]
-[1,]    1    0    0    0    0
-[2,]    1    2    0    0    0
-[3,]    1    2    3    0    0
-[4,]    1    2    3    4    0
-[5,]    1    2    3    4    5
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    0    0    0    0    0
+[2,]    1    2    0    0    0    0
+[3,]    1    2    3    0    0    0
+[4,]    1    2    3    4    0    0
+[5,]    1    2    3    4    6    0
+[6,]    1    2    3    4    5    6
 
 $rss
-[1] 213.4354
+[1] 197.0722
 
 $rsq
-[1] 0.9736697
+[1] 0.9756884
 
 $gcv
-[1] 11.48697
+[1] 10.60632
 
 $grsq
-[1] 0.958859
+[1] 0.962013
 
 $rss.per.response
-[1] 213.4354
+[1] 197.0722
 
 $rsq.per.response
-[1] 0.9736697
+[1] 0.9756884
 
 $gcv.per.response
-[1] 11.48697
+[1] 10.60632
 
 $grsq.per.response
-[1] 0.958859
+[1] 0.962013
 
 $rss.per.subset
-[1] 8106.0839  748.0006  346.6381  213.4354  187.4676
+[1] 8106.0839 1147.4599  313.4085  197.0722  189.2489  185.6530
 
 $gcv.per.subset
-[1] 279.20956  29.57656  15.89613  11.48697  12.00722
+[1] 279.20956  45.37150  14.37228  10.60632  12.12131  14.38811
 
 $coefficients
-                  Volume
-(Intercept)   23.2082436
-h(Girth-12.9)  5.7459616
-h(12.9-Girth) -2.8664516
-h(Height-76)   0.7183364
+                 Volume
+(Intercept)  27.2458996
+h(Girth-14)   6.1766918
+h(14-Girth)  -3.2662277
+h(Height-72)  0.4912072
 
 $penalty
 [1] 2
@@ -184,47 +187,47 @@ earth(formula = Volume ~ ., data = trees, trace = 0.5, nfold = 3)
 
 $cv.rsq.tab
           Volume      mean
-fold 1 0.9120121 0.9120121
-fold 2 0.8980638 0.8980638
-fold 3 0.9492847 0.9492847
-mean   0.9197869 0.9197869
+fold 1 0.9525513 0.9525513
+fold 2 0.9259537 0.9259537
+fold 3 0.9730188 0.9730188
+mean   0.9505079 0.9505079
 
 $cv.maxerr.tab
           Volume       max
-fold 1 -9.209696 -9.209696
-fold 2 -8.030428 -8.030428
-fold 3 11.800427 11.800427
-max    11.800427 11.800427
+fold 1 -6.340224 -6.340224
+fold 2 -6.726922 -6.726922
+fold 3  8.139210  8.139210
+max     8.139210  8.139210
 
 $cv.groups
  [1] 3 1 2 3 1 2 3 3 2 3 2 3 1 3 2 3 2 2 1 1 1 1 2 2 1 1 2 3 1 1 3
 
 $cv.nterms
-  fold 1   fold 2   fold 3     mean 
-2.000000 3.000000 3.000000 2.666667 
+fold 1 fold 2 fold 3   mean 
+     4      4      4      4 
 
 $cv.nvars
-  fold 1   fold 2   fold 3     mean 
-1.000000 2.000000 2.000000 1.666667 
+fold 1 fold 2 fold 3   mean 
+     2      2      2      2 
 
 $cv.list
 $cv.list[[1]]
-Selected 2 of 3 terms, and 1 of 2 predictors 
-Importance: Girth, Height-unused
-Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 21.11046    RSS 305.0461    GRSq 0.9330548    RSq 0.9464068
+Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
 
 $cv.list[[2]]
-Selected 3 of 3 terms, and 2 of 2 predictors 
+Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
-Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 23.08273    RSS 281.3894    GRSq 0.9333423    RSq 0.957339
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 
 $cv.list[[3]]
-Selected 3 of 3 terms, and 2 of 2 predictors 
+Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
-Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 19.03958    RSS 232.1016    GRSq 0.9052593    RSq 0.939366
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 17.92712    RSS 167.3198    GRSq 0.910795    RSq 0.9562895
 
 
 attr(,"class")
@@ -238,102 +241,105 @@ a0a: trees with matrix interface
 > 
 > set.seed(23)
 > a0a <- earth(trees[,-3], trees[,3], trace=0.5, nfold=3)
-CV fold  1: CV-RSq 0.912  ntrain-nz 20 ntest-nz 11 
-CV fold  2: CV-RSq 0.898  ntrain-nz 21 ntest-nz 10 
-CV fold  3: CV-RSq 0.949  ntrain-nz 21 ntest-nz 10 
-CV all:     CV-RSq 0.920  ntrain-nz 31 
+CV fold  1: CV-RSq 0.953  ntrain-nz 20 ntest-nz 11 
+CV fold  2: CV-RSq 0.926  ntrain-nz 21 ntest-nz 10 
+CV fold  3: CV-RSq 0.973  ntrain-nz 21 ntest-nz 10 
+CV all:     CV-RSq 0.951  ntrain-nz 31 
 
 > stopifnot(!identical(a0$cv.rsq.tab,a0a$cv.rsq.tab))
 > printh(a0a)
 === a0a
-Selected 4 of 5 terms, and 2 of 2 predictors 
+Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.9197869
+GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
 > printh(summary(a0a))
 === summary(a0a)
 Call: earth(x=trees[, -3], y=trees[, 3], trace=0.5, nfold=3)
 
-              coefficients
-(Intercept)     23.2082436
-h(Girth-12.9)    5.7459616
-h(12.9-Girth)   -2.8664516
-h(Height-76)     0.7183364
+             coefficients
+(Intercept)    27.2458996
+h(Girth-14)     6.1766918
+h(14-Girth)    -3.2662277
+h(Height-72)    0.4912072
 
-Selected 4 of 5 terms, and 2 of 2 predictors 
+Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.9197869
+GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
 
-Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
+Cross validation: nterms 4.00 sd 0.00  nvars 2.00 sd 0.00
 
-             CV-RSq         sd   MaxErr       sd
-trees[,3] 0.9197869 0.02648073 11.80043 11.80451
+            CV-RSq         sd  MaxErr       sd
+trees[,3] 0.950508 0.02359896 8.13921 8.473541
 > print.stripped.earth.model(a0a, "a0a")
 print.stripped.earth.model(a0a)
 $dirs
               Girth Height
 (Intercept)       0      0
+h(Girth-14)       1      0
+h(14-Girth)      -1      0
+h(Height-72)      0      1
+h(72-Height)      0     -1
 h(Girth-12.9)     1      0
-h(12.9-Girth)    -1      0
-h(Height-76)      0      1
-h(76-Height)      0     -1
 
 $cuts
               Girth Height
 (Intercept)     0.0      0
+h(Girth-14)    14.0      0
+h(14-Girth)    14.0      0
+h(Height-72)    0.0     72
+h(72-Height)    0.0     72
 h(Girth-12.9)  12.9      0
-h(12.9-Girth)  12.9      0
-h(Height-76)    0.0     76
-h(76-Height)    0.0     76
 
 $selected.terms
 [1] 1 2 3 4
 
 $prune.terms
-     [,1] [,2] [,3] [,4] [,5]
-[1,]    1    0    0    0    0
-[2,]    1    2    0    0    0
-[3,]    1    2    3    0    0
-[4,]    1    2    3    4    0
-[5,]    1    2    3    4    5
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    0    0    0    0    0
+[2,]    1    2    0    0    0    0
+[3,]    1    2    3    0    0    0
+[4,]    1    2    3    4    0    0
+[5,]    1    2    3    4    6    0
+[6,]    1    2    3    4    5    6
 
 $rss
-[1] 213.4354
+[1] 197.0722
 
 $rsq
-[1] 0.9736697
+[1] 0.9756884
 
 $gcv
-[1] 11.48697
+[1] 10.60632
 
 $grsq
-[1] 0.958859
+[1] 0.962013
 
 $rss.per.response
-[1] 213.4354
+[1] 197.0722
 
 $rsq.per.response
-[1] 0.9736697
+[1] 0.9756884
 
 $gcv.per.response
-[1] 11.48697
+[1] 10.60632
 
 $grsq.per.response
-[1] 0.958859
+[1] 0.962013
 
 $rss.per.subset
-[1] 8106.0839  748.0006  346.6381  213.4354  187.4676
+[1] 8106.0839 1147.4599  313.4085  197.0722  189.2489  185.6530
 
 $gcv.per.subset
-[1] 279.20956  29.57656  15.89613  11.48697  12.00722
+[1] 279.20956  45.37150  14.37228  10.60632  12.12131  14.38811
 
 $coefficients
-               trees[,3]
-(Intercept)   23.2082436
-h(Girth-12.9)  5.7459616
-h(12.9-Girth) -2.8664516
-h(Height-76)   0.7183364
+              trees[,3]
+(Intercept)  27.2458996
+h(Girth-14)   6.1766918
+h(14-Girth)  -3.2662277
+h(Height-72)  0.4912072
 
 $penalty
 [1] 2
@@ -349,45 +355,45 @@ $namesx
 
 $cv.list
 $cv.list[[1]]
-Selected 2 of 3 terms, and 1 of 2 predictors 
-Importance: Girth, Height-unused
-Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 21.11046    RSS 305.0461    GRSq 0.9330548    RSq 0.9464068
+Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
 
 $cv.list[[2]]
-Selected 3 of 3 terms, and 2 of 2 predictors 
+Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
-Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 23.08273    RSS 281.3894    GRSq 0.9333423    RSq 0.957339
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 
 $cv.list[[3]]
-Selected 3 of 3 terms, and 2 of 2 predictors 
+Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
-Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 19.03958    RSS 232.1016    GRSq 0.9052593    RSq 0.939366
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 17.92712    RSS 167.3198    GRSq 0.910795    RSq 0.9562895
 
 
 $cv.nterms
-  fold 1   fold 2   fold 3     mean 
-2.000000 3.000000 3.000000 2.666667 
+fold 1 fold 2 fold 3   mean 
+     4      4      4      4 
 
 $cv.nvars
-  fold 1   fold 2   fold 3     mean 
-1.000000 2.000000 2.000000 1.666667 
+fold 1 fold 2 fold 3   mean 
+     2      2      2      2 
 
 $cv.rsq.tab
        trees[,3]      mean
-fold 1 0.9120121 0.9120121
-fold 2 0.8980638 0.8980638
-fold 3 0.9492847 0.9492847
-mean   0.9197869 0.9197869
+fold 1 0.9525513 0.9525513
+fold 2 0.9259537 0.9259537
+fold 3 0.9730188 0.9730188
+mean   0.9505079 0.9505079
 
 $cv.maxerr.tab
        trees[,3]       max
-fold 1 -9.209696 -9.209696
-fold 2 -8.030428 -8.030428
-fold 3 11.800427 11.800427
-max    11.800427 11.800427
+fold 1 -6.340224 -6.340224
+fold 2 -6.726922 -6.726922
+fold 3  8.139210  8.139210
+max     8.139210  8.139210
 
 $cv.groups
  [1] 3 1 2 3 1 2 3 3 2 3 2 3 1 3 2 3 2 2 1 1 1 1 2 2 1 1 2 3 1 1 3
@@ -405,70 +411,70 @@ a1: trees with trace enabled
 > a1 <- earth(Volume ~ ., data = trees, trace=1, nfold=3)
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
-Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
-After forward pass GRSq 0.948 RSq 0.9769
-Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
-After backward pass GRSq 0.9589 RSq 0.9737 
+Forward pass term 1, 2, 4, 6, 8
+Reached delta RSq threshold (DeltaRSq 0.000280038 < 0.001)
+After forward pass GRSq 0.9372 RSq 0.9774
+Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
+After backward pass GRSq 0.962 RSq 0.9757 
 
 CV fold  1 --------------------------------------------------------------------
 x is a 20 by 2 matrix: 1=Girth, 2=Height
 y is a 20 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
-After forward pass GRSq 0.9052 RSq 0.9556
-Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
-After backward pass GRSq 0.9288 RSq 0.9556 
-CV fold  1: CV-RSq 0.940  ntrain-nz 20 ntest-nz 11 
+After forward pass GRSq 0.8935 RSq 0.9761
+Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
+After backward pass GRSq 0.941 RSq 0.9724 
+CV fold  1: CV-RSq 0.958  ntrain-nz 20 ntest-nz 11 
 
 CV fold  2 --------------------------------------------------------------------
 x is a 21 by 2 matrix: 1=Girth, 2=Height
 y is a 21 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
-After forward pass GRSq 0.9067 RSq 0.9543
-Prune method "backward" penalty 2 nprune 3: selected 2 of 3 terms, and 1 of 2 predictors
-After backward pass GRSq 0.94 RSq 0.9514 
-CV fold  2: CV-RSq 0.876  ntrain-nz 21 ntest-nz 10 
+Reached delta RSq threshold (DeltaRSq 0.00011907 < 0.001)
+After forward pass GRSq 0.9345 RSq 0.9836
+Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
+After backward pass GRSq 0.9627 RSq 0.9817 
+CV fold  2: CV-RSq 0.940  ntrain-nz 21 ntest-nz 10 
 
 CV fold  3 --------------------------------------------------------------------
 x is a 21 by 2 matrix: 1=Girth, 2=Height
 y is a 21 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
-After forward pass GRSq 0.8827 RSq 0.9425
-Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
-After backward pass GRSq 0.9102 RSq 0.9425 
-CV fold  3: CV-RSq 0.942  ntrain-nz 21 ntest-nz 10 
+Reached delta RSq threshold (DeltaRSq 2.00053e-05 < 0.001)
+After forward pass GRSq 0.8833 RSq 0.9708
+Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
+After backward pass GRSq 0.935 RSq 0.9682 
+CV fold  3: CV-RSq 0.989  ntrain-nz 21 ntest-nz 10 
 
-CV all:     CV-RSq 0.919  ntrain-nz 31 
+CV all:     CV-RSq 0.962  ntrain-nz 31 
 
 > stopifnot(!identical(a0$cv.rsq.tab,a1$cv.rsq.tab))
 > printh(a1)
 === a1
-Selected 4 of 5 terms, and 2 of 2 predictors 
+Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.9192508
+GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.9624252
 > printh(summary(a1))
 === summary(a1)
 Call: earth(formula=Volume~., data=trees, trace=1, nfold=3)
 
-              coefficients
-(Intercept)     23.2082436
-h(Girth-12.9)    5.7459616
-h(12.9-Girth)   -2.8664516
-h(Height-76)     0.7183364
+             coefficients
+(Intercept)    27.2458996
+h(Girth-14)     6.1766918
+h(14-Girth)    -3.2662277
+h(Height-72)    0.4912072
 
-Selected 4 of 5 terms, and 2 of 2 predictors 
+Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 11.48697    RSS 213.4354    GRSq 0.958859    RSq 0.9736697    CV-RSq 0.9192508
+GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.9624252
 
-Cross validation: nterms 2.67 sd 0.58  nvars 1.67 sd 0.58
+Cross validation: nterms 4.00 sd 0.00  nvars 2.00 sd 0.00
 
-          CV-RSq         sd   MaxErr      sd
-Volume 0.9192508 0.03774736 9.104375 9.95649
+          CV-RSq         sd   MaxErr       sd
+Volume 0.9624252 0.02471958 -9.12487 7.538179
 > 
 > # test correct operation of update
 > 
@@ -476,51 +482,51 @@ Volume 0.9192508 0.03774736 9.104375 9.95649
 a2 <- update(a0) # should do cv
 > set.seed(2)
 > a2 <- update(a0)
-CV fold  1: CV-RSq 0.947  ntrain-nz 20 ntest-nz 11 
-CV fold  2: CV-RSq 0.973  ntrain-nz 21 ntest-nz 10 
-CV fold  3: CV-RSq 0.915  ntrain-nz 21 ntest-nz 10 
-CV all:     CV-RSq 0.945  ntrain-nz 31 
+CV fold  1: CV-RSq 0.935  ntrain-nz 20 ntest-nz 11 
+CV fold  2: CV-RSq 0.978  ntrain-nz 21 ntest-nz 10 
+CV fold  3: CV-RSq 0.939  ntrain-nz 21 ntest-nz 10 
+CV all:     CV-RSq 0.951  ntrain-nz 31 
 
 > cat("a3 <- update(a0) # should do cv\n")
 a3 <- update(a0) # should do cv
 > set.seed(3)
 > a3 <- update(a0, formula=Volume~.-Height)
-CV fold  1: CV-RSq 0.901  ntrain-nz 20 ntest-nz 11 
-CV fold  2: CV-RSq 0.928  ntrain-nz 21 ntest-nz 10 
-CV fold  3: CV-RSq 0.926  ntrain-nz 21 ntest-nz 10 
-CV all:     CV-RSq 0.918  ntrain-nz 31 
+CV fold  1: CV-RSq 0.942  ntrain-nz 20 ntest-nz 11 
+CV fold  2: CV-RSq 0.866  ntrain-nz 21 ntest-nz 10 
+CV fold  3: CV-RSq 0.968  ntrain-nz 21 ntest-nz 10 
+CV all:     CV-RSq 0.925  ntrain-nz 31 
 
 > printh(a3$cv.rsq.tab)
 === a3$cv.rsq.tab
           Volume      mean
-fold 1 0.9005527 0.9005527
-fold 2 0.9276722 0.9276722
-fold 3 0.9262704 0.9262704
-mean   0.9181651 0.9181651
+fold 1 0.9419703 0.9419703
+fold 2 0.8661310 0.8661310
+fold 3 0.9682819 0.9682819
+mean   0.9254611 0.9254611
 > printh(a3)
 === a3
 Selected 3 of 3 terms, and 1 of 1 predictors 
 Importance: Girth
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 15.89613    RSS 346.6381    GRSq 0.9430674    RSq 0.9572373    CV-RSq 0.9181651
+GCV 14.25598    RSS 310.8724    GRSq 0.9489416    RSq 0.9616495    CV-RSq 0.925461
 > printh(summary(a3))
 === summary(a3)
 Call: earth(formula=Volume~Girth, data=trees, trace=0.5, nfold=3)
 
               coefficients
-(Intercept)      24.753140
-h(Girth-12.9)     6.145976
-h(12.9-Girth)    -3.131848
+(Intercept)      28.288188
+h(Girth-13.7)     6.527497
+h(13.7-Girth)    -3.388061
 
 Selected 3 of 3 terms, and 1 of 1 predictors 
 Importance: Girth
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 15.89613    RSS 346.6381    GRSq 0.9430674    RSq 0.9572373    CV-RSq 0.9181651
+GCV 14.25598    RSS 310.8724    GRSq 0.9489416    RSq 0.9616495    CV-RSq 0.925461
 
-Cross validation: nterms 2.00 sd 0.00  nvars 1.00 sd 0.00
+Cross validation: nterms 3.00 sd 0.00  nvars 1.00 sd 0.00
 
-          CV-RSq         sd   MaxErr       sd
-Volume 0.9181651 0.01526891 13.92195 11.30786
+         CV-RSq        sd   MaxErr       sd
+Volume 0.925461 0.0530388 10.10898 9.241489
 > cat("a4 <- update(a0, nfold=0, trace=.5)  # should not do cv\n")
 a4 <- update(a0, nfold=0, trace=.5)  # should not do cv
 > set.seed(4)
@@ -544,16 +550,16 @@ a6: titanic data, one logical response
 > survived. <- as.logical(etitanic$survived)
 > set.seed(6)
 > a6 <- earth(survived. ~ ., data=etitanic[,-2], degree=2, glm=list(family="binomial"), trace=0.5, nfold=3)
-CV fold  1: CV-RSq 0.425  ntrain-nz 284 ntest-nz 143 
-CV fold  2: CV-RSq 0.410  ntrain-nz 285 ntest-nz 142 
+CV fold  1: CV-RSq 0.416  ntrain-nz 284 ntest-nz 143 
+CV fold  2: CV-RSq 0.416  ntrain-nz 285 ntest-nz 142 
 CV fold  3: CV-RSq 0.424  ntrain-nz 285 ntest-nz 142 
-CV all:     CV-RSq 0.420  ntrain-nz 427 
+CV all:     CV-RSq 0.418  ntrain-nz 427 
 
 > # TODO extend this list
 > printh(a6$cv.nterms)
 === a6$cv.nterms
-fold 1 fold 2 fold 3   mean 
-     8      8      8      8 
+  fold 1   fold 2   fold 3     mean 
+9.000000 9.000000 8.000000 8.666667 
 > printh(a6$cv.nvars)
 === a6$cv.nvars
 fold 1 fold 2 fold 3   mean 
@@ -561,52 +567,52 @@ fold 1 fold 2 fold 3   mean
 > printh(a6$cv.rsq.tab)
 === a6$cv.rsq.tab
        survived.      mean
-fold 1 0.4251739 0.4251739
-fold 2 0.4099412 0.4099412
+fold 1 0.4155091 0.4155091
+fold 2 0.4157867 0.4157867
 fold 3 0.4236844 0.4236844
-mean   0.4195998 0.4195998
+mean   0.4183267 0.4183267
 > printh(a6$cv.maxerr.tab)
 === a6$cv.maxerr.tab
         survived.        max
-fold 1 -0.9796898 -0.9796898
-fold 2 -0.9419355 -0.9419355
+fold 1 -0.9761973 -0.9761973
+fold 2 -0.9424787 -0.9424787
 fold 3  0.9817507  0.9817507
 max     0.9817507  0.9817507
 > printh(a6$cv.deviance.tab)
 === a6$cv.deviance.tab
        survived.      mean
-fold 1 0.8772343 0.8772343
-fold 2 0.8903311 0.8903311
+fold 1 0.9040625 0.9040625
+fold 2 0.8793633 0.8793633
 fold 3 0.8793854 0.8793854
-mean   0.8823169 0.8823169
+mean   0.8876037 0.8876037
 > printh(a6$cv.auc.tab)
 === a6$cv.auc.tab
        survived.      mean
-fold 1 0.8700175 0.8700175
-fold 2 0.8546839 0.8546839
+fold 1 0.8601748 0.8601748
+fold 2 0.8599574 0.8599574
 fold 3 0.8520954 0.8520954
-mean   0.8589323 0.8589323
+mean   0.8574092 0.8574092
 > printh(a6$cv.calib.int.tab)
 === a6$cv.calib.int.tab
          survived.        mean
-fold 1 -0.14285982 -0.14285982
-fold 2 -0.21647075 -0.21647075
+fold 1 -0.11567593 -0.11567593
+fold 2 -0.21951719 -0.21951719
 fold 3  0.19967286  0.19967286
-mean   -0.05321924 -0.05321924
+mean   -0.04517342 -0.04517342
 > printh(a6$cv.calib.slope.tab)
 === a6$cv.calib.slope.tab
        survived.      mean
-fold 1 0.9210315 0.9210315
-fold 2 0.8955466 0.8955466
+fold 1 0.8910003 0.8910003
+fold 2 0.9052154 0.9052154
 fold 3 0.9827216 0.9827216
-mean   0.9330999 0.9330999
+mean   0.9263124 0.9263124
 > printh(a6$cv.auc.tab)
 === a6$cv.auc.tab
        survived.      mean
-fold 1 0.8700175 0.8700175
-fold 2 0.8546839 0.8546839
+fold 1 0.8601748 0.8601748
+fold 2 0.8599574 0.8599574
 fold 3 0.8520954 0.8520954
-mean   0.8589323 0.8589323
+mean   0.8574092 0.8574092
 > printh(a6$cv.cor.tab)
 === a6$cv.cor.tabNULL
 > printh(a6$cv.groups)
@@ -642,9 +648,9 @@ mean   0.8589323 0.8589323
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-Earth GCV 0.1398632    RSS 140.4816    GRSq 0.4221468    RSq 0.4440539    CV-RSq 0.4195998
+Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4183267
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.6865 (1037 dof)   iters 5
+GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(summary(a6))
 === summary(a6)
 Call: earth(formula=survived.~., data=etitanic[, -2], glm=list(family="binomial"), 
@@ -652,86 +658,87 @@ Call: earth(formula=survived.~., data=etitanic[, -2], glm=list(family="binomial"
 
 GLM coefficients
                         survived.
-(Intercept)             2.3061909
-pclass3rd              -5.6531155
-sexmale                -3.6203463
-h(63-age)               0.0286313
-pclass2nd * sexmale    -0.7258803
-pclass2nd * h(1-parch) -1.3744603
-pclass3rd * sexmale     1.8090891
-pclass3rd * h(4-sibsp)  0.6224284
-sexmale * h(16-age)     0.1701286
+(Intercept)             2.2790214
+pclass3rd              -5.6531684
+sexmale                -3.6196553
+h(64-age)               0.0286030
+pclass2nd * sexmale    -0.7266366
+pclass2nd * h(1-parch) -1.3748420
+pclass3rd * sexmale     1.8084471
+pclass3rd * h(4-sibsp)  0.6223609
+sexmale * h(16-age)     0.1701548
 
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-Earth GCV 0.1398632    RSS 140.4816    GRSq 0.4221468    RSq 0.4440539    CV-RSq 0.4195998
+Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4183267
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.6865 (1037 dof)   iters 5
+GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 
-Cross validation: nterms 8.00 sd 0.00  nvars 6.00 sd 0.00
+Cross validation: nterms 8.67 sd 0.58  nvars 6.00 sd 0.00
 
-             CV-RSq          sd  MeanDev          sd    CalibInt        sd CalibSlope         sd       AUC          sd    MaxErr       sd
-survived. 0.4195998 0.008397701 0.882317 0.007023351 -0.05321924 0.2220821  0.9330999 0.04482305 0.8589323 0.009686925 0.9817507 1.121698
+             CV-RSq          sd   MeanDev         sd    CalibInt        sd CalibSlope         sd       AUC          sd    MaxErr       sd
+survived. 0.4183267 0.004641934 0.8876037 0.01425373 -0.04517342 0.2183072  0.9263124 0.04936612 0.8574092 0.004603173 0.9817507 1.120815
 > # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a6)
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass, sex
 > printh(a6$cv.list[[2]])
 === a6$cv.list[[2]]
-Earth selected 8 of 16 terms, and 6 of 6 predictors 
+Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: pclass2nd, pclass3rd, sexmale, age, sibsp, parch
-Number of terms at each degree of interaction: 1 2 5
-Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
+Number of terms at each degree of interaction: 1 2 6
+Earth GCV 0.1427513    RSS 92.45144    GRSq 0.4131453    RSq 0.4467688
 
-GLM null.deviance 934.5004 (688 dof)   deviance 585.7064 (681 dof)   iters 5
+GLM null.deviance 934.5004 (688 dof)   deviance 581.8674 (680 dof)   iters 5
 > printh(summary(a6$cv.list[[2]]))
 === summary(a6$cv.list[[2]])
 Call: NULL
 
 GLM coefficients
-                        survived.
-(Intercept)             2.7863820
-pclass3rd              -2.5243139
-sexmale                -3.5338189
-pclass2nd * sexmale    -1.7391793
-pclass3rd * sexmale     1.6705682
-pclass3rd * h(sibsp-1) -0.7146191
-pclass3rd * h(parch-1) -0.4299939
-sexmale * h(16-age)     0.2847608
+                         survived.
+(Intercept)             2.78638204
+pclass3rd              -2.53116076
+sexmale                -3.10000304
+pclass2nd * sexmale    -1.99620819
+pclass3rd * sexmale     1.34197054
+pclass3rd * h(sibsp-1) -0.69298020
+pclass3rd * h(parch-1) -0.42016344
+sexmale * h(14-age)     0.32446563
+sexmale * h(age-32)    -0.03882517
 
-Earth selected 8 of 16 terms, and 6 of 6 predictors 
+Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: pclass2nd, pclass3rd, sexmale, age, sibsp, parch
-Number of terms at each degree of interaction: 1 2 5
-Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
+Number of terms at each degree of interaction: 1 2 6
+Earth GCV 0.1427513    RSS 92.45144    GRSq 0.4131453    RSq 0.4467688
 
-GLM null.deviance 934.5004 (688 dof)   deviance 585.7064 (681 dof)   iters 5
+GLM null.deviance 934.5004 (688 dof)   deviance 581.8674 (680 dof)   iters 5
 > 
 > cat("a6a: stratify=FALSE\n\n")
 a6a: stratify=FALSE
 
 > set.seed(6)
 > a6a <- earth(survived. ~ ., data=etitanic[,-2], degree=2, glm=list(family="binomial"), trace=0.5, nfold=3, stratify=FALSE)
-CV fold  1: CV-RSq 0.451  ntrain-nz 278 ntest-nz 149 
-CV fold  2: CV-RSq 0.404  ntrain-nz 293 ntest-nz 134 
+CV fold  1: CV-RSq 0.436  ntrain-nz 278 ntest-nz 149 
+CV fold  2: CV-RSq 0.403  ntrain-nz 293 ntest-nz 134 
 CV fold  3: CV-RSq 0.400  ntrain-nz 283 ntest-nz 144 
-CV all:     CV-RSq 0.418  ntrain-nz 427 
+CV all:     CV-RSq 0.413  ntrain-nz 427 
 
 > printh(a6a$cv.rsq.tab)
 === a6a$cv.rsq.tab
        survived.      mean
-fold 1 0.4513565 0.4513565
-fold 2 0.4043209 0.4043209
-fold 3 0.3995820 0.3995820
-mean   0.4184198 0.4184198
+fold 1 0.4355590 0.4355590
+fold 2 0.4033428 0.4033428
+fold 3 0.4000398 0.4000398
+mean   0.4129805 0.4129805
 > printh(a6a)
 === a6a
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-Earth GCV 0.1398632    RSS 140.4816    GRSq 0.4221468    RSq 0.4440539    CV-RSq 0.4184198
+Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4129805
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.6865 (1037 dof)   iters 5
+GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(summary(a6a))
 === summary(a6a)
 Call: earth(formula=survived.~., data=etitanic[, -2], glm=list(family="binomial"), 
@@ -739,27 +746,27 @@ Call: earth(formula=survived.~., data=etitanic[, -2], glm=list(family="binomial"
 
 GLM coefficients
                         survived.
-(Intercept)             2.3061909
-pclass3rd              -5.6531155
-sexmale                -3.6203463
-h(63-age)               0.0286313
-pclass2nd * sexmale    -0.7258803
-pclass2nd * h(1-parch) -1.3744603
-pclass3rd * sexmale     1.8090891
-pclass3rd * h(4-sibsp)  0.6224284
-sexmale * h(16-age)     0.1701286
+(Intercept)             2.2790214
+pclass3rd              -5.6531684
+sexmale                -3.6196553
+h(64-age)               0.0286030
+pclass2nd * sexmale    -0.7266366
+pclass2nd * h(1-parch) -1.3748420
+pclass3rd * sexmale     1.8084471
+pclass3rd * h(4-sibsp)  0.6223609
+sexmale * h(16-age)     0.1701548
 
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-Earth GCV 0.1398632    RSS 140.4816    GRSq 0.4221468    RSq 0.4440539    CV-RSq 0.4184198
+Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4129805
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.6865 (1037 dof)   iters 5
+GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 
 Cross validation: nterms 8.00 sd 1.00  nvars 5.67 sd 0.58
 
-             CV-RSq         sd   MeanDev         sd    CalibInt        sd CalibSlope         sd       AUC         sd    MaxErr       sd
-survived. 0.4184198 0.02862230 0.8918238 0.03930843 -0.03602589 0.2542560  0.9306365 0.04545197 0.8566624 0.01778565 0.9833688 1.116122
+             CV-RSq         sd   MeanDev        sd    CalibInt       sd CalibSlope         sd       AUC         sd    MaxErr       sd
+survived. 0.4129805 0.01962315 0.9007584 0.0290033 -0.03681553 0.255376  0.9154234 0.02202553 0.8526014 0.01372947 0.9829878 1.115646
 > 
 > cat("a7: titanic data, multiple responses (i.e. 3 level factor)\n\n")
 a7: titanic data, multiple responses (i.e. 3 level factor)
@@ -767,33 +774,33 @@ a7: titanic data, multiple responses (i.e. 3 level factor)
 > set.seed(3)
 > # keepxy is needed for summary and plotmo of submodels
 > a7 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0.5, nfold=10, keepxy=TRUE)
-CV fold  1: CV-RSq 0.235  Per response CV-RSq 0.375  -0.005 0.334  
+CV fold  1: CV-RSq 0.238  Per response CV-RSq 0.387  0.003  0.324  
                           ntrain-nz 255 234 450 ntest-nz  29  27  51 
-CV fold  2: CV-RSq 0.196  Per response CV-RSq 0.283  0.038  0.267  
+CV fold  2: CV-RSq 0.197  Per response CV-RSq 0.283  0.040  0.267  
                           ntrain-nz 255 235 451 ntest-nz  29  26  50 
 CV fold  3: CV-RSq 0.225  Per response CV-RSq 0.306  0.054  0.315  
                           ntrain-nz 255 235 451 ntest-nz  29  26  50 
-CV fold  4: CV-RSq 0.171  Per response CV-RSq 0.171  0.047  0.295  
+CV fold  4: CV-RSq 0.171  Per response CV-RSq 0.171  0.047  0.294  
                           ntrain-nz 255 235 451 ntest-nz  29  26  50 
 CV fold  5: CV-RSq 0.191  Per response CV-RSq 0.256  0.016  0.302  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
 CV fold  6: CV-RSq 0.200  Per response CV-RSq 0.358  0.024  0.218  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
-CV fold  7: CV-RSq 0.074  Per response CV-RSq 0.084  0.030  0.109  
+CV fold  7: CV-RSq 0.070  Per response CV-RSq 0.082  0.016  0.110  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
-CV fold  8: CV-RSq 0.190  Per response CV-RSq 0.362  -0.028 0.236  
+CV fold  8: CV-RSq 0.190  Per response CV-RSq 0.362  -0.029 0.235  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
-CV fold  9: CV-RSq 0.120  Per response CV-RSq 0.231  -0.053 0.183  
+CV fold  9: CV-RSq 0.121  Per response CV-RSq 0.232  -0.052 0.183  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
-CV fold 10: CV-RSq 0.155  Per response CV-RSq 0.234  0.027  0.205  
+CV fold 10: CV-RSq 0.154  Per response CV-RSq 0.231  0.028  0.203  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
-CV all:     CV-RSq 0.176  Per response CV-RSq 0.266  0.015  0.246  
+CV all:     CV-RSq 0.176  Per response CV-RSq 0.267  0.015  0.245  
                           ntrain-nz 284 261 501 
 
 > printh(a7$cv.nterms)
 === a7$cv.nterms
 fold  1 fold  2 fold  3 fold  4 fold  5 fold  6 fold  7 fold  8 fold  9 fold 10    mean 
-    9.0    13.0     9.0    10.0    10.0    11.0    11.0     9.0    10.0     9.0    10.1 
+      9      13       9      10      10      11      10       9      10       9      10 
 > printh(a7$cv.nvars)
 === a7$cv.nvars
 fold  1 fold  2 fold  3 fold  4 fold  5 fold  6 fold  7 fold  8 fold  9 fold 10    mean 
@@ -801,101 +808,101 @@ fold  1 fold  2 fold  3 fold  4 fold  5 fold  6 fold  7 fold  8 fold  9 fold 10 
 > printh(a7$cv.rsq.tab)
 === a7$cv.rsq.tab
                1st          2nd       3rd       mean
-fold  1 0.37482657 -0.004859299 0.3338156 0.23459428
-fold  2 0.28341523  0.038325835 0.2670191 0.19625340
+fold  1 0.38651052  0.002574131 0.3235492 0.23754463
+fold  2 0.28250421  0.039927325 0.2672429 0.19655815
 fold  3 0.30565769  0.053894720 0.3147730 0.22477514
-fold  4 0.17099635  0.047186607 0.2952076 0.17113019
+fold  4 0.17079361  0.046994139 0.2944930 0.17076024
 fold  5 0.25617842  0.015770463 0.3022837 0.19141085
 fold  6 0.35772344  0.023580543 0.2184016 0.19990186
-fold  7 0.08407106  0.030224357 0.1087818 0.07435909
-fold  8 0.36232604 -0.028478458 0.2358955 0.18991435
-fold  9 0.23086288 -0.052895449 0.1825549 0.12017410
-fold 10 0.23358058  0.027100201 0.2049521 0.15521096
-mean    0.26596382  0.014984952 0.2463685 0.17577242
+fold  7 0.08183425  0.016264898 0.1104498 0.06951633
+fold  8 0.36180867 -0.028524999 0.2352974 0.18952701
+fold  9 0.23191522 -0.051634802 0.1825216 0.12093400
+fold 10 0.23146483  0.028146300 0.2028216 0.15414424
+mean    0.26663909  0.014699272 0.2451834 0.17550724
 > printh(a7$cv.maxerr.tab)
 === a7$cv.maxerr.tab
               1st       2nd        3rd       max
-fold  1 0.8607793 0.8914164  0.9100528 0.9100528
-fold  2 0.9683228 0.9029180  0.9046677 0.9683228
+fold  1 0.9338839 0.8792506 -0.8572647 0.9338839
+fold  2 0.9672056 0.9069786  0.9042915 0.9672056
 fold  3 0.9524979 0.8610439  0.8476686 0.9524979
-fold  4 0.9581823 0.9283720  0.8452368 0.9581823
+fold  4 0.9585354 0.9278989  0.8448725 0.9585354
 fold  5 0.9229414 0.8197531  0.9487363 0.9487363
 fold  6 0.9370042 0.8673994 -0.8718848 0.9370042
-fold  7 0.9169577 0.8940714  0.9761476 0.9761476
-fold  8 0.9195484 0.8734055  0.9563154 0.9563154
-fold  9 0.9580783 0.9199930  0.9651847 0.9651847
-fold 10 0.9422649 0.8360985  0.9288422 0.9422649
-max     0.9683228 0.9283720  0.9761476 0.9761476
+fold  7 0.9153709 0.9081057  0.9715114 0.9715114
+fold  8 0.9195381 0.8734651  0.9588754 0.9588754
+fold  9 0.9551972 0.9201213  0.9651871 0.9651871
+fold 10 0.9429795 0.8353368  0.9291246 0.9429795
+max     0.9672056 0.9278989  0.9715114 0.9715114
 > printh(a7$cv.deviance.tab)
 === a7$cv.deviance.tab
               1st      2nd       3rd      mean
-fold  1 0.7426574 1.135110 0.9935778 0.9571151
-fold  2 0.8728284 1.082552 1.0808367 1.0120724
+fold  1 0.7504984 1.131740 0.9932574 0.9584986
+fold  2 0.8739971 1.080358 1.0799071 1.0114209
 fold  3 0.8335160 1.055626 1.0083735 0.9658385
-fold  4 1.0314096 1.066828 1.0490685 1.0491022
+fold  4 1.0319725 1.066969 1.0496101 1.0495172
 fold  5 0.9241216 1.112064 1.0506794 1.0289551
 fold  6 0.7945166 1.116199 1.1431938 1.0179697
-fold  7 1.0707237 1.089052 1.3519803 1.1705852
-fold  8 0.7510335 1.139932 1.1177385 1.0029013
-fold  9 0.9130715 1.178158 1.1874703 1.0929000
-fold 10 0.9108427 1.094453 1.1679459 1.0577473
-mean    0.8844721 1.106998 1.1150865 1.0355187
+fold  7 1.0721308 1.108664 1.3245420 1.1684455
+fold  8 0.7524820 1.139978 1.1183145 1.0035915
+fold  9 0.9111505 1.176917 1.1874942 1.0918540
+fold 10 0.9140540 1.093446 1.1699606 1.0591536
+mean    0.8858440 1.108196 1.1125333 1.0355245
 > printh(a7$cv.auc.tab)
 === a7$cv.auc.tab
               1st       2nd       3rd      mean
-fold  1 0.8919098 0.5504630 0.8373599 0.7599109
-fold  2 0.8332577 0.6319377 0.8070909 0.7574288
+fold  1 0.8930150 0.5451389 0.8370098 0.7583879
+fold  2 0.8328040 0.6377799 0.8067273 0.7591037
 fold  3 0.8507260 0.6499513 0.8374545 0.7793773
-fold  4 0.7536298 0.6489776 0.8130909 0.7385661
+fold  4 0.7531760 0.6489776 0.8112727 0.7378088
 fold  5 0.8167293 0.5803748 0.8362963 0.7444668
 fold  6 0.8592575 0.5754438 0.7653704 0.7333572
-fold  7 0.7316729 0.6055227 0.7140741 0.6837566
-fold  8 0.8890977 0.5221893 0.7825926 0.7312932
-fold  9 0.8230733 0.5396943 0.7718519 0.7115398
-fold 10 0.8143797 0.5801282 0.7524074 0.7156384
-mean    0.8263734 0.5884683 0.7917589 0.7355335
+fold  7 0.7314380 0.5599112 0.7129630 0.6681041
+fold  8 0.8876880 0.5212032 0.7825926 0.7304946
+fold  9 0.8240132 0.5401874 0.7718519 0.7120175
+fold 10 0.8125000 0.5850592 0.7524074 0.7166555
+mean    0.8261347 0.5844027 0.7913946 0.7339773
 > printh(a7$cv.calib.int.tab)
 === a7$cv.calib.int.tab
-                 1st        2nd          3rd        mean
-fold  1  0.127868211 -0.5716081  0.012696926 -0.14368099
-fold  2  0.182688011 -0.3604021  0.008312543 -0.05646719
-fold  3  0.045397757  0.2102683  0.019704495  0.09179018
-fold  4 -0.074830762 -0.0867923 -0.150521382 -0.10404815
-fold  5 -0.208466276 -0.4138830  0.195528708 -0.14227351
-fold  6 -0.062354556 -0.4254390 -0.108432600 -0.19874206
-fold  7 -0.484445871 -0.1436196  0.083281962 -0.18159451
-fold  8  0.217311409 -0.7183135  0.051505427 -0.14983224
-fold  9 -0.089949738 -0.8908842 -0.008553073 -0.32979566
-fold 10  0.003300051 -0.1859809 -0.012489442 -0.06505676
-mean    -0.034348176 -0.3586655  0.009103356 -0.12797009
+                1st         2nd          3rd        mean
+fold  1  0.12577302 -0.49652499 -0.043777179 -0.13817638
+fold  2  0.17308355 -0.34688152  0.005713529 -0.05602815
+fold  3  0.04539776  0.21026828  0.019704495  0.09179018
+fold  4 -0.07592327 -0.08906987 -0.150972067 -0.10532174
+fold  5 -0.20846628 -0.41388296  0.195528708 -0.14227351
+fold  6 -0.06235456 -0.42543904 -0.108432600 -0.19874206
+fold  7 -0.48521717 -0.33059125  0.082577205 -0.24441041
+fold  8  0.21923904 -0.71869087  0.049925107 -0.14984224
+fold  9 -0.08582866 -0.88330422 -0.008579819 -0.32590423
+fold 10 -0.01102092 -0.17554605 -0.012476715 -0.06634790
+mean    -0.03653175 -0.36696625  0.002921066 -0.13352564
 > printh(a7$cv.calib.slope.tab)
 === a7$cv.calib.slope.tab
               1st       2nd       3rd      mean
-fold  1 1.3403756 0.4352303 1.1590219 0.9782092
-fold  2 0.9938146 0.7893058 0.9489151 0.9106785
+fold  1 1.3138812 0.4697368 1.2030422 0.9955534
+fold  2 0.9916201 0.7997590 0.9523638 0.9145810
 fold  3 1.0491514 1.2090036 1.1770268 1.1450606
-fold  4 0.6952873 0.9495540 1.2318363 0.9588925
+fold  4 0.6941759 0.9468627 1.2285546 0.9565310
 fold  5 0.8769074 0.6650239 1.1251556 0.8890290
 fold  6 1.0253730 0.5309002 0.7269833 0.7610855
-fold  7 0.6004951 0.8218590 0.4991535 0.6405025
-fold  8 1.3865938 0.3422399 0.8765696 0.8684678
-fold  9 0.8730088 0.1737077 0.7665358 0.6044175
-fold 10 0.9367414 0.8772763 0.8377173 0.8839117
-mean    0.9777748 0.6794101 0.9348915 0.8640255
+fold  7 0.5987786 0.6476079 0.5441347 0.5968404
+fold  8 1.3812831 0.3418682 0.8755009 0.8662174
+fold  9 0.8776028 0.1802239 0.7665103 0.6081123
+fold 10 0.9224076 0.8890058 0.8320406 0.8811513
+mean    0.9731181 0.6679992 0.9431313 0.8614162
 > printh(a7$cv.auc.tab)
 === a7$cv.auc.tab
               1st       2nd       3rd      mean
-fold  1 0.8919098 0.5504630 0.8373599 0.7599109
-fold  2 0.8332577 0.6319377 0.8070909 0.7574288
+fold  1 0.8930150 0.5451389 0.8370098 0.7583879
+fold  2 0.8328040 0.6377799 0.8067273 0.7591037
 fold  3 0.8507260 0.6499513 0.8374545 0.7793773
-fold  4 0.7536298 0.6489776 0.8130909 0.7385661
+fold  4 0.7531760 0.6489776 0.8112727 0.7378088
 fold  5 0.8167293 0.5803748 0.8362963 0.7444668
 fold  6 0.8592575 0.5754438 0.7653704 0.7333572
-fold  7 0.7316729 0.6055227 0.7140741 0.6837566
-fold  8 0.8890977 0.5221893 0.7825926 0.7312932
-fold  9 0.8230733 0.5396943 0.7718519 0.7115398
-fold 10 0.8143797 0.5801282 0.7524074 0.7156384
-mean    0.8263734 0.5884683 0.7917589 0.7355335
+fold  7 0.7314380 0.5599112 0.7129630 0.6681041
+fold  8 0.8876880 0.5212032 0.7825926 0.7304946
+fold  9 0.8240132 0.5401874 0.7718519 0.7120175
+fold 10 0.8125000 0.5850592 0.7524074 0.7166555
+mean    0.8261347 0.5844027 0.7913946 0.7339773
 > printh(a7$cv.cor.tab)
 === a7$cv.cor.tabNULL
 > printh(a7$cv.groups)
@@ -946,10 +953,10 @@ Number of terms at each degree of interaction: 1 4 4
 
 Earth
           GCV      RSS        GRSq        RSq     CV-RSq
-1st 0.1478715 148.5253 0.253819943 0.28210854 0.26596382
-2nd 0.1869804 187.8072 0.003405389 0.04118751 0.01498495
-3rd 0.1895587 190.3968 0.241872961 0.27061448 0.24636849
-All 0.5244105 526.7293 0.175229617 0.20649767 0.17577242
+1st 0.1478715 148.5253 0.253819943 0.28210854 0.26663908
+2nd 0.1869804 187.8072 0.003405389 0.04118751 0.01469927
+3rd 0.1895587 190.3968 0.241872961 0.27061448 0.24518338
+All 0.5244105 526.7293 0.175229617 0.20649767 0.17550725
 
 GLM (family binomial, link logit)
     null.deviance   df  deviance   df iters converged
@@ -979,10 +986,10 @@ Number of terms at each degree of interaction: 1 4 4
 
 Earth
           GCV      RSS        GRSq        RSq     CV-RSq
-1st 0.1478715 148.5253 0.253819943 0.28210854 0.26596382
-2nd 0.1869804 187.8072 0.003405389 0.04118751 0.01498495
-3rd 0.1895587 190.3968 0.241872961 0.27061448 0.24636849
-All 0.5244105 526.7293 0.175229617 0.20649767 0.17577242
+1st 0.1478715 148.5253 0.253819943 0.28210854 0.26663908
+2nd 0.1869804 187.8072 0.003405389 0.04118751 0.01469927
+3rd 0.1895587 190.3968 0.241872961 0.27061448 0.24518338
+All 0.5244105 526.7293 0.175229617 0.20649767 0.17550725
 
 GLM (family binomial, link logit)
     null.deviance   df  deviance   df iters converged
@@ -990,13 +997,13 @@ GLM (family binomial, link logit)
 2nd      1175.305 1045 1126.9441 1037     5         1
 3rd      1448.213 1045 1118.9411 1037     5         1
 
-Cross validation: nterms 10.10 sd 1.29  nvars 5.00 sd 0.00
+Cross validation: nterms 10.00 sd 1.25  nvars 5.00 sd 0.00
 
-         CV-RSq         sd   MeanDev         sd     CalibInt         sd CalibSlope        sd       AUC         sd    MaxErr         sd
-1st  0.26596382 0.09184350 0.8844721 0.10959878 -0.034348176 0.20627597  0.9777748 0.2474768 0.8263734 0.05213096 0.9683228 0.03116940
-2nd  0.01498495 0.03405852 1.1069975 0.03708661 -0.358665451 0.32302805  0.6794101 0.3120312 0.5884683 0.04489851 0.9283720 0.03481448
-3rd  0.24636849 0.06982025 1.1150865 0.10582007  0.009103356 0.09559957  0.9348915 0.2375146 0.7917589 0.04163518 0.9761476 0.56856152
-mean 0.17577242 0.04845123 1.0355187 0.06252226 -0.127970090 0.10928290  0.8640255 0.1606206 0.7355335 0.02740644 0.9761476 0.01876029
+         CV-RSq         sd  MeanDev         sd     CalibInt         sd CalibSlope        sd       AUC         sd    MaxErr         sd
+1st  0.26663909 0.09391989 0.885844 0.10866914 -0.036531748 0.20509947  0.9731181 0.2427761 0.8261347 0.05225729 0.9672056 0.01776306
+2nd  0.01469927 0.03315714 1.108196 0.03624298 -0.366966250 0.30939280  0.6679992 0.3054087 0.5844027 0.04655134 0.9278989 0.03591290
+3rd  0.24518338 0.06819219 1.112533 0.09931092  0.002921066 0.09693898  0.9431313 0.2335650 0.7913946 0.04170909 0.9715114 0.75433525
+mean 0.17550724 0.04994987 1.035524 0.06176683 -0.133525644 0.11353116  0.8614162 0.1685641 0.7339773 0.03081695 0.9715114 0.01288484
 > # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a7, ycolumn=1)
 Note: plotmo cannot use factors as axes for degree2 plots,
@@ -1057,11 +1064,11 @@ a7.wp: as above but with wp parameter
 
 > set.seed(3)
 > a7.wp <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0.5, nfold=10, wp=c(1,3,1))
-CV fold  1: CV-RSq 0.127  Per response CV-RSq 0.360  -0.023 0.341  
+CV fold  1: CV-RSq 0.126  Per response CV-RSq 0.357  -0.023 0.341  
                           ntrain-nz 255 234 450 ntest-nz  29  27  51 
-CV fold  2: CV-RSq 0.112  Per response CV-RSq 0.261  0.026  0.220  
+CV fold  2: CV-RSq 0.112  Per response CV-RSq 0.261  0.027  0.220  
                           ntrain-nz 255 235 451 ntest-nz  29  26  50 
-CV fold  3: CV-RSq 0.157  Per response CV-RSq 0.290  0.071  0.282  
+CV fold  3: CV-RSq 0.157  Per response CV-RSq 0.273  0.083  0.262  
                           ntrain-nz 255 235 451 ntest-nz  29  26  50 
 CV fold  4: CV-RSq 0.123  Per response CV-RSq 0.165  0.042  0.324  
                           ntrain-nz 255 235 451 ntest-nz  29  26  50 
@@ -1075,9 +1082,9 @@ CV fold  8: CV-RSq 0.113  Per response CV-RSq 0.368  -0.007 0.221
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
 CV fold  9: CV-RSq 0.039  Per response CV-RSq 0.188  -0.048 0.148  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
-CV fold 10: CV-RSq 0.162  Per response CV-RSq 0.312  0.087  0.234  
+CV fold 10: CV-RSq 0.162  Per response CV-RSq 0.312  0.087  0.235  
                           ntrain-nz 256 235 451 ntest-nz  28  26  50 
-CV all:     CV-RSq 0.117  Per response CV-RSq 0.263  0.027  0.239  
+CV all:     CV-RSq 0.117  Per response CV-RSq 0.261  0.028  0.237  
                           ntrain-nz 284 261 501 
 
 > printh(a7.wp)
@@ -1088,10 +1095,10 @@ Number of terms at each degree of interaction: 1 7 5
 
 Earth
           GCV      RSS        GRSq        RSq     CV-RSq
-1st 0.1454622 143.2684 0.265977541 0.30751742 0.26310978
-2nd 0.1871535 184.3310 0.002482618 0.05893423 0.02693394
-3rd 0.1897382 186.8767 0.241154734 0.28409939 0.23864380
-All 0.5379966 529.8830 0.113151717 0.16334033 0.11651108
+1st 0.1454622 143.2684 0.265977541 0.30751742 0.26118317
+2nd 0.1871535 184.3310 0.002482618 0.05893423 0.02825619
+3rd 0.1897382 186.8767 0.241154734 0.28409939 0.23672000
+All 0.5379966 529.8830 0.113151717 0.16334033 0.11653435
 
 GLM (family binomial, link logit)
     null.deviance   df deviance   df iters converged
@@ -1126,10 +1133,10 @@ Number of terms at each degree of interaction: 1 7 5
 
 Earth
           GCV      RSS        GRSq        RSq     CV-RSq
-1st 0.1454622 143.2684 0.265977541 0.30751742 0.26310978
-2nd 0.1871535 184.3310 0.002482618 0.05893423 0.02693394
-3rd 0.1897382 186.8767 0.241154734 0.28409939 0.23864380
-All 0.5379966 529.8830 0.113151717 0.16334033 0.11651108
+1st 0.1454622 143.2684 0.265977541 0.30751742 0.26118317
+2nd 0.1871535 184.3310 0.002482618 0.05893423 0.02825619
+3rd 0.1897382 186.8767 0.241154734 0.28409939 0.23672000
+All 0.5379966 529.8830 0.113151717 0.16334033 0.11653435
 
 GLM (family binomial, link logit)
     null.deviance   df deviance   df iters converged
@@ -1137,13 +1144,13 @@ GLM (family binomial, link logit)
 2nd      1175.305 1045 1103.590 1033     5         1
 3rd      1448.213 1045 1093.043 1033     6         1
 
-Cross validation: nterms 10.30 sd 1.34  nvars 4.90 sd 0.32
+Cross validation: nterms 10.10 sd 1.37  nvars 4.90 sd 0.32
 
-         CV-RSq         sd   MeanDev         sd    CalibInt        sd CalibSlope        sd       AUC         sd     MaxErr         sd
-1st  0.26310978 0.09422215 0.9023556 0.10748205 -0.06577181 0.2278086  0.9378338 0.2341596 0.8195213 0.05248342  0.9711449 0.77315970
-2nd  0.02693394 0.04273529 1.0974946 0.05038243 -0.27888961 0.4363072  0.7533543 0.4401612 0.6204113 0.06956040  0.9449113 0.03579026
-3rd  0.23864380 0.07698700 1.1147967 0.10377543  0.01235836 0.1221649  0.9358917 0.2557327 0.7884306 0.04685326 -0.9685261 0.87150815
-mean 0.11651108 0.04212217 1.0619272 0.04971028 -0.17801646 0.2727428  0.8267577 0.2928027 0.6938372 0.04618862  0.9711449 0.60745479
+         CV-RSq         sd  MeanDev         sd    CalibInt        sd CalibSlope        sd       AUC         sd     MaxErr         sd
+1st  0.26118317 0.09356186 0.905585 0.10647201 -0.06899679 0.2272956  0.9375576 0.2330996 0.8179842 0.05159675  0.9914852 0.58077564
+2nd  0.02825619 0.04439182 1.096298 0.05202598 -0.26429236 0.4491525  0.7687062 0.4530650 0.6212309 0.07148317  0.9449113 0.03553011
+3rd  0.23672000 0.07600801 1.116781 0.10267433  0.01532528 0.1216739  0.9336915 0.2552512 0.7871410 0.04553753 -0.9751335 0.87254164
+mean 0.11653435 0.04212394 1.062252 0.04929428 -0.16930972 0.2806729  0.8354735 0.2997902 0.6937636 0.04647268  0.9914852 0.01799983
 > 
 > # poisson models
 > 

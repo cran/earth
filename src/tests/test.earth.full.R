@@ -689,6 +689,9 @@ printh(summary(a))
 a <- earth(O3 ~ ., data=ozone1, minspan=0)
 printh(summary(a))
 
+a <- earth(O3 ~ ., data=ozone1, minspan=-1) # minspan=-1 added in earth 2.4-0
+printh(summary(a))
+
 cat("--- test multiple responses ---------------------\n")
 
 # this uses the global matrix data.global (data.global[,1:2] is the response)

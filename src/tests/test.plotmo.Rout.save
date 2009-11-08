@@ -105,19 +105,19 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 > termplot(a)
 Warning: predict.earth ignored unrecognized argument "se.fit"
 > 
-> a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
+> a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
 > func1 <- function()
 + {
 +     caption <- "test call plotmo from within a function, global dataframe"
 +     dopar(4,4,caption)
-+     a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
++     a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
 +     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 +     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 + 
 +     caption <- "test call plotmo from within a function, local dataframe"
 +     dopar(4,4,caption)
 +     ozone1.local <- ozone1[,c(1,2,3,4,5,6,7,8,10)]  # drop vis
-+     a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2)
++     a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2, minspan=-1)
 +     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 +     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 + 
@@ -125,7 +125,7 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 +     dopar(4,4,caption)
 +     x <- ozone1.local[,c(4,5,3)]    # humidty temp wind
 +     y <- ozone1.local[,9]           # doy
-+     a <- earth(x, y, degree=2)
++     a <- earth(x, y, degree=2, minspan=-1)
 +     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 +     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 + }
@@ -322,9 +322,9 @@ to        earth(x=ozone1[, -1], y=ozone1[, 1], degree=2)
 > dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1)")
                               test f <- O3 ~ .; a <- earth(f, data=ozone1) 
 > fa <- log(O3) ~ .
-> a <- earth(fa, data=ozone1, degree=2)
+> a <- earth(fa, data=ozone1, degree=2, minspan=-1)
 > print(summary(a))
-Call: earth(formula=fa, data=ozone1, degree=2)
+Call: earth(formula=fa, data=ozone1, degree=2, minspan=-1)
 
                             coefficients
 (Intercept)                   2.70208646
@@ -560,29 +560,28 @@ Call: earth(formula=depIndex~q_4+q_2102+q_2104+q_3105+q_3106+
       q_3107+q_3101+q_3104+q_7107, data=regDatCWD)
 
                      coefficients
-(Intercept)                 -1.17
-h(q_4-0.791129)             -5.90
-h(0.791129-q_4)             -1.00
-h(q_2102- -0.682452)         1.20
-h(0.833322-q_2104)          -0.85
-h(0.845208-q_3105)          -0.75
-h(0.412852-q_3106)          -0.99
-h(q_4104- -0.684352)         1.01
-h(0.484017-q_6101)          -1.12
-h(0.9131-q_6103)            -1.12
-h(q_7104- -0.585057)         1.42
-h(q_7104-0.542573)          -1.91
-h(q_3109- -0.163231)         1.05
-h(-0.163231-q_3109)         -0.97
-h(q_2111- -0.65247)          2.02
-h(0.69536-q_2111)            1.84
-h(-0.696421-q_3107)          2.69
-h(q_7107- -0.672466)         0.26
+(Intercept)                   1.5
+h(q_4-0.82106)               -6.9
+h(0.82106-q_4)               -1.0
+h(q_2102- -0.683071)          1.2
+h(0.814086-q_2104)           -0.9
+h(0.836135-q_3105)           -0.7
+h(0.495726-q_3106)           -0.9
+h(q_4104- -0.668481)          1.0
+h(0.484017-q_6101)           -1.1
+h(0.915239-q_6103)           -1.1
+h(q_7104- -0.600984)          1.4
+h(q_7104-0.547527)           -2.0
+h(q_3109- -0.166017)          1.1
+h(-0.166017-q_3109)          -0.9
+h(q_2111-0.975377)          112.9
+h(-0.676502-q_3107)           2.2
+h(q_7107- -0.672598)          0.3
 
-Selected 18 of 31 terms, and 13 of 16 predictors 
+Selected 17 of 31 terms, and 13 of 16 predictors 
 Importance: q_6103, q_4104, q_2102, q_7104, q_3109, q_6101, q_2104, q_4, q_3106, q_3105, ...
-Number of terms at each degree of interaction: 1 17 (additive model)
-GCV 2.5    RSS 1443    GRSq 0.54    RSq 0.58
+Number of terms at each degree of interaction: 1 16 (additive model)
+GCV 2.5    RSS 1451    GRSq 0.54    RSq 0.58
 > plotmo(earthobj)
 > 
 > # long predictor names
@@ -642,7 +641,7 @@ GCV 2.5    RSS 1443    GRSq 0.54    RSq 0.58
 +                 a.rather.long.in.fact.very.long.name.q_3101 +
 +                 a.rather.long.in.fact.very.long.name.q_3104 +
 +                 a.rather.long.in.fact.very.long.name.q_7107,
-+                 data = a.rather.long.in.fact.very.long.name.for.the.dataframe)
++                 data = a.rather.long.in.fact.very.long.name.for.the.dataframe, minspan=-1)
 > print(summary(a.rather.long.in.fact.very.long.name.for.the.modelA, digits = 2))
 Call: earth(formula=a.rather.long.in.fact.very.long.name.for.the.response~
       a.rather.long.in.fact.very.long.name.q_4+a.rather.long.in.fact.very.long.name.q_2102+
@@ -683,11 +682,11 @@ GCV 2.5    RSS 1443    GRSq 0.54    RSq 0.58
 > a.rather.long.in.fact.very.long.name.for.the.modelC <-
 +         earth(x = a.rather.long.in.fact.very.long.name.for.the.dataframe[,-1],
 +           y = a.rather.long.in.fact.very.long.name.for.the.response,
-+                   degree = 3)
++                   degree = 3, minspan=-1)
 > print(summary(a.rather.long.in.fact.very.long.name.for.the.modelC, digits = 2))
 Call: earth(x=a.rather.long.in.fact.very.long.name.for.the.dataframe[, 
       -1], y=a.rather.long.in.fact.very.long.name.for.the.response, 
-      degree=3)
+      degree=3, minspan=-1)
 
                                                                                                                                                                            coefficients
 (Intercept)                                                                                                                                                                         3.1
@@ -733,7 +732,7 @@ pclass3rd * sexmale   0.19376843
 sexmale * h(16-age)   0.03221793
 sexmale * h(age-25)  -0.00471276
 
-Selected 7 of 13 terms, and 4 of 4 predictors 
+Selected 7 of 14 terms, and 4 of 4 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age
 Number of terms at each degree of interaction: 1 2 4
 GCV 0.1447330    RSS 146.7947    GRSq 0.4020269    RSq 0.4190703
@@ -757,18 +756,18 @@ Call: earth(formula=survived~pclass+age+sibsp, data=etitanic,
       degree=2)
 
                        coefficients
-(Intercept)              0.75943263
-pclass2nd               -0.29012930
-pclass3rd               -0.46672100
-pclass2nd * h(17-age)    0.03912125
-pclass3rd * h(20-age)    0.02116640
-h(18-age) * h(sibsp-2)  -0.02049559
-h(age-18) * h(3-sibsp)  -0.00223959
+(Intercept)              0.75863837
+pclass2nd               -0.29146432
+pclass3rd               -0.46635067
+pclass2nd * h(18-age)    0.03666191
+pclass3rd * h(20-age)    0.02119903
+h(18-age) * h(sibsp-2)  -0.02049700
+h(age-18) * h(3-sibsp)  -0.00222502
 
 Selected 7 of 17 terms, and 4 of 4 predictors 
-Importance: pclass3rd, age, pclass2nd, sibsp
+Importance: pclass3rd, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 4
-GCV 0.2038652    RSS 206.7692    GRSq 0.1577188    RSq 0.1817255
+GCV 0.2038010    RSS 206.7041    GRSq 0.1579841    RSq 0.1819833
 > plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms")
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
@@ -787,20 +786,20 @@ Call: earth(formula=survived~pclass+age+sibsp, data=etitanic,
 
 GLM coefficients
                           survived
-(Intercept)             1.17956404
-pclass2nd              -1.28149404
-pclass3rd              -2.10225951
-pclass2nd * h(17-age)   0.48238644
-pclass3rd * h(20-age)   0.09843643
-h(18-age) * h(sibsp-2) -0.13400956
-h(age-18) * h(3-sibsp) -0.01091961
+(Intercept)             1.17548326
+pclass2nd              -1.28653387
+pclass3rd              -2.09991370
+pclass2nd * h(18-age)   0.38059182
+pclass3rd * h(20-age)   0.09857349
+h(18-age) * h(sibsp-2) -0.13401139
+h(age-18) * h(3-sibsp) -0.01084919
 
 Earth selected 7 of 17 terms, and 4 of 4 predictors 
-Importance: pclass3rd, age, pclass2nd, sibsp
+Importance: pclass3rd, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 4
-Earth GCV 0.2038652    RSS 206.7692    GRSq 0.1577188    RSq 0.1817255
+Earth GCV 0.2038010    RSS 206.7041    GRSq 0.1579841    RSq 0.1819833
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 1204.411 (1039 dof)   iters 7
+GLM null.deviance 1414.620 (1045 dof)   deviance 1204.995 (1039 dof)   iters 7
 > plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms")
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass

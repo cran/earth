@@ -104,6 +104,6 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
 data(trees)
 a <- earth(Volume ~ ., data = trees)
 predict(a)           # same as a$fitted.values
-predict(a, c(10,80)) # yields 17.76888
+predict(a, c(10,80)) # yields 18.11
 }
 \keyword{models}
