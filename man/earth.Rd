@@ -107,8 +107,7 @@ For cross validation, use the \code{nfold} argument.
 %      corresponding element of the normalized \code{wp}.
   }
   \item{scale.y}{
-    \code{\link[=scale]{Scale}} \code{y} in the forward pass for better numeric stability
-    \bold{[added Jan 2009]}.
+    \code{\link[=scale]{Scale}} \code{y} in the forward pass for better numeric stability.
     Scaling here means subtract the mean and divide by the standard deviation.
     Default is \code{NCOL(y)==1},
     i.e., scale \code{y} unless \code{y} has multiple columns.
@@ -130,7 +129,8 @@ For cross validation, use the \code{nfold} argument.
   \item{trace}{
      Trace earth's execution.  Default is 0.  Values:
 
-     0 none .5 cross validation 1 overview 2 forward pass 3 pruning 4 model mats, memory use, more pruning, etc. 5 \dots
+     0 none 0.5 cross validation 1 overview 2 forward pass 3 pruning 4 model mats, memory use, more pruning, etc. 
+     5 and higher for internal details of operation\dots
   }
   \item{keepxy}{
      Set to TRUE to retain the following in the returned value: \code{x} and \code{y} (or \code{data}),
@@ -175,18 +175,24 @@ For cross validation, use the \code{nfold} argument.
      See the "Forward pass" section below.
   }
   \item{minspan}{
-    Minimum distance between knots.\cr
-    Use a value of 1 to consider all x values (which is good if the
+    Minimum distance between knots.
+    (Note: predictor value extremes are ineligible for knots
+    regardless of the \code{minspan} setting, as per the MARS paper equation 45.)\cr
+    Use \code{minspan=1} to consider all x values (which is good if the
     data are not noisy).\cr
-    The default value is 0.
-    The value 0 is treated specially and
+    The default is \code{minspan=0}.
+    This value 0 is treated specially and
     means calculate the \code{minspan} internally as per
     Friedman's MARS paper section 3.8 with \eqn{alpha} = 0.05.
     Set \code{trace>=2} to see the calculated value.\cr
-    This argument is intended to increase resistance to runs of noise in the input data.
-    Higher values will increase smoothness in your model.\cr
-    Note: predictor value extremes are ineligible for knots
-    regardless of the \code{minspan} setting, as per the MARS paper equation 45.
+    \bold{NEW IN VERSION 2.4-0, Nov 2009:}
+    \code{minspan=-1} is also treated specially. It is for back compatibility, and means 
+    calculate minspan using the (incorrect) method used in 
+    versions of earth prior to 2.4-0.
+    Using \code{minspan=-1} instead of the default \code{minspan=0}
+    will usually build a model with a very similar GCV,
+    although with slightly different knots and terms.\cr
+    The minspan argument is intended to increase resistance to runs of noise in the input data.
   }
   \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
@@ -857,7 +863,7 @@ print(a6$coefficients == a6$glm.coefficients)  # all TRUE
 \bold{Factors in x}:
 Earth treats factors in \code{x} in
 the same way as standard R models such as \code{\link{lm}} (where
-\code{x} is taken to mean the right hand side of the formula).
+\code{x} is taken to mean the rhs of the formula).
 Thus factors are expanded using the current setting
 of \code{\link{options}("\link{contrasts}")}.
 
@@ -1401,11 +1407,11 @@ summary(a2)
 }
 which yields
 \preformatted{
-Expression:
-  -7.41
-  + 0.418 * Height
-  +  5.86 * pmax(0,  Girth -   12.9)
-  -  2.41 * pmax(0,   12.9 -  Girth)
+            coefficients
+(Intercept)        2.981
+Height             0.348
+h(Girth-14)        6.302
+h(14-Girth)       -3.128
 }
 In this example, the second simpler model has almost the same RSS as the first model.
 We can make both \code{Girth} and \code{Height} enter linearly with
@@ -1742,18 +1748,18 @@ a <- earth(Volume ~ ., data = trees)
 summary(a, digits = 2, style = "pmax")
 
 # yields:
-#    Call: earth(formula=Volume~., data=trees)
-#
-#    Volume =
-#      23
-#      +  5.7 * pmax(0,  Girth -     13)
-#      -  2.9 * pmax(0,     13 -  Girth)
-#      + 0.72 * pmax(0, Height -     76)
-#
-#    Selected 4 of 5 terms, and 2 of 2 predictors
-#    Estimated importance: Girth Height
-#    Number of terms at each degree of interaction: 1 3 (additive model)
-#    GCV 11    RSS 213    GRSq 0.96    RSq 0.97
+# Call: earth(formula=Volume~., data=trees)
+# 
+# Volume =
+#   27
+#   +  6.2 * pmax(0,  Girth -     14) 
+#   -  3.3 * pmax(0,     14 -  Girth) 
+#   + 0.49 * pmax(0, Height -     72) 
+# 
+# Selected 4 of 6 terms, and 2 of 2 predictors 
+# Importance: Girth, Height
+# Number of terms at each degree of interaction: 1 3 (additive model)
+# GCV 11    RSS 197    GRSq 0.96    RSq 0.98
 }
 \keyword{smooth}
 \keyword{models}

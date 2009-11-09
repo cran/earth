@@ -90,19 +90,19 @@ a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
 plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,2), trace=Trace)
 termplot(a)
 
-a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
+a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
 func1 <- function()
 {
     caption <- "test call plotmo from within a function, global dataframe"
     dopar(4,4,caption)
-    a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
+    a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 
     caption <- "test call plotmo from within a function, local dataframe"
     dopar(4,4,caption)
     ozone1.local <- ozone1[,c(1,2,3,4,5,6,7,8,10)]  # drop vis
-    a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2)
+    a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2, minspan=-1)
     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 
@@ -110,7 +110,7 @@ func1 <- function()
     dopar(4,4,caption)
     x <- ozone1.local[,c(4,5,3)]    # humidty temp wind
     y <- ozone1.local[,9]           # doy
-    a <- earth(x, y, degree=2)
+    a <- earth(x, y, degree=2, minspan=-1)
     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
 }
@@ -280,7 +280,7 @@ plotmo(b, do.par=FALSE, ylim=NA, trace=Trace)
 
 dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1)")
 fa <- log(O3) ~ .
-a <- earth(fa, data=ozone1, degree=2)
+a <- earth(fa, data=ozone1, degree=2, minspan=-1)
 print(summary(a))
 plot(a, do.par=FALSE)
 plotmo(a, do.par=FALSE, degree1=2:3, degree2=c(1,3), col.response = "pink")
@@ -525,7 +525,7 @@ a.rather.long.in.fact.very.long.name.for.the.modelA <-
                 a.rather.long.in.fact.very.long.name.q_3101 +
                 a.rather.long.in.fact.very.long.name.q_3104 +
                 a.rather.long.in.fact.very.long.name.q_7107,
-                data = a.rather.long.in.fact.very.long.name.for.the.dataframe)
+                data = a.rather.long.in.fact.very.long.name.for.the.dataframe, minspan=-1)
 print(summary(a.rather.long.in.fact.very.long.name.for.the.modelA, digits = 2))
 plot(a.rather.long.in.fact.very.long.name.for.the.modelA)
 plotmo(a.rather.long.in.fact.very.long.name.for.the.modelA)
@@ -533,7 +533,7 @@ plotmo(a.rather.long.in.fact.very.long.name.for.the.modelA)
 a.rather.long.in.fact.very.long.name.for.the.modelC <-
         earth(x = a.rather.long.in.fact.very.long.name.for.the.dataframe[,-1],
           y = a.rather.long.in.fact.very.long.name.for.the.response,
-                  degree = 3)
+                  degree = 3, minspan=-1)
 print(summary(a.rather.long.in.fact.very.long.name.for.the.modelC, digits = 2))
 plot(a.rather.long.in.fact.very.long.name.for.the.modelC)
 plotmo(a.rather.long.in.fact.very.long.name.for.the.modelC)

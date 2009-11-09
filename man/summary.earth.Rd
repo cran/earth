@@ -100,16 +100,16 @@ summary(a, digits = 2)
 
 # yields:
 #    Call: earth(formula=Volume~., data=trees)
-#
-#                  Volume
-#    (Intercept)    23.21
-#    h(Girth-12.9)   5.75
-#    h(12.9-Girth)  -2.87
-#    h(Height-76)    0.72
-#
-#    Selected 4 of 5 terms, and 2 of 2 predictors
-#    Estimated importance: Girth Height
+#    
+#                 coefficients
+#    (Intercept)         27.25
+#    h(Girth-14)          6.18
+#    h(14-Girth)         -3.27
+#    h(Height-72)         0.49
+#    
+#    Selected 4 of 6 terms, and 2 of 2 predictors 
+#    Importance: Girth, Height
 #    Number of terms at each degree of interaction: 1 3 (additive model)
-#    GCV 11    RSS 213    GRSq 0.96    RSq 0.97
+#    GCV 11    RSS 197    GRSq 0.96    RSq 0.98
 }
 \keyword{models}

@@ -1,6 +1,12 @@
 Changes to Earth Package
 ------------------------
 
+2.4-0 Nov 8 2009
+    This version of earth will build models SLIGHTLY DIFFERENT FROM PRIOR VERSIONS,
+    because I fixed a bug in the calculation of minspan and endspan.
+    Use minspan=-1 for backwards compatibility.
+    (Thanks to Gints Jekabsons for spotting this.)
+
 2.3-5 Oct 7 2009
     Fixed bug where glm.control args were ignored under certain circumstances
     (Thanks to Jérôme Guélat for letting me know about this.)

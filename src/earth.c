@@ -144,7 +144,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 2.0"; // change if you modify this file!
+static const char   *VERSION    = "version 2.4"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -943,14 +943,16 @@ static INLINE double GetGcv(const int nTerms, // nbr basis terms including inter
 //
 // nMinSpan: if =0, use internally calculated min span
 //           if >0, use instead of internally calculated min span
+//           if <0, use old (incorrect) method of calculating minspan
+//                  this was the method used prior to earth 2.4-0
 
-static INLINE int GetMinSpan(int nCases, const double *bx,
-                             const int iTerm, const int nMinSpan)
+static INLINE int GetMinSpan(int nCases, int nPreds, const double *bx,
+                             const int iTerm)
 {
-    if (nMinSpan > 0)                           // user specified a fixed span?
-        return nMinSpan;
+    if (nMinSpanGlobal > 0)                     // user specified a fixed span?
+        return nMinSpanGlobal;
 
-    int nUsed = 0;
+    int nUsed = 0;                              // Nm in Friedman's notation
     if (bx == NULL)
         nUsed = nCases;
     else for (int iCase = 0; iCase < nCases; iCase++)
@@ -959,8 +961,8 @@ static INLINE int GetMinSpan(int nCases, const double *bx,
 
     static const double temp1 = 2.9702;         // -log(-log(0.95)
     static const double temp2 = 1.7329;         // 2.5 * log(2)
-
-    return (int)((temp1 + log((double)nCases * nUsed)) / temp2);
+    const double n = (nMinSpanGlobal < 0) ? nCases: nPreds; // CHANGED earth 2.4
+    return (int)((temp1 + log(n * nUsed)) / temp2);
 }
 
 //-----------------------------------------------------------------------------
@@ -969,12 +971,12 @@ static INLINE int GetMinSpan(int nCases, const double *bx,
 // It implements eqn 45 FriedmanMars (see refs), re-expressed
 // for efficient computation
 
-static INLINE int GetEndSpan(const int nCases)
+static INLINE int GetEndSpan(const int nCases, const int nPreds)
 {
     static const double log_2 = 0.69315;            // log(2)
     static const double temp1 = 7.32193;            // 3 + log(20)/log(2);
-
-    return (int)(temp1 + log(nCases) / log_2);
+    const double n = (nMinSpanGlobal < 0) ? nCases: nPreds; // CHANGED earth 2.4
+    return (int)(temp1 + log(n) / log_2);
 }
 
 //-----------------------------------------------------------------------------
@@ -1336,6 +1338,8 @@ static INLINE void FindKnot(
     const double Weights[],     // in: nCases x 1, must not be NULL
     const int xOrder[],         // in
     const double yMean[],       // in: vector nResp x 1
+    const int nMinSpan,
+    const int nEndSpan,
     const double NewVarAdjust)  // in: 1 if not a new var, 1+NewVarPenalty if new var
 {
     Weights = Weights; // prevent compiler warning: unused parameter 'Weights'
@@ -1347,8 +1351,6 @@ static INLINE void FindKnot(
     double Dummy = bxOrthCenteredT[0];
     Dummy = nMaxTerms;
 #endif
-    const int nMinSpan = GetMinSpan(nCases, bx, iParent, nMinSpanGlobal);
-    const int nEndSpan = GetEndSpan(nCases);
     const int nCases_nEndSpan = nCases - nEndSpan;
     ASSERT(nMinSpan > 0);
     int iSpan = (nCases - 1) % nMinSpan;
@@ -1646,6 +1648,8 @@ static INLINE void FindPred(
             if (nTraceGlobal >= 7)
                 printf("\n");
             if (!LinPreds[iPred]) {
+                const int nMinSpan = GetMinSpan(nCases, nPreds, bx, iParent);
+                const int nEndSpan = GetEndSpan(nCases, nPreds);
                 int iBestCase = -1;
                 FindKnot(&iBestCase, &RssDeltaForParentPredPair,
                         CovCol, ycboSum, CovSx, ybxSum,
@@ -1653,7 +1657,8 @@ static INLINE void FindPred(
                         iParent, iPred, nCases, nResp, nMaxTerms,
                         RssDeltaLin, MaxAllowedRssDelta,
                         bx, bxOrth, bxOrthCenteredT, bxOrthMean,
-                        x, y, Weights, xOrder, yMean, NewVarAdjust);
+                        x, y, Weights, xOrder, yMean,
+                        nMinSpan, nEndSpan, NewVarAdjust);
 
                 if (RssDeltaForParentPredPair > *pBestRssDeltaForParent)
                     *pBestRssDeltaForParent = RssDeltaForParentPredPair;
@@ -1799,14 +1804,16 @@ static void FindTerm(
 }
 
 //-----------------------------------------------------------------------------
-static void PrintForwardProlog(const int nCases,
+static void PrintForwardProlog(const int nCases, const int nPreds,
         const char *sPredNames[])   // in: predictor names, can be NULL
 {
     if (nTraceGlobal == 1)
         printf("Forward pass term 1");
     else if (nTraceGlobal >= 2) {
-        printf("Forward pass: minspan %d endspan %d\n\n",
-            GetMinSpan(nCases, NULL, 0, nMinSpanGlobal), GetEndSpan(nCases));
+        char *sMinSpan = (nMinSpanGlobal < 0)? " (old minspan calculation)": "";
+        printf("Forward pass: minspan %d endspan %d%s\n\n",
+            GetMinSpan(nCases, nPreds, NULL, 0),
+            GetEndSpan(nCases, nPreds), sMinSpan);
 
         printf("         GRSq    RSq     DeltaRSq Pred ");
         if (sPredNames)
@@ -2098,8 +2105,6 @@ static void ForwardPass(
         error("thresh %g < 0", Thresh);
     if (Thresh >= 1)
         error("thresh %g >= 1", Thresh);
-    if (nMinSpanGlobal < 0)
-        error("minspan %d < 0", nMinSpanGlobal);
     if (nMinSpanGlobal > nCases/2)
         error("minspan %d > nrow(x)/2 %d", nMinSpanGlobal, nCases/2);
     if (FastBeta < 0)
@@ -2151,7 +2156,7 @@ static void ForwardPass(
     double Rss = RssNull, RssDelta = RssNull, RSq = 0, RSqDelta = 0;
     int nUsedTerms = 1;     // number of used basis terms including intercept, for GCV calc
     double Gcv = 0, GcvNull = GetGcv(nUsedTerms, nCases, RssNull, Penalty);
-    PrintForwardProlog(nCases, sPredNames);
+    PrintForwardProlog(nCases, nPreds, sPredNames);
 #if FAST_MARS
     InitQ(nMaxTerms);
     AddTermToQ(0, 1, RssNull, true, nMaxTerms, FastBeta); // intercept term into Q

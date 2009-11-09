@@ -142,13 +142,13 @@ Yields  the following matrix:
 \preformatted{
               col used nsubsets    gcv      rss
     temp        4    1       10 100.00 1 100.00 1
-    humidity    3    1        8  12.68 1  14.78 1
-    ibt         7    1        8  12.68 1  14.78 1
-    doy         9    1        7  11.26 1  12.93 1
-    dpg         6    1        5   6.75 1   7.84 1
-    ibh         5    1        4   9.58 0  10.46 0
-    vis         8    1        4   4.38 1   5.30 1
-    wind        2    1        1   0.74 1   0.98 1
+    humidity    3    1        8  12.65 1  14.77 1
+    ibt         7    1        8  12.65 1  14.77 1
+    doy         9    1        7  11.27 1  12.94 1
+    dpg         6    1        5   6.73 1   7.82 1
+    ibh         5    1        4   9.54 0  10.42 0
+    vis         8    1        4   4.34 1   5.26 1
+    wind        2    1        1   0.75 1   0.99 1
     vh-unused   1    0        0   0.00 1   0.00 1
 }
 The rows are sorted on \code{nsubsets}.
@@ -158,7 +158,7 @@ We see that \code{vh} is unused in the final model,
 and thus is given an \code{unused} suffix and a 0 in the \code{used} column.
 
 The \code{col} column gives the the column indices of the variables
-in the \code{x} argument to \code{earth} 
+in the \code{x} argument to \code{earth}
 (after factors, if any, have been expanded; none in this example).
 
 The \code{nsubsets} column is the number of subsets that included the corresponding variable.

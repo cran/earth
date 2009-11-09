@@ -374,6 +374,8 @@ earth.fit <- function(
 
     minspan        = 0,     # consider knots that are minspan apart
                             # special value 0 means use internally calculated min span
+                            # special value -1 (for back compatibility) means calc minspan
+                            #   using the method used by earth versions prior to 2.4
 
     newvar.penalty = 0,     # penalty for adding a new variable in forward pass
 

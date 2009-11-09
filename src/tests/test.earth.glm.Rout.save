@@ -109,7 +109,7 @@ First few rows of y are
 [5,]      18        2
 [6,]      20        0
 Approximate memory use after expanding x and y matrices: 0.02 MBytes
-Forward pass: minspan 4 endspan 10
+Forward pass: minspan 3 endspan 8
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
@@ -697,7 +697,7 @@ a2: single response glm model but with a binomial pair of y columns, degree=1
 > a2 <-  earth(SF ~ sex*ldose, glm=list(fa="b"), trace=3, pmethod="none")
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
-Forward pass: minspan 4 endspan 10
+Forward pass: minspan 3 endspan 8
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
@@ -811,7 +811,7 @@ plotmo a2
 > a2a <- earth(SF ~ sex*ldose, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=3, pmethod="none")
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
-Forward pass: minspan 4 endspan 10
+Forward pass: minspan 3 endspan 8
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
@@ -1637,10 +1637,10 @@ x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 1046 by 1 matrix: 1=pclass1
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
-After forward pass GRSq 0.2465 RSq 0.3031
+After forward pass GRSq 0.2465 RSq 0.303
 Prune method "backward" penalty 3 nprune 17: selected 10 of 17 terms, and 5 of 5 predictors
 After backward pass GRSq 0.2627 RSq 0.2941 
-GLM pclass1: null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
+GLM pclass1: null.deviance 1223.308 (1045 dof)   deviance 898.8677 (1036 dof)   iters 5
 > print.earth.models(a6)
 
 Print a6 
@@ -1648,9 +1648,9 @@ Print a6
 Earth selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, parch, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
-Earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
+Earth GCV 0.1461088    RSS 146.0399    GRSq 0.2627145    RSq 0.2941218
 
-GLM null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
+GLM null.deviance 1223.308 (1045 dof)   deviance 898.8677 (1036 dof)   iters 5
 
 Summary a6 
 
@@ -1659,23 +1659,23 @@ Call: earth(formula=pclass1~., data=etitanic[, -1], glm=list(family="binomial"),
 
 GLM coefficients
                             pclass1
-(Intercept)             -2.15483815
-survived                 2.45709243
-h(age-54)                0.46637043
-h(2-parch)               1.14840644
-survived * h(51-age)    -0.03085682
-sexmale * h(age-26)      0.03606179
-h(age-55) * h(2-parch)  -0.28939382
-h(55-age) * h(2-parch)  -0.03469689
-h(sibsp-1) * h(2-parch) -0.75862068
-h(1-sibsp) * h(2-parch) -0.44868361
+(Intercept)             -2.15536466
+survived                 2.48613146
+h(age-54)                0.46377156
+h(2-parch)               1.14564190
+survived * h(52-age)    -0.03081539
+sexmale * h(age-26)      0.03631076
+h(age-55) * h(2-parch)  -0.28833417
+h(55-age) * h(2-parch)  -0.03458961
+h(sibsp-1) * h(2-parch) -0.76097005
+h(1-sibsp) * h(2-parch) -0.44864252
 
 Earth selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, parch, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
-Earth GCV 0.1461131    RSS 146.0441    GRSq 0.2626931    RSq 0.2941013
+Earth GCV 0.1461088    RSS 146.0399    GRSq 0.2627145    RSq 0.2941218
 
-GLM null.deviance 1223.308 (1045 dof)   deviance 898.9086 (1036 dof)   iters 5
+GLM null.deviance 1223.308 (1045 dof)   deviance 898.8677 (1036 dof)   iters 5
 
 Summary a6 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -1684,72 +1684,72 @@ Call: earth(formula=pclass1~., data=etitanic[, -1], glm=list(family="binomial"),
 
 Earth coefficients
                            pclass1
-(Intercept)              0.1303850
-survived                 0.4743600
-survived * h(51-age)    -0.0088355
-h(2-parch)               0.1577795
-h(sibsp-1) * h(2-parch) -0.0601663
-h(1-sibsp) * h(2-parch) -0.0685010
-sexmale * h(age-26)      0.0065670
-h(age-55) * h(2-parch)  -0.0389109
-h(55-age) * h(2-parch)  -0.0044915
-h(age-54)                0.0642551
+(Intercept)              0.1301632
+survived                 0.4814561
+survived * h(52-age)    -0.0087828
+h(2-parch)               0.1572521
+h(sibsp-1) * h(2-parch) -0.0603447
+h(1-sibsp) * h(2-parch) -0.0685080
+sexmale * h(age-26)      0.0066260
+h(age-55) * h(2-parch)  -0.0386885
+h(55-age) * h(2-parch)  -0.0044698
+h(age-54)                0.0636415
 
 GLM coefficients
                           pclass1
-(Intercept)             -2.154838
-survived                 2.457092
-survived * h(51-age)    -0.030857
-h(2-parch)               1.148406
-h(sibsp-1) * h(2-parch) -0.758621
-h(1-sibsp) * h(2-parch) -0.448684
-sexmale * h(age-26)      0.036062
-h(age-55) * h(2-parch)  -0.289394
-h(55-age) * h(2-parch)  -0.034697
-h(age-54)                0.466370
+(Intercept)             -2.155365
+survived                 2.486131
+survived * h(52-age)    -0.030815
+h(2-parch)               1.145642
+h(sibsp-1) * h(2-parch) -0.760970
+h(1-sibsp) * h(2-parch) -0.448643
+sexmale * h(age-26)      0.036311
+h(age-55) * h(2-parch)  -0.288334
+h(55-age) * h(2-parch)  -0.034590
+h(age-54)                0.463772
 
 GLM deviance residuals:
      Min        1Q    Median        3Q       Max  
--2.34339  -0.64954  -0.38648   0.45406   2.61742  
+-2.35378  -0.64964  -0.38654   0.45424   2.61661  
 
 GLM coefficients (family binomial, link logit)
                           Estimate Std. Error z value  Pr(>|z|)
-(Intercept)             -2.1548382  0.2665944 -8.0828 6.328e-16
-survived                 2.4570924  0.3313962  7.4144 1.222e-13
-survived * h(51-age)    -0.0308568  0.0121175 -2.5465   0.01088
-h(2-parch)               1.1484064  0.2464715  4.6594 3.171e-06
-h(sibsp-1) * h(2-parch) -0.7586207  0.3261834 -2.3257   0.02003
-h(1-sibsp) * h(2-parch) -0.4486836  0.1092563 -4.1067 4.013e-05
-sexmale * h(age-26)      0.0360618  0.0152384  2.3665   0.01796
-h(age-55) * h(2-parch)  -0.2893938  0.1154265 -2.5072   0.01217
-h(55-age) * h(2-parch)  -0.0346969  0.0074824 -4.6371 3.533e-06
-h(age-54)                0.4663704  0.2141793  2.1775   0.02945
+(Intercept)             -2.1553647  0.2665552 -8.0860 6.166e-16
+survived                 2.4861315  0.3401134  7.3097 2.677e-13
+survived * h(52-age)    -0.0308154  0.0120686 -2.5533   0.01067
+h(2-parch)               1.1456419  0.2469745  4.6387 3.506e-06
+h(sibsp-1) * h(2-parch) -0.7609700  0.3270186 -2.3270   0.01997
+h(1-sibsp) * h(2-parch) -0.4486425  0.1092515 -4.1065 4.017e-05
+sexmale * h(age-26)      0.0363108  0.0152894  2.3749   0.01755
+h(age-55) * h(2-parch)  -0.2883342  0.1153556 -2.4995   0.01244
+h(55-age) * h(2-parch)  -0.0345896  0.0075046 -4.6091 4.043e-06
+h(age-54)                0.4637716  0.2140609  2.1665   0.03027
 
 Number of cases: 1046
 Earth selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, parch, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
-Earth GCV 0.14611    RSS 146.04    GRSq 0.26269    RSq 0.2941
+Earth GCV 0.14611    RSS 146.04    GRSq 0.26271    RSq 0.29412
 
-GLM null.deviance 1223.3 (1045 dof)   deviance 898.9 (1036 dof)   iters 5
+GLM null.deviance 1223.3 (1045 dof)   deviance 898.87 (1036 dof)   iters 5
 
 evimp a6 
 
          col used nsubsets        gcv          rss  
 age        3    1        9 100.000000 1 100.000000 1
-survived   1    1        8  40.089657 1  45.118516 1
-parch      5    1        5   5.680862 1  10.881834 1
-sibsp      4    1        4   4.582762 1   8.727465 1
-sexmale    2    1        3   2.496725 1   5.732125 1
+survived   1    1        8  40.094537 1  45.122339 1
+parch      5    1        5   5.709859 1  10.906717 1
+sibsp      4    1        4   4.745103 1   8.868582 1
+sexmale    2    1        3   2.662288 1   5.875975 1
 
 evimp a6 trim=FALSE
 
          col used nsubsets        gcv          rss  
 age        3    1        9 100.000000 1 100.000000 1
-survived   1    1        8  40.089657 1  45.118516 1
-parch      5    1        5   5.680862 1  10.881834 1
-sibsp      4    1        4   4.582762 1   8.727465 1
-sexmale    2    1        3   2.496725 1   5.732125 1
+survived   1    1        8  40.094537 1  45.122339 1
+parch      5    1        5   5.709859 1  10.906717 1
+sibsp      4    1        4   4.745103 1   8.868582 1
+sexmale    2    1        3   2.662288 1   5.875975 1
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
@@ -1769,8 +1769,8 @@ $dirs
 h(age-26)                    0       0   1     0     0
 h(26-age)                    0       0  -1     0     0
 survived                     1       0   0     0     0
-survived*h(age-51)           1       0   1     0     0
-survived*h(51-age)           1       0  -1     0     0
+survived*h(age-52)           1       0   1     0     0
+survived*h(52-age)           1       0  -1     0     0
 h(parch-2)                   0       0   0     0     1
 h(2-parch)                   0       0   0     0    -1
 h(age-26)*h(sibsp-2)         0       0   1     1     0
@@ -1789,8 +1789,8 @@ $cuts
 h(age-26)                    0       0  26     0     0
 h(26-age)                    0       0  26     0     0
 survived                     0       0   0     0     0
-survived*h(age-51)           0       0  51     0     0
-survived*h(51-age)           0       0  51     0     0
+survived*h(age-52)           0       0  52     0     0
+survived*h(52-age)           0       0  52     0     0
 h(parch-2)                   0       0   0     0     2
 h(2-parch)                   0       0   0     0     2
 h(age-26)*h(sibsp-2)         0       0  26     2     0
@@ -1845,51 +1845,51 @@ $prune.terms
 [17,]    14    15    16    17
 
 $rss
-[1] 146.0441
+[1] 146.0399
 
 $rsq
-[1] 0.2941013
+[1] 0.2941218
 
 $gcv
-[1] 0.1461131
+[1] 0.1461088
 
 $grsq
-[1] 0.2626931
+[1] 0.2627145
 
 $rss.per.response
-[1] 146.0441
+[1] 146.0399
 
 $rsq.per.response
-[1] 0.2941013
+[1] 0.2941218
 
 $gcv.per.response
-[1] 0.1461131
+[1] 0.1461088
 
 $grsq.per.response
-[1] 0.2626931
+[1] 0.2627145
 
 $rss.per.subset
- [1] 206.8910 173.4973 156.0461 152.9408 152.6654 151.1495 149.8386 148.0161
- [9] 146.8058 146.0441 145.8513 145.6449 145.1884 144.6296 144.3070 144.1910
-[17] 144.1905
+ [1] 206.8910 173.4973 156.0461 152.9652 152.6767 151.0928 149.8526 148.0316
+ [9] 146.8059 146.0399 145.8457 145.6514 145.1890 144.6297 144.3103 144.1945
+[17] 144.1931
 
 $gcv.per.subset
- [1] 0.1981713 0.1669830 0.1509100 0.1486205 0.1490704 0.1483059 0.1477342
- [8] 0.1466483 0.1461596 0.1461131 0.1466364 0.1471493 0.1474115 0.1475702
-[15] 0.1479709 0.1485866 0.1493263
+ [1] 0.1981713 0.1669830 0.1509100 0.1486443 0.1490815 0.1482502 0.1477480
+ [8] 0.1466636 0.1461597 0.1461088 0.1466308 0.1471559 0.1474121 0.1475703
+[15] 0.1479743 0.1485903 0.1493290
 
 $coefficients
                            pclass1
-(Intercept)            0.130384980
-survived               0.474359984
-survived*h(51-age)    -0.008835517
-h(2-parch)             0.157779506
-h(sibsp-1)*h(2-parch) -0.060166349
-h(1-sibsp)*h(2-parch) -0.068500969
-sexmale*h(age-26)      0.006566997
-h(age-55)*h(2-parch)  -0.038910867
-h(55-age)*h(2-parch)  -0.004491528
-h(age-54)              0.064255122
+(Intercept)            0.130163247
+survived               0.481456050
+survived*h(52-age)    -0.008782781
+h(2-parch)             0.157252095
+h(sibsp-1)*h(2-parch) -0.060344743
+h(1-sibsp)*h(2-parch) -0.068508035
+sexmale*h(age-26)      0.006626046
+h(age-55)*h(2-parch)  -0.038688500
+h(55-age)*h(2-parch)  -0.004469815
+h(age-54)              0.063641475
 
 $penalty
 [1] 3
@@ -1900,14 +1900,14 @@ $glm.list[[1]]
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
 
 Coefficients:
-            (Intercept)                 survived     `survived*h(51-age)`  
-               -2.15484                  2.45709                 -0.03086  
+            (Intercept)                 survived     `survived*h(52-age)`  
+               -2.15536                  2.48613                 -0.03082  
            `h(2-parch)`  `h(sibsp-1)*h(2-parch)`  `h(1-sibsp)*h(2-parch)`  
-                1.14841                 -0.75862                 -0.44868  
+                1.14564                 -0.76097                 -0.44864  
     `sexmale*h(age-26)`   `h(age-55)*h(2-parch)`   `h(55-age)*h(2-parch)`  
-                0.03606                 -0.28939                 -0.03470  
+                0.03631                 -0.28833                 -0.03459  
             `h(age-54)`  
-                0.46637  
+                0.46377  
 
 Degrees of Freedom: 1045 Total (i.e. Null);  1036 Residual
 Null Deviance:	    1223 
@@ -1916,16 +1916,16 @@ Residual Deviance: 898.9 	AIC: 918.9
 
 $glm.coefficients
                           pclass1
-(Intercept)           -2.15483815
-survived               2.45709243
-survived*h(51-age)    -0.03085682
-h(2-parch)             1.14840644
-h(sibsp-1)*h(2-parch) -0.75862068
-h(1-sibsp)*h(2-parch) -0.44868361
-sexmale*h(age-26)      0.03606179
-h(age-55)*h(2-parch)  -0.28939382
-h(55-age)*h(2-parch)  -0.03469689
-h(age-54)              0.46637043
+(Intercept)           -2.15536466
+survived               2.48613146
+survived*h(52-age)    -0.03081539
+h(2-parch)             1.14564190
+h(sibsp-1)*h(2-parch) -0.76097005
+h(1-sibsp)*h(2-parch) -0.44864252
+sexmale*h(age-26)      0.03631076
+h(age-55)*h(2-parch)  -0.28833417
+h(55-age)*h(2-parch)  -0.03458961
+h(age-54)              0.46377156
 
 $namesx.org
 [1] "survived" "sex"      "age"      "sibsp"    "parch"   
@@ -1982,7 +1982,7 @@ x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
-After forward pass GRSq 0.3425 RSq 0.3858
+After forward pass GRSq 0.3426 RSq 0.3859
 Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
 After backward pass GRSq 0.355 RSq 0.3825 
 GLM male: null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
@@ -2126,7 +2126,7 @@ h(2-sibsp)*h(3-parch)         0         0        0   0    -1    -1
 pclass3rd                     0         1        0   0     0     0
 pclass3rd*h(3-parch)          0         1        0   0     0    -1
 pclass2nd*survived            1         0        1   0     0     0
-survived*h(age-26)            0         0        1   1     0     0
+survived*h(age-25)            0         0        1   1     0     0
 
 $cuts
                       pclass2nd pclass3rd survived age sibsp parch
@@ -2144,7 +2144,7 @@ h(2-sibsp)*h(3-parch)         0         0        0   0     2     3
 pclass3rd                     0         0        0   0     0     0
 pclass3rd*h(3-parch)          0         0        0   0     0     3
 pclass2nd*survived            0         0        0   0     0     0
-survived*h(age-26)            0         0        0  26     0     0
+survived*h(age-25)            0         0        0  25     0     0
 
 $selected.terms
  [1]  1  2  6  8  9 10 11 12 13 14
@@ -2209,12 +2209,12 @@ $grsq.per.response
 
 $rss.per.subset
  [1] 244.0765 173.4300 170.0254 166.5886 159.8632 157.4918 155.7449 154.0322
- [9] 151.9139 150.7153 150.6820 150.1499 149.9420 149.9095 149.9090
+ [9] 151.9139 150.7153 150.6879 150.1389 149.9309 149.8973 149.8965
 
 $gcv.per.subset
  [1] 0.2337895 0.1669182 0.1644292 0.1618828 0.1560988 0.1545288 0.1535575
- [8] 0.1526087 0.1512452 0.1507864 0.1514931 0.1517008 0.1522379 0.1529575
-[15] 0.1537151
+ [8] 0.1526087 0.1512452 0.1507864 0.1514990 0.1516897 0.1522266 0.1529450
+[15] 0.1537023
 
 $coefficients
                               male
@@ -2318,7 +2318,7 @@ x is a 1046 by 4 matrix: 1=survived, 2=age, 3=sibsp, 4=parch
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
-After forward pass GRSq 0.3095 RSq 0.3646
+After forward pass GRSq 0.3095 RSq 0.3645
 Prune method "backward" penalty 3 nprune 18: selected 7 of 18 terms, and 4 of 4 predictors
 After backward pass GRSq 0.333 RSq 0.352 
 GLM male: null.deviance 1379.574 (1045 dof)   deviance 977.9563 (1039 dof)   iters 4
@@ -2335,7 +2335,7 @@ x is a 1046 by 4 matrix: 1=survived, 2=age, 3=sibsp, 4=parch
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
-After forward pass GRSq 0.3095 RSq 0.3646
+After forward pass GRSq 0.3095 RSq 0.3645
 Prune method "backward" penalty 3 nprune 18: selected 7 of 18 terms, and 4 of 4 predictors
 After backward pass GRSq 0.333 RSq 0.352 
 GLM male: null.deviance 1379.574 (1045 dof)   deviance 977.9563 (1039 dof)   iters 4
@@ -2351,10 +2351,10 @@ x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
-After forward pass GRSq 0.3378 RSq 0.388
-Prune method "backward" penalty 3 nprune 17: selected 11 of 17 terms, and 6 of 6 predictors
-After backward pass GRSq 0.3494 RSq 0.3805 
-GLM male: null.deviance 1365.015 (1035 dof)   deviance 923.7842 (1025 dof)   iters 5
+After forward pass GRSq 0.3414 RSq 0.3882
+Prune method "backward" penalty 3 nprune 16: selected 12 of 16 terms, and 6 of 6 predictors
+After backward pass GRSq 0.3533 RSq 0.3872 
+GLM male: null.deviance 1365.015 (1035 dof)   deviance 921.4823 (1024 dof)   iters 5
 > check.models.equal(a7eupdate, a7e, msg="a7update a7e")
 check.models.equal not identical: a7update a7e [but within numerical tolerances]
 > 
@@ -2366,10 +2366,10 @@ x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
-After forward pass GRSq 0.3378 RSq 0.388
-Prune method "backward" penalty 3 nprune 17: selected 11 of 17 terms, and 6 of 6 predictors
-After backward pass GRSq 0.3494 RSq 0.3805 
-GLM male: null.deviance 1365.015 (1035 dof)   deviance 923.7842 (1025 dof)   iters 5
+After forward pass GRSq 0.3414 RSq 0.3882
+Prune method "backward" penalty 3 nprune 16: selected 12 of 16 terms, and 6 of 6 predictors
+After backward pass GRSq 0.3533 RSq 0.3872 
+GLM male: null.deviance 1365.015 (1035 dof)   deviance 921.4823 (1024 dof)   iters 5
 > check.models.equal(a7eeupdate, a7e, msg="a7update a7e with alternative subset")
 check.models.equal not identical: a7update a7e with alternative subset [but within numerical tolerances]
 > 
@@ -2405,10 +2405,10 @@ x is a 801 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=
 y is a 801 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
-After forward pass GRSq 0.3445 RSq 0.4084
-Prune method "backward" penalty 3 nprune 17: selected 8 of 17 terms, and 6 of 6 predictors
-After backward pass GRSq 0.3663 RSq 0.3937 
-GLM male: null.deviance 1053.094 (800 dof)   deviance 699.1533 (793 dof)   iters 5
+After forward pass GRSq 0.3442 RSq 0.4081
+Prune method "backward" penalty 3 nprune 17: selected 9 of 17 terms, and 6 of 6 predictors
+After backward pass GRSq 0.3678 RSq 0.399 
+GLM male: null.deviance 1053.094 (800 dof)   deviance 695.3057 (792 dof)   iters 5
 > check.models.equal(a8gupdate, a8g, msg="a8update a8g with new data")
 check.models.equal not identical: a8update a8g with new data [but within numerical tolerances]
 > 
@@ -2427,7 +2427,7 @@ a8p: one response poisson model
 > a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
 x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 1 matrix: 1=counts
-Forward pass: minspan 4 endspan 10
+Forward pass: minspan 3 endspan 9
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
@@ -2730,7 +2730,7 @@ First few rows of y are
 [5,]    0
 [6,]    1
 Approximate memory use after expanding x and y matrices: 0.4 MBytes
-Forward pass: minspan 9 endspan 17
+Forward pass: minspan 6 endspan 9
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
@@ -2743,10 +2743,10 @@ Forward pass: minspan 9 endspan 17
 14     0.3355 0.3700      0.00809    2    pclass3rd           0< 12      
 16     0.3415 0.3788     0.008795    2    pclass3rd           0< 13      5   
 18     0.3432 0.3834      0.00458    1    pclass2nd           0< 14      2   
-20     0.3425 0.3858     0.002437    4          age          26  15      2   
+20     0.3426 0.3859     0.002488    4          age          25  15      2   
 
 Reached max number of terms 21
-After forward pass GRSq 0.3425 RSq 0.3858
+After forward pass GRSq 0.3426 RSq 0.3859
 Forward pass complete: 21 terms (15 terms used)
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
@@ -2761,10 +2761,10 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           9      0.3531  0.3776     0.0058      5  1 2 6 8 9 10 11 12 13
 chosen   10      0.3550  0.3825     0.0020      6  1 2 6 8 9 10 11 12 13 14
          11      0.3520  0.3826    -0.0030      6  1 2 6 8 9 10 11 12 13 14 15
-         12      0.3511  0.3848    -0.0009      6  1 2 5 6 8 9 10 11 12 13 14 15
-         13      0.3488  0.3857    -0.0023      6  1 2 3 5 6 8 9 10 11 12 13 14 15
-         14      0.3457  0.3858    -0.0031      6  1 2 3 5 6 7 8 9 10 11 12 13 14 15
-         15      0.3425  0.3858    -0.0032      6  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+         12      0.3512  0.3849    -0.0008      6  1 2 5 6 8 9 10 11 12 13 14 15
+         13      0.3489  0.3857    -0.0023      6  1 2 3 5 6 8 9 10 11 12 13 14 15
+         14      0.3458  0.3859    -0.0031      6  1 2 3 5 6 7 8 9 10 11 12 13 14 15
+         15      0.3426  0.3859    -0.0032      6  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 
 Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
 After backward pass GRSq 0.355 RSq 0.3825 
@@ -2870,7 +2870,7 @@ First few rows of y are
 [5,]  1  625
 [6,]  2 2304
 Approximate memory use after expanding x and y matrices: 0.4 MBytes
-Forward pass: minspan 9 endspan 17
+Forward pass: minspan 6 endspan 9
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
@@ -2878,16 +2878,16 @@ Forward pass: minspan 9 endspan 17
 4      0.1653 0.1733      0.06303    1    pclass2nd           0< 3       
 6      0.2059 0.2210      0.04767    5        parch           2  4   5   
 8      0.2210 0.2396      0.01859    3     survived           0< 6       
-10     0.2223 0.2481     0.008525    5        parch           2  7   8   2   
-12     0.2234 0.2565      0.00837    4        sibsp           1  9   10  
-14     0.2219 0.2587     0.002244    5        parch           1  11      2   
-16     0.2204 0.2608     0.002136    3     survived           0< 12      2   
-18     0.2146 0.2627     0.001817    5        parch           1  13  14  8   
-20     0.2090 0.2647     0.002048    5        parch           1  15  16  4   
+10     0.2226 0.2484      0.00886    5        parch           3  7   8   2   
+12     0.2220 0.2552     0.006748    4        sibsp           1  9   10  
+14     0.2168 0.2575      0.00233    4        sibsp           1  11  12  2   
+16     0.2126 0.2608      0.00328    5        parch           1  13  14  12  
+18     0.2112 0.2631     0.002336    3     survived           0< 15      2   
+20     0.2055 0.2652     0.002045    4        sibsp           2  16  17  4   
 
 Reached max number of terms 21
-After forward pass GRSq 0.209 RSq 0.2647
-Forward pass complete: 21 terms (16 terms used)
+After forward pass GRSq 0.2055 RSq 0.2652
+Forward pass complete: 21 terms (17 terms used)
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
@@ -2896,19 +2896,20 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           4      0.1807  0.1925     0.0154      3  1 2 3 5
           5      0.2059  0.2210     0.0251      3  1 2 3 4 5
           6      0.2210  0.2396     0.0152      4  1 2 3 4 5 6
-          7      0.2260  0.2481     0.0050      4  1 2 3 4 5 6 7
-chosen    8      0.2298  0.2554     0.0038      5  1 2 3 4 5 6 7 9
-          9      0.2293  0.2585    -0.0005      5  1 2 3 4 5 6 7 9 11
-         10      0.2274  0.2603    -0.0019      5  1 2 3 4 5 6 7 9 11 12
-         11      0.2248  0.2615    -0.0025      5  1 2 3 4 5 6 7 9 11 12 13
-         12      0.2234  0.2637    -0.0015      5  1 2 3 4 5 6 7 9 11 12 13 15
-         13      0.2203  0.2644    -0.0031      5  1 2 3 4 5 6 7 8 9 11 12 13 15
-         14      0.2166  0.2646    -0.0037      5  1 2 3 4 5 6 7 8 9 11 12 13 15 16
-         15      0.2129  0.2647    -0.0037      5  1 2 3 4 5 6 7 8 9 11 12 13 14 15 16
-         16      0.2090  0.2647    -0.0039      5  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+          7      0.2261  0.2481     0.0050      4  1 2 3 4 5 6 7
+chosen    8      0.2293  0.2549     0.0032      5  1 2 3 4 5 6 7 9
+          9      0.2278  0.2571    -0.0014      5  1 2 3 4 5 6 7 9 15
+         10      0.2251  0.2582    -0.0027      5  1 2 3 4 5 6 7 9 11 15
+         11      0.2233  0.2600    -0.0018      5  1 2 3 4 5 6 7 9 11 14 15
+         12      0.2218  0.2622    -0.0015      5  1 2 3 4 5 6 7 9 11 12 14 15
+         13      0.2189  0.2631    -0.0030      5  1 2 3 4 5 6 7 9 11 12 14 15 17
+         14      0.2166  0.2645    -0.0023      5  1 2 3 4 5 6 7 9 10 11 12 14 15 17
+         15      0.2132  0.2650    -0.0034      5  1 2 3 4 5 6 7 9 10 11 12 13 14 15 17
+         16      0.2094  0.2651    -0.0038      5  1 2 3 4 5 6 7 9 10 11 12 13 14 15 16 17
+         17      0.2055  0.2652    -0.0039      5  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
 
-Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 5 predictors
-After backward pass GRSq 0.2298 RSq 0.2554 
+Prune method "backward" penalty 3 nprune 17: selected 8 of 17 terms, and 5 of 5 predictors
+After backward pass GRSq 0.2293 RSq 0.2549 
 
 y arg to glm() is a 1046 by 1 matrix: 1=y1
 First few rows of y arg to glm() are
@@ -2919,7 +2920,7 @@ First few rows of y arg to glm() are
 [4,]  2
 [5,]  1
 [6,]  2
-GLM y1: null.deviance 244.0765 (1045 dof)   deviance 166.8796 (1038 dof)   iters 2
+GLM y1: null.deviance 244.0765 (1045 dof)   deviance 166.9413 (1038 dof)   iters 2
 y arg to glm() is a 1046 by 1 matrix: 1=y2
 First few rows of y arg to glm() are
        y2
@@ -2929,7 +2930,7 @@ First few rows of y arg to glm() are
 [4,]  900
 [5,]  625
 [6,] 2304
-GLM y2: null.deviance 1022962131 (1045 dof)   deviance 761734680 (1038 dof)   iters 2
+GLM y2: null.deviance 1022962131 (1045 dof)   deviance 762238527 (1038 dof)   iters 2
 > cat("\nsummary(a12, details=TRUE)\n\n", sep="")
 
 summary(a12, details=TRUE)
@@ -2941,75 +2942,75 @@ Call: earth(formula=cbind(etitanic$sex, (as.integer(etitanic$age)^2))~
 
 Earth coefficients
                                 y1         y2
-(Intercept)             1.70676996  1626.0725
-pclass2nd              -0.02929185  -742.9765
-pclass3rd              -0.02427315 -1079.2907
-survived               -0.51708725  -323.3167
-h(sibsp-1)             -0.00568323  -150.5779
-h(parch-2)             -0.01268057  1222.2889
-h(2-parch)              0.09636135   190.5782
-pclass3rd * h(parch-2) -0.07463666  -867.0027
+(Intercept)             1.70936498  1613.0901
+pclass2nd              -0.02982409  -743.6966
+pclass3rd              -0.02597336 -1088.0284
+survived               -0.51693551  -320.4618
+h(sibsp-1)             -0.00579069  -144.9236
+h(parch-2)             -0.07206913  1097.6748
+h(2-parch)              0.09547208   198.9535
+pclass3rd * h(parch-3) -0.01246201 -1098.7314
 
 GLM coefficients
                                 y1         y2
-(Intercept)             1.70676996  1626.0725
-pclass2nd              -0.02929185  -742.9765
-pclass3rd              -0.02427315 -1079.2907
-survived               -0.51708725  -323.3167
-h(sibsp-1)             -0.00568323  -150.5779
-h(parch-2)             -0.01268057  1222.2889
-h(2-parch)              0.09636135   190.5782
-pclass3rd * h(parch-2) -0.07463666  -867.0027
+(Intercept)             1.70936498  1613.0901
+pclass2nd              -0.02982409  -743.6966
+pclass3rd              -0.02597336 -1088.0284
+survived               -0.51693551  -320.4618
+h(sibsp-1)             -0.00579069  -144.9236
+h(parch-2)             -0.07206913  1097.6748
+h(2-parch)              0.09547208   198.9535
+pclass3rd * h(parch-3) -0.01246201 -1098.7314
 
 GLM y1 deviance residuals:
        Min          1Q      Median          3Q         Max  
--0.8994927  -0.3531136   0.1247805   0.1297992   0.8516401  
+-0.9003091  -0.3535495   0.1256642   0.1295150   0.8509160  
 
 GLM y1 coefficients (family gaussian, link identity)
-                          Estimate  Std. Error   t value   Pr(>|t|)
-(Intercept)             1.70676996  0.04957698  34.42666 < 2.22e-16
-pclass3rd              -0.02427315  0.03184014  -0.76234    0.44603
-pclass2nd              -0.02929185  0.03481561  -0.84134    0.40035
-h(parch-2)             -0.01268057  0.11441777  -0.11083    0.91178
-h(2-parch)              0.09636135  0.02171928   4.43667 1.0111e-05
-survived               -0.51708725  0.02739347 -18.87630 < 2.22e-16
-pclass3rd * h(parch-2) -0.07463665  0.11946250  -0.62477    0.53226
-h(sibsp-1)             -0.00568323  0.02211253  -0.25701    0.79722
+                           Estimate   Std. Error   t value   Pr(>|t|)
+(Intercept)             1.709364978  0.049830152  34.30383 < 2.22e-16
+pclass3rd              -0.025973359  0.031760086  -0.81780    0.41366
+pclass2nd              -0.029824090  0.034820121  -0.85652    0.39191
+h(parch-2)             -0.072069128  0.101138228  -0.71258    0.47627
+h(2-parch)              0.095472079  0.021862774   4.36688 1.3866e-05
+survived               -0.516935514  0.027398232 -18.86748 < 2.22e-16
+pclass3rd * h(parch-3) -0.012462011  0.156136175  -0.07982    0.93640
+h(sibsp-1)             -0.005790694  0.022143196  -0.26151    0.79375
 
-GLM y1 dispersion parameter for gaussian family taken to be 0.1607703
+GLM y1 dispersion parameter for gaussian family taken to be 0.1608298
 
 GLM y2 deviance residuals:
        Min          1Q      Median          3Q         Max  
--1718.2290   -527.9382   -198.9382    297.0618   4716.0878  
+-1721.9970   -522.9686   -193.9686    302.0314   4709.4648  
 
 GLM y2 coefficients (family gaussian, link identity)
                           Estimate  Std. Error   t value   Pr(>|t|)
-(Intercept)             1626.07248   105.92058  15.35181 < 2.22e-16
-pclass3rd              -1079.29075    68.02605 -15.86584 < 2.22e-16
-pclass2nd               -742.97650    74.38311  -9.98851 < 2.22e-16
-h(parch-2)              1222.28888   244.45211   5.00012 6.7230e-07
-h(2-parch)               190.57824    46.40296   4.10703 4.3230e-05
-survived                -323.31673    58.52579  -5.52435 4.1804e-08
-pclass3rd * h(parch-2)  -867.00268   255.23009  -3.39695 0.00070727
-h(sibsp-1)              -150.57790    47.24314  -3.18730 0.00147899
+(Intercept)             1613.09008   106.47699  15.14966 < 2.22e-16
+pclass3rd              -1088.02841    67.86490 -16.03227 < 2.22e-16
+pclass2nd               -743.69660    74.40358  -9.99544 < 2.22e-16
+h(parch-2)              1097.67484   216.11201   5.07919 4.4918e-07
+h(2-parch)               198.95347    46.71634   4.25876 2.2421e-05
+survived                -320.46182    58.54450  -5.47382 5.5224e-08
+pclass3rd * h(parch-3) -1098.73135   333.63154  -3.29325  0.0010238
+h(sibsp-1)              -144.92362    47.31555  -3.06292  0.0022484
 
-GLM y2 dispersion parameter for gaussian family taken to be 733848.4
+GLM y2 dispersion parameter for gaussian family taken to be 734333.8
 
 Number of cases: 1046
-Earth selected 8 of 16 terms, and 5 of 5 predictors 
+Earth selected 8 of 17 terms, and 5 of 5 predictors 
 Importance: pclass3rd, pclass2nd, parch, survived, sibsp
 Number of terms at each degree of interaction: 1 6 1
 
 Earth
           GCV       RSS      GRSq       RSq
-y1       0.17       167 0.2927937 0.3162817
-y2  754695.48 761734680 0.2297830 0.2553638
-All 754695.65 761734847 0.2297830 0.2553638
+y1       0.17       167 0.2925321 0.3160288
+y2  755194.68 762238527 0.2292736 0.2548712
+All 755194.84 762238694 0.2292736 0.2548712
 
 GLM (family gaussian, link identity)
    null.deviance   df     deviance   df iters converged
-y1  2.440765e+02 1045 1.668796e+02 1038     2         1
-y2  1.022962e+09 1045 7.617347e+08 1038     2         1
+y1  2.440765e+02 1045 1.669413e+02 1038     2         1
+y2  1.022962e+09 1045 7.622385e+08 1038     2         1
 > stopifnot(identical(a12$coefficients, a12$glm.coefficients))
 > 
 > # test to see how standard model.matrix does column numbering with formula
@@ -4306,25 +4307,25 @@ check.models.equal not identical: a21 a22 [but within numerical tolerances]
 
 first do a quick test of predict.earth help page example
 predict.earth: returning earth fitted.values 
-       Volume
-[1,] 10.02257
-[2,] 10.88250
-[3,] 11.45579
-[4,] 16.32876
-[5,] 20.49373
-[6,] 22.21705
+        Volume
+[1,]  8.628402
+[2,]  9.608270
+[3,] 10.261516
+[4,] 15.814103
+[5,] 20.888213
+[6,] 22.197250
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
   Girth Height
 1    10     80
-predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-12.9), 3=h(12.9-Girth), 4=h(Height-76)
+predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
-     (Intercept) h(Girth-12.9) h(12.9-Girth) h(Height-76)
-[1,]           1             0           2.9            4
+     (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
+[1,]           1           0           4            8
 predict.earth: returning earth predictions 
        Volume
-[1,] 17.76888
+[1,] 18.11065
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
@@ -7599,18 +7600,18 @@ update.earth: using 31 by 1 x argument from original call to earth
 update.earth: using 31 by 2 y argument from original call to earth
 x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
-Forward pass term 1, 2, 4
+Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
-After forward pass GRSq 0.01585 RSq 0.3701
-Prune method "backward" penalty 2 nprune 3: selected 2 of 3 terms, and 1 of 1 predictors
-After backward pass GRSq 0.2191 RSq 0.3197 
-GLM volumei: null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
-Earth selected 2 of 3 terms, and 1 of 1 predictors 
+After forward pass GRSq -0.1437 RSq 0.385
+Prune method "backward" penalty 2 nprune 4: selected 2 of 4 terms, and 1 of 1 predictors
+After backward pass GRSq 0.2395 RSq 0.3375 
+GLM volumei: null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
+Earth selected 2 of 4 terms, and 1 of 1 predictors 
 Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
-Earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
+Earth GCV 213.2819    RSS 5393.967    GRSq 0.2394863    RSq 0.337508
 
-GLM null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
+GLM null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
 > a <- earth(x1, cbind(volumei, 100-volumei), glm=list(family=binomial))
 > update(a, trace=1, glm=list(family=binomial, bpairs=c(TRUE,FALSE)))
 update.earth: forcing forward pass because bpairs argument used
@@ -7618,18 +7619,18 @@ update.earth: using 31 by 1 x argument from original call to earth
 update.earth: using 31 by 2 y argument from original call to earth
 x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
-Forward pass term 1, 2, 4
+Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
-After forward pass GRSq 0.01585 RSq 0.3701
-Prune method "backward" penalty 2 nprune 3: selected 2 of 3 terms, and 1 of 1 predictors
-After backward pass GRSq 0.2191 RSq 0.3197 
-GLM volumei: null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
-Earth selected 2 of 3 terms, and 1 of 1 predictors 
+After forward pass GRSq -0.1437 RSq 0.385
+Prune method "backward" penalty 2 nprune 4: selected 2 of 4 terms, and 1 of 1 predictors
+After backward pass GRSq 0.2395 RSq 0.3375 
+GLM volumei: null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
+Earth selected 2 of 4 terms, and 1 of 1 predictors 
 Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
-Earth GCV 219.0089    RSS 5538.806    GRSq 0.2190649    RSq 0.3197188
+Earth GCV 213.2819    RSS 5393.967    GRSq 0.2394863    RSq 0.337508
 
-GLM null.deviance 382.4328 (30 dof)   deviance 262.7459 (29 dof)   iters 4
+GLM null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

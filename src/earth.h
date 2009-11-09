@@ -21,13 +21,13 @@
 void FreeR(void);
 
 void ForwardPassR(              // for use by R
-    int    FullSet[],           // out: 1 x nMaxTerms, bool vec of lin indep cols of bx
+    int    FullSet[],           // out: nMaxTerms x 1, bool vec of lin indep cols of bx
     double bx[],                // out: MARS basis matrix, nCases x nMaxTerms
-    double Dirs[],              // out: nMaxTerms x nPreds, elements are 1,0,-1
+    double Dirs[],              // out: nMaxTerms x nPreds, elements are -1,0,1,2
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
     const double x[],           // in: nCases x nPreds
     const double y[],           // in: nCases x nResp
-    const double WeightsArg[],  // in: nCases x 1, can be R_NilValue
+    const double WeightsArg[],  // in: nCases x 1, can be R_NilValue, currently ignored
     const int *pnCases,         // in: number of rows in x and elements in y
     const int *pnResp,          // in: number of cols in y
     const int *pnPreds,         // in: number of cols in x
@@ -36,16 +36,16 @@ void ForwardPassR(              // for use by R
     const double *pPenalty,     // in:
     double *pThresh,            // in: forward step threshold
     const int *pnMinSpan,       // in:
-    const int *pnFastK,           // in: Fast MARS K
-    const double *pFastBeta,      // in: Fast MARS ageing coef
-    const double *pNewVarPenalty, // in: penalty for adding a new variable
-    const int  LinPreds[],        // in: 1 x nPreds, 1 if predictor must enter linearly
+    const int *pnFastK,         // in: Fast MARS K
+    const double *pFastBeta,    // in: Fast MARS ageing coef
+    const double *pNewVarPenalty, // in: penalty for adding a new variable (default is 0)
+    const int  LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
     const SEXP Allowed,           // in: constraints function
     const int *pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const int *pnTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char *sPredNames[]);    // in: predictor names in trace printfs, can be NULL
+    const char *sPredNames[]);    // in: predictor names in trace printfs, can be R_NilValue
 
 void EvalSubsetsUsingXtxR(     // for use by R
     double       PruneTerms[], // out: specifies which cols in bx are in best set

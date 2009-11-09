@@ -28,7 +28,7 @@ Loading required package: leaps
 > 
 > multifigure("a1") # start a new page
 ===a1
-> a1 <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
+> a1 <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial), minspan=-1)
 > 
 > plotd(a1)
 > do.caption("a1")
@@ -78,13 +78,13 @@ predicted.response.per.class[survived    ]: 0.9637242 0.953888 0.2922077 0.90938
 > # test with earth.default (as opposed to earth.formula)
 > multifigure("a2") # start a new page
 ===a2
-> a2 <- earth(etitanic[,-2], etitanic$survived, degree=2, glm=list(family=binomial))
+> a2 <- earth(etitanic[,-2], etitanic$survived, degree=2, glm=list(family=binomial), minspan=-1)
 > plotd(a2, main="earth.default-glm, numeric response")
 > do.caption("a2")
 > 
 > printh("a3")
 ===a3
-> a3 <- earth(etitanic[,-1], etitanic$pclass, degree=2, glm=list(family=binomial))
+> a3 <- earth(etitanic[,-1], etitanic$pclass, degree=2, glm=list(family=binomial), minspan=-1)
 > plotd(a3, main="earth.default-glm, 3 lev fac")
 > 
 > # test plotd with histograms
@@ -112,7 +112,7 @@ predicted.response.per.class[survived    ]: 0.9637242 0.953888 0.2922077 0.90938
 > multifigure("a5")
 ===a5
 > bool.survived <- as.logical(etitanic$survived)
-> a5 <- earth(bool.survived ~ . - survived, data=etitanic, degree=2, glm=list(family=binomial))
+> a5 <- earth(bool.survived ~ . - survived, data=etitanic, degree=2, glm=list(family=binomial), minspan=-1)
 > plotd(a5, main="earth-glm, logical")
 > do.caption("a5")
 > plotd(a5, main="earth-glm, logical, hist", hist=TRUE)
@@ -121,7 +121,7 @@ predicted.response.per.class[survived    ]: 0.9637242 0.953888 0.2922077 0.90938
 > 
 > multifigure("a6")
 ===a6
-> a6 <- earth(sex ~ ., data=etitanic, glm=list(family=binomial))
+> a6 <- earth(sex ~ ., data=etitanic, glm=list(family=binomial), minspan=-1)
 > plotd(a6, main="earth-glm, 2 lev fac", fill="grey70")
 > do.caption("a6")
 > plotd(a6, main="earth-glm, 2 lev fac, type=class", type="class", fill="grey70")
@@ -132,7 +132,7 @@ predicted.response.per.class[survived    ]: 0.9637242 0.953888 0.2922077 0.90938
 > 
 > multifigure("a7")
 ===a7
-> a7 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial))
+> a7 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), minspan=-1)
 > 
 > plotd(a7, main="earth-glm, 3 lev fac",
 +       col=c("pink", "red", "brown"), fill="pink")
@@ -172,32 +172,32 @@ predicted.response.per.class[survived    ]: 0.9637242 0.953888 0.2922077 0.90938
 > 
 > multifigure("a8")
 ===a8
-> a8 <- earth(survived ~ ., data=etitanic, degree=2)
+> a8 <- earth(survived ~ ., data=etitanic, degree=2, minspan=-1)
 > plotd(a8, main="earth, numeric, no glm arg")
 > do.caption("a8")
 > plotd(a8, main="earth, hist, num, no glm arg, type=class", hist=TRUE, type="class")
 > 
 > printh("a9")
 ===a9
-> a9 <- earth(survived - .5 ~ .-survived, data=etitanic, degree=2)
+> a9 <- earth(survived - .5 ~ .-survived, data=etitanic, degree=2, minspan=-1)
 > plotd(a9, main="earth, survived-.5, type=class, thresh=0", hist=TRUE, type="class",thresh=0,vline.col="brown",xaxis.cex=.8, fill="pink",breaks=4,labels=TRUE)
 > plotd(a9, main="earth, survived-.5, type=class, thresh=0.3", hist=TRUE, type="class",thresh=0.3,vline.col="brown", xaxis.cex=.7,breaks=3,labels=TRUE)
 > 
 > multifigure("a10")
 ===a10
 > bool.survived <- as.logical(etitanic$survived)
-> a10 <- earth(bool.survived ~ . - survived, data=etitanic, degree=2)
+> a10 <- earth(bool.survived ~ . - survived, data=etitanic, degree=2, minspan=-1)
 > plotd(a10, main="earth, logical, no glm arg")
 > do.caption("a10")
 > 
 > printh("a11")
 ===a11
-> a11 <- earth(sex ~ ., data=etitanic, degree=2)
+> a11 <- earth(sex ~ ., data=etitanic, degree=2, minspan=-1)
 > plotd(a11, main="earth, 2 lev fac, no glm arg")
 > 
 > printh("a12")
 ===a12
-> a12 <- earth(pclass ~ ., data=etitanic, degree=2)
+> a12 <- earth(pclass ~ ., data=etitanic, degree=2, minspan=-1)
 > plotd(a12, main="earth, 3 lev fac, no glm arg")
 > 
 > # examples from the man page
@@ -556,7 +556,7 @@ predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.064072
 > 
 > multifigure("err shading")
 ===err shading
-> a.shade <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
+> a.shade <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial), minspan=-1)
 > plotd(a.shade, vline.col="gray", err.col=c("slategray1","slategray3"), fill=0)
 > do.caption("err shading")
 > plotd(a.shade, vline.col="gray", err.col=c(0, 0,"pink"), fill=0, vline.thresh = .6, err.border=c(0,0,2))
@@ -565,14 +565,14 @@ predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.064072
 +       err.col=c("slategray1","slategray3","pink"),
 +       err.border=c(3,4,5), err.lwd=c(1,2,3))
 > # reverse direction of reducible error area
-> a1.shade <- earth(!survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
+> a1.shade <- earth(!survived ~ ., data=etitanic, degree=2, glm=list(family=binomial), minspan=-1)
 > plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"), err.border=c("slategray1","slategray3","red"))
 > 
 > 
-> # clip xlim into the shaded area and make sure area is stil shaded correctly
+> # clip xlim into the shaded area and make sure area is still shaded correctly
 > multifigure("err shading with xlim")
 ===err shading with xlim
-> a.shade <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
+> a.shade <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial), minspan=-1)
 > plotd(a.shade, vline.thresh = .7, vline.col=1, vline.lty=2, vline.lwd=3, fill=0, col=c(2,1),
 +       err.col=c("slategray1","slategray3","pink"),
 +       err.border=c(3,4,5), err.lwd=c(1,2,3), xlim=c(.3,1))

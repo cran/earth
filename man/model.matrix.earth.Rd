@@ -53,10 +53,10 @@ Get the basis matrix of an \code{\link{earth}} object.
 
 The format of \code{bx} is described in \code{\link{earth}}.
 The matrix \code{bx} can be used
-as the input matrix to \code{\link{lm}} or \code{\link{glm}}, 
+as the input matrix to \code{\link{lm}} or \code{\link{glm}},
 as shown below in the example.
-In fact, that is what earth does internally after the pruning pass --- 
-it calls \code{\link{lm.fit}}, 
+In fact, that is what earth does internally after the pruning pass ---
+it calls \code{\link{lm.fit}},
 and additionally \code{\link{glm}} if earth's \code{glm} argument is used.
 }
 \seealso{
@@ -68,18 +68,18 @@ a <- earth(Volume ~ ., data = trees)
 summary(a, decomp = "none") # "none" to print terms in same seq as a.lm below
 
 # yields:
-#  Call: earth(formula = Volume ~ ., data = trees)
+#  Call: earth(formula=Volume~., data=trees)
 #
-#                Volume
-#  (Intercept)   23.208
-#  h(Girth-12.9)  5.746
-#  h(12.9-Girth) -2.866
-#  h(Height-76)   0.718
+#               coefficients
+#  (Intercept)        27.246
+#  h(Girth-14)         6.177
+#  h(14-Girth)        -3.266
+#  h(Height-72)        0.491
 #
-#  Selected 4 of 5 terms, and 2 of 2 predictors
-#  Estimated importance: Girth Height
+#  Selected 4 of 6 terms, and 2 of 2 predictors
+#  Importance: Girth, Height
 #  Number of terms at each degree of interaction: 1 3 (additive model)
-#  GCV 11.48697   RSS 213.4354   GRSq 0.958859   RSq 0.9736697
+#  GCV 10.6    RSS 197    GRSq 0.962    RSq 0.976
 
 bx <- model.matrix(a)               # equivalent to bx <- a$bx
 a.lm <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
@@ -90,18 +90,18 @@ summary(a.lm)                       # yields same coeffs as above summary
 #  lm(formula = trees$Volume ~ bx[, -1])
 #
 #  Residuals:
-#      Min      1Q  Median      3Q     Max
-#  -5.2900 -1.9782  0.0712  1.9209  4.1267
+#     Min     1Q Median     3Q    Max
+#  -4.882 -1.770  0.281  1.646  4.983
 #
 #  Coefficients:
-#                        Estimate Std. Error t value Pr(>|t|)
-#  (Intercept)             23.208      0.997   23.28  < 2e-16
-#  bx[, -1]h(Girth-12.9)    5.746      0.297   19.35  < 2e-16
-#  bx[, -1]h(12.9-Girth)   -2.866      0.444   -6.45  6.5e-07
-#  bx[, -1]h(Height-76)     0.718      0.175    4.10  0.00034
+#                       Estimate Std. Error t value Pr(>|t|)
+#  (Intercept)            27.246      1.123   24.26  < 2e-16
+#  bx[, -1]h(Girth-14)     6.177      0.354   17.44  3.2e-16
+#  bx[, -1]h(14-Girth)    -3.266      0.335   -9.76  2.4e-10
+#  bx[, -1]h(Height-72)    0.491      0.123    3.99  0.00045
 #
-#  Residual standard error: 2.81 on 27 degrees of freedom
-#  Multiple R-squared: 0.974,   Adjusted R-squared: 0.971
-#  F-statistic:  333 on 3 and 27 DF,  p-value: <2e-16
+#  Residual standard error: 2.7 on 27 degrees of freedom
+#  Multiple R-squared: 0.976,   Adjusted R-squared: 0.973
+#  F-statistic:  361 on 3 and 27 DF,  p-value: <2e-16
 }
 \keyword{models}

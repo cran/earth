@@ -69,8 +69,8 @@ as.func <- function(object, digits = 8, use.names = FALSE, ...)
     "}\n", sep = "")))
 a <- earth(Volume ~ ., data = trees)
 my.func <- as.func(a, use.names = FALSE)
-my.func(c(10,80))     # yields 17.769
-predict(a, c(10,80))  # yields 17.769, but is slower
+my.func(c(10,80))     # yields 18.11
+predict(a, c(10,80))  # yields 18.11, but is slower
 }
 The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr
@@ -96,29 +96,29 @@ a <- earth(Volume ~ ., data = trees)
 cat(format(a))
 
 # yields:
-#    23.2
-#    +  5.75 * h(Girth-12.9)
-#    -  2.87 * h(12.9-Girth)
-#    + 0.718 * h(Height-76)
+#    27.2
+#    +  6.18 * h(Girth-14)
+#    -  3.27 * h(14-Girth)
+#    + 0.491 * h(Height-72)
 
 cat(format(a, style="pmax")) # default formatting style prior to earth version 1.4
 
 # yields:
-#    23.2
-#    +  5.75 * pmax(0,  Girth -   12.9)
-#    -  2.87 * pmax(0,   12.9 -  Girth)
-#    + 0.718 * pmax(0, Height -     76)
+#    27.2
+#    +  6.18 * pmax(0,  Girth -     14) 
+#    -  3.27 * pmax(0,     14 -  Girth) 
+#    + 0.491 * pmax(0, Height -     72) 
 
 cat(format(a, style="bf"))
 
 # yields:
-#    23.2
-#    +  5.75 * bf1
-#    -  2.87 * bf2
-#    + 0.718 * bf3
+#    27.2
+#    +  6.18 * bf1
+#    -  3.27 * bf2
+#    + 0.491 * bf3
 #  
-#     bf1  h(Girth-12.9)
-#     bf2  h(12.9-Girth)
-#     bf3  h(Height-76)
+#     bf1  h(Girth-14)
+#     bf2  h(14-Girth)
+#     bf3  h(Height-72)
 }
 \keyword{models}
