@@ -124,7 +124,7 @@ plotmo <- function(
         if(is.null(ylim)) { # user wants same vertical ylims for all graphs?
             if(nsingles)    # if so, get ylims=c(miny, maxy) by calling with draw.plot=FALSE
                 ylims <- plot1(
-                        object, degree1, ylim, ycolumn, type, clip, col.response, 
+                        object, degree1, ylim, ycolumn, type, clip, col.response,
                         pch.response, inverse.func, grid.func, grid.levels,
                         ndegree1, lty.degree1, col.degree1, se, lty.se,
                         col.se, col.shade, func, col.func, pch.func, nrug,
@@ -284,7 +284,7 @@ plotmo <- function(
     if(ntrace > 1)
         ntrace <- ntrace - 1    # prevent repeated trace msgs in plot1 and plot2
     if(nsingles)
-        plot1(object, degree1, ylim, ycolumn, type, clip, col.response, 
+        plot1(object, degree1, ylim, ycolumn, type, clip, col.response,
             pch.response, inverse.func, grid.func, grid.levels,
             ndegree1, lty.degree1, col.degree1, se, lty.se,
             col.se, col.shade, func, col.func, pch.func, nrug,
@@ -511,7 +511,7 @@ plot1 <- function(
 
 plot2 <- function(
     # copy of args from plotmo, some have been tweaked slightly
-    object, degree2, ylim, ycolumn, type, clip, col.response, pch.response, 
+    object, degree2, ylim, ycolumn, type, clip, col.response, pch.response,
     inverse.func, grid.func, grid.levels, type2, ngrid, col.persp, col.image,
 
     # args generated in plotmo, draw.plot=FALSE means get ylims but don't actually plot
@@ -1131,7 +1131,7 @@ get.plotmo.y.default <- function(
     object = stop("no 'object' arg"),
     ycolumn,            # which column of response to use if response has multiple cols
     expected.len,
-    trace)              
+    trace)
 {
     get.y.from.formula <- function(object)
     {

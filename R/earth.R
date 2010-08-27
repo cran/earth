@@ -201,7 +201,7 @@ earth.default <- function(
     cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
                    if(is.null(subset)) y else y[subset,,drop=FALSE],
                    weights, wp, scale.y, subset, na.action,
-                   glm, trace, keepxy, nfold, stratify, ...)
+                   glm, rval$glm.bpairs, trace, keepxy, nfold, stratify, ...)
     if(!is.null(cv)) {
          rval$cv.list <- cv$list.
          rval$cv.nterms <- cv$nterms
@@ -324,7 +324,7 @@ earth.formula <- function(
     cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
                    if(is.null(subset)) y else y[subset,,drop=FALSE],
                    weights, wp, scale.y, subset, na.action,
-                   glm, trace, keepxy,  nfold, stratify, ...)
+                   glm, rval$glm.bpairs, trace, keepxy,  nfold, stratify, ...)
     if(!is.null(cv)) {
          rval$cv.rsq.tab <- cv$rsq.tab
          rval$cv.maxerr.tab <- cv$maxerr.tab
@@ -343,7 +343,6 @@ earth.formula <- function(
 
 # This is called from earth.default or earth.formula, not directly
 # because the x and y args should be expanded for factors first.
-# TODO fix ways weights is handled: w, wp (later add we, default is w)
 
 earth.fit <- function(
     x       = stop("no 'x' arg"), # x and y already processed by model.matrix
@@ -421,8 +420,8 @@ earth.fit <- function(
         glm.bpairs <- get.glm.bpairs(y, glm) # returns NULL if all cols used
     }
     if(trace >= 1) {
-        print.matrix.info("x", x, NULL, NULL,       details=(trace >= 4))
-        print.matrix.info("y", y, NULL, glm.bpairs, details=(trace >= 4))
+        print.matrix.info("x", x, NULL, NULL,       details=(trace >= 4), all.names=(trace >= 2))
+        print.matrix.info("y", y, NULL, glm.bpairs, details=(trace >= 4), all.names=(trace >= 2))
     }
     # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)

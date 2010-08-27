@@ -27,6 +27,7 @@ plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
   To start off, look at the arguments \code{obj}, \code{hist}, \code{type}.\cr
   For predict methods with multiple column responses, see the \code{nresponse} argument.\cr
   For factor responses with more than two levels, see the \code{dichot} argument.
+
   \item{obj}{
     Model object.
     Typically a model which predicts a class or a class discriminant.
@@ -48,8 +49,8 @@ plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
   }
   \item{dichot}{
      Dichotimise the predicted response.
-     This argument is ignored except for models where the observed response 
-     is a factor with more than two levels 
+     This argument is ignored except for models where the observed response
+     is a factor with more than two levels
      and the predicted response is a numeric vector.
      The default \code{FALSE} separates the response into a group for each factor.
      With \code{dichot=TRUE} the response is separated into just two groups:
@@ -110,8 +111,8 @@ plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
     Passed to \code{\link{hist}}.
     Only used if \code{hist=TRUE}.
     Default is \code{"Sturges"}.
-    When \code{type="class"}, setting \code{breaks} to a low number 
-    can be used to widen the histogram bars 
+    When \code{type="class"}, setting \code{breaks} to a low number
+    can be used to widen the histogram bars
   }
   \item{labels}{
     \code{TRUE} to draw counts on the \code{\link{hist}} plot.
@@ -158,7 +159,7 @@ plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
     Default is \code{FALSE}.
   }
   \item{vline.thresh}{
-    Horizontal position of optional vertical line.  
+    Horizontal position of optional vertical line.
     Default is \code{0.5}.
     The vertical line is intended to indicate class separation.
     If you use this, don't forget to set \code{vline.col}.
@@ -221,7 +222,7 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
   \item{sd.thresh}{
     Minimum acceptable standard deviation for a density.
     Default is \code{0.01}.
-    Densities with a standard deviation less than \code{sd.thresh} 
+    Densities with a standard deviation less than \code{sd.thresh}
     will not be plotted (a warning will be issued and the legend
     will say \code{"not plotted"}).
   }
@@ -262,12 +263,12 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
 
   A message such as\cr
       \code{Warning: standard deviation of "male" density is 0,  density is degenerate?}\cr
-  means that the density for that class will not be plotted 
+  means that the density for that class will not be plotted
   (the legend will say \code{"not plotted"}).
 
   Set \code{sd.thresh=0} to get rid of this check,
   but be aware that histograms (and sometimes x axis labels)
-  for degenerate densitites will be misleading.
+  for degenerate densities will be misleading.
 
   \bold{Using plotd for various models}
 
@@ -292,9 +293,10 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
 %        plotd(rpart.model, type="prob", nresponse=2)
 %        plotd(rpart.model, type="class", hist=TRUE, labels=TRUE)
 %   }
-  \bold{Using plotd with lda}
+  \bold{Using plotd with lda or qda}
 
-    The \code{plotd} function has special handling for \code{\link[MASS]{lda}} objects.
+    The \code{plotd} function has special handling for \code{\link[MASS]{lda}}
+    (and \code{\link[MASS]{qda}}) objects.
     For such objects, the \code{type} argument can take one of the
     following values:
 
@@ -309,13 +311,13 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
     plotd(lda.model) # linear discriminant by default
     plotd(lda.model, type="class", hist=TRUE, labels=TRUE)
     }
-    This handling of \code{type} is handled internally by \code{plotd} 
+    This handling of \code{type} is handled internally by \code{plotd}
     and \code{type} is not passed to \code{predict.lda}
     (\code{type} is used merely to select fields in the list
     returned by \code{predict.lda}).
     The type names can be abbreviated down to a single character.
 
-    For objects created with \code{lda.matrix} 
+    For objects created with \code{lda.matrix}
     (as opposed to \code{lda.formula}),
     \code{plotd} blindly assumes that the \code{grouping} argument was the second argument.
 

@@ -202,7 +202,7 @@ plotd <- function(obj,      # obj is a model object
             if(!hist)  # lines.density
                 lines(densities[[iclass]], col=col[iclass], lty=lty[iclass])
             else {     # lines.histogram
-                lines(densities[[iclass]], col=NULL, 
+                lines(densities[[iclass]], col=NULL,
                       border=col[iclass], lty=lty[iclass])
                 add.labels(densities[[iclass]], labels, legend.cex)
             }
@@ -230,6 +230,39 @@ plotd <- function(obj,      # obj is a model object
 is.numlog <- function(x)
     is.numeric(x) || is.logical(x)
 
+is.lda.or.qda <- function(obj) # allows hacks for lda and qda specific code
+    inherits(obj, "lda") || inherits(obj, "qda")
+
+# special handling for MASS lda and qda predicted response
+
+get.lda.yhat <- function(yhat, type, trace)
+{
+    if(trace)
+        cat("\nSpecial handling of \"type\" argument for lda or qda object\n")
+
+    yhat1 <- switch(match.choices(type,
+                         c("response", "ld", "class", "posterior"), "type"),
+           yhat$x,              # response (default)
+           yhat$x,              # ld
+           yhat$class,          # class
+           yhat$posterior)      # posterior
+
+        msg <- paste(
+            if(!is.null(yhat$x9)) "type=\"response\" " else "",
+            if(!is.null(yhat$class9)) "type=\"class\" " else "",
+            if(!is.null(yhat$posterior9)) "type=\"posterior\" " else "", sep="")
+
+    if (is.null(yhat1)) {
+        msg <- paste(
+            if(!is.null(yhat$x)) "type=\"response\" " else "",
+            if(!is.null(yhat$class)) "type=\"class\" " else "",
+            if(!is.null(yhat$posterior)) "type=\"posterior\" " else "", sep="")
+        stop1("type=\"", type, "\" is illegal for this object.  ",
+              if(nchar(msg)) paste("Use one of:", msg) else "",
+              "\n", sep="")
+    }
+    yhat1
+}
 # get the original observed response (it's needed to determine correct classes)
 
 get.observed.response <- function(obj)
@@ -249,7 +282,7 @@ get.observed.response <- function(obj)
             y <- as.matrix(y)
             colnames(y) <- colnames(mf)[attr(obj$terms,"response")]
         }
-    } else if(inherits(obj, "lda")) { # hack for "lda", get grouping arg
+    } else if(is.lda.or.qda(obj)) { # hack for lda and qda, get grouping arg
         y <- eval.parent(obj$call[[3]], n=3) # n=3 takes us to the caller of plotd
         # sanity check
         if(NCOL(y) != 1 || length(y) < 3 || (!is.numeric(y) && !is.factor(y)))
@@ -257,23 +290,9 @@ get.observed.response <- function(obj)
     } else
         y <- get.update.arg(NULL, "y", obj, trace=FALSE, reeval=FALSE)
 
-    if(inherits(obj, "lda"))
+    if(is.lda.or.qda(obj))
         y <- as.factor(y)  # to make plotd handle response appropriately
     y
-}
-# special handling for MASS lda predicted response
-
-get.lda.yhat <- function(yhat, type, trace)
-{
-    if(trace)
-        cat("\nSpecial handling of \"type\" argument for lda object\n")
-
-    switch(match.choices(type,
-                         c("response", "ld", "class", "posterior"), "type"),
-           yhat$x,              # response (default)
-           yhat$x,              # ld
-           yhat$class,          # class
-           yhat$posterior)      # posterior
 }
 # return the predictions for each class, in a list with each class named
 
@@ -347,7 +366,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
                                nchar, names(yhat.per.class)[iclass])
         if(trace > 1)
             print.matrix.info(description, yhat.per.class[[iclass]],
-                              details=TRUE, all.rows=TRUE)
+                              details=TRUE, all.rows=TRUE, all.names=TRUE)
         else {
             cat(description, ": ", sep="")
             yhat1 <- yhat.per.class[[iclass]]
@@ -364,15 +383,15 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
               "Additional information:\n  class(observed)=", class(y),
               if(nlevs > 0) paste(" nlevels(observed)=", nlevs, sep="") else "",
               " ncol(observed)=", NCOL(y),
-              if(!is.null(colnames(y))) 
-                  sprintf(" colnames(observed) %s", paste(colnames(y), collapse=" ")) 
-              else 
+              if(!is.null(colnames(y)))
+                  sprintf(" colnames(observed) %s", paste(colnames(y), collapse=" "))
+              else
                   "",
               "\n  class(predicted)=", class(yhat),
               " ncol(predicted)=", NCOL(yhat),
-              if(!is.null(colnames(yhat))) 
-                  sprintf(" colnames(response) %s", paste(colnames(yhat), collapse=" ")) 
-              else 
+              if(!is.null(colnames(yhat)))
+                  sprintf(" colnames(response) %s", paste(colnames(yhat), collapse=" "))
+              else
                   "")
 
     trace.response.type <- function(observed, predicted, ...) {
@@ -386,17 +405,17 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
     y <- get.observed.response(obj)
     if(trace)
         print.matrix.info("y", y, "\nObserved response",
-                          details=TRUE, all.rows=trace>1)
+                          details=TRUE, all.rows=trace>=2, all.names=trace>=2)
     if(!is.character(type))
         stop1("type of \"type\" is not character")
     if(!is.na(pmatch(type, "terms")))
         stop1("type=\"terms\" is not allowed by plotd")
     yhat <- predict(obj, type=type, ...)
-    if(inherits(obj, "lda"))
+    if(is.lda.or.qda(obj))
         yhat <- get.lda.yhat(yhat, type, trace)
     if(trace)
         print.matrix.info("yhat", yhat, "\nPredicted response",
-                          details=TRUE, all.rows=trace>1)
+                          details=TRUE, all.rows=trace>1, all.names=trace>=2)
     if(!is.null(nresponse)) {
         if(!is.numeric(nresponse) || nresponse < 1 || nresponse > NCOL(yhat))
             stop1("illegal nresponse argument, ",
@@ -409,7 +428,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
             if(trace)
                 print.matrix.info("yhat", yhat,
                     paste("Predicted response after selecting nresponse", nresponse),
-                    details=TRUE, all.rows=trace>1)
+                    details=TRUE, all.rows=trace>=2, all.names=trace>=2)
         }
     }
     yhat.per.class <- list() # will put per-class predicted vals in here
@@ -440,7 +459,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
                 check.min(yhat.per.class[[1]], ylev1)
                 yhat.per.class[[2]] <- yhat[y != ylev1]
                 check.min(yhat.per.class[[2]], other.level.name)
-                names(yhat.per.class) <- get.prefixed.names(c(ylev1, other.level.name), 
+                names(yhat.per.class) <- get.prefixed.names(c(ylev1, other.level.name),
                                                             yhat, nresponse)
             } else {
                 trace.response.type("multi-level factor", "numeric or logical vector",
@@ -610,7 +629,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
 }
 # shade the "error areas" of the density plots
 
-add.err.col <- function(densities, thresh, col, border, lwd) 
+add.err.col <- function(densities, thresh, col, border, lwd)
 {
     den1 <- densities[[1]]
     den2 <- densities[[2]]
@@ -677,7 +696,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
                 # reverse i1 so polygon ends where it starts
                 i1 <- rev(((1:length(den1$x))[i1]))
                 # close tiny x gap to left of threshhold line
-                den1$x[i1][1] = thresh 
+                den1$x[i1][1] = thresh
                 den2$x[i2][sum(i2)] = thresh
                 polygon(x = c(den1$x[i1], den2$x[i2]),
                         y = c(den1$y[i1], den2$y[i2]),
@@ -697,7 +716,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             i2 <- den2$x >= thresh & (1:length(den2$x)) < i2
             if(sum(i1) && sum(i2)) {
                 # reverse i2 so polygon ends where it starts
-                i2 <- rev(((1:length(den2$x))[i2])) 
+                i2 <- rev(((1:length(den2$x))[i2]))
                 polygon(x = c(den1$x[i1], den2$x[i2]),
                         y = c(den1$y[i1], den2$y[i2]),
                         col=col[3], border=border[3], lwd=lwd[3])

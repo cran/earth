@@ -51,7 +51,7 @@ selection with a different \code{penalty} from that used to build the original m
 With \code{trace=1}, \code{update.earth} will tell you if earth's forward pass was skipped.
 
 If you used \code{keepxy=TRUE} in your original call to \code{earth}, then
-\code{update.earth} will use the saved values of \code{x}, \code{y}, etc., 
+\code{update.earth} will use the saved values of \code{x}, \code{y}, etc.,
 unless you specify otherwise by arguments to \code{update.earth}.
 It can be helpful to set \code{trace=1} to see which \code{x}, etc.
 \code{update.earth} uses.
@@ -69,7 +69,7 @@ data(ozone1)
 (a <- earth(O3 ~ ., data = ozone1, degree = 2))
 
 # yields:
-#    Selected 11 of 21 terms, and 8 of 9 predictors 
+#    Selected 11 of 21 terms, and 8 of 9 predictors
 #    Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 #    Number of terms at each degree of interaction: 1 5 5
 #    GCV 13.5    RSS 3768    GRSq 0.791    RSq 0.822
@@ -77,7 +77,7 @@ data(ozone1)
 update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
 
 # yields:
-#    Selected 14 of 21 terms, and 8 of 8 predictors 
+#    Selected 14 of 21 terms, and 8 of 8 predictors
 #    Importance: ibt, humidity, doy, vh, ibh, dpg, wind, vis
 #    Number of terms at each degree of interaction: 1 5 8
 #    GCV 13.1    RSS 3499    GRSq 0.796    RSq 0.834
@@ -85,7 +85,7 @@ update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
 update(a, nprune = 8)              # requires only pruning
 
 # yields:
-#    Selected 8 of 21 terms, and 6 of 9 predictors 
+#    Selected 8 of 21 terms, and 6 of 9 predictors
 #    Importance: temp, humidity, ibt, doy, dpg, ibh-unused, vis, vh-unused, wind-unused
 #    Number of terms at each degree of interaction: 1 5 2
 #    GCV 15.1    RSS 4435    GRSq 0.766    RSq 0.79
@@ -93,7 +93,7 @@ update(a, nprune = 8)              # requires only pruning
 update(a, penalty=1, ponly=TRUE)   # pruning pass only with a new penalty
 
 # yields:
-#    Selected 13 of 21 terms, and 8 of 9 predictors 
+#    Selected 13 of 21 terms, and 8 of 9 predictors
 #    Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 #    Number of terms at each degree of interaction: 1 5 7
 #    GCV 12.5    RSS 3671    GRSq 0.805    RSq 0.826

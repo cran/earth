@@ -105,9 +105,9 @@ cat(format(a, style="pmax")) # default formatting style prior to earth version 1
 
 # yields:
 #    27.2
-#    +  6.18 * pmax(0,  Girth -     14) 
-#    -  3.27 * pmax(0,     14 -  Girth) 
-#    + 0.491 * pmax(0, Height -     72) 
+#    +  6.18 * pmax(0,  Girth -     14)
+#    -  3.27 * pmax(0,     14 -  Girth)
+#    + 0.491 * pmax(0, Height -     72)
 
 cat(format(a, style="bf"))
 
@@ -116,7 +116,7 @@ cat(format(a, style="bf"))
 #    +  6.18 * bf1
 #    -  3.27 * bf2
 #    + 0.491 * bf3
-#  
+#
 #     bf1  h(Girth-14)
 #     bf2  h(14-Girth)
 #     bf3  h(Height-72)

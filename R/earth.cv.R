@@ -3,7 +3,7 @@
 # earth.cv returns null unless nfold > 1
 
 earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
-                     glm, trace, keepxy, nfold, stratify, ...)
+                     glm, glm.bpairs, trace, keepxy, nfold, stratify, ...)
 {
     if(!is.numeric(nfold))
         stop1("nfold argument must be numeric")
@@ -15,6 +15,8 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
     #   warning1("nfold=1 treated as nfold=0 i.e. no cross validation")
     if(nfold <= 1)
         return (NULL)
+    if(!is.null(glm.bpairs))
+        stop1("earth does not (yet) support cross validation of paired binomial responses")
 
     # get here if must do the cross validation
 
@@ -241,25 +243,19 @@ get.binomial.calib <- function(yhat, y) # returns c(intercept, slope)
 {
     yhat <- yhat + 1e-005 # TODO why? (from Elith Leathwick code)
     yhat[yhat >= 1] <- 0.99999
-    fit <- glm(y ~ log(yhat / (1 - yhat)), family = binomial)$coefficients
+    glm(y ~ log(yhat / (1 - yhat)), family = binomial)$coefficients
 }
 
 get.poisson.calib <- function(yhat, y) # returns c(intercept, slope)
 {
-    fit <- glm(y ~ log(yhat), family = poisson)$coefficients
+    glm(y ~ log(yhat), family = poisson)$coefficients
 }
 get.maxerr <- function(errs) # get signed max absolute err; if matrix then of each col
 {
     if(NCOL(errs) == 1)
-        rv <- errs[which.max(abs(errs))]
-    else {
-        rv <- double(NCOL(errs))
-        for(icol in 1:NCOL(errs)) {
-            col <- errs[,icol]
-            rv[icol] <- col[which.max(abs(col))]
-        }
-    }
-    rv
+        errs[which.max(abs(errs))]
+    else
+        apply(errs, 2, function(col)  col[which.max(abs(col))])
 }
 print.cv <- function(x) # called from print.earth for cross validated models
 {

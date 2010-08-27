@@ -1,6 +1,14 @@
 Changes to Earth Package
 ------------------------
 
+2.4-1 Apr 22 2010
+    We now give the correct error message for attempted cross validation of
+        paired binomial responses (which is not yet supported).
+    Labels on the largest residuals in plot.earth graphs are now slightly
+        better positioned (using plotrix::thigmophobe.labels).
+    plotd now handles qda objects in the same manner as lda objects
+    Other doc touchups.
+
 2.4-0 Nov 8 2009
     This version of earth will build models SLIGHTLY DIFFERENT FROM PRIOR VERSIONS,
     because I fixed a bug in the calculation of minspan and endspan.
@@ -12,16 +20,16 @@ Changes to Earth Package
     (Thanks to Jérôme Guélat for letting me know about this.)
 
 2.3-4 Sep 21 2009
-    . Fixed bug where predict.earth of a earth-glm model under R 2.9.0 and higher 
+    . Fixed bug where predict.earth of a earth-glm model under R 2.9.0 and higher
       incorrectly gave the message: Object of type 'closure' is not subsettable
       (Thanks to Thomas Brockmeier for help tracking this down.)
     . plotd now correctly ignores the vline if vline.col=0
     . Doc touchups
-    
+
 2.3-2 Mar 23 2009
     Extended plotd
     Doc touchups
-    
+
 2.3-1 Feb 26 2009
     Doc touchups
     Added leaps::: prefix needed for new version of the leaps package

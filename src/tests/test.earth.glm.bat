@@ -1,10 +1,13 @@
 @rem test.earth.glm.bat
 
 @echo === test.earth.glm ===============================================
-@"\a\r\ra\bin\Rcmd.exe" BATCH --quiet --vanilla test.earth.glm.R
+@"\Program Files\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.glm.R
 @if %errorlevel% equ 0 goto good1:
-@echo error: R returned errorlevel %errorlevel%, see test.earth.glm.Rout
-@exit /B %errorlevel%
+@echo error: R returned errorlevel %errorlevel%, see test.earth.glm.Rout:
+@echo.
+@tail test.earth.glm.Rout
+@echo.
+@exit /B 1
 :good1
 diff test.earth.glm.Rout test.earth.glm.Rout.save 
 @if %errorlevel% equ 0 goto good2:

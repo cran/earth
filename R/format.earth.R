@@ -124,7 +124,7 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coefs
 #   "max"  gives "max(0, survived - 0) * max(0, 16 - age)"
 #   "bf"   gives basis functions e.g. "bf1" or "bf1 * bf3"
 
-get.term.strings <- function(obj, digits, use.names, 
+get.term.strings <- function(obj, digits, use.names,
                              style = c("h", "pmax", "max", "bf"), neworder)
 {
     switch(match.arg1(style),

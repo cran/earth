@@ -2,6 +2,7 @@
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotrix
 > if(!interactive())
 +     postscript()
 > data(ozone1)
@@ -1271,6 +1272,12 @@ Cross validation: nterms 5.00 sd 0.00  nvars 4.00 sd 0.00
 counts   0.01192611 0.8203755 0.9011027 0.1269893 0.8518902 1.599211  0.7113432 0.5215928 0.5585294 0.2861361   6.609942  7.01380
 counts2 -0.14133055 1.0326875 9.6527867 1.9456886 1.1479040 2.649913  0.7787410 0.5080124 0.5806144 0.1866414 -68.872387 73.40375
 mean    -0.06470222 0.9252687 5.2769447 1.0360944 0.9998971 2.117370  0.7450421 0.5131495 0.5695719 0.2362784 -68.872387 73.40375
+> # two response binomial model (not yet supported)
+> cat("Expect an error here ")
+Expect an error here > z <- try(earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="bi"), trace=0.5, pmethod="none", nfold=3))
+Error : earth does not (yet) support cross validation of paired binomial responses
+> if (class(z) != "try-error")
++     stop("test failed")
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

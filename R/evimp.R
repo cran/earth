@@ -1,6 +1,6 @@
 # evimp.R: estimate variable importances in an earth object
 
-# Return a vector of predictor indexes for predictors that are used
+# Return a vector of column numbers for predictors that are used
 # in the final model
 
 get.used.preds <- function(obj)   # obj is an earth object
@@ -181,7 +181,7 @@ plot.evimp <- function(
                bg="white", cex=cex.legend)
     # right hand axis: normalized rss/gcv values, always 0...100
     # TODO how to get the x position in the call to text correct for all window sizes?
-    axis(side=4, # col.axis=col.gcv,
+    axis(side=4,
          at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets),
          labels=c(0,20,40,60,80,100))
     text(x=nrows + nrows / 4, y = max.subsets/2, "normalized gcv or rss",

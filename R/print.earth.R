@@ -121,7 +121,7 @@ print.summary.earth <- function(
                 coef <- my.fixed.point(coef, digits)
             if(is.glm)
                 cat("Earth coefficients\n") # remind user what these are
-                        else if(nresp == 1)
+            else if(nresp == 1)
                 colnames(coef) = "coefficients"
             print(coef, digits=digits)
             cat("\n")
@@ -146,7 +146,7 @@ print.summary.earth <- function(
             cat("\n")
         }
         if(details) for(iresp in 1:nresp)
-           print.glm.details(x$glm.list[[iresp]], nresp, digits, 
+           print.glm.details(x$glm.list[[iresp]], nresp, digits,
                              my.fixed.point, response.names[iresp])
     }
     if(details)
@@ -174,7 +174,7 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
     object  = stop("no 'object' arg"),
     details = FALSE,
     decomp  = "anova",        # see reorder.earth for legal decomp values
-    style   = c("h", "pmax", "max", "bf"), 
+    style   = c("h", "pmax", "max", "bf"),
                               # use "pmax" for old earth style earth expression formatting
     digits  = getOption("digits"),
     fixed.point = TRUE,       # see help page

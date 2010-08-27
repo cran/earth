@@ -67,7 +67,7 @@ predict.earth <- function(
                                      trace=trace,
                                      Callers.name="model.matrix.earth from predict.earth")
             if(trace >= 1)
-                 print.matrix.info("bx", bx, "predict.earth")
+                 print.matrix.info("bx", bx, "predict.earth", all.names=trace>=2)
             if(is.null(object$glm.list) || type=="earth") {
                 print.is.earth(trace, object, "predictions")
                 rval <- bx %*% object$coefficients

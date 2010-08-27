@@ -2,10 +2,13 @@
 @rem Stephen Milborrow Apr 2007 Petaluma
 
 @echo === test.earth.full ==============================================
-@"\a\r\ra\bin\Rcmd.exe" BATCH --quiet --vanilla test.earth.full.R
+@"\Program Files\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.full.R
 @if %errorlevel% equ 0 goto good1:
-@echo error: R returned errorlevel %errorlevel%, see test.earth.full.Rout
-@exit /B %errorlevel%
+@echo error: R returned errorlevel %errorlevel%, see test.earth.full.Rout:
+@echo.
+@tail test.earth.full.Rout
+@echo.
+@exit /B 1
 :good1
 diff test.earth.full.Rout test.earth.full.Rout.save 
 @if %errorlevel% equ 0 goto good2:

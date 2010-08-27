@@ -10,7 +10,7 @@ plotmo(object = stop("no 'object' arg"),
        degree1 = TRUE, degree2 = TRUE, ycolumn = 1, type="response",
        caption = if(do.par) NULL else "",
        ylim = NULL, clip = TRUE, inverse.func = NULL,
-       col.response = 0, pch.response = 1, trace = FALSE, 
+       col.response = 0, pch.response = 1, trace = FALSE,
        grid.func = median, grid.levels = NULL,
        ndegree1 = 500, lty.degree1 = 1, col.degree1 = 1,
        se = 0, col.shade = "lightblue", col.se = 0, lty.se = 2,
@@ -246,12 +246,12 @@ It is intended for models with quantitative responses.
 
 \bold{The general idea}
 
-Plotmo plots a degree1 plot of predicted values 
+Plotmo plots a degree1 plot of predicted values
 by changing one predictor while holding all other predictors at a constant value.
 For degree2 plots, plotmo changes two variables
 while holding all other predictors at a constant value.
 
-The question arises: what should the constant be for each predictor?
+The question arises: what should the constant value be for each predictor?
 For numerical predictors it is the median of the predictor values in the input matrix x;
 for factor predictors it is the first level of the factor.
 You can change those defaults with the \code{grid.func} and \code{grid.levels} arguments.
@@ -302,7 +302,7 @@ This crude approach is not infallible but works for the common formulas.
 It determines which predictors are paired by looking for
 forms such as \code{"x1:x2"} or \code{"x1*x2"} in the model formula.
 
-Variable names containing \$ are not supported.
+Variable names containing $ are not supported.
 The work around is to build the model using temporary variables
 or to use \code{\link{attach}}.
 
@@ -366,11 +366,6 @@ With \code{do.par=TRUE}, plot.earth restores the
 \code{\link{par}} parameters and axis scales to
 what they were before calling plot.earth.
 This usually means that the x- and y-axis scales are both 0 to 1.
-}
-\author{
-Stephen Milborrow.
-Users are encouraged to send feedback --- use
-milboATsonicPERIODnet \url{http://www.milbo.users.sonic.net}.
 }
 \seealso{
   \code{\link{termplot}},

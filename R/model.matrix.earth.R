@@ -59,7 +59,7 @@ generate.colnames <- function(x, is.y.arg=FALSE, xname=NULL)
     if(NCOL(x) == 1 && good.name(xname[1]))
         names. <- xname
     else {
-        # copy valid names in colnames(x) to names
+        # copy valid names in colnames(x) to names.
 
         col.names <- colnames(x)
         for(i in 1:NCOL(x))
@@ -220,13 +220,13 @@ get.earth.x <- function(    # returns x expanded for factors
                 stop1(Callers.name, ":\n",
                     "       could not convert vector x to matrix because ",
                     "length(x) ", length(x), "\n",
-                    "       is not a multiple of the number ", 
+                    "       is not a multiple of the number ",
                     if(length(ncol(object$namesx))) ncol(object$namesx) else 0,
                     " of predictors ",
                     "\n       Expected predictors: ",
                     if(is.null(colnames(object$namesx)))
                         "none?"
-                    else 
+                    else
                         paste.with.space(colnames(object$namesx))
                     )
         }
@@ -237,7 +237,7 @@ get.earth.x <- function(    # returns x expanded for factors
         if(ncol(x) != ncol(object$dirs)) {
             stop1(Callers.name,
                      ": the number ", NCOL(x), " of columns of x\n",
-                     "(after factor expansion) does not match the number ", 
+                     "(after factor expansion) does not match the number ",
                      NCOL(object$dirs),
                      " of columns of the earth object",
                      "\n    expanded x:  ", paste.with.space(colnames(x)),
@@ -259,7 +259,7 @@ get.earth.x <- function(    # returns x expanded for factors
         x <- my.as.matrix(data)
         x <- fix.x.columns(x, object$namesx)
         if(trace >= 1)
-            print.matrix.info("x", x, Callers.name)
+            print.matrix.info("x", x, Callers.name, all.names=(trace >= 2))
         x <- expand.arg(x, env)
     } else {
         # object was created with earth.formula
@@ -271,7 +271,7 @@ get.earth.x <- function(    # returns x expanded for factors
         data <- as.data.frame(data)
         expected.nrows <- nrow(data)
         if(trace >= 1)
-            print.matrix.info("x", data, Callers.name)
+            print.matrix.info("x", data, Callers.name, all.names=(trace >= 2))
         data <- model.frame(Terms, data)
         classes <- attr(Terms, "dataClasses")
         if(!is.null(classes)) {
@@ -291,6 +291,9 @@ get.earth.x <- function(    # returns x expanded for factors
     }
     if(nrow(x) == 0)
         stop1("empty model matrix")
+    # Fix: April 2010, allow earth to play nicely with fda with factors in x
+    if(ncol(x) > ncol(object$dirs))                      # too many columns?
+        x <- x[, colnames(x) %in% colnames(object$dirs)] # select only the columns in dirs
     check.expanded.ncols(x, object)
     x
 }

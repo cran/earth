@@ -46,15 +46,6 @@ warn.if.dots.used <- function(func.name, ...)
                  paste.quoted.names(names(dots)))
 }
 
-# # issue a warning if a dots argument is not in allowed.args
-# stop.if.dot.arg.not.allowed <- function(func.name, allowed.args, ...)
-# {
-#     dots <- names(match.call(expand.dots=FALSE)$...)
-#     nomatch <- dots[pmatch(dots, allowed.args, nomatch=0) == 0]
-#     if(length(nomatch))
-#         stop1(func.name, " unrecognized argument \"", nomatch[1], "\"")
-# }
-
 check.classname <- function(object, object.name, class.names)
 {
     if(!inherits(object, class.names))
@@ -272,15 +263,17 @@ match.arg1 <- function(arg)     # match.arg1 returns an integer
 
 match.choices <- function(arg, choices, arg.name)   # choices is a vector of strings
 {
+    stopifnot(is.character(arg))
     stopif(is.null(choices))    # indicates a programming error
     if(all(arg == choices))
         return(1)
     i <- pmatch(arg, choices)
     if(any(is.na(i)))
-        stop1(paste("bad ", arg.name, " argument \"", arg, "\"\n",
+        stop1(paste("bad \"", arg.name, "\" argument \"", arg, "\"\n",
             "Choose one of: ", paste.with.space(choices), sep=""))
-    if(length(i) > 1)
-        stop1("\"", arg.name, "\" is ambiguous")
+    if(i == 0)
+        stop1(paste("the \"", arg.name, "\" argument is ambiguous\n",
+              "Choose one of: ", paste.with.space(choices), sep=""))
     i
 }
 
@@ -418,9 +411,10 @@ first.non.matching.arg <- function(s1, s2)
 }
 
 # summarize a matrix
+# TODO don't print all colnames if too many
 
-print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL, 
-                              details=TRUE, all.rows=FALSE)
+print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
+                              details=TRUE, all.rows=FALSE, all.names=FALSE)
 {
     if(!is.null(Callers.name))
         cat(Callers.name, ": ", sep="")
@@ -432,7 +426,10 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
         colnames <- rep("", NCOL(x))
     stopifnot(length(bpairs) == length(colnames))
     icol <- 0
-    for(i in 1:length(colnames)) {
+    n.names <- length(colnames)
+    if(!all.names && !details)
+        n.names <- min(5, n.names)
+    for(i in 1:n.names) {
         if(bpairs[i]) {
             icol <- icol+1
             cat(icol, "=", sep="")
@@ -455,6 +452,8 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
         if(i < length(colnames) && (i == length(colnames) || bpairs[i+1]))
             cat(", ")
     }
+    if(i < length(colnames))
+        cat("...")
     cat("\n")
     if(details) {
         rownames(x) <- NULL
@@ -462,9 +461,9 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
             cat("Contents of ", xname, " are\n", sep="")
             print(x)
         } else {
-            rowstring <- if(class(x) == "numeric" || class(x) == "factor") 
-                             "elements" 
-                         else 
+            rowstring <- if(class(x) == "numeric" || class(x) == "factor")
+                             "elements"
+                         else
                              "rows"
             cat("First few ", rowstring, " of ", xname, " are\n", sep="")
             print(head(x))
