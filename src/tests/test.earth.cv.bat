@@ -2,10 +2,13 @@
 @rem Stephen Milborrow Nov 2008 Gardens
 
 @echo === test.earth.cv ==============================================
-@"\a\r\ra\bin\Rcmd.exe" BATCH --quiet --vanilla test.earth.cv.R
+@"\Program Files\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.cv.R
 @if %errorlevel% equ 0 goto good1:
-@echo error: R returned errorlevel %errorlevel%, see test.earth.cv.Rout
-@exit /B %errorlevel%
+@echo error: R returned errorlevel %errorlevel%, see test.earth.cv.Rout:
+@echo.
+@tail test.earth.cv.Rout
+@echo.
+@exit /B 1
 :good1
 diff test.earth.cv.Rout test.earth.cv.Rout.save 
 @if %errorlevel% equ 0 goto good2:

@@ -193,6 +193,10 @@ example(lda)
 plotd(z, nresponse=1) # nresponse=1 selects first linear discriminant
 do.caption("lda.model example from example(lda), and rpart")
 
+a.qda <- qda(survived ~ ., data=etitanic)
+plotd(a.qda, type="class")
+plotd(a.qda, type="post")
+
 # test plotd with lm models
 
 multifigure("lm1")
@@ -349,7 +353,6 @@ plotd(a.shade, vline.thresh = .7, vline.col=1, vline.lty=2, vline.lwd=3, fill=0,
 # reverse direction of reducible error area
 a1.shade <- earth(!survived ~ ., data=etitanic, degree=2, glm=list(family=binomial), minspan=-1)
 plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"), err.border=c("slategray1","slategray3","red"))
-
 
 # clip xlim into the shaded area and make sure area is still shaded correctly
 multifigure("err shading with xlim")

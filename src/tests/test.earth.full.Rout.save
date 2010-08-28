@@ -1,10 +1,11 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.9.2  (2009-10-01 Ra 1.2.8)"
+[1] "R version 2.11.1 (2010-05-31)"
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotrix
 > library(mda)
 Loading required package: class
 > source("check.models.equal.R")
@@ -133,7 +134,7 @@ After backward pass GRSq -0.5893 RSq 0.9587
 > a1 <- earth(survived ~ ., data=etitanic,   # c.f. Harrell "Reg. Mod. Strat." ch. 12
 +              degree=2, trace=1,
 +              glm=list(family=binomial))
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, 6=parch
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
@@ -153,7 +154,7 @@ GLM null.deviance 1414.6 (1045 dof)   deviance 879.62 (1037 dof)   iters 5
 > a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
 +              degree=2, trace=1,
 +              glm=list(family=binomial))
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, 6=parch
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=etitanic[,2]
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
@@ -3736,7 +3737,7 @@ Training Misclassification Error: 0.02667 ( N = 150 )
 > printh(confusion(a))
 ===confusion(a) 
             true
-object       setosa versicolor virginica
+predicted    setosa versicolor virginica
   setosa         50          0         0
   versicolor      0         49         3
   virginica       0          1        47

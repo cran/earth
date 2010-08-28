@@ -3,10 +3,13 @@
 @rem Stephen Milborrow Mar 2008 Durban
 
 @echo === test.plotd ===============================================
-@"\a\r\ra\bin\Rcmd.exe" BATCH --quiet --vanilla test.plotd.R
+@"\Program Files\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
 @if %errorlevel% equ 0 goto good1:
-@echo error: R returned errorlevel %errorlevel%, see test.plotd.Rout
-@exit /B %errorlevel%
+@echo error: R returned errorlevel %errorlevel%, see test.plotd.Rout:
+@echo.
+@tail test.plotd.Rout
+@echo.
+@exit /B 1
 :good1
 diff test.plotd.Rout test.plotd.Rout.save
 @if %errorlevel% equ 0 goto good2:

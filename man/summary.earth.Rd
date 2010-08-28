@@ -7,12 +7,12 @@ Summary method for \code{\link{earth}} objects.
 }
 \usage{
 \method{summary}{earth}(object = stop("no 'object' arg"),
-        details = FALSE, decomp = "anova", 
-        style = c("h", "pmax", "max", "bf"), 
+        details = FALSE, decomp = "anova",
+        style = c("h", "pmax", "max", "bf"),
         digits = getOption("digits"), fixed.point=TRUE, \dots)
 
 \method{print}{summary.earth}(x = stop("no 'x' arg"),
-        details = x$details, decomp = x$decomp, 
+        details = x$details, decomp = x$decomp,
         digits = x$digits, fixed.point = x$fixed.point, \dots)
 }
 \arguments{
@@ -26,7 +26,7 @@ Summary method for \code{\link{earth}} objects.
   }
   \item{details}{
     Default is FALSE.
-    Use TRUE 
+    Use TRUE
     to print more information about \code{\link{earth}}--\code{\link{glm}} models.
     But note that the displayed P-values of the GLM coefficients
     are meaningless because of the amount of preprocessing
@@ -100,14 +100,14 @@ summary(a, digits = 2)
 
 # yields:
 #    Call: earth(formula=Volume~., data=trees)
-#    
+#
 #                 coefficients
 #    (Intercept)         27.25
 #    h(Girth-14)          6.18
 #    h(14-Girth)         -3.27
 #    h(Height-72)         0.49
-#    
-#    Selected 4 of 6 terms, and 2 of 2 predictors 
+#
+#    Selected 4 of 6 terms, and 2 of 2 predictors
 #    Importance: Girth, Height
 #    Number of terms at each degree of interaction: 1 3 (additive model)
 #    GCV 11    RSS 197    GRSq 0.96    RSq 0.98

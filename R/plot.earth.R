@@ -111,9 +111,14 @@ plot.earth <- function(
         abline(h=0, lty=3, col=col.grid)
         plot.loess()
         if(!is.null(id.indices)) {
-            mean <- mean(fitted.values)
-            text(fitted.values[id.indices], residuals[id.indices], labels.id[id.indices],
-                 pos=ifelse(fitted.values[id.indices] < mean, 4, 2), cex=.8)
+            if(length(id.indices) == 1) # work around bug in thigmophobe.labels
+                text(fitted.values[id.indices], residuals[id.indices], labels.id[id.indices],
+                     pos=ifelse(fitted.values[id.indices] < mean(fitted.values), 4, 2),
+                     offset=.33, font=2, cex=.9, col="steelblue4")
+            else
+                thigmophobe.labels(x=fitted.values[id.indices], y=residuals[id.indices],
+                    labels=labels.id[id.indices],
+                    offset=.33, font=2, cex=.9, col="steelblue4")
         }
         NULL
     }
@@ -125,9 +130,16 @@ plot.earth <- function(
         qq <- qqnorm(residuals, main=main,
                 xlab="Theoretical Quantiles", ylab="Residual Quantiles", pch=pch, ...)
         qqline(residuals, col=col.qq, ...)
-        if(!is.null(id.indices))
+        if(!is.null(id.indices)) {
+            if(length(id.indices) == 1) # work around bug in thigmophobe.labels
             text(qq$x[id.indices], qq$y[id.indices], labels.id[id.indices],
-                 pos=ifelse(qq$x[id.indices] < 0, 4, 2), cex=.8)
+                 pos=ifelse(qq$x[id.indices] < 0, 4, 2),
+                 offset=.33, font=2, cex=.9, , col="steelblue4")
+            else
+                thigmophobe.labels(x=qq$x[id.indices], y=qq$y[id.indices],
+                     labels=labels.id[id.indices],
+                     offset=.33, font=2, cex=.9, , col="steelblue4")
+        }
         par(pty="m")                # back to maximal (the default)
         NULL
     }
@@ -137,7 +149,7 @@ plot.earth <- function(
         if(!is.null(caption))
             return(NULL)                # don't modify caption explictly set by user
         colnames <- colnames(residuals)
-        if(!is.null(colnames) && !is.null(colnames[ycolumn]) && 
+        if(!is.null(colnames) && !is.null(colnames[ycolumn]) &&
            !is.na(colnames[ycolumn]) && colnames[ycolumn] != "")
             colnames[ycolumn]
         else if(NCOL(residuals) > 1)

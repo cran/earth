@@ -168,6 +168,11 @@ cat("a10: two response poisson model\n\n")
 a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), trace=0.5, pmethod="none", nfold=3)
 printh(a10)
 printh(summary(a10))
+# two response binomial model (not yet supported)
+cat("Expect an error here ")
+z <- try(earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="bi"), trace=0.5, pmethod="none", nfold=3))
+if (class(z) != "try-error")
+    stop("test failed")
 
 if(!interactive()) {
     dev.off()         # finish postscript plot

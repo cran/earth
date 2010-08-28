@@ -2,6 +2,7 @@
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotrix
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -329,6 +330,10 @@ Proportion of trace:
 > plotd(z, nresponse=1) # nresponse=1 selects first linear discriminant
 > do.caption("lda.model example from example(lda), and rpart")
 > 
+> a.qda <- qda(survived ~ ., data=etitanic)
+> plotd(a.qda, type="class")
+> plotd(a.qda, type="post")
+> 
 > # test plotd with lm models
 > 
 > multifigure("lm1")
@@ -418,7 +423,7 @@ First few elements of y are
 female   male female   male female   male 
 Levels: female male
 
-Special handling of "type" argument for lda object
+Special handling of "type" argument for lda or qda object
 
 Predicted response: yhat is a 1046 by 1 matrix: 1=LD1
 First few rows of yhat are
@@ -456,7 +461,7 @@ First few elements of y are
 1st 1st 1st 1st 1st 1st 
 Levels: 1st 2nd 3rd
 
-Special handling of "type" argument for lda object
+Special handling of "type" argument for lda or qda object
 
 Predicted response: yhat is a 1046 by 2 matrix: 1=LD1, 2=LD2
 First few rows of yhat are
@@ -567,7 +572,6 @@ predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.064072
 > # reverse direction of reducible error area
 > a1.shade <- earth(!survived ~ ., data=etitanic, degree=2, glm=list(family=binomial), minspan=-1)
 > plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"), err.border=c("slategray1","slategray3","red"))
-> 
 > 
 > # clip xlim into the shaded area and make sure area is still shaded correctly
 > multifigure("err shading with xlim")

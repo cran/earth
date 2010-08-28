@@ -147,10 +147,10 @@ Does \code{ycolumn} refer to the column in the observed or predicted response?
 \note{
 \bold{Interpreting the \code{plot.earth} graphs}
 
-For concreteness, the description below is based 
+For concreteness, the description below is based
 on the graphs plotted by \code{example(plot.earth)}.
 The graphs plotted by \code{plot.earth}, apart from the Model Selection graph, are
-standard tools used in residual analysis and more information 
+standard tools used in residual analysis and more information
 can be found in most linear regression textbooks.
 
 One should be wary of over-interpretation of the graphs,
@@ -166,12 +166,13 @@ The \emph{residuals} are the differences between the values predicted by the mod
 and the corresponding response values.
 In this help page the residuals are all measured on the training data.
 The \emph{residual sum of squares} (RSS) is the sum of the squared values of the residuals.
-\emph{R-Squared} (RSq, also called the \emph{coefficient of determination}) 
-is a normalized form of the RSS, 
+\emph{R-Squared} (RSq, also called the \emph{coefficient of determination}
+or \emph{fraction of variance explained})
+is a normalized form of the RSS,
 and, depending on the model, varies from 0
 (a model that always predicts the same value i.e. the mean observed response value)
 to 1 (a model that perfectly predicts the responses in the training data).
-The \emph{Generalized Cross Validation} (GCV) 
+The \emph{Generalized Cross Validation} (GCV)
 is a form of the RSS penalized by the effective number of model parameters
 (and divided by the number of observations).
 More details can be found in the FAQ section of the \code{\link{earth}} help page.
@@ -214,7 +215,7 @@ However, in the example graph we see heteroscedasity --- the residuals spread ou
 There is a decrease in the accuracy of the predictions as the predicted value increases.
 % This indicates that variable selection in the MARS pruning pass
 % will be biased towards large fitted values, i.e.,
-% rather than treating the full range of the response fairly, the pruning pass 
+% rather than treating the full range of the response fairly, the pruning pass
 % in our example model will favor MARS terms that better fit large response values.
 % (Variable selection is done using linear fits on the MARS basis functions.
 % Variable selection is based on comparing GCVs and GCVs are derived from RSSs.
@@ -230,16 +231,16 @@ Transforming the data may cause other problems,
 such as mismatches to a known underlying physical model or
 difficulties in interpretation,
 so it's best to consult (or become) an expert on the type of data being modeled
-(in this case, ozone pollution data).
+(in this case, ozone pollution data --- an expert may say that taking the log is meaningless).
 
 The pale blue line is a \code{\link{loess}} fit.
 (Readers not familar with \code{loess} fits can think of them as fancy moving averages.)
-In this instance it shows that the mean residual is more or less constant 
+In this instance it shows that the mean residual is more or less constant
 except at low fitted values.
 The end effect is possibly due to failure of the model in that region because
 of smaller residuals, but cause and effect get tangled here.
 Compare the residuals of the earth model to the linear model, and notice
-how the pattern of residuals show that the earth model is more succesful 
+how the pattern of residuals show that the earth model is more successful
 at modeling non-linearities in the data:
 \preformatted{
     a2 <- lm(O3 ~ ., data = ozone1)
@@ -248,6 +249,9 @@ at modeling non-linearities in the data:
 One should always eyeball the residuals themselves rather than blindly
 trusting the \code{loess} fit, which is itself an approximation.
 However, in our example earth model the \code{loess} line appears reliable.
+Also, heteroscedasity is not as big an issue with earth as it is with linear models,
+where homoscedasity of the residuals is assumed for inference (such
+as calculation of p-values).
 
 Cases 192, 193, and 226 have the largest residuals and
 fall suspiciously into a separate cluster.
@@ -267,7 +271,7 @@ This effect is slightly visible in the example graph.
 These lines usually do not indicate a problem.
 They are are formed when a set of plotted points has the same observed
 value, commonly due to discretization in the measurement of the
-observed response.
+observed response (e.g. caused by rounding to the nearest inch).
 
 The \bold{Normal Q-Q} graph
 compares the distribution of the residuals to a normal distribution.
@@ -276,19 +280,18 @@ Following R convention, the abscissa is the normal axis
 and the ordinate is the residual axis;
 some popular books have it the other way round.
 In our example,
-we see divergence from normality in the left tail --- 
+we see divergence from normality in the left tail ---
 the left tail of the distribution is fatter than that of a normal distribution.
 Once again, we see that cases 192, 193, and 226 have the largest residuals.
 
 \bold{About \code{plot.earth} and earth-glm models}
 
 "Earth-glm" models are models created with a \code{glm} argument to \code{earth}.
-
 In earth-glm models, much of the analysis in the above section does not apply because
 in these models the residuals are not assumed to have a normal distribution.
 
 Note that the residuals plotted by \code{plot.earth}
-are residuals from earth's call to \code{\link{lm}} after the pruning pass, 
+are residuals from earth's call to \code{\link{lm}} after the pruning pass,
 not \code{\link{glm}} residuals
 That is, \code{plot.earth} ignores the \code{glm} part of the model, if any.
 

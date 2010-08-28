@@ -129,14 +129,15 @@ For cross validation, use the \code{nfold} argument.
   \item{trace}{
      Trace earth's execution.  Default is 0.  Values:
 
-     0 none 0.5 cross validation 1 overview 2 forward pass 3 pruning 4 model mats, memory use, more pruning, etc. 
+     0 none 0.5 cross validation 1 overview 2 forward pass 3 pruning 4 model mats, memory use, more pruning, etc.
      5 and higher for internal details of operation\dots
   }
   \item{keepxy}{
      Set to TRUE to retain the following in the returned value: \code{x} and \code{y} (or \code{data}),
      \code{subset}, and \code{weights}.
      Default is FALSE.
-     The function \code{\link{update.earth}} and friends will use these instead of searching for them
+     The function \code{\link{update.earth}} and friends will use these
+     if present instead of searching for them
      in the environment at the time \code{\link{update.earth}} is invoked.
      This argument also affects the amount of data kept when
      the \code{nfold} argument is used
@@ -149,6 +150,8 @@ For cross validation, use the \code{nfold} argument.
      maximum number of terms created by the forward pass.
      Includes the intercept.
      Default is \code{max(21,2*NCOL(x)+1)}.
+     Use \code{trace=1} or more to see why the forward pass terminated --- if it
+     is "Reached max number of terms" then you could consider increasing \code{nk}.
      The number of terms created by the forward pass will be
      less than \code{nk} if a forward stopping condition is reached before \code{nk} terms,
      or if the forward pass drops one side of a hinge pair to prevent linear dependencies.
@@ -163,7 +166,7 @@ For cross validation, use the \code{nfold} argument.
     Default is \code{if(degree>1) 3 else 2}.
     A value of 0 penalizes only terms, not knots.
     The value -1 is treated specially to mean no penalty, so GCV=RSS/n.
-    Theory suggests values in the range of about 2 to 4.
+    Simulation studies have suggested values in the range of about 2 to 4.
     In practice, for big data sets larger values can be useful to force a smaller model.
     The FAQ section below has some information on GCVs.
   }
@@ -176,6 +179,7 @@ For cross validation, use the \code{nfold} argument.
   }
   \item{minspan}{
     Minimum distance between knots.
+    The \code{minspan} argument is intended to increase resistance to runs of noise in the input data.
     (Note: predictor value extremes are ineligible for knots
     regardless of the \code{minspan} setting, as per the MARS paper equation 45.)\cr
     Use \code{minspan=1} to consider all x values (which is good if the
@@ -186,13 +190,12 @@ For cross validation, use the \code{nfold} argument.
     Friedman's MARS paper section 3.8 with \eqn{alpha} = 0.05.
     Set \code{trace>=2} to see the calculated value.\cr
     \bold{NEW IN VERSION 2.4-0, Nov 2009:}
-    \code{minspan=-1} is also treated specially. It is for back compatibility, and means 
-    calculate minspan using the (incorrect) method used in 
+    \code{minspan=-1} is also treated specially. It is for back compatibility, and means
+    calculate minspan using the (incorrect) method used in
     versions of earth prior to 2.4-0.
     Using \code{minspan=-1} instead of the default \code{minspan=0}
     will usually build a model with a very similar GCV,
     although with slightly different knots and terms.\cr
-    The minspan argument is intended to increase resistance to runs of noise in the input data.
   }
   \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
@@ -255,7 +258,9 @@ For cross validation, use the \code{nfold} argument.
         \code{parents} is the candidate parent term's row in \code{dirs}.\cr
         \code{namesx} is optional and if present is the column names of \code{x} after factors have been expanded.\cr
         \code{first} is optional and if present is TRUE the first time your \code{allowed} function is invoked for
-        the current model, and thereafter FALSE.
+        the current model, and thereafter FALSE, i.e. it is TRUE once per invocation of \code{earth}.
+\cr\cr
+     \bold{The following arguments are for cross validation.}
   }
   \item{nfold}{
      Number of cross validation folds.
@@ -275,9 +280,10 @@ For cross validation, use the \code{nfold} argument.
      \code{y} (after factors have been expanded),
      an approximately equal number of cases with a non-zero response
      occur in each cross validation subset.
-     That means that if \code{y} is a factor, there will be
-     approximately equal numbers of each factor level in each fold
-     (see the "Factors" section below).
+     That means that if \code{y} is a factor, the factor gets expanded to a set
+     of indicator columns (see the "Factors" section below),
+     and so there will be
+     approximately equal numbers of each factor level in the response for each fold.
      We say "approximately equal" because the number of occurrences of a factor
      level may not be exactly divisible by the number of folds.
 \cr\cr
@@ -301,8 +307,8 @@ For cross validation, use the \code{nfold} argument.
      Maximum number of terms (including intercept) in the pruned model.
      Default is NULL, meaning all terms created by the forward pass
      (but typically not all terms will remain after pruning).
-     Use this to reduce exhaustive search time, or
-     to enforce an upper bound on the model size.\cr
+     Use this to enforce an upper bound on the model size (that is less than \code{nk}),
+     or to reduce exhaustive search time with \code{pmethod="exhaustive"}.\cr
 
     \bold{The following arguments are for internal or advanced use.}
   }
@@ -339,10 +345,12 @@ For cross validation, use the \code{nfold} argument.
     Using the "beta cache" takes more memory but is faster
     (by 20\% and often much more for large models).
     The beta cache uses \code{nk * nk * ncol(x) * sizeof(double)} bytes.
-    Set \code{Use.beta.cache=FALSE} to save memory.
+    Set \code{Use.beta.cache=FALSE} to save a little memory.
     (The beta cache is an innovation in this implementation of MARS
     and does not appear in Friedman's papers. It is not related to
-    the \code{fast.beta} argument.)
+    the \code{fast.beta} argument.  Certain regression coefficients
+    in the forward pass can be re-used, and are saved, thus
+    saving recalculation time.)
   }
   \item{\dots}{
      Dots are passed on to \code{earth.fit}.
@@ -576,7 +584,8 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
       The final row of the table holds the column means.
       The values in this final row are the CV-RSqs printed by \link{summary.earth}.
 \cr\cr
-      Example for a single response model:
+      Example for a single response model (where the \code{mean} row and columns
+are redundant but included for uniformity with multiple response models):
 \preformatted{            y  mean
 fold 1  0.909 0.909
 fold 2  0.869 0.869
@@ -598,7 +607,7 @@ mean   0.929 0.955 0.952 0.946
    \item{cv.maxerr.tab}{
       Like \code{cv.rsq.tab} but is the \code{MaxErr} at each fold.
       This is the signed max absolute value at each fold.
-      Also, results are aggregrated for the final column and final row
+      Also, results are aggregated for the final column and final row
       using the signed max absolute value instead of the mean.
       The \emph{signed max absolute value} is defined here as the maximum of the absolute difference
       between the predicted and observed response values, multiplied
@@ -636,7 +645,8 @@ mean   0.929 0.955 0.952 0.946
    }
    \item{cv.groups}{
      Specifies which cases went into which folds.
-     Vector of length equal to the number of cases, with elements taking values in \code{1:nfold}.
+     Vector of length equal to the number of cases, \code{nrow(x)},
+     with elements taking values in \code{1:nfold}.
    }
    \item{cv.list}{
       List of earth models, one model for each fold.
@@ -655,17 +665,17 @@ Just read the parts you need and skim the rest.
 \bold{Contents}\cr\cr
 . Other implementations\cr
 . Limitations\cr
-. Multiple response models\cr
-. Generalized linear models\cr
-. Factors\cr
-. Binomial pairs\cr
 . The forward pass\cr
 . The pruning pass\cr
 . Execution time\cr
 . Memory use\cr
+. Multiple response models\cr
+. Generalized linear models\cr
+. Factors\cr
+. Binomial pairs\cr
+. Using earth with fda and mda\cr
 . Cross validation\cr
 . Cross validating binomial and poisson models\cr
-. Using earth with fda and mda\cr
 . Migrating from mda::mars\cr
 . Standard model functions\cr
 . Frequently asked questions
@@ -674,9 +684,9 @@ Just read the parts you need and skim the rest.
 
 The results are similar to but not identical to other
 Multivariate Adaptive Regression Splines implementations.
-The differences stem from the forward pass where very small
+The differences stem from the forward pass where small
 implementation differences (or perturbations of the input data) can cause
-rather different selection of terms and knots (although similar GRSq's).
+somewhat different selection of terms and knots (although similar GRSq's).
 The backward passes give identical or near identical results,
 given the same forward pass results.
 
@@ -703,6 +713,147 @@ ii) Model slicing (\code{\link{plotmo}} goes part way)\cr
 iii) Handling missing values\cr
 iv) Automatic grouping of categorical predictors into subsets\cr
 v) Fast MARS h parameter
+
+\bold{The forward pass}
+
+Understanding the details of the forward and pruning passes
+will help you understand earth's return value and
+the admittedly large number of arguments.
+The result of the forward pass is the MARS basis matrix \code{bx} and
+the set of terms defined by \code{dirs}
+and \code{cuts} (these are all fields in earth's return value,
+but the \code{bx} here includes all terms before trimming
+back to \code{selected.terms}).
+
+The forward pass adds terms in pairs until the first of the
+following conditions is met:
+
+i) reach maximum number of terms \code{(nterms >= nk)}\cr
+ii) reach DeltaRSq threshold \code{(DeltaRSq < thresh)}, where
+DeltaRSq is the difference in R-Squared caused by adding the current term pair,
+and \code{thresh} is the argument to earth\cr
+iii) reach max RSq \code{(RSq > 1-thresh)}\cr
+iv) reach min GRSq \code{(GRSq < -10)} (-10 is a pathologically bad GRSq)\cr
+v) no new term increases the RSq (reached numerical limits).
+
+Set \code{trace>=1} to see the stopping condition and
+\code{trace>=2} to trace the forward pass.
+
+You can disable all termination conditions
+except (i) and (v) by setting \code{thresh=0}.
+See the FAQ below "Why do I get fewer terms than nk?".
+
+Note that GCVs (via GRSq) are used during the forward pass only as one of the
+(more unusual) stopping conditions and in \code{trace} prints.
+Changing the \code{penalty} argument does not change the knot positions.
+
+The various stopping conditions mean that the actual number of terms
+created by the forward pass may be less than \code{nk}.
+There are other
+reasons why the actual number of terms may be less than \code{nk}:
+(i) the forward pass discards one side of a term pair
+if it adds nothing to the model ---
+but the forward pass counts terms as if they were actually created in pairs,
+and, (ii) as a final step, the forward pass deletes linearly dependent terms, if any,
+so all terms in \code{dirs} and \code{cuts} are independent.
+And remember that the pruning pass will further discard terms.
+
+\bold{The pruning pass}
+
+The pruning pass is handed the sets of terms \code{bx} created by the forward pass.
+Its job is to find the subset of those terms that gives the lowest GCV.
+The following description of the pruning pass
+explains how various fields in earth's returned value are generated.
+
+The pruning pass works like this:
+it determines the subset of terms in \code{bx} (using \code{pmethod})
+with the lowest RSS for each model size in \code{1:nprune}
+(see the \code{Force.xtx.prune} argument above for some details).
+It saves the RSS and term numbers for each such subset in \code{rss.per.subset}
+and \code{prune.terms}.
+It then applies the \code{Get.crit} function with \code{penalty}
+to \code{rss.per.subset} to yield \code{gcv.per.subset}.
+Finally it chooses the model with the lowest value in \code{gcv.per.subset},
+puts its term numbers into \code{selected.terms},
+and updates \code{bx} by keeping only the \code{selected.terms}.
+
+After the pruning pass, earth runs \code{\link{lm.fit}} to determine the
+\code{fitted.values}, \code{residuals}, and \code{coefficients}, by regressing
+the response \code{y} on \code{bx}.
+If \code{y} has multiple columns then \code{lm.fit} is called
+for each column.
+
+If a \code{glm} argument is passed to earth,
+earth runs \code{\link{glm}} on (each column of) \code{y}
+in addition to the above call to \code{lm.fit}.
+
+Set \code{trace>=3} to trace the pruning pass.
+
+By default \code{Get.crit} is \code{earth:::get.gcv}.
+Alternative \code{Get.crit} functions can be defined.
+See the source code of \code{get.gcv} for an example.
+
+\bold{Execution time: "I wanna go fast"}
+
+For a given set of input data,
+the following can increase the speed of the forward pass:
+
+i) decreasing \code{degree} (because fewer combinations of terms to consider)\cr
+ii) decreasing \code{nk} (because fewer forward pass terms)\cr
+iii) decreasing \code{fast.k}\cr
+iv) increasing \code{thresh} (because fewer forward pass terms)\cr
+v) increasing \code{min.span}.
+
+The backward pass is normally much faster than the forward pass,
+unless \code{pmethod="exhaustive"}.
+Reducing \code{nprune} reduces exhaustive search time.
+One strategy is to first build a large model
+and then adjust pruning parameters such as \code{nprune} using \code{\link{update.earth}}.
+
+The following very rough rules of thumb apply for large models.
+Using \code{minspan=1} instead of the default \code{0} will increase times by 20 to 50\%.
+Using \code{fast.k=5} instead of the default \code{20} can give substantial speed gains
+but will sometimes give a much smaller \code{GRSq}.
+
+\bold{Memory use}
+
+Earth does not impose specific limits on the model size.
+Model size is limited only by the amount of memory on your system,
+the maximum memory addressable by R, and your patience.
+On a 32 bit machine with \code{x} and \code{y} of type
+double (no factors),
+the number of bytes of memory used by earth is about
+\preformatted{
+8 * (nk^2 * ncol(x) + nrow(x) * (3 + 2*nk + ncol(x)/2)).
+}
+Earth prints the results of the above calculation if \code{trace>=4}.
+Memory use peaks in the forward pass.
+The bulk of the forward pass is implemented in C.
+It allocates memory "outside of R" and so
+\link{memory.size} will not report the memory it uses.
+
+Before calling \code{earth}, R itself will of course allocate
+memory over and above the amount calculated above.
+To reduce total memory usage, it sometimes helps to \code{\link{remove}} variables
+and call \link{gc} before invoking \code{earth}.
+
+Earth uses more memory if any elements of the
+\code{x} and \code{y} arguments are not \link{double},
+because it must convert them to double internally.
+The same applies if the \code{subset} argument is used.
+Earth uses more memory if \code{trace>=2}
+(because \code{DUP=TRUE} is required to pass predictor names
+to earth's internal call to \code{\link{.C}}).
+Increasing the \code{degree} does not change the memory requirement
+but greatly increases the running time.
+
+Here is an example of memory use:
+the earth test suite builds a model using \code{earth.default}
+with a 1e4 by 100 input matrix with \code{nk=21}.
+The Windows XP task manager
+reports that the peak memory use when building this model is 47 MBytes.
+Using the formula interface to earth pushes memory to 62 MBytes.
+Increasing the number of rows in the input matrix to 1e5 pushes memory to 240 MBytes.
 
 \bold{Multiple response models}
 
@@ -766,7 +917,7 @@ Earth builds the model as usual and then invokes
 In more detail, the model is built as follows.
 Earth first builds a standard MARS model, including
 the internal call to \code{\link{lm.fit}} on \code{bx} after the pruning pass.
-(See "The forward pass" and "The pruning pass" sections below).
+(See "The forward pass" and "The pruning pass" sections above).
 Thus knot positions and terms are determined as usual and
 all the standard fields in earth's return value will be present.
 Earth then invokes \code{glm} for the response on \code{bx}
@@ -896,6 +1047,10 @@ on the rhs of a model with an intercept would have no first "A" column
 This expansion to multiple columns (which only happens for factors with more than two levels)
 means that earth will build a multiple response model
 as described in the "Multiple responses" section above.
+However, as an alternative, using \code{fda} with \code{earth}
+is recommended for a response that is a factor with more
+than two levels (because of the masking problem,
+see below "Using earth with fda and mda").
 
 % [TODO ordered factors should be treated differently?]\cr
 % [TODO should be able to pass a y contrasts argument to earth --- overkill?]
@@ -909,8 +1064,7 @@ Use \code{trace=4} to see the first few rows of \code{x} and \code{y}
 after factor processing.
 
 Here is an example which uses the \code{\link{etitanic}} data to
-predict the passenger class (not necessarily a sensible thing to
-do but provides a good example here):
+predict the passenger class (not necessarily a sensible thing to do):
 \preformatted{
 > data(etitanic)
 > head(etitanic) # pclass and sex are unordered factors
@@ -938,6 +1092,7 @@ with a binomial or quasibinomial \code{\link{family}}.
 Users of the \code{\link{glm}} function will be familiar with
 the technique of specifying a binomial response as a two-column matrix,
 with a column for the number of successes and a column for the failures.
+When given the argument \code{glm=list(family=binomial)},
 Earth automatically detects when such columns are present in \code{y}
 (by looking for adjacent columns which both have entries greater than 1).
 The first column only is used to build the standard earth model.
@@ -960,147 +1115,33 @@ glm=list(family=binomial, bpairs=c(1,3)) # equivalent
 specify that the 1st and 2nd columns are a binomial pair
 and the 3rd and 4th columns another binomial pair.
 
-\bold{The forward pass}
+\bold{Using earth with fda and mda}
 
-Understanding the details of the forward and pruning passes
-will help you understand earth's return value and
-the admittedly large number of arguments.
-The result of the forward pass is the MARS basis matrix \code{bx} and
-the set of terms defined by \code{dirs}
-and \code{cuts} (these are all fields in earth's return value,
-but the \code{bx} here includes all terms before trimming
-back to \code{selected.terms}).
+\code{Earth} can be used with \code{\link[mda]{fda}} and \code{\link[mda]{mda}}
+in the \code{mda} package.  Earth will generate a multiple response model.
+Use the \code{fda/mda} argument \code{keep.fitted=TRUE} if
+you want to call \code{\link{plot.earth}} later
+(actually only necessary for large datasets, see the description of
+\code{keep.fitted} in \code{fda}).
+Use the \code{earth} argument \code{keepxy=TRUE} if you want to call
+\code{\link{update.earth}} or \code{\link{plotmo}} later.
 
-The forward pass adds terms in pairs until the first of the
-following conditions is met:
+Using \code{fda} is recommended for a response that is a factor with more
+than two levels, rather than using \code{earth} directly on an
+indicator matrix, because of the "masking problem" (e.g. Hastie et al.
+Section 4.2 "Linear Regression of an Indicator Matrix").
+In practice the best advice is try it and see if you get better results.
 
-i) reach maximum number of terms \code{(nterms >= nk)}\cr
-ii) reach DeltaRSq threshold \code{(DeltaRSq < thresh)}, where
-DeltaRSq is the difference in R-Squared caused by adding the current term pair,
-and \code{thresh} is the argument to earth\cr
-iii) reach max RSq \code{(RSq > 1-thresh)}\cr
-iv) reach min GRSq \code{(GRSq < -10)} (-10 is a pathologically bad GRSq)\cr
-v) no new term increases the RSq (reached numerical limits).
-
-Set \code{trace>=1} to see the stopping condition and
-\code{trace>=2} to trace the forward pass.
-
-You can disable all termination conditions
-except (i) and (v) by setting \code{thresh=0}.
-See the FAQ below "Why do I get fewer terms than nk?".
-
-Note that GCVs (via GRSq) are used during the forward pass only as one of the
-(more unusual) stopping conditions and in \code{trace} prints.
-Changing the \code{penalty} argument does not change the knot positions.
-
-The various stopping conditions mean that the actual number of terms
-created by the forward pass may be less than \code{nk}.
-There are other
-reasons why the actual number of terms may be less than \code{nk}:
-(i) the forward pass discards one side of a term pair
-if it adds nothing to the model ---
-but the forward pass counts terms as if they were actually created in pairs,
-and, (ii) as a final step, the forward pass deletes linearly dependent terms, if any,
-so all terms in \code{dirs} and \code{cuts} are independent.
-And remember that the pruning pass will further discard terms.
-
-\bold{The pruning pass}
-
-The pruning pass is handed the sets of terms created by the forward pass.
-Its job is to find the subset of those terms that gives the lowest GCV.
-The following description of the pruning pass
-explains how various fields in earth's returned value are generated.
-
-The pruning pass works like this:
-it determines the subset of terms in \code{bx} (using \code{pmethod})
-with the lowest RSS for each model size in \code{1:nprune}
-(see the \code{Force.xtx.prune} argument above for some details).
-It saves the RSS and term numbers for each such subset in \code{rss.per.subset}
-and \code{prune.terms}.
-It then applies the \code{Get.crit} function with \code{penalty}
-to \code{rss.per.subset} to yield \code{gcv.per.subset}.
-Finally it chooses the model with the lowest value in \code{gcv.per.subset},
-puts its term numbers into \code{selected.terms},
-and updates \code{bx} by keeping only the \code{selected.terms}.
-
-After the pruning pass, earth runs \code{\link{lm.fit}} to determine the
-\code{fitted.values}, \code{residuals}, and \code{coefficients}, by regressing
-the response \code{y} on \code{bx}.
-If \code{y} has multiple columns then \code{lm.fit} is called
-for each column.
-
-If a \code{glm} argument is passed to earth,
-earth runs \code{\link{glm}} on (each column of) \code{y}
-in addition to the above call to \code{lm.fit}.
-
-Set \code{trace>=3} to trace the pruning pass.
-
-By default \code{Get.crit} is \code{earth:::get.gcv}.
-Alternative \code{Get.crit} functions can be defined.
-See the source code of \code{get.gcv} for an example.
-
-\bold{Execution time: "I wanna go fast"}
-
-For a given set of input data,
-the following can increase the speed of the forward pass:
-
-i) decreasing \code{fast.k}\cr
-ii) decreasing \code{nk} (because fewer forward pass terms)\cr
-iii) decreasing \code{degree}\cr
-iv) increasing \code{thresh} (because fewer forward pass terms)\cr
-v) increasing \code{min.span}.
-
-The backward pass is normally much faster than the forward pass,
-unless \code{pmethod="exhaustive"}.
-Reducing \code{nprune} reduces exhaustive search time.
-One strategy is to first build a large model
-and then adjust pruning parameters such as \code{nprune} using \code{\link{update.earth}}.
-
-The following very rough rules of thumb apply for large models.
-Using \code{minspan=1} instead of the default \code{0} will increase times by 20 to 50\%.
-Using \code{fast.k=5} instead of the default \code{20} can give substantial speed gains
-but will sometimes give a much smaller \code{GRSq}.
-Using an \code{allowed} function slows down model building by about 10\%.
-
-\bold{Memory use}
-
-Earth does not impose specific limits on the model size.
-Model size is limited only by the amount of memory on your system,
-the maximum memory addressable by R, and your patience.
-On a 32 bit machine with \code{x} and \code{y} of type
-double (no factors),
-the number of bytes of memory used by earth is about
+Example:
 \preformatted{
-8 * (nk^2 * ncol(x) + (nrow(x) * (3 + 2*nk + ncol(x)/2))).
+library(mda)
+(a <- fda(Species~., data=iris, keep.fitted=TRUE, method=earth, keepxy=TRUE))
+plot(a)
+summary(a$fit)  # examine earth model embedded in fda model
+plot(a$fit)
+plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
+plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
 }
-Earth prints the results of the above calculation if \code{trace>=4}.
-Memory use peaks in the forward pass.
-The bulk of the forward pass is implemented in C.
-It allocates memory "outside of R" and so
-\link{memory.size} will not report the memory it uses.
-
-Before calling \code{earth}, R itself will of course allocate
-memory over and above the amount calculated above.
-To reduce total memory usage, it sometimes helps to \code{\link{remove}} variables
-and call \link{gc} before invoking \code{earth}.
-
-Earth uses more memory if any elements of the
-\code{x} and \code{y} arguments are not \link{double},
-because it must convert them to double internally.
-The same applies if the \code{subset} argument is used.
-Earth uses more memory if \code{trace>=2}
-(because \code{DUP=TRUE} is required to pass predictor names
-to earth's internal call to \code{\link{.C}}).
-Increasing the \code{degree} does not change the memory requirement
-but greatly increases the running time.
-
-Here is an example of memory use:
-the earth test suite builds a model using \code{earth.default}
-with a 1e4 by 100 input matrix with \code{nk=21}.
-The Windows XP task manager
-reports that the peak memory use when building this model is 47 MBytes.
-Using the formula interface to earth pushes memory to 62 MBytes.
-Increasing the number of rows in the input matrix to 1e5 pushes memory to 240 MBytes.
 
 \bold{Cross validation}
 
@@ -1115,7 +1156,10 @@ Earth first builds a standard model with all the data as usual.
 This means that all the standard fields in earth's return value
 appear as usual.
 Earth then builds \code{nfold} cross validated models.
-It measures RSq on the test data (i.e., the left-out data) for each fold.
+For each fold,
+it measures the prediction RSq on the test data (i.e., the left-out data,
+typically one tenth of the complete data), after building an \code{earth} model
+with the left-in data (typically nine tenths of the complete data).
 The final cross validation RSq is the mean of these RSq's.
 Use \link{summary.earth} to see this final value and its standard deviation
 across cross validation folds.
@@ -1140,11 +1184,17 @@ The printout also shows the number of non-zero values in the observed response
 in the fold's training set and test set.
 This is useful if you have a binary or factor response and want to check
 that you have enough examples of each factor level in each fold.
-With the \code{stratify} argument (which is enabled by default),
-earth attempts to keep the numbers of each level
-constant across folds.
+With the \code{stratify} argument (which is enabled by default), earth
+attempts to keep the numbers of occurrences of any given level in the
+response constant across folds.
 
 For reproducibility, call \link{set.seed} before calling earth with \code{nfold}.
+
+A problem with cross-validation is that it tries to establish the
+quality of a model built on all the data by using models built on
+smaller subsets of the data.  To see where your model sits on the
+learning curve (Figure 7.8 in Haste et al.) one technique is to compare
+the mean cross-validated RSq for different \code{nfold}'s, say, \code{nfold=5} and \code{nfold=10}.
 
 \bold{Cross validating binomial and poisson models}
 
@@ -1225,27 +1275,6 @@ Logistic Regression, and Survival Analysis}
 % Breiman and Cutler \emph{Random Forests}
 % \url{http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#balance}.
 
-\bold{Using earth with fda and mda}
-
-\code{Earth} can be used with \code{\link[mda]{fda}} and \code{\link[mda]{mda}}
-in the \code{mda} package.  Earth will generate a multiple response model.
-Use the \code{fda/mda} argument \code{keep.fitted=TRUE} if
-you want to call \code{\link{plot.earth}} later
-(actually only necessary for large datasets, see the description of
-\code{keep.fitted} in \code{fda}).
-Use the \code{earth} argument \code{keepxy=TRUE} if you want to call
-\code{\link{update.earth}} or \code{\link{plotmo}} later.
-Example:
-\preformatted{
-library(mda)
-(a <- fda(Species~., data=iris, keep.fitted=TRUE, method=earth, keepxy=TRUE))
-plot(a)
-summary(a$fit)  # examine earth model embedded in fda model
-plot(a$fit)
-plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
-plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
-}
-
 \bold{Migrating from mda::mars}
 
 Changing code from \code{mda::mars} to \code{earth}
@@ -1255,8 +1284,8 @@ But there are a few argument differences and
 earth will issue a warning if you give it a \code{mars}-only argument.
 
 The resulting model will be similar but not identical because
-of small implementation differences which are magnified
-by the inherent instability of the MARS forward pass.
+of small implementation differences.
+% which are magnified by the inherent instability of the MARS forward pass.
 
 If you are further processing the output of earth you will need to
 consider differences in the returned value.  The header of the
@@ -1331,7 +1360,7 @@ splits the dataset differently on each run.
 Also, remember that the test set should not be used for parameter tuning
 because you will be optimizing for the test set ---
 instead use GCVs, separate parameter selection sets, or techniques
-such as cross-validation.
+such as cross-validation with earth's \code{nfold} parameter.
 
 \bold{Why do I get fewer terms than \code{nk}, even with \code{prune="none"}?}
 
@@ -1373,9 +1402,9 @@ earth(Volume ~ ., data = trees, trace=3, penalty=-1)
 
 \bold{Is it best to hold down model size with \code{nk} or \code{nprune}?}
 
-If you want the best possible small model, build a big model
-(by specifying a big \code{nk})
-and prune it back (by specifying a small \code{nprune}).
+If you want the best possible small model, build a big set of basis
+functions in the forward pass (by specifying a big \code{nk})
+and prune this set back (by specifying a small \code{nprune}).
 This is better than directly building a small model by
 specifying a small \code{nk}, because the pruning pass can look at all the
 terms whereas the forward pass can only see one term ahead.
@@ -1429,7 +1458,8 @@ same as a standard linear model
 a5 <- lm(Volume ~ ., data = trees)
 }
 (compare the \code{\link{summary}} for each) but in general that will not be true.
-Earth will not include a linear predictor if that predictor does not improve the model.
+Earth will not include a linear predictor if that predictor does not improve the model
+(in the CGV sense).
 
 \bold{Can you give an example of the \code{allowed} argument?}
 
@@ -1566,32 +1596,37 @@ way \code{\link{predict.earth}} works --- you can give \code{\link{predict}}
 multiple cases (i.e., multiple rows in the input matrix)
 and it will return a vector of predicted values.
 
-\bold{What about boosting MARS?}
-
-If you want to boost, use boosted trees rather than boosted MARS --- you
-will get better results.
-
-More precisely, although gradient boosted MARS gives
-better results than plain MARS,
-if you would like to improve prediction performance (at the cost
-of a more complicated and less interpretable model)
-you will usually get better results with
-boosted trees (via, say, the \code{\link[gbm]{gbm}} package) than with boosted MARS.
-See Gillian Ward (2007) \emph{Statistics in Ecological Modeling:
-Presence-Only Data and Boosted Mars (Doctoral Thesis)}
-\url{http://www-stat.stanford.edu/~hastie/THESES/Gill\_Ward.pdf}.
-
-This could change as the state of the art advances.
+% TODO removed until I can establish if and how Gillian did the
+% case weighting necessary for bootstrapping earth models.
+%
+% \bold{What about boosting MARS?}
+%
+% If you want to boost, use boosted trees rather than boosted MARS --- you
+% will get better results.
+%
+% More precisely, although gradient boosted MARS gives
+% better results than plain MARS,
+% if you would like to improve prediction performance (at the cost
+% of a more complicated and less interpretable model)
+% you will usually get better results with
+% boosted trees (via, say, the \code{\link[gbm]{gbm}} package) than with boosted MARS.
+% See Gillian Ward (2007) \emph{Statistics in Ecological Modeling:
+% Presence-Only Data and Boosted Mars (Doctoral Thesis)}
+% \url{http://www-stat.stanford.edu/~hastie/THESES/Gill\_Ward.pdf}.
+%
+% This could change as the state of the art advances.
 
 \bold{What about bagging MARS?}
 
-The \code{caret} package provides functions for bagging earth
-(and for parameter selection).
-Our personal experience has been that bagging earth does not give models
-with better predictive ability.
-Your mileage may vary.
-(We used a modified version of earth that randomized the set of variables
-available at each forward step, as well as trying other approaches).
+The \code{caret} package provides functions for bagging earth (and for
+parameter selection).  Our personal experience has been that bagging
+MARS does not give models with better predictive ability (probably
+because MARS is actually fairly stable in the presence of perturbations of the
+data --- more stable than we originally thought --- and bagging works
+best for "unstable" models).  Your mileage may vary.  We used a
+modified version of earth that randomized the set of variables
+available at each forward step to increase variability (similar to
+random forests), as well as trying other approaches.
 
 \bold{What is a GCV, in simple terms?}
 
@@ -1617,7 +1652,7 @@ Even when the approximation is not that good,
 it is usually good enough for comparing models during pruning.
 
 GCVs were introduced by Craven and Wahba, and extended by Friedman for MARS.
-See Hastie et al. p216 and the Friedman MARS paper.
+See Hastie et al. Section 7.10 "Cross-Validation", and the Friedman MARS paper.
 GCV stands for "Generalized Cross Validation", a perhaps misleading term.
 % For example, the terms selected by the pruning pass for each subset size
 % are the same whether the GCV or RSS is used to select terms.
@@ -1635,10 +1670,11 @@ The idea is that the training data captures the underlying structure
 in the system being modeled, plus noise.
 We want to model the underlying structure and ignore the noise.
 An overfit model models the specific realization of noise in the training data
-and thus is too specific to the training data.
+and thus is too specific to that training data.
 
 The more flexible a model, the more its propensity to overfit the training data.
-Linear models are constrained, with usually only a few parameters,
+Linear models are constrained, with usually only a few parameters
+(viz. the intercept and regression coefficients)
 and don't have the tendency to overfit like more flexible models such as MARS.
 This means that for linear models, the RSS on the data used to build the model is usually an
 adequate measure of generalization ability.
@@ -1709,7 +1745,7 @@ is a more flexible way of achieving the same end.
   Technometrics, Vol. 31, No. 1.
   \url{http://links.jstor.org/sici?sici=0040-1706\%28198902\%2931\%3A1\%3C3\%3AFPSAAM\%3E2.0.CO\%3B2-Z}
 
-  Hastie, Tibshirani, and Friedman (2001) \emph{The Elements of Statistical Learning}
+  Hastie, Tibshirani, and Friedman (2009) \emph{The Elements of Statistical Learning (2nd ed.)}
   \url{http://www-stat.stanford.edu/~hastie/pub.htm}
 
   Leathwick, J.R., Rowe, D., Richardson, J., Elith, J., & Hastie, T. (2005)
@@ -1719,7 +1755,7 @@ is a more flexible way of achieving the same end.
   \url{http://www.botany.unimelb.edu.au/envisci/about/staff/elith.html}
 
   Miller, Alan (1990, 2nd ed. 2002) \emph{Subset Selection in Regression}
-  \url{http://users.bigpond.net.au/amiller}
+  \url{http://www.cmis.csiro.au/Alan_Miller/index.html}
 
   Wikipedia article on MARS
   \url{http://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines}
@@ -1749,14 +1785,14 @@ summary(a, digits = 2, style = "pmax")
 
 # yields:
 # Call: earth(formula=Volume~., data=trees)
-# 
+#
 # Volume =
 #   27
-#   +  6.2 * pmax(0,  Girth -     14) 
-#   -  3.3 * pmax(0,     14 -  Girth) 
-#   + 0.49 * pmax(0, Height -     72) 
-# 
-# Selected 4 of 6 terms, and 2 of 2 predictors 
+#   +  6.2 * pmax(0,  Girth -     14)
+#   -  3.3 * pmax(0,     14 -  Girth)
+#   + 0.49 * pmax(0, Height -     72)
+#
+# Selected 4 of 6 terms, and 2 of 2 predictors
 # Importance: Girth, Height
 # Number of terms at each degree of interaction: 1 3 (additive model)
 # GCV 11    RSS 197    GRSq 0.96    RSq 0.98

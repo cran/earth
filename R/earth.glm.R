@@ -116,13 +116,13 @@ earth.glm <- function(bx, y, weights, na.action, glm,
         iycol <- iycol + 1
         stopif(is.null(colnames(yarg)))
         if(trace >= 4)
-            print.matrix.info("y arg to glm()", yarg)
+            print.matrix.info("y arg to glm()", yarg, all.names=TRUE)
 
-        # FIXED (earth 2.3-4): removed offset etc. arguments because of 
+        # FIXED (earth 2.3-4): removed offset etc. arguments because of
         # difficulties evaluating them later in the correct environment.
 
-        g <- glm(yarg ~ ., family=family, data=bx.data.frame, 
-                weights=glm$weights, na.action=na.action, 
+        g <- glm(yarg ~ ., family=family, data=bx.data.frame,
+                weights=glm$weights, na.action=na.action,
                 control=control, model=TRUE, trace=(trace>=2),
                 method="glm.fit", x=TRUE, y=TRUE, contrasts=NULL)
 
@@ -162,7 +162,7 @@ get.glm.family <- function(family, env)
 # user hasn't specified, say, subset as a glm argument. The subset
 # should only be specified as an earth argument so the subset is the
 # same for earth and glm.
-# FIXED (earth 2.3-4): disallow offset etc. arguments because of 
+# FIXED (earth 2.3-4): disallow offset etc. arguments because of
 # difficulties evaluating them later in the correct environment.
 
 get.glm.arg <- function(glm)    # glm arg is earth's glm arg
@@ -171,8 +171,8 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
 
     match.glm.arg <- function(glm)
     {
-        glm.args <- c("formula", "family", "data", "weights", "subset", 
-            "na.action", "control", "model", "method", "x", "y", 
+        glm.args <- c("formula", "family", "data", "weights", "subset",
+            "na.action", "control", "model", "method", "x", "y",
             "contrasts", "epsilon", "maxit", "trace", "bpairs")
 
         for(i in 1:length(glm)) {
@@ -255,7 +255,7 @@ get.glm.coefs <- function(glm.list, nresp, selected.terms, term.names, response.
 # If the user explicitly specified bpairs then we use that bpairs.
 # Else we try to figure out bpairs automatically.
 # Returns NULL if all y columns should be used
-# (and returns NULL if not family is not binomial).
+# (and returns NULL if family is not binomial).
 
 get.glm.bpairs <- function(y, glm)
 {

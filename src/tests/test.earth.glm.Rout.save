@@ -2,6 +2,7 @@
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotrix
 > if(!interactive())
 +     postscript()
 > data(ozone1)
@@ -318,8 +319,7 @@ Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predic
 After backward pass GRSq 0.731 RSq 0.9978 
 Deviance = 4.982452 Iterations - 1 
 Deviance = 4.956514 Iterations - 2 
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
+Warning: glm.fit: algorithm did not converge
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
 > print.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
 
@@ -421,8 +421,7 @@ check.models.equal not identical: a1 a1h [but within numerical tolerances]
 > stopifnot(a1h$glm.list[[1]]$control$maxit == 2)
 > # equivalent way of specifying maxit
 > a1h2 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8),maxit=2), pmethod="none", degree=2)
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
+Warning: glm.fit: algorithm did not converge
 earth glm numdead: did not converge after 2 iterations
 > check.models.equal(a1h, a1h2, msg="a1h a1h2")
 check.models.equal not identical: a1h a1h2 [but within numerical tolerances]
@@ -1978,7 +1977,7 @@ attr(,"class")
 a7: titanic data, one response which is a two level factor
 
 > a7 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=1)
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
@@ -2347,7 +2346,7 @@ check.models.equal not identical: a7update a7d with keepxy [but within numerical
 > a7e <- earth(sex ~ ., subset=subset., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 > a7eupdate <- update(a7, subset=subset.)
 update.earth: using 1046 by 6 data argument from original call to earth
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
@@ -2362,7 +2361,7 @@ check.models.equal not identical: a7update a7e [but within numerical tolerances]
 > subset.[1:10] <- 0
 > a7eeupdate <- update(a7, subset=subset.)
 update.earth: using 1046 by 6 data argument from original call to earth
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
@@ -2376,7 +2375,7 @@ check.models.equal not identical: a7update a7e with alternative subset [but with
 > a7f <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family=binomial(link="probit")), trace=0)
 > a7fupdate <- update(a7, glm=list(family=binomial(link="probit")))
 update.earth: using 1046 by 6 data argument from original call to earth
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Skipped forward pass
 Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
@@ -2389,7 +2388,7 @@ check.models.equal not identical: a7update a7f with link=probit [but within nume
 > a7g <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family=binomial(link="probit")), trace=0)
 > a7gupdate <- update(a7, glm=list(family=binomial(link="probit")), trace=1)
 update.earth: using 1046 by 6 data saved by keepxy in original call to earth
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Skipped forward pass
 Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
@@ -2401,7 +2400,7 @@ check.models.equal not identical: a7update a7g with link=probit and keepxy [but 
 > a8 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), keepxy=1)
 > a8g <- earth(sex ~ ., data=etitanic[100:900,], degree=2, glm=list(family=binomial), trace=0)
 > a8gupdate <- update(a8, data=etitanic[100:900,], trace=1)
-x is a 801 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, 6=parch
+x is a 801 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 801 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached max number of terms 21
@@ -5486,7 +5485,7 @@ A-73f identical
 
 --- B predict with multiple level factors and a multiple real response, trace=1 ---
 
-x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, 6=fac3lev3
+x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10, 12
 Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
@@ -5496,7 +5495,7 @@ Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predic
 After backward pass GRSq 0.5201 RSq 0.991 
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, 6=fac3lev3
+x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10, 12
 Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
@@ -5902,14 +5901,14 @@ B-60f identical
 
 --- C predict with multiple level factors and a 3 level factor response, trace=1 ---
 
-x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, 6=fac3lev3
+x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 3 matrix: 1=dead1, 2=dead2, 3=dead3
 Forward pass term 1, 2, 4, 6, 8
 Reached min GRSq (GRSq -26.0319 < -10)
 After forward pass GRSq -26.03 RSq 0.7766
 Prune method "none" penalty 3 nprune 4: selected 4 of 4 terms, and 3 of 6 predictors
 After backward pass GRSq -1.837 RSq 0.7128 
-x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, 6=fac3lev3
+x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 3 matrix: 1=dead1, 2=dead2, 3=dead3
 Forward pass term 1, 2, 4, 6, 8
 Reached min GRSq (GRSq -26.0319 < -10)
@@ -6981,8 +6980,7 @@ c3d: single response glm model with a two level factor response
 Expect "did not converge warnings", it doesn't matter for our purposes here
 > myfac <- gl(2, 3, length=12, labels = c("Control", "Treat"))
 > c3d <-  earth(myfac ~ ldose + sex, data=data1, glm=list(family="binomial"), trace=0, pmethod="none", degree=1)
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > c3d.class.predict <- predict(c3d,type="cl") # we also test here that the type can be abbreviated
 > stopifnot(c3d.class.predict == myfac)
 > 
@@ -6999,23 +6997,17 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq -1.245 RSq 0.5362
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq -0.1454 RSq 0.5362 
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM A: null.deviance 15.27634 (11 dof)   deviance 9.406231e-10 (9 dof)   iters 25 did not converge
 GLM B: null.deviance 13.49604 (11 dof)   deviance 12.68403 (9 dof)   iters 4
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM C: null.deviance 16.30064 (11 dof)   deviance 1.037213e-09 (9 dof)   iters 25 did not converge
 No 'data' argument to earth so ignoring keepxy for 'data'
 > c4g <- glm(fac3 ~ sex + ldose, family="binomial") # use this as a reference
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > 
 > newdata <- data.frame(sex=sex[1], ldose=2)
 > c4.predict <- predict(c4, newdata)
@@ -7043,7 +7035,7 @@ c5: multiple response glm model with two multi level factor responses
 > big.dataframe <- data.frame(fac3, fac4)
 > c5 <-  earth(data.frame(sex, ldose), big.dataframe, trace=1, pmethod="none", degree=1, keepxy=1)
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
-y is a 12 by 7 matrix: 1=fac3A, 2=fac3B, 3=fac3C, 4=fac4P, 5=fac4Q, 6=fac4R, 7=fac4S
+y is a 12 by 7 matrix: 1=fac3A, 2=fac3B, 3=fac3C, 4=fac4P, 5=fac4Q, ...
 Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq -1.104 RSq 0.5652
@@ -7059,7 +7051,7 @@ c6: multiple response earth model with mixed responses
 > big.dataframe2 <- data.frame(SF, fac3, fac4, SF+1, sex, fac4, SF+3)
 > c6 <-  earth(data.frame(sex, ldose), big.dataframe2, trace=1, pmethod="none", degree=1, keepxy=1)
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
-y is a 12 by 18 matrix: 1=numdead, 2=numalive, 3=fac3A, 4=fac3B, 5=fac3C, 6=fac4P, 7=fac4Q, 8=fac4R, 9=fac4S, 10=numdead.1, 11=numalive.1, 12=sex, 13=fac4.1P, 14=fac4.1Q, 15=fac4.1R, 16=fac4.1S, 17=numdead.2, 18=numalive.2
+y is a 12 by 18 matrix: 1=numdead, 2=numalive, 3=fac3A, 4=fac3B, 5=fac3C, ...
 Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.8903 RSq 0.9773
@@ -7077,65 +7069,45 @@ c7: multiple response glm model with mixed responses
 Expect "did not converge warnings", it doesn't matter for our purposes here
 > c7 <-  earth(data.frame(sex, ldose), big.dataframe2, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=1)
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
-y is a 12 by 18 matrix: 1=numdead (paired with numalive), 2=fac3A, 3=fac3B, 4=fac3C, 5=fac4P, 6=fac4Q, 7=fac4R, 8=fac4S, 9=numdead.1 (paired with numalive.1), 10=sex, 11=fac4.1P, 12=fac4.1Q, 13=fac4.1R, 14=fac4.1S, 15=numdead.2 (paired with numalive.2)
+y is a 12 by 18 matrix: 1=numdead (paired with numalive), 2=fac3A, 3=fac3B, 4=fac3C, ...
 Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.8741 RSq 0.974
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9357 RSq 0.974 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac3A: null.deviance 15.27634 (11 dof)   deviance 9.406231e-10 (9 dof)   iters 25 did not converge
 GLM fac3B: null.deviance 13.49604 (11 dof)   deviance 12.68403 (9 dof)   iters 4
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac3C: null.deviance 16.30064 (11 dof)   deviance 1.037213e-09 (9 dof)   iters 25 did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4P: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4Q: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4R: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4S: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
 GLM numdead.1: null.deviance 105.9173 (11 dof)   deviance 2.709378 (9 dof)   iters 4
 GLM sex: null.deviance 16.63553 (11 dof)   deviance 5.144045e-10 (9 dof)   iters 23
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4.1P: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4.1Q: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4.1R: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  algorithm did not converge
-Warning in glm.fit(x = X, y = Y, weights = weights, start = start, etastart = etastart,  :
-  fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac4.1S: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
 GLM numdead.2: null.deviance 84.92686 (11 dof)   deviance 1.525354 (9 dof)   iters 4
 > print(summary(c7))
@@ -7557,8 +7529,8 @@ All    1.1900826  12  0.000000e+00  0.000000e+00
 > isex <- as.double(sex3) # sex3 as an index
 > df1 <- data.frame(sex2, d_=facdead, sex, sex, isex)
 > af <-  earth(data.frame(sex3,ldose,fac3,isex), df1, trace=1, pmethod="none", degree=2)
-x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=fac3lev2, 5=fac3lev3, 6=isex
-y is a 12 by 7 matrix: 1=sex2, 2=d_dead1, 3=d_dead2, 4=d_dead3, 5=sex, 6=sex.1, 7=isex
+x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=fac3lev2, 5=fac3lev3, ...
+y is a 12 by 7 matrix: 1=sex2, 2=d_dead1, 3=d_dead2, 4=d_dead3, 5=sex, ...
 Forward pass term 1, 2, 4, 6, 8
 Reached min GRSq (GRSq -10.5851 < -10)
 After forward pass GRSq -10.59 RSq 0.9043

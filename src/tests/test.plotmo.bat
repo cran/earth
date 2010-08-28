@@ -2,10 +2,13 @@
 @rem Stephen Milborrow Apr 2007 Petaluma
 
 @echo === test.plotmo ==================================================
-@"\a\r\ra\bin\Rcmd.exe" BATCH --quiet --vanilla test.plotmo.R
+@"\Program Files\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.plotmo.R
 @if %errorlevel% equ 0 goto good1:
-@echo R returned errorlevel %errorlevel%, see test.plotmo.Rout
-@exit /B %errorlevel%
+@echo R returned errorlevel %errorlevel%, see test.plotmo.Rout:
+@echo.
+@tail test.plotmo.Rout
+@echo.
+@exit /B 1
 :good1
 diff test.plotmo.Rout test.plotmo.Rout.save 
 @if %errorlevel% equ 0 goto good2:

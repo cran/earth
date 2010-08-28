@@ -25,10 +25,10 @@ evimp(obj, trim=TRUE, sqrt.=FALSE)
 }
 \value{
 See the example later.
-This function returns matrix showing the relative importances of the variables in the model.
-There is a row for each variable.
-The row name is the variable name, but with \code{-unused} appended
-if the variable does not appear in the final model.
+This function returns a matrix showing the relative importances of the
+variables in the model.  There is a row for each variable.  The row
+name is the variable name, but with \code{-unused} appended if the
+variable does not appear in the final model.
 
 The columns of the matrix are:\cr
 \code{col}: column index of the variable in the \code{x} argument to \code{earth}.\cr
@@ -58,7 +58,8 @@ down the \code{gcv} or \code{rss} column.
 
 What exactly is variable importance?
 A working definition is that a variable's importance is a measure
-of the effect that observed changes to the variable have on the observed response.
+of the effect that observed changes to the variable have on the observed response
+(or better, the expectation of that effect over the population).
 It is this measure of importance that \code{evimp} tries to estimate.
 
 Variable importance in the \emph{equation that MARS derives from the data}
@@ -78,16 +79,19 @@ However, except in special situations, there are problems with this because:
 For example, in the \code{\link{trees}} data,
 we cannot simply generate a new tree of arbitrary height.
 
-(ii) it assumes that changes to a variable occur in isolation.
+(ii) it assumes that changes to a variable can occur in isolation.
 In practice, a variable is usually tied to other variables,
 and a change to the variable would never occur without simultaneous
 changes to other variables.
 For example, in the \code{\link{trees}} data, a change to the height
 is associated with a change in the girth.
+Thus is is better to think in terms of the effect of the variable on
+the response averaged over the entire population.
+That is to say, the \emph{expected} effect.
+In practice, we have to figure out how to use the sample
+as a surrogate for the population, which is not trivial.
 
 [Note: this section was written in response to several emails about \code{evimp}.
-%A common confusion is equating variable importance in the MARS equation to the
-%variable importance in the data.
 Your comments would be appreciated.]
 
 \bold{Estimating variable importance}
@@ -96,14 +100,15 @@ Establishing predictor importance is in general a tricky and even controversial 
 There is no completely reliable way to estimate the importance of the variables
 in a standard MARS model,
 unless you make further lengthy tests after the model is built
-(lengthy tests such as leave-one-out techniques,
+(lengthy tests such as cross-validation
+or leave-one-out techniques ---
 see the section below on building many models).
 The \code{evimp} function just makes an educated (and in practice useful)
 guess as described below.
 
 \bold{Three criteria for estimating variable importance}
 
-The \code{evimp} functions uses three criteria for estimating variable importance.
+The \code{evimp} functions uses three criteria for estimating variable importance in a MARS model.
 
 1. The \code{nsubsets} criterion counts the number of model subsets that include the variable.
 Variables that are included in more subsets are considered more important.
@@ -119,7 +124,7 @@ for estimating variable importance.
 for each subset relative to the previous subset.
 (For multiple response models, RSS's are calculated over all responses.)
 Then for each variable it sums these decreases over all subsets that include the variable.
-Finally it scales the summed decreases so the maximum summed decrease is 100.
+Finally, for ease of interpretation the summed decreases are scaled so the largest summed decrease is 100.
 Variables which cause larger net decreases in the RSS are considered more important.
 
 3. The \code{gcv} criterion is the same, but uses the GCV instead of the RSS.
@@ -235,11 +240,6 @@ See the functions \code{\link[randomForest]{randomForest}} and
 
 This function is useful in practice but the following issues can make it misleading.
 
-MARS models have a high variance --- if the data changes a little,
-the set of basis terms created by the forward pass can change a lot.
-So estimates of predictor importance can be unreliable
-because they can vary with even slightly different training data.
-
 Collinear (or otherwise related) variables can mask each other's importance,
 just as in linear models.
 This means that if two predictors are closely related, the forward pass will
@@ -251,6 +251,11 @@ thus interaction terms are counted more than once
 and get a total higher weighting than additive terms (questionably).
 Each variable gets equal credit in interaction terms even though
 one variable in that term may be far more important than the other.
+
+MARS models can sometimes have a high variance --- if the data changes
+a little, the set of basis terms created by the forward pass can
+change a lot.  So estimates of predictor importance can be unreliable
+because they can vary with different training data.
 
 For factor predictors, importances are estimated on a per-level basis.
 The \code{evimp} function should probably aggregate these over all levels.

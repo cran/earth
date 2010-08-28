@@ -16,7 +16,7 @@ Predict with an \code{\link{earth}} model.
   }
   \item{newdata}{
     Make predictions using \code{newdata}, which
-    can be a dataframe, a matrix, or a vector with length equal to a multiple of the row length
+    can be a data frame, a matrix, or a vector with length equal to a multiple of the column length
     of the original input matrix \code{x}.
     Note that this is more flexible than the predict methods for most R models.
     Default is NULL, meaning return values predicted from the training set.
@@ -28,7 +28,7 @@ Predict with an \code{\link{earth}} model.
   }
   \item{thresh}{
     Threshold, a value between 0 and 1 when predicting a probability.
-    Only applies when \code{type="class"}. 
+    Only applies when \code{type="class"}.
     Default is .5.
     See the \bold{Note} below.
   }
@@ -48,20 +48,20 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
 
     Use the default \code{type="link"}, or possibly \code{type="class"}.
 
-    Actually, the \code{"link"}, \code{"response"}, and \code{"earth"} 
+    Actually, the \code{"link"}, \code{"response"}, and \code{"earth"}
     choices all return the same value unless the \code{glm} argument
     was used in the original call to \code{\link{earth}}.
 
 \bold{Predicting with earth-GLM models}
 
-    This section applies to earth models with a GLM component, i.e., 
+    This section applies to earth models with a GLM component, i.e.,
     when the \code{glm} argument was used
     in the original call to \code{\link{earth}}.
 
     The \code{"link"} and \code{"response"} options:
     see \code{\link{predict.glm}} for a description of these.
-    In brief: for logistic models 
-    use \code{type="link"} to get log-odds and 
+    In brief: for logistic models
+    use \code{type="link"} to get log-odds and
     \code{type="response"} to get probabilities.
 
     Use option \code{"earth"} to get the linear fit (this gives the prediction you would get
@@ -82,11 +82,11 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
     although \code{thresh} here may legitimately be a value
     outside the 0...1 range.
 
-    (iii) When \code{y} is a \emph{two level factor}, 
+    (iii) When \code{y} is a \emph{two level factor},
     predict the second level if its probability is more than \code{thresh}.
     In other words, with the default \code{thresh=.5} predict the most probable level.
 
-    (iv) When \code{y} is a \emph{three or more level factor}, 
+    (iv) When \code{y} is a \emph{three or more level factor},
     predict the most probable level (and \code{thresh} is ignored).
 
 \bold{Predicting with "terms"}
