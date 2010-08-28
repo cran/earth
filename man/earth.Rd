@@ -1622,7 +1622,7 @@ The \code{caret} package provides functions for bagging earth (and for
 parameter selection).  Our personal experience has been that bagging
 MARS does not give models with better predictive ability (probably
 because MARS is actually fairly stable in the presence of perturbations of the
-data --- more stable than we originally thought --- and bagging works
+data, and bagging works
 best for "unstable" models).  Your mileage may vary.  We used a
 modified version of earth that randomized the set of variables
 available at each forward step to increase variability (similar to
