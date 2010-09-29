@@ -19,7 +19,7 @@ Loading required package: class
 > PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
 > options.old <- options()
 > options(warn=1) # print warnings as they occur
-> options(digits=5)
+> # options(digits=5) # removed because want to check against default
 > 
 > printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 + {
@@ -121,7 +121,7 @@ After backward pass GRSq -0.5893 RSq 0.9587
 > yhat <- predict(a, newdata = trees[test.subset, ])
 > y <- trees$Volume[test.subset]
 > printh(sum((yhat - mean(yhat))^2) / sum((y - mean(y))^2)) # print R-Squared
-===sum((yhat - mean(yhat))^2)/sum((y - mean(y))^2) [1] 1.0577
+===sum((yhat - mean(yhat))^2)/sum((y - mean(y))^2) [1] 1.057729
 > get.used.pred.names <- function(obj) # obj is an earth object
 + {
 +   any1 <- function(x) any(x != 0)    # like any but no warning if x is double
@@ -141,15 +141,15 @@ Reached max number of terms 21
 After forward pass GRSq 0.4069 RSq 0.4487
 Prune method "backward" penalty 3 nprune 16: selected 9 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.4222 RSq 0.4441 
-GLM survived: null.deviance 1414.6 (1045 dof)   deviance 879.62 (1037 dof)   iters 5
+GLM survived: null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(a1)
 ===a1 
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-Earth GCV 0.13985    RSS 140.47    GRSq 0.42218    RSq 0.44409
+Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888
 
-GLM null.deviance 1414.6 (1045 dof)   deviance 879.62 (1037 dof)   iters 5
+GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > 
 > a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
 +              degree=2, trace=1,
@@ -161,15 +161,15 @@ Reached max number of terms 21
 After forward pass GRSq 0.4069 RSq 0.4487
 Prune method "backward" penalty 3 nprune 16: selected 9 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.4222 RSq 0.4441 
-GLM etitanic[,2]: null.deviance 1414.6 (1045 dof)   deviance 879.62 (1037 dof)   iters 5
+GLM etitanic[,2]: null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(a1a)
 ===a1a 
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-Earth GCV 0.13985    RSS 140.47    GRSq 0.42218    RSq 0.44409
+Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888
 
-GLM null.deviance 1414.6 (1045 dof)   deviance 879.62 (1037 dof)   iters 5
+GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > 
 > a2 <- earth(pclass ~ ., data=etitanic, trace=1, glm=list(family=binomial))
 x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
@@ -179,9 +179,9 @@ Reached delta RSq threshold (DeltaRSq 0.00061857 < 0.001)
 After forward pass GRSq 0.163 RSq 0.1947
 Prune method "backward" penalty 2 nprune 10: selected 8 of 10 terms, and 4 of 5 predictors
 After backward pass GRSq 0.1670 RSq 0.1891 
-GLM 1st: null.deviance 1223.3 (1045 dof)   deviance 920.8 (1038 dof)   iters 5
-GLM 2nd: null.deviance 1175.3 (1045 dof)   deviance 1147.5 (1038 dof)   iters 5
-GLM 3rd: null.deviance 1448.2 (1045 dof)   deviance 1142.8 (1038 dof)   iters 5
+GLM 1st: null.deviance 1223.308 (1045 dof)   deviance 920.8021 (1038 dof)   iters 5
+GLM 2nd: null.deviance 1175.305 (1045 dof)   deviance 1147.518 (1038 dof)   iters 5
+GLM 3rd: null.deviance 1448.212 (1045 dof)   deviance 1142.756 (1038 dof)   iters 5
 > printh(a2)
 ===a2 
 Earth selected 8 of 10 terms, and 4 of 5 predictors 
@@ -189,17 +189,17 @@ Importance: age, survived, sibsp, parch, sexmale-unused
 Number of terms at each degree of interaction: 1 7 (additive model)
 
 Earth
-        GCV    RSS       GRSq      RSq
-1st 0.14834 150.75  0.2514487 0.271371
-2nd 0.18855 191.61 -0.0049713 0.021776
-3rd 0.19277 195.90  0.2290327 0.249552
-All 0.52966 538.25  0.1669694 0.189140
+          GCV      RSS         GRSq        RSq
+1st 0.1483414 150.7467  0.251448718 0.27137124
+2nd 0.1885520 191.6094 -0.004971341 0.02177575
+3rd 0.1927692 195.8949  0.229032722 0.24955184
+All 0.5296626 538.2511  0.166969402 0.18914032
 
 GLM (family binomial, link logit)
-    null.deviance   df deviance   df iters converged
-1st        1223.3 1045    920.8 1038     5         1
-2nd        1175.3 1045   1147.5 1038     5         1
-3rd        1448.2 1045   1142.8 1038     5         1
+    null.deviance   df  deviance   df iters converged
+1st      1223.308 1045  920.8021 1038     5         1
+2nd      1175.305 1045 1147.5176 1038     5         1
+3rd      1448.213 1045 1142.7559 1038     5         1
 > 
 > ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
 > sex <- factor(rep(c("male", "female"), times=c(6,6)))
@@ -215,15 +215,15 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
-GLM numdead: null.deviance 124.88 (11 dof)   deviance 5.566 (9 dof)   iters 4
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 5.565963 (9 dof)   iters 4
 > printh(a3)
 ===a3 
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
+Earth GCV 2.376093    RSS 9.70238    GRSq 0.952486    RSq 0.9807588
 
-GLM null.deviance 124.88 (11 dof)   deviance 5.566 (9 dof)   iters 4
+GLM null.deviance 124.8756 (11 dof)   deviance 5.565963 (9 dof)   iters 4
 > 
 > numdead2 <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
 > doublepair <- cbind(numdead, numalive=20-numdead,
@@ -238,8 +238,8 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.658 RSq 0.9293
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.8255 RSq 0.9293 
-GLM numdead: null.deviance 124.88 (11 dof)   deviance 6.757 (9 dof)   iters 4
-GLM numdead2: null.deviance 91.625 (11 dof)   deviance 16.067 (9 dof)   iters 4
+GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead2: null.deviance 91.62481 (11 dof)   deviance 16.06743 (9 dof)   iters 4
 > printh(a4)
 ===a4 
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
@@ -247,15 +247,15 @@ Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 
 Earth
-             GCV     RSS    GRSq     RSq
-numdead   2.3761  9.7024 0.95249 0.98076
-numdead2 15.7738 64.4095 0.70798 0.88175
-All      18.1499 74.1119 0.82552 0.92934
+               GCV       RSS      GRSq       RSq
+numdead   2.376093  9.702381 0.9524860 0.9807588
+numdead2 15.773761 64.409524 0.7079827 0.8817451
+All      18.149854 74.111905 0.8255238 0.9293443
 
 GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead        124.876 11    6.757  9     4         1
-numdead2        91.625 11   16.067  9     4         1
+         null.deviance df  deviance df iters converged
+numdead      124.87559 11  6.757064  9     4         1
+numdead2      91.62481 11 16.067427  9     4         1
 > 
 > counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 > outcome <- gl(3,1,9)
@@ -270,15 +270,15 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq -6.576 RSq 0.5265
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
 After backward pass GRSq -0.894 RSq 0.5265 
-GLM counts: null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
+GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 > printh(a5)
 ===a5 
 Earth selected 3 of 3 terms, and 2 of 4 predictors 
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 46.875    RSS 83.333    GRSq -0.89394    RSq 0.52652
+Earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
-GLM null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
+GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 > 
 > a6 <- earth(numdead ~ sex + ldose, trace=1, pmethod="none",
 +             glm=list(family=gaussian(link=identity)))
@@ -289,7 +289,7 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
-GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.7024 (9 dof)   iters 2
+GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
 > printh(a6$coefficients == a6$glm.coefficients)  # all TRUE
 ===a6$coefficients == a6$glm.coefficients 
             numdead
@@ -301,9 +301,9 @@ sexmale        TRUE
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 2.3761    RSS 9.7024    GRSq 0.95249    RSq 0.98076
+Earth GCV 2.376093    RSS 9.70238    GRSq 0.952486    RSq 0.9807588
 
-GLM null.deviance 504.25 (11 dof)   deviance 9.7024 (9 dof)   iters 2
+GLM null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
 > 
 > remove(ldose)
 > remove(sex)
@@ -321,10 +321,10 @@ Selected 4 of 6 terms, and 2 of 2 predictors
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 
-            GCV      RSS    GRSq     RSq
-Volume 10.60632 197.0722 0.96201 0.97569
-lvol    0.01354   0.2515 0.95270 0.96973
-All    10.61985 197.3237 0.96200 0.97568
+             GCV        RSS      GRSq       RSq
+Volume 10.606315 197.072183 0.9620131 0.9756884
+lvol    0.013537   0.251526 0.9526989 0.9697273
+All    10.619852 197.323709 0.9620035 0.9756823
 > attach(trees)
 > printh(earth(data.frame(Girth,Height), data.frame(Volume,lvol=log(Volume))))
 ===earth(data.frame(Girth, Height), data.frame(Volume, lvol = log(Volume))) 
@@ -332,10 +332,10 @@ Selected 4 of 6 terms, and 2 of 2 predictors
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 
-            GCV      RSS    GRSq     RSq
-Volume 10.60632 197.0722 0.96201 0.97569
-lvol    0.01354   0.2515 0.95270 0.96973
-All    10.61985 197.3237 0.96200 0.97568
+             GCV        RSS      GRSq       RSq
+Volume 10.606315 197.072183 0.9620131 0.9756884
+lvol    0.013537   0.251526 0.9526989 0.9697273
+All    10.619852 197.323709 0.9620035 0.9756823
 > detach(trees)
 > 
 > cat("--- print.default of earth object---------\n")
@@ -547,24 +547,24 @@ Training Misclassification Error: 0.02667 ( N = 150 )
 ===summary(a$fit) 
 Call: earth(x=x, y=Theta, weights=weights, keepxy=TRUE)
 
-                          y1       y2
-(Intercept)         -2.25936 -0.57709
-h(Sepal.Length-4.9) -0.14994 -0.30581
-h(Petal.Length-3.6)  1.39103  0.31757
-h(Petal.Length-4.5) -0.50095  1.27312
-h(4.5-Petal.Length)  1.14941 -0.02317
-h(Petal.Length-5.4) -0.84627 -1.47152
-h(Petal.Width-1.6)   2.29784  3.94512
-h(Petal.Width-1.9)  -2.72633 -4.69223
+                            y1         y2
+(Intercept)         -2.2593563 -0.5770863
+h(Sepal.Length-4.9) -0.1499415 -0.3058077
+h(Petal.Length-3.6)  1.3910265  0.3175657
+h(Petal.Length-4.5) -0.5009526  1.2731238
+h(4.5-Petal.Length)  1.1494121 -0.0231700
+h(Petal.Length-5.4) -0.8462664 -1.4715197
+h(Petal.Width-1.6)   2.2978429  3.9451201
+h(Petal.Width-1.9)  -2.7263266 -4.6922255
 
 Selected 8 of 13 terms, and 3 of 4 predictors 
 Importance: Petal.Length, Petal.Width, Sepal.Length, Sepal.Width-unused
 Number of terms at each degree of interaction: 1 7 (additive model)
 
-         GCV    RSS    GRSq     RSq
-y1  0.064453  7.831 0.93640 0.94779
-y2  0.125599 15.260 0.87607 0.89826
-All 0.190052 23.091 0.90624 0.92303
+           GCV       RSS      GRSq       RSq
+y1  0.06445282  7.831017 0.9364037 0.9477932
+y2  0.12559901 15.260280 0.8760701 0.8982648
+All 0.19005183 23.091297 0.9062369 0.9230290
 > if (PLOT) {
 +     plot(a$fit)
 +     plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
@@ -588,19 +588,19 @@ Training Misclassification Error: 0.04 ( N = 150 )
 ===summary(a$fit) 
 Call: earth(x=x, y=Theta, weights=weights, keepxy=TRUE, nk=3)
 
-                        y1        y2
-(Intercept)        -1.3008 -0.743677
-h(Petal.Width-1.2)  1.3512  2.223662
-h(1.2-Petal.Width)  2.6013  0.038969
+                          y1          y2
+(Intercept)        -1.300791 -0.74367728
+h(Petal.Width-1.2)  1.351182  2.22366217
+h(1.2-Petal.Width)  2.601323  0.03896856
 
 Selected 3 of 3 terms, and 1 of 4 predictors 
 Importance: Petal.Width, Sepal.Length-unused, Sepal.Width-unused, Petal.Length-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 
-        GCV    RSS    GRSq     RSq
-y1  0.11904 16.685 0.88255 0.88877
-y2  0.24302 34.063 0.76021 0.77292
-All 0.36205 50.748 0.82138 0.83084
+          GCV      RSS      GRSq       RSq
+y1  0.1190355 16.68481 0.8825464 0.8887680
+y2  0.2430154 34.06267 0.7602140 0.7729156
+All 0.3620509 50.74747 0.8213802 0.8308418
 > head(etitanic) # pclass and sex are unordered factors
   pclass survived    sex     age sibsp parch
 1    1st        1 female 29.0000     0     0
@@ -633,11 +633,11 @@ Selected 8 of 10 terms, and 4 of 5 predictors
 Importance: age, survived, sibsp, parch, sexmale-unused
 Number of terms at each degree of interaction: 1 7 (additive model)
 
-        GCV    RSS       GRSq      RSq
-1st 0.14834 150.75  0.2514487 0.271371
-2nd 0.18855 191.61 -0.0049713 0.021776
-3rd 0.19277 195.90  0.2290327 0.249552
-All 0.52966 538.25  0.1669694 0.189140
+          GCV      RSS         GRSq        RSq
+1st 0.1483414 150.7467  0.251448718 0.27137124
+2nd 0.1885520 191.6094 -0.004971341 0.02177575
+3rd 0.1927692 195.8949  0.229032722 0.24955184
+All 0.5296626 538.2511  0.166969402 0.18914032
 > 
 > cat("--- format.earth.Rd ----------------------\n")
 --- format.earth.Rd ----------------------
@@ -655,19 +655,19 @@ All 0.52966 538.25  0.1669694 0.189140
 > a <- earth(Volume ~ ., data = trees)
 > my.func <- as.func(a, use.names = FALSE)
 > printh(my.func(c(10,80)))     # yields 17.76888
-===my.func(c(10, 80)) [1] 18.111
+===my.func(c(10, 80)) [1] 18.11065
 > printh(predict(a, c(10,80)))  # yields 17.76888, but is slower
-===predict(a, c(10, 80))      Volume
-[1,] 18.111
+===predict(a, c(10, 80))        Volume
+[1,] 18.11065
 > example(format.earth)
 
 frmt.r> a <- earth(Volume ~ ., data = trees)
 
 frmt.r> cat(format(a))
-  27.246
-  +  6.1767 * h(Girth-14)
-  -  3.2662 * h(14-Girth)
-  + 0.49121 * h(Height-72)
+  27.2459
+  +  6.176692 * h(Girth-14)
+  -  3.266228 * h(14-Girth)
+  + 0.4912072 * h(Height-72)
 
 frmt.r> # yields:
 frmt.r> #    27.2
@@ -676,32 +676,32 @@ frmt.r> #    -  3.27 * h(14-Girth)
 frmt.r> #    + 0.491 * h(Height-72)
 frmt.r> 
 frmt.r> cat(format(a, style="pmax")) # default formatting style prior to earth version 1.4
-  27.246
-  +  6.1767 * pmax(0,  Girth -     14) 
-  -  3.2662 * pmax(0,     14 -  Girth) 
-  + 0.49121 * pmax(0, Height -     72) 
+  27.2459
+  +  6.176692 * pmax(0,  Girth -     14) 
+  -  3.266228 * pmax(0,     14 -  Girth) 
+  + 0.4912072 * pmax(0, Height -     72) 
 
 frmt.r> # yields:
 frmt.r> #    27.2
-frmt.r> #    +  6.18 * pmax(0,  Girth -     14) 
-frmt.r> #    -  3.27 * pmax(0,     14 -  Girth) 
-frmt.r> #    + 0.491 * pmax(0, Height -     72) 
+frmt.r> #    +  6.18 * pmax(0,  Girth -     14)
+frmt.r> #    -  3.27 * pmax(0,     14 -  Girth)
+frmt.r> #    + 0.491 * pmax(0, Height -     72)
 frmt.r> 
 frmt.r> cat(format(a, style="bf"))
-  27.246
-  +  6.1767 * bf1
-  -  3.2662 * bf2
-  + 0.49121 * bf3
+  27.2459
+  +  6.176692 * bf1
+  -  3.266228 * bf2
+  + 0.4912072 * bf3
 
    bf1  h(Girth-14)
    bf2  h(14-Girth)
    bf3  h(Height-72)
 > a <- earth(Volume ~ ., data = trees)
 > cat(format(a)) # basic tests of format.earth
-  27.246
-  +  6.1767 * h(Girth-14)
-  -  3.2662 * h(14-Girth)
-  + 0.49121 * h(Height-72)
+  27.2459
+  +  6.176692 * h(Girth-14)
+  -  3.266228 * h(14-Girth)
+  + 0.4912072 * h(Height-72)
 > cat(format(a, digits=4))
   27.25
   +  6.177 * h(Girth-14)
@@ -709,79 +709,79 @@ frmt.r> cat(format(a, style="bf"))
   + 0.4912 * h(Height-72)
 > # cat(format(a, use.names=FALSE))
 > cat(format(a, style="pmax"))
-  27.246
-  +  6.1767 * pmax(0,  Girth -     14) 
-  -  3.2662 * pmax(0,     14 -  Girth) 
-  + 0.49121 * pmax(0, Height -     72) 
+  27.2459
+  +  6.176692 * pmax(0,  Girth -     14) 
+  -  3.266228 * pmax(0,     14 -  Girth) 
+  + 0.4912072 * pmax(0, Height -     72) 
 > cat(format(a, style="max"))
-  27.246
-  +  6.1767 * max(0,  Girth -     14) 
-  -  3.2662 * max(0,     14 -  Girth) 
-  + 0.49121 * max(0, Height -     72) 
+  27.2459
+  +  6.176692 * max(0,  Girth -     14) 
+  -  3.266228 * max(0,     14 -  Girth) 
+  + 0.4912072 * max(0, Height -     72) 
 > cat(format(a, style="bf"))
-  27.246
-  +  6.1767 * bf1
-  -  3.2662 * bf2
-  + 0.49121 * bf3
+  27.2459
+  +  6.176692 * bf1
+  -  3.266228 * bf2
+  + 0.4912072 * bf3
 
    bf1  h(Girth-14)
    bf2  h(14-Girth)
    bf3  h(Height-72)
 > cat(format(a, use.names=FALSE, style="p"))
-  27.246
-  +  6.1767 * pmax(0, x[,1] -    14) 
-  -  3.2662 * pmax(0,    14 - x[,1]) 
-  + 0.49121 * pmax(0, x[,2] -    72) 
+  27.2459
+  +  6.176692 * pmax(0, x[,1] -    14) 
+  -  3.266228 * pmax(0,    14 - x[,1]) 
+  + 0.4912072 * pmax(0, x[,2] -    72) 
 > cat(format(a, use.names=FALSE, style="m"))
-  27.246
-  +  6.1767 * max(0, x[,1] -    14) 
-  -  3.2662 * max(0,    14 - x[,1]) 
-  + 0.49121 * max(0, x[,2] -    72) 
+  27.2459
+  +  6.176692 * max(0, x[,1] -    14) 
+  -  3.266228 * max(0,    14 - x[,1]) 
+  + 0.4912072 * max(0, x[,2] -    72) 
 > a <- earth(Volume ~ Girth*Height, data = trees, pmethod="none")
 > cat(format(a))
-  23.999
-  +   2.3324 * h(Girth-12.9)
-  -   0.7651 * h(12.9-Girth)
-  + 0.040335 * h(Girth:Height-954.6)
-  - 0.026536 * h(954.6-Girth:Height)
+  23.99875
+  +   2.332447 * h(Girth-12.9)
+  -  0.7650929 * h(12.9-Girth)
+  + 0.04033515 * h(Girth:Height-954.6)
+  - 0.02653566 * h(954.6-Girth:Height)
 > cat(format(a, colon.char="*"))
-  23.999
-  +   2.3324 * h(Girth-12.9)
-  -   0.7651 * h(12.9-Girth)
-  + 0.040335 * h(Girth*Height-954.6)
-  - 0.026536 * h(954.6-Girth*Height)
+  23.99875
+  +   2.332447 * h(Girth-12.9)
+  -  0.7650929 * h(12.9-Girth)
+  + 0.04033515 * h(Girth*Height-954.6)
+  - 0.02653566 * h(954.6-Girth*Height)
 > a <- lm(Volume ~ ., data = trees)
 > cat(format(a)) # basic tests of format.lm
-  -57.988
-  +  4.7082 * Girth
-  + 0.33925 * Height
+  -57.98766
+  +  4.708161 * Girth
+  + 0.3392512 * Height
 > cat(format(a, digits=4))
   -57.99
   +  4.708 * Girth
   + 0.3393 * Height
 > cat(format(a, use.names=FALSE))
-  -57.988
-  +  4.7082 * x[,1]
-  + 0.33925 * x[,2]
+  -57.98766
+  +  4.708161 * x[,1]
+  + 0.3392512 * x[,2]
 > cat(format(a, style="p"))
-  -57.988
-  +  4.7082 * Girth
-  + 0.33925 * Height
+  -57.98766
+  +  4.708161 * Girth
+  + 0.3392512 * Height
 > cat(format(a, use.names=FALSE, style="p"))
-  -57.988
-  +  4.7082 * x[,1]
-  + 0.33925 * x[,2]
+  -57.98766
+  +  4.708161 * x[,1]
+  + 0.3392512 * x[,2]
 > a <- lm(Volume ~ Girth*Height, data = trees)
 > cat(format(a))
-  69.396
-  -  5.8558 * Girth
-  -  1.2971 * Height
-  + 0.13465 * Girth:Height
+  69.39632
+  -  5.855848 * Girth
+  -  1.297083 * Height
+  + 0.1346544 * Girth:Height
 > cat(format(a, colon.char="*"))
-  69.396
-  -  5.8558 * Girth
-  -  1.2971 * Height
-  + 0.13465 * Girth*Height
+  69.39632
+  -  5.855848 * Girth
+  -  1.297083 * Height
+  + 0.1346544 * Girth*Height
 > cat("--- mars.to.earth.Rd ----------------------\n")
 --- mars.to.earth.Rd ----------------------
 > example(mars.to.earth) # doesn't do anything
@@ -907,42 +907,42 @@ prdct.> data(trees)
 prdct.> a <- earth(Volume ~ ., data = trees)
 
 prdct.> predict(a)           # same as a$fitted.values
-       Volume
- [1,]  8.6284
- [2,]  9.6083
- [3,] 10.2615
- [4,] 15.8141
- [5,] 20.8882
- [6,] 22.1973
- [7,] 17.4472
- [8,] 18.9208
- [9,] 21.7035
-[10,] 19.5741
-[11,] 21.8655
-[12,] 20.7185
-[13,] 20.7185
-[14,] 19.7336
-[15,] 22.1871
-[16,] 24.6355
-[17,] 30.0387
-[18,] 31.8364
-[19,] 26.2660
-[20,] 26.5927
-[21,] 30.1931
-[22,] 32.4109
-[23,] 31.3167
-[24,] 39.5993
-[25,] 43.9083
-[26,] 52.0498
-[27,] 53.7764
-[28,] 55.2647
-[29,] 55.8823
-[30,] 55.8823
-[31,] 75.3802
+         Volume
+ [1,]  8.628402
+ [2,]  9.608270
+ [3,] 10.261516
+ [4,] 15.814103
+ [5,] 20.888213
+ [6,] 22.197250
+ [7,] 17.447216
+ [8,] 18.920838
+ [9,] 21.703497
+[10,] 19.574084
+[11,] 21.865535
+[12,] 20.718536
+[13,] 20.718536
+[14,] 19.733576
+[15,] 22.187066
+[16,] 24.635464
+[17,] 30.038743
+[18,] 31.836441
+[19,] 26.266031
+[20,] 26.592654
+[21,] 30.193143
+[22,] 32.410896
+[23,] 31.316660
+[24,] 39.599283
+[25,] 43.908327
+[26,] 52.049848
+[27,] 53.776393
+[28,] 55.264655
+[29,] 55.882325
+[30,] 55.882325
+[31,] 75.380174
 
 prdct.> predict(a, c(10,80)) # yields 18.11
-     Volume
-[1,] 18.111
+       Volume
+[1,] 18.11065
 > cat("--- update.earth.Rd ----------------------\n")
 --- update.earth.Rd ----------------------
 > example(update.earth)
@@ -953,10 +953,10 @@ updt.r> (a <- earth(O3 ~ ., data = ozone1, degree = 2))
 Selected 11 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 13.454    RSS 3767.9    GRSq 0.791    RSq 0.82156
+GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 
 updt.r> # yields:
-updt.r> #    Selected 11 of 21 terms, and 8 of 9 predictors 
+updt.r> #    Selected 11 of 21 terms, and 8 of 9 predictors
 updt.r> #    Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 updt.r> #    Number of terms at each degree of interaction: 1 5 5
 updt.r> #    GCV 13.5    RSS 3768    GRSq 0.791    RSq 0.822
@@ -965,10 +965,10 @@ updt.r> update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
 Selected 14 of 21 terms, and 8 of 8 predictors 
 Importance: ibt, humidity, doy, vh, ibh, dpg, wind, vis
 Number of terms at each degree of interaction: 1 5 8
-GCV 13.134    RSS 3498.9    GRSq 0.79598    RSq 0.8343
+GCV 13.13386    RSS 3498.871    GRSq 0.7959809    RSq 0.8342977
 
 updt.r> # yields:
-updt.r> #    Selected 14 of 21 terms, and 8 of 8 predictors 
+updt.r> #    Selected 14 of 21 terms, and 8 of 8 predictors
 updt.r> #    Importance: ibt, humidity, doy, vh, ibh, dpg, wind, vis
 updt.r> #    Number of terms at each degree of interaction: 1 5 8
 updt.r> #    GCV 13.1    RSS 3499    GRSq 0.796    RSq 0.834
@@ -977,10 +977,10 @@ updt.r> update(a, nprune = 8)              # requires only pruning
 Selected 8 of 21 terms, and 6 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh-unused, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 2
-GCV 15.082    RSS 4434.6    GRSq 0.76572    RSq 0.78998
+GCV 15.08166    RSS 4434.568    GRSq 0.7657241    RSq 0.7899842
 
 updt.r> # yields:
-updt.r> #    Selected 8 of 21 terms, and 6 of 9 predictors 
+updt.r> #    Selected 8 of 21 terms, and 6 of 9 predictors
 updt.r> #    Importance: temp, humidity, ibt, doy, dpg, ibh-unused, vis, vh-unused, wind-unused
 updt.r> #    Number of terms at each degree of interaction: 1 5 2
 updt.r> #    GCV 15.1    RSS 4435    GRSq 0.766    RSq 0.79
@@ -989,7 +989,7 @@ updt.r> update(a, penalty=1, ponly=TRUE)   # pruning pass only with a new penalt
 Selected 13 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 7
-GCV 12.525    RSS 3671.1    GRSq 0.80544    RSq 0.82614
+GCV 12.5252    RSS 3671.06    GRSq 0.8054357    RSq 0.826143
 > cat("--- evimp.Rd -----------------------------\n")
 --- evimp.Rd -----------------------------
 > example(evimp)
@@ -1003,16 +1003,16 @@ evimp> ev <- evimp(a, trim=FALSE, sqrt.=TRUE)
 evimp> plot(ev)
 
 evimp> print(ev)
-          col used nsubsets      gcv        rss  
-temp        4    1       10 100.0000 1 100.0000 1
-humidity    3    1        8  35.5699 1  38.4267 1
-ibt         7    1        8  35.5699 1  38.4267 1
-doy         9    1        7  33.5772 1  35.9699 1
-dpg         6    1        5  25.9476 1  27.9679 1
-ibh         5    1        4  30.8791 0  32.2796 0
-vis         8    1        4  20.8403 1  22.9380 1
-wind        2    1        1   8.6581 1   9.9253 1
-vh-unused   1    0        0   0.0000 1   0.0000 1
+          col used nsubsets        gcv          rss  
+temp        4    1       10 100.000000 1 100.000000 1
+humidity    3    1        8  35.569904 1  38.426666 1
+ibt         7    1        8  35.569904 1  38.426666 1
+doy         9    1        7  33.577198 1  35.969912 1
+dpg         6    1        5  25.947585 1  27.967941 1
+ibh         5    1        4  30.879132 0  32.279598 0
+vis         8    1        4  20.840331 1  22.937969 1
+wind        2    1        1   8.658101 1   9.925277 1
+vh-unused   1    0        0   0.000000 1   0.000000 1
 > cat("--- plot.evimp.Rd ------------------------\n")
 --- plot.evimp.Rd ------------------------
 > example(plot.evimp)
@@ -1026,15 +1026,15 @@ plt.vm> ev <- evimp(a)
 plt.vm> plot(ev)
 
 plt.vm> print(ev)
-         col used nsubsets       gcv         rss  
-temp       4    1       10 100.00000 1 100.00000 1
-humidity   3    1        8  12.65218 1  14.76609 1
-ibt        7    1        8  12.65218 1  14.76609 1
-doy        9    1        7  11.27428 1  12.93835 1
-dpg        6    1        5   6.73277 1   7.82206 1
-ibh        5    1        4   9.53521 0  10.41972 0
-vis        8    1        4   4.34319 1   5.26150 1
-wind       2    1        1   0.74963 1   0.98511 1
+         col used nsubsets         gcv           rss  
+temp       4    1       10 100.0000000 1 100.0000000 1
+humidity   3    1        8  12.6521804 1  14.7660866 1
+ibt        7    1        8  12.6521804 1  14.7660866 1
+doy        9    1        7  11.2742824 1  12.9383457 1
+dpg        6    1        5   6.7327717 1   7.8220571 1
+ibh        5    1        4   9.5352082 0  10.4197247 0
+vis        8    1        4   4.3431940 1   5.2615043 1
+wind       2    1        1   0.7496272 1   0.9851112 1
 > 
 > cat("--- test predict.earth -------------------\n")
 --- test predict.earth -------------------
@@ -1053,8 +1053,8 @@ Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
 [1,]           1           0           4            8
 predict.earth: returning earth predictions 
-     Volume
-[1,] 18.111
+       Volume
+[1,] 18.11065
 > cat("1b predict(a, c(10,10,80,80))\n")
 1b predict(a, c(10,10,80,80))
 > printh(predict(a, c(10,10,80,80), trace=1))
@@ -1071,9 +1071,9 @@ Contents of bx are
 [2,]           1           0           4            8
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 18.111
-[2,] 18.111
+       Volume
+[1,] 18.11065
+[2,] 18.11065
 > cat("1c predict(a, c(10,11,80,81))\n")
 1c predict(a, c(10,11,80,81))
 > printh(predict(a, c(10,11,80,81), trace=1))
@@ -1090,21 +1090,21 @@ Contents of bx are
 [2,]           1           0           3            9
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 18.111
-[2,] 21.868
+       Volume
+[1,] 18.11065
+[2,] 21.86808
 > cat("2 predict(a)\n")
 2 predict(a)
 > printh(head(predict(a, trace=1)))
 ===head(predict(a, trace = 1)) predict.earth: returning earth fitted.values 
 
-      Volume
-[1,]  8.6284
-[2,]  9.6083
-[3,] 10.2615
-[4,] 15.8141
-[5,] 20.8882
-[6,] 22.1973
+        Volume
+[1,]  8.628402
+[2,]  9.608270
+[3,] 10.261516
+[4,] 15.814103
+[5,] 20.888213
+[6,] 22.197250
 > cat("3a predict(a, matrix(c(10,12), nrow=1, ncol=2))\n")
 3a predict(a, matrix(c(10,12), nrow=1, ncol=2))
 > printh(predict(a, matrix(c(10,12), nrow=1, ncol=2), trace=1))
@@ -1118,8 +1118,8 @@ Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
 [1,]           1           0           4            0
 predict.earth: returning earth predictions 
-     Volume
-[1,] 14.181
+       Volume
+[1,] 14.18099
 > cat("3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)\n")
 3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)
 > printh(predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE), trace=1))
@@ -1136,9 +1136,9 @@ Contents of bx are
 [2,]           1           0           4            0
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 14.181
-[2,] 14.181
+       Volume
+[1,] 14.18099
+[2,] 14.18099
 > cat("3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))\n")
 3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))
 > printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
@@ -1155,9 +1155,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 18.111
-[2,] 29.555
+       Volume
+[1,] 18.11065
+[2,] 29.55517
 > xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
 > colnames(xpredict) <- c("Girth", "Height")
 > cat("4 predict(a, xpredict with colnames)\n")
@@ -1175,9 +1175,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 18.111
-[2,] 29.555
+       Volume
+[1,] 18.11065
+[2,] 29.55517
 > cat("5 predict(a, as.data.frame(xpredict with colnames))\n")
 5 predict(a, as.data.frame(xpredict with colnames))
 > printh(predict(a, as.data.frame(xpredict), trace=1))
@@ -1193,9 +1193,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 18.111
-[2,] 29.555
+       Volume
+[1,] 18.11065
+[2,] 29.55517
 > # reverse dataframe columns (and their names), predict should deal with it correctly
 > xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
 > colnames(xpredict) <- c("Height", "Girth")
@@ -1217,9 +1217,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 18.111
-[2,] 29.555
+       Volume
+[1,] 18.11065
+[2,] 29.55517
 > xpredict2 <- cbind(xpredict[,1], xpredict[,2]) # nameless matrix
 > cat("6b predict(a, xpredict2)\n")
 6b predict(a, xpredict2)
@@ -1237,9 +1237,9 @@ Contents of bx are
 [2,]           1          76           0            0
 predict.earth: returning earth predictions 
 
-     Volume
-[1,] 434.91
-[2,] 496.67
+       Volume
+[1,] 434.9076
+[2,] 496.6745
 > 
 > # repeat but with x,y (not formula) call to earth
 > 
@@ -1253,12 +1253,12 @@ predict.earth: returning earth predictions
 ===head(predict(a, trace = 1)) predict.earth: returning earth fitted.values 
 
      trees$Volume
-[1,]       8.6284
-[2,]       9.6083
-[3,]      10.2615
-[4,]      15.8141
-[5,]      20.8882
-[6,]      22.1973
+[1,]     8.628402
+[2,]     9.608270
+[3,]    10.261516
+[4,]    15.814103
+[5,]    20.888213
+[6,]    22.197250
 > cat("7n predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2)\n")
 7n predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2)
 > printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
@@ -1276,8 +1276,8 @@ Contents of bx are
 predict.earth: returning earth predictions 
 
      trees$Volume
-[1,]       18.111
-[2,]       29.555
+[1,]     18.11065
+[2,]     29.55517
 > colnames(xpredict) <- c("Girth", "Height")
 > cat("8 predict(a, xpredict with colnames)\n")
 8 predict(a, xpredict with colnames)
@@ -1295,8 +1295,8 @@ Contents of bx are
 predict.earth: returning earth predictions 
 
      trees$Volume
-[1,]       18.111
-[2,]       29.555
+[1,]     18.11065
+[2,]     29.55517
 > cat("9 predict(a, as.data.frame(xpredict with colnames))\n")
 9 predict(a, as.data.frame(xpredict with colnames))
 > printh(predict(a, as.data.frame(xpredict), trace=1))
@@ -1313,8 +1313,8 @@ Contents of bx are
 predict.earth: returning earth predictions 
 
      trees$Volume
-[1,]       18.111
-[2,]       29.555
+[1,]     18.11065
+[2,]     29.55517
 > cat("--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'\n")
 --Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'
 > xpredict2 <- cbind(xpredict[,1], xpredict[,2])
@@ -1337,8 +1337,8 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
      trees$Volume
-[1,]       18.111
-[2,]       29.555
+[1,]     18.11065
+[2,]     29.55517
 > cat("--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'\n")
 --Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'
 > xpredict2 <- cbind(xpredict[,1], xpredict[,2])
@@ -1361,8 +1361,8 @@ Contents of bx are
 [2,]           1          76           0            0
 predict.earth: returning earth predictions 
      trees$Volume
-[1,]       434.91
-[2,]       496.67
+[1,]     434.9076
+[2,]     496.6745
 > 
 > cat("--- test predict.earth with multiple response models-------------------\n")
 --- test predict.earth with multiple response models-------------------
@@ -1381,8 +1381,8 @@ Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
 [1,]           1           0           4            8
 predict.earth: returning earth predictions 
-     Volume     y2
-[1,] 18.111 118.11
+       Volume       y2
+[1,] 18.11065 118.1106
 > cat("1b predict(a, c(10,10,80,80))\n")
 1b predict(a, c(10,10,80,80))
 > printh(predict(a, c(10,10,80,80), trace=1))
@@ -1399,9 +1399,9 @@ Contents of bx are
 [2,]           1           0           4            8
 predict.earth: returning earth predictions 
 
-     Volume     y2
-[1,] 18.111 118.11
-[2,] 18.111 118.11
+       Volume       y2
+[1,] 18.11065 118.1106
+[2,] 18.11065 118.1106
 > cat("1c predict(a, c(10,11,80,81))\n")
 1c predict(a, c(10,11,80,81))
 > printh(predict(a, c(10,11,80,81), trace=1))
@@ -1418,21 +1418,21 @@ Contents of bx are
 [2,]           1           0           3            9
 predict.earth: returning earth predictions 
 
-     Volume     y2
-[1,] 18.111 118.11
-[2,] 21.868 121.87
+       Volume       y2
+[1,] 18.11065 118.1106
+[2,] 21.86808 121.8681
 > cat("2 predict(a)\n")
 2 predict(a)
 > printh(head(predict(a, trace=1)))
 ===head(predict(a, trace = 1)) predict.earth: returning earth fitted.values 
 
-      Volume     y2
-[1,]  8.6284 108.63
-[2,]  9.6083 109.61
-[3,] 10.2615 110.26
-[4,] 15.8141 115.81
-[5,] 20.8882 120.89
-[6,] 22.1973 122.20
+        Volume       y2
+[1,]  8.628402 108.6284
+[2,]  9.608270 109.6083
+[3,] 10.261516 110.2615
+[4,] 15.814103 115.8141
+[5,] 20.888213 120.8882
+[6,] 22.197250 122.1973
 > cat("3a predict(a, matrix(c(10,12), nrow=1, ncol=2))\n")
 3a predict(a, matrix(c(10,12), nrow=1, ncol=2))
 > printh(predict(a, matrix(c(10,12), nrow=1, ncol=2), trace=1))
@@ -1446,8 +1446,8 @@ Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
 [1,]           1           0           4            0
 predict.earth: returning earth predictions 
-     Volume     y2
-[1,] 14.181 114.18
+       Volume      y2
+[1,] 14.18099 114.181
 > cat("3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)\n")
 3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)
 > printh(predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE), trace=1))
@@ -1464,9 +1464,9 @@ Contents of bx are
 [2,]           1           0           4            0
 predict.earth: returning earth predictions 
 
-     Volume     y2
-[1,] 14.181 114.18
-[2,] 14.181 114.18
+       Volume      y2
+[1,] 14.18099 114.181
+[2,] 14.18099 114.181
 > cat("3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))\n")
 3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))
 > printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
@@ -1483,9 +1483,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+       Volume       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
 > colnames(xpredict) <- c("Girth", "Height")
 > cat("4 predict(a, xpredict with colnames)\n")
@@ -1503,9 +1503,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+       Volume       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > cat("5 predict(a, as.data.frame(xpredict with colnames))\n")
 5 predict(a, as.data.frame(xpredict with colnames))
 > printh(predict(a, as.data.frame(xpredict), trace=1))
@@ -1521,9 +1521,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+       Volume       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > # reverse dataframe columns (and their names), predict should deal with it correctly
 > xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
 > colnames(xpredict) <- c("Height", "Girth")
@@ -1545,9 +1545,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-     Volume     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+       Volume       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > 
 > # repeat but with x,y (not formula) call to earth
 > 
@@ -1560,13 +1560,13 @@ predict.earth: returning earth predictions
 > printh(head(predict(a, trace=1)))
 ===head(predict(a, trace = 1)) predict.earth: returning earth fitted.values 
 
-          y1     y2
-[1,]  8.6284 108.63
-[2,]  9.6083 109.61
-[3,] 10.2615 110.26
-[4,] 15.8141 115.81
-[5,] 20.8882 120.89
-[6,] 22.1973 122.20
+            y1       y2
+[1,]  8.628402 108.6284
+[2,]  9.608270 109.6083
+[3,] 10.261516 110.2615
+[4,] 15.814103 115.8141
+[5,] 20.888213 120.8882
+[6,] 22.197250 122.1973
 > cat("7b predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2)\n")
 7b predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2)
 > printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
@@ -1583,9 +1583,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-         y1     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+           y1       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > colnames(xpredict) <- c("Girth", "Height")
 > cat("8 predict(a, xpredict with colnames)\n")
 8 predict(a, xpredict with colnames)
@@ -1602,9 +1602,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-         y1     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+           y1       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > cat("9 predict(a, as.data.frame(xpredict with colnames))\n")
 9 predict(a, as.data.frame(xpredict with colnames))
 > printh(predict(a, as.data.frame(xpredict), trace=1))
@@ -1620,9 +1620,9 @@ Contents of bx are
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
 
-         y1     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+           y1       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > cat("--Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'\n")
 --Expect warning from predict.earth: the variable names in 'data' do not match those in 'object'
 > xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
@@ -1644,9 +1644,9 @@ Contents of bx are
 [1,]           1           0           4            8
 [2,]           1           0           2           18
 predict.earth: returning earth predictions 
-         y1     y2
-[1,] 18.111 118.11
-[2,] 29.555 129.56
+           y1       y2
+[1,] 18.11065 118.1106
+[2,] 29.55517 129.5552
 > 
 > cat("--- test reorder.earth ----------------------\n")
 --- test reorder.earth ----------------------
@@ -1787,19 +1787,19 @@ itest 1   funcNoise                        degree 1  nk 5   nTerms 1  of 4   GRS
 Selected 1 of 4 terms, and 0 of 1 predictors 
 Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
+GCV 0.942934    RSS 92.41696    GRSq 0    RSq 0
 > itest <- itest+1; test.earth(itest, funcNoise, nk=5,  degree=2, plotit=FALSE, test.rsq=FALSE)
 itest 2   funcNoise                        degree 2  nk 5   nTerms 1  of 4   GRSq    0
 Selected 1 of 4 terms, and 0 of 1 predictors 
 Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
+GCV 0.942934    RSS 92.41696    GRSq 0    RSq 0
 > itest <- itest+1; test.earth(itest, funcNoise, nk=51, degree=1, plotit=FALSE, test.rsq=FALSE)
 itest 3   funcNoise                        degree 1  nk 51  nTerms 1  of 8   GRSq    0
 Selected 1 of 8 terms, and 0 of 1 predictors 
 Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
+GCV 0.942934    RSS 92.41696    GRSq 0    RSq 0
 > itest <- itest+1; a <- test.earth(itest, funcNoise, nk=51, degree=2, plotit=FALSE, test.rsq=FALSE)
 itest 4   funcNoise                        degree 2  nk 51  nTerms 1  of 8   GRSq    0
 > printh(summary(a, fixed.point=FALSE)) # check that print summary works with intercept only model
@@ -1808,38 +1808,38 @@ Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace,
       degree=degree, nk=nk, pmethod="b", fast.k=-1, linpreds=linpreds)
 
             coefficients
-(Intercept)    -0.044519
+(Intercept)  -0.04451936
 
 Selected 1 of 8 terms, and 0 of 1 predictors 
 Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
+GCV 0.942934    RSS 92.41696    GRSq 0    RSq 0
 > printh(summary(a, fixed.point=FALSE, style="bf")) # ditto
 ===summary(a, fixed.point = FALSE, style = "bf") 
 Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace, 
       degree=degree, nk=nk, pmethod="b", fast.k=-1, linpreds=linpreds)
 
 data.global[,1] =
-  -0.044519
+  -0.04451936
 
 
 Selected 1 of 8 terms, and 0 of 1 predictors 
 Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
+GCV 0.942934    RSS 92.41696    GRSq 0    RSq 0
 > printh(summary(a, details=1, fixed.point=FALSE))
 ===summary(a, details = 1, fixed.point = FALSE) 
 Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace, 
       degree=degree, nk=nk, pmethod="b", fast.k=-1, linpreds=linpreds)
 
             coefficients
-(Intercept)    -0.044519
+(Intercept)  -0.04451936
 
 Number of cases: 100
 Selected 1 of 8 terms, and 0 of 1 predictors 
 Importance: data.global[,-1]-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-GCV 0.94293    RSS 92.417    GRSq 0    RSq 0
+GCV 0.942934    RSS 92.41696    GRSq 0    RSq 0
 > 
 > func1 <- function(x)
 + {
@@ -1852,25 +1852,25 @@ itest 5   func1                            degree 1  nk 5   nTerms 5  of 5   GRS
 Selected 5 of 5 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 4 (additive model)
-GCV 0.12203    RSS 10.105    GRSq 0.85597    RSq 0.8783
+GCV 0.1220314    RSS 10.10542    GRSq 0.855971    RSq 0.878308
 > itest <- itest+1; test.earth(itest, func1, nk=5,   degree=2)
 itest 6   func1                            degree 2  nk 5   nTerms 5  of 5   GRSq 0.85
 Selected 5 of 5 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 4 (additive model)
-GCV 0.12758    RSS 10.105    GRSq 0.84943    RSq 0.8783
+GCV 0.1275776    RSS 10.10542    GRSq 0.849425    RSq 0.878308
 > itest <- itest+1; test.earth(itest, func1, nk=51, degree=1)
 itest 7   func1                            degree 1  nk 51  nTerms 9  of 9   GRSq    1
 Selected 9 of 9 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
-GCV 0.0010490    RSS 0.072267    GRSq 0.99876    RSq 0.99913
+GCV 0.001049021    RSS 0.07226709    GRSq 0.9987619    RSq 0.9991297
 > itest <- itest+1; test.earth(itest, func1, nk=51, degree=2)
 itest 8   func1                            degree 2  nk 51  nTerms 9  of 9   GRSq    1
 Selected 9 of 9 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
-GCV 0.0011579    RSS 0.072267    GRSq 0.99863    RSq 0.99913
+GCV 0.001157941    RSS 0.07226709    GRSq 0.9986333    RSq 0.9991297
 > 
 > func7 <- function(x)    # just one predictor
 + {
@@ -1883,25 +1883,25 @@ itest 9   func7                            degree 1  nk 5   nTerms 4  of 4   GRS
 Selected 4 of 4 terms, and 1 of 1 predictors 
 Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 0.13553    RSS 11.722    GRSq 0.73586    RSq 0.76691
+GCV 0.1355322    RSS 11.72218    GRSq 0.7358613    RSq 0.766908
 > itest <- itest+1; test.earth(itest, func7, nk=5,  degree=2)
 itest 10  func7                            degree 2  nk 5   nTerms 4  of 4   GRSq 0.73
 Selected 4 of 4 terms, and 1 of 1 predictors 
 Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 0.14001    RSS 11.722    GRSq 0.72713    RSq 0.76691
+GCV 0.1400123    RSS 11.72218    GRSq 0.72713    RSq 0.766908
 > itest <- itest+1; test.earth(itest, func7, nk=51, degree=1)
 itest 11  func7                            degree 1  nk 51  nTerms 7  of 8   GRSq 0.99
 Selected 7 of 8 terms, and 1 of 1 predictors 
 Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 6 (additive model)
-GCV 0.0071343    RSS 0.54    GRSq 0.9861    RSq 0.98926
+GCV 0.007134307    RSS 0.5399957    GRSq 0.986096    RSq 0.9892623
 > itest <- itest+1; test.earth(itest, func7, nk=51, degree=2)
 itest 12  func7                            degree 2  nk 51  nTerms 7  of 8   GRSq 0.99
 Selected 7 of 8 terms, and 1 of 1 predictors 
 Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 6 (additive model)
-GCV 0.007653    RSS 0.54    GRSq 0.98509    RSq 0.98926
+GCV 0.007653    RSS 0.5399957    GRSq 0.985085    RSq 0.9892623
 > 
 > func8 <- function(x)
 + {
@@ -1923,74 +1923,74 @@ itest 13  func8                            degree 1  nk 11  nTerms 10 of 11  GRS
 Selected 10 of 11 terms, and 5 of 5 predictors 
 Importance: x1, x5, x2, x3, x4
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV 0.30612    RSS 20.084    GRSq 0.89467    RSq 0.92949
+GCV 0.3061181    RSS 20.08441    GRSq 0.894668    RSq 0.9294885
 > itest <- itest+1; test.earth(itest, func8, nk=11, degree=2)
 itest 14  func8                            degree 2  nk 11  nTerms 10 of 11  GRSq 0.88
 Selected 10 of 11 terms, and 5 of 5 predictors 
 Importance: x1, x5, x2, x3, x4
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV 0.34319    RSS 20.084    GRSq 0.88191    RSq 0.92949
+GCV 0.3431912    RSS 20.08441    GRSq 0.8819115    RSq 0.9294885
 > itest <- itest+1; test.earth(itest, func8, nk=11, degree=10)
 itest 15  func8                            degree 10 nk 11  nTerms 10 of 11  GRSq 0.88
 Selected 10 of 11 terms, and 5 of 5 predictors 
 Importance: x1, x5, x2, x3, x4
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV 0.34319    RSS 20.084    GRSq 0.88191    RSq 0.92949
+GCV 0.3431912    RSS 20.08441    GRSq 0.8819115    RSq 0.9294885
 > itest <- itest+1; test.earth(itest, func8, nk=51, degree=1)
 itest 16  func8                            degree 1  nk 51  nTerms 12 of 17  GRSq 0.92
 Selected 12 of 17 terms, and 5 of 5 predictors 
 Importance: x3, x5, x2, x1, x4
 Number of terms at each degree of interaction: 1 11 (additive model)
-GCV 0.23238    RSS 13.778    GRSq 0.92004    RSq 0.95163
+GCV 0.2323811    RSS 13.77787    GRSq 0.9200401    RSq 0.9516292
 > itest <- itest+1; test.earth(itest, func8, nk=51, degree=2)
 itest 17  func8                            degree 2  nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.051303    RSS 1.3607    GRSq 0.98235    RSq 0.99522
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
 > itest <- itest+1; test.earth(itest, func8, nk=51, degree=10)
 itest 18  func8                            degree 10 nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.051303    RSS 1.3607    GRSq 0.98235    RSq 0.99522
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
 > itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=1,  test.rsq=FALSE)
 itest 19  func8noise                       degree 1  nk 11  nTerms 10 of 11  GRSq 0.89
 Selected 10 of 11 terms, and 5 of 5 predictors 
 Importance: x1, x5, x2, x3, x4
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV 0.30612    RSS 20.084    GRSq 0.89467    RSq 0.92949
+GCV 0.3061181    RSS 20.08441    GRSq 0.894668    RSq 0.9294885
 > itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=2,  test.rsq=FALSE)
 itest 20  func8noise                       degree 2  nk 11  nTerms 10 of 11  GRSq 0.88
 Selected 10 of 11 terms, and 5 of 5 predictors 
 Importance: x1, x5, x2, x3, x4
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV 0.34319    RSS 20.084    GRSq 0.88191    RSq 0.92949
+GCV 0.3431912    RSS 20.08441    GRSq 0.8819115    RSq 0.9294885
 > itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=10, test.rsq=FALSE)
 itest 21  func8noise                       degree 10 nk 11  nTerms 10 of 11  GRSq 0.88
 Selected 10 of 11 terms, and 5 of 5 predictors 
 Importance: x1, x5, x2, x3, x4
 Number of terms at each degree of interaction: 1 9 (additive model)
-GCV 0.34319    RSS 20.084    GRSq 0.88191    RSq 0.92949
+GCV 0.3431912    RSS 20.08441    GRSq 0.8819115    RSq 0.9294885
 > itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=1,  test.rsq=FALSE)
 itest 22  func8noise                       degree 1  nk 51  nTerms 12 of 17  GRSq 0.92
 Selected 12 of 17 terms, and 5 of 5 predictors 
 Importance: x3, x5, x2, x1, x4
 Number of terms at each degree of interaction: 1 11 (additive model)
-GCV 0.23238    RSS 13.778    GRSq 0.92004    RSq 0.95163
+GCV 0.2323811    RSS 13.77787    GRSq 0.9200401    RSq 0.9516292
 > itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=2,  test.rsq=FALSE)
 itest 23  func8noise                       degree 2  nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.051303    RSS 1.3607    GRSq 0.98235    RSq 0.99522
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
 > 
 > itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=10, test.rsq=FALSE)
 itest 24  func8noise                       degree 10 nk 51  nTerms 20 of 23  GRSq 0.98
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.051303    RSS 1.3607    GRSq 0.98235    RSq 0.99522
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
 > 
 > eqn56 <- function(x) # Friedman MARS paper equation 56
 + {
@@ -2023,73 +2023,73 @@ itest 25  eqn56                            degree 1  nk 11  nTerms 11 of 11  GRS
 Selected 11 of 11 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.33676    RSS 21.017    GRSq 0.96003    RSq 0.97455
+GCV 0.3367594    RSS 21.01716    GRSq 0.9600263    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56, nk=11, degree=2)
 itest 26  eqn56                            degree 2  nk 11  nTerms 11 of 11  GRSq 0.95
 Selected 11 of 11 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.38380    RSS 21.017    GRSq 0.95444    RSq 0.97455
+GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56, nk=11, degree=10)
 itest 27  eqn56                            degree 10 nk 11  nTerms 11 of 11  GRSq 0.95
 Selected 11 of 11 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.38380    RSS 21.017    GRSq 0.95444    RSq 0.97455
+GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=1)
 itest 28  eqn56                            degree 1  nk 51  nTerms 13 of 15  GRSq    1
 Selected 13 of 15 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV 0.026607    RSS 1.4966    GRSq 0.99684    RSq 0.99819
+GCV 0.02660665    RSS 1.496624    GRSq 0.9968418    RSq 0.9981874
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=2)
 itest 29  eqn56                            degree 2  nk 51  nTerms 13 of 16  GRSq    1
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.024406    RSS 1.1620    GRSq 0.9971    RSq 0.9986
+GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=10)
 itest 30  eqn56                            degree 10 nk 51  nTerms 13 of 16  GRSq    1
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.024406    RSS 1.1620    GRSq 0.9971    RSq 0.9986
+GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=1,  test.rsq=FALSE)
 itest 31  eqn56noise                       degree 1  nk 11  nTerms 11 of 11  GRSq 0.96
 Selected 11 of 11 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.33676    RSS 21.017    GRSq 0.96003    RSq 0.97455
+GCV 0.3367594    RSS 21.01716    GRSq 0.9600263    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=2,  test.rsq=FALSE)
 itest 32  eqn56noise                       degree 2  nk 11  nTerms 11 of 11  GRSq 0.95
 Selected 11 of 11 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.38380    RSS 21.017    GRSq 0.95444    RSq 0.97455
+GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=10, test.rsq=FALSE)
 itest 33  eqn56noise                       degree 10 nk 11  nTerms 11 of 11  GRSq 0.95
 Selected 11 of 11 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.38380    RSS 21.017    GRSq 0.95444    RSq 0.97455
+GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=1,  test.rsq=FALSE)
 itest 34  eqn56noise                       degree 1  nk 51  nTerms 13 of 15  GRSq    1
 Selected 13 of 15 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 12 (additive model)
-GCV 0.026607    RSS 1.4966    GRSq 0.99684    RSq 0.99819
+GCV 0.02660665    RSS 1.496624    GRSq 0.9968418    RSq 0.9981874
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=2,  test.rsq=FALSE)
 itest 35  eqn56noise                       degree 2  nk 51  nTerms 13 of 16  GRSq    1
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.024406    RSS 1.1620    GRSq 0.9971    RSq 0.9986
+GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=10, test.rsq=FALSE)
 itest 36  eqn56noise                       degree 10 nk 51  nTerms 13 of 16  GRSq    1
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.024406    RSS 1.1620    GRSq 0.9971    RSq 0.9986
+GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
 > 
 > robotArm <- function(x) # Friedman Fast MARS paper
 + {
@@ -2122,7 +2122,7 @@ itest 37  robotArm                         degree 1  nk 51  nTerms 11 of 19  GRS
 Selected 11 of 19 terms, and 4 of 5 predictors 
 Importance: theta2, l2, l1, phi, theta1-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.039726    RSS 2.4793    GRSq 0.78737    RSq 0.8646
+GCV 0.03972609    RSS 2.479305    GRSq 0.7873676    RSq 0.8646017
 > itest <- itest+1; a87 <- test.earth(itest, robotArm, nk=51, degree=10)
 itest 38  robotArm                         degree 10 nk 51  nTerms 20 of 39  GRSq 0.89
 > printh(summary(a87))
@@ -2131,57 +2131,57 @@ Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace,
       degree=degree, nk=nk, pmethod="b", fast.k=-1, linpreds=linpreds)
 
                                                          coefficients
-(Intercept)                                                    3.3542
-h(l1-0.875321)                                                 1.9013
-h(0.875321-l1)                                                -0.8716
-h(l2-1.10154)                                                  0.7870
-h(1.10154-l2)                                                 -1.1134
-h(theta2-2.64029)                                             -0.6764
-h(theta2-4.14578)                                              0.3851
-h(4.14578-theta2)                                             -0.7512
-h(0.875321-l1) * h(2.91516-theta2)                             0.3795
-h(0.875321-l1) * h(theta2-5.22555)                            -0.8680
-h(l1-0.875321) * h(phi-1.19202)                             -292.2748
-h(1.10154-l2) * h(theta2-5.99132)                              3.7814
-h(1.10154-l2) * h(5.99132-theta2)                              0.1049
-h(theta2-1.3937) * h(phi-1.37959)                             -2.6910
-h(theta2-1.3937) * h(1.37959-phi)                             -0.2451
-h(theta2-1.3937) * h(phi-0.046284)                            -0.3336
-h(theta2-2.64029) * h(1.36883-phi)                             0.2275
-h(0.777321-l1) * h(theta2-1.3937) * h(phi-0.046284)           -0.3394
-h(0.875321-l1) * h(theta2-2.91516) * h(phi- -0.00669771)       1.1212
-h(0.875321-l1) * h(theta2-2.91516) * h(-0.00669771-phi)        0.2595
+(Intercept)                                                  3.354227
+h(l1-0.875321)                                               1.901282
+h(0.875321-l1)                                              -0.871595
+h(l2-1.10154)                                                0.787000
+h(1.10154-l2)                                               -1.113447
+h(theta2-2.64029)                                           -0.676355
+h(theta2-4.14578)                                            0.385106
+h(4.14578-theta2)                                           -0.751180
+h(0.875321-l1) * h(2.91516-theta2)                           0.379480
+h(0.875321-l1) * h(theta2-5.22555)                          -0.867977
+h(l1-0.875321) * h(phi-1.19202)                           -292.274842
+h(1.10154-l2) * h(theta2-5.99132)                            3.781391
+h(1.10154-l2) * h(5.99132-theta2)                            0.104902
+h(theta2-1.3937) * h(phi-1.37959)                           -2.690959
+h(theta2-1.3937) * h(1.37959-phi)                           -0.245111
+h(theta2-1.3937) * h(phi-0.046284)                          -0.333635
+h(theta2-2.64029) * h(1.36883-phi)                           0.227507
+h(0.777321-l1) * h(theta2-1.3937) * h(phi-0.046284)         -0.339410
+h(0.875321-l1) * h(theta2-2.91516) * h(phi- -0.00669771)     1.121190
+h(0.875321-l1) * h(theta2-2.91516) * h(-0.00669771-phi)      0.259488
 
 Selected 20 of 39 terms, and 4 of 5 predictors 
 Importance: theta2, l2, l1, phi, theta1-unused
 Number of terms at each degree of interaction: 1 7 9 3
-GCV 0.020722    RSS 0.5496    GRSq 0.88909    RSq 0.96999
+GCV 0.02072208    RSS 0.5496014    GRSq 0.8890859    RSq 0.9699855
 > printh(summary(a87, style="bf"))
 ===summary(a87, style = "bf") 
 Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace, 
       degree=degree, nk=nk, pmethod="b", fast.k=-1, linpreds=linpreds)
 
 data.global[,1] =
-  3.3542
-  +    1.9013 * bf1
-  -    0.8716 * bf2
-  +     0.787 * bf3
-  -    1.1134 * bf4
-  -   0.67636 * bf5
-  +   0.38511 * bf6
-  -   0.75118 * bf7
-  +   0.37948 * bf2 * bf8
-  -   0.86798 * bf2 * bf9
-  -    292.27 * bf1 * bf10
-  +    3.7814 * bf4 * bf11
-  +   0.10490 * bf4 * bf12
-  -    2.6910 * bf13 * bf14
-  -   0.24511 * bf13 * bf15
-  -   0.33363 * bf13 * bf16
-  +   0.22751 * bf5 * bf17
-  -   0.33941 * bf18 * bf13 * bf16
-  +    1.1212 * bf2 * bf19 * bf20
-  +   0.25949 * bf2 * bf19 * bf21
+  3.354227
+  +    1.901282 * bf1
+  -   0.8715952 * bf2
+  +   0.7870004 * bf3
+  -    1.113447 * bf4
+  -   0.6763552 * bf5
+  +   0.3851064 * bf6
+  -   0.7511801 * bf7
+  +   0.3794805 * bf2 * bf8
+  -   0.8679774 * bf2 * bf9
+  -    292.2748 * bf1 * bf10
+  +    3.781391 * bf4 * bf11
+  +   0.1049022 * bf4 * bf12
+  -    2.690959 * bf13 * bf14
+  -   0.2451107 * bf13 * bf15
+  -   0.3336347 * bf13 * bf16
+  +   0.2275069 * bf5 * bf17
+  -   0.3394100 * bf18 * bf13 * bf16
+  +    1.121190 * bf2 * bf19 * bf20
+  +   0.2594880 * bf2 * bf19 * bf21
 
    bf1  h(l1-0.875321)
    bf2  h(0.875321-l1)
@@ -2208,13 +2208,13 @@ data.global[,1] =
 Selected 20 of 39 terms, and 4 of 5 predictors 
 Importance: theta2, l2, l1, phi, theta1-unused
 Number of terms at each degree of interaction: 1 7 9 3
-GCV 0.020722    RSS 0.5496    GRSq 0.88909    RSq 0.96999
+GCV 0.02072208    RSS 0.5496014    GRSq 0.8890859    RSq 0.9699855
 > itest <- itest+1; test.earth(itest, robotArm, nk=201, degree=1)
 itest 39  robotArm                         degree 1  nk 201 nTerms 11 of 19  GRSq 0.79
 Selected 11 of 19 terms, and 4 of 5 predictors 
 Importance: theta2, l2, l1, phi, theta1-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
-GCV 0.039726    RSS 2.4793    GRSq 0.78737    RSq 0.8646
+GCV 0.03972609    RSS 2.479305    GRSq 0.7873676    RSq 0.8646017
 > itest <- itest+1; a88 <- test.earth(itest, robotArm, nk=201, degree=10)
 itest 40  robotArm                         degree 10 nk 201 nTerms 20 of 39  GRSq 0.89
 > printh(summary(a88))
@@ -2223,57 +2223,57 @@ Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace,
       degree=degree, nk=nk, pmethod="b", fast.k=-1, linpreds=linpreds)
 
                                                          coefficients
-(Intercept)                                                    3.3542
-h(l1-0.875321)                                                 1.9013
-h(0.875321-l1)                                                -0.8716
-h(l2-1.10154)                                                  0.7870
-h(1.10154-l2)                                                 -1.1134
-h(theta2-2.64029)                                             -0.6764
-h(theta2-4.14578)                                              0.3851
-h(4.14578-theta2)                                             -0.7512
-h(0.875321-l1) * h(2.91516-theta2)                             0.3795
-h(0.875321-l1) * h(theta2-5.22555)                            -0.8680
-h(l1-0.875321) * h(phi-1.19202)                             -292.2748
-h(1.10154-l2) * h(theta2-5.99132)                              3.7814
-h(1.10154-l2) * h(5.99132-theta2)                              0.1049
-h(theta2-1.3937) * h(phi-1.37959)                             -2.6910
-h(theta2-1.3937) * h(1.37959-phi)                             -0.2451
-h(theta2-1.3937) * h(phi-0.046284)                            -0.3336
-h(theta2-2.64029) * h(1.36883-phi)                             0.2275
-h(0.777321-l1) * h(theta2-1.3937) * h(phi-0.046284)           -0.3394
-h(0.875321-l1) * h(theta2-2.91516) * h(phi- -0.00669771)       1.1212
-h(0.875321-l1) * h(theta2-2.91516) * h(-0.00669771-phi)        0.2595
+(Intercept)                                                  3.354227
+h(l1-0.875321)                                               1.901282
+h(0.875321-l1)                                              -0.871595
+h(l2-1.10154)                                                0.787000
+h(1.10154-l2)                                               -1.113447
+h(theta2-2.64029)                                           -0.676355
+h(theta2-4.14578)                                            0.385106
+h(4.14578-theta2)                                           -0.751180
+h(0.875321-l1) * h(2.91516-theta2)                           0.379480
+h(0.875321-l1) * h(theta2-5.22555)                          -0.867977
+h(l1-0.875321) * h(phi-1.19202)                           -292.274842
+h(1.10154-l2) * h(theta2-5.99132)                            3.781391
+h(1.10154-l2) * h(5.99132-theta2)                            0.104902
+h(theta2-1.3937) * h(phi-1.37959)                           -2.690959
+h(theta2-1.3937) * h(1.37959-phi)                           -0.245111
+h(theta2-1.3937) * h(phi-0.046284)                          -0.333635
+h(theta2-2.64029) * h(1.36883-phi)                           0.227507
+h(0.777321-l1) * h(theta2-1.3937) * h(phi-0.046284)         -0.339410
+h(0.875321-l1) * h(theta2-2.91516) * h(phi- -0.00669771)     1.121190
+h(0.875321-l1) * h(theta2-2.91516) * h(-0.00669771-phi)      0.259488
 
 Selected 20 of 39 terms, and 4 of 5 predictors 
 Importance: theta2, l2, l1, phi, theta1-unused
 Number of terms at each degree of interaction: 1 7 9 3
-GCV 0.020722    RSS 0.5496    GRSq 0.88909    RSq 0.96999
+GCV 0.02072208    RSS 0.5496014    GRSq 0.8890859    RSq 0.9699855
 > printh(summary(a88, style="bf"))
 ===summary(a88, style = "bf") 
 Call: earth(x=data.global[, -1], y=data.global[, 1], trace=trace, 
       degree=degree, nk=nk, pmethod="b", fast.k=-1, linpreds=linpreds)
 
 data.global[,1] =
-  3.3542
-  +    1.9013 * bf1
-  -    0.8716 * bf2
-  +     0.787 * bf3
-  -    1.1134 * bf4
-  -   0.67636 * bf5
-  +   0.38511 * bf6
-  -   0.75118 * bf7
-  +   0.37948 * bf2 * bf8
-  -   0.86798 * bf2 * bf9
-  -    292.27 * bf1 * bf10
-  +    3.7814 * bf4 * bf11
-  +   0.10490 * bf4 * bf12
-  -    2.6910 * bf13 * bf14
-  -   0.24511 * bf13 * bf15
-  -   0.33363 * bf13 * bf16
-  +   0.22751 * bf5 * bf17
-  -   0.33941 * bf18 * bf13 * bf16
-  +    1.1212 * bf2 * bf19 * bf20
-  +   0.25949 * bf2 * bf19 * bf21
+  3.354227
+  +    1.901282 * bf1
+  -   0.8715952 * bf2
+  +   0.7870004 * bf3
+  -    1.113447 * bf4
+  -   0.6763552 * bf5
+  +   0.3851064 * bf6
+  -   0.7511801 * bf7
+  +   0.3794805 * bf2 * bf8
+  -   0.8679774 * bf2 * bf9
+  -    292.2748 * bf1 * bf10
+  +    3.781391 * bf4 * bf11
+  +   0.1049022 * bf4 * bf12
+  -    2.690959 * bf13 * bf14
+  -   0.2451107 * bf13 * bf15
+  -   0.3336347 * bf13 * bf16
+  +   0.2275069 * bf5 * bf17
+  -   0.3394100 * bf18 * bf13 * bf16
+  +    1.121190 * bf2 * bf19 * bf20
+  +   0.2594880 * bf2 * bf19 * bf21
 
    bf1  h(l1-0.875321)
    bf2  h(0.875321-l1)
@@ -2300,7 +2300,7 @@ data.global[,1] =
 Selected 20 of 39 terms, and 4 of 5 predictors 
 Importance: theta2, l2, l1, phi, theta1-unused
 Number of terms at each degree of interaction: 1 7 9 3
-GCV 0.020722    RSS 0.5496    GRSq 0.88909    RSq 0.96999
+GCV 0.02072208    RSS 0.5496014    GRSq 0.8890859    RSq 0.9699855
 > 
 > cat("--- linear predictors -------------------------\n")
 --- linear predictors -------------------------
@@ -2316,20 +2316,20 @@ Call: earth(formula=O3~., data=ozone1, linpreds=TRUE, pmethod="none",
       thresh=1e-10)
 
             coefficients
-(Intercept)     -9.29409
-wind            -0.02724
-humidity         0.08327
-temp             0.26496
-ibh             -0.00032
-dpg             -0.00266
-ibt              0.02359
-vis             -0.00772
-doy             -0.00938
+(Intercept)   -9.2940941
+wind          -0.0272423
+humidity       0.0832655
+temp           0.2649552
+ibh           -0.0003230
+dpg           -0.0026598
+ibt            0.0235920
+vis           -0.0077189
+doy           -0.0093787
 
 Selected 9 of 9 terms, and 8 of 9 predictors 8 linear predictors
 Importance: temp, humidity, ibh, ibt, doy, vis, dpg, wind, vh-unused
 Number of terms at each degree of interaction: 1 8 (additive model)
-GCV 21.323    RSS 6330.2    GRSq 0.66878    RSq 0.70021
+GCV 21.32277    RSS 6330.213    GRSq 0.6687758    RSq 0.7002088
 > alin <- lm(O3 ~ . - vh, data = ozone1)
 > printh(summary(alin))
 ===summary(alin) 
@@ -2338,26 +2338,26 @@ Call:
 lm(formula = O3 ~ . - vh, data = ozone1)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--12.008  -2.866  -0.222   2.764  13.453 
+     Min       1Q   Median       3Q      Max 
+-12.0077  -2.8663  -0.2215   2.7642  13.4535 
 
 Coefficients:
-             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -9.294094   1.996850   -4.65  4.8e-06 ***
-wind        -0.027242   0.132073   -0.21  0.83671    
-humidity     0.083265   0.018701    4.45  1.2e-05 ***
-temp         0.264955   0.048664    5.44  1.0e-07 ***
-ibh         -0.000323   0.000282   -1.15  0.25282    
-dpg         -0.002660   0.011259   -0.24  0.81340    
-ibt          0.023592   0.012206    1.93  0.05415 .  
-vis         -0.007719   0.003741   -2.06  0.03987 *  
-doy         -0.009379   0.002763   -3.39  0.00077 ***
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -9.2940941  1.9968503  -4.654 4.76e-06 ***
+wind        -0.0272423  0.1320735  -0.206 0.836714    
+humidity     0.0832655  0.0187013   4.452 1.17e-05 ***
+temp         0.2649552  0.0486640   5.445 1.03e-07 ***
+ibh         -0.0003230  0.0002819  -1.146 0.252821    
+dpg         -0.0026598  0.0112590  -0.236 0.813396    
+ibt          0.0235920  0.0122064   1.933 0.054146 .  
+vis         -0.0077189  0.0037406  -2.064 0.039865 *  
+doy         -0.0093787  0.0027625  -3.395 0.000773 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
-Residual standard error: 4.44 on 321 degrees of freedom
-Multiple R-squared:  0.7,	Adjusted R-squared: 0.693 
-F-statistic: 93.7 on 8 and 321 DF,  p-value: <2e-16 
+Residual standard error: 4.441 on 321 degrees of freedom
+Multiple R-squared: 0.7002,	Adjusted R-squared: 0.6927 
+F-statistic: 93.72 on 8 and 321 DF,  p-value: < 2.2e-16 
 
 > printh(summary(alin, style="bf"))
 ===summary(alin, style = "bf") 
@@ -2366,26 +2366,26 @@ Call:
 lm(formula = O3 ~ . - vh, data = ozone1)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--12.008  -2.866  -0.222   2.764  13.453 
+     Min       1Q   Median       3Q      Max 
+-12.0077  -2.8663  -0.2215   2.7642  13.4535 
 
 Coefficients:
-             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -9.294094   1.996850   -4.65  4.8e-06 ***
-wind        -0.027242   0.132073   -0.21  0.83671    
-humidity     0.083265   0.018701    4.45  1.2e-05 ***
-temp         0.264955   0.048664    5.44  1.0e-07 ***
-ibh         -0.000323   0.000282   -1.15  0.25282    
-dpg         -0.002660   0.011259   -0.24  0.81340    
-ibt          0.023592   0.012206    1.93  0.05415 .  
-vis         -0.007719   0.003741   -2.06  0.03987 *  
-doy         -0.009379   0.002763   -3.39  0.00077 ***
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -9.2940941  1.9968503  -4.654 4.76e-06 ***
+wind        -0.0272423  0.1320735  -0.206 0.836714    
+humidity     0.0832655  0.0187013   4.452 1.17e-05 ***
+temp         0.2649552  0.0486640   5.445 1.03e-07 ***
+ibh         -0.0003230  0.0002819  -1.146 0.252821    
+dpg         -0.0026598  0.0112590  -0.236 0.813396    
+ibt          0.0235920  0.0122064   1.933 0.054146 .  
+vis         -0.0077189  0.0037406  -2.064 0.039865 *  
+doy         -0.0093787  0.0027625  -3.395 0.000773 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
-Residual standard error: 4.44 on 321 degrees of freedom
-Multiple R-squared:  0.7,	Adjusted R-squared: 0.693 
-F-statistic: 93.7 on 8 and 321 DF,  p-value: <2e-16 
+Residual standard error: 4.441 on 321 degrees of freedom
+Multiple R-squared: 0.7002,	Adjusted R-squared: 0.6927 
+F-statistic: 93.72 on 8 and 321 DF,  p-value: < 2.2e-16 
 
 > stopifnot(all.equal(as.double(predict(a)), as.double(predict(alin))))
 > newdata <- data.frame(
@@ -2479,24 +2479,24 @@ Call: earth(formula=O3~., data=ozone1, trace=4, linpreds=c(3,
       8), degree=2)
 
                         coefficients
-(Intercept)                 18.00574
-vis                         -0.01138
-h(vh-5900)                   0.40178
-h(5900-vh)                  -0.01542
-h(ibh-1069)                 -0.00051
-h(dpg-11)                   -0.09272
-h(11-dpg)                   -0.05791
-h(89-doy)                   -0.14093
-h(doy-151)                  -0.02745
-humidity * h(temp-58)        0.00758
-h(vh-5900) * h(wind-4)      -0.08672
-h(vh-5900) * h(4-wind)      -0.39960
-h(temp-72) * h(doy-151)     -0.00342
+(Intercept)               18.0057404
+vis                       -0.0113823
+h(vh-5900)                 0.4017820
+h(5900-vh)                -0.0154223
+h(ibh-1069)               -0.0005118
+h(dpg-11)                 -0.0927226
+h(11-dpg)                 -0.0579073
+h(89-doy)                 -0.1409308
+h(doy-151)                -0.0274469
+humidity * h(temp-58)      0.0075823
+h(vh-5900) * h(wind-4)    -0.0867242
+h(vh-5900) * h(4-wind)    -0.3996014
+h(temp-72) * h(doy-151)   -0.0034190
 
 Selected 13 of 18 terms, and 8 of 9 predictors 2 linear predictors
 Importance: temp, humidity, doy, ibh, dpg, vh, vis, wind, ibt-unused
 Number of terms at each degree of interaction: 1 8 4
-GCV 13.948    RSS 3778.7    GRSq 0.78333    RSq 0.82105
+GCV 13.94806    RSS 3778.698    GRSq 0.7833333    RSq 0.8210454
 > if (PLOT) {
 +     plot(a)
 +     plotmo(a)
@@ -2519,7 +2519,7 @@ itest 43  eqn56                            degree 2  nk 21  nTerms 11 of 14  GRS
 Selected 11 of 14 terms, and 5 of 10 predictors 3 linear predictors
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 9 1
-GCV 0.022541    RSS 1.2343    GRSq 0.99732    RSq 0.9985
+GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.998505
 > # check symmetry by using negative of eqn56
 > itest <- itest+1; data.global <- cbind(neg.eqn56(x.global), x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 > test.earth(itest, neg.eqn56, nk=21, degree=2, linpreds=c(3,5))
@@ -2527,7 +2527,7 @@ itest 44  neg.eqn56                        degree 2  nk 21  nTerms 11 of 14  GRS
 Selected 11 of 14 terms, and 5 of 10 predictors 3 linear predictors
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 9 1
-GCV 0.022541    RSS 1.2343    GRSq 0.99732    RSq 0.9985
+GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.998505
 > 
 > cat("--- tests with ozone data ----------------------\n")
 --- tests with ozone data ----------------------
@@ -2540,32 +2540,32 @@ GCV 0.022541    RSS 1.2343    GRSq 0.99732    RSq 0.9985
 > itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=1, nk=21)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
-itest 45  doy ~ wind+humidity+temp+vis     degree 1  nk 21  nTerms 6  of 15  GRSq 0.18 GRSq ratio 1.3634 
+itest 45  doy ~ wind+humidity+temp+vis     degree 1  nk 21  nTerms 6  of 15  GRSq 0.18 GRSq ratio 1.363416 
 ===summary(fite) 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
                coefficients
-(Intercept)        133.5871
-h(3-wind)           57.5238
-h(humidity-28)       1.4834
-h(28-humidity)       8.7491
-h(temp-49)           1.1405
-h(49-temp)          -4.9034
+(Intercept)      133.587081
+h(3-wind)         57.523805
+h(humidity-28)     1.483386
+h(28-humidity)     8.749051
+h(temp-49)         1.140510
+h(49-temp)        -4.903351
 
 Selected 6 of 15 terms, and 3 of 4 predictors 
 Importance: wind, temp, humidity, vis-unused
 Number of terms at each degree of interaction: 1 5 (additive model)
-GCV 8930.5    RSS 2753871    GRSq 0.18275    RSq 0.23168
+GCV 8930.508    RSS 2753871    GRSq 0.1827523    RSq 0.231678
 ===summary(fite, style = "bf") 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
 y =
-  133.59
-  +  57.524 * bf1
-  +  1.4834 * bf2
-  +   8.749 * bf3
-  +  1.1405 * bf4
-  -  4.9034 * bf5
+  133.5871
+  +   57.5238 * bf1
+  +  1.483386 * bf2
+  +   8.74905 * bf3
+  +  1.140510 * bf4
+  -  4.903351 * bf5
 
    bf1  h(3-wind)
    bf2  h(humidity-28)
@@ -2576,49 +2576,49 @@ y =
 Selected 6 of 15 terms, and 3 of 4 predictors 
 Importance: wind, temp, humidity, vis-unused
 Number of terms at each degree of interaction: 1 5 (additive model)
-GCV 8930.5    RSS 2753871    GRSq 0.18275    RSq 0.23168
+GCV 8930.508    RSS 2753871    GRSq 0.1827523    RSq 0.231678
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
 Selected 6 of 15 terms, and 3 of 4 predictors 
 Importance: wind, temp, humidity, vis-unused
 Number of terms at each degree of interaction: 1 5 (additive model)
-GCV 8930.5    RSS 2753871    GRSq 0.18275    RSq 0.23168
+GCV 8930.508    RSS 2753871    GRSq 0.1827523    RSq 0.231678
 > 
 > x.global <- cbind(wind, humidity, temp, vis)
 > y <- doy
 > itest <- itest+1; a91 <- ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=2, nk=21)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
-itest 46  doy ~ wind+humidity+temp+vis     degree 2  nk 21  nTerms 8  of 20  GRSq 0.21 GRSq ratio 1.7107 
+itest 46  doy ~ wind+humidity+temp+vis     degree 2  nk 21  nTerms 8  of 20  GRSq 0.21 GRSq ratio 1.710692 
 ===summary(fite) 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
                             coefficients
-(Intercept)                     140.1222
-h(3-wind)                        55.2710
-h(humidity-28)                    1.9135
-h(28-humidity) * h(temp-60)       1.4852
-h(28-humidity) * h(60-temp)       1.1288
-h(humidity-54) * h(49-temp)      -0.6598
-h(humidity-77) * h(49-temp)       4.2524
-h(77-humidity) * h(49-temp)      -0.1622
+(Intercept)                   140.122198
+h(3-wind)                      55.271007
+h(humidity-28)                  1.913497
+h(28-humidity) * h(temp-60)     1.485234
+h(28-humidity) * h(60-temp)     1.128805
+h(humidity-54) * h(49-temp)    -0.659818
+h(humidity-77) * h(49-temp)     4.252359
+h(77-humidity) * h(49-temp)    -0.162175
 
 Selected 8 of 20 terms, and 3 of 4 predictors 
 Importance: wind, humidity, temp, vis-unused
 Number of terms at each degree of interaction: 1 2 5
-GCV 8636.8    RSS 2539541    GRSq 0.20963    RSq 0.29148
+GCV 8636.803    RSS 2539541    GRSq 0.2096298    RSq 0.2914755
 ===summary(fite, style = "bf") 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
 y =
-  140.12
-  +   55.271 * bf1
-  +   1.9135 * bf2
-  +   1.4852 * bf3 * bf4
-  +   1.1288 * bf3 * bf5
-  -  0.65982 * bf6 * bf7
-  +   4.2524 * bf8 * bf7
-  -  0.16218 * bf9 * bf7
+  140.1222
+  +   55.27101 * bf1
+  +   1.913497 * bf2
+  +   1.485234 * bf3 * bf4
+  +   1.128805 * bf3 * bf5
+  -  0.6598181 * bf6 * bf7
+  +   4.252359 * bf8 * bf7
+  -  0.1621753 * bf9 * bf7
 
    bf1  h(3-wind)
    bf2  h(humidity-28)
@@ -2633,7 +2633,7 @@ y =
 Selected 8 of 20 terms, and 3 of 4 predictors 
 Importance: wind, humidity, temp, vis-unused
 Number of terms at each degree of interaction: 1 2 5
-GCV 8636.8    RSS 2539541    GRSq 0.20963    RSq 0.29148
+GCV 8636.803    RSS 2539541    GRSq 0.2096298    RSq 0.2914755
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
 > 
@@ -2648,26 +2648,26 @@ to        earth(x=x, y=y, degree=degree, nk=nk)
 Warning in storage.mode(tagx) <- "integer" : NAs introduced by coercion
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
-itest 47  doy ~ wind+exp(humidity)         degree 1  nk 21  nTerms 3  of 7   GRSq  0.1 GRSq ratio 1.6407 
+itest 47  doy ~ wind+exp(humidity)         degree 1  nk 21  nTerms 3  of 7   GRSq  0.1 GRSq ratio 1.640727 
 ===summary(fite) 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
             coefficients
-(Intercept)      202.179
-h(3-wind)         50.040
-h(wind-9)        -61.155
+(Intercept)    202.17924
+h(3-wind)       50.04004
+h(wind-9)      -61.15513
 
 Selected 3 of 7 terms, and 1 of 2 predictors 
 Importance: wind, x2-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 9821.6    RSS 3143644    GRSq 0.10121    RSq 0.12293
+GCV 9821.564    RSS 3143644    GRSq 0.1012101    RSq 0.1229323
 ===summary(fite, style = "bf") 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
 y =
-  202.18
-  +  50.04 * bf1
-  - 61.155 * bf2
+  202.1792
+  + 50.04004 * bf1
+  - 61.15513 * bf2
 
    bf1  h(3-wind)
    bf2  h(wind-9)
@@ -2675,55 +2675,55 @@ y =
 Selected 3 of 7 terms, and 1 of 2 predictors 
 Importance: wind, x2-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 9821.6    RSS 3143644    GRSq 0.10121    RSq 0.12293
+GCV 9821.564    RSS 3143644    GRSq 0.1012101    RSq 0.1229323
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
 Selected 3 of 7 terms, and 1 of 2 predictors 
 Importance: wind, x2-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 9821.6    RSS 3143644    GRSq 0.10121    RSq 0.12293
+GCV 9821.564    RSS 3143644    GRSq 0.1012101    RSq 0.1229323
 > 
 > x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 > y <- O3
 > itest <- itest+1; ozone.test(itest, "O3~.", x.global, y, degree=2, nk=21)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
-itest 48  O3~.                             degree 2  nk 21  nTerms 11 of 21  GRSq 0.79 GRSq ratio 1.0101 
+itest 48  O3~.                             degree 2  nk 21  nTerms 11 of 21  GRSq 0.79 GRSq ratio 1.010102 
 ===summary(fite) 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
                             coefficients
-(Intercept)                     14.88852
-h(temp-58)                       0.32079
-h(233-ibt)                      -0.04562
-h(200-vis)                       0.02202
-h(doy-89)                       -0.02325
-h(89-doy)                       -0.14366
-h(wind-7) * h(200-vis)          -0.01872
-h(56-humidity) * h(temp-58)     -0.02096
-h(temp-58) * h(dpg-54)          -0.01891
-h(temp-58) * h(54-dpg)           0.00410
-h(1069-ibh) * h(44-dpg)         -0.00008
+(Intercept)                   14.8885242
+h(temp-58)                     0.3207913
+h(233-ibt)                    -0.0456181
+h(200-vis)                     0.0220154
+h(doy-89)                     -0.0232471
+h(89-doy)                     -0.1436648
+h(wind-7) * h(200-vis)        -0.0187155
+h(56-humidity) * h(temp-58)   -0.0209600
+h(temp-58) * h(dpg-54)        -0.0189092
+h(temp-58) * h(54-dpg)         0.0041001
+h(1069-ibh) * h(44-dpg)       -0.0000805
 
 Selected 11 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 13.454    RSS 3767.9    GRSq 0.791    RSq 0.82156
+GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 ===summary(fite, style = "bf") 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
 y =
-  14.889
-  +    0.32079 * bf1
-  -   0.045618 * bf2
-  +   0.022015 * bf3
-  -   0.023247 * bf4
-  -    0.14366 * bf5
-  -   0.018715 * bf6 * bf3
-  -    0.02096 * bf7 * bf1
-  -   0.018909 * bf1 * bf8
-  +  0.0041001 * bf1 * bf9
-  - 8.0517e-05 * bf10 * bf11
+  14.88852
+  +    0.3207913 * bf1
+  -   0.04561807 * bf2
+  +   0.02201538 * bf3
+  -   0.02324712 * bf4
+  -    0.1436648 * bf5
+  -    0.0187155 * bf6 * bf3
+  -   0.02096002 * bf7 * bf1
+  -   0.01890919 * bf1 * bf8
+  +  0.004100053 * bf1 * bf9
+  - 8.051735e-05 * bf10 * bf11
 
    bf1  h(temp-58)
    bf2  h(233-ibt)
@@ -2740,87 +2740,87 @@ y =
 Selected 11 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 13.454    RSS 3767.9    GRSq 0.791    RSq 0.82156
+GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
 Selected 11 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 13.454    RSS 3767.9    GRSq 0.791    RSq 0.82156
+GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > 
 > x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 > y <- O3
 > itest <- itest+1; ozone.test(itest, "O3~., nk=51", x.global, y, degree=2, nk=51)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
-itest 49  O3~., nk=51                      degree 2  nk 51  nTerms 27 of 48  GRSq 0.81 GRSq ratio 1.0106 
+itest 49  O3~., nk=51                      degree 2  nk 51  nTerms 27 of 48  GRSq 0.81 GRSq ratio 1.010625 
 ===summary(fite) 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
                             coefficients
-(Intercept)                     12.01352
-h(temp-58)                       0.65783
-h(ibt-233)                       0.22037
-h(233-ibt)                      -0.02968
-h(200-vis)                       0.05764
-h(doy-89)                       -0.02068
-h(89-doy)                       -0.11638
-h(vh-5870) * h(temp-58)         -0.00812
-h(vh-5890) * h(200-vis)          0.00291
-h(5890-vh) * h(200-vis)         -0.00012
-h(vh-5850) * h(doy-89)           0.00056
-h(7-wind) * h(temp-81)          -0.47212
-h(wind-6) * h(ibt-233)          -0.18107
-h(6-wind) * h(ibt-233)          -0.03040
-h(56-humidity) * h(temp-58)     -0.01276
-h(71-humidity) * h(ibt-233)     -0.00732
-h(temp-58) * h(dpg-54)          -0.01481
-h(temp-76) * h(233-ibt)         -0.05426
-h(temp-72) * h(200-vis)         -0.00377
-h(temp-84) * h(200-vis)          0.01989
-h(temp-88) * h(200-vis)         -0.02278
-h(temp-58) * h(doy-159)         -0.00212
-h(temp-58) * h(159-doy)         -0.00533
-h(1069-ibh) * h(ibt-268)         0.00065
-h(dpg-17) * h(200-vis)          -0.00060
-h(17-dpg) * h(200-vis)          -0.00054
-h(ibt-258) * h(200-vis)         -0.00251
+(Intercept)                   12.0135192
+h(temp-58)                     0.6578253
+h(ibt-233)                     0.2203734
+h(233-ibt)                    -0.0296826
+h(200-vis)                     0.0576446
+h(doy-89)                     -0.0206850
+h(89-doy)                     -0.1163833
+h(vh-5870) * h(temp-58)       -0.0081176
+h(vh-5890) * h(200-vis)        0.0029107
+h(5890-vh) * h(200-vis)       -0.0001168
+h(vh-5850) * h(doy-89)         0.0005563
+h(7-wind) * h(temp-81)        -0.4721177
+h(wind-6) * h(ibt-233)        -0.1810748
+h(6-wind) * h(ibt-233)        -0.0304043
+h(56-humidity) * h(temp-58)   -0.0127575
+h(71-humidity) * h(ibt-233)   -0.0073213
+h(temp-58) * h(dpg-54)        -0.0148074
+h(temp-76) * h(233-ibt)       -0.0542600
+h(temp-72) * h(200-vis)       -0.0037720
+h(temp-84) * h(200-vis)        0.0198905
+h(temp-88) * h(200-vis)       -0.0227786
+h(temp-58) * h(doy-159)       -0.0021176
+h(temp-58) * h(159-doy)       -0.0053335
+h(1069-ibh) * h(ibt-268)       0.0006451
+h(dpg-17) * h(200-vis)        -0.0006026
+h(17-dpg) * h(200-vis)        -0.0005448
+h(ibt-258) * h(200-vis)       -0.0025072
 
 Selected 27 of 48 terms, and 9 of 9 predictors 
 Importance: temp, ibt, doy, vis, dpg, ibh, humidity, wind, vh
 Number of terms at each degree of interaction: 1 6 20
-GCV 12.455    RSS 2630.5    GRSq 0.80652    RSq 0.87542
+GCV 12.45516    RSS 2630.530    GRSq 0.8065237    RSq 0.8754213
 ===summary(fite, style = "bf") 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
 y =
-  12.014
-  +    0.65783 * bf1
-  +    0.22037 * bf2
-  -   0.029683 * bf3
-  +   0.057645 * bf4
-  -   0.020685 * bf5
-  -    0.11638 * bf6
-  -  0.0081176 * bf7 * bf1
-  +  0.0029107 * bf8 * bf4
-  - 0.00011682 * bf9 * bf4
-  +  0.0005563 * bf10 * bf5
-  -    0.47212 * bf11 * bf12
-  -    0.18107 * bf13 * bf2
-  -   0.030404 * bf14 * bf2
-  -   0.012757 * bf15 * bf1
-  -  0.0073213 * bf16 * bf2
-  -   0.014807 * bf1 * bf17
-  -    0.05426 * bf18 * bf3
-  -   0.003772 * bf19 * bf4
-  +   0.019891 * bf20 * bf4
-  -   0.022779 * bf21 * bf4
-  -  0.0021176 * bf1 * bf22
-  -  0.0053335 * bf1 * bf23
-  + 0.00064509 * bf24 * bf25
-  -  0.0006026 * bf26 * bf4
-  - 0.00054483 * bf27 * bf4
-  -  0.0025072 * bf28 * bf4
+  12.01352
+  +    0.6578253 * bf1
+  +    0.2203734 * bf2
+  -   0.02968265 * bf3
+  +   0.05764456 * bf4
+  -   0.02068496 * bf5
+  -    0.1163833 * bf6
+  -  0.008117648 * bf7 * bf1
+  +  0.002910693 * bf8 * bf4
+  - 0.0001168164 * bf9 * bf4
+  + 0.0005563047 * bf10 * bf5
+  -    0.4721177 * bf11 * bf12
+  -    0.1810748 * bf13 * bf2
+  -   0.03040432 * bf14 * bf2
+  -   0.01275745 * bf15 * bf1
+  -  0.007321349 * bf16 * bf2
+  -   0.01480744 * bf1 * bf17
+  -   0.05426002 * bf18 * bf3
+  -  0.003772030 * bf19 * bf4
+  +   0.01989054 * bf20 * bf4
+  -   0.02277855 * bf21 * bf4
+  -  0.002117587 * bf1 * bf22
+  -  0.005333521 * bf1 * bf23
+  + 0.0006450869 * bf24 * bf25
+  - 0.0006026025 * bf26 * bf4
+  - 0.0005448315 * bf27 * bf4
+  -  0.002507211 * bf28 * bf4
 
    bf1  h(temp-58)
    bf2  h(ibt-233)
@@ -2854,13 +2854,13 @@ y =
 Selected 27 of 48 terms, and 9 of 9 predictors 
 Importance: temp, ibt, doy, vis, dpg, ibh, humidity, wind, vh
 Number of terms at each degree of interaction: 1 6 20
-GCV 12.455    RSS 2630.5    GRSq 0.80652    RSq 0.87542
+GCV 12.45516    RSS 2630.530    GRSq 0.8065237    RSq 0.8754213
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
 Selected 27 of 48 terms, and 9 of 9 predictors 
 Importance: temp, ibt, doy, vis, dpg, ibh, humidity, wind, vh
 Number of terms at each degree of interaction: 1 6 20
-GCV 12.455    RSS 2630.5    GRSq 0.80652    RSq 0.87542
+GCV 12.45516    RSS 2630.530    GRSq 0.8065237    RSq 0.8754213
 > 
 > detach(ozone1)
 > 
@@ -2872,25 +2872,25 @@ GCV 12.455    RSS 2630.5    GRSq 0.80652    RSq 0.87542
 Selected 11 of 31 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 13.454    RSS 3767.9    GRSq 0.791    RSq 0.82156
+GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = -1, fast.beta = 0))
 ===earth(O3 ~ ., data = ozone1, degree = 2, nk = 31, fast.k = -1,     fast.beta = 0) 
 Selected 11 of 31 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 13.454    RSS 3767.9    GRSq 0.791    RSq 0.82156
+GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 1))
 ===earth(O3 ~ ., data = ozone1, degree = 2, nk = 31, fast.k = 5,     fast.beta = 1) 
 Selected 13 of 30 terms, and 8 of 9 predictors 
 Importance: temp, humidity, dpg, ibt, doy, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 6 6
-GCV 12.817    RSS 3472.3    GRSq 0.8009    RSq 0.83556
+GCV 12.81700    RSS 3472.281    GRSq 0.800903    RSq 0.835557
 > printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 0))
 ===earth(O3 ~ ., data = ozone1, degree = 2, nk = 31, fast.k = 5,     fast.beta = 0) 
 Selected 18 of 31 terms, and 9 of 9 predictors 
 Importance: temp, ibt, humidity, doy, dpg, vis, ibh, wind, vh
 Number of terms at each degree of interaction: 1 7 10
-GCV 13.171    RSS 3276.1    GRSq 0.7954    RSq 0.84485
+GCV 13.17126    RSS 3276.142    GRSq 0.7953999    RSq 0.8448459
 > 
 > cat("--- plot.earth and plot.earth.models ------------\n")
 --- plot.earth and plot.earth.models ------------
@@ -2932,25 +2932,25 @@ GCV 13.171    RSS 3276.1    GRSq 0.7954    RSq 0.84485
 Call: earth(formula=O3~., data=ozone1, minspan=2)
 
                coefficients
-(Intercept)         8.56318
-h(vh-5740)          0.01541
-h(5740-vh)         -0.01350
-h(9-wind)           0.30409
-h(humidity-39)      0.24195
-h(humidity-54)     -0.22718
-h(temp-58)          0.37881
-h(ibh-1046)        -0.00060
-h(1046-ibh)        -0.00300
-h(dpg-12)          -0.10732
-h(80-vis)           0.04563
-h(doy-89)           0.04698
-h(89-doy)          -0.12486
-h(doy-159)         -0.09115
+(Intercept)       8.5631765
+h(vh-5740)        0.0154112
+h(5740-vh)       -0.0134986
+h(9-wind)         0.3040866
+h(humidity-39)    0.2419510
+h(humidity-54)   -0.2271800
+h(temp-58)        0.3788112
+h(ibh-1046)      -0.0006033
+h(1046-ibh)      -0.0029992
+h(dpg-12)        -0.1073208
+h(80-vis)         0.0456262
+h(doy-89)         0.0469849
+h(89-doy)        -0.1248560
+h(doy-159)       -0.0911487
 
 Selected 14 of 19 terms, and 8 of 9 predictors 
 Importance: temp, ibh, doy, dpg, humidity, vh, vis, wind, ibt-unused
 Number of terms at each degree of interaction: 1 13 (additive model)
-GCV 14.819    RSS 4122.8    GRSq 0.7698    RSq 0.80475
+GCV 14.81911    RSS 4122.811    GRSq 0.7698025    RSq 0.8047487
 > 
 > a <- earth(O3 ~ ., data=ozone1, minspan=0)
 > printh(summary(a))
@@ -2958,25 +2958,25 @@ GCV 14.819    RSS 4122.8    GRSq 0.7698    RSq 0.80475
 Call: earth(formula=O3~., data=ozone1, minspan=0)
 
                coefficients
-(Intercept)         8.69108
-h(vh-5740)          0.01526
-h(5740-vh)         -0.01301
-h(9-wind)           0.30446
-h(humidity-41)      0.27530
-h(humidity-54)     -0.26151
-h(temp-58)          0.38020
-h(ibh-1069)        -0.00062
-h(1069-ibh)        -0.00291
-h(dpg-11)          -0.10609
-h(80-vis)           0.04590
-h(doy-89)           0.04718
-h(89-doy)          -0.12645
-h(doy-159)         -0.09158
+(Intercept)       8.6910756
+h(vh-5740)        0.0152607
+h(5740-vh)       -0.0130076
+h(9-wind)         0.3044601
+h(humidity-41)    0.2753048
+h(humidity-54)   -0.2615068
+h(temp-58)        0.3801961
+h(ibh-1069)      -0.0006189
+h(1069-ibh)      -0.0029057
+h(dpg-11)        -0.1060948
+h(80-vis)         0.0459011
+h(doy-89)         0.0471836
+h(89-doy)        -0.1264530
+h(doy-159)       -0.0915781
 
 Selected 14 of 19 terms, and 8 of 9 predictors 
 Importance: temp, ibh, doy, dpg, humidity, vh, vis, wind, ibt-unused
 Number of terms at each degree of interaction: 1 13 (additive model)
-GCV 14.859    RSS 4134    GRSq 0.76918    RSq 0.80422
+GCV 14.85938    RSS 4134.014    GRSq 0.769177    RSq 0.8042181
 > 
 > a <- earth(O3 ~ ., data=ozone1, minspan=-1) # minspan=-1 added in earth 2.4-0
 > printh(summary(a))
@@ -2984,23 +2984,23 @@ GCV 14.859    RSS 4134    GRSq 0.76918    RSq 0.80422
 Call: earth(formula=O3~., data=ozone1, minspan=-1)
 
                coefficients
-(Intercept)        13.99702
-h(5860-vh)         -0.01378
-h(wind-3)          -0.34494
-h(55-humidity)     -0.13130
-h(temp-58)          0.27810
-h(1108-ibh)        -0.00330
-h(dpg-10)          -0.09981
-h(ibt-121)          0.03250
-h(150-vis)          0.02322
-h(doy-92)           0.04134
-h(92-doy)          -0.11683
-h(doy-159)         -0.08480
+(Intercept)      13.9970155
+h(5860-vh)       -0.0137766
+h(wind-3)        -0.3449381
+h(55-humidity)   -0.1312961
+h(temp-58)        0.2781026
+h(1108-ibh)      -0.0033010
+h(dpg-10)        -0.0998088
+h(ibt-121)        0.0325019
+h(150-vis)        0.0232155
+h(doy-92)         0.0413440
+h(92-doy)        -0.1168261
+h(doy-159)       -0.0847997
 
 Selected 12 of 20 terms, and 9 of 9 predictors 
 Importance: temp, humidity, dpg, doy, vh, ibh, vis, ibt, wind
 Number of terms at each degree of interaction: 1 11 (additive model)
-GCV 14.590    RSS 4166.9    GRSq 0.77336    RSq 0.80266
+GCV 14.58982    RSS 4166.897    GRSq 0.7733643    RSq 0.8026608
 > 
 > cat("--- test multiple responses ---------------------\n")
 --- test multiple responses ---------------------
@@ -3067,10 +3067,10 @@ Selected 9 of 9 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
 
-            GCV     RSS    GRSq     RSq
-func1 0.0023786 0.16386 0.99719 0.99803
-func7 0.0096411 0.66418 0.98121 0.98679
-All   0.0120197 0.82803 0.99116 0.99379
+              GCV       RSS      GRSq       RSq
+func1 0.002378554 0.1638586 0.9971927 0.9980268
+func7 0.009641121 0.6641768 0.9812104 0.9867930
+All   0.012019676 0.8280355 0.9911645 0.9937896
 
 > printh(summary(a))
 ===summary(a) 
@@ -3078,25 +3078,25 @@ Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[,
       1:2], trace=trace, degree=degree, nk=nk, pmethod="b", 
       fast.k=-1, minspan=minspan)
 
-                    func1    func7
-(Intercept)      -1.42982 -0.64229
-h(x1- -0.483966)  1.73804 -1.51722
-h(-0.483966-x1)   1.48240  4.01156
-h(x1- -0.23993)   0.99670  5.46759
-h(x1-0.29412)    -1.00703 -5.32110
-h(x1-0.422242)   -2.18175 -3.23891
-h(x1-0.728679)   -2.20310  1.93806
-h(x2- -0.342445)  0.98985 -0.01181
-h(-0.342445-x2)  -1.00889  0.08316
+                      func1      func7
+(Intercept)      -1.4298232 -0.6422906
+h(x1- -0.483966)  1.7380390 -1.5172222
+h(-0.483966-x1)   1.4824026  4.0115608
+h(x1- -0.23993)   0.9966967  5.4675942
+h(x1-0.29412)    -1.0070324 -5.3210965
+h(x1-0.422242)   -2.1817547 -3.2389148
+h(x1-0.728679)   -2.2031033  1.9380614
+h(x2- -0.342445)  0.9898526 -0.0118126
+h(-0.342445-x2)  -1.0088884  0.0831623
 
 Selected 9 of 9 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
 
-            GCV     RSS    GRSq     RSq
-func1 0.0023786 0.16386 0.99719 0.99803
-func7 0.0096411 0.66418 0.98121 0.98679
-All   0.0120197 0.82803 0.99116 0.99379
+              GCV       RSS      GRSq       RSq
+func1 0.002378554 0.1638586 0.9971927 0.9980268
+func7 0.009641121 0.6641768 0.9812104 0.9867930
+All   0.012019676 0.8280355 0.9911645 0.9937896
 > printh(summary(a, style="bf"))
 ===summary(a, style = "bf") 
 Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[, 
@@ -3104,15 +3104,15 @@ Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[,
       fast.k=-1, minspan=minspan)
 
 func1 =
-  -1.4298
-  +  1.7380 * bf1
-  +  1.4824 * bf2
-  +  0.9967 * bf3
-  -  1.0070 * bf4
-  -  2.1818 * bf5
-  -  2.2031 * bf6
-  + 0.98985 * bf7
-  -  1.0089 * bf8
+  -1.429823
+  +  1.738039 * bf1
+  +  1.482403 * bf2
+  + 0.9966967 * bf3
+  -  1.007032 * bf4
+  -  2.181755 * bf5
+  -  2.203103 * bf6
+  + 0.9898526 * bf7
+  -  1.008888 * bf8
 
    bf1  h(x1--0.483966)
    bf2  h(-0.483966-x1)
@@ -3124,15 +3124,15 @@ func1 =
    bf8  h(-0.342445-x2)
 
 func7 =
-  -0.64229
-  -   1.5172 * bf1
-  +   4.0116 * bf2
-  +   5.4676 * bf3
-  -   5.3211 * bf4
-  -   3.2389 * bf5
-  +   1.9381 * bf6
-  - 0.011813 * bf7
-  + 0.083162 * bf8
+  -0.6422906
+  -   1.517222 * bf1
+  +   4.011561 * bf2
+  +   5.467594 * bf3
+  -   5.321097 * bf4
+  -   3.238915 * bf5
+  +   1.938061 * bf6
+  - 0.01181257 * bf7
+  + 0.08316234 * bf8
 
    bf1  h(x1--0.483966)
    bf2  h(-0.483966-x1)
@@ -3147,10 +3147,10 @@ Selected 9 of 9 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
 
-            GCV     RSS    GRSq     RSq
-func1 0.0023786 0.16386 0.99719 0.99803
-func7 0.0096411 0.66418 0.98121 0.98679
-All   0.0120197 0.82803 0.99116 0.99379
+              GCV       RSS      GRSq       RSq
+func1 0.002378554 0.1638586 0.9971927 0.9980268
+func7 0.009641121 0.6641768 0.9812104 0.9867930
+All   0.012019676 0.8280355 0.9911645 0.9937896
 > if (PLOT) {
 +     plotmo(a, ycolumn=1)     # test generation of caption based on response name
 +     plotmo(a, ycolumn=2)
@@ -3168,10 +3168,14 @@ Selected 9 of 9 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
 
-                                              GCV     RSS    GRSq     RSq
-func1                                   0.0026255 0.16386 0.99690 0.99803
-a.very.long.in.fact.extremely.long.name 0.0106421 0.66418 0.97926 0.98679
-All                                     0.0132677 0.82803 0.99025 0.99379
+                                                GCV       RSS      GRSq
+func1                                   0.002625519 0.1638586 0.9969012
+a.very.long.in.fact.extremely.long.name 0.010642154 0.6641768 0.9792595
+All                                     0.013267673 0.8280355 0.9902471
+                                              RSq
+func1                                   0.9980268
+a.very.long.in.fact.extremely.long.name 0.9867930
+All                                     0.9937896
 
 > printh(summary(a))
 ===summary(a) 
@@ -3179,25 +3183,29 @@ Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[,
       1:2], trace=trace, degree=degree, nk=nk, pmethod="b", 
       fast.k=-1, minspan=minspan)
 
-                    func1 a.very.long.in.fact.extremely.long.name
-(Intercept)      -1.42982                                -0.64229
-h(x1- -0.483966)  1.73804                                -1.51722
-h(-0.483966-x1)   1.48240                                 4.01156
-h(x1- -0.23993)   0.99670                                 5.46759
-h(x1-0.29412)    -1.00703                                -5.32110
-h(x1-0.422242)   -2.18175                                -3.23891
-h(x1-0.728679)   -2.20310                                 1.93806
-h(x2- -0.342445)  0.98985                                -0.01181
-h(-0.342445-x2)  -1.00889                                 0.08316
+                      func1 a.very.long.in.fact.extremely.long.name
+(Intercept)      -1.4298232                              -0.6422906
+h(x1- -0.483966)  1.7380390                              -1.5172222
+h(-0.483966-x1)   1.4824026                               4.0115608
+h(x1- -0.23993)   0.9966967                               5.4675942
+h(x1-0.29412)    -1.0070324                              -5.3210965
+h(x1-0.422242)   -2.1817547                              -3.2389148
+h(x1-0.728679)   -2.2031033                               1.9380614
+h(x2- -0.342445)  0.9898526                              -0.0118126
+h(-0.342445-x2)  -1.0088884                               0.0831623
 
 Selected 9 of 9 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
 
-                                              GCV     RSS    GRSq     RSq
-func1                                   0.0026255 0.16386 0.99690 0.99803
-a.very.long.in.fact.extremely.long.name 0.0106421 0.66418 0.97926 0.98679
-All                                     0.0132677 0.82803 0.99025 0.99379
+                                                GCV       RSS      GRSq
+func1                                   0.002625519 0.1638586 0.9969012
+a.very.long.in.fact.extremely.long.name 0.010642154 0.6641768 0.9792595
+All                                     0.013267673 0.8280355 0.9902471
+                                              RSq
+func1                                   0.9980268
+a.very.long.in.fact.extremely.long.name 0.9867930
+All                                     0.9937896
 > 
 > x.global <- cbind(                                           x1, x2, x3, x4, x5)
 > data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
@@ -3210,10 +3218,10 @@ Selected 11 of 16 terms, and 5 of 5 predictors
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-                    GCV     RSS    GRSq     RSq
-y1             0.048674  3.0378 0.99422 0.99632
-neg.eqn56noise 1.148413 71.6725 0.85934 0.91043
-All            1.197088 74.7102 0.92784 0.95405
+                     GCV       RSS      GRSq       RSq
+y1             0.0486743  3.037763 0.9942223 0.9963209
+neg.eqn56noise 1.1484132 71.672468 0.8593445 0.9104345
+All            1.1970875 74.710232 0.9278396 0.9540503
 
 > 
 > x.global <- cbind(                                           x1, x2, x3, x4, x5)
@@ -3227,10 +3235,10 @@ Selected 10 of 31 terms, and 5 of 5 predictors
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 9 (additive model)
 
-         GCV     RSS    GRSq     RSq
-y1  0.099389  5.8165 0.98820 0.99296
-y2  1.081621 63.2991 0.87584 0.92587
-All 1.181010 69.1156 0.93108 0.95885
+         GCV       RSS      GRSq       RSq
+y1  0.099389  5.816493 0.9882024 0.9929556
+y2  1.081621 63.299139 0.8758448 0.9258660
+All 1.181010 69.115632 0.9310817 0.9588484
 
 > printh(summary(a70))
 ===summary(a70) 
@@ -3238,26 +3246,26 @@ Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[,
       1:2], trace=trace, degree=degree, nk=nk, pmethod="b", 
       fast.k=-1, minspan=minspan)
 
-                        y1        y2
-(Intercept)       -0.54386   0.28625
-h(x1- -0.349296)   0.75412  -0.57691
-h(x1-0.578712)     8.47335  -9.42115
-h(x2-0.423488)    25.67582 -23.86772
-h(x2-0.55997)    -24.39882  22.93473
-h(x3-0.299159)     2.93738  -3.22515
-h(0.299159-x3)    -3.06068   2.96141
-h(x4- -0.464244)   1.91562  -1.93435
-h(-0.464244-x4)   -2.34946   2.83263
-h(x5- -0.478141)   1.12595  -0.91654
+                          y1          y2
+(Intercept)       -0.5438650   0.2862520
+h(x1- -0.349296)   0.7541159  -0.5769093
+h(x1-0.578712)     8.4733481  -9.4211488
+h(x2-0.423488)    25.6758206 -23.8677161
+h(x2-0.55997)    -24.3988239  22.9347289
+h(x3-0.299159)     2.9373816  -3.2251457
+h(0.299159-x3)    -3.0606773   2.9614140
+h(x4- -0.464244)   1.9156227  -1.9343497
+h(-0.464244-x4)   -2.3494613   2.8326307
+h(x5- -0.478141)   1.1259533  -0.9165446
 
 Selected 10 of 31 terms, and 5 of 5 predictors 
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 9 (additive model)
 
-         GCV     RSS    GRSq     RSq
-y1  0.099389  5.8165 0.98820 0.99296
-y2  1.081621 63.2991 0.87584 0.92587
-All 1.181010 69.1156 0.93108 0.95885
+         GCV       RSS      GRSq       RSq
+y1  0.099389  5.816493 0.9882024 0.9929556
+y2  1.081621 63.299139 0.8758448 0.9258660
+All 1.181010 69.115632 0.9310817 0.9588484
 > printh(summary(a70, style="bf"))
 ===summary(a70, style = "bf") 
 Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[, 
@@ -3265,16 +3273,16 @@ Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[,
       fast.k=-1, minspan=minspan)
 
 y1 =
-  -0.54386
-  +  0.75412 * bf1
-  +   8.4733 * bf2
-  +   25.676 * bf3
-  -   24.399 * bf4
-  +   2.9374 * bf5
-  -   3.0607 * bf6
-  +   1.9156 * bf7
-  -   2.3495 * bf8
-  +   1.1260 * bf9
+  -0.543865
+  +  0.7541159 * bf1
+  +   8.473348 * bf2
+  +   25.67582 * bf3
+  -   24.39882 * bf4
+  +   2.937382 * bf5
+  -   3.060677 * bf6
+  +   1.915623 * bf7
+  -   2.349461 * bf8
+  +   1.125953 * bf9
 
    bf1  h(x1--0.349296)
    bf2  h(x1-0.578712)
@@ -3287,16 +3295,16 @@ y1 =
    bf9  h(x5--0.478141)
 
 y2 =
-  0.28625
-  -  0.57691 * bf1
-  -   9.4211 * bf2
-  -   23.868 * bf3
-  +   22.935 * bf4
-  -   3.2251 * bf5
-  +   2.9614 * bf6
-  -   1.9343 * bf7
-  +   2.8326 * bf8
-  -  0.91654 * bf9
+  0.286252
+  -  0.5769093 * bf1
+  -   9.421149 * bf2
+  -   23.86772 * bf3
+  +   22.93473 * bf4
+  -   3.225146 * bf5
+  +   2.961414 * bf6
+  -   1.934350 * bf7
+  +   2.832631 * bf8
+  -  0.9165446 * bf9
 
    bf1  h(x1--0.349296)
    bf2  h(x1-0.578712)
@@ -3312,10 +3320,10 @@ Selected 10 of 31 terms, and 5 of 5 predictors
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 9 (additive model)
 
-         GCV     RSS    GRSq     RSq
-y1  0.099389  5.8165 0.98820 0.99296
-y2  1.081621 63.2991 0.87584 0.92587
-All 1.181010 69.1156 0.93108 0.95885
+         GCV       RSS      GRSq       RSq
+y1  0.099389  5.816493 0.9882024 0.9929556
+y2  1.081621 63.299139 0.8758448 0.9258660
+All 1.181010 69.115632 0.9310817 0.9588484
 > 
 > N1 <- 100
 > set.seed(1)
@@ -3337,19 +3345,19 @@ Selected 11 of 11 terms, and 5 of 5 predictors
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.061604 3.8447 0.67027 0.79004
-eqn56 0.042585 2.6577 0.99911 0.99943
-All   0.104189 6.5024 0.99783 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.06160414 3.844714 0.6702662 0.7900348
+eqn56 0.04258466 2.657709 0.9991105 0.9994336
+All   0.10418880 6.502423 0.9978322 0.9986196
 
 Selected 11 of 11 terms, and 5 of 5 predictors 
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.061604 3.8447 0.67027 0.79004
-eqn56 0.042585 2.6577 0.99911 0.99943
-All   0.104189 6.5024 0.99783 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.06160414 3.844714 0.6702662 0.7900348
+eqn56 0.04258466 2.657709 0.9991105 0.9994336
+All   0.10418880 6.502423 0.9978322 0.9986196
 > itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=51, degree=2, test.mars.to.earth=TRUE)
 itest 55  multiple responses robotArm eqn56  degree 2  nk 51  
 
@@ -3358,10 +3366,10 @@ Selected 11 of 11 terms, and 5 of 5 predictors
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.070210 3.8447 0.62420 0.79004
-eqn56 0.048534 2.6577 0.99899 0.99943
-All   0.118744 6.5024 0.99753 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.07021027 3.844714 0.6242022 0.7900348
+eqn56 0.04853376 2.657709 0.9989862 0.9994336
+All   0.11874403 6.502423 0.9975293 0.9986196
 
 Testing mars.to.earth with a multiple response model
 Converted mars(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[, 
@@ -3373,46 +3381,46 @@ Selected 14 of 14 terms, and 5 of 5 predictors
 Importance: l1, l2, theta1, theta2, phi
 Number of terms at each degree of interaction: 1 11 2
 
-           GCV    RSS    GRSq     RSq
-arm   0.073080 3.2318 0.60884 0.82351
-eqn56 0.026114 1.1548 0.99945 0.99975
-All   0.099193 4.3866 0.99976 0.99989
+             GCV      RSS      GRSq       RSq
+arm   0.07307979 3.231771 0.6088432 0.8235085
+eqn56 0.02611358 1.154808 0.9994545 0.9997539
+All   0.09919337 4.386579 0.9997589 0.9998912
 ===summary(fitme) 
 Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[, 
       1:2], degree=degree, nk=nk)
 
-                                         arm    eqn56
-(Intercept)                         1.137120 16.81727
-h(l1-0.434659)                      0.754467  2.79229
-h(l1-0.712515)                      0.220952  9.08473
-h(0.712515-l1)                     -0.293684 -1.12632
-h(l2-0.680866)                      0.852962  0.01560
-h(0.680866-l2)                     -0.444329 -7.44728
-h(theta1-1.99268)                   0.015752  3.03011
-h(1.99268-theta1)                   0.062994 -2.96905
-h(theta2-3.09961)                  -0.193984  2.02819
-h(3.09961-theta2)                  -0.156002 -1.97747
-h(phi- -0.0759479)                 -0.232519  0.98325
-h(-0.0759479-phi)                  -0.150194 -0.97498
-h(0.434659-l1)                     -0.150766 -0.05519
-h(l1-0.434659) * h(theta2-1.51306) -1.823933 -0.39212
+                                           arm      eqn56
+(Intercept)                         1.13711992 16.8172674
+h(l1-0.434659)                      0.75446667  2.7922931
+h(l1-0.712515)                      0.22095175  9.0847285
+h(0.712515-l1)                     -0.29368398 -1.1263202
+h(l2-0.680866)                      0.85296162  0.0155967
+h(0.680866-l2)                     -0.44432945 -7.4472751
+h(theta1-1.99268)                   0.01575202  3.0301091
+h(1.99268-theta1)                   0.06299441 -2.9690537
+h(theta2-3.09961)                  -0.19398400  2.0281862
+h(3.09961-theta2)                  -0.15600166 -1.9774662
+h(phi- -0.0759479)                 -0.23251894  0.9832517
+h(-0.0759479-phi)                  -0.15019381 -0.9749834
+h(0.434659-l1)                     -0.15076581 -0.0551910
+h(l1-0.434659) * h(theta2-1.51306) -1.82393250 -0.3921191
 
 Selected 14 of 14 terms, and 5 of 5 predictors 
 Importance: l1, l2, theta1, theta2, phi
 Number of terms at each degree of interaction: 1 11 2
 
-           GCV    RSS    GRSq     RSq
-arm   0.073080 3.2318 0.60884 0.82351
-eqn56 0.026114 1.1548 0.99945 0.99975
-All   0.099193 4.3866 0.99976 0.99989
+             GCV      RSS      GRSq       RSq
+arm   0.07307979 3.231771 0.6088432 0.8235085
+eqn56 0.02611358 1.154808 0.9994545 0.9997539
+All   0.09919337 4.386579 0.9997589 0.9998912
 Selected 11 of 11 terms, and 5 of 5 predictors 
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.070210 3.8447 0.62420 0.79004
-eqn56 0.048534 2.6577 0.99899 0.99943
-All   0.118744 6.5024 0.99753 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.07021027 3.844714 0.6242022 0.7900348
+eqn56 0.04853376 2.657709 0.9989862 0.9994336
+All   0.11874403 6.502423 0.9975293 0.9986196
 > itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=1)
 itest 56  multiple responses robotArm eqn56  degree 1  nk 201 
 
@@ -3421,19 +3429,19 @@ Selected 11 of 11 terms, and 5 of 5 predictors
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.061604 3.8447 0.67027 0.79004
-eqn56 0.042585 2.6577 0.99911 0.99943
-All   0.104189 6.5024 0.99783 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.06160414 3.844714 0.6702662 0.7900348
+eqn56 0.04258466 2.657709 0.9991105 0.9994336
+All   0.10418880 6.502423 0.9978322 0.9986196
 
 Selected 11 of 11 terms, and 5 of 5 predictors 
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.061604 3.8447 0.67027 0.79004
-eqn56 0.042585 2.6577 0.99911 0.99943
-All   0.104189 6.5024 0.99783 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.06160414 3.844714 0.6702662 0.7900348
+eqn56 0.04258466 2.657709 0.9991105 0.9994336
+All   0.10418880 6.502423 0.9978322 0.9986196
 > itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=2)
 itest 57  multiple responses robotArm eqn56  degree 2  nk 201 
 
@@ -3442,19 +3450,19 @@ Selected 11 of 11 terms, and 5 of 5 predictors
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.070210 3.8447 0.62420 0.79004
-eqn56 0.048534 2.6577 0.99899 0.99943
-All   0.118744 6.5024 0.99753 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.07021027 3.844714 0.6242022 0.7900348
+eqn56 0.04853376 2.657709 0.9989862 0.9994336
+All   0.11874403 6.502423 0.9975293 0.9986196
 
 Selected 11 of 11 terms, and 5 of 5 predictors 
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.070210 3.8447 0.62420 0.79004
-eqn56 0.048534 2.6577 0.99899 0.99943
-All   0.118744 6.5024 0.99753 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.07021027 3.844714 0.6242022 0.7900348
+eqn56 0.04853376 2.657709 0.9989862 0.9994336
+All   0.11874403 6.502423 0.9975293 0.9986196
 > itest <- itest+1; test.earth.two.responses(itest, robotArm, eqn56, nk=201, degree=10)
 itest 58  multiple responses robotArm eqn56  degree 10 nk 201 
 
@@ -3463,19 +3471,19 @@ Selected 11 of 11 terms, and 5 of 5 predictors
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.070210 3.8447 0.62420 0.79004
-eqn56 0.048534 2.6577 0.99899 0.99943
-All   0.118744 6.5024 0.99753 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.07021027 3.844714 0.6242022 0.7900348
+eqn56 0.04853376 2.657709 0.9989862 0.9994336
+All   0.11874403 6.502423 0.9975293 0.9986196
 
 Selected 11 of 11 terms, and 5 of 5 predictors 
 Importance: theta1, theta2, l1, phi, l2
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-           GCV    RSS    GRSq     RSq
-arm   0.070210 3.8447 0.62420 0.79004
-eqn56 0.048534 2.6577 0.99899 0.99943
-All   0.118744 6.5024 0.99753 0.99862
+             GCV      RSS      GRSq       RSq
+arm   0.07021027 3.844714 0.6242022 0.7900348
+eqn56 0.04853376 2.657709 0.9989862 0.9994336
+All   0.11874403 6.502423 0.9975293 0.9986196
 > 
 > attach(ozone1)
 > x.global <- cbind(                wind, humidity, temp, ibh, dpg, ibt, vis)
@@ -3488,19 +3496,19 @@ Selected 24 of 49 terms, and 8 of 8 predictors
 Importance: wind, ibt, ibh, vis, temp, dpg, vh, humidity
 Number of terms at each degree of interaction: 1 8 15
 
-        GCV     RSS    GRSq     RSq
-O3    23.99    5359 0.62732 0.74620
-doy 7228.49 1614632 0.33851 0.54952
-All 7252.49 1619991 0.34020 0.55067
+          GCV        RSS      GRSq       RSq
+O3    23.9916    5359.02 0.6273183 0.7462033
+doy 7228.4935 1614631.88 0.3385069 0.5495224
+All 7252.4851 1619990.90 0.3401983 0.5506743
 
 Selected 24 of 49 terms, and 8 of 8 predictors 
 Importance: wind, ibt, ibh, vis, temp, dpg, vh, humidity
 Number of terms at each degree of interaction: 1 8 15
 
-        GCV     RSS    GRSq     RSq
-O3    23.99    5359 0.62732 0.74620
-doy 7228.49 1614632 0.33851 0.54952
-All 7252.49 1619991 0.34020 0.55067
+          GCV        RSS      GRSq       RSq
+O3    23.9916    5359.02 0.6273183 0.7462033
+doy 7228.4935 1614631.88 0.3385069 0.5495224
+All 7252.4851 1619990.90 0.3401983 0.5506743
 > detach(ozone1)
 > 
 > cat("--- formula based multiple response -------------\n")
@@ -3542,7 +3550,7 @@ All 7252.49 1619991 0.34020 0.55067
 Selected 7 of 21 terms, and 5 of 9 predictors 
 Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, humidity-unused
 Number of terms at each degree of interaction: 1 5 1
-GCV 15.901    RSS 3704.5    GRSq 0.75146    RSq 0.779
+GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > if (PLOT)
 +     plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)")
 > 
@@ -3552,7 +3560,7 @@ GCV 15.901    RSS 3704.5    GRSq 0.75146    RSq 0.779
 Selected 7 of 21 terms, and 5 of 9 predictors 
 Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, humidity-unused
 Number of terms at each degree of interaction: 1 5 1
-GCV 15.901    RSS 3704.5    GRSq 0.75146    RSq 0.779
+GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > if (PLOT)
 +     plotmo(a, caption="test subset: earth(ozone1[train.subset,-1], ozone1[train.subset,1]")
 > 
@@ -3562,14 +3570,14 @@ GCV 15.901    RSS 3704.5    GRSq 0.75146    RSq 0.779
 Selected 7 of 21 terms, and 5 of 9 predictors 
 Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, humidity-unused
 Number of terms at each degree of interaction: 1 5 1
-GCV 15.901    RSS 3704.5    GRSq 0.75146    RSq 0.779
+GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > if (PLOT)
 +     plotmo(a, caption="test subset: earth(O3 ~ ., data=ozone1, subset=train.subset")
 > 
 > y <- ozone1[test.subset, 1]
 > yhat <- predict(a, newdata = ozone1[test.subset, -1])
 > printh(1 - sum((y - yhat)^2)/sum((y - mean(y))^2)) # print RSquared
-===1 - sum((y - yhat)^2)/sum((y - mean(y))^2) [1] 0.71948
+===1 - sum((y - yhat)^2)/sum((y - mean(y))^2) [1] 0.7194805
 > 
 > cat("--- update -------------------------\n")
 --- update -------------------------
@@ -3580,46 +3588,46 @@ GCV 15.901    RSS 3704.5    GRSq 0.75146    RSq 0.779
 Selected 21 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 10 10
-GCV 10.771    RSS 3554.4    GRSq 0.83167    RSq 0.83167
+GCV 10.77088    RSS 3554.389    GRSq 0.8316684    RSq 0.8316684
 > printh(update(a, penalty = 10, ponly=TRUE))
 ===update(a, penalty = 10, ponly = TRUE) 
 Selected 11 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 17.183    RSS 3767.9    GRSq 0.73308    RSq 0.82156
+GCV 17.18340    RSS 3767.904    GRSq 0.733076    RSq 0.8215567
 > a <- earth(O3 ~ ., data=ozone1, nk=31, pmethod="n", degree=2)
 > a.none <- printh(update(a, nprune=10, pmethod="n"))
 ===update(a, nprune = 10, pmethod = "n") 
 Selected 10 of 31 terms, and 5 of 9 predictors 
 Importance: temp, humidity, ibt-unused, doy, dpg, ibh, vis-unused, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 6 3
-GCV 13.836    RSS 3938.8    GRSq 0.78507    RSq 0.81346
+GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
 > printh(update(a.none, pmethod="b"))
 ===update(a.none, pmethod = "b") 
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.836    RSS 3938.8    GRSq 0.78507    RSq 0.81346
+GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
 > printh(update(a.none, nprune=4, pmethod="e"))
 ===update(a.none, nprune = 4, pmethod = "e") 
 Selected 4 of 31 terms, and 3 of 9 predictors 
 Importance: temp, ibh, humidity, vh-unused, wind-unused, dpg-unused, ibt-unused, vis-unused, doy-unused
 Number of terms at each degree of interaction: 1 2 1
-GCV 18.559    RSS 5813.1    GRSq 0.7117    RSq 0.7247
+GCV 18.55929    RSS 5813.122    GRSq 0.7117032    RSq 0.7246976
 > a.updated <- update(a.none, nprune=10, pmethod="b")
 > printh(a.updated)
 ===a.updated 
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.836    RSS 3938.8    GRSq 0.78507    RSq 0.81346
+GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
 > a.backwards <- update(a, nprune=10, pmethod="b")
 > printh(a.backwards)
 ===a.backwards 
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.836    RSS 3938.8    GRSq 0.78507    RSq 0.81346
+GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
 > printh(all.equal(a.updated$bx, a.backwards$bx))
 ===all.equal(a.updated$bx, a.backwards$bx) [1] TRUE
 > a <- earth(O3 ~ ., data=ozone1, nk=31, nprune=10, pmethod="b", degree=2)
@@ -3628,7 +3636,7 @@ GCV 13.836    RSS 3938.8    GRSq 0.78507    RSq 0.81346
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.836    RSS 3938.8    GRSq 0.78507    RSq 0.81346
+GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
 > printh(all.equal(a$bx, a.backwards$bx))
 ===all.equal(a$bx, a.backwards$bx) [1] TRUE
 > 
@@ -3674,34 +3682,34 @@ Single term deletions
 
 Model:
 O3 ~ vh + wind + humidity + temp + ibh + dpg + ibt + vis + doy
-            Df  AIC
-<none>         13.4
-vh         0.0 13.4
-wind     -10.0 14.2
-humidity -10.0 15.1
-temp      -7.5 13.1
-ibh       -2.5 13.0
-dpg        0.0 14.7
-ibt       -5.0 13.9
-vis        0.0 14.6
-doy        0.0 14.6
+            Df    AIC
+<none>         13.454
+vh         0.0 13.452
+wind     -10.0 14.222
+humidity -10.0 15.048
+temp      -7.5 13.134
+ibh       -2.5 13.034
+dpg        0.0 14.677
+ibt       -5.0 13.858
+vis        0.0 14.571
+doy        0.0 14.567
 > printh(drop1(a, warn=FALSE)) # repeat but with warnings suppressed
 ===drop1(a, warn = FALSE) 
 Single term deletions
 
 Model:
 O3 ~ vh + wind + humidity + temp + ibh + dpg + ibt + vis + doy
-            Df  AIC
-<none>         13.4
-vh         0.0 13.4
-wind     -10.0 14.2
-humidity -10.0 15.1
-temp      -7.5 13.1
-ibh       -2.5 13.0
-dpg        0.0 14.7
-ibt       -5.0 13.9
-vis        0.0 14.6
-doy        0.0 14.6
+            Df    AIC
+<none>         13.454
+vh         0.0 13.452
+wind     -10.0 14.222
+humidity -10.0 15.048
+temp      -7.5 13.134
+ibh       -2.5 13.034
+dpg        0.0 14.677
+ibt       -5.0 13.858
+vis        0.0 14.571
+doy        0.0 14.567
 > 
 > cat("--- fda and mda with earth -----------------------------------\n")
 --- fda and mda with earth -----------------------------------
@@ -3742,7 +3750,7 @@ predicted    setosa versicolor virginica
   versicolor      0         49         3
   virginica       0          1        47
 attr(,"error")
-[1] 0.026667
+[1] 0.02666667
 > if (PLOT) {
 +     par(mar=c(3, 3, 2, .5))  # small margins and text to pack figs in
 +     par(mgp=c(1.6, 0.6, 0))  # flatten axis elements
@@ -3775,7 +3783,7 @@ Percent Between-Group Variance Explained:
 
 Training Misclassification Error: 0.32 ( N = 100 )
 
-Deviance: 151.38 
+Deviance: 151.375 
 > printh(a)
 ===a 
 Call:
@@ -3792,7 +3800,7 @@ Percent Between-Group Variance Explained:
 
 Training Misclassification Error: 0.24 ( N = 100 )
 
-Deviance: 163.77 
+Deviance: 163.766 
 > cat("mda with mars  ", attr(confusion(am), "error"), "\n")
 mda with mars   0.32 
 > cat("mda with earth ", attr(confusion(a),  "error"), "\n")
@@ -4163,14 +4171,14 @@ check.models.equal identical: "allowed" function a7update a7
 Call: earth(formula=Volume~., data=trees, allowed=example1)
 
             coefficients
-(Intercept)      29.7482
-h(Girth-14)       6.6486
-h(14-Girth)      -3.5140
+(Intercept)    29.748216
+h(Girth-14)     6.648628
+h(14-Girth)    -3.513957
 
 Selected 3 of 3 terms, and 1 of 2 predictors 
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 14.372    RSS 313.41    GRSq 0.94853    RSq 0.96134
+GCV 14.37228    RSS 313.4085    GRSq 0.9485251    RSq 0.9613366
 > 
 > example1a  <- function(degree, pred, parents, namesx)
 + {
@@ -4210,26 +4218,26 @@ check.models.equal identical: "allowed" function a1 a1b
 Call: earth(formula=O3~., data=ozone1, degree=2, allowed=example2)
 
                          coefficients
-(Intercept)                  12.02691
-h(vh-5740)                    0.02196
-h(5740-vh)                   -0.02051
-h(temp-58)                    0.34627
-h(ibh-1069)                  -0.00133
-h(dpg-11)                    -0.07355
-h(11-dpg)                    -0.08526
-h(80-vis)                     0.06840
-h(doy-89)                     0.05694
-h(89-doy)                    -0.10600
-h(doy-159)                   -0.09673
-h(vh-5740) * h(dpg-54)       -0.00327
-h(wind-6) * h(1069-ibh)      -0.00726
-h(ibh-1069) * h(doy-278)      0.00001
-h(ibh-1069) * h(278-doy)      0.00001
+(Intercept)                12.0269062
+h(vh-5740)                  0.0219633
+h(5740-vh)                 -0.0205129
+h(temp-58)                  0.3462684
+h(ibh-1069)                -0.0013262
+h(dpg-11)                  -0.0735542
+h(11-dpg)                  -0.0852630
+h(80-vis)                   0.0684005
+h(doy-89)                   0.0569436
+h(89-doy)                  -0.1059973
+h(doy-159)                 -0.0967263
+h(vh-5740) * h(dpg-54)     -0.0032672
+h(wind-6) * h(1069-ibh)    -0.0072612
+h(ibh-1069) * h(doy-278)    0.0000133
+h(ibh-1069) * h(278-doy)    0.0000053
 
 Selected 15 of 20 terms, and 7 of 9 predictors 
 Importance: temp, doy, ibh, dpg, vh, vis, wind, humidity-unused, ibt-unused
 Number of terms at each degree of interaction: 1 10 4
-GCV 15.048    RSS 3941.6    GRSq 0.76624    RSq 0.81333
+GCV 15.04844    RSS 3941.596    GRSq 0.7662402    RSq 0.8133308
 > example3 <- function(degree, pred, parents)
 + {
 +     # allow only humidity and temp in terms of degree > 1
@@ -4245,24 +4253,24 @@ GCV 15.048    RSS 3941.6    GRSq 0.76624    RSq 0.81333
 Call: earth(formula=O3~., data=ozone1, degree=2, allowed=example3)
 
                             coefficients
-(Intercept)                     12.08042
-h(5860-vh)                      -0.01301
-h(wind-6)                       -0.58210
-h(temp-58)                       0.25762
-h(1069-ibh)                     -0.00287
-h(dpg-11)                       -0.10128
-h(11-dpg)                       -0.06533
-h(ibt-116)                       0.04489
-h(200-vis)                       0.01807
-h(doy-89)                        0.04230
-h(89-doy)                       -0.11112
-h(doy-151)                      -0.07978
-h(56-humidity) * h(temp-58)     -0.01675
+(Intercept)                   12.0804175
+h(5860-vh)                    -0.0130080
+h(wind-6)                     -0.5820960
+h(temp-58)                     0.2576218
+h(1069-ibh)                   -0.0028695
+h(dpg-11)                     -0.1012778
+h(11-dpg)                     -0.0653277
+h(ibt-116)                     0.0448906
+h(200-vis)                     0.0180651
+h(doy-89)                      0.0423010
+h(89-doy)                     -0.1111172
+h(doy-151)                    -0.0797847
+h(56-humidity) * h(temp-58)   -0.0167523
 
 Selected 13 of 20 terms, and 9 of 9 predictors 
 Importance: temp, vis, doy, dpg, humidity, vh, ibh, ibt, wind
 Number of terms at each degree of interaction: 1 11 1
-GCV 13.830    RSS 3746.6    GRSq 0.78517    RSq 0.82257
+GCV 13.82952    RSS 3746.583    GRSq 0.7851747    RSq 0.8225664
 > 
 > ihumidity <- 0
 > itemp <- 0
@@ -4522,58 +4530,58 @@ After backward pass GRSq 1 RSq 1
 ===summary(a) 
 Call: earth(x=x, y=y, trace=4)
 
-            coefficients
-(Intercept)   -9.894e-16
-x              1.000e+00
+             coefficients
+(Intercept) -9.894088e-16
+x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.1581e-31    RSS 6.8066e-29    GRSq 1    RSq 1
+GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
 > printh(summary(a.longx))
 ===summary(a.longx) 
 Call: earth(x="[102, 1]-too-long-to-display", y=y, trace=4)
 
-            coefficients
-(Intercept)   -9.894e-16
-x              1.000e+00
+             coefficients
+(Intercept) -9.894088e-16
+x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.1581e-31    RSS 6.8066e-29    GRSq 1    RSq 1
+GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
 > printh(summary(a.longy))
 ===summary(a.longy) 
 Call: earth(x=x, y="[102, 1]-too-long-to-display", trace=4)
 
-            coefficients
-(Intercept)   -9.894e-16
-x              1.000e+00
+             coefficients
+(Intercept) -9.894088e-16
+x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.1581e-31    RSS 6.8066e-29    GRSq 1    RSq 1
+GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
 > printh(summary(a.longxy))
 ===summary(a.longxy) 
 Call: earth(x="[102, 1]-too-long-to-display", y="[102, 1]-too-long-to-display", 
       trace=4)
 
-            coefficients
-(Intercept)   -9.894e-16
-x              1.000e+00
+             coefficients
+(Intercept) -9.894088e-16
+x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.1581e-31    RSS 6.8066e-29    GRSq 1    RSq 1
+GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
 > printh(summary(a.longxy, style="bf"))
 ===summary(a.longxy, style = "bf") 
 Call: earth(x="[102, 1]-too-long-to-display", y="[102, 1]-too-long-to-display", 
       trace=4)
 
 y =
-  -9.8941e-16
+  -9.894088e-16
   + 1 * bf1
 
    bf1  x
@@ -4581,7 +4589,7 @@ y =
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.1581e-31    RSS 6.8066e-29    GRSq 1    RSq 1
+GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
 > 
 > cat("--- factors with x,y interface -------------------------\n")
 --- factors with x,y interface -------------------------
@@ -4609,27 +4617,27 @@ After backward pass GRSq 0.01326 RSq 0.01797
 Call: earth(x=pclass, y=sex, trace=2, degree=2)
 
             coefficients
-(Intercept)      0.56697
-3rd              0.12963
+(Intercept)    0.5669725
+3rd            0.1296343
 
 Selected 2 of 3 terms, and 1 of 2 predictors 
 Importance: 3rd, 2nd-unused
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 0.23069    RSS 239.69    GRSq 0.013257    RSq 0.017973
+GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > printh(summary(a1, style="bf"))
 ===summary(a1, style = "bf") 
 Call: earth(x=pclass, y=sex, trace=2, degree=2)
 
 sex =
-  0.56697
-  + 0.12963 * bf1
+  0.5669725
+  + 0.1296343 * bf1
 
    bf1  3rd
 
 Selected 2 of 3 terms, and 1 of 2 predictors 
 Importance: 3rd, 2nd-unused
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 0.23069    RSS 239.69    GRSq 0.013257    RSq 0.017973
+GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > if (PLOT)
 +     plot(a1)
 > a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
@@ -4651,19 +4659,19 @@ After backward pass GRSq 0.00728 RSq 0.01202
 ===summary(a2) 
 Call: earth(x=sex, y=pclass, trace=2, degree=2)
 
-                 1st       2nd     3rd
-(Intercept)  0.34278  0.265464 0.39175
-sex         -0.11330 -0.025342 0.13864
+                   1st         2nd       3rd
+(Intercept)  0.3427835  0.26546392 0.3917526
+sex         -0.1133002 -0.02534234 0.1386426
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: sex
 Number of terms at each degree of interaction: 1 1 (additive model)
 
-        GCV    RSS       GRSq        RSq
-1st 0.19611 203.76  0.0104150 0.01514418
-2nd 0.18837 195.72 -0.0039978 0.00080028
-3rd 0.24672 256.35  0.0132572 0.01797283
-All 0.63120 655.82  0.0072798 0.01202394
+          GCV      RSS         GRSq          RSq
+1st 0.1961073 203.7578  0.010414990 0.0151441824
+2nd 0.1883694 195.7180 -0.003997793 0.0008002778
+3rd 0.2467207 256.3457  0.013257223 0.0179728324
+All 0.6311974 655.8215  0.007279765 0.0120239411
 > if (PLOT)
 +     plot(a2)
 > a3 <- earth(pclass, age, degree=2, trace=2)        # x=unordered y=numeric
@@ -4687,14 +4695,14 @@ After backward pass GRSq 0.164 RSq 0.172
 Call: earth(x=pclass, y=age, trace=2, degree=2)
 
             coefficients
-(Intercept)      39.1599
-2nd              -9.6532
-3rd             -14.3436
+(Intercept)    39.159918
+2nd            -9.653213
+3rd           -14.343551
 
 Selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: 3rd, 2nd
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 173.84    RSS 179758    GRSq 0.16401    RSq 0.17199
+GCV 173.8417    RSS 179758.3    GRSq 0.1640128    RSq 0.1719935
 > if (PLOT)
 +     plot(a3)
 > a4 <- earth(age, pclass, degree=2, trace=2)        # x=numeric y=unordered
@@ -4719,19 +4727,19 @@ After backward pass GRSq 0.09302 RSq 0.09735
 ===summary(a4) 
 Call: earth(x=age, y=pclass, trace=2, degree=2)
 
-                 1st         2nd       3rd
-(Intercept) 0.064394  0.25633356  0.679272
-h(age-16)   0.013886 -0.00045667 -0.013429
+                   1st           2nd         3rd
+(Intercept) 0.06439450  0.2563335580  0.67927195
+h(age-16)   0.01388561 -0.0004566659 -0.01342895
 
 Selected 2 of 6 terms, and 1 of 1 predictors 
 Importance: age
 Number of terms at each degree of interaction: 1 1 (additive model)
 
-        GCV    RSS       GRSq       RSq
-1st 0.16700 173.52  0.1572778 0.1613052
-2nd 0.18849 195.84 -0.0046167 0.0001843
-3rd 0.22120 229.82  0.1153475 0.1195752
-All 0.57668 599.18  0.0930171 0.0973516
+          GCV      RSS         GRSq        RSq
+1st 0.1670033 173.5184  0.157277818 0.16130516
+2nd 0.1884855 195.8387 -0.004616749 0.00018428
+3rd 0.2211945 229.8237  0.115347486 0.11957521
+All 0.5766834 599.1808  0.093017132 0.09735157
 > if (PLOT)
 +     plot(a4)
 > a5 <- earth(etitanic[,c(2:4)], pclass, degree=2, trace=2)  # x=mixed  y=unordered
@@ -4760,26 +4768,26 @@ After backward pass GRSq 0.1631 RSq 0.1949
 ===summary(a5) 
 Call: earth(x=etitanic[, c(2:4)], y=pclass, trace=2, degree=2)
 
-                           1st        2nd       3rd
-(Intercept)          -0.019851  0.2290093  0.790842
-survived              0.364266  0.1589838 -0.523250
-h(age-26)             0.015422 -0.0069111 -0.008511
-h(26-age)            -0.000623 -0.0157462  0.016369
-survived * sexmale   -0.082755 -0.3087717  0.391527
-survived * h(16-age) -0.021344  0.0389664 -0.017623
-sexmale * h(age-26)   0.006189  0.0075511 -0.013740
-sexmale * h(age-55)  -0.025753 -0.0020029  0.027756
-sexmale * h(55-age)   0.001858  0.0028773 -0.004736
+                             1st          2nd         3rd
+(Intercept)          -0.01985123  0.229009299  0.79084193
+survived              0.36426631  0.158983782 -0.52325009
+h(age-26)             0.01542210 -0.006911119 -0.00851098
+h(26-age)            -0.00062287 -0.015746198  0.01636907
+survived * sexmale   -0.08275489 -0.308771690  0.39152658
+survived * h(16-age) -0.02134375  0.038966434 -0.01762268
+sexmale * h(age-26)   0.00618934  0.007551127 -0.01374047
+sexmale * h(age-55)  -0.02575309 -0.002002911  0.02775600
+sexmale * h(55-age)   0.00185826  0.002877292 -0.00473556
 
 Selected 9 of 12 terms, and 3 of 3 predictors 
 Importance: age, survived, sexmale
 Number of terms at each degree of interaction: 1 3 5
 
-        GCV    RSS     GRSq      RSq
-1st 0.15056 151.23 0.240231 0.269034
-2nd 0.18457 185.39 0.016226 0.053522
-3rd 0.19697 197.84 0.212247 0.242111
-All 0.53211 534.46 0.163127 0.194854
+          GCV      RSS       GRSq        RSq
+1st 0.1505645 151.2302 0.24023053 0.26903432
+2nd 0.1845750 185.3911 0.01622629 0.05352236
+3rd 0.1969663 197.8372 0.21224655 0.24211125
+All 0.5321058 534.4585 0.16312688 0.19485376
 > if (PLOT)
 +     plot(a5)
 > a6 <- earth(etitanic[,c(1,3,4,5,6)], survived, degree=2, trace=2)  # x=mixed y=unordered
@@ -4811,20 +4819,20 @@ Call: earth(x=etitanic[, c(1, 3, 4, 5, 6)], y=survived, trace=2,
       degree=2)
 
                        coefficients
-(Intercept)                0.853750
-pclass3rd                 -0.868595
-sexmale                   -0.595667
-h(64-age)                  0.003529
-pclass2nd * sexmale       -0.156631
-pclass2nd * h(1-parch)    -0.128397
-pclass3rd * sexmale        0.237578
-pclass3rd * h(4-sibsp)     0.104075
-sexmale * h(16-age)        0.036499
+(Intercept)              0.85375046
+pclass3rd               -0.86859514
+sexmale                 -0.59566715
+h(64-age)                0.00352860
+pclass2nd * sexmale     -0.15663098
+pclass2nd * h(1-parch)  -0.12839750
+pclass3rd * sexmale      0.23757830
+pclass3rd * h(4-sibsp)   0.10407473
+sexmale * h(16-age)      0.03649943
 
 Selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-GCV 0.13985    RSS 140.47    GRSq 0.42218    RSq 0.44409
+GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888
 > if (PLOT)
 +     plot(a6)
 > a7 <- earth(etitanic[,c(2,3,5,6)], etitanic[,c(1,4)], degree=2, trace=2)  # x=mixed y=mixed
@@ -4855,26 +4863,26 @@ After backward pass GRSq 0.1125 RSq 0.1419
 Call: earth(x=etitanic[, c(2, 3, 5, 6)], y=etitanic[, c(1, 4)], 
       trace=2, degree=2)
 
-                        pclass1st pclass2nd pclass3rd      age
-(Intercept)              0.367592  0.341480  0.290928  22.8228
-h(sibsp-1)              -0.104673 -0.031749  0.136421 -13.2263
-h(sibsp-2)              -0.040808 -0.076671  0.117479   9.1566
-h(parch-2)              -0.058341 -0.027418  0.085760  18.7475
-h(2-parch)              -0.048621 -0.047629  0.096250   4.5986
-h(parch-3)              -0.050441 -0.126271  0.176712 -18.6861
-h(sibsp-1) * h(parch-1)  0.056197 -0.014339 -0.041858   3.4196
-h(sibsp-1) * h(1-parch)  0.048915  0.064819 -0.113734  11.1807
+                          pclass1st   pclass2nd   pclass3rd        age
+(Intercept)              0.36759244  0.34147958  0.29092798  22.822807
+h(sibsp-1)              -0.10467262 -0.03174855  0.13642116 -13.226278
+h(sibsp-2)              -0.04080832 -0.07667103  0.11747935   9.156604
+h(parch-2)              -0.05834115 -0.02741839  0.08575954  18.747474
+h(2-parch)              -0.04862108 -0.04762889  0.09624997   4.598584
+h(parch-3)              -0.05044140 -0.12627113  0.17671253 -18.686121
+h(sibsp-1) * h(parch-1)  0.05619704 -0.01433876 -0.04185828   3.419645
+h(sibsp-1) * h(1-parch)  0.04891458  0.06481914 -0.11373372  11.180686
 
 Selected 8 of 16 terms, and 2 of 4 predictors 
 Importance: sibsp, parch, survived-unused, sexmale-unused
 Number of terms at each degree of interaction: 1 5 2
 
-               GCV      RSS      GRSq      RSq
-pclass1st   0.2014    203.2 -0.016149 0.017600
-pclass2nd   0.1904    192.2 -0.014944 0.018765
-pclass3rd   0.2449    247.2  0.020667 0.053192
-age       184.4896 186210.4  0.112808 0.142274
-All       185.1263 186853.0  0.112460 0.141937
+                 GCV        RSS        GRSq        RSq
+pclass1st   0.201372    203.250 -0.01614889 0.01759983
+pclass2nd   0.190423    192.199 -0.01494384 0.01876486
+pclass3rd   0.244868    247.152  0.02066653 0.05319252
+age       184.489610 186210.381  0.11280797 0.14227373
+All       185.126273 186852.982  0.11246009 0.14193740
 > if (PLOT)
 +     plot(a7)
 > 
@@ -4902,27 +4910,27 @@ After backward pass GRSq 0.01326 RSq 0.01797
 Call: earth(formula=sex~pclass, trace=2, degree=2)
 
             coefficients
-(Intercept)      0.56697
-pclass3rd        0.12963
+(Intercept)    0.5669725
+pclass3rd      0.1296343
 
 Selected 2 of 3 terms, and 1 of 2 predictors 
 Importance: pclass3rd, pclass2nd-unused
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 0.23069    RSS 239.69    GRSq 0.013257    RSq 0.017973
+GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > printh(summary(a1f, style="bf"))
 ===summary(a1f, style = "bf") 
 Call: earth(formula=sex~pclass, trace=2, degree=2)
 
 male =
-  0.56697
-  + 0.12963 * bf1
+  0.5669725
+  + 0.1296343 * bf1
 
    bf1  pclass3rd
 
 Selected 2 of 3 terms, and 1 of 2 predictors 
 Importance: pclass3rd, pclass2nd-unused
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 0.23069    RSS 239.69    GRSq 0.013257    RSq 0.017973
+GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > if (PLOT)
 +     plot(a1f)
 > a2f <- earth(pclass ~ sex, degree=2, trace=2)        # x=unordered y=unordered
@@ -4944,19 +4952,19 @@ After backward pass GRSq 0.00728 RSq 0.01202
 ===summary(a2f) 
 Call: earth(formula=pclass~sex, trace=2, degree=2)
 
-                 1st       2nd     3rd
-(Intercept)  0.34278  0.265464 0.39175
-sexmale     -0.11330 -0.025342 0.13864
+                   1st         2nd       3rd
+(Intercept)  0.3427835  0.26546392 0.3917526
+sexmale     -0.1133002 -0.02534234 0.1386426
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: sexmale
 Number of terms at each degree of interaction: 1 1 (additive model)
 
-        GCV    RSS       GRSq        RSq
-1st 0.19611 203.76  0.0104150 0.01514418
-2nd 0.18837 195.72 -0.0039978 0.00080028
-3rd 0.24672 256.35  0.0132572 0.01797283
-All 0.63120 655.82  0.0072798 0.01202394
+          GCV      RSS         GRSq          RSq
+1st 0.1961073 203.7578  0.010414990 0.0151441824
+2nd 0.1883694 195.7180 -0.003997793 0.0008002778
+3rd 0.2467207 256.3457  0.013257223 0.0179728324
+All 0.6311974 655.8215  0.007279765 0.0120239411
 > if (PLOT)
 +     plot(a2f)
 > a3f <- earth(age ~ pclass, degree=2, trace=2)        # x=unordered y=numeric
@@ -4980,14 +4988,14 @@ After backward pass GRSq 0.164 RSq 0.172
 Call: earth(formula=age~pclass, trace=2, degree=2)
 
             coefficients
-(Intercept)      39.1599
-pclass2nd        -9.6532
-pclass3rd       -14.3436
+(Intercept)    39.159918
+pclass2nd      -9.653213
+pclass3rd     -14.343551
 
 Selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: pclass3rd, pclass2nd
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 173.84    RSS 179758    GRSq 0.16401    RSq 0.17199
+GCV 173.8417    RSS 179758.3    GRSq 0.1640128    RSq 0.1719935
 > if (PLOT)
 +     plot(a3f)
 > a4f <- earth(pclass ~ age, degree=2, trace=2)        # x=numeric y=unordered
@@ -5012,19 +5020,19 @@ After backward pass GRSq 0.09302 RSq 0.09735
 ===summary(a4f) 
 Call: earth(formula=pclass~age, trace=2, degree=2)
 
-                 1st         2nd       3rd
-(Intercept) 0.064394  0.25633356  0.679272
-h(age-16)   0.013886 -0.00045667 -0.013429
+                   1st           2nd         3rd
+(Intercept) 0.06439450  0.2563335580  0.67927195
+h(age-16)   0.01388561 -0.0004566659 -0.01342895
 
 Selected 2 of 6 terms, and 1 of 1 predictors 
 Importance: age
 Number of terms at each degree of interaction: 1 1 (additive model)
 
-        GCV    RSS       GRSq       RSq
-1st 0.16700 173.52  0.1572778 0.1613052
-2nd 0.18849 195.84 -0.0046167 0.0001843
-3rd 0.22120 229.82  0.1153475 0.1195752
-All 0.57668 599.18  0.0930171 0.0973516
+          GCV      RSS         GRSq        RSq
+1st 0.1670033 173.5184  0.157277818 0.16130516
+2nd 0.1884855 195.8387 -0.004616749 0.00018428
+3rd 0.2211945 229.8237  0.115347486 0.11957521
+All 0.5766834 599.1808  0.093017132 0.09735157
 > if (PLOT)
 +     plot(a4f)
 > a5f <- earth(pclass ~ survived + sex + age, data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
@@ -5054,26 +5062,26 @@ After backward pass GRSq 0.1631 RSq 0.1949
 Call: earth(formula=pclass~survived+sex+age, data=etitanic, 
       trace=2, degree=2)
 
-                           1st        2nd       3rd
-(Intercept)          -0.019851  0.2290093  0.790842
-survived              0.364266  0.1589838 -0.523250
-h(age-26)             0.015422 -0.0069111 -0.008511
-h(26-age)            -0.000623 -0.0157462  0.016369
-survived * sexmale   -0.082755 -0.3087717  0.391527
-survived * h(16-age) -0.021344  0.0389664 -0.017623
-sexmale * h(age-26)   0.006189  0.0075511 -0.013740
-sexmale * h(age-55)  -0.025753 -0.0020029  0.027756
-sexmale * h(55-age)   0.001858  0.0028773 -0.004736
+                             1st          2nd         3rd
+(Intercept)          -0.01985123  0.229009299  0.79084193
+survived              0.36426631  0.158983782 -0.52325009
+h(age-26)             0.01542210 -0.006911119 -0.00851098
+h(26-age)            -0.00062287 -0.015746198  0.01636907
+survived * sexmale   -0.08275489 -0.308771690  0.39152658
+survived * h(16-age) -0.02134375  0.038966434 -0.01762268
+sexmale * h(age-26)   0.00618934  0.007551127 -0.01374047
+sexmale * h(age-55)  -0.02575309 -0.002002911  0.02775600
+sexmale * h(55-age)   0.00185826  0.002877292 -0.00473556
 
 Selected 9 of 12 terms, and 3 of 3 predictors 
 Importance: age, survived, sexmale
 Number of terms at each degree of interaction: 1 3 5
 
-        GCV    RSS     GRSq      RSq
-1st 0.15056 151.23 0.240231 0.269034
-2nd 0.18457 185.39 0.016226 0.053522
-3rd 0.19697 197.84 0.212247 0.242111
-All 0.53211 534.46 0.163127 0.194854
+          GCV      RSS       GRSq        RSq
+1st 0.1505645 151.2302 0.24023053 0.26903432
+2nd 0.1845750 185.3911 0.01622629 0.05352236
+3rd 0.1969663 197.8372 0.21224655 0.24211125
+All 0.5321058 534.4585 0.16312688 0.19485376
 > if (PLOT)
 +     plot(a5f)
 > a6f <- earth(survived ~ ., data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
@@ -5104,20 +5112,20 @@ After backward pass GRSq 0.4222 RSq 0.4441
 Call: earth(formula=survived~., data=etitanic, trace=2, degree=2)
 
                        coefficients
-(Intercept)                0.853750
-pclass3rd                 -0.868595
-sexmale                   -0.595667
-h(64-age)                  0.003529
-pclass2nd * sexmale       -0.156631
-pclass2nd * h(1-parch)    -0.128397
-pclass3rd * sexmale        0.237578
-pclass3rd * h(4-sibsp)     0.104075
-sexmale * h(16-age)        0.036499
+(Intercept)              0.85375046
+pclass3rd               -0.86859514
+sexmale                 -0.59566715
+h(64-age)                0.00352860
+pclass2nd * sexmale     -0.15663098
+pclass2nd * h(1-parch)  -0.12839750
+pclass3rd * sexmale      0.23757830
+pclass3rd * h(4-sibsp)   0.10407473
+sexmale * h(16-age)      0.03649943
 
 Selected 9 of 16 terms, and 6 of 6 predictors 
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
-GCV 0.13985    RSS 140.47    GRSq 0.42218    RSq 0.44409
+GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888
 > if (PLOT)
 +     plot(a6f)
 > detach(etitanic)
@@ -5153,14 +5161,14 @@ After backward pass GRSq 0.5906 RSq 0.6958
 Call: earth(x=ff, y=vowels, trace=2, degree=1)
 
             coefficients
-(Intercept)      2.74643
-h(ff-9)         -0.26097
-h(9-ff)         -0.14450
+(Intercept)    2.7464305
+h(ff-9)       -0.2609730
+h(9-ff)       -0.1445003
 
 Selected 3 of 4 terms, and 1 of 1 predictors 
 Importance: ff
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 0.82802    RSS 17.250    GRSq 0.59061    RSq 0.69576
+GCV 0.828019    RSS 17.25040    GRSq 0.5906149    RSq 0.6957602
 > if (PLOT)
 +     plot(a8)
 > a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
@@ -5185,13 +5193,13 @@ After backward pass GRSq 0.3877 RSq 0.4693
 Call: earth(x=vowels, y=ff, trace=2, degree=1)
 
             coefficients
-(Intercept)      17.1429
-vowels           -3.6032
+(Intercept)    17.142857
+vowels         -3.603175
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: vowels
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 34.262    RSS 832.57    GRSq 0.38772    RSq 0.46926
+GCV 34.2622    RSS 832.5714    GRSq 0.38772    RSq 0.4692603
 > 
 > cat("--- wp argument---------------------------------\n")
 --- wp argument---------------------------------
@@ -5212,10 +5220,10 @@ Selected 7 of 11 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 6 (additive model)
 
-           GCV      RSS    GRSq     RSq
-y1  0.02433520 1.841932 0.90460 0.92632
-y2  0.00084028 0.063601 0.99177 0.99365
-All 0.02517549 1.905532 0.92986 0.94583
+             GCV        RSS      GRSq       RSq
+y1  0.0243352048 1.84193165 0.9045963 0.9263227
+y2  0.0008402802 0.06360081 0.9917729 0.9936465
+All 0.0251754850 1.90553246 0.9298631 0.9458355
 > e1 <- earth(cbind(x1,x2), cbind(y1, y2))
 > printh(e1)
 ===e1 
@@ -5223,10 +5231,10 @@ Selected 7 of 9 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 6 (additive model)
 
-          GCV      RSS    GRSq     RSq
-y1  0.0198480 1.502292 0.92219 0.93991
-y2  0.0007267 0.055004 0.99289 0.99450
-All 0.0205747 1.557296 0.94240 0.95552
+             GCV        RSS      GRSq       RSq
+y1  0.0198479574 1.50229190 0.9221881 0.9399083
+y2  0.0007267033 0.05500417 0.9928850 0.9945053
+All 0.0205746607 1.55729607 0.9424021 0.9555190
 > e2 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=c(1,1))
 > printh(e2)
 ===e2 
@@ -5234,10 +5242,10 @@ Selected 7 of 9 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 6 (additive model)
 
-          GCV      RSS    GRSq     RSq
-y1  0.0198480 1.502292 0.92219 0.93991
-y2  0.0007267 0.055004 0.99289 0.99450
-All 0.0205747 1.557296 0.94240 0.95552
+             GCV        RSS      GRSq       RSq
+y1  0.0198479574 1.50229190 0.9221881 0.9399083
+y2  0.0007267033 0.05500417 0.9928850 0.9945053
+All 0.0205746607 1.55729607 0.9424021 0.9555190
 > e1$call <- NULL
 > e2$call <- NULL
 > e1$wp <- NULL
@@ -5250,10 +5258,10 @@ Selected 7 of 8 terms, and 2 of 2 predictors
 Importance: x2, x1
 Number of terms at each degree of interaction: 1 6 (additive model)
 
-          GCV     RSS    GRSq     RSq
-y1  0.0589288 4.46032 0.76898 0.82159
-y2  0.0002907 0.02201 0.99715 0.99780
-All 0.0006987 0.05288 0.99659 0.99736
+            GCV       RSS      GRSq       RSq
+y1  0.058928797 4.4603206 0.7689755 0.8215872
+y2  0.000290747 0.0220067 0.9971533 0.9978016
+All 0.000698654 0.0528811 0.9965849 0.9973626
 > wp <- c(1, 2)
 > e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=wp)
 > printh(e3)
@@ -5262,15 +5270,15 @@ Selected 7 of 9 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 6 (additive model)
 
-          GCV      RSS    GRSq     RSq
-y1  0.0198480 1.502292 0.92219 0.93991
-y2  0.0007267 0.055004 0.99289 0.99450
-All 0.0142009 1.074867 0.95363 0.96419
+             GCV        RSS     GRSq       RSq
+y1  0.0198479574 1.50229190 0.922188 0.9399083
+y2  0.0007267033 0.05500417 0.992885 0.9945053
+All 0.0142009094 1.07486683 0.953627 0.9641876
 > m3 <- mars(cbind(x1,x2), cbind(y1, y2),  wp=wp)
 > cat("response weights: wp", wp, "earth gcv", e3$gcv, 
 +     "mars gcv", m3$gcv, "mars gcv*length(wp)", 
 +     m3$gcv * length(wp), "\n")
-response weights: wp 1 2 earth gcv 0.014201 mars gcv 0.008665 mars gcv*length(wp) 0.01733 
+response weights: wp 1 2 earth gcv 0.01420091 mars gcv 0.008665047 mars gcv*length(wp) 0.01733009 
 > 
 > e4 <- earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))
 > printh(e4) # both sub models should be the same
@@ -5279,38 +5287,38 @@ Selected 14 of 19 terms, and 8 of 9 predictors
 Importance: temp, ibh, doy, dpg, humidity, vh, vis, wind, ibt-unused
 Number of terms at each degree of interaction: 1 13 (additive model)
 
-        GCV  RSS    GRSq     RSq
-O3   14.859 4134 0.76918 0.80422
-O3.1 14.859 4134 0.76918 0.80422
-All  29.719 8268 0.76918 0.80422
+          GCV      RSS     GRSq       RSq
+O3   14.85938 4134.014 0.769177 0.8042181
+O3.1 14.85938 4134.014 0.769177 0.8042181
+All  29.71875 8268.028 0.769177 0.8042181
 > printh(summary(e4))
 ===summary(e4) 
 Call: earth(formula=cbind(O3, O3)~., data=ozone1, wp=c(1, 0.01))
 
-                     O3     O3.1
-(Intercept)     8.69108  8.69108
-h(vh-5740)      0.01526  0.01526
-h(5740-vh)     -0.01301 -0.01301
-h(9-wind)       0.30446  0.30446
-h(humidity-41)  0.27530  0.27530
-h(humidity-54) -0.26151 -0.26151
-h(temp-58)      0.38020  0.38020
-h(ibh-1069)    -0.00062 -0.00062
-h(1069-ibh)    -0.00291 -0.00291
-h(dpg-11)      -0.10609 -0.10609
-h(80-vis)       0.04590  0.04590
-h(doy-89)       0.04718  0.04718
-h(89-doy)      -0.12645 -0.12645
-h(doy-159)     -0.09158 -0.09158
+                       O3       O3.1
+(Intercept)     8.6910756  8.6910756
+h(vh-5740)      0.0152607  0.0152607
+h(5740-vh)     -0.0130076 -0.0130076
+h(9-wind)       0.3044601  0.3044601
+h(humidity-41)  0.2753048  0.2753048
+h(humidity-54) -0.2615068 -0.2615068
+h(temp-58)      0.3801961  0.3801961
+h(ibh-1069)    -0.0006189 -0.0006189
+h(1069-ibh)    -0.0029057 -0.0029057
+h(dpg-11)      -0.1060948 -0.1060948
+h(80-vis)       0.0459011  0.0459011
+h(doy-89)       0.0471836  0.0471836
+h(89-doy)      -0.1264530 -0.1264530
+h(doy-159)     -0.0915781 -0.0915781
 
 Selected 14 of 19 terms, and 8 of 9 predictors 
 Importance: temp, ibh, doy, dpg, humidity, vh, vis, wind, ibt-unused
 Number of terms at each degree of interaction: 1 13 (additive model)
 
-        GCV  RSS    GRSq     RSq
-O3   14.859 4134 0.76918 0.80422
-O3.1 14.859 4134 0.76918 0.80422
-All  29.719 8268 0.76918 0.80422
+          GCV      RSS     GRSq       RSq
+O3   14.85938 4134.014 0.769177 0.8042181
+O3.1 14.85938 4134.014 0.769177 0.8042181
+All  29.71875 8268.028 0.769177 0.8042181
 > 
 > # wp with formula interface
 > e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(1, 1))
@@ -5320,38 +5328,38 @@ Selected 13 of 19 terms, and 8 of 8 predictors
 Importance: temp, humidity, dpg, doy, vh, vis, ibh, ibt
 Number of terms at each degree of interaction: 1 12 (additive model)
 
-         GCV     RSS    GRSq     RSq
-O3   14.9107 4203.23 0.76838 0.80094
-wind  3.5166  991.32 0.21768 0.32766
-All  18.4273 5194.55 0.73244 0.77005
+           GCV       RSS      GRSq       RSq
+O3   14.910671 4203.2278 0.7683802 0.8009402
+wind  3.516638  991.3189 0.2176825 0.3276569
+All  18.427309 5194.5467 0.7324365 0.7700493
 > printh(summary(e5))
 ===summary(e5) 
 Call: earth(formula=cbind(O3, wind)~., data=ozone1, wp=c(1, 
       1))
 
-                     O3     wind
-(Intercept)     8.89758  5.53063
-h(vh-5590)      0.01754 -0.00659
-h(5590-vh)     -0.01764  0.01375
-h(54-humidity) -0.14637  0.01525
-h(temp-56)      0.24179  0.03623
-h(1069-ibh)    -0.00339 -0.00087
-h(dpg-13)      -0.10362  0.00049
-h(ibt-120)      0.03323 -0.00353
-h(150-vis)      0.02197  0.00048
-h(doy-89)       0.03881  0.00924
-h(89-doy)      -0.11797 -0.00623
-h(doy-159)     -0.08912 -0.00366
-h(doy-295)      0.03204 -0.05302
+                       O3       wind
+(Intercept)     8.8975799  5.5306309
+h(vh-5590)      0.0175357 -0.0065858
+h(5590-vh)     -0.0176371  0.0137453
+h(54-humidity) -0.1463676  0.0152480
+h(temp-56)      0.2417855  0.0362342
+h(1069-ibh)    -0.0033904 -0.0008738
+h(dpg-13)      -0.1036180  0.0004931
+h(ibt-120)      0.0332302 -0.0035322
+h(150-vis)      0.0219728  0.0004762
+h(doy-89)       0.0388114  0.0092403
+h(89-doy)      -0.1179689 -0.0062293
+h(doy-159)     -0.0891210 -0.0036602
+h(doy-295)      0.0320409 -0.0530228
 
 Selected 13 of 19 terms, and 8 of 8 predictors 
 Importance: temp, humidity, dpg, doy, vh, vis, ibh, ibt
 Number of terms at each degree of interaction: 1 12 (additive model)
 
-         GCV     RSS    GRSq     RSq
-O3   14.9107 4203.23 0.76838 0.80094
-wind  3.5166  991.32 0.21768 0.32766
-All  18.4273 5194.55 0.73244 0.77005
+           GCV       RSS      GRSq       RSq
+O3   14.910671 4203.2278 0.7683802 0.8009402
+wind  3.516638  991.3189 0.2176825 0.3276569
+All  18.427309 5194.5467 0.7324365 0.7700493
 > e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(.3, 1))
 > printh(e5)
 ===e5 
@@ -5359,36 +5367,36 @@ Selected 11 of 19 terms, and 7 of 8 predictors
 Importance: temp, ibh, doy, humidity, dpg, vh, vis, ibt-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-         GCV    RSS    GRSq     RSq
-O3   15.2518 4412.9 0.76308 0.79101
-wind  3.3957  982.5 0.24458 0.33364
-All  12.2635 3548.3 0.66518 0.70465
+           GCV       RSS      GRSq       RSq
+O3   15.251832 4412.9097 0.7630807 0.7910099
+wind  3.395719  982.5049 0.2445824 0.3336349
+All  12.263490 3548.2735 0.6651832 0.7046531
 > printh(summary(e5))
 ===summary(e5) 
 Call: earth(formula=cbind(O3, wind)~., data=ozone1, wp=c(0.3, 
       1))
 
-                     O3     wind
-(Intercept)     7.08204  4.73251
-h(vh-5590)      0.01662 -0.00378
-h(5590-vh)     -0.01171  0.01281
-h(humidity-32)  0.08909  0.01081
-h(temp-55)      0.36831  0.02966
-h(ibh-1069)    -0.00044  0.00029
-h(dpg-13)      -0.08468  0.00057
-h(200-vis)      0.01689 -0.00087
-h(89-doy)      -0.15725 -0.01160
-h(doy-151)     -0.03726  0.00306
-h(doy-295)      0.02321 -0.04104
+                       O3       wind
+(Intercept)     7.0820415  4.7325056
+h(vh-5590)      0.0166151 -0.0037805
+h(5590-vh)     -0.0117055  0.0128097
+h(humidity-32)  0.0890914  0.0108111
+h(temp-55)      0.3683121  0.0296566
+h(ibh-1069)    -0.0004386  0.0002888
+h(dpg-13)      -0.0846832  0.0005698
+h(200-vis)      0.0168935 -0.0008678
+h(89-doy)      -0.1572485 -0.0115979
+h(doy-151)     -0.0372604  0.0030611
+h(doy-295)      0.0232080 -0.0410423
 
 Selected 11 of 19 terms, and 7 of 8 predictors 
 Importance: temp, ibh, doy, humidity, dpg, vh, vis, ibt-unused
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-         GCV    RSS    GRSq     RSq
-O3   15.2518 4412.9 0.76308 0.79101
-wind  3.3957  982.5 0.24458 0.33364
-All  12.2635 3548.3 0.66518 0.70465
+           GCV       RSS      GRSq       RSq
+O3   15.251832 4412.9097 0.7630807 0.7910099
+wind  3.395719  982.5049 0.2445824 0.3336349
+All  12.263490 3548.2735 0.6651832 0.7046531
 > # wp with factors
 > e6 <- earth(pclass ~ ., data=etitanic, degree=2, wp=c(.001,.001,1))
 > printh(e6)
@@ -5397,36 +5405,36 @@ Selected 9 of 17 terms, and 5 of 5 predictors
 Importance: age, survived, sexmale, sibsp, parch
 Number of terms at each degree of interaction: 1 5 3
 
-        GCV    RSS     GRSq      RSq
-1st 0.14973 150.40 0.244428 0.273073
-2nd 0.18733 188.16 0.001535 0.039388
-3rd 0.18801 188.84 0.248086 0.276592
-All 0.56390 566.39 0.247898 0.276411
+          GCV      RSS        GRSq        RSq
+1st 0.1497326 150.3947 0.244428124 0.27307278
+2nd 0.1873313 188.1596 0.001534961 0.03938799
+3rd 0.1880052 188.8365 0.248086069 0.27659204
+All 0.5638989 566.3922 0.247898454 0.27641154
 > printh(summary(e6))
 ===summary(e6) 
 Call: earth(formula=pclass~., data=etitanic, wp=c(0.001, 0.001, 
       1), degree=2)
 
-                              1st        2nd       3rd
-(Intercept)            -0.0464701  0.2755170  0.770953
-survived                0.3058866  0.1704173 -0.476304
-sexmale                 0.1416557  0.1922534 -0.333909
-h(age-9)                0.0116337 -0.0032570 -0.008377
-h(sibsp-1)             -0.0179840 -0.1044578  0.122442
-h(parch-2)             -0.1220224 -0.0801554  0.202178
-survived * sexmale     -0.0742978 -0.2926181  0.366916
-sexmale * h(1-sibsp)   -0.1215528 -0.0766236  0.198176
-h(57-age) * h(2-parch) -0.0016848 -0.0013049  0.002990
+                                1st          2nd         3rd
+(Intercept)            -0.046470069  0.275516956  0.77095311
+survived                0.305886574  0.170417323 -0.47630390
+sexmale                 0.141655736  0.192253371 -0.33390911
+h(age-9)                0.011633728 -0.003257022 -0.00837671
+h(sibsp-1)             -0.017983966 -0.104457784  0.12244175
+h(parch-2)             -0.122022417 -0.080155412  0.20217783
+survived * sexmale     -0.074297809 -0.292618103  0.36691591
+sexmale * h(1-sibsp)   -0.121552766 -0.076623569  0.19817634
+h(57-age) * h(2-parch) -0.001684795 -0.001304900  0.00298970
 
 Selected 9 of 17 terms, and 5 of 5 predictors 
 Importance: age, survived, sexmale, sibsp, parch
 Number of terms at each degree of interaction: 1 5 3
 
-        GCV    RSS     GRSq      RSq
-1st 0.14973 150.40 0.244428 0.273073
-2nd 0.18733 188.16 0.001535 0.039388
-3rd 0.18801 188.84 0.248086 0.276592
-All 0.56390 566.39 0.247898 0.276411
+          GCV      RSS        GRSq        RSq
+1st 0.1497326 150.3947 0.244428124 0.27307278
+2nd 0.1873313 188.1596 0.001534961 0.03938799
+3rd 0.1880052 188.8365 0.248086069 0.27659204
+All 0.5638989 566.3922 0.247898454 0.27641154
 > e7 <- earth(pclass ~ ., data=etitanic, degree=2, wp=c(1,.001,.001))
 > printh(e7)
 ===e7 
@@ -5434,37 +5442,37 @@ Selected 10 of 17 terms, and 5 of 5 predictors
 Importance: age, parch, survived, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
 
-        GCV    RSS      GRSq      RSq
-1st 0.14611 146.04  0.262715 0.294122
-2nd 0.19173 191.64 -0.021931 0.021602
-3rd 0.19923 199.14  0.203193 0.237136
-All 0.43862 438.42  0.262371 0.293793
+          GCV      RSS        GRSq        RSq
+1st 0.1461088 146.0399  0.26271447 0.29412181
+2nd 0.1917340 191.6435 -0.02193112 0.02160173
+3rd 0.1992300 199.1360  0.20319295 0.23713582
+All 0.4386221 438.4151  0.26237064 0.29379263
 > printh(summary(e7))
 ===summary(e7) 
 Call: earth(formula=pclass~., data=etitanic, wp=c(1, 0.001, 
       0.001), degree=2)
 
-                              1st        2nd       3rd
-(Intercept)              0.130163  0.2179871  0.651850
-survived                 0.481456 -0.1647047 -0.316751
-h(age-54)                0.063641 -0.0130126 -0.050629
-h(2-parch)               0.157252  0.1049369 -0.262189
-survived * h(52-age)    -0.008783  0.0078765  0.000906
-sexmale * h(age-26)      0.006626 -0.0024825 -0.004144
-h(age-55) * h(2-parch)  -0.038689  0.0045557  0.034133
-h(55-age) * h(2-parch)  -0.004470 -0.0025385  0.007008
-h(sibsp-1) * h(2-parch) -0.060345 -0.0228899  0.083235
-h(1-sibsp) * h(2-parch) -0.068508 -0.0259267  0.094435
+                                1st          2nd         3rd
+(Intercept)              0.13016325  0.217987052  0.65184970
+survived                 0.48145605 -0.164704732 -0.31675132
+h(age-54)                0.06364148 -0.013012632 -0.05062884
+h(2-parch)               0.15725209  0.104936890 -0.26218898
+survived * h(52-age)    -0.00878278  0.007876497  0.00090628
+sexmale * h(age-26)      0.00662605 -0.002482539 -0.00414351
+h(age-55) * h(2-parch)  -0.03868850  0.004555687  0.03413281
+h(55-age) * h(2-parch)  -0.00446982 -0.002538479  0.00700829
+h(sibsp-1) * h(2-parch) -0.06034474 -0.022889942  0.08323468
+h(1-sibsp) * h(2-parch) -0.06850803 -0.025926745  0.09443478
 
 Selected 10 of 17 terms, and 5 of 5 predictors 
 Importance: age, parch, survived, sibsp, sexmale
 Number of terms at each degree of interaction: 1 3 6
 
-        GCV    RSS      GRSq      RSq
-1st 0.14611 146.04  0.262715 0.294122
-2nd 0.19173 191.64 -0.021931 0.021602
-3rd 0.19923 199.14  0.203193 0.237136
-All 0.43862 438.42  0.262371 0.293793
+          GCV      RSS        GRSq        RSq
+1st 0.1461088 146.0399  0.26271447 0.29412181
+2nd 0.1917340 191.6435 -0.02193112 0.02160173
+3rd 0.1992300 199.1360  0.20319295 0.23713582
+All 0.4386221 438.4151  0.26237064 0.29379263
 > if (PLOT)
 +     plot(e7)
 > 
@@ -5658,9 +5666,9 @@ Test: earth.regress case weights with zero weights and missing columns 2
 > 
 > printh(deviance(a1), expect.warning=TRUE)
 ===deviance(a1)  expect warning -->Warning: deviance.earth: returning earth (not GLM) deviance
-[1] 25.487
+[1] 25.48701
 > printh(deviance(a1, warn=FALSE))
-===deviance(a1, warn = FALSE) [1] 25.487
+===deviance(a1, warn = FALSE) [1] 25.48701
 > printh(effects(a1), expect.warning=TRUE)
 ===effects(a1)  expect warning -->Warning: effects.earth: returning NULL
 NULL

@@ -145,6 +145,7 @@ get.term.strings.h <- function(obj, digits, use.names, new.order)
 }
 
 # TODO need to add factor simplification to this routine
+# TODO need to add get.ndigits functionality (in get.earth.term.name) to this routine
 
 get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
 {
