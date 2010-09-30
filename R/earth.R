@@ -850,11 +850,12 @@ get.degrees.per.term <- function(dirs)
 # Return string like "h(55-x1)*h(x2-58)".
 # h represents the hockey stick func.
 # If ntermsVec is a vector, this returns a vector of strings.
-# x can be NULL, it is used only for simplifying terms with factor predictors
+# x can be NULL (currenly only when called from mars.to.earth), it is used
+# only for simplifying terms with factor predictors.
 
 get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
 {
-    get.term.name1 <- function(nterm, dirs, cuts, pred.names, xrange)
+    get.term.name1 <- function(nterm, dirs, cuts, pred.names, xrange, form1, form2)
     {
         get.name <- function(ipred) # return "name" if possible, else "x[,i]"
         {
@@ -877,7 +878,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
                 if(dirs[nterm,ipred] == 2)  # linear predictor?
                     s <- pastef(s, "%s", get.name(ipred))
                 else if(dirs[nterm,ipred] == -1) {
-                    s <- pastef(s, "h(%g-%s)", cuts[nterm,ipred], get.name(ipred))
+                    s <- pastef(s, form1, cuts[nterm,ipred], get.name(ipred))
                 } else if(dirs[nterm,ipred] == 1) {
                     if(cuts[nterm,ipred] == 0 && !is.null(xrange) &&
                             xrange[1, ipred] == 0 && xrange[2, ipred] < 100 &&
@@ -885,17 +886,35 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
                         # simplify to no hinge function, it's a factor
                         s <- pastef(s, "%s", get.name(ipred))
                     else
-                        s <- pastef(s, "h(%s-%g)", get.name(ipred), cuts[nterm,ipred])
+                        s <- pastef(s, form2, get.name(ipred), cuts[nterm,ipred])
                 } else if(dirs[nterm,ipred] != 0)
                     stop("illegal direction ", dirs[nterm,ipred], " in dirs")
             }
         s
     }
+    # --- get.earth.term.name starts here ---
     stopifnot(ncol(dirs) == ncol(x))
     xrange <- NULL      # 1st row is min, 2nd row is max, a column for each pred
     if(!is.null(x))
         xrange <- apply(x, 2, range) # for simplifying "h(ldose-0)" to "ldose"
-    sapply(seq_along(ntermsVec), get.term.name1, dirs, cuts, pred.names, xrange)
+    # Get format strings for sprintf later
+    ndigits <- getOption("digits")
+    if(ndigits <= 7) {      # for back compat with previous versions of earth
+        form1 <- "h(%g-%s)" # let %g figure out the nbr of digits
+        form2 <- "h(%s-%g)"
+    } else {
+        form1 <- sprintf("h(%%.%dg-%%s)", ndigits) # e.g. "h(%.9g-%s)"
+        form2 <- sprintf("h(%%s-%%.%dg)", ndigits) # e.g. "h(%s-%.9g)"
+    }
+    term.names <- sapply(seq_along(ntermsVec), get.term.name1, dirs, cuts,
+                         pred.names, xrange, form1, form2)
+    # check for duplicate term names
+    duplicated <- duplicated(term.names)
+    if(any(duplicated))
+        warning1("duplicate term name \"", term.names[which(duplicated)[1]], "\"\n",
+                 "This is usually caused by cuts that are very close to each other\n",
+                 "Remedy: use options(digits=NDIGITS)  (currently NDIGITS=", ndigits, ")")
+    term.names
 }
 
 # get.gcv returns GCVs as defined in Friedman's MARS paper, with an

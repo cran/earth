@@ -99,7 +99,7 @@ print.summary.earth <- function(
 {
     my.print.call("Call: ", x$call)
     nresp <- NCOL(x$coefficients)
-        cat("\n")
+    cat("\n")
     warn.if.dots.used("print.summary.earth", ...)
     is.glm <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
     new.order <- reorder.earth(x, decomp=decomp)

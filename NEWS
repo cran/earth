@@ -1,6 +1,12 @@
 Changes to Earth Package
 ------------------------
 
+2.4-3 Oct 29 2010
+    For certain data we were seeing duplicated term names for cuts that
+    are very close to each other.  To avoid this you can now use
+    options(digits) to increase the number of significant digits used
+    when forming term names.  (Thanks to Keith Woolner for spotting this.)
+
 2.4-2 Aug 28 2010
     We now give the correct error message for attempted cross validation of
         paired binomial responses (which is not yet supported).

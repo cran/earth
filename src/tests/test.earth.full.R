@@ -15,7 +15,7 @@ PRINT.TIME <- FALSE         # FALSE for no time results (for diff against refere
 PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
 options.old <- options()
 options(warn=1) # print warnings as they occur
-options(digits=5)
+# options(digits=5) # removed because want to check against default
 
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
