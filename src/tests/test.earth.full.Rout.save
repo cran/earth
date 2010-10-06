@@ -1048,6 +1048,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
   Girth Height
 1    10     80
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     80
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -1061,6 +1065,11 @@ predict.earth: returning earth predictions
 ===predict(a, c(10, 10, 80, 80), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    10     80
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    10     80
@@ -1080,6 +1089,11 @@ predict.earth: returning earth predictions
 ===predict(a, c(10, 11, 80, 81), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    11     81
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    11     81
@@ -1113,6 +1127,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
   Girth Height
 1    10     12
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     12
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -1126,6 +1144,11 @@ predict.earth: returning earth predictions
 ===predict(a, matrix(c(10, 12), nrow = 2, ncol = 2, byrow = TRUE),     trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     12
+2    10     12
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     12
 2    10     12
@@ -1145,6 +1168,11 @@ predict.earth: returning earth predictions
 ===predict(a, matrix(c(10, 12, 80, 90), nrow = 2, ncol = 2), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    12     90
@@ -1168,6 +1196,11 @@ Contents of x are
   Girth Height
 1    10     80
 2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     80
+2    12     90
 predict.earth: bx is a 2 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -1183,6 +1216,11 @@ predict.earth: returning earth predictions
 > printh(predict(a, as.data.frame(xpredict), trace=1))
 ===predict(a, as.data.frame(xpredict), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    12     90
@@ -1210,6 +1248,11 @@ Contents of x are
   Girth Height
 1    10     80
 2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     80
+2    12     90
 predict.earth: bx is a 2 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -1227,6 +1270,11 @@ predict.earth: returning earth predictions
 ===predict(a, xpredict2, trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    80     10
+2    90     12
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    80     10
 2    90     12
@@ -1376,6 +1424,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
   Girth Height
 1    10     80
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     80
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -1389,6 +1441,11 @@ predict.earth: returning earth predictions
 ===predict(a, c(10, 10, 80, 80), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    10     80
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    10     80
@@ -1408,6 +1465,11 @@ predict.earth: returning earth predictions
 ===predict(a, c(10, 11, 80, 81), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    11     81
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    11     81
@@ -1441,6 +1503,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
   Girth Height
 1    10     12
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     12
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -1454,6 +1520,11 @@ predict.earth: returning earth predictions
 ===predict(a, matrix(c(10, 12), nrow = 2, ncol = 2, byrow = TRUE),     trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     12
+2    10     12
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     12
 2    10     12
@@ -1473,6 +1544,11 @@ predict.earth: returning earth predictions
 ===predict(a, matrix(c(10, 12, 80, 90), nrow = 2, ncol = 2), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    12     90
@@ -1496,6 +1572,11 @@ Contents of x are
   Girth Height
 1    10     80
 2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     80
+2    12     90
 predict.earth: bx is a 2 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -1511,6 +1592,11 @@ predict.earth: returning earth predictions
 > printh(predict(a, as.data.frame(xpredict), trace=1))
 ===predict(a, as.data.frame(xpredict), trace = 1) get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    12     90
@@ -1535,6 +1621,11 @@ predict.earth: returning earth predictions
     New columns: Girth Height
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=Girth, 2=Height
 Contents of x are
+  Girth Height
+1    10     80
+2    12     90
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
   Girth Height
 1    10     80
 2    12     90
@@ -1647,6 +1738,310 @@ predict.earth: returning earth predictions
            y1       y2
 [1,] 18.11065 118.1106
 [2,] 29.55517 129.5552
+> 
+> cat("--- earth.predict with NAs, with formula interface ---\n")
+--- earth.predict with NAs, with formula interface ---
+> 
+> predict.with.message <- function(message, earth.model, newdata) {
++ 	cat("predict.earth  ", message, ":\n", sep="")
++ 	print(predict(earth.model, newdata=newdata, trace=1))
++ 	cat("\n")
++ }
+> 
+> iris.earth <- earth(Petal.Width ~ Sepal.Length + Sepal.Width + Petal.Length, data=iris)
+> x <- iris[1,]
+> predict.with.message("formula interface and vector", iris.earth, newdata=x)
+predict.earth  formula interface and vector:
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length
+Contents of data after call to model.frame are
+  Sepal.Length Sepal.Width Petal.Length
+1          5.1         3.5          1.4
+predict.earth: bx is a 1 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                  0                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+predict.earth: returning earth predictions 
+     Petal.Width
+[1,]   0.2522345
+
+> x$Sepal.Width <- as.numeric(NA)
+> predict.with.message("formula interface and vector with NA", iris.earth, newdata=x)
+predict.earth  formula interface and vector with NA:
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1          NA          1.4         0.2  setosa
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length
+Contents of data after call to model.frame are
+  Sepal.Length Sepal.Width Petal.Length
+1          5.1          NA          1.4
+predict.earth: bx is a 1 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                 NA                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+predict.earth: returning earth predictions 
+     Petal.Width
+[1,]          NA
+
+> x <- iris[1,]
+> x$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+> predict.with.message("formula interface and vector with NA in unused variable", iris.earth, newdata=x)
+predict.earth  formula interface and vector with NA in unused variable:
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4          NA  setosa
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length
+Contents of data after call to model.frame are
+  Sepal.Length Sepal.Width Petal.Length
+1          5.1         3.5          1.4
+predict.earth: bx is a 1 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                  0                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+predict.earth: returning earth predictions 
+     Petal.Width
+[1,]   0.2522345
+
+> 
+> x <- iris[1:3,]
+> predict.with.message("formula interface and matrix", iris.earth, newdata=x)
+predict.earth  formula interface and matrix:
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 3 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length
+Contents of data after call to model.frame are
+  Sepal.Length Sepal.Width Petal.Length
+1          5.1         3.5          1.4
+2          4.9         3.0          1.4
+3          4.7         3.2          1.3
+predict.earth: bx is a 3 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                0.0                   0
+[2,]           1               4.6                0.5                   0
+[3,]           1               4.7                0.3                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+[2,]                 2.0                   0                   0
+[3,]                 2.2                   0                   0
+predict.earth: returning earth predictions 
+     Petal.Width
+[1,]   0.2522345
+[2,]   0.1759537
+[3,]   0.1880673
+
+> x[2,]$Sepal.Width <- as.numeric(NA)
+> predict.with.message("formula interface and matrix with NA", iris.earth, newdata=x)
+predict.earth  formula interface and matrix with NA:
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9          NA          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 3 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length
+Contents of data after call to model.frame are
+  Sepal.Length Sepal.Width Petal.Length
+1          5.1         3.5          1.4
+2          4.9          NA          1.4
+3          4.7         3.2          1.3
+predict.earth: bx is a 3 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                0.0                   0
+[2,]           1               4.6                 NA                   0
+[3,]           1               4.7                0.3                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+[2,]                 2.0                   0                   0
+[3,]                 2.2                   0                   0
+predict.earth: returning earth predictions 
+     Petal.Width
+[1,]   0.2522345
+[2,]          NA
+[3,]   0.1880673
+
+> x <- iris[1:3,]
+> x[2,]$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+> predict.with.message("formula interface and matrix with NA in unused variable", iris.earth, newdata=x)
+predict.earth  formula interface and matrix with NA in unused variable:
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4          NA  setosa
+3          4.7         3.2          1.3         0.2  setosa
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 3 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length
+Contents of data after call to model.frame are
+  Sepal.Length Sepal.Width Petal.Length
+1          5.1         3.5          1.4
+2          4.9         3.0          1.4
+3          4.7         3.2          1.3
+predict.earth: bx is a 3 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                0.0                   0
+[2,]           1               4.6                0.5                   0
+[3,]           1               4.7                0.3                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+[2,]                 2.0                   0                   0
+[3,]                 2.2                   0                   0
+predict.earth: returning earth predictions 
+     Petal.Width
+[1,]   0.2522345
+[2,]   0.1759537
+[3,]   0.1880673
+
+> 
+> cat("--- earth.predict with NAs, with matrix interface ---\n")
+--- earth.predict with NAs, with matrix interface ---
+> 
+> iris.earth <- earth(iris[,1:3], iris[,4])
+> x <- iris[1,]
+> predict.with.message("default interface and vector", iris.earth, newdata=x)
+predict.earth  default interface and vector:
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+predict.earth: bx is a 1 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                  0                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+predict.earth: returning earth predictions 
+      iris[,4]
+[1,] 0.2522345
+
+> x$Sepal.Width <- as.numeric(NA)
+> predict.with.message("default interface and vector with NA", iris.earth, newdata=x)
+predict.earth  default interface and vector with NA:
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1          NA          1.4         0.2  setosa
+predict.earth: bx is a 1 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                 NA                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+predict.earth: returning earth predictions 
+     iris[,4]
+[1,]       NA
+
+> x <- iris[1,]
+> x$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+> predict.with.message("default interface and vector with NA in unused variable", iris.earth, newdata=x)
+predict.earth  default interface and vector with NA in unused variable:
+get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4          NA  setosa
+predict.earth: bx is a 1 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                  0                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+predict.earth: returning earth predictions 
+      iris[,4]
+[1,] 0.2522345
+
+> 
+> x <- iris[1:3,]
+> predict.with.message("default interface and matrix", iris.earth, newdata=x)
+predict.earth  default interface and matrix:
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+predict.earth: bx is a 3 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                0.0                   0
+[2,]           1               4.6                0.5                   0
+[3,]           1               4.7                0.3                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+[2,]                 2.0                   0                   0
+[3,]                 2.2                   0                   0
+predict.earth: returning earth predictions 
+      iris[,4]
+[1,] 0.2522345
+[2,] 0.1759537
+[3,] 0.1880673
+
+> x[2,]$Sepal.Width <- as.numeric(NA)
+> predict.with.message("default interface and matrix with NA", iris.earth, newdata=x)
+predict.earth  default interface and matrix with NA:
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9          NA          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+predict.earth: bx is a 3 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                0.0                   0
+[2,]           1               4.6                 NA                   0
+[3,]           1               4.7                0.3                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+[2,]                 2.0                   0                   0
+[3,]                 2.2                   0                   0
+predict.earth: returning earth predictions 
+      iris[,4]
+[1,] 0.2522345
+[2,]        NA
+[3,] 0.1880673
+
+> x <- iris[1:3,]
+> x[2,]$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+> predict.with.message("default interface and matrix with NA in unused variable", iris.earth, newdata=x)
+predict.earth  default interface and matrix with NA in unused variable:
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 5 matrix: 1=Sepal.Length, 2=Sepal.Width, 3=Petal.Length, 4=Petal.Width, 5=Species (factor)
+Contents of x are
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4          NA  setosa
+3          4.7         3.2          1.3         0.2  setosa
+predict.earth: bx is a 3 by 7 matrix: 1=(Intercept), 2=h(6-Petal.Length), 3=h(3.5-Sepal.Width), 4=h(Sepal.Length-6.9), 5=h(6.9-Sepal.Length), 6=h(Petal.Length-4.4), 7=h(Sepal.Length-7.2)
+Contents of bx are
+     (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
+[1,]           1               4.6                0.0                   0
+[2,]           1               4.6                0.5                   0
+[3,]           1               4.7                0.3                   0
+     h(6.9-Sepal.Length) h(Petal.Length-4.4) h(Sepal.Length-7.2)
+[1,]                 1.8                   0                   0
+[2,]                 2.0                   0                   0
+[3,]                 2.2                   0                   0
+predict.earth: returning earth predictions 
+      iris[,4]
+[1,] 0.2522345
+[2,] 0.1759537
+[3,] 0.1880673
+
 > 
 > cat("--- test reorder.earth ----------------------\n")
 --- test reorder.earth ----------------------

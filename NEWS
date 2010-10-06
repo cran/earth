@@ -1,7 +1,11 @@
 Changes to Earth Package
 ------------------------
 
-2.4-3 Oct 29 2010
+2.4-4 Oct 6 2010
+    NAs are now allowed in the data passed to predict.earth.  The predicted value
+    will be NA unless the NAs are in variables that are unused in the earth model.
+
+2.4-3 Sep 29 2010
     For certain data we were seeing duplicated term names for cuts that
     are very close to each other.  To avoid this you can now use
     options(digits) to increase the number of significant digits used

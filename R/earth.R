@@ -850,7 +850,7 @@ get.degrees.per.term <- function(dirs)
 # Return string like "h(55-x1)*h(x2-58)".
 # h represents the hockey stick func.
 # If ntermsVec is a vector, this returns a vector of strings.
-# x can be NULL (currenly only when called from mars.to.earth), it is used
+# x can be NULL (currently only when called from mars.to.earth), it is used
 # only for simplifying terms with factor predictors.
 
 get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
@@ -913,7 +913,9 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
     if(any(duplicated))
         warning1("duplicate term name \"", term.names[which(duplicated)[1]], "\"\n",
                  "This is usually caused by cuts that are very close to each other\n",
-                 "Remedy: use options(digits=NDIGITS)  (currently NDIGITS=", ndigits, ")")
+                 "Remedy: use options(digits=NDIGITS), ",
+                 "typically NDIGITS has to be at least 7 ",
+                 "(currently NDIGITS=", ndigits, ")")
     term.names
 }
 

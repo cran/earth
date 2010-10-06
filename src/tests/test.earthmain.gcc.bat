@@ -6,6 +6,7 @@
 @cp "C:/a/r/ra/bin/R.dll" .
 @cp "C:/a/r/ra/bin/Rblas.dll" .
 @cp "C:/a/r/ra/bin/iconv.dll" .
+@cp "C:/a/r/ra/bin/Riconv.dll" .
 @cp "C:/a/r/ra/bin/Rgraphapp.dll" .
 @cp "C:/a/r/ra/bin/Rzlib.dll" .
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
@@ -27,7 +28,7 @@
 diff -w test.earthmain-gcc.out test.earthmain.out.save 
 @if %errorlevel% neq 0 goto error
 
-@rm -f R.dll Rblas.dll iconv.dll Rgraphapp.dll Rzlib.dll Rdll.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc.* *.o
+@rm -f R.dll Rblas.dll iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll Rdll.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc.* *.o
 @rm -rf Debug
 @exit /B 0
 
