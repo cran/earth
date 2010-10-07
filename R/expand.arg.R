@@ -94,9 +94,9 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
     }
     is.data.frame <- class(x)[1] == "data.frame"
     if(is.data.frame)
-        mf <- call("model.frame", formula = ~., data=x, na.action=na.fail)
+        mf <- call("model.frame", formula = ~., data=x, na.action=na.pass)
     else
-        mf <- call("model.frame", formula = ~x, na.action=na.fail)
+        mf <- call("model.frame", formula = ~x, na.action=na.pass)
     mf <- eval.parent(mf, n=2)
     mf.has.colnames <- !is.null(colnames(mf))
     x <- model.matrix(object=attr(mf, "terms"), data=mf)

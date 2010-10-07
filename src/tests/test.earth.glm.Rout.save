@@ -4318,6 +4318,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
   Girth Height
 1    10     80
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=Girth, 2=Height
+Contents of data after call to model.frame are
+  Girth Height
+1    10     80
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=h(Girth-14), 3=h(14-Girth), 4=h(Height-72)
 Contents of bx are
      (Intercept) h(Girth-14) h(14-Girth) h(Height-72)
@@ -4380,6 +4384,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=
 Contents of x are
   sex ldose ldose1
 1   1    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+  sex ldose ldose1
+1   1    -2    0.1
 Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
 Forging on regardless, first few rows of x are
   sex ldose ldose1
@@ -4414,6 +4422,10 @@ A-22f predict(af, newdata=c(1, -2, 0.1), trace=1)) use numeric instead of factor
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   1    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   1    -2    0.1
 Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
@@ -4453,6 +4465,11 @@ A-23f predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multipl
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -2    0.1
@@ -4497,6 +4514,11 @@ A-24f predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more mu
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
@@ -4545,6 +4567,11 @@ Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
 Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
 Forging on regardless, first few rows of x are
   sex ldose ldose1
@@ -4585,6 +4612,11 @@ A-26m identical
 A-26f predict(af, new.data with col names) trace=1
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
@@ -4637,6 +4669,11 @@ Contents of x are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
 Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
 Forging on regardless, first few rows of x are
   sex ldose ldose1
@@ -4666,6 +4703,11 @@ get.earth.x from model.matrix.earth from predict.earth: unexpected x column name
     New names: sex ldose ldose1
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
@@ -4707,6 +4749,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+   sex ldose ldose1
+1 male    -2    0.1
 predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
 Contents of bx are
      (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
@@ -4739,6 +4785,11 @@ A2-29 identical
 A2-29f predict(af, xdata.frame with col names) trace=1
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
@@ -4786,6 +4837,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+   sex ldose ldose1
+1 male    -2    0.1
 predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
 Contents of bx are
      (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
@@ -4814,6 +4869,10 @@ A-31 identical
 A-31bf predict(af, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
+   sex ldose ldose1
+1 male    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
    sex ldose ldose1
 1 male    -2    0.1
 predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
@@ -4845,6 +4904,10 @@ A-32 identical
 A-32f predict(af, xdata.frame, trace=1) # data frame with names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
+   sex ldose ldose1
+1 male    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
    sex ldose ldose1
 1 male    -2    0.1
 predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
@@ -4879,6 +4942,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=
 Contents of x are
   sex ldose ldose1
 1   1    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+  sex ldose ldose1
+1   1    -2    0.1
 Error : variable 'sex' was fitted with type "factor" but type "numeric" was supplied
 Forging on regardless, first few rows of x are
   sex ldose ldose1
@@ -4897,6 +4964,11 @@ A-43am predict(af, newdata=c(sex[1], sex[1], -2, -2, 0.1, 0.1), trace=1)) multip
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -2    0.1
@@ -4941,6 +5013,11 @@ A-44am predict(af, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=1)) more m
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex ldose ldose1
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   2    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex, 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   2    -1    0.1
@@ -5012,6 +5089,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=
 Contents of x are
    sex ldose ldose1
 1 male    -2    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+   sex ldose ldose1
+1 male    -2    0.1
 predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
 Contents of bx are
      (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
@@ -5052,6 +5133,11 @@ Contents of x are
      sex ldose ldose1
 1   male    -2    0.1
 2 female    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1   male    -2    0.1
+2 female    -1    0.1
 predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
 Contents of bx are
      (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
@@ -5087,6 +5173,11 @@ A-56 identical
 A-56f predict(af, xdata.frame, trace=1) # data frame with col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
 Contents of x are
+     sex ldose ldose1
+1   male    -2    0.1
+2 female    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
      sex ldose ldose1
 1   male    -2    0.1
 2 female    -1    0.1
@@ -5138,6 +5229,11 @@ Contents of x are
      sex ldose ldose1
 1   male    -2    0.1
 2 female    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1   male    -2    0.1
+2 female    -1    0.1
 predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
 Contents of bx are
      (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
@@ -5172,6 +5268,11 @@ predict.earth: returning earth predictions
 A-59f predict(af, xdata.frame, trace=1) numeric where factor expected, expect forge on message
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
 Contents of x are
+  sex ldose ldose1
+1   2    -2    0.1
+2   1    -1    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex (integer), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
   sex ldose ldose1
 1   2    -2    0.1
 2   1    -1    0.1
@@ -5230,6 +5331,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 6 matrix: 1=
 Contents of x are
    sex extra1 ldose extra2 ldose1 extra3
 1 male     99    -2     99    0.1 female
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+   sex ldose ldose1
+1 male    -2    0.1
 predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
 Contents of bx are
      (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
@@ -5253,6 +5358,15 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
   my.x1 my.x2
 1   2.1   0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 60 by 1 matrix: 1=my.input.mat (data.frame)
+First few rows of data after call to model.frame are
+  my.input.mat.my.x1 my.input.mat.my.x2
+1                2.0                0.5
+2                2.0                0.5
+3                2.0                0.5
+4                2.0                0.5
+5                2.0                0.5
+6                2.0                0.5
 Error : model.frame.default could not interpret the data passed to get.earth.x from model.matrix.earth from predict.earth
 A-69 above test but with properly named dataframe trace=1
      growth
@@ -5381,6 +5495,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=
 Contents of x are
   ldose dummy ldose1
 1    -2     0    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+Contents of data after call to model.frame are
+  ldose dummy ldose1
+1    -2     0    0.1
 predict.earth: bx is a 1 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
 Contents of bx are
      (Intercept) h(ldose--2)
@@ -5392,6 +5510,10 @@ A-72f predict(af, newdata=newdata[two columns], trace=trace)
 get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 Contents of x are
+  ldose dummy ldose1
+1    -2   999    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+Contents of data after call to model.frame are
   ldose dummy ldose1
 1    -2   999    0.1
 predict.earth: bx is a 1 by 2 matrix: 1=(Intercept), 2=h(ldose--2)
@@ -5417,6 +5539,15 @@ A-72f identical
 12     3     0    0.9
 get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 First few rows of x are
+  ldose dummy ldose1
+1    -2     0    0.1
+2    -1     0    1.2
+3     0     0    0.1
+4     1     0    1.2
+5     2     0    1.0
+6     3     0    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+First few rows of data after call to model.frame are
   ldose dummy ldose1
 1    -2     0    0.1
 2    -1     0    1.2
@@ -5451,6 +5582,15 @@ A-73f predict(af, newdata=newdata[two columns], trace=trace)
 get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
 get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 First few rows of x are
+  ldose dummy ldose1
+1    -2   999    0.1
+2    -1   999    1.2
+3     0   999    0.1
+4     1   999    1.2
+5     2   999    1.0
+6     3   999    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
+First few rows of data after call to model.frame are
   ldose dummy ldose1
 1    -2   999    0.1
 2    -1   999    1.2
@@ -5551,6 +5691,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
@@ -5579,6 +5723,10 @@ B-31 identical
 B-31bf predict(af, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
@@ -5610,6 +5758,10 @@ B-32 identical
 B-32f predict(af, xdata.frame, trace=1) # data frame with names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
@@ -5650,6 +5802,10 @@ get.earth.x from model.matrix.earth from predict.earth: x columns are in the wro
     New columns: sex3 ldose ldose1 fac3
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
@@ -5713,6 +5869,11 @@ Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 2 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
+2 male    -2    0.1 lev2
 predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
@@ -5751,6 +5912,11 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+    sex3 ldose ldose1 fac3
+1   male    -2    0.1 lev2
+2 female    -1    0.1 lev1
 predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
@@ -5786,6 +5952,11 @@ B-56 identical
 B-56f predict(af, xdata.frame, trace=1) # data frame with col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+    sex3 ldose ldose1 fac3
+1   male    -2    0.1 lev2
+2 female    -1    0.1 lev1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
@@ -5835,6 +6006,11 @@ get.earth.x from model.matrix.earth from predict.earth: x columns are in the wro
     New columns: sex3 ldose ldose1 fac3
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+    sex3 ldose ldose1 fac3
+1   male    -2    0.1 lev2
+2 female    -1    0.1 lev1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
@@ -5888,6 +6064,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 7 matrix: 1=
 Contents of x are
   sex3 extra1 ldose extra2 ldose1 fac3 extra3
 1 male     99    -2     99    0.1 lev2 female
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
@@ -5959,6 +6139,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
 Contents of bx are
      (Intercept) fac3lev3 fac3lev2 sex3female
@@ -5983,6 +6167,10 @@ C-31 identical
 C-31bf predict(af, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
@@ -6010,6 +6198,10 @@ C-32 identical
 C-32f predict(af, xdata.frame, trace=1) # data frame with names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
@@ -6048,6 +6240,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
 Contents of bx are
      (Intercept) fac3lev3 fac3lev2 sex3female
@@ -6083,6 +6279,11 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+    sex3 ldose ldose1 fac3
+1   male    -2    0.1 lev2
+2 female    -1    0.1 lev1
 predict.earth: bx is a 2 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
 Contents of bx are
      (Intercept) fac3lev3 fac3lev2 sex3female
@@ -6115,6 +6316,11 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+    sex3 ldose ldose1 fac3
+1   male    -2    0.1 lev2
+2 female    -1    0.1 lev1
 predict.earth: bx is a 2 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
 Contents of bx are
      (Intercept) fac3lev3 fac3lev2 sex3female
@@ -6144,6 +6350,11 @@ C-56 identical
 C-56f predict(af, xdata.frame, trace=1) # data frame with col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
+    sex3 ldose ldose1 fac3
+1   male    -2    0.1 lev2
+2 female    -1    0.1 lev1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
@@ -6190,6 +6401,11 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+    sex3 ldose ldose1 fac3
+1   male    -2    0.1 lev2
+2 female    -1    0.1 lev1
 predict.earth: bx is a 2 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
 Contents of bx are
      (Intercept) fac3lev3 fac3lev2 sex3female
@@ -6233,6 +6449,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 7 matrix: 1=
 Contents of x are
   sex3 extra1 ldose extra2 ldose1 fac3 extra3
 1 male     99    -2     99    0.1 lev2 female
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
+Contents of data after call to model.frame are
+  sex3 ldose ldose1 fac3
+1 male    -2    0.1 lev2
 predict.earth: bx is a 1 by 4 matrix: 1=(Intercept), 2=fac3lev3, 3=fac3lev2, 4=sex3female
 Contents of bx are
      (Intercept) fac3lev3 fac3lev2 sex3female
@@ -6642,6 +6862,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
    sex ldose
 1 male     2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+   sex ldose
+1 male     2
 predict.earth: bx is a 1 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
 Contents of bx are
      (Intercept) h(ldose--2) sexmale
@@ -6654,6 +6878,10 @@ c1b OK
 > c1b.link.predict <- predict(c1b, newdata, type="link", trace=1) # should be same as above because default is link
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
+   sex ldose
+1 male     2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
    sex ldose
 1 male     2
 predict.earth: bx is a 1 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
@@ -6683,6 +6911,13 @@ Contents of x are
 2   male     0
 3 female    -2
 4 female     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+     sex ldose
+1   male    -2
+2   male     0
+3 female    -2
+4 female     0
 predict.earth: bx is a 4 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
 Contents of bx are
      (Intercept) h(ldose--2) sexmale
@@ -6698,6 +6933,13 @@ c1b multiple rows OK
 > c1b.predict <- predict(c1b, newdata, type="response", trace=1)
 get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
+     sex ldose
+1   male    -2
+2   male     0
+3 female    -2
+4 female     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
      sex ldose
 1   male    -2
 2   male     0
@@ -6752,6 +6994,10 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=
 Contents of x are
    sex ldose
 1 male     2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+   sex ldose
+1 male     2
 predict.earth: bx is a 1 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
 Contents of bx are
      (Intercept) h(ldose--2) sexmale
@@ -6764,6 +7010,10 @@ c2 OK
 > c2.link.predict <- predict(c2, newdata, type="link", trace=1) # should be same as above because default is link
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
+   sex ldose
+1 male     2
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 1 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
    sex ldose
 1 male     2
 predict.earth: bx is a 1 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
@@ -6797,6 +7047,13 @@ c2 column2 multiple rows type=response OK
 > c2.predict <- predict(c2, newdata, type="earth", trace=1)
 get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 2 matrix: 1=sex (factor), 2=ldose
 Contents of x are
+     sex ldose
+1   male    -2
+2   male     0
+3 female    -2
+4 female     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 4 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
      sex ldose
 1   male    -2
 2   male     0

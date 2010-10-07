@@ -11,6 +11,7 @@
 @cp "C:/a/r/ra/bin/R.dll" .
 @cp "C:/a/r/ra/bin/Rblas.dll" .
 @cp "C:/a/r/ra/bin/iconv.dll" .
+@cp "C:/a/r/ra/bin/Riconv.dll" .
 @cp "C:/a/r/ra/bin/Rgraphapp.dll" .
 @cp "C:/a/r/ra/bin/Rzlib.dll" .
 @md Debug
@@ -27,6 +28,6 @@
 @echo error: nmake returned errorlevel %errorlevel%
 @exit /B %errorlevel%
 :good
-@rm -f R.dll Rblas.dll iconv.dll Rgraphapp.dll Rzlib.dll test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
+@rm -f R.dll Rblas.dll iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
 @rm -rf Debug
 @rm -rf Release

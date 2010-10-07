@@ -304,6 +304,50 @@ colnames(xpredict) <- c("Height", "Girth")
 cat("10 predict(a, xpredict)\n")
 printh(predict(a, xpredict, trace=1), expect.warning=TRUE)
 
+cat("--- earth.predict with NAs, with formula interface ---\n")
+
+predict.with.message <- function(message, earth.model, newdata) {
+	cat("predict.earth  ", message, ":\n", sep="")
+	print(predict(earth.model, newdata=newdata, trace=1))
+	cat("\n")
+}
+
+iris.earth <- earth(Petal.Width ~ Sepal.Length + Sepal.Width + Petal.Length, data=iris)
+x <- iris[1,]
+predict.with.message("formula interface and vector", iris.earth, newdata=x)
+x$Sepal.Width <- as.numeric(NA)
+predict.with.message("formula interface and vector with NA", iris.earth, newdata=x)
+x <- iris[1,]
+x$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+predict.with.message("formula interface and vector with NA in unused variable", iris.earth, newdata=x)
+
+x <- iris[1:3,]
+predict.with.message("formula interface and matrix", iris.earth, newdata=x)
+x[2,]$Sepal.Width <- as.numeric(NA)
+predict.with.message("formula interface and matrix with NA", iris.earth, newdata=x)
+x <- iris[1:3,]
+x[2,]$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+predict.with.message("formula interface and matrix with NA in unused variable", iris.earth, newdata=x)
+
+cat("--- earth.predict with NAs, with matrix interface ---\n")
+
+iris.earth <- earth(iris[,1:3], iris[,4])
+x <- iris[1,]
+predict.with.message("default interface and vector", iris.earth, newdata=x)
+x$Sepal.Width <- as.numeric(NA)
+predict.with.message("default interface and vector with NA", iris.earth, newdata=x)
+x <- iris[1,]
+x$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+predict.with.message("default interface and vector with NA in unused variable", iris.earth, newdata=x)
+
+x <- iris[1:3,]
+predict.with.message("default interface and matrix", iris.earth, newdata=x)
+x[2,]$Sepal.Width <- as.numeric(NA)
+predict.with.message("default interface and matrix with NA", iris.earth, newdata=x)
+x <- iris[1:3,]
+x[2,]$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
+predict.with.message("default interface and matrix with NA in unused variable", iris.earth, newdata=x)
+
 cat("--- test reorder.earth ----------------------\n")
 a <- earth(O3 ~ ., data = ozone1, degree = 2)
 earth:::reorder.earth(a, decomp = "none")

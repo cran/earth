@@ -30,7 +30,7 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
                   Callers.name)
         else  # can probably never get here
             warning1(Callers.name, " returned a number ", actual.nrows,
-                    " of rows that was different to the number ",
+                    " of rows that was different from the number ",
                     expected.nrows,
                     " of rows in the data")
     }
@@ -234,7 +234,7 @@ get.earth.x <- function(    # returns x expanded for factors
     }
     check.expanded.ncols <- function(x, object)
     {
-        if(ncol(x) != ncol(object$dirs)) {
+        if(NCOL(x) != NCOL(object$dirs)) {
             stop1(Callers.name,
                      ": the number ", NCOL(x), " of columns of x\n",
                      "(after factor expansion) does not match the number ",
@@ -256,7 +256,7 @@ get.earth.x <- function(    # returns x expanded for factors
         # object was created with earth.default, no formula
 
         x <- get.update.arg(data, "x", object, trace, Callers.name)
-        x <- my.as.matrix(data)
+        x <- my.as.matrix(x)
         x <- fix.x.columns(x, object$namesx)
         if(trace >= 1)
             print.matrix.info("x", x, Callers.name, all.names=(trace >= 2))
@@ -272,7 +272,9 @@ get.earth.x <- function(    # returns x expanded for factors
         expected.nrows <- nrow(data)
         if(trace >= 1)
             print.matrix.info("x", data, Callers.name, all.names=(trace >= 2))
-        data <- model.frame(Terms, data)
+        data <- model.frame(Terms, data, na.action=na.pass)
+        if(trace >= 1)
+            print.matrix.info("data after call to model.frame", data, Callers.name, all.names=(trace >= 2))
         classes <- attr(Terms, "dataClasses")
         if(!is.null(classes)) {
              # use "try" to be lenient, allow numeric to be used for factors etc.
@@ -293,7 +295,7 @@ get.earth.x <- function(    # returns x expanded for factors
         stop1("empty model matrix")
     # Fix: April 2010, allow earth to play nicely with fda with factors in x
     if(ncol(x) > ncol(object$dirs))                      # too many columns?
-        x <- x[, colnames(x) %in% colnames(object$dirs)] # select only the columns in dirs
+        x <- x[, colnames(x) %in% colnames(object$dirs), drop=FALSE] # select only the columns in dirs
     check.expanded.ncols(x, object)
     x
 }
