@@ -452,6 +452,10 @@ plot1 <- function(
     }
     for(isingle in seq_along(Singles)) {
         ipred <- Singles[isingle] # ipred is the predictor index i.e. col in model mat
+        # following happens with lm if you do e.g. ozone1$doy <- NULL after using ozone1
+        # TODO I am not sure if this is enough to always catch such errors
+        if(ipred > NCOL(x))
+            stop1("bad index (missing column in x?)")
         xwork <- xgrid
         is.fac <- is.factor(x[,ipred])
         if(is.fac) {
@@ -900,7 +904,7 @@ get.subset <- function(object, trace) # called by get.plotmo.x.default and get.p
 {
     subset. <- object$subset
     if(is.null(subset.)) {
-        # the n=4 takes us to the caller of plotmo
+        # the n=3 takes us to the caller of plotmo
         subset. <- try(eval.parent(object$call$subset, n=3), silent=TRUE)
         if(class(subset.) == "try-error")
             subset. <- NULL
@@ -1019,16 +1023,17 @@ get.plotmo.x.default <- function(
             cat("formula ", formula.as.string, "\n",
                 "stripped formula ", stripped.formula, "\n", sep="")
         Call$formula <- parse(text=stripped.formula)[[1]]
-
+        Call$data <- get.formula.data(object, Call$data, FALSE, trace)
         if(trace)
             my.print.call("about to call ", Call)
-
-        if(length(grep(".+~", stripped.formula)))       # has response?
-            x <- eval.parent(Call, n=3)[,-1]            # then remove response
-        else {
+        if(length(grep(".+~", stripped.formula))) { # has response?
+            x <- try(eval.parent(Call, n=3)[,-1])   # then eval without the response
+        } else {
             warning1("formula has no response variable, formula is ", stripped.formula)
-            x <- eval.parent(Call, n=3)
+            x <- try(eval.parent(Call, n=3))
         }
+        if(class(x) == "try-error")
+            stop1("could not evaluate formula (variables were deleted?)")
         if(NCOL(x) == 1) {
             # if one predictor, model.matrix returns a vec with no colname, so fix it
             x <- data.frame(x)
@@ -1046,7 +1051,8 @@ get.plotmo.x.default <- function(
     # look for an x with column names
 
     try.error.message <- NULL
-    x <- object$x       #TODO should not use partial matching here and elsewhere?
+    # use of brackets rather than $ below prevents incorrect partial matching
+    x <- object[["x"]]
     if(!badx(x, TRUE) && trace)
         cat("got x with colnames from object$x\n")
     if(badx(x, TRUE)) {
@@ -1055,7 +1061,7 @@ get.plotmo.x.default <- function(
             cat("got x with colnames from object$call$formula\n")
     }
     if(badx(x, TRUE)) {
-        x <- try(eval.parent(object$call$x, n=2), silent=TRUE)
+        x <- try(eval.parent(object$call[["x"]], n=2), silent=TRUE)
         if(!badx(x, TRUE) && trace)
             cat("got x with colnames from object$call$x\n")
         if(class(x) == "try-error")
@@ -1065,7 +1071,7 @@ get.plotmo.x.default <- function(
     # the call to as.data.frame below will add V1, V2, ... colnames if necessary
 
     if(badx(x, TRUE)) {
-        x <- object$x
+        x <- object[["x"]]
         if(!badx(x, FALSE) && trace)
             cat("got x without colnames from object$x\n")
         if(badx(x, FALSE)) {
@@ -1074,7 +1080,7 @@ get.plotmo.x.default <- function(
                 cat("got x without colnames from object$call$formula\n")
         }
         if(badx(x, FALSE)) {
-            x <- try(eval.parent(object$call$x, n=2), silent=TRUE)
+            x <- try(eval.parent(object$call[["x"]], n=2), silent=TRUE)
             if(!badx(x, FALSE) && trace)
                 cat("got x without colnames from object$call$x\n")
             if(class(x) == "try-error")
@@ -1156,11 +1162,15 @@ get.plotmo.y.default <- function(
             cat("formula ", formula.as.string, "\n",
                 "stripped formula ", stripped.formula, "\n", sep="")
 
+        Call$data <- get.formula.data(object, Call$data, TRUE, trace)
         Call[[1]] <- as.name("model.frame")
         Call$na.action <- na.fail
         stripped.formula <- strip.formula.string(formula.as.string)
-        Call <- eval.parent(Call, n=3)
-        model.response(Call, type="any")
+        if(trace)
+            my.print.call("about to call ", Call)
+        Call <- try(eval.parent(Call, n=3))
+        if(class(Call) != "try-error")
+            model.response(Call, type="any")
     }
     bady <- function(y)
     {
@@ -1168,7 +1178,7 @@ get.plotmo.y.default <- function(
     }
     # get.plotmo.y.default starts here
     try.error.message <- NULL
-    y <- object$y
+    y <- object[["y"]]
     if(!bady(y) && trace)
         cat("got y from object$y\n")
     if(bady(y)) {
@@ -1177,7 +1187,7 @@ get.plotmo.y.default <- function(
             cat("got y from object$call$formula\n")
     }
     if(bady(y)) {
-        y <- try(eval.parent(object$call$y, n=2), silent=TRUE)
+        y <- try(eval.parent(object$call[["y"]], n=2), silent=TRUE)
         if(!bady(y) && trace)
             cat("got y from object$call$y\n")
         if(class(y) == "try-error")
@@ -1225,7 +1235,42 @@ get.singles <- function(object, x, degree1, pred.names, trace=FALSE)
 get.singles.default <- function(object, x, degree1, pred.names, trace)
 {
     check.index.vec("degree1", degree1, pred.names)
-    (1:length(pred.names))[degree1]
+    ifirst <- if(pred.names[1]=="(Intercept)") 2 else 1 # delete intercept, if any
+    (ifirst:length(pred.names))[degree1]
+}
+
+get.formula.data <- function(object, data.name, get.y, trace)
+{
+    data.is.good <- function(...)
+    {
+        # the length test is necessary for lm which saves x as an
+        # empty list if its x arg is FALSE, don't know why
+        good <- !is.null(x) && length(x)
+        if(good && trace)
+            cat("get.formula.data: got",
+                if(get.y) "y" else "x", "from", paste(..., sep=""), "\n")
+        good
+    }
+    xname <- if(get.y) "y" else "x"
+    # use of brackets rather than $ below prevents incorrect partial matching
+    x <- object[["data"]]
+    if(!data.is.good("object$data")) {
+        x <- object[[xname]]
+        if(!data.is.good("object$", xname)) {
+            if(!is.null(data.name)) {
+                x <- eval.parent(data.name, n=4)
+                if(!data.is.good("data passed to original call to ", class(object)))
+                    stop1("the original data \"", data.name,
+                          "\" is no longer available",
+                          if(inherits(object, "earth"))
+                                " (use keepxy=TRUE)"
+                          else if(inherits(object, "lm"))
+                                paste(" (use ", xname, "=TRUE)", sep="")
+                          else  "")
+            }
+        }
+    }
+    x
 }
 
 #------------------------------------------------------------------------------
@@ -1253,7 +1298,8 @@ get.pairs.default <- function(object, x, degree2, pred.names, trace=FALSE)
         if(typeof(form) != "language")
             form <- eval.parent(form, n=2)
         form <- as.formula(form)
-        terms <- terms(form, data=eval.parent(object$call$data, n=2))
+        data <- get.formula.data(object, object$call$data, FALSE, trace)
+        terms <- terms(form, data=data)
     }
     if(!is.null(terms))
         term.labels <- attr(terms, "term.labels")

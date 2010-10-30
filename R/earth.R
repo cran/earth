@@ -314,8 +314,8 @@ earth.formula <- function(
     if(keepxy) {
         if(!is.null(data))
             rval$data <- data
-        else if(trace >= 1)
-            cat("No 'data' argument to earth so ignoring keepxy for 'data'\n")
+        else # OLD: if(trace >= 1)
+            warning1("No 'data' argument to earth so ignoring keepxy for 'data'\n")
         rval$subset <- subset
         rval$weights <- weights
     }

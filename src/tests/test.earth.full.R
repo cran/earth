@@ -1515,6 +1515,90 @@ printh(family(a1))
 # printh(summary(a.no.thresh))
 # plotmo(a.no.thresh, degree1=1, degree2=c(4,9,16), clip=0, , caption="test with thresh=0")
 
+# test the way plotmo gets the data with earth with a formula interface
+# use strange data name se to make sure eval.parent n's are correct (don't pick up se in plotmo)
+se <- ozone1
+a <- earth(O3 ~ ., data=se, degree=2, keepxy=0)
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata earth test1")
+a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata earth test2")
+a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
+se <- NULL
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata earth test3")
+se <- ozone1
+a <- earth(O3 ~ ., data=se, degree=2, keepxy=0)
+se <- NULL
+printh(summary(a))
+z <- try(plotmo(a, trace=TRUE, caption="getdata earth test4"))
+if (class(z) != "try-error")
+    stop("test failed")
+
+# test the way plotmo gets the data with earth with the default interface
+se <- ozone1
+a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata earth test5")
+a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata earth test6")
+a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
+se <- NULL
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata earth test7")
+se <- ozone1
+a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
+se <- NULL
+z <- try(plotmo(a, trace=TRUE, caption="getdata earth test8"))
+if (class(z) != "try-error")
+    stop("test failed")
+se <- ozone1
+a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
+# expect Error: get.plotmo.x.default cannot get x matrix
+# TODO error message could be improved here
+se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
+z <- try(plotmo(a, trace=TRUE, caption="getdata earth test9"))
+if (class(z) != "try-error")
+    stop("test failed")
+se <- ozone1
+a <- earth(se[,2:10], se[,1], degree=2, keepxy=TRUE)
+se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata earth test9")
+
+# test the way plotmo gets the data with lm
+se <- ozone1
+a <- lm(O3 ~ ., data=se)
+printh(summary(a))
+plotmo(a, trace=0, caption="getdata lm test1")
+a <- lm(O3 ~ ., data=se, x=1)
+printh(summary(a))
+plotmo(a, trace=0, caption="getdata lm test2")
+a <- lm(O3 ~ ., data=se, y=1)
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata lm test3")
+a <- lm(O3 ~ ., data=se, x=1, y=1)
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata lm test3")
+a <- lm(O3 ~ ., data=se, x=0, y=1)
+se <- NULL
+z <- try(plotmo(a, trace=TRUE, caption="getdata lm test4"))
+if (class(z) != "try-error")
+    stop("test failed")
+se <- ozone1
+a <- lm(O3 ~ ., data=se, x=1, y=1)
+se <- NULL
+printh(summary(a))
+plotmo(a, trace=TRUE, caption="getdata lm test5")
+se <- ozone1
+a <- lm(O3 ~ ., data=se)
+se$wind <- NULL
+z <- try(plotmo(a, trace=TRUE, caption="getdata lm test6"))
+if (class(z) != "try-error")
+    stop("test failed")
+
 cat("--- ../../tests/test.earth.R -------------------------\n")
 
 options(options.old)
