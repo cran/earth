@@ -6844,7 +6844,8 @@ After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-No 'data' argument to earth so ignoring keepxy for 'data'
+Warning: No 'data' argument to earth so ignoring keepxy for 'data'
+
 > c1be <-  earth(numdead ~ sex + ldose, trace=1, pmethod="none", degree=1, keepxy=1)
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=numdead
@@ -6853,7 +6854,8 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
-No 'data' argument to earth so ignoring keepxy for 'data'
+Warning: No 'data' argument to earth so ignoring keepxy for 'data'
+
 > c1bg <- glm(SF ~ sex + ldose, family="binomial") # use this as a reference
 > 
 > newdata <- data.frame(sex=sex[1], ldose=2)
@@ -6977,7 +6979,8 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predic
 After backward pass GRSq 0.9525 RSq 0.9808 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-No 'data' argument to earth so ignoring keepxy for 'data'
+Warning: No 'data' argument to earth so ignoring keepxy for 'data'
+
 > c2e <-  earth(data.frame(sex, ldose), data.frame(numdead,numdead), trace=1, pmethod="none", degree=1, keepxy=1)
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead, 2=numdead.1
@@ -7159,7 +7162,8 @@ After forward pass GRSq 1 RSq 1
 Prune method "none" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 2 predictors
 After backward pass GRSq 1 RSq 1 
 GLM mybool: null.deviance 16.63553 (11 dof)   deviance 5.144045e-10 (10 dof)   iters 23
-No 'data' argument to earth so ignoring keepxy for 'data'
+Warning: No 'data' argument to earth so ignoring keepxy for 'data'
+
 > c3bg <- glm(mybool ~ sex + ldose, family="binomial") # use this as a reference
 > c3be <- earth(mybool ~ sex + ldose, pmethod="none", degree=1, keepxy=0)
 > 
@@ -7261,7 +7265,8 @@ GLM B: null.deviance 13.49604 (11 dof)   deviance 12.68403 (9 dof)   iters 4
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM C: null.deviance 16.30064 (11 dof)   deviance 1.037213e-09 (9 dof)   iters 25 did not converge
-No 'data' argument to earth so ignoring keepxy for 'data'
+Warning: No 'data' argument to earth so ignoring keepxy for 'data'
+
 > c4g <- glm(fac3 ~ sex + ldose, family="binomial") # use this as a reference
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred

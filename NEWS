@@ -1,6 +1,10 @@
 Changes to Earth Package
 ------------------------
 
+2.4-5 Oct 30 2010
+    Plotmo now better handles the "data" argument for earth.formula models.
+    (Thanks to Keith Woolner for spotting that this was previously incorrect.)
+
 2.4-4 Oct 6 2010
     NAs are now allowed in the data passed to predict.earth.  The predicted value
     will be NA unless the NAs are in variables that are unused in the earth model.

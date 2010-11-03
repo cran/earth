@@ -237,6 +237,7 @@ my.print.call <- function(msg, Call)
             Call$y <- paste("[", NROW(Call$y), ",", NCOL(Call$y),
                             "]-too-long-to-display", sep="")
     }
+    Call$na.action <- NULL # don't want to print the na.action
     s <- format(Call)
     if(length(s) > 8) {
         s <- s[1:8]

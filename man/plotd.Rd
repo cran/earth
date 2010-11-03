@@ -352,8 +352,8 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
   \code{\link[earth]{earth}}, \code{\link[earth]{plot.earth}}, \code{\link[earth]{plotmo}}\cr
 }
 \examples{
-old.par <- par(no.readonly=TRUE); par(mfrow=c(2,2));
-par(mar=c(4, 3, 1.7, 0.5)); par(mgp=c(1.6, 0.6, 0)); par(cex = 0.8)
+old.par <- par(no.readonly=TRUE); 
+par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
 data(etitanic)
 fit <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
 

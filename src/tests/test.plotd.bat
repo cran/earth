@@ -3,7 +3,7 @@
 @rem Stephen Milborrow Mar 2008 Durban
 
 @echo === test.plotd ===============================================
-@"\Program Files\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
+@"\PROGRA~2\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.plotd.Rout:
 @echo.
