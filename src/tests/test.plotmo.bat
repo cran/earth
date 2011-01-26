@@ -2,7 +2,9 @@
 @rem Stephen Milborrow Apr 2007 Petaluma
 
 @echo === test.plotmo ==================================================
-@"\PROGRA~2\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.plotmo.R
+@set DIFFPS=diffps
+@rem @set DIFFPS=diff -w
+@"\PROGRA~1\R\R-2.12.0\bin\R.exe" CMD BATCH --quiet --vanilla test.plotmo.R
 @if %errorlevel% equ 0 goto good1:
 @echo R returned errorlevel %errorlevel%, see test.plotmo.Rout:
 @echo.
@@ -17,7 +19,7 @@ diff test.plotmo.Rout test.plotmo.Rout.save
 :good2
 @rem test.plotmo.save.ps is too big to be included in the release
 @rem so it is stored elsewhere
-diff -w Rplots.ps ..\..\.#\test.plotmo.save.ps 
+%DIFFPS% Rplots.ps ..\..\.#\test.plotmo.save.ps 
 @if %errorlevel% equ 0 goto good3:
 @echo === Files are different ===
 @exit /B %errorlevel%

@@ -13,8 +13,7 @@ any1 <- function(x) any(x != 0) # like any but no warning if x not logical
 # The function stopif is intended for catching programmer errors.
 # For user errors, we try to give a more informative message.
 
-stopif <- function(...)
-    stopifnot(!(...))
+stopif <- function(...) stopifnot(!(...))
 
 stop1 <- function(...)          # call.=FALSE so use traceback() to see call
     stop(..., call.=FALSE)
@@ -22,19 +21,29 @@ stop1 <- function(...)          # call.=FALSE so use traceback() to see call
 warning1 <- function(...)       # set options(warn=2) and traceback() to see the call
     warning(..., call.=FALSE)
 
-paste.with.space <- function(s) paste(s, collapse=" ")
+paste.with.space <- function(s)
+    paste(s, collapse=" ")
 
-paste.with.comma <- function(s) paste(s, collapse=", ")
+paste.with.comma <- function(s)
+    paste(s, collapse=", ")
 
 paste.quoted.names <- function(names) # add quotes and comma seperators
     paste("\"", paste(names, collapse="\" \""), "\"", sep="")
 
-strip.white.space <- function(s) gsub("[ \t\n]", "", s)
+strip.white.space <- function(s)
+    gsub("[ \t\n]", "", s)
 
-printf <- function(format, ...) cat(sprintf(format, ...))  # like c printf
+printf <- function(format, ...) # like c printf
+    cat(sprintf(format, ...))
 
-pastef <- function(s, format, ...)          # paste the c printf style args to s
+pastef <- function(s, format, ...) # paste the c printf style args to s
     paste(s, sprintf(format, ...), sep="")
+
+is.try.error <- function(obj)
+   class(obj)[1] == "try-error"
+
+paste1 <- function(...) # paste with no added spaces
+    paste(..., sep="")
 
 warn.if.dots.used <- function(func.name, ...)
 {
@@ -81,6 +90,7 @@ make.call.generic <- function(Call, func.name)
 
 # warn.if.not.all.finite is intended to help clarify possibly confusing
 # messages from within the bowels of calls to other functions later
+# Return TRUE if warning issued.
 
 warn.if.not.all.finite <- function(x, text="unknown")
 {
@@ -90,9 +100,13 @@ warn.if.not.all.finite <- function(x, text="unknown")
             return(FALSE)
         x <- x[, !is.factors]               # remove factor columns before is.finite check
     }
+    if(any(sapply(x, is.na))) {
+        warning1("NA in ", text)
+        return(TRUE)
+    }
     if(!all(sapply(x, is.finite))) {
         warning1("non finite value in ", text)
-        return(TRUE)                        # return TRUE if warning issued
+        return(TRUE)
     }
     FALSE
 }
@@ -310,7 +324,8 @@ show.caption <- function(caption, trim=0, show=TRUE)
     caption
 }
 
-# the make.space functions should only be called if do.par is FALSE
+# the make.space functions should only be called if do.par is TRUE
+# (otherwise par is not restored correctly)
 
 make.space.for.caption <- function(caption)
 {

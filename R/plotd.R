@@ -288,7 +288,7 @@ get.observed.response <- function(obj)
         if(NCOL(y) != 1 || length(y) < 3 || (!is.numeric(y) && !is.factor(y)))
             stop1("cannot get \"grouping\" argument from obj$call")
     } else
-        y <- get.update.arg(NULL, "y", obj, trace=FALSE, reeval=FALSE)
+        y <- get.update.arg(NULL, "y", obj, trace1=FALSE, reeval=FALSE)
 
     if(is.lda.or.qda(obj))
         y <- as.factor(y)  # to make plotd handle response appropriately

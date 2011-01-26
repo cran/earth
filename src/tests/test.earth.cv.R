@@ -2,7 +2,7 @@
 
 library(earth)
 if(!interactive())
-    postscript()
+    postscript(paper="letter")
 data(ozone1)
 data(trees)
 data(etitanic)

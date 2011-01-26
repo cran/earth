@@ -279,7 +279,7 @@ get.earth.x <- function(    # returns x expanded for factors
         if(!is.null(classes)) {
              # use "try" to be lenient, allow numeric to be used for factors etc.
              z <- try(.checkMFClasses(classes, data), silent=FALSE)
-             if(class(z) == "try-error") {
+             if(is.try.error(z)) {
                  # error msg already printed by .checkMFClasses
                  cat("Forging on regardless, first few rows of x are\n")
                  print(head(data))
@@ -317,7 +317,7 @@ get.update.arg <- function(arg, argname, object,
         trace1 = FALSE
     if(is.null(arg)) {
         temp. <- try(eval.parent(object[[argname, exact=TRUE]], n=2), silent=TRUE)
-        if(!is.null(temp.) && class(temp.) != "try-error") {
+        if(!is.null(temp.) && !is.try.error(temp.)) {
             if(reeval)
                 arg <- object[[argname, exact=TRUE]]
             else
@@ -328,7 +328,7 @@ get.update.arg <- function(arg, argname, object,
                     " saved by keepxy in original call to earth\n", sep="")
         } else {
             temp. <- try(eval.parent(object$call[[argname, exact=TRUE]], n=2), silent=TRUE)
-            if(!is.null(temp.) && class(temp.) != "try-error") {
+            if(!is.null(temp.) && !is.try.error(temp.)) {
                 if(reeval)
                     arg <- object$call[[argname, exact=TRUE]]
                 else

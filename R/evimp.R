@@ -158,21 +158,25 @@ plot.evimp <- function(
     if(any(pmatch(c("col", "used", "nsubsets", "gcv"), colnames(x), nomatch=0) == 0))
         stop("x is not an evimp matrix")
 
-    max.subsets <- x[1,"nsubsets"]
-    nrows <- nrow(x)                                # number of vars
+    max.subsets <- x[1, "nsubsets"]
+    varlabs <- paste(rownames(x), sprintf("%3d", x[,"col"]))
+    par <- par("mar", "cex")
+    on.exit(par(par))
+    cex.var <- par$cex * cex.var    # cex.var is relative to current cex
     if(do.par) {
-        old.par <- par(no.readonly=TRUE)
-        on.exit(par(old.par))
-        # TODO what is the proper way of doing the bottom.margin calculation?
-        bottom.margin <- cex.var * max(2, .7 * max(nchar(rownames(x))) - 6)
-        par(oma=c(bottom.margin,0,0,3))                 # b,l,t,r: big bottom and right margins
+        # TODO what is the best way of doing the bottom.margin calculation?
+        # The .5 is a hack to convert nchars to line heights, as required by mar
+        mar <- par$mar
+        mar[1] <- cex.var * .5 * max(nchar(varlabs) + 6)    # bottom margin
+        mar[4] <- mar[4] + 3                                # right margin
+        par(mar=mar) # big bottom and right margins
     }
-    plot(x[,"nsubsets"], ylim=c(0, max.subsets), type=type.nsubsets,
+    plot(x[, "nsubsets"], ylim=c(0, max.subsets), type=type.nsubsets,
          xlab="", xaxt="n", ylab="nsubsets",
          main=main, lty=lty.nsubsets, col=col.nsubsets)
-    lines(max.subsets * x[,"rss"] / 100, type=type.gcv, lty=lty.rss, col=col.rss)
+    lines(max.subsets * x[,"rss"] / 100, type=type.rss, lty=lty.rss, col=col.rss)
     # plot gcv second so it goes on top of rss (gcv arguably more important than rss)
-    lines(max.subsets * x[,"gcv"] / 100, type=type.rss, lty=lty.gcv, col=col.gcv)
+    lines(max.subsets * x[,"gcv"] / 100, type=type.gcv, lty=lty.gcv, col=col.gcv)
     if(!is.null(x.legend) && x.legend != 0)
         legend(x=x.legend, y = y.legend, xjust=1,   # top right corner by default
                legend=c("nsubsets", "gcv", "rss"),
@@ -184,14 +188,12 @@ plot.evimp <- function(
     axis(side=4,
          at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets),
          labels=c(0,20,40,60,80,100))
-    text(x=nrows + nrows / 4, y = max.subsets/2, "normalized gcv or rss",
+    text(x=nrow(x) + 1.8, y=max.subsets/2, "normalized gcv or rss",
          xpd=NA, # no clip to plot region
          srt=90) # rotate text
     # bottom axis: variable names
-    labels <- paste(rownames(x), sprintf("%4d", x[,"col"]))
-    # axis() ignores the cex parameter (a bug?), so set cex globally
-    if(do.par || cex.var != 1)
-        par(cex=cex.var)
-    axis(side=1, at=seq(1,nrows,by=1), labels=labels, las=3)
+    # axis() ignores the cex parameter (a bug?), so set cex globally, on.exit will restore it
+    par(cex=cex.var)
+    axis(side=1, at=seq(1, nrow(x), by=1), labels=varlabs, las=3)
     invisible()
 }

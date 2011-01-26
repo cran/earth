@@ -9,7 +9,7 @@ data(ozone1)
 data(trees)
 data(etitanic)
 if(!interactive())
-    postscript()
+    postscript(paper="letter")
 
 PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
 PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
@@ -109,6 +109,18 @@ attach(trees)
 printh(earth(data.frame(Girth,Height), data.frame(Volume,lvol=log(Volume))))
 detach(trees)
 
+lm.fit <- lm(O3 ~ log(temp) + humidity*temp, data=ozone1)
+printh(lm.fit)
+plotmo(lm.fit, se=2)
+lm.fit2 <- lm(O3 ~ temp+ibh+doy, data=ozone1)
+printh(lm.fit2)
+plotmo(lm.fit2, degree2="all", clip=FALSE)
+
+library(rpart)
+rpart.fit <- rpart(O3 ~ ., data=ozone1)
+printh(rpart.fit)
+plotmo(rpart.fit, type="vector")
+
 cat("--- print.default of earth object---------\n")
 print.default(a, digits=3)
 cat("--- done print.default of earth object----\n")
@@ -191,10 +203,38 @@ cat("--- predict.earth.Rd ----------------------\n")
 example(predict.earth)
 cat("--- update.earth.Rd ----------------------\n")
 example(update.earth)
+
 cat("--- evimp.Rd -----------------------------\n")
+
+par(mfrow=c(2,2))
+cat('before calling evimp par("mar", "cex"):\n')
+print(par("mar", "cex"))
+
 example(evimp)
+
 cat("--- plot.evimp.Rd ------------------------\n")
+
 example(plot.evimp)
+
+rownames(ev)[4] <- "a_long_variable_name"
+
+plot(ev, main="plot.evimp with various options",
+    cex.var = .8,
+    type.nsubsets = "p",
+    col.nsubsets = "red",
+    lty.nsubsets = 2, # ignored because type.nsubsets="p"
+    type.gcv = "l",
+    col.gcv = "green",
+    lty.gcv = 3,
+    type.rss = "b",
+    col.rss = "blue",
+    lty.rss = 4,
+    cex.legend = .8,
+    x.legend = "topright")
+
+cat('after calling evimp par("mar", "cex"):\n')
+print(par("mar", "cex"))
+par(mfrow=c(1,1))
 
 cat("--- test predict.earth -------------------\n")
 
@@ -307,9 +347,9 @@ printh(predict(a, xpredict, trace=1), expect.warning=TRUE)
 cat("--- earth.predict with NAs, with formula interface ---\n")
 
 predict.with.message <- function(message, earth.model, newdata) {
-	cat("predict.earth  ", message, ":\n", sep="")
-	print(predict(earth.model, newdata=newdata, trace=1))
-	cat("\n")
+    cat("predict.earth  ", message, ":\n", sep="")
+    print(predict(earth.model, newdata=newdata, trace=1))
+    cat("\n")
 }
 
 iris.earth <- earth(Petal.Width ~ Sepal.Length + Sepal.Width + Petal.Length, data=iris)
@@ -1318,8 +1358,8 @@ wp <- c(1, 2)
 e3 <- earth(cbind(x1,x2), cbind(y1, y2),  wp=wp)
 printh(e3)
 m3 <- mars(cbind(x1,x2), cbind(y1, y2),  wp=wp)
-cat("response weights: wp", wp, "earth gcv", e3$gcv, 
-    "mars gcv", m3$gcv, "mars gcv*length(wp)", 
+cat("response weights: wp", wp, "earth gcv", e3$gcv,
+    "mars gcv", m3$gcv, "mars gcv*length(wp)",
     m3$gcv * length(wp), "\n")
 
 e4 <- earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))
@@ -1509,7 +1549,7 @@ printh(family(a1))
 
 # TODO removed because causes different results on different machines
 # cat("--- thresh=0 -----------------------------------------\n")
-# 
+#
 # a.no.thresh <- earth(O3 ~ ., data = ozone1, thresh=0, nk=1000, degree=2, trace=4)
 # printh(a.no.thresh)
 # printh(summary(a.no.thresh))

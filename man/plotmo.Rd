@@ -18,7 +18,7 @@ plotmo(object = stop("no 'object' arg"),
        type2 = "persp", ngrid = 20,
        col.persp = "lightblue", col.image = grey(0:9/10),
        do.par = TRUE, main = NULL, theta = NA, phi = 30, shade = 0.5,
-       ticktype = "simple", xlab = "", ylab = "", cex = NULL, \dots)
+       ticktype = "simple", xlab = "", ylab = "", cex = NULL, cex.lab = 1, \dots)
 }
 \arguments{
 To start off, look at the arguments
@@ -28,7 +28,7 @@ To start off, look at the arguments
   \code{ylim},
   \code{clip}, and
   \code{do.par}.
-You will also need the \code{ycolumn} argument if your model has multiple responses.
+You will need the \code{ycolumn} argument if your model has multiple responses.
 
   \item{object}{
         Model object.
@@ -36,14 +36,18 @@ You will also need the \code{ycolumn} argument if your model has multiple respon
   }
   \item{degree1}{
      Index vector specifying main effect plots to include.
-     Default is \code{TRUE}, meaning all.
+     Default is \code{TRUE}, meaning all \code{degree1} plots.
      Perhaps the easiest way to use this argument (and \code{degree2}) is to
      first plot all figures to see how the figures are numbered, then
-     replot, using \code{degree1} to select the figures you want.
+     replot, using \code{degree1} to select the figures you want.\cr
+     The special value \code{degree1="all"} means plot all (used) predictors
+     (not just those that appear in \code{degree1} plots).
   }
   \item{degree2}{
      Index vector specifying interaction plots to include.
-     Default is \code{TRUE}, meaning all.
+     Default is \code{TRUE}, meaning all \code{degree2} plots.
+     The special value \code{degree2="all"} means plot all possible pairs of
+     (used) predictors (not just those that appear in \code{degree2} plots.)
   }
   \item{ycolumn}{
      Specify which column of the response to plot if the model has multiple responses.
@@ -104,13 +108,13 @@ You will also need the \code{ycolumn} argument if your model has multiple respon
   }
   \item{grid.func}{
      Function applied to x columns to calculate the values for numeric predictors
-     not on the axes.
+     not on the axes.  This is called with \code{na.rm=TRUE}.
      (For factor predictors, see the \code{grid.levels} argument below.)
      Default is \code{\link{median}}.
      Examples:
 \preformatted{plotmo(a, grid.func = mean) # mean instead of median
 grid.func <- function(x) quantile(x)[2]   # 25\% quantile
-plotmo(a, grid.func = grid.func)
+plotmo(a, grid.func = grid.func, trace=1) # use trace to see the grid values
 }
   }
   \item{grid.levels}{
@@ -234,6 +238,9 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
   \item{cex}{
     Character expansion.
   }
+  \item{cex.lab}{
+    Character expansion of axis labels and text.  Default \code{1}.
+  }
   \item{\dots}{
      Extra arguments passed to plotting functions called by \code{plotmo}.
      Using arguments here may cause warnings which can often be safely ignored.
@@ -254,7 +261,8 @@ while holding all other predictors at a constant value.
 The question arises: what should the constant value be for each predictor?
 For numerical predictors it is the median of the predictor values in the input matrix x;
 for factor predictors it is the first level of the factor.
-You can change those defaults with the \code{grid.func} and \code{grid.levels} arguments.
+The \code{plotmo} function prints these values if \code{trace>0}.
+You can change the defaults with the \code{grid.func} and \code{grid.levels} arguments.
 
 Each graph shows only a thin slice of the data because most variables are fixed.
 You should be aware of that when interpreting the graph.
@@ -288,7 +296,10 @@ NAs are not allowed.
 To prevent confusing error messages from \code{plotmo},
 remove NAs before building your model.
 (To be safe, you can use \code{na.action=na.fail} when building your model
-so you get an error message if you inadvertently have a NA.)
+so you get an error message if you inadvertently have a NA.
+Also, \code{\link[rpart]{rpart}} models are treated specially by \code{plotmo},
+actually allowing NAs
+so you can use \code{plotmo} with the default args for \code{rpart}).
 
 Weights are currently ignored, with a warning.
 
@@ -296,7 +307,8 @@ Factor predictors are not supported on degree2 graphs (you will get a reminder m
 
 To avoid confusing error messages from plotmo,
 keep the original formula you used to build the model simple.
-By default (i.e., when using \code{get.plotmo.x.default} and \code{get.pairs.default}),
+By default (i.e., when using \code{get.plotmo.x.default} and \code{get.pairs.default},
+but not when \code{plotmo} is used on an \code{earth} model),
 \code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
 This crude approach is not infallible but works for the common formulas.
 It determines which predictors are paired by looking for
@@ -317,7 +329,8 @@ created by \code{plotmo}.
 
 \bold{Minimum Requirements}
 
-\code{Plotmo} requires the following of the model object.
+For use on model objects other than \code{earth} objects,
+\code{plotmo} requires the following of the object.
 These requirements are for default operation, which can be changed
 as described in the next section.
 
@@ -386,7 +399,10 @@ plotmo(a)
 
   # examples using functions other than earth (the models are more or less bogus)
 
-  plotmo(lm(O3 ~ log(temp) + humidity*temp, data=ozone1), se=2)
+  lm.fit <- lm(O3 ~ log(temp) + humidity*temp, data=ozone1)
+  plotmo(lm.fit, se=2)
+  lm.fit2 <- lm(O3 ~ temp+ibh+doy, data=ozone1)
+  plotmo(lm.fit2, degree2="all", clip=FALSE)
 
   library(gam)
   data(airquality)
@@ -395,6 +411,10 @@ plotmo(a)
 
   library(mgcv)
   plotmo(gam(O3 ~ s(doy) + s(humidity,temp), data=ozone1), se=2, ylim=NA)
+
+  library(rpart)
+  rpart.fit <- rpart(O3 ~ ., data=ozone1)
+  plotmo(rpart.fit, type="vector")
 }
 }
 \keyword{models}

@@ -31,7 +31,9 @@ passenger details and incomplete cases were deleted
 and the name changed to \code{etitanic} to minimize confusion with other
 versions ("e" because it is part of the earth package).
 
-Contents of etitanic:
+Note that \code{survived} is an integer (it should arguably be a logical).
+
+Contents of \code{etitanic}:
     \preformatted{
          pclass survived    sex    age sibsp parch
     1       1st        1 female 29.000     0     0
@@ -46,8 +48,8 @@ How \code{etitanic} was built:
     \preformatted{
     load("titanic3") # from Harrell's web site
     # discard name, ticket, fare, cabin, embarked, body, home.dest
-    etitanic = titanic3[,c(1,2,4,5,6,7)]
-    etitanic = etitanic[!is.na(etitanic$age),]
+    etitanic <- titanic3[,c(1,2,4,5,6,7)]
+    etitanic <- etitanic[!is.na(etitanic$age),]
     save(etitanic, file="etitanic.rda")
     }
 }

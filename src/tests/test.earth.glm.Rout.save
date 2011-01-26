@@ -4,7 +4,7 @@
 Loading required package: leaps
 Loading required package: plotrix
 > if(!interactive())
-+     postscript()
++     postscript(paper="letter")
 > data(ozone1)
 > data(trees)
 > data(etitanic)
@@ -233,6 +233,10 @@ ldose1    3    1        2 -31.37693 1   0.9614167 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a1 
+
+ grid:    sex ldose ldose1
+       female   0.5    0.6
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
@@ -412,6 +416,10 @@ ldose1    3    1        2 -31.37693 1   0.9614167 1
 glm params: epsilon 1e-08 maxit 2 trace TRUE family binomial link logit 
 
 plotmo a1h 
+
+ grid:    sex ldose ldose1
+       female   0.5    0.6
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
@@ -525,6 +533,10 @@ ldose1    3    1        2 -31.37693 1   0.9614167 1
 glm params: epsilon 1e-08 maxit 8 trace FALSE family binomial link probit 
 
 plotmo a1h.update1 
+
+ grid:    sex ldose ldose1
+       female   0.5    0.6
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
@@ -658,6 +670,10 @@ ldose1-unused   3    0        0   0.000000 1   0.000 1
 glm params: epsilon 1e-08 maxit 9 trace FALSE family gaussian link identity 
 
 plotmo a1h.update2 
+
+ grid:    sex ldose ldose1
+       female   0.5    0.6
+
 -------------------------------------------------------------------------------
 
 > 
@@ -804,6 +820,10 @@ sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a2 
+
+ grid:    sex ldose
+       female   0.5
+
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -872,6 +892,10 @@ AIC: 43.104
 Number of Fisher Scoring iterations: 4
 
 > plotmo(a3, caption="a3 <- glm(SF ~ sex * ldose, family=\"binomial\")")
+
+ grid:    sex ldose
+       female   0.5
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 > cat("-------------------------------------------------------------------------------\n\n")
@@ -1007,6 +1031,10 @@ sexmale:ldose-unused   3    0        0   0.000000 1   0.000000 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a4 
+
+ grid:    sex ldose
+       female   0.5
+
 -------------------------------------------------------------------------------
 
 > print.stripped.earth.model(a4, "a4")
@@ -1077,7 +1105,10 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
+    weights = glm$weights, na.action = na.action, control = control, 
+    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
+    trace = (trace >= 2))
 
 Coefficients:
   (Intercept)  `h(ldose--2)`        sexmale  
@@ -1089,7 +1120,10 @@ Residual Deviance: 6.757 	AIC: 42.87
 
 $glm.list[[2]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
+    weights = glm$weights, na.action = na.action, control = control, 
+    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
+    trace = (trace >= 2))
 
 Coefficients:
   (Intercept)  `h(ldose--2)`        sexmale  
@@ -1369,6 +1403,10 @@ sexmale    2    1        4  11.82295 1  17.37608 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a5 
+
+ grid:    survived    sex age sibsp parch
+                 0 female  28     0     0
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
@@ -1511,7 +1549,10 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
+    weights = glm$weights, na.action = na.action, control = control, 
+    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
+    trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1527,7 +1568,10 @@ Residual Deviance: 894.8 	AIC: 912.8
 
 $glm.list[[2]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
+    weights = glm$weights, na.action = na.action, control = control, 
+    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
+    trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1543,7 +1587,10 @@ Residual Deviance: 1127 	AIC: 1145
 
 $glm.list[[3]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
+    weights = glm$weights, na.action = na.action, control = control, 
+    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
+    trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1753,6 +1800,10 @@ sexmale    2    1        3   2.662288 1   5.875975 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a6 
+
+ grid:    survived    sex age sibsp parch
+                 0 female  28     0     0
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 -------------------------------------------------------------------------------
@@ -1896,7 +1947,10 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
+    weights = glm$weights, na.action = na.action, control = control, 
+    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
+    trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived     `survived*h(52-age)`  
@@ -2100,6 +2154,10 @@ pclass2nd   1    1        1   0.5526548 1   1.283877 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a7 
+
+ grid:    pclass survived age sibsp parch
+             1st        0  28     0     0
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
 -------------------------------------------------------------------------------
@@ -2234,7 +2292,10 @@ $penalty
 $glm.list
 $glm.list[[1]]
 
-Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,      weights = glm$weights, na.action = na.action, control = control,      model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL,      trace = (trace >= 2)) 
+Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
+    weights = glm$weights, na.action = na.action, control = control, 
+    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
+    trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived     `survived*h(16-age)`  
@@ -2528,6 +2589,10 @@ treatment3-unused   4    0        0    0.00000 1   0.00000 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a8p 
+
+ grid:    outcome treatment
+                1         1
+
 -------------------------------------------------------------------------------
 
 > # build a standard GLM model for comparison
@@ -2550,12 +2615,12 @@ Deviance Residuals:
 -0.96656  
 
 Coefficients:
-              Estimate Std. Error  z value Pr(>|z|)    
-(Intercept)  3.045e+00  1.709e-01   17.815   <2e-16 ***
-outcome2    -4.543e-01  2.022e-01   -2.247   0.0246 *  
-outcome3    -2.930e-01  1.927e-01   -1.520   0.1285    
-treatment2   8.717e-16  2.000e-01 4.36e-15   1.0000    
-treatment3   4.557e-16  2.000e-01 2.28e-15   1.0000    
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  3.045e+00  1.709e-01  17.815   <2e-16 ***
+outcome2    -4.543e-01  2.022e-01  -2.247   0.0246 *  
+outcome3    -2.930e-01  1.927e-01  -1.520   0.1285    
+treatment2   1.338e-15  2.000e-01   0.000   1.0000    
+treatment3   1.421e-15  2.000e-01   0.000   1.0000    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 
@@ -2568,6 +2633,10 @@ AIC: 56.761
 Number of Fisher Scoring iterations: 4
 
 > plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + treatment, family=\"poisson\")")
+
+ grid:    outcome treatment
+                2         1
+
 Note: setting outcome in the degree1 grid to [1] 2
 Note: setting treatment in the degree1 grid to [1] 1
 > 
@@ -2700,6 +2769,10 @@ treatment3-unused   4    0        0    0.00000 1   0.00000 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a10 
+
+ grid:    outcome treatment
+                1         1
+
 -------------------------------------------------------------------------------
 
 > 
@@ -3182,6 +3255,10 @@ sexmale   1    1        1   5.432272 1   5.148163 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo aref 
+
+ grid:    sex ldose
+       female   0.5
+
 -------------------------------------------------------------------------------
 
 > 
@@ -3308,6 +3385,10 @@ sexmale   1    1        1   5.432272 1   5.148163 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
+
+ grid:    sex ldose
+       female   0.5
+
 -------------------------------------------------------------------------------
 
 > check.models.equal(aref, a21, msg="aref a21")
@@ -3436,6 +3517,10 @@ sex     1    1        1   5.432272 1   5.148163 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
+
+ grid:    sex ldose
+          1.5   0.5
+
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -3565,6 +3650,10 @@ sex     1    1        1   5.432272 1   5.148163 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a22 
+
+ grid:    sex ldose
+          1.5   0.5
+
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -6099,21 +6188,21 @@ check.models.equal not identical: C predict with multiple level factors and a mu
 20m head(predict(am, trace=1)
 predict.earth: returning earth fitted.values 
              dead1         dead2 dead3
-[1,] -2.335186e-16  8.750000e-01 0.125
-[2,]  3.073976e-16  8.750000e-01 0.125
+[1,] -9.380014e-17  8.750000e-01 0.125
+[2,]  2.707054e-16  8.750000e-01 0.125
 [3,]  5.000000e-01  1.250000e-01 0.375
 [4,]  5.000000e-01  1.250000e-01 0.375
-[5,]  5.544942e-18 -9.905203e-18 1.000
-[6,]  5.544942e-18 -9.905203e-18 1.000
+[5,] -2.716119e-20 -2.428613e-17 1.000
+[6,] -2.716119e-20 -2.428613e-17 1.000
 C-21f head(predict(af, trace=1)
 predict.earth: returning earth fitted.values 
              dead1         dead2 dead3
-[1,] -2.335186e-16  8.750000e-01 0.125
-[2,]  3.073976e-16  8.750000e-01 0.125
+[1,] -9.380014e-17  8.750000e-01 0.125
+[2,]  2.707054e-16  8.750000e-01 0.125
 [3,]  5.000000e-01  1.250000e-01 0.375
 [4,]  5.000000e-01  1.250000e-01 0.375
-[5,]  5.544942e-18 -9.905203e-18 1.000
-[6,]  5.544942e-18 -9.905203e-18 1.000
+[5,] -2.716119e-20 -2.428613e-17 1.000
+[6,] -2.716119e-20 -2.428613e-17 1.000
 C-20 identical
 C-31m predict(am, xdata.frame, trace=1) data frame with factors and wrong col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
@@ -6130,7 +6219,7 @@ Contents of bx are
 predict.earth: returning earth predictions 
 C-31 identical
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-31f predict(af, xdata.frame, trace=1) data frame with factors and wrong col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.1. X.2 X0.1 fac3.1.
@@ -6149,7 +6238,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-31 identical
 C-31bm predict(am, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -6162,7 +6251,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-31 identical
 C-31bf predict(af, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -6179,7 +6268,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-31b identical
 C-32m predict(am, xdata.frame, trace=1) # data frame with names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -6192,7 +6281,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-32 identical
 C-32 identical
 C-32f predict(af, xdata.frame, trace=1) # data frame with names
@@ -6210,7 +6299,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-32 identical
 C-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
 Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
@@ -6230,7 +6319,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-54 identical
 C-54f predict(af, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
@@ -6250,7 +6339,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-54 identical
 C-55m predict(am, xdata.frame, trace=1) data frame without col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
@@ -6268,7 +6357,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C-55f predict(af, xdata.frame, trace=1) data frame without col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
@@ -6291,7 +6380,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C-55 identical
 C2-55bm predict(am, xdata.frame, trace=1) data frame col names
@@ -6307,7 +6396,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C2-55 identical
 C2-55bf predict(af, xdata.frame, trace=1) data frame col names
@@ -6328,7 +6417,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C2-55b identical
 C-56m predict(am, xdata.frame, trace=1) # data frame with col names
@@ -6344,7 +6433,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C-56 identical
 C-56f predict(af, xdata.frame, trace=1) # data frame with col names
@@ -6365,7 +6454,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C-56 identical
 C-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
@@ -6389,7 +6478,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C-58 identical
 C-58f predict(af, xdata.frame, trace=1) # data frame with cols in different order
@@ -6413,7 +6502,7 @@ Contents of bx are
 [2,]           1        0        0          1
 predict.earth: returning earth predictions 
             dead1  dead2 dead3
-[1,] 2.775558e-16  0.875 0.125
+[1,] 2.220446e-16  0.875 0.125
 [2,] 1.000000e+00 -0.125 0.125
 C-58 identical
 C-50m data frame without column names, trace=1
@@ -6428,7 +6517,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-34 identical
 C-60f data frame without column names, trace=1
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
@@ -6442,7 +6531,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-60 identical
 C-61f data frame without extra columns, trace=1
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 7 matrix: 1=sex3 (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=fac3 (factor), 7=extra3 (factor)
@@ -6459,7 +6548,7 @@ Contents of bx are
 [1,]           1        0        1          0
 predict.earth: returning earth predictions 
             dead1 dead2 dead3
-[1,] 2.775558e-16 0.875 0.125
+[1,] 2.220446e-16 0.875 0.125
 C-61 identical
 > test.predict.with.factors(trace=0)
 
@@ -7260,7 +7349,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predic
 After backward pass GRSq -0.1454 RSq 0.5362 
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM A: null.deviance 15.27634 (11 dof)   deviance 9.406231e-10 (9 dof)   iters 25 did not converge
+GLM A: null.deviance 15.27634 (11 dof)   deviance 9.406236e-10 (9 dof)   iters 25 did not converge
 GLM B: null.deviance 13.49604 (11 dof)   deviance 12.68403 (9 dof)   iters 4
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -7340,37 +7429,37 @@ After backward pass GRSq 0.9357 RSq 0.974
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac3A: null.deviance 15.27634 (11 dof)   deviance 9.406231e-10 (9 dof)   iters 25 did not converge
+GLM fac3A: null.deviance 15.27634 (11 dof)   deviance 9.406236e-10 (9 dof)   iters 25 did not converge
 GLM fac3B: null.deviance 13.49604 (11 dof)   deviance 12.68403 (9 dof)   iters 4
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 GLM fac3C: null.deviance 16.30064 (11 dof)   deviance 1.037213e-09 (9 dof)   iters 25 did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4P: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4P: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4Q: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4Q: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4R: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4R: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4S: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4S: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 GLM numdead.1: null.deviance 105.9173 (11 dof)   deviance 2.709378 (9 dof)   iters 4
 GLM sex: null.deviance 16.63553 (11 dof)   deviance 5.144045e-10 (9 dof)   iters 23
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1P: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4.1P: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1Q: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4.1Q: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1R: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4.1R: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1S: null.deviance 13.49604 (11 dof)   deviance 9.190013e-10 (9 dof)   iters 25 did not converge
+GLM fac4.1S: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
 GLM numdead.2: null.deviance 84.92686 (11 dof)   deviance 1.525354 (9 dof)   iters 4
 > print(summary(c7))
 Call: earth(x=data.frame(sex, ldose), y=big.dataframe2, glm=list(family="binomial"), 
@@ -7474,13 +7563,13 @@ sexmale       1.1007434  0.3558271  3.09348  0.0019782
 
 GLM fac3A deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.029765e-05  -2.107342e-08  -2.107342e-08   2.107342e-08   2.132271e-05  
+-2.029766e-05  -2.107342e-08  -2.107342e-08   2.107342e-08   2.132271e-05  
 
 GLM fac3A coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
 (Intercept)     -24.02056  99738.38356 -0.00024  0.99981
-h(ldose- -2)    -44.50778  58344.69656 -0.00076  0.99939
-sexmale         179.74852 227841.50366  0.00079  0.99937
+h(ldose- -2)    -44.50778  58344.69655 -0.00076  0.99939
+sexmale         179.74852 227841.50365  0.00079  0.99937
 
 GLM fac3B deviance residuals:
         Min           1Q       Median           3Q          Max  
@@ -7499,48 +7588,48 @@ GLM fac3C deviance residuals:
 GLM fac3C coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
 (Intercept)     -22.33291  42893.27556 -0.00052  0.99958
-h(ldose- -2)     44.32150  56068.06210  0.00079  0.99937
-sexmale        -223.30835 268535.68901 -0.00083  0.99934
+h(ldose- -2)     44.32150  56068.06209  0.00079  0.99937
+sexmale        -223.30835 268535.68896 -0.00083  0.99934
 
 GLM fac4P deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4P coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
 (Intercept)     -24.00932  99179.33584 -0.00024   0.9998
-h(ldose- -2)    -44.55786  59044.00199 -0.00075   0.9994
-sexmale         135.40398 180267.24493  0.00075   0.9994
+h(ldose- -2)    -44.55786  59044.00260 -0.00075   0.9994
+sexmale         135.40398 180267.24674  0.00075   0.9994
 
 GLM fac4Q deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4Q coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)    -246.79864 311432.58430 -0.00079  0.99937
-h(ldose- -2)     44.55786  59044.00260  0.00075  0.99940
-sexmale         135.40398 180267.24672  0.00075  0.99940
+(Intercept)    -246.79864 311432.58135 -0.00079  0.99937
+h(ldose- -2)     44.55786  59044.00197  0.00075  0.99940
+sexmale         135.40398 180267.24488  0.00075  0.99940
 
 GLM fac4R deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4R coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)     111.39466 150533.42012  0.00074   0.9994
-h(ldose- -2)    -44.55786  59044.00251 -0.00075   0.9994
-sexmale        -135.40398 180267.24647 -0.00075   0.9994
+(Intercept)     111.39466 150533.42039  0.00074   0.9994
+h(ldose- -2)    -44.55786  59044.00259 -0.00075   0.9994
+sexmale        -135.40398 180267.24670 -0.00075   0.9994
 
 GLM fac4S deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4S coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)    -111.39466 150533.41825 -0.00074   0.9994
-h(ldose- -2)     44.55786  59044.00198  0.00075   0.9994
-sexmale        -135.40398 180267.24491 -0.00075   0.9994
+(Intercept)    -111.39466 150533.41921 -0.00074   0.9994
+h(ldose- -2)     44.55786  59044.00260  0.00075   0.9994
+sexmale        -135.40398 180267.24672 -0.00075   0.9994
 
 GLM numdead.1 deviance residuals:
        Min          1Q      Median          3Q         Max  
@@ -7557,50 +7646,50 @@ GLM sex deviance residuals:
 -6.547293e-06  -6.547293e-06   0.000000e+00   6.547293e-06   6.547293e-06  
 
 GLM sex coefficients (family binomial, link logit)
-                  Estimate    Std. Error      z value Pr(>|z|)
-(Intercept)  -2.456607e+01  7.697792e+04     -0.00032  0.99975
-h(ldose- -2) -4.742861e-13  2.214486e+04 -2.14174e-17  1.00000
-sexmale       4.913214e+01  7.563908e+04      0.00065  0.99948
+                  Estimate    Std. Error  z value Pr(>|z|)
+(Intercept)  -2.456607e+01  7.697792e+04 -0.00032  0.99975
+h(ldose- -2) -8.256972e-13  2.214486e+04  0.00000  1.00000
+sexmale       4.913214e+01  7.563908e+04  0.00065  0.99948
 
 GLM fac4.1P deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4.1P coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
 (Intercept)     -24.00932  99179.33584 -0.00024   0.9998
-h(ldose- -2)    -44.55786  59044.00199 -0.00075   0.9994
-sexmale         135.40398 180267.24493  0.00075   0.9994
+h(ldose- -2)    -44.55786  59044.00260 -0.00075   0.9994
+sexmale         135.40398 180267.24674  0.00075   0.9994
 
 GLM fac4.1Q deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4.1Q coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)    -246.79864 311432.58430 -0.00079  0.99937
-h(ldose- -2)     44.55786  59044.00260  0.00075  0.99940
-sexmale         135.40398 180267.24672  0.00075  0.99940
+(Intercept)    -246.79864 311432.58135 -0.00079  0.99937
+h(ldose- -2)     44.55786  59044.00197  0.00075  0.99940
+sexmale         135.40398 180267.24488  0.00075  0.99940
 
 GLM fac4.1R deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4.1R coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)     111.39466 150533.42012  0.00074   0.9994
-h(ldose- -2)    -44.55786  59044.00251 -0.00075   0.9994
-sexmale        -135.40398 180267.24647 -0.00075   0.9994
+(Intercept)     111.39466 150533.42039  0.00074   0.9994
+h(ldose- -2)    -44.55786  59044.00259 -0.00075   0.9994
+sexmale        -135.40398 180267.24670 -0.00075   0.9994
 
 GLM fac4.1S deviance residuals:
           Min             1Q         Median             3Q            Max  
--2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054500e-05  
+-2.054501e-05  -2.107342e-08  -2.107342e-08  -1.053671e-08   2.054501e-05  
 
 GLM fac4.1S coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)    -111.39466 150533.41825 -0.00074   0.9994
-h(ldose- -2)     44.55786  59044.00198  0.00075   0.9994
-sexmale        -135.40398 180267.24491 -0.00075   0.9994
+(Intercept)    -111.39466 150533.41921 -0.00074   0.9994
+h(ldose- -2)     44.55786  59044.00260  0.00075   0.9994
+sexmale        -135.40398 180267.24672 -0.00075   0.9994
 
 GLM numdead.2 deviance residuals:
         Min           1Q       Median           3Q          Max  
@@ -7730,6 +7819,133 @@ numdead.2      84.92686 11  1.525354  9     4         1
 2    -2.247324    -1.757049    -2.386927
 3    -3.948707    -3.458432    -4.088310
 > 
+> # tests based on Gavin Simpson's bug report
+> # fit a MARS model allowing one-way interactions
+> mod.Gamma <- earth(O3 ~ . - doy, data = ozone1, degree = 2, glm = list(family = Gamma))
+> for(type in c("earth", "deviance", "pearson", "working", "response", "partial"))
++ {
++     cat("residuals.earth Gamma type=", type, ":\n", sep="")
++     print(head(resid(mod.Gamma, type = type), n=2))
++     print(tail(resid(mod.Gamma, type = type), n=2))
++ }
+residuals.earth Gamma type=earth:
+         O3
+1 -1.244999
+2 -1.078794
+            O3
+329 -1.7111893
+330  0.2160219
+residuals.earth Gamma type=deviance:
+            O3
+1 -0.386160452
+2 -0.003860706
+             O3
+329 -0.06873526
+330 -1.01148007
+residuals.earth Gamma type=pearson:
+            O3
+1 -0.338137498
+2 -0.003855739
+             O3
+329 -0.06716952
+330 -0.70322076
+residuals.earth Gamma type=working:
+            O3
+1 0.0746001768
+2 0.0007681745
+            O3
+329 0.01253155
+330 0.20870132
+residuals.earth Gamma type=response:
+           O3
+1 -1.53266349
+2 -0.01935332
+            O3
+329 -0.3600307
+330 -2.3695080
+residuals.earth Gamma type=partial:
+  `h(58-temp)` `h(55-humidity)*h(temp-58)` `h(temp-58)*h(dpg-54)`
+1   0.14055363                0.0741866430           7.375754e-02
+2   0.04276759                0.0003546407          -7.446379e-05
+  `h(temp-58)*h(54-dpg)` `h(wind-6)*h(1069-ibh)` `h(2-dpg)`
+1            0.078503178            0.0742296840 0.10788287
+2            0.004671175            0.0003976818 0.03222336
+  `h(dpg-2)*h(ibt-138)` `h(humidity-46)*h(ibh-1069)` `h(200-vis)`
+1           0.078489601                  0.063966185   0.09004422
+2           0.004657599                 -0.009865817  -0.00176244
+  `h(171-ibt)*h(200-vis)`
+1              0.06422015
+2              0.01275237
+    `h(58-temp)` `h(55-humidity)*h(temp-58)` `h(temp-58)*h(dpg-54)`
+329   0.03057693                  0.01211802             0.01168892
+330   0.27944558                  0.20828779             0.20785868
+    `h(temp-58)*h(54-dpg)` `h(wind-6)*h(1069-ibh)`   `h(2-dpg)`
+329             0.01643456              0.01216106 -0.003528313
+330             0.21260432              0.20833083  0.192641453
+    `h(dpg-2)*h(ibt-138)` `h(humidity-46)*h(ibh-1069)`  `h(200-vis)`
+329            0.01642098                   0.02062310 -0.0007838572
+330            0.21259074                   0.27069968  0.2061707063
+    `h(171-ibt)*h(200-vis)`
+329              0.07538135
+330              0.26437376
+> mod.binomial <- earth(survived ~ ., data = etitanic, degree = 2, glm = list(family = binomial))
+> for(type in c("earth", "deviance", "pearson", "working", "response", "partial"))
++ {
++     cat("residuals.earth binomial type=", type, ":\n", sep="")
++     print(head(residuals(mod.binomial, type = type), n=2))
++     print(tail(residuals(mod.binomial, type = type), n=2))
++ }
+residuals.earth binomial type=earth:
+     survived
+1  0.02274865
+2 -0.03121066
+       survived
+1045 -0.1739235
+1046 -0.1668663
+residuals.earth binomial type=deviance:
+   survived
+1 0.2717830
+2 0.3071610
+      survived
+1045 -0.596125
+1046 -0.580672
+residuals.earth binomial type=pearson:
+   survived
+1 0.1939678
+2 0.2197825
+       survived
+1045 -0.4409604
+1046 -0.4285263
+residuals.earth binomial type=working:
+  survived
+1 1.037624
+2 1.048304
+      survived
+1045 -1.194446
+1046 -1.183635
+residuals.earth binomial type=response:
+    survived
+1 0.03625931
+2 0.04607854
+       survived
+1045 -0.1627918
+1046 -0.1551448
+residuals.earth binomial type=partial:
+     sexmale pclass3rd `sexmale*h(16-age)` `pclass2nd*sexmale`
+1  3.3146151  3.745307            0.944670            1.147383
+2 -0.2943594  3.755988            3.521847            1.158064
+  `pclass3rd*h(4-sibsp)` `pclass3rd*sexmale` `pclass2nd*h(1-parch)` `h(64-age)`
+1            0.007098501           0.4342315               1.287356    1.060680
+2            0.017779327           0.4449123               1.298037    1.874627
+       sexmale pclass3rd `sexmale*h(16-age)` `pclass2nd*sexmale`
+1045 -2.537110 -4.139931           -1.287400           -1.084686
+1046 -2.526298 -4.129119           -1.276588           -1.073875
+     `pclass3rd*h(4-sibsp)` `pclass3rd*sexmale` `pclass2nd*h(1-parch)`
+1045              0.2644727          0.01060905             -0.9447138
+1046              0.2752840          0.02142034             -0.9339025
+     `h(64-age)`
+1045   -1.114184
+1046   -1.160578
 > # misc tests
 > 
 > cat("---misc 1---\n")
@@ -7749,9 +7965,9 @@ Importance: numdead-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 
              GCV RSS          GRSq           RSq
-sex1   0.2975207   3 -6.661338e-16 -4.440892e-16
-sex2   0.2975207   3 -6.661338e-16 -4.440892e-16
-sex1.1 0.2975207   3 -6.661338e-16 -4.440892e-16
+sex1   0.2975207   3 -6.661338e-16 -6.661338e-16
+sex2   0.2975207   3 -6.661338e-16 -6.661338e-16
+sex1.1 0.2975207   3 -6.661338e-16 -6.661338e-16
 All    0.8925620   9  0.000000e+00  0.000000e+00
 > sex1 <- factor(rep(c("male", "female"), times=c(6,6)))
 > sex2 <- factor(rep(c("male", "female"), times=c(6,6)))
@@ -7768,10 +7984,10 @@ Importance: numdead-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 
              GCV RSS          GRSq           RSq
-sex1   0.2975207   3 -6.661338e-16 -4.440892e-16
-sex2   0.2975207   3 -6.661338e-16 -4.440892e-16
-sex1.1 0.2975207   3 -6.661338e-16 -4.440892e-16
-sex1.2 0.2975207   3 -6.661338e-16 -4.440892e-16
+sex1   0.2975207   3 -6.661338e-16 -6.661338e-16
+sex2   0.2975207   3 -6.661338e-16 -6.661338e-16
+sex1.1 0.2975207   3 -6.661338e-16 -6.661338e-16
+sex1.2 0.2975207   3 -6.661338e-16 -6.661338e-16
 All    1.1900826  12  0.000000e+00  0.000000e+00
 > 
 > # test column expansion when y is a data frame in earth.default
