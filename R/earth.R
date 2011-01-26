@@ -60,7 +60,7 @@ check.allowed.arg <- function(allowed) # check earth's "allowed" argument
             paste.with.space(c("degree", "pred", "parents", "namesx", "first")),
             sep="")
 
-        if(typeof(allowed) != "closure")
+        if(!identical(typeof(allowed), "closure"))
             stop("your \"allowed\" argument is not a function");
         names. <- names(formals(allowed))
         len <- length(names.)
@@ -1394,6 +1394,8 @@ residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=
         glm.resids(object, type),                       # response
         glm.resids(object, type))                       # partial
 
+    if(!is.matrix(rval))
+        rval <- matrix(rval, ncol = 1)
     if(type != "partial")
         colnames(rval) <- colnames(object$residuals)
     rownames(rval) <- case.names(object)
@@ -1434,8 +1436,17 @@ extractAIC.earth <- function(fit, scale = 0, k = 2, warn=TRUE, ...)
 
 get.singles.earth <- function(object, x, degree1, pred.names, trace)
 {
-    check.classname(object, deparse(substitute(object)), "earth")
     dataClasses <- attr(object$terms, "dataClasses")
+    if(is.character(degree1) && !is.na(pmatch(degree1, "all"))) {
+        # user wants all used predictors
+        used.vars <- NULL
+        selected <- object$selected.terms[reorder.earth(object, decomp="anova")]
+        if(length(selected) > 0)
+            used.vars <- unique(
+                        which(object$dirs[selected, , drop=FALSE] != 0, arr.ind=TRUE)[,2])
+        return(used.vars)
+    }
+    check.classname(object, deparse(substitute(object)), "earth")
     if(any((dataClasses == "factor") | (dataClasses == "ordered"))) {
         # NOV 2008: new code, only use if factors in x
         # TODO this can give extra predictors if variable names alias
@@ -1478,6 +1489,21 @@ get.singles.earth <- function(object, x, degree1, pred.names, trace)
 
 get.pairs.earth <- function(object, x, degree2, pred.names, trace=FALSE)
 {
+    if(is.character(degree2) && !is.na(pmatch(degree2, "all"))) {
+        # user wants all combos of all used predictors
+        used.vars <- NULL
+        selected <- object$selected.terms[reorder.earth(object, decomp="anova")]
+        if(length(selected) > 0)
+            used.vars <- unique(
+                        which(object$dirs[selected, , drop=FALSE] != 0, arr.ind=TRUE)[,2])
+        if(length(used.vars) == 0)
+            return(matrix(0, nrow=0, ncol=2)) # no pairs
+        col1 <- rep(used.vars, times=length(used.vars))
+        col2 <- rep(used.vars, each=length(used.vars))
+        Pairs <- cbind(col1, col2)
+        Pairs <- Pairs[col1 != col2, , drop=FALSE]
+        return(unique(t(apply(Pairs, 1, sort)))) # remove duplicate pairs
+    }
     Pairs <- matrix(0, nrow=0, ncol=2)      # no pairs
     selected <- object$selected.terms[      # selected is all degree 2 terms
                     reorder.earth(object, decomp="anova", degree=2, min.degree=2)]

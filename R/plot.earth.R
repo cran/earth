@@ -495,7 +495,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     {
         Pretty <- pretty(c(rlim[1], rlim[2]))
         if(length(Pretty) >= 2) # test to prevent "no locations are finite" error
-            axis(side=2, at=scale1(Pretty, rlim[1], rlim[2]), lab=Pretty, srt=90)
+            axis(side=2, at=scale1(Pretty, rlim[1], rlim[2]), labels=Pretty, srt=90)
         if(col.rsq != 0)        #TODO mtext needs cex=par("cex"), not sure why
             mtext("GRSq  RSq", side=2, line=1.6, cex=par("cex"))
         else
@@ -505,7 +505,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     {
         Pretty <- pretty(c(0, max.npreds))
         if(length(Pretty) >= 2) # test to prevent "no locations are finite" error
-            axis(side=4, at=scale1(Pretty, 0, max.npreds), lab=Pretty, srt=90)
+            axis(side=4, at=scale1(Pretty, 0, max.npreds), labels=Pretty, srt=90)
         mtext("Number of used predictors", side=4, line=1.6, cex=par("cex"))
     }
     plot.nused.preds <- function()  # plot nbr of used predictors

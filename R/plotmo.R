@@ -3,6 +3,7 @@
 # Comments containing "TODO" mark known issues.
 # Stephen Milborrow Sep 2006 Cape Town
 #
+# TODO would like to add a data argument, but NA handling seems insoluble
 # TODO bug: ycolumn sometimes refers to original y, sometime to expanded y
 # TODO are n=* correct in calls to try(eval.parent())?
 # TODO weights are ignored
@@ -14,7 +15,6 @@
 # TODO add factor handling to degree2 plots
 # TODO show persp axes even when box=FALSE
 # TODO get.plotmo.x should allow allow unnamed cols in x if get from object$x or object$call$x
-# TODO need something more flexible than grid.func, especially for factors
 # TODO would like to make plotmo faster
 # TODO would like to add loess of reponse option
 # TODO use ndegree1 to limit the number points plotted for "func" argument
@@ -109,6 +109,7 @@ plotmo <- function(
     xlab        = "",       # add x axis labels, use NULL for auto, only applies to degree1
     ylab        = "",       # vertical axis label, default none gives more plottable area
     cex         = NULL,
+    cex.lab     = 1,        # used as cex.lab and cex.axis
     ...)                    # extra args passed to plotting funcs
 {
     get.ylims <- function() # check ylim arg and calculate min,max limits of y axis
@@ -130,17 +131,17 @@ plotmo <- function(
                         col.se, col.shade, func, col.func, pch.func, nrug,
                         draw.plot=FALSE, x, y, Singles, ylims, func.arg, pred.names,
                         ntrace, inverse.func.arg, clip.limits, nfigs,
-                        main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
+                        main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
             if(npairs)
                 ylims <- plot2(object, degree2, ylim, ycolumn, type, clip,
                             col.response, pch.response, inverse.func,
                             grid.func, grid.levels, type2, ngrid, col.persp, col.image,
                             draw.plot=FALSE, x, y, Pairs, ylims, func.arg, pred.names,
                             ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
-                            do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
+                            do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
             if(col.response != 0)
                 ylims <- range(ylims, y, finite=TRUE)
-            if(trace)
+            if(trace > 0)
                 cat("\ninitialized ylims", ylims, "\n")
             if(any(!is.finite(ylims)))
                 stop1("ylim argument is NULL but cannot generate ",
@@ -188,13 +189,13 @@ plotmo <- function(
             clip.limits <- c(0,1) # binomial or quasibinomial model
         else
             clip.limits <- range(y, finite=TRUE)
-        if(trace)
+        if(trace > 0)
             cat("clip.limits", clip.limits, "\n")
         clip.limits
     }
     # plotmo starts here
-    plotmo.prolog(object)
-    ntrace <- if(trace) 2 else 0
+    plotmo.prolog(object, deparse(substitute(object)))
+    ntrace <- if(trace > 0) 2 else 0
     func.arg <- deparse(substitute(func))
     inverse.func.arg <- deparse(substitute(inverse.func))
 
@@ -218,7 +219,7 @@ plotmo <- function(
 
     x <- get.plotmo.x(object, trace)
     warn.if.not.all.finite(x, "'x' after calling get.plotmo.x()")
-    if(trace) {
+    if(trace > 0) {
         cat("x[", nrow(x), ",", ncol(x), "]\n", sep="")
         print(head(x, 3))
         cat("is.factor", sapply(x, is.factor), "\n")
@@ -237,7 +238,7 @@ plotmo <- function(
     # Singles is a vector of indices of predictors for degree1 plots
     Singles <- get.singles(object, x, degree1, pred.names, trace)
     nsingles <- length(Singles)
-    if(trace)
+    if(trace > 0)
         if(length(Singles) > 0)
             cat("singles:", paste(Singles, pred.names[Singles], collapse=", "), "\n")
         else
@@ -246,7 +247,7 @@ plotmo <- function(
     # Each row of Pairs is the indices of two predictors for a degree2 plot
     Pairs <- get.pairs(object, x, degree2, pred.names, trace)
     npairs <- nrow(Pairs)
-    if(trace)
+    if(trace > 0)
         if(nrow(Pairs) > 0) {
             cat("pairs:\n")
             print(matrix(paste(Pairs, pred.names[Pairs]), ncol=2))
@@ -290,7 +291,7 @@ plotmo <- function(
             col.se, col.shade, func, col.func, pch.func, nrug,
             draw.plot=TRUE, x, y, Singles, ylims, func.arg, pred.names,
             ntrace, inverse.func.arg, clip.limits, nfigs,
-            main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
+            main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
     if(npairs) {
         if(do.par) {                                 # use degree1 settings, but tweaked
                 if(pmatch(type2, "persp", 0) != 1) { # contour or image plot?
@@ -310,7 +311,7 @@ plotmo <- function(
             grid.func, grid.levels, type2, ngrid, col.persp, col.image,
             draw.plot=TRUE, x, y, Pairs, ylims, func.arg, pred.names,
             ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
-            do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
+            do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
     }
     show.caption(caption, trim=must.trim.caption)
     invisible()
@@ -333,7 +334,7 @@ plot1 <- function(
     ntrace, inverse.func.arg, clip.limits, nfigs,
 
     # copy of par args from plotmo
-    main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
+    main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
 {
     draw.func <- function() # draw the func argument, if specified
     {
@@ -403,21 +404,31 @@ plot1 <- function(
         }
         if(is.null(xlab))
             xlab <- pred.names[ipred]
+        levnames <- levels(xwork[,ipred])
+        plot.levnames <- is.fac && length(levnames) <= 20
         plot(xwork[,ipred], y.predict, type="n",    # calls boxplot if is.fac
-                main=main, xlab=xlab, ylab=ylab, ylim=ylim)
+                main=main, xlab=xlab, ylab=ylab, ylim=ylim,
+                xaxt=if(plot.levnames) "n" else "s",
+                cex.lab=cex.lab, cex.axis=cex.lab)
         if(is.fac) {
             if(!is.null(y.se.lower))
                 draw.factor.se()
             if(col.response != 0)
                 points(jitter(as.numeric(x[,ipred]), .5),
-                    y, pch=pch.response, col=col.response)
-            plot(xwork[,ipred], y.predict, add=TRUE)
+                    y, pch=pch.response, col=col.response, cex=cex)
+            plot(xwork[,ipred], y.predict, add=TRUE,
+                 xaxt=if(plot.levnames) "n" else "s",
+                 cex.lab=cex.lab, cex.axis=cex.lab)
+            if(plot.levnames) # plot level names vertically along the x axis
+                mtext(abbreviate(levnames, minlength=6, strict=TRUE),
+                      side=1, at=1:length(levnames),
+                      cex=par("cex") * cex.lab, las=2, line=0.5)
         } else {    # not is.fac
             if(!is.null(y.se.lower))
                 draw.numeric.se()
             draw.func()
             if(col.response != 0)
-                points(x[,ipred], y, pch=pch.response, col=col.response)
+                points(x[,ipred], y, pch=pch.response, col=col.response, cex=cex)
             lines(x=xwork[,ipred], y=y.predict, lty=lty.degree1, col=col.degree1)
         }
         if(nrug)
@@ -439,10 +450,19 @@ plot1 <- function(
                 print(lev, max.levels=0)
             }
         } else
-            xgrid[,ipred] <- grid.func(x[,ipred])
+            xgrid[,ipred] <- grid.func(x[,ipred], na.rm=TRUE)
     warn.if.not.all.finite(xgrid, "'xgrid' for degree1 plots")
-    colnames(xgrid) <- pred.names
     stopif(is.null(pred.names))
+    colnames(xgrid) <- pred.names
+    if(!draw.plot && ntrace >= 0) {
+        # show the grid values, must do some finangling for a nice display
+        cat("\n")
+        row <- xgrid[1,,drop=FALSE]
+        names(row) <- c(paste("grid:   ", names(row)[1]), names(row)[-1])
+        rownames(row) <- ""
+        print(row)
+        cat("\n")
+    }
     if(draw.plot && nrug) {
         if(nrug < 0)
             nrug <- nrow(x)
@@ -523,7 +543,7 @@ plot2 <- function(
     ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
 
     # copy of par args from plotmo
-    do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, ...)
+    do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
 {
     draw.plot2 <- function(type2 = c("persp", "contour", "image"))
     {
@@ -561,23 +581,27 @@ plot2 <- function(
                         " ylim ", ylim, " cex ", cex1, " phi ", phi, "\n", sep="")
             persp(x1, x2, y.predict, main=main, theta=theta1, phi=phi, col=col.persp,
                 ticktype=ticktype, shade=shade, zlim=ylim, cex=cex1,
-                zlab=ylab, xlab=pred.names[i1], ylab=pred.names[i2], ...)
+                zlab=ylab, xlab=pred.names[i1], ylab=pred.names[i2],
+                cex.lab=1.1 * cex.lab, cex.axis=cex.lab)
             NULL
         }
         plot.contour <- function()
         {
             contour(x1, x2, y.predict, main=main,
-                xlab=pred.names[i1], ylab=pred.names[i2], ...)
+                xlab=pred.names[i1], ylab=pred.names[i2],
+                cex.lab=1.1 * cex.lab, cex.axis=cex.lab,
+                labcex=.8 * cex.lab * par("cex"), ...)
             if(col.response != 0)
-                points(x[,i1], x[,i2], pch=pch.response, col=col.response)
+                points(x[,i1], x[,i2], pch=pch.response, col=col.response, cex=cex)
             NULL
         }
         plot.image <- function()
         {
             image(x1, x2, y.predict, main=main, col=col.image,
-                xlab=pred.names[i1], ylab=pred.names[i2], ...)
+                xlab=pred.names[i1], ylab=pred.names[i2],
+                cex.lab=1.1 * cex.lab, cex.axis=cex.lab, ...)
             if(col.response != 0)
-                points(x[,i1], x[,i2], pch=pch.response, col=col.response)
+                points(x[,i1], x[,i2], pch=pch.response, col=col.response, cex=cex)
             NULL
         }
         # draw.plot2 starts here
@@ -611,7 +635,7 @@ plot2 <- function(
     # each row of xgrid is identical, each row is the col
     # median for that row of x (or selected level for factors)
     grid.func1 <- function(x)
-        if(is.factor(x)) get.level(x, NULL, NULL) else grid.func(x)
+        if(is.factor(x)) get.level(x, NULL, NULL) else grid.func(x, na.rm=TRUE)
     xgrid.row <- lapply(x, grid.func1)  # one row of xgrid
     for(ipred in 1:ncol(x))             # fix factor levels TODO combine with above?
         if(is.factor(x[,ipred])) {
@@ -738,7 +762,7 @@ check.and.print.y <- function(y, msg, ycolumn, expected.len, trace, subset.=NULL
     if(NCOL(y) > 1)
         stop1("'ycolumn' specifies more than one column")
     if(NROW(y) > 1 && NCOL(y) > 1) {
-        if(trace) {
+        if(trace > 0) {
             cat(msg, ":\n", sep="")
             print(head(y, 3))
         }
@@ -751,7 +775,7 @@ check.and.print.y <- function(y, msg, ycolumn, expected.len, trace, subset.=NULL
     if(NROW(y) == 1 && NCOL(y) > 1)
         y <- as.vector(y[,1])
     warn.if.not.all.finite(y, "y")
-    if(trace) {
+    if(trace > 0) {
         cat(msg, " returned length ", length(y), sep="")
         if(!is.null(subset.))
             cat(" (before taking subset)")
@@ -865,7 +889,7 @@ strip.formula.string <- function(form)
 
 get.pairs.from.term.labels <- function(term.labels, pred.names, trace=TRUE)
 {
-    if(trace)
+    if(trace > 0)
         cat("term.labels:", term.labels, "\n")
     Pairs <- matrix(0, nrow=0, ncol=2)          # no pairs
     for(i in 1:length(term.labels)) {
@@ -877,7 +901,7 @@ get.pairs.from.term.labels <- function(term.labels, pred.names, trace=TRUE)
         igrep <- gregexpr(
             "[a-zA-Z._][a-zA-Z._0-9$]*:[a-zA-Z._][a-zA-Z._0-9$]*", s)[[1]]
 
-        if(trace)
+        if(trace > 0)
             cat("considering", s)
 
         if(igrep[1] > 0) for(i in seq_along(igrep)) {
@@ -888,13 +912,13 @@ get.pairs.from.term.labels <- function(term.labels, pred.names, trace=TRUE)
             Pair <- strsplit(Pair, ":")[[1]]    # Pair is now c("ident1","ident2")
             ipred1 <- which(pred.names == Pair[1])
             ipred2 <- which(pred.names == Pair[2])
-            if(trace)
+            if(trace > 0)
                 cat("->", Pair, "at", if(length(ipred1)) ipred1 else NA,
                     if(length(ipred2)) ipred2 else NA)
             if(length(ipred1) == 1 && length(ipred2) == 1 && Pair[1] != Pair[2])
                 Pairs <- c(Pairs, ipred1, ipred2)
         }
-        if(trace)
+        if(trace > 0)
             cat("\n")
     }
     unique(matrix(Pairs, ncol=2, byrow=TRUE))
@@ -906,13 +930,13 @@ get.subset <- function(object, trace) # called by get.plotmo.x.default and get.p
     if(is.null(subset.)) {
         # the n=3 takes us to the caller of plotmo
         subset. <- try(eval.parent(object$call$subset, n=3), silent=TRUE)
-        if(class(subset.) == "try-error")
+        if(is.try.error(subset.))
             subset. <- NULL
         #TODO revisit the following, it converts function (x, ...) UseMethod("subset")
         else if(typeof(subset.) == "closure")
             subset. <- NULL
     }
-    if(!is.null(subset.) && trace) {
+    if(!is.null(subset.) && trace > 0) {
         cat("subset length " , length(subset.), sep="")
         try(cat(" min", min(subset.), "max", max(subset.)), silent=TRUE)
         cat(" values ")
@@ -926,18 +950,17 @@ get.subset <- function(object, trace) # called by get.plotmo.x.default and get.p
 #------------------------------------------------------------------------------
 # plotmo.prolog gets called at the start of plotmo
 
-plotmo.prolog <- function(object) UseMethod("plotmo.prolog")
+plotmo.prolog <- function(object, object.name) UseMethod("plotmo.prolog")
 
-plotmo.prolog.default <- function(object)
+plotmo.prolog.default <- function(object, object.name)
 {
     # Here we just establish with some sort of plausibility that object is a model obj.
     # The general idea is to let the user know what is going on if plotmo fails later.
 
-    if(is.null(coef(object)))
-        warning1("'", deparse(substitute(object)),
-            "' doesn't look like a model object, because the coef component is NULL")
-    else if(length(coef(object)) < 2)
-        warning1("model appears to be an intercept only model")
+    if(!is.list(object))
+        stop1("'", object.name, "' is not a model object")
+    else if(length(coef(object)) == 1)
+        warning1("'", object.name, "' appears to be an intercept only model")
 
     NULL
 }
@@ -946,7 +969,7 @@ plotmo.prolog.default <- function(object)
 plotmo.predict <- function(object, newdata, type, se.fit,
                             pred.names, ipred1, ipred2, trace)
 {
-    if(trace) {
+    if(trace > 0) {
         if(ipred2 == 0)
             cat("\nplotmo.predict for predictor \"", pred.names[ipred1], "\" ", sep="")
         else
@@ -954,7 +977,7 @@ plotmo.predict <- function(object, newdata, type, se.fit,
                 pred.names[ipred1], "\" and \"", pred.names[ipred2], "\" ", sep="")
         if(se.fit)
             cat("se.fit=TRUE ")
-        cat("with newdata:\n", sep="")
+        cat("with newdata[", NROW(newdata), ",", NCOL(newdata), "]:\n", sep="")
         print(head(newdata, 3))
     }
     UseMethod("plotmo.predict")
@@ -963,10 +986,19 @@ plotmo.predict <- function(object, newdata, type, se.fit,
 plotmo.predict.default <- function(object, newdata, type, se.fit,
                                    pred.names, ipred1, ipred2, trace)
 {
-    if(se.fit)
-        predict(object, newdata=newdata, trace=trace, type=type, se.fit=TRUE)
-    else
-        predict(object, newdata=newdata, trace=trace, type=type)
+    # We do our own error handling to give some context to the error messages.
+    # TODO but this means that traceback() is not helpful
+    try1 <- try(
+        if(se.fit)
+            predict(object, newdata=newdata, trace=trace, type=type, se.fit=TRUE)
+        else
+            predict(object, newdata=newdata, trace=trace, type=type))
+
+    if (is.try.error(try1)) {
+        cat("\n")
+        stop1("Call to predict.", class(object)[1], " failed")
+    }
+    try1
 }
 
 #------------------------------------------------------------------------------
@@ -987,7 +1019,7 @@ plotmo.predict.default <- function(object, newdata, type, se.fit,
 
 get.plotmo.x <- function(object, trace=FALSE)
 {
-    if(trace)
+    if(trace > 0)
         cat("\n--get.plotmo.x\n\n")
     UseMethod("get.plotmo.x")
 }
@@ -1008,8 +1040,10 @@ get.plotmo.x.default <- function(
             return(NULL)
         Call <- Call[c(1, m)]
         Call[[1]] <- as.name("model.frame")
-        Call$na.action <- na.fail
-
+        # TODO it would be nice to use whatever na handling the original model function
+        # used, but there seems to be no general way of knowing what that is.
+        # In the meantime the following hack suffices for my purposes.
+        Call$na.action <- if(inherits(object, "rpart")) na.pass else na.fail
         form <- Call$formula
         if(is.null(form))
             return(NULL)
@@ -1019,12 +1053,12 @@ get.plotmo.x.default <- function(
             form <- eval.parent(form, n=3)
         formula.as.string <- format(form)
         stripped.formula <- strip.formula.string(formula.as.string)
-        if(trace)
+        if(trace > 0)
             cat("formula ", formula.as.string, "\n",
                 "stripped formula ", stripped.formula, "\n", sep="")
         Call$formula <- parse(text=stripped.formula)[[1]]
         Call$data <- get.formula.data(object, Call$data, FALSE, trace)
-        if(trace)
+        if(trace > 0)
             my.print.call("about to call ", Call)
         if(length(grep(".+~", stripped.formula))) { # has response?
             x <- try(eval.parent(Call, n=3)[,-1])   # then eval without the response
@@ -1032,8 +1066,12 @@ get.plotmo.x.default <- function(
             warning1("formula has no response variable, formula is ", stripped.formula)
             x <- try(eval.parent(Call, n=3))
         }
-        if(class(x) == "try-error")
-            stop1("could not evaluate formula (variables were deleted?)")
+        if(is.try.error(x)) {
+            if(length(grep("missing", x)))
+                stop1("could not evaluate formula")
+            else
+                stop1("could not evaluate formula (variables were deleted?)")
+        }
         if(NCOL(x) == 1) {
             # if one predictor, model.matrix returns a vec with no colname, so fix it
             x <- data.frame(x)
@@ -1043,28 +1081,31 @@ get.plotmo.x.default <- function(
     }
     badx <- function(x, check.colnames)
     {
-        is.null(x) || class(x) == "try-error" || NROW(x) == 0 ||
+        is.null(x) || is.try.error(x) || NROW(x) == 0 ||
             (check.colnames && is.null(colnames(x)))
     }
     # get.plotmo.x.default starts here
+
+    if(!is.list(object))
+        stop1("get.plotmo.x.default cannot get x matrix --- object is not a model object")
 
     # look for an x with column names
 
     try.error.message <- NULL
     # use of brackets rather than $ below prevents incorrect partial matching
     x <- object[["x"]]
-    if(!badx(x, TRUE) && trace)
+    if(!badx(x, TRUE) && trace > 0)
         cat("got x with colnames from object$x\n")
     if(badx(x, TRUE)) {
-        x <- get.x.from.formula(object, trace)
-        if(!badx(x, TRUE) && trace)
+        x <- get.x.from.formula(object, trace > 0)
+        if(!badx(x, TRUE) && trace > 0)
             cat("got x with colnames from object$call$formula\n")
     }
     if(badx(x, TRUE)) {
         x <- try(eval.parent(object$call[["x"]], n=2), silent=TRUE)
-        if(!badx(x, TRUE) && trace)
+        if(!badx(x, TRUE) && trace > 0)
             cat("got x with colnames from object$call$x\n")
-        if(class(x) == "try-error")
+        if(is.try.error(x))
             try.error.message <- x
     }
     # if don't have an x with colnames look for one without colnames
@@ -1072,23 +1113,23 @@ get.plotmo.x.default <- function(
 
     if(badx(x, TRUE)) {
         x <- object[["x"]]
-        if(!badx(x, FALSE) && trace)
+        if(!badx(x, FALSE) && trace > 0)
             cat("got x without colnames from object$x\n")
         if(badx(x, FALSE)) {
             x <- get.x.from.formula(object, trace)
-            if(!badx(x, FALSE) && trace)
+            if(!badx(x, FALSE) && trace > 0)
                 cat("got x without colnames from object$call$formula\n")
         }
         if(badx(x, FALSE)) {
             x <- try(eval.parent(object$call[["x"]], n=2), silent=TRUE)
-            if(!badx(x, FALSE) && trace)
+            if(!badx(x, FALSE) && trace > 0)
                 cat("got x without colnames from object$call$x\n")
-            if(class(x) == "try-error")
+            if(is.try.error(x))
                 try.error.message <- x
         }
     }
     if(badx(x, FALSE)) {
-        if(trace) {
+        if(trace > 0) {
             cat("Looked unsuccessfully for an x in the following places:\n")
             cat("\nobject$x:\n")
             print(head(object$x, 3))
@@ -1109,7 +1150,7 @@ get.plotmo.x.default <- function(
     if(!is.null(weights) && any(abs(weights - weights[1]) > 1e-8))
         warning1("'weights' are not supported by 'plotmo', ignoring them")
 
-    subset. <- get.subset(object, trace)
+    subset. <- get.subset(object, trace > 0)
     if(!is.null(subset.)) {
         check.index.vec("subset", subset., x, check.empty=TRUE, allow.duplicates=TRUE)
         x <- x[subset., , drop=FALSE]
@@ -1128,7 +1169,7 @@ get.plotmo.y <- function(
     expected.len,
     trace)
 {
-    if(trace)
+    if(trace > 0)
         cat("\n--get.plotmo.y\n\n")
     UseMethod("get.plotmo.y")
 }
@@ -1158,43 +1199,43 @@ get.plotmo.y.default <- function(
         formula.as.string <- paste(format(form), collapse=" ")
         stripped.formula <- strip.formula.string(formula.as.string)
         Call$formula <- parse(text=stripped.formula)[[1]]
-        if(trace)
+        if(trace > 0)
             cat("formula ", formula.as.string, "\n",
                 "stripped formula ", stripped.formula, "\n", sep="")
 
         Call$data <- get.formula.data(object, Call$data, TRUE, trace)
         Call[[1]] <- as.name("model.frame")
-        Call$na.action <- na.fail
+        Call$na.action <- if(inherits(object, "rpart")) na.pass else na.fail # TODO hack
         stripped.formula <- strip.formula.string(formula.as.string)
-        if(trace)
+        if(trace > 0)
             my.print.call("about to call ", Call)
         Call <- try(eval.parent(Call, n=3))
-        if(class(Call) != "try-error")
+        if(!is.try.error(Call))
             model.response(Call, type="any")
     }
     bady <- function(y)
     {
-        is.null(y) || class(y) == "try-error"
+        is.null(y) || is.try.error(y)
     }
     # get.plotmo.y.default starts here
     try.error.message <- NULL
     y <- object[["y"]]
-    if(!bady(y) && trace)
+    if(!bady(y) && trace > 0)
         cat("got y from object$y\n")
     if(bady(y)) {
         y <- get.y.from.formula(object)
-        if(!bady(y) && trace)
+        if(!bady(y) && trace > 0)
             cat("got y from object$call$formula\n")
     }
     if(bady(y)) {
         y <- try(eval.parent(object$call[["y"]], n=2), silent=TRUE)
-        if(!bady(y) && trace)
+        if(!bady(y) && trace > 0)
             cat("got y from object$call$y\n")
-        if(class(y) == "try-error")
+        if(is.try.error(y))
             try.error.message <- y
     }
     if(bady(y)) {
-        if(trace) {
+        if(trace > 0) {
             cat("Looked unsuccessfully for y in the following places:\n")
             cat("\nobject$y:\n")
             print(head(object$y, 3))
@@ -1227,16 +1268,20 @@ get.plotmo.y.default <- function(
 
 get.singles <- function(object, x, degree1, pred.names, trace=FALSE)
 {
-    if(trace)
+    if(trace > 0)
         cat("\n--get.singles\n\n")
     UseMethod("get.singles")
 }
 
 get.singles.default <- function(object, x, degree1, pred.names, trace)
 {
-    check.index.vec("degree1", degree1, pred.names)
     ifirst <- if(pred.names[1]=="(Intercept)") 2 else 1 # delete intercept, if any
-    (ifirst:length(pred.names))[degree1]
+    if(is.character(degree1) && !is.na(pmatch(degree1, "all")))
+        ifirst:length(pred.names) # degree1 = "all"
+    else {
+        check.index.vec("degree1", degree1, pred.names)
+        (ifirst:length(pred.names))[degree1]
+    }
 }
 
 get.formula.data <- function(object, data.name, get.y, trace)
@@ -1246,7 +1291,7 @@ get.formula.data <- function(object, data.name, get.y, trace)
         # the length test is necessary for lm which saves x as an
         # empty list if its x arg is FALSE, don't know why
         good <- !is.null(x) && length(x)
-        if(good && trace)
+        if(good && trace > 0)
             cat("get.formula.data: got",
                 if(get.y) "y" else "x", "from", paste(..., sep=""), "\n")
         good
@@ -1281,7 +1326,7 @@ get.formula.data <- function(object, data.name, get.y, trace)
 
 get.pairs <- function(object, x, degree2, pred.names, trace=FALSE)
 {
-    if(trace)
+    if(trace > 0)
         cat("\n--get.pairs\n\n")
     UseMethod("get.pairs")
 }
@@ -1291,6 +1336,16 @@ get.pairs <- function(object, x, degree2, pred.names, trace=FALSE)
 
 get.pairs.default <- function(object, x, degree2, pred.names, trace=FALSE)
 {
+    if(is.character(degree2) && !is.na(pmatch(degree2, "all"))) {
+        used.vars <- get.singles.default(object, x, "all", pred.names, trace)
+        if(length(used.vars) == 0)
+            return(matrix(0, nrow=0, ncol=2)) # no pairs
+        col1 <- rep(used.vars, times=length(used.vars))
+        col2 <- rep(used.vars, each=length(used.vars))
+        Pairs <- cbind(col1, col2)
+        Pairs <- Pairs[col1 != col2, , drop=FALSE]
+        return(unique(t(apply(Pairs, 1, sort)))) # remove duplicate pairs
+    }
     Pairs <- matrix(0, nrow=0, ncol=2)   # no pairs
     term.labels <- NULL
     if(!is.null(object$call$formula)) {
@@ -1306,7 +1361,7 @@ get.pairs.default <- function(object, x, degree2, pred.names, trace=FALSE)
     if(!is.null(term.labels))
         Pairs <- get.pairs.from.term.labels(term.labels, pred.names, trace)
     else {
-        if(trace)
+        if(trace > 0)
             cat("no degree2 plots because no $call$formula$term.labels\n")
         if(is.specified(degree2))
             warning1("'degree2' specified but no degree2 plots ",
@@ -1332,4 +1387,70 @@ get.pairs.bagEarth <- function(object, x, degree2, pred.names, trace)
         pairs <- rbind(pairs, get.pairs(object$fit[[i]], x, degree2, pred.names, trace))
     pairs <- unique(pairs)
     pairs[order(pairs[,1], pairs[,2]),]
+}
+#------------------------------------------------------------------------------
+
+get.singles.rpart <- function(object, x, degree1, pred.names, trace)
+{
+    # get all the variables that are actually used in the tree
+    irow <- as.integer(row.names(object$frame))
+    var.names <- character(length=max(irow))
+    var.names[irow] <- as.character(object$frame$var)
+    ivar <- charmatch(var.names, pred.names)
+    is.split <- !is.na(ivar) & ivar > 0 # same as var.names != "<leaf>" & var.names !=""
+    if(sum(is.split) == 0)
+        stop1("the rpart tree has no splits")
+    ivar <- unique(ivar[is.split])
+    if(is.character(degree1) && !is.na(pmatch(degree1, "all")))
+        degree1 <- 1:length(ivar)
+    check.index.vec("degree1", degree1, ivar)
+    ivar[degree1]
+}
+# We consider rpart variables paired if one is the direct parent of the
+# other in the tree.
+
+get.pairs.rpart <- function(object, x, degree2, pred.names, trace)
+{
+    if(is.character(degree2) && !is.na(pmatch(degree2, "all"))) {
+        # TODO this may be redundant for rpart models
+        used.vars <- get.singles.rpart(object, x, "all", pred.names, trace)
+        if(length(used.vars) == 0)
+            return(matrix(0, nrow=0, ncol=2)) # no pairs
+        col1 <- rep(used.vars, times=length(used.vars))
+        col2 <- rep(used.vars, each=length(used.vars))
+        Pairs <- cbind(col1, col2)
+        Pairs <- Pairs[col1 != col2, , drop=FALSE]
+        return(unique(t(apply(Pairs, 1, sort)))) # remove duplicate pairs
+    }
+    irow <- as.integer(row.names(object$frame))
+    var.names <- character(length=max(irow))
+    var.names[irow] <- as.character(object$frame$var)
+    ivar <- charmatch(var.names, pred.names)
+    # following is the same as var.names != "<leaf>" & var.names !=""
+    is.split <- !is.na(ivar) & ivar > 0
+    if(sum(is.split) == 0)
+        stop1("the rpart tree has no splits")
+    Pairs <- NULL
+    for(i in 1:length(ivar)) {
+        if(is.split[i]) {
+            left <- 2 * i
+            if(is.split[left] && ivar[i] != ivar[left])
+                Pairs <- c(Pairs, ivar[i], ivar[left])
+            right <- left + 1
+            if(is.split[right] && ivar[i] != ivar[right])
+                Pairs <- c(Pairs, ivar[i], ivar[right])
+        }
+    }
+    if(is.null(Pairs))
+        Pairs <- matrix(0, nrow=0, ncol=2)
+    else
+        Pairs <- matrix(Pairs, ncol=2, byrow=TRUE)
+    Pairs <- unique(t(apply(Pairs, 1, sort))) # remove duplicate pairs
+    if(nrow(Pairs) == 0 && is.specified(degree2))
+        warning1("'degree2' specified but no degree2 plots")
+    if(nrow(Pairs) > 0) {
+        check.index.vec("degree2", degree2, Pairs)
+        Pairs <- Pairs[degree2, , drop=FALSE]
+    }
+    Pairs
 }

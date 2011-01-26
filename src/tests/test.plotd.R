@@ -1,4 +1,4 @@
-# test.plotd: test earth with a biggish model
+# test.plotd.R
 
 library(earth)
 
@@ -20,7 +20,7 @@ do.caption <- function(caption)
     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
 data(etitanic)
 if(!interactive())
-    postscript()
+    postscript(paper="letter")
 old.par <- par(no.readonly=TRUE)
 
 # test plotd basic functionality on a numeric response

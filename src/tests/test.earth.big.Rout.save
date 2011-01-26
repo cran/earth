@@ -4,7 +4,7 @@
 Loading required package: leaps
 Loading required package: plotrix
 > if(!interactive())
-+     postscript()
++     postscript(paper="letter")
 > options(warn=1) # print warnings as they occur
 > options(digits = 3)
 > set.seed(777)
@@ -13,15 +13,15 @@ Loading required package: plotrix
 > ran <- function() runif(N, min=-1, max=1)
 > 
 > x <- cbind(
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
 +     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-+     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
 +     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran())
 > 
 > colnames(x) <- c(
@@ -76,6 +76,30 @@ Number of terms at each degree of interaction: 1 11 (additive model)
 GCV 0.0652    RSS 649    GRSq 0.971    RSq 0.971
 > plot(a1)
 > plotmo(a1)
+
+ grid:    x01      x02      x03      x04     x05    x06     x07     x08     x09
+     -0.00358 -0.00702 -0.00386 -0.00925 0.00666 0.0153 0.00884 -0.0103 0.00119
+      x10     x11     x12     x13    x14    x15    x16    x17       x18    x19
+ -0.00157 0.00723 0.00135 -0.0107 0.0106 0.0131 0.0088 0.0168 -0.000380 0.0122
+     x20     x21     x22      x23     x24      x25      x26     x27     x28
+ -0.0036 0.00636 0.00531 0.000542 0.00647 -0.00491 -0.00257 0.00799 -0.0126
+      x29    x30       x31     x32      x33      x34    x35     x36      x37
+ -0.00653 0.0071 -2.64e-05 0.00126 -0.00537 -0.00450 0.0150 0.00496 -0.00988
+     x38     x39    x40      x41     x42      x43      x44      x45    x46
+ -0.0062 -0.0110 0.0111 0.000431 -0.0151 -0.00633 0.000193 -0.00347 0.0133
+     x47      x48    x49   x50     x51     x52     x53      x54      x55  x56
+ -0.0149 0.000321 0.0108 0.017 0.00526 0.00177 0.00664 0.000308 -0.00817 0.02
+      x57      x58     x59     x60      x61     x62      x63     x64     x65
+ -0.00184 0.000796 0.00459 -0.0145 -0.00811 -0.0077 -0.00113 0.00649 -0.0131
+      x66     x67      x68    x69      x70     x71    x72    x73      x74
+ -0.00251 0.00113 -0.00057 0.0132 -0.00248 0.00126 0.0226 0.0114 -0.00133
+     x75     x76     x77       x78    x79      x80      x81     x82     x83
+ 0.00446 -0.0076 -0.0102 -0.000355 0.0221 -0.00503 -0.00424 -0.0150 -0.0065
+     x84     x85     x86      x87     x88     x89      x90     x91     x92
+ -0.0063 -0.0132 0.00255 0.000623 0.00786 0.00661 0.000138 -0.0156 0.00465
+    x93      x94      x95     x96     x97     x98     x99    x100
+ 0.0053 -0.00447 -0.00818 -0.0037 0.00271 0.00536 0.00109 -0.0051
+
 > 
 > func2 <- function(x)
 + {
@@ -169,7 +193,7 @@ First few rows of y are
 [4,]  1.0904
 [5,]  1.1888
 [6,]  0.4007
-Approximate memory use after expanding x and y matrices: 1e+01 MBytes
+Approximate memory use after expanding x and y matrices: 1e+001 MBytes
 Forward pass: minspan 9 endspan 13
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm

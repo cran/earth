@@ -1,4 +1,4 @@
-> # test.plotd: test earth with a biggish model
+> # test.plotd.R
 > 
 > library(earth)
 Loading required package: leaps
@@ -22,7 +22,7 @@ Loading required package: plotrix
 +     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
 > data(etitanic)
 > if(!interactive())
-+     postscript()
++     postscript(paper="letter")
 > old.par <- par(no.readonly=TRUE)
 > 
 > # test plotd basic functionality on a numeric response
@@ -264,6 +264,8 @@ predicted.response.per.class[as.numeric(sex) != 1]: 1.212219 1.723106 1.385648 1
 > printh("rpart")
 ===rpart
 > library(rpart); library(earth); data(etitanic)
+Warning message:
+package 'rpart' was built under R version 2.12.1 
 > rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
 > # note that plotd's default type="response" is not accepted by rpart
 > plotd(rpart.model, type="prob", nresponse=1)

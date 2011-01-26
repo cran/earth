@@ -2,7 +2,7 @@
 
 library(earth)
 if(!interactive())
-    postscript()
+    postscript(paper="letter")
 options(warn=1) # print warnings as they occur
 options(digits = 3)
 set.seed(777)
@@ -11,15 +11,15 @@ N <- 1e4
 ran <- function() runif(N, min=-1, max=1)
 
 x <- cbind(
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), 
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
+    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran())
 
 colnames(x) <- c(

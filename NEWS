@@ -1,6 +1,22 @@
 Changes to Earth Package
 ------------------------
 
+2.4-6
+    Made the following changes to plotmo:
+      We now print the fixed grid values unless trace < 0.
+      The degree1 and degree2 arguments now have an "all" option.
+      We now have better support for rpart objects
+      The cex arg is now also used for response values (with cex.response!=0).
+      Added cex.lab argument.
+      For factor predictors we now print the factor levels vertically along the x axis.
+    Fixed crossed type.gcv and type.rss args in plot.evimp.
+    Fixed residuals.earth to handle vector responses correctly.
+    (Thanks to Gavin Simpson at UCL for providing fixes for the above bugs.)
+    plot.evimp now doesn't use on.exit(par(no.readonly=TRUE)), so we
+      now allow subsequent plots on the same page with mfrow != c(1,1).
+    Did the usual document touchups.
+    Minor cleanups for R check (partial arg matches).
+
 2.4-5 Oct 30 2010
     Plotmo now better handles the "data" argument for earth.formula models.
     (Thanks to Keith Woolner for spotting that this was previously incorrect.)

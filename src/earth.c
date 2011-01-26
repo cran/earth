@@ -144,7 +144,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 2.4"; // change if you modify this file!
+static const char   *VERSION    = "version 2.4-6"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -2161,11 +2161,11 @@ static void ForwardPass(
     InitQ(nMaxTerms);
     AddTermToQ(0, 1, RssNull, true, nMaxTerms, FastBeta); // intercept term into Q
 #endif
-    int nTerms, iBestCase;
+    int nTerms = -1, iBestCase = -1;
     for (nTerms = 1;                                    // start after intercept
             nTerms < nMaxTerms-1 && RSq < 1-Thresh;     // -1 allows for upper term in pair
             nTerms += 2) {                              // add terms in pairs
-        int iBestPred = -1, iBestParent;
+        int iBestPred = -1, iBestParent = -1;
         bool IsNewForm, IsLinPred;
 #if USING_R
         ServiceR();

@@ -4,7 +4,7 @@
 Loading required package: leaps
 Loading required package: plotrix
 > if(!interactive())
-+     postscript()
++     postscript(paper="letter")
 > data(ozone1)
 > data(trees)
 > data(etitanic)
@@ -442,7 +442,7 @@ CV fold  3 --------------------------------------------------------------------
 x is a 21 by 2 matrix: 1=Girth, 2=Height
 y is a 21 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 2.00053e-05 < 0.001)
+Reached delta RSq threshold (DeltaRSq 2.00053e-005 < 0.001)
 After forward pass GRSq 0.8833 RSq 0.9708
 Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
 After backward pass GRSq 0.935 RSq 0.9682 
@@ -682,6 +682,10 @@ Cross validation: nterms 8.67 sd 0.58  nvars 6.00 sd 0.00
 survived. 0.4183267 0.004641934 0.8876037 0.01425373 -0.04517342 0.2183072  0.9263124 0.04936612 0.8574092 0.004603173 0.9817507 1.120815
 > # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a6)
+
+ grid:    pclass    sex age sibsp parch
+             1st female  28     0     0
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass, sex
 > printh(a6$cv.list[[2]])
@@ -1007,6 +1011,10 @@ Cross validation: nterms 10.00 sd 1.25  nvars 5.00 sd 0.00
 mean 0.17550724 0.04994987 1.035524 0.06176683 -0.133525644 0.11353116  0.8614162 0.1685641 0.7339773 0.03081695 0.9715114 0.01288484
 > # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a7, ycolumn=1)
+
+ grid:    survived    sex age sibsp parch
+                 0 female  28     0     0
+
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: sex
 > printh(a7$cv.list[[3]])

@@ -2,7 +2,9 @@
 @rem Stephen Milborrow Nov 2008 Gardens
 
 @echo === test.earth.cv ==============================================
-@"\PROGRA~2\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.cv.R
+@set DIFFPS=diffps
+@rem @set DIFFPS=diff -w
+@"\PROGRA~1\R\R-2.12.0\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.cv.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.cv.Rout:
 @echo.
@@ -17,7 +19,7 @@ diff test.earth.cv.Rout test.earth.cv.Rout.save
 @rem test.earth.cv.save.ps is too big to be included in the release
 @rem so it is stored elsewhere
 :good2
-diff -w Rplots.ps ..\..\.#\test.earth.cv.save.ps 
+%DIFFPS% Rplots.ps ..\..\.#\test.earth.cv.save.ps 
 @if %errorlevel% equ 0 goto good3:
 @echo === Files are different ===
 @exit /B %errorlevel%

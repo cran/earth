@@ -2,7 +2,7 @@
 
 library(earth)
 if(!interactive())
-    postscript()
+    postscript(paper="letter")
 data(ozone1)
 data(trees)
 data(etitanic)
@@ -1291,6 +1291,22 @@ printh(resid(a, type="working"), max.print=3)
 printh(resid(a, type="response"), max.print=3)
 printh(resid(a, type="partial"), max.print=3)
 
+# tests based on Gavin Simpson's bug report
+# fit a MARS model allowing one-way interactions
+mod.Gamma <- earth(O3 ~ . - doy, data = ozone1, degree = 2, glm = list(family = Gamma))
+for(type in c("earth", "deviance", "pearson", "working", "response", "partial"))
+{
+    cat("residuals.earth Gamma type=", type, ":\n", sep="")
+    print(head(resid(mod.Gamma, type = type), n=2))
+    print(tail(resid(mod.Gamma, type = type), n=2))
+}
+mod.binomial <- earth(survived ~ ., data = etitanic, degree = 2, glm = list(family = binomial))
+for(type in c("earth", "deviance", "pearson", "working", "response", "partial"))
+{
+    cat("residuals.earth binomial type=", type, ":\n", sep="")
+    print(head(residuals(mod.binomial, type = type), n=2))
+    print(tail(residuals(mod.binomial, type = type), n=2))
+}
 # misc tests
 
 cat("---misc 1---\n")

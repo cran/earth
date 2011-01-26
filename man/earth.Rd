@@ -301,7 +301,8 @@ For cross validation, use the \code{nfold} argument.
      The current version of the \code{\link[leaps]{leaps}} package
      used during pruning does not allow user interrupts
      (i.e., you have to kill your R session to interrupt;
-     in Windows hit Ctl-Alt-Delete or from the command line use \code{tskill}).
+     in Windows hit Ctl-Alt-Delete or from the command line use \code{tskill}
+     (\code{taskkill} in Windows 7).
   }
   \item{nprune}{
      Maximum number of terms (including intercept) in the pruned model.

@@ -2,7 +2,7 @@
 
 all: test.earthc.out
 
-R_DIR="%ProgramFiles%\r\R-2.11.1"
+R_DIR="%ProgramFiles%\r\R-2.12.0"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -23,7 +23,8 @@ OUTDIR=Release
 CFLAGS=-nologo -DSTANDALONE $(RELEASE_BUILD_CFLAGS) -TP -O2 -W3 -ML $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo $(RELEASE_BUILD_LFLAGS) $(PROF_FLAGS)
 # To build Rdll.libs see instructions in gnuwin32\README.packages
-LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
+# LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
+LIBS=C:\a\r\ra\bin\Rdll.lib C:\a\r\ra\bin\Rblas.lib
 !ENDIF
 
 !IF  "$(CFG)" == "Debug"

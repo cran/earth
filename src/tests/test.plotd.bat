@@ -1,9 +1,10 @@
-@rem test.plotd.bat: This tests earth on a biggish model
-@rem This is the test mentioned in the earth man page "Big Models" section
+@rem test.plotd.bat
 @rem Stephen Milborrow Mar 2008 Durban
 
 @echo === test.plotd ===============================================
-@"\PROGRA~2\R\R-2.11.1\bin\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
+@set DIFFPS=diffps
+@rem @set DIFFPS=diff -w
+@"\PROGRA~1\R\R-2.12.0\bin\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.plotd.Rout:
 @echo.
@@ -18,7 +19,7 @@ diff test.plotd.Rout test.plotd.Rout.save
 :good2
 @rem test.plotd.save.ps is too big to be included in the release
 @rem so it is stored elsewhere
-diff -w Rplots.ps ..\..\.#\test.plotd.save.ps 
+%DIFFPS% Rplots.ps ..\..\.#\test.plotd.save.ps 
 @if %errorlevel% equ 0 goto good3:
 @echo === Files are different ===
 @exit /B %errorlevel%

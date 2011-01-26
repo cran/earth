@@ -21,7 +21,7 @@ library(earth)
 data(ozone1)
 options(warn=1) # print warnings as they occur
 if(!interactive())
-    postscript()
+    postscript(paper="letter")
 
 caption <- "basic earth test of plotmo"
 a <- earth(O3 ~ ., data=ozone1, degree=2)
@@ -544,14 +544,14 @@ a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
 print(summary(a))
 plotmo(a, trace=Trace, caption="plotmo with facs: pclass+sex+age")
 plotmo(a, trace=Trace, clip=FALSE, degree2=FALSE, caption="plotmo (no degree2) with facs: pclass+sex+age")
-plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2nd", sex="male"), 
+plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2nd", sex="male"),
        caption="plotmo with grid.levels: pclass+sex+age")
 # in above tests, all degree2 terms use facs
 # now build a model with some degree2 term that use facs, some that don't
 a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2)
 print(summary(a))
 plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms")
-plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms and grid.levels", 
+plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms and grid.levels",
        grid.levels=list(pclass="2nd"))
 
 # more-or-less repeat above, but with glm models
