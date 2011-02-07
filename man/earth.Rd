@@ -127,8 +127,7 @@ For cross validation, use the \code{nfold} argument.
      \code{earth(y~x, glm=list(family=binomial))}
   }
   \item{trace}{
-     Trace earth's execution.  Default is 0.  Values:
-
+     Trace earth's execution.  Default is 0.  Values:\cr
      0 none 0.5 cross validation 1 overview 2 forward pass 3 pruning 4 model mats, memory use, more pruning, etc.
      5 and higher for internal details of operation\dots
   }
@@ -189,7 +188,6 @@ For cross validation, use the \code{nfold} argument.
     means calculate the \code{minspan} internally as per
     Friedman's MARS paper section 3.8 with \eqn{alpha} = 0.05.
     Set \code{trace>=2} to see the calculated value.\cr
-    \bold{NEW IN VERSION 2.4-0, Nov 2009:}
     \code{minspan=-1} is also treated specially. It is for back compatibility, and means
     calculate minspan using the (incorrect) method used in
     versions of earth prior to 2.4-0.
@@ -276,14 +274,13 @@ For cross validation, use the \code{nfold} argument.
   \item{stratify}{
      Only applies if \code{nfold>1}.
      Default is TRUE.
-     Stratify the cross validation samples so that, for each column of the response
-     \code{y} (after factors have been expanded),
+     Stratify the cross validation samples so that
      an approximately equal number of cases with a non-zero response
      occur in each cross validation subset.
-     That means that if \code{y} is a factor, the factor gets expanded to a set
-     of indicator columns (see the "Factors" section below),
-     and so there will be
-     approximately equal numbers of each factor level in the response for each fold.
+     This means that when the response \code{y} is a factor there will be
+     approximately equal numbers of each factor level in each fold
+     (because a factor response gets expanded to columns of zeros and ones, 
+     see the "Factors" section below).
      We say "approximately equal" because the number of occurrences of a factor
      level may not be exactly divisible by the number of folds.
 \cr\cr
@@ -1157,10 +1154,9 @@ Earth first builds a standard model with all the data as usual.
 This means that all the standard fields in earth's return value
 appear as usual.
 Earth then builds \code{nfold} cross validated models.
-For each fold,
-it measures the prediction RSq on the test data (i.e., the left-out data,
-typically one tenth of the complete data), after building an \code{earth} model
-with the left-in data (typically nine tenths of the complete data).
+For each fold
+it builds an \code{earth} model with the left-in data (typically nine tenths of the complete data)
+and using this model measures the prediction RSq on the left-out data (typically one tenth of the complete data).
 The final cross validation RSq is the mean of these RSq's.
 Use \link{summary.earth} to see this final value and its standard deviation
 across cross validation folds.
@@ -1168,6 +1164,12 @@ across cross validation folds.
 The cross validation results go into extra fields in earth's return value.
 All of these have a \code{cv} prefix ---
 see the "Value" section above for details.
+To plot and compare the fold models with \code{\link{plot.earth.models}},
+use the \code{keepxy} argument so the cross-validated \code{residuals} are retained:
+\preformatted{
+a <- earth(survived ~ ., data=etitanic, degree=2, nfold=3, keepxy=TRUE)
+plot.earth.models(a$cv.list)
+}
 
 For multiple response models, at each fold earth calculates the RSq for each
 response independently, and combines these by taking their mean

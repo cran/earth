@@ -85,6 +85,7 @@ and a change to the variable would never occur without simultaneous
 changes to other variables.
 For example, in the \code{\link{trees}} data, a change to the height
 is associated with a change in the girth.
+
 Thus is is better to think in terms of the effect of the variable on
 the response averaged over the entire population.
 That is to say, the \emph{expected} effect.

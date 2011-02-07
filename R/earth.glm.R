@@ -5,17 +5,17 @@ try.something.like <-
 
 check.glm.model <- function(g, response.name) # g is a model created by calling glm()
 {
-    df <- if("df" %in% names(g)) g[["df"]] else NULL
-
+    # TODO following check is pointless? df is only defined for summary.glm?
+    df <- if("df" %in% names(g)) g[["df"]] else NULL # avoid partial matching
     if(!is.null(df) && (nsingular <- df[3] - df[1]))
-        stop1("earth glm ", response.name, ": ", nsingular,
+        stop1("earth glm response \"", response.name, "\": ", nsingular,
               " coefficients not defined because of singularities")
 
-    aliased <- is.na(coef(g))
-    if(length(aliased) == 0)
-        stop1("earth glm ", response.name, ": no glm coefficients");
-    if(any(aliased))
-        stop1("earth glm ", response.name, ": NA in glm coefficients")
+    if(length(coef(g)) == 0)
+        stop1("earth glm response \"", response.name, "\": no glm coefficients");
+
+    if(any(is.na(coef(g))))
+        stop1("earth glm response \"", response.name, "\": NA in glm coefficients")
 }
 
 # Check for a common user error: specifying a family argument
@@ -46,23 +46,67 @@ check.yarg.for.binomial.glm <- function(yarg, weights, mustart, more.y.columns)
 }
 
 # Note that on entry get.glm.arg has already checked the glm argument
-# All args except bx, glm, and glm.bpairs are direct copies of args to earth.fit.
+# Most args are direct copies of args to earth.fit.
 
 earth.glm <- function(bx, y, weights, na.action, glm,
                       trace, glm.bpairs, response.name)
 {
+    hack.intercept.only.glm.model <- function(g)
+    {
+        # Skullduggery for intercept-only glm models.
+        # Get the model into a form usable by later functions like predict().
+        # We need to remove all references to EarthIntercept else predict()
+        # will try to find it and complain because it cannot.
+
+        g$coefficients <- g$coefficients[1]
+        g$R            <- g$R[1,1]
+        g$qr$qr        <- g$qr$qr[,1,drop=FALSE]
+        g$model        <- g$model[,1,drop=FALSE]
+        g$x            <- g$x[,1,drop=FALSE]
+        g$data         <- NULL
+
+        # yarg ~ EarthIntercept becomes yarg ~ yarg
+        # TODO this approach used because won't allow just yarg~
+        g$terms[[3]] <- g$terms[[2]]
+
+        # list(yarg, EarthIntercept) ecomes list(yarg)
+        attr(g$terms, "variables") <- call("list", quote(yarg))
+
+        #        EarthIntercept
+        # yarg                0   becomes an empty matrix
+
+        attr(g$terms, "factors") <- matrix(nrow=0, ncol=0)
+
+        # "EarthIntercept" becomes an empty character vector
+        attr(g$terms, "term.labels") <- character(0)
+
+        # list(yarg, EarthIntercept) becomes list(yarg)
+        attr(g$terms, "predvars") <- call("list", quote(yarg))
+
+        g
+    }
+    # earth.glm starts here
     if(trace >= 2)
         cat("\n")
-
-    if(ncol(bx) == 1)
-        stop1("earth cannot build a glm model because the earth model\n",
-              "is an intercept only model.  This typically means that\n",
-              "all terms except the intercept were deleted during pruning.\n")
-
     ncases <- nrow(bx)
-    # -1 below to drop intercept, eval.parent assumes that this is called by earth.fit
-    bx.data.frame <- as.data.frame(eval.parent(bx[,-1,drop=FALSE]))
-
+    intercept.only <- ncol(bx) == 1
+    if(intercept.only) {
+        # glm() requires something on the rhs the formula.
+        # But this is an intercept-only model, so actually nothing on the rhs.
+        # To work around that, give glm() the earth intercept, which will have
+        # no effect on the glm model but will cause an extra coefficient etc. in
+        # the value returned by glm.  We remove that extra data later (in
+        # hack.intercept.only.glm.model).
+        # Actually the fake intercept does have a small effect on the
+        # model: dof is off by one (which also affects vals derived from dof).
+        if(trace >= 1)
+            cat("earth.glm: intercept-only earth model, faking the glm model\n")
+        bx.data.frame <- as.data.frame(bx) # bx has a single column, the earth intercept
+        colnames(bx.data.frame) <- "EarthIntercept" # for sanity checking
+    } else {
+        # default operation: drop intercept with -1
+        bx.data.frame <- as.data.frame(eval.parent(bx[, -1, drop=FALSE]))
+    }
     # Convert args to form expected by glm().
     # We need to convert glm() args whose default is not NULL.
 
@@ -119,14 +163,18 @@ earth.glm <- function(bx, y, weights, na.action, glm,
             print.matrix.info("y arg to glm()", yarg, all.names=TRUE)
 
         # FIXED (earth 2.3-4): removed offset etc. arguments because of
-        # difficulties evaluating them later in the correct environment.
+        # difficulties evaluating them later in the correct environment
+        # (get.glm.arg has already checked if such args were supplied by the user).
 
         g <- glm(yarg ~ ., family=family, data=bx.data.frame,
                 weights=glm$weights, na.action=na.action,
                 control=control, model=TRUE, trace=(trace>=2),
                 method="glm.fit", x=TRUE, y=TRUE, contrasts=NULL)
 
-        if(trace == 0 && !g$converged) # give a message specific to this reponse
+        if(intercept.only)
+            g <- hack.intercept.only.glm.model(g)
+
+        if(trace == 0 && !g$converged) # give a message specific to this response
             cat("earth glm ", response.name,
                 ": did not converge after ", g$iter," iterations\n", sep="")
         if(trace >= 1) {

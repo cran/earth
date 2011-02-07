@@ -1,6 +1,22 @@
 Changes to Earth Package
 ------------------------
 
+2.4-7  Feb 02 2011
+   Intercept-only models are now better supported, esp. for earth-glm  models.
+   Martin Renner and Keith Woolner provided the impetus for this change.
+
+   Legend arguments are now handled better in plot.earth.models.
+   A vector legend.text is now handled correctly and you can use
+   values like "topleft" in legend.pos (thanks to Gavin Simpson at ECRC).
+
+   The elements of cv.list in earth's returned value are now named,
+   and plot.earth.models(model$cv.list) thus has better legends.
+
+   Cumulative distrib plots in plot.earth.models now use the jitter arg, and
+   plot.earth's (pointless) jitter argument has been removed.
+
+   A few code and doc touchups were also made.
+
 2.4-6
     Made the following changes to plotmo:
       We now print the fixed grid values unless trace < 0.

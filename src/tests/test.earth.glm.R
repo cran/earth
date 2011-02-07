@@ -1307,6 +1307,40 @@ for(type in c("earth", "deviance", "pearson", "working", "response", "partial"))
     print(head(residuals(mod.binomial, type = type), n=2))
     print(tail(residuals(mod.binomial, type = type), n=2))
 }
+# intercept only model
+
+cat("a.intercept.only: intercept only logistic model\n\n")
+# This seed chosen so call to earth below has one predictor model in 1st
+# cv fold and intercept-only in 2nd cv fold, that way we test both.
+set.seed(3)
+df <- data.frame(aaa = round(runif(18)), bbb = runif(18), ccc = rnorm(18))
+a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial), nfold=2)
+a.intercept.only <- earth(aaa ~ bbb + ccc, data = df, glm=list(family=binomial), trace=1)
+print.earth.models(a.intercept.only)
+cat("\nsummary(a.intercept.only, details=TRUE)\n\n", sep="")
+print(summary(a.intercept.only, details=TRUE))
+printh(predict(a.intercept.only))
+printh(predict(a.intercept.only, type="link"))
+printh(predict(a.intercept.only, type="response"))
+printh(predict(a.intercept.only, type="earth"))
+g <- a.intercept.only$glm.list[[1]]
+printh(predict(g, type="link"))
+printh(predict(g, type="response"))
+
+new.df <- df[3:5, ]
+printh(predict(a.intercept.only, type="response"))
+printh(predict(a.intercept.only, newdata=new.df, trace=1, type="link"))
+printh(predict(a.intercept.only, newdata=new.df, trace=1, type="response"))
+printh(predict(a.intercept.only, newdata=new.df, type="earth"))
+printh(predict(a.intercept.only, newdata=new.df, type="class"))
+# cat("Expect Warning: predict.earth: returning the earth (not glm) terms\n")
+printh(predict(a.intercept.only, newdata=new.df, type="terms"))
+
+plot.earth.models(list(a.intercept.only, a), main="plot.earth.models\nlist(a.intercept.only, a)")
+plot.earth.models(list(a, a.intercept.only), main="plot.earth.models\nlist(a, a.intercept.only)", legend.pos="topleft", jitter=.01)
+# nothing will plot for the next call
+plot.earth.models(list(a.intercept.only, a.intercept.only), main="plot.earth.models\nlist(a.intercept.only, a.intercept.only)")
+
 # misc tests
 
 cat("---misc 1---\n")

@@ -56,7 +56,8 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     The default is \code{discrete.plot.cols(length(x))} which is vector
     of distinguishable colors, the first three of which are also distinguishable on
     a monochrome printer.
-    You can examine the colors using \code{earth:::discrete.plot.cols()}.
+    You can examine the colors using\cr
+    \code{earth:::discrete.plot.cols()}.
   }
   \item{col.rsq}{
     Vector of colors for the RSq plot.
@@ -95,7 +96,8 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   }
   \item{legend.pos}{
     The special value \code{NULL} (default) means position the legend automatically.
-    Else specify \code{c(x,y)} in user coordinates.
+    Else specify \code{c(x,y)} in user coordinates, 
+    or use \code{"topleft"} etc. as explained in \code{\link{legend}}.
   }
   \item{legend.text}{
     Vector of strings to use as legend text.

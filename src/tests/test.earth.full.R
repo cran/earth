@@ -512,6 +512,7 @@ ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
 
 funcNoise <- function(x)    # noise
 {
+    set.seed(ncol(x))
     rnorm(length(x))
 }
 x <- cbind(x1)
@@ -557,6 +558,7 @@ func8 <- function(x)
 
 func8noise <- function(x)
 {
+    set.seed(ncol(x))
     func8(x) + rnorm(nrow(x),0,1)
 }
 
@@ -592,6 +594,7 @@ neg.eqn56 <- function(x)
 
 eqn56noise <- function(x)
 {
+    set.seed(ncol(x))
     eqn56(x) + rnorm(nrow(x),0,1)
 }
 
@@ -746,7 +749,7 @@ if (PLOT)
 set.seed(1)
 if (PLOT) {
     plot(a, caption="plot.earth test 2", which=c(3,4,1), rlim=c(.2,.9),
-         jitter=.01, id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
+         id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
 
     plot(a, caption="plot.earth test 3", which=c(2), main="test main")
 }
@@ -897,13 +900,16 @@ if (PLOT) {
 
 cat("--- test plot.earth.models with multiple responses ---\n")
 
+set.seed(1)
 a <- earth(O3 ~ ., data=ozone1, degree=2)
 a2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=2)
 b2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=1)
 if (PLOT) {
     plot.earth.models(list(a, a2), caption="plot.earth.models with multiple responses, list(a,a2)")
-    plot.earth.models(list(a2, a), caption="plot.earth.models with multiple responses, list(a2,a)")
-    plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)")
+    plot.earth.models(list(a2, a), caption="plot.earth.models with multiple responses, list(a2,a)",
+                      col.rsq=c(2,3), col.npreds=c(2,3))
+    plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)", 
+                      col.rsq=c(2,3), col.npreds=c(4,5), jitter=.01, legend.pos="topleft")
 }
 
 cat("--- subset --------------------------------------\n")

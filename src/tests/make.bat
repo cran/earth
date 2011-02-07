@@ -1,5 +1,6 @@
 @rem test.all.bat
 
+time /T
 @echo.
 @call test.earthmain.gcc.bat
                         @if errorlevel 1 goto error
@@ -32,6 +33,6 @@
 :error
 @echo ==== ERROR ====
 :done
-
+time /T
 @rm -f ../earth_res.rc ../Makedeps
 @rm -f test.*.pdf

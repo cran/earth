@@ -38,7 +38,7 @@ plotd(a1, main="earth-glm, numeric, kernel=epan adjust=.3", trace=TRUE,
 
 plotd(a1, main="earth-glm, numeric, type=earth, params",
       type="earth", xlab="my xlab", ylab="my ylab",
-      xlim=c(-.5, 1.5), zero.line=TRUE, vline.col="green",
+      legend.pos="topleft", xlim=c(-.5, 1.5), zero.line=TRUE, vline.col="green",
       col=c("pink", "red"), fill="pink")
 
 plotd(a1, main="earth-glm, numeric, type=link, params", type="link", legend=FALSE,

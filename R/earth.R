@@ -1216,7 +1216,7 @@ standardize.weights <- function(w, meanw)
 #    The global character vector prune.only.args says which
 #    args are needed only for the pruning pass.
 #
-#    This default decision to do a forward pass or not can be overriden
+#    This default decision to do a forward pass or not can be overridden
 #    with the ponly argument.
 #
 # b) This function also deals appropriately with objects that were or were

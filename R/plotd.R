@@ -252,7 +252,7 @@ get.lda.yhat <- function(yhat, type, trace)
             if(!is.null(yhat$class9)) "type=\"class\" " else "",
             if(!is.null(yhat$posterior9)) "type=\"posterior\" " else "", sep="")
 
-    if (is.null(yhat1)) {
+    if(is.null(yhat1)) {
         msg <- paste(
             if(!is.null(yhat$x)) "type=\"response\" " else "",
             if(!is.null(yhat$class)) "type=\"class\" " else "",
@@ -603,6 +603,8 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
     nclasses <- length(yhat.per.class)
     if(is.null(legend.pos))
         legend.pos <- get.legend.pos()
+    else if(length(legend.pos) == 1)
+        legend.pos <- c(legend.pos, 0)
     if(length(legend.pos) != 2)
         stop1("length(legend.pos) != 2")
     if(is.null(legend.names))
@@ -684,7 +686,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             # reducible error, left side of threshold
             # get indices i1 of den1 and i2 of den2 where den1 crosses den2
             i2 = length(den2$x)
-            for (i1 in length(den1$x):1) {
+            for(i1 in length(den1$x):1) {
                 while(i2 > 1 && den2$x[i2] > den1$x[i1])
                     i2 <- i2 - 1
                 if(den1$x[i1] <= thresh && den1$y[i1] >= den2$y[i2])
@@ -706,7 +708,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             # reducible error, right side of threshold
             # get indices i1 of den1 and i2 of den2 where den1 crosses den2
             i2 = 1
-            for (i1 in 1:length(den1$x)) {
+            for(i1 in 1:length(den1$x)) {
                 while(i2 < length(den2$x) && den2$x[i2] < den1$x[i1])
                     i2 <- i2 + 1
                 if(den1$x[i1] >= thresh && den2$y[i2] >= den1$y[i1])

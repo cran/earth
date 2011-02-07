@@ -137,7 +137,7 @@ plotmo <- function(
                             col.response, pch.response, inverse.func,
                             grid.func, grid.levels, type2, ngrid, col.persp, col.image,
                             draw.plot=FALSE, x, y, Pairs, ylims, func.arg, pred.names,
-                            ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
+                            ntrace, inverse.func.arg, clip.limits, nfigs, nsingles, npairs,
                             do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
             if(col.response != 0)
                 ylims <- range(ylims, y, finite=TRUE)
@@ -310,7 +310,7 @@ plotmo <- function(
             col.response, pch.response, inverse.func,
             grid.func, grid.levels, type2, ngrid, col.persp, col.image,
             draw.plot=TRUE, x, y, Pairs, ylims, func.arg, pred.names,
-            ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
+            ntrace, inverse.func.arg, clip.limits, nfigs, nsingles, npairs,
             do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
     }
     show.caption(caption, trim=must.trim.caption)
@@ -381,6 +381,14 @@ plot1 <- function(
             }
             NULL
         }
+        get.main1 <- function(main, isingle, nfigs, degree1, pred.names, ipred)
+        {
+            main <- ""
+            # show degree1 plot numbers in headers if plotting all predictors
+            if(nfigs > 1 && !is.specified(degree1))
+                main <- paste(isingle, " ", sep="")
+            paste(main, pred.names[ipred])
+        }
         # draw.plot1 starts here
         if(is.null(ylim.org))           # same ylim for each graph?
             ylim <- ylims
@@ -395,13 +403,8 @@ plot1 <- function(
         }
         if(nrug && (is.null(ylim.org) || is.na(ylim.org[1])))
             ylim[1] <- ylim[1] - .05 * (ylim[2] - ylim[1])
-        if(is.null(main)) {
-            main <- ""
-            # show degree1 plot numbers in headers if plotting all predictors
-            if(nfigs > 1 && !is.specified(degree1))
-                main <- paste(isingle, " ", sep="")
-            main <- paste(main, pred.names[ipred])
-        }
+        main <- get.main(main, isingle, get.main1,
+                         nfigs, degree1, pred.names, ipred)
         if(is.null(xlab))
             xlab <- pred.names[ipred]
         levnames <- levels(xwork[,ipred])
@@ -540,7 +543,7 @@ plot2 <- function(
 
     # args generated in plotmo, draw.plot=FALSE means get ylims but don't actually plot
     draw.plot, x, y, Pairs, ylims, func.arg, pred.names,
-    ntrace, inverse.func.arg, clip.limits, nfigs, npairs,
+    ntrace, inverse.func.arg, clip.limits, nfigs, nsingles, npairs,
 
     # copy of par args from plotmo
     do.par, main, theta, phi, shade, ticktype, xlab, ylab, cex, cex.lab, ...)
@@ -604,14 +607,17 @@ plot2 <- function(
                 points(x[,i1], x[,i2], pch=pch.response, col=col.response, cex=cex)
             NULL
         }
-        # draw.plot2 starts here
-        if(is.null(main)) {
+        get.main2 <- function(main, imain, nfigs, degree2, ipair, pred.names, i1, i2)
+        {
             main <- ""
             # show degree2 plot numbers in headers if plotting all predictors
             if(nfigs > 1 && !is.specified(degree2))
                 main <- paste(ipair, " ", sep="")
-            main <- paste(main, pred.names[i1], ":", pred.names[i2], sep="")
+            paste(main, pred.names[i1], ":", pred.names[i2], sep="")
         }
+        # draw.plot2 starts here
+        main <- get.main(main, nsingles+ipair, get.main2,
+                         nfigs, degree2, ipair, pred.names, i1, i2)
         if(is.null(ylim))           # same ylim for each graph?
             ylim <- ylims
         else if(is.na(ylim[1])) {   # each graph has its own ylim?
@@ -690,6 +696,22 @@ plot2 <- function(
             paste.with.comma(unique(ignored.factors.msg)),
             "\n", sep="")
     ylims
+}
+
+get.main <- function(main, imain, main.func, ...)
+{
+    if(is.null(main))
+        main <- main.func(main, imain, ...)
+    else if(length(main) > 1) { # user supplied a vector main?
+        if(imain > length(main)) {
+            if(imain == length(main)+1) # issue warning only once
+                warning1("not enough elements in \"main\" ",
+                         "(there are more plots than strings in \"main\")")
+            main <- main.func(main, imain, ...) # revert to defaults
+        } else
+            main <- main[imain]
+    }
+    main
 }
 
 range1 <- function(x, ...)
@@ -994,7 +1016,7 @@ plotmo.predict.default <- function(object, newdata, type, se.fit,
         else
             predict(object, newdata=newdata, trace=trace, type=type))
 
-    if (is.try.error(try1)) {
+    if(is.try.error(try1)) {
         cat("\n")
         stop1("Call to predict.", class(object)[1], " failed")
     }
