@@ -45,8 +45,6 @@ plot.earth <- function(
                                 # special value min=-1 means use min(rsqVec[-1])
                                 # special value max=-1 means use max(rsqVec)
 
-    jitter      = 0,            # non zero val allows overlaid plots to be visible
-
     id.n        = 3,            # number of residuals to be labelled
     labels.id   = rownames(residuals(x, warn=FALSE)),  # residual names
 
@@ -197,7 +195,7 @@ plot.earth <- function(
                 col.legend=col.legend, rlim=rlim, add=FALSE, do.par=do.par,
                 max.nterms=length(object$rss.per.subset),
                 max.npreds=max(get.nused.preds.per.subset(object$dirs, object$prune.terms)),
-                jitter=jitter, legend.pos=legend.pos, nresp,
+                jitter=0, legend.pos=legend.pos, nresp,
                 main=main, ...)
     }
     if(any(show[2:4])) {
@@ -210,7 +208,7 @@ plot.earth <- function(
     }
     if(show[2])
         plot.cum(residuals, main, xlim=range(abs(object$residuals)),
-                 col=1, col.grid, cum.grid, add=FALSE, ...)
+                 col=1, col.grid, cum.grid, add=FALSE, jitter=0, ...)
     if(any(show[3:4])) {
         id.indices <- get.id.indices()
         if(is.null(labels.id))
@@ -236,7 +234,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
                                 #   ""        no caption
                                 #   NULL      generate a caption from objects[1]$call
 
-    rlim        = c(0,1),       # min.max values on rsq and grsq plot, same as plot.earth
+    rlim        = c(0,1),       # min.max values on rsq and grsq plot, same as plot.earth (default different)
     jitter      = 0,            # non zero val allows overlaid plots to be visible
                                 # All the col arguments: if 0 don't plot this graph element
     col.grsq    = discrete.plot.cols(length(x)),
@@ -262,50 +260,48 @@ plot.earth.models <- function(  # compare earth models by plotting them
     {
         lty <- NULL
         col <- NULL
-        if(is.null(legend.text))
-            legend <- NULL
-        else
-            legend <- rep(legend.text, length.out=length(col.rsq) + length(col.grsq))
-        maxchars <- 20
-        args <- get.arg.strings(objects, maxchars)
+        args <- get.arg.strings(objects, maxchars=20)
+        legend <- rep(legend.text, length.out=length(objects)) # may be NULL
+        if(is.null(legend)) {
+            if(is.null(names(objects))) {
+                legend <- character(length=length(objects))
+                for(imodel in seq_along(objects))
+                    legend[imodel] <- paste(imodel, args[[imodel]])
+            } else
+                legend <- names(objects)
+        }
         if(col.rsq[1] != 0) {       # RSq plotted?
             col <- c(col, col.rsq)
             lty <- c(lty, rep(2, length.out=length(col)))
-            if(is.null(legend.text))
-                for(imodel in seq_along(objects))
-                    legend <- c(legend, paste(imodel, args[[imodel]]))
+            if(col.grsq[1] != 0)
+                legend1 <- paste("RSq", legend)
         }
         if(col.grsq[1] != 0) {      # GRSq plotted?
             col <- c(col, col.grsq)
             lty <- c(lty, rep(1, length.out=length(col)))
-            if(is.null(legend.text))
-                for(imodel in seq_along(objects))
-                    legend <- c(legend, paste(imodel, args[[imodel]]))
+            if(col.rsq[1] != 0)
+                legend <- c(legend1, paste("GRSq", legend))
         }
-        len.legend <- 2 * maxchars * strwidth("x", "figure")
+        legend.width <- 2 * max(strwidth(legend, "figure"))
         cex1 <- 1
         if(is.null(legend.pos)) {
-            ypos <- strheight("") * 1.1 * (length(legend) + 2)  # 2 for top and bot border
+            ypos <- strheight("M") * 1.3 * (length(legend) + 2) # 2 for top and bot border
             xpos <- max(xmax / 3)
             # If legend is too big relative to figure, then reduce char size and move left.
             # This is just a hack that seems to work most of the time.
-            if(len.legend > .9) {
+            if(legend.width > .9) {
                 cex1 <- .7
                 xpos <- max(xmax / 6)
                 ypos <- ypos * .8
-            } else if(len.legend > .6) {
+            } else if(legend.width > .6) {
                 cex1 <- .8
                 xpos <- max(xmax / 6)
                 ypos <- ypos * .8
             }
-        } else {                    # user specified legend position
-            if(length(legend.pos) < 2)
-                stop1("length(legend.pos) < 2")
+        } else { # user specified legend position
             xpos <- legend.pos[1]
-            ypos <- legend.pos[2]
-            if(xpos < 0 || xpos > xmax || ypos < 0 || ypos > 1.1)
-                warning1("out of range legend.pos")
-            if(len.legend > .6)
+            ypos <- if(length(legend.pos) > 1) legend.pos[2] else NULL
+            if(legend.width > .6)
                 cex1 <- .8
         }
         legend(x=xpos, y=ypos, bg="white", legend=legend, col=col, lty=lty, cex=cex1)
@@ -384,7 +380,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
                 do.par      = do.par,
                 max.nterms  = max.nterms,
                 max.npreds  = max.npreds,
-                jitter      = jitter,
+                jitter      = if(imodel>1) jitter else 0,
                 legend.pos  = NULL,
                 nresp       = NCOL(object[[imodel]]$residuals),
                 main        = if(imodel > 1) "" else main,
@@ -396,7 +392,13 @@ plot.earth.models <- function(  # compare earth models by plotting them
         multiple.responses <- FALSE
         xlim <- c(0,0)
         for(object in objects)
-            if(NCOL(object$residuals) > 1) {
+            if(is.null(object$residuals))
+                stop1("object has no $residuals field",
+                      if(substr(names(objects)[1], 1, 2) == "cv")
+                          ".  Use keepxy=TRUE in call to earth."
+                      else
+                          "")
+            else if(NCOL(object$residuals) > 1) {
                 multiple.responses <- TRUE
                 xlim <- range(xlim, abs(object$residuals[,1]))
             } else
@@ -417,11 +419,12 @@ plot.earth.models <- function(  # compare earth models by plotting them
                 col.grid  = 0,
                 cum.grid  = "none",
                 add       = (imodel > 1),
+                jitter    = if(imodel == 1) 0 else jitter,
                 pch       = 20,
                 ...)
         if(col.legend != 0 && length(objects) > 1)
             do.legend(xmax=xlim[2])
-        }
+    }
     show.caption(caption, trim=must.trim.caption)
     invisible()
 }
@@ -481,13 +484,9 @@ plot.earth.model <- function(   # show prune results and cumul distribution
         if(is.null(legend.pos)) {
             xpos <- max(1.5, max.nterms/2.5)
             ypos <- cex1 * strheight("") * 1.2 * (length(legend)+2)  # 2 for top + bot border
-        } else {
-            if(length(legend.pos) < 2)
-                stop1("length(legend.pos) < 2")
+        } else { # user specified legend position
             xpos <- legend.pos[1]
-            ypos <- legend.pos[2]
-            if(xpos < 0 || xpos > max.nterms || ypos < 0 || ypos > 1.1)
-                warning1("out of range legend.pos")
+            ypos <- if(length(legend.pos) > 1) legend.pos[2] else NULL
         }
         legend(x=xpos, y=ypos, bg="white", legend=legend, col=col, lty=lty, cex=cex1)
     }
@@ -568,8 +567,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     NULL
 }
 
-#------------------------------------------------------------------------------
-plot.cum <- function(           # plot cumulative distribution of absolute residuals
+plot.cum <- function( # plot cumulative distribution of absolute residuals
     residuals,
     main,
     xlim,
@@ -577,15 +575,20 @@ plot.cum <- function(           # plot cumulative distribution of absolute resid
     col.grid,
     cum.grid,
     add,
+    jitter,
     ...)
 {
     if(is.null(main))
         main <- "Cumulative Distribution"
     abs.residuals <- abs(residuals)
     cum <- ecdf(abs.residuals)
+    if(jitter > 0.05)
+       stop1("'jitter' ", jitter , " is too big, try something like jitter=0.01")
+    if(jitter > 0)
+        environment(cum)$"y" <- jitter(environment(cum)$"y", amount=2 * jitter)
     # col.points=0 gives a finer resolution graph (points are quite big regardless of pch)
     plot.stepfun(cum, add=add, main=main, xlab="abs(Residuals)", ylab="Proportion",
-            xlim=xlim, col.points=0, col.hor=col, col.vert=col, ...)
+                 xlim=xlim, col.points=0, col.hor=col, col.vert=col, ...)
     if(col.grid != 0 && !add) {
         ngrid <- match.choices(cum.grid[1], c("none", "grid", "percentages"), "cum.grid")
         if(ngrid >= 2) {
@@ -612,34 +615,32 @@ plot.cum <- function(           # plot cumulative distribution of absolute resid
     NULL
 }
 
-#------------------------------------------------------------------------------
 # check rlim specified by user, and convert special values in rlim to actual vals
 
 get.rlim <- function(object, rlim, col.grsq, col.rsq)
 {
     if(length(rlim) != 2)
         stop1("length(rlim) != 2")
-    if(rlim[2] <= rlim[1] && rlim[2] >= 0)
+    if(rlim[2] <= rlim[1] && rlim[2] != -1)
         stop1("rlim[2] <= rlim[1]")
     if(rlim[1] < -1 || rlim[1] >  1 || rlim[2] < -1 || rlim[2] >  1)
         stop1(paste(
             "illegal 'rlim' c(", rlim[1], ",", rlim[2], ")\n",
-            "Legal settings are from 0 to 1, with special values:\n",
+            "Legal settings are from -1 to 1, with special values:\n",
             "  rlim[1]=-1 means use min(RSq) or min(GRSq) excluding intercept)\n",
             "  rlim[2]=-1 means use max(RSq) or max(GRSq)\n", sep=""))
 
-    if(rlim[1] < 0 || rlim[2] < 0) {
+    if(rlim[1] == -1 || rlim[2] == -1) {
         grsq <- NULL
         if(col.grsq != 0)
             grsq <- get.rsq(object$gcv.per.subset, object$gcv.per.subset[1])
         rsq <- NULL
         if(col.rsq != 0)
             rsq <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
-        if(rlim[1] < 0)
+        if(rlim[1] == -1)
             rlim[1] <- min(grsq[-1], rsq[-1])
-        if(rlim[2] < 0)
+        if(rlim[2] == -1)
             rlim[2] <- max(grsq, rsq)
-
     }
     rlim
 }
@@ -649,8 +650,6 @@ plot.earth.prolog <- function(object, object.name)
 {
     check.classname(object, object.name, "earth")
     if(is.null(object$selected.terms))
-        stop1("cannot plot because $selected.terms component is NULL")
-    if(length(object$selected.terms) < 2)
-        stop1("cannot plot because there is only an intercept term")
-    NULL
+        stop1("plot.earth cannot plot ", object.name,
+              " because its $selected.terms is NULL")
 }

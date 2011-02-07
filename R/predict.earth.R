@@ -100,7 +100,7 @@ predict.earth <- function(
         env <- parent.frame()
         bx <- model.matrix.earth(object, x=newdata, env=env,
                                  trace=trace, Callers.name="predict.earth")
-        dirs <- object$dirs[object$selected.terms, ]
+        dirs <- object$dirs[object$selected.terms, , drop=FALSE]
         # retain only additive terms
         additive.terms <- get.degrees.per.term(dirs) == 1
         bx <- bx[, additive.terms, drop=FALSE]

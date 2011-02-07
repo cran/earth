@@ -174,6 +174,11 @@ z <- try(earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="bi"),
 if (class(z) != "try-error")
     stop("test failed")
 
+# plot.earth.models with cross validated models
+set.seed(1)
+a <- earth(survived ~ ., data=etitanic, nfold=3, keepxy=TRUE)
+plot.earth.models(a$cv.list, main="cross validated models")
+
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

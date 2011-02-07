@@ -212,19 +212,19 @@ fold 1 fold 2 fold 3   mean
      2      2      2      2 
 
 $cv.list
-$cv.list[[1]]
+$cv.list$cv1
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
 
-$cv.list[[2]]
+$cv.list$cv2
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 
-$cv.list[[3]]
+$cv.list$cv3
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
@@ -355,19 +355,19 @@ $namesx
 [1] "Girth"  "Height"
 
 $cv.list
-$cv.list[[1]]
+$cv.list$cv1
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
 
-$cv.list[[2]]
+$cv.list$cv2
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 
-$cv.list[[3]]
+$cv.list$cv3
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
@@ -1286,6 +1286,11 @@ Expect an error here > z <- try(earth(cbind(counts, counts2) ~ outcome + treatme
 Error : earth does not (yet) support cross validation of paired binomial responses
 > if (class(z) != "try-error")
 +     stop("test failed")
+> 
+> # plot.earth.models with cross validated models
+> set.seed(1)
+> a <- earth(survived ~ ., data=etitanic, nfold=3, keepxy=TRUE)
+> plot.earth.models(a$cv.list, main="cross validated models")
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

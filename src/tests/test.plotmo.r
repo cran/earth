@@ -570,6 +570,27 @@ plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass=
 plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"))
 plotmo(a, do.par=FALSE, type="earth", type2="image", degree1=FALSE, grid.levels=list(pclass="2nd"))
 
+# test vector main
+
+a20 <- earth(O3 ~ humidity + temp + doy, data=ozone1, degree=2, glm=list(family=Gamma))
+
+set.seed(1) # needed for nrug
+plotmo(a20, nrug=-1)
+
+set.seed(1) # needed for nrug
+plotmo(a20, nrug=-1, caption="Test plotmo with a vector main",
+       main=c("Humidity", "Temperature", "Day of year", "Humidity: Temperature", "Temperature: Day of Year"))
+
+set.seed(1) # needed for nrug
+cat("Expect warning below\n")
+plotmo(a20, nrug=-1, caption="Test plotmo with a vector main, missing double titles",
+       main=c("Humidity", "Temperature", "Day of year", "Humidity: Temperature"))
+
+set.seed(1) # needed for nrug
+cat("Expect warning below\n")
+plotmo(a20, nrug=-1, caption="Test plotmo with a vector main, missing single titles",
+       main=c("Humidity", "Temperature"))
+
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

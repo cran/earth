@@ -153,6 +153,8 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
         if(trace >= .5)
             trace.fold(ifold, trace, y, train.subset, test.subset, ndigits, rsq.tab[ifold,])
     }
+    names(list.) <- paste1("cv", 1:nfold)
+
     # init last row of summary tables
 
     ilast <- nfold+1 # index of final "mean" row in tables

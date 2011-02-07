@@ -1108,6 +1108,47 @@ Note: setting pclass in the degree2 grid to [1] 2nd
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
 > 
+> # test vector main
+> 
+> a20 <- earth(O3 ~ humidity + temp + doy, data=ozone1, degree=2, glm=list(family=Gamma))
+> 
+> set.seed(1) # needed for nrug
+> plotmo(a20, nrug=-1)
+
+ grid:    humidity temp   doy
+                64   62 205.5
+
+> 
+> set.seed(1) # needed for nrug
+> plotmo(a20, nrug=-1, caption="Test plotmo with a vector main",
++        main=c("Humidity", "Temperature", "Day of year", "Humidity: Temperature", "Temperature: Day of Year"))
+
+ grid:    humidity temp   doy
+                64   62 205.5
+
+> 
+> set.seed(1) # needed for nrug
+> cat("Expect warning below\n")
+Expect warning below
+> plotmo(a20, nrug=-1, caption="Test plotmo with a vector main, missing double titles",
++        main=c("Humidity", "Temperature", "Day of year", "Humidity: Temperature"))
+
+ grid:    humidity temp   doy
+                64   62 205.5
+
+Warning: not enough elements in "main" (there are more plots than strings in "main")
+> 
+> set.seed(1) # needed for nrug
+> cat("Expect warning below\n")
+Expect warning below
+> plotmo(a20, nrug=-1, caption="Test plotmo with a vector main, missing single titles",
++        main=c("Humidity", "Temperature"))
+
+ grid:    humidity temp   doy
+                64   62 205.5
+
+Warning: not enough elements in "main" (there are more plots than strings in "main")
+> 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot
 +     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

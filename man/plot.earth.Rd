@@ -15,7 +15,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
      col.vline = "grey", lty.vline = 3,
      col.legend = 1, col.npreds = 1,
      nresiduals = 1000, cum.grid = "percentages", rlim = c(-1,-1),
-     jitter = 0, id.n = 3, labels.id = rownames(residuals(x, warn=FALSE)),
+     id.n = 3, labels.id = rownames(residuals(x, warn=FALSE)),
      legend.pos = NULL, do.par = TRUE,
      main = NULL, pch = 1, \dots)
 }
@@ -110,11 +110,6 @@ Does \code{ycolumn} refer to the column in the observed or predicted response?
     Special value \code{max=-1} means the maximum y axis value
     is the largest GRSq or RSq value.
   }
-  \item{jitter}{
-    Jitter applied to GRSq and RSq values to minimize over-plotting.
-    Default is \code{0}, meaning no jitter.
-    A typical useful value is 0.01.
-  }
   \item{id.n}{
     Number of largest residuals to be labeled.  Default is \code{3}.
   }
@@ -122,8 +117,9 @@ Does \code{ycolumn} refer to the column in the observed or predicted response?
     Residual names.  Default is \code{rownames(residuals(x))}.
   }
   \item{legend.pos}{
-    \code{NULL} (default) means position legend automatically.  Else specify \code{c(x,y)}
-    in user coordinates.\cr
+    \code{NULL} (default) means position legend automatically.
+    Else specify \code{c(x,y)} in user coordinates, 
+    or use \code{"topleft"} etc. as explained in \code{\link{legend}}.\cr
 
      \emph{The following settings are related to \code{par()} and are included so you can override the defaults.}
   }

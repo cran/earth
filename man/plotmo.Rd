@@ -144,6 +144,8 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
      Number of points in (jittered) rug.
      Default is \code{0} meaning no rug.
      Special value \code{-1} for all, i.e., \code{nrow(x)}.
+     (For exact reproducibility, call \code{\link{set.seed}} before calling \code{plotmo}
+     so the random selection of points in the rug and the jittering is constant across invocations.)
   }
   \item{se}{
      Draw standard error bands at plus and minus \code{se} times the pointwise standard errors.
@@ -205,7 +207,7 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
     Set to \code{FALSE} if you want to append figures to an existing plot.
   }
   \item{main}{
-    Title of each plot.
+    A vector of titles, one for each plot.
     Default is \code{NULL}, meaning generate figure headings automatically.
   }
   \item{theta}{

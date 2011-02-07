@@ -7946,6 +7946,327 @@ residuals.earth binomial type=partial:
      `h(64-age)`
 1045   -1.114184
 1046   -1.160578
+> # intercept only model
+> 
+> cat("a.intercept.only: intercept only logistic model\n\n")
+a.intercept.only: intercept only logistic model
+
+> # This seed chosen so call to earth below has one predictor model in 1st
+> # cv fold and intercept-only in 2nd cv fold, that way we test both.
+> set.seed(3)
+> df <- data.frame(aaa = round(runif(18)), bbb = runif(18), ccc = rnorm(18))
+> a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial), nfold=2)
+> a.intercept.only <- earth(aaa ~ bbb + ccc, data = df, glm=list(family=binomial), trace=1)
+x is a 18 by 2 matrix: 1=bbb, 2=ccc
+y is a 18 by 1 matrix: 1=aaa
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+After forward pass GRSq -3.895 RSq 0.1701
+Prune method "backward" penalty 2 nprune 5: selected 1 of 5 terms, and 0 of 2 predictors
+After backward pass GRSq 0 RSq 0 
+earth.glm: intercept-only earth model, faking the glm model
+GLM aaa: null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+> print.earth.models(a.intercept.only)
+
+Print a.intercept.only 
+
+Earth selected 1 of 5 terms, and 0 of 2 predictors 
+Importance: bbb-unused, ccc-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+
+GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+
+Summary a.intercept.only 
+
+Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
+      trace=1)
+
+GLM coefficients
+                  aaa
+(Intercept) 0.6931472
+
+Earth selected 1 of 5 terms, and 0 of 2 predictors 
+Importance: bbb-unused, ccc-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+
+GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+
+Summary a.intercept.only decomp="none", digits=5, fixed.point=FALSE, details=TRUE
+
+Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
+      trace=1)
+
+Earth coefficients
+                aaa
+(Intercept) 0.66667
+
+GLM coefficients
+                aaa
+(Intercept) 0.69315
+
+GLM deviance residuals:
+     Min        1Q    Median        3Q       Max  
+-1.48230  -1.48230   0.90052   0.90052   0.90052  
+
+GLM coefficients (family binomial, link logit)
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)  0.69315    0.50000  1.3863   0.1657
+
+Number of cases: 18
+Earth selected 1 of 5 terms, and 0 of 2 predictors 
+Importance: bbb-unused, ccc-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+Earth GCV 0.24913    RSS 4    GRSq 0    RSq 0
+
+GLM null.deviance 22.915 (17 dof)   deviance 22.915 (17 dof)   iters 4
+
+evimp a.intercept.only 
+
+     col used nsubsets gcv  rss 
+
+evimp a.intercept.only trim=FALSE
+
+           col used nsubsets gcv   rss  
+bbb-unused   1    0        0   0 1   0 1
+ccc-unused   2    0        0   0 1   0 1
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
+
+plotmo a.intercept.only 
+Warning: 'a' appears to be an intercept only model
+Warning: plotmo: nothing to plot
+-------------------------------------------------------------------------------
+
+> cat("\nsummary(a.intercept.only, details=TRUE)\n\n", sep="")
+
+summary(a.intercept.only, details=TRUE)
+
+> print(summary(a.intercept.only, details=TRUE))
+Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
+      trace=1)
+
+Earth coefficients
+                  aaa
+(Intercept) 0.6666667
+
+GLM coefficients
+                  aaa
+(Intercept) 0.6931472
+
+GLM deviance residuals:
+       Min          1Q      Median          3Q         Max  
+-1.4823038  -1.4823038   0.9005166   0.9005166   0.9005166  
+
+GLM coefficients (family binomial, link logit)
+             Estimate Std. Error z value Pr(>|z|)
+(Intercept) 0.6931472  0.4999999 1.38629  0.16566
+
+Number of cases: 18
+Earth selected 1 of 5 terms, and 0 of 2 predictors 
+Importance: bbb-unused, ccc-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+
+GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+> printh(predict(a.intercept.only))
+=== predict(a.intercept.only)
+            aaa
+ [1,] 0.6931472
+ [2,] 0.6931472
+ [3,] 0.6931472
+ [4,] 0.6931472
+ [5,] 0.6931472
+ [6,] 0.6931472
+ [7,] 0.6931472
+ [8,] 0.6931472
+ [9,] 0.6931472
+[10,] 0.6931472
+[11,] 0.6931472
+[12,] 0.6931472
+[13,] 0.6931472
+[14,] 0.6931472
+[15,] 0.6931472
+[16,] 0.6931472
+[17,] 0.6931472
+[18,] 0.6931472
+> printh(predict(a.intercept.only, type="link"))
+=== predict(a.intercept.only, type = "link")
+            aaa
+ [1,] 0.6931472
+ [2,] 0.6931472
+ [3,] 0.6931472
+ [4,] 0.6931472
+ [5,] 0.6931472
+ [6,] 0.6931472
+ [7,] 0.6931472
+ [8,] 0.6931472
+ [9,] 0.6931472
+[10,] 0.6931472
+[11,] 0.6931472
+[12,] 0.6931472
+[13,] 0.6931472
+[14,] 0.6931472
+[15,] 0.6931472
+[16,] 0.6931472
+[17,] 0.6931472
+[18,] 0.6931472
+> printh(predict(a.intercept.only, type="response"))
+=== predict(a.intercept.only, type = "response")
+            aaa
+ [1,] 0.6666667
+ [2,] 0.6666667
+ [3,] 0.6666667
+ [4,] 0.6666667
+ [5,] 0.6666667
+ [6,] 0.6666667
+ [7,] 0.6666667
+ [8,] 0.6666667
+ [9,] 0.6666667
+[10,] 0.6666667
+[11,] 0.6666667
+[12,] 0.6666667
+[13,] 0.6666667
+[14,] 0.6666667
+[15,] 0.6666667
+[16,] 0.6666667
+[17,] 0.6666667
+[18,] 0.6666667
+> printh(predict(a.intercept.only, type="earth"))
+=== predict(a.intercept.only, type = "earth")
+            aaa
+ [1,] 0.6666667
+ [2,] 0.6666667
+ [3,] 0.6666667
+ [4,] 0.6666667
+ [5,] 0.6666667
+ [6,] 0.6666667
+ [7,] 0.6666667
+ [8,] 0.6666667
+ [9,] 0.6666667
+[10,] 0.6666667
+[11,] 0.6666667
+[12,] 0.6666667
+[13,] 0.6666667
+[14,] 0.6666667
+[15,] 0.6666667
+[16,] 0.6666667
+[17,] 0.6666667
+[18,] 0.6666667
+> g <- a.intercept.only$glm.list[[1]]
+> printh(predict(g, type="link"))
+=== predict(g, type = "link")
+        1         2         3         4         5         6         7         8 
+0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 
+        9        10        11        12        13        14        15        16 
+0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 0.6931472 
+       17        18 
+0.6931472 0.6931472 
+> printh(predict(g, type="response"))
+=== predict(g, type = "response")
+        1         2         3         4         5         6         7         8 
+0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 
+        9        10        11        12        13        14        15        16 
+0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 0.6666667 
+       17        18 
+0.6666667 0.6666667 
+> 
+> new.df <- df[3:5, ]
+> printh(predict(a.intercept.only, type="response"))
+=== predict(a.intercept.only, type = "response")
+            aaa
+ [1,] 0.6666667
+ [2,] 0.6666667
+ [3,] 0.6666667
+ [4,] 0.6666667
+ [5,] 0.6666667
+ [6,] 0.6666667
+ [7,] 0.6666667
+ [8,] 0.6666667
+ [9,] 0.6666667
+[10,] 0.6666667
+[11,] 0.6666667
+[12,] 0.6666667
+[13,] 0.6666667
+[14,] 0.6666667
+[15,] 0.6666667
+[16,] 0.6666667
+[17,] 0.6666667
+[18,] 0.6666667
+> printh(predict(a.intercept.only, newdata=new.df, trace=1, type="link"))
+=== predict(a.intercept.only, newdata = new.df, trace = 1, type = "link")get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 3 matrix: 1=aaa, 2=bbb, 3=ccc
+Contents of x are
+  aaa        bbb        ccc
+1   0 0.22820188 -0.5784837
+2   0 0.01532989 -0.9423007
+3   1 0.12898156 -0.2037282
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 2 matrix: 1=bbb, 2=ccc
+Contents of data after call to model.frame are
+         bbb        ccc
+1 0.22820188 -0.5784837
+2 0.01532989 -0.9423007
+3 0.12898156 -0.2037282
+predict.earth: bx is a 3 by 1 matrix: 1=(Intercept)
+Contents of bx are
+     (Intercept)
+[1,]           1
+[2,]           1
+[3,]           1
+predict.earth: returning glm link predictions
+
+           aaa
+[1,] 0.6931472
+[2,] 0.6931472
+[3,] 0.6931472
+> printh(predict(a.intercept.only, newdata=new.df, trace=1, type="response"))
+=== predict(a.intercept.only, newdata = new.df, trace = 1, type = "response")get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 3 matrix: 1=aaa, 2=bbb, 3=ccc
+Contents of x are
+  aaa        bbb        ccc
+1   0 0.22820188 -0.5784837
+2   0 0.01532989 -0.9423007
+3   1 0.12898156 -0.2037282
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 2 matrix: 1=bbb, 2=ccc
+Contents of data after call to model.frame are
+         bbb        ccc
+1 0.22820188 -0.5784837
+2 0.01532989 -0.9423007
+3 0.12898156 -0.2037282
+predict.earth: bx is a 3 by 1 matrix: 1=(Intercept)
+Contents of bx are
+     (Intercept)
+[1,]           1
+[2,]           1
+[3,]           1
+predict.earth: returning glm response predictions
+
+           aaa
+[1,] 0.6666667
+[2,] 0.6666667
+[3,] 0.6666667
+> printh(predict(a.intercept.only, newdata=new.df, type="earth"))
+=== predict(a.intercept.only, newdata = new.df, type = "earth")
+           aaa
+[1,] 0.6666667
+[2,] 0.6666667
+[3,] 0.6666667
+> printh(predict(a.intercept.only, newdata=new.df, type="class"))
+=== predict(a.intercept.only, newdata = new.df, type = "class")
+[1] TRUE TRUE TRUE
+> # cat("Expect Warning: predict.earth: returning the earth (not glm) terms\n")
+> printh(predict(a.intercept.only, newdata=new.df, type="terms"))
+=== predict(a.intercept.only, newdata = new.df, type = "terms")Warning: predict.earth: returning the earth (not glm) terms
+
+
+[1,]
+[2,]
+[3,]
+> 
+> plot.earth.models(list(a.intercept.only, a), main="plot.earth.models\nlist(a.intercept.only, a)")
+> plot.earth.models(list(a, a.intercept.only), main="plot.earth.models\nlist(a, a.intercept.only)", legend.pos="topleft", jitter=.01)
+> # nothing will plot for the next call
+> plot.earth.models(list(a.intercept.only, a.intercept.only), main="plot.earth.models\nlist(a.intercept.only, a.intercept.only)")
+> 
 > # misc tests
 > 
 > cat("---misc 1---\n")
