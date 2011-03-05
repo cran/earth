@@ -12,7 +12,7 @@ passenger names, and other details removed.
       \code{pclass}   \tab passenger class, unordered factor: 1st 2nd 3rd\cr
       \code{survived} \tab integer: 0 or 1\cr
       \code{sex}      \tab unordered factor: male female\cr
-      \code{age}      \tab age in years, double: min 0.167 max 80.0\cr
+      \code{age}      \tab age in years, min 0.167 max 80.0\cr
       \code{sibsp}    \tab number of siblings or spouses aboard, integer: 0...8\cr
       \code{parch}    \tab number of parents or children aboard, integer: 0...6\cr
   }

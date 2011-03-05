@@ -14,8 +14,9 @@ get.used.preds <- function(obj)   # obj is an earth object
 
 print.one.line.evimp <- function(obj) # obj is an "earth" obj
 {
+    if(is.null(obj$prune.terms)) # this occurs on mars.to.earth objects
+        return()
     evimp <- row.names(evimp(obj, trim=FALSE))
-
     cat("Importance: ")
     nprint <- min(10, length(evimp))
     if(nprint == 0)
@@ -34,6 +35,8 @@ evimp <- function(obj, trim=TRUE, sqrt.=FALSE) # see help page for description
     as.icriti <- function(icrit) c(3,4,6)[icrit]
 
     check.classname(obj, deparse(substitute(obj)), "earth")
+    if(is.null(obj$prune.terms)) # this occurs on mars.to.earth objects
+        stop1("object has no prune.terms, cannot get variable importances")
     nsubsets <- length(obj$selected.terms)
     dirs <- obj$dirs
     pred.names <- generate.colnames(dirs)
@@ -177,7 +180,7 @@ plot.evimp <- function(
     lines(max.subsets * x[,"rss"] / 100, type=type.rss, lty=lty.rss, col=col.rss)
     # plot gcv second so it goes on top of rss (gcv arguably more important than rss)
     lines(max.subsets * x[,"gcv"] / 100, type=type.gcv, lty=lty.gcv, col=col.gcv)
-    if(!is.null(x.legend) && x.legend != 0)
+    if(!is.null(x.legend) && !is.na.or.zero(x.legend))
         legend(x=x.legend, y = y.legend, xjust=1,   # top right corner by default
                legend=c("nsubsets", "gcv", "rss"),
                col=c(col.nsubsets, col.gcv, col.rss),

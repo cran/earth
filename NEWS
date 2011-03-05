@@ -1,6 +1,12 @@
 Changes to Earth Package
 ------------------------
 
+2.4-8  Mar 05 2011
+   plotmo now handles vector colors better
+   plotmo is now better at plotting lda and qda models
+   Added the jitter.response argument to plotmo
+   Moved plotmo method functions into a new file, plotmo.methods.R.
+
 2.4-7  Feb 02 2011
    Intercept-only models are now better supported, esp. for earth-glm  models.
    Martin Renner and Keith Woolner provided the impetus for this change.

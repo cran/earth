@@ -29,7 +29,6 @@ diff -w test.earthmain-gcc.out test.earthmain.out.save
 @if %errorlevel% neq 0 goto error
 
 @rm -f R.dll Rblas.dll iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll Rdll.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc.* *.o
-@rm -rf Debug
 @exit /B 0
 
 :error

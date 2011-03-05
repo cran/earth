@@ -181,7 +181,7 @@ a <- lm(Volume ~ Girth*Height, data = trees)
 cat(format(a))
 cat(format(a, colon.char="*"))
 cat("--- mars.to.earth.Rd ----------------------\n")
-example(mars.to.earth) # doesn't do anything
+example(mars.to.earth)
 library(mda)
 a <- mars(trees[,-3], trees[,3])
 a <- mars.to.earth(a)
