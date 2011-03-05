@@ -45,6 +45,14 @@ is.try.error <- function(obj)
 paste1 <- function(...) # paste with no added spaces
     paste(..., sep="")
 
+# is.na.or.zero's main purpose is to see if a plot component should be
+# drawn, i.e., to see if the component "has a color"
+# We use identical() and not is.na() below because is.na(x) gives warnings
+# for certain x's, e.g if x is a function, and x == 0 gives warnings if x
+# is a vector or a function etc.
+
+is.na.or.zero <- function(x) identical(x, NA) || identical(x, 0)
+
 warn.if.dots.used <- function(func.name, ...)
 {
     dots <- match.call(expand.dots = FALSE)$...

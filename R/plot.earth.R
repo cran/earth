@@ -93,7 +93,7 @@ plot.earth <- function(
     {
         plot.loess <- function()
         {
-            do.loess <- (col.loess != 0)
+            do.loess <- !is.na.or.zero(col.loess)
             if(length(unique(object$fitted.values[,1])) < 10)  # prevent warnings from loess
                 do.loess <- FALSE
             if(do.loess) {
@@ -385,7 +385,7 @@ plot.earth.models <- function(  # compare earth models by plotting them
                 nresp       = NCOL(object[[imodel]]$residuals),
                 main        = if(imodel > 1) "" else main,
                 ...)
-        if(col.legend != 0 && length(objects) > 1 && !show[2])
+        if(!is.na.or.zero(col.legend) && length(objects) > 1 && !show[2])
             do.legend(max.nterms)
     }
     if(show[2]) {
@@ -413,16 +413,16 @@ plot.earth.models <- function(  # compare earth models by plotting them
                             else if(multiple.responses) "Cumul Distrib (response 1)"
                             else                        "Cumulative Distribution",
                 xlim      = xlim,
-                col       = if(length(col.cum) > 1)         col.cum[imodel]
-                            else if(col.grsq[imodel] != 0)  col.grsq[imodel]
-                            else                            col.rsq[imodel],
+                col       = if(length(col.cum) > 1)                   col.cum[imodel]
+                            else if(!is.na.or.zero(col.grsq[imodel])) col.grsq[imodel]
+                            else                                      col.rsq[imodel],
                 col.grid  = 0,
                 cum.grid  = "none",
                 add       = (imodel > 1),
                 jitter    = if(imodel == 1) 0 else jitter,
                 pch       = 20,
                 ...)
-        if(col.legend != 0 && length(objects) > 1)
+        if(!is.na.or.zero(col.legend) && length(objects) > 1)
             do.legend(xmax=xlim[2])
     }
     show.caption(caption, trim=must.trim.caption)
@@ -460,9 +460,9 @@ plot.earth.model <- function(   # show prune results and cumul distribution
         lty <- 1
         col <- 1
         legend <- NULL
-        if(col.grsq != 0)
+        if(!is.na.or.zero(col.grsq))
             legend <- "GRSq"
-        if(col.rsq != 0) {
+        if(!is.na.or.zero(col.rsq)) {
             # figure out if grsq plot obscures rsq plot so legend can say so
 
             i <- rsqVec >= rlim[1] & rsqVec <= rlim[2]
@@ -475,7 +475,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
             col <- c(col, col.rsq)
             lty <- c(lty, 1)
         }
-        if(col.npreds != 0) {
+        if(!is.na.or.zero(col.npreds)) {
             legend <- c(legend, "Nbr preds")
             col <- c(col, col.npreds)
             lty <- c(lty, 3)
@@ -495,7 +495,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
         Pretty <- pretty(c(rlim[1], rlim[2]))
         if(length(Pretty) >= 2) # test to prevent "no locations are finite" error
             axis(side=2, at=scale1(Pretty, rlim[1], rlim[2]), labels=Pretty, srt=90)
-        if(col.rsq != 0)        #TODO mtext needs cex=par("cex"), not sure why
+        if(!is.na.or.zero(col.rsq)) # TODO mtext needs cex=par("cex"), not sure why
             mtext("GRSq  RSq", side=2, line=1.6, cex=par("cex"))
         else
             mtext("GRSq", side=2, line=1.6, cex=par("cex"))
@@ -535,13 +535,13 @@ plot.earth.model <- function(   # show prune results and cumul distribution
     if(jitter > 0.05)
         stop1("'jitter' ", jitter , " is too big, try something like jitter=0.01")
     if(!add) {
-        if(do.par && col.npreds != 0)
+        if(do.par && !is.na.or.zero(col.npreds))
             make.space.for.right.axis()
         # set up so vertical scale is 0..1, horizontal is 0..max.nterms
         plot(0:max.nterms, (0:max.nterms)/max.nterms,
             type="n", main=main, xlab="Number of terms", ylab="", yaxt="n")
         left.axis()
-        if(col.npreds != 0)
+        if(!is.na.or.zero(col.npreds))
             right.axis()
     }
     plot.nused.preds()
@@ -562,7 +562,7 @@ plot.earth.model <- function(   # show prune results and cumul distribution
         grsqVec <- jitter(grsqVec, amount=jitter)
     lines(scale1(grsqVec, rlim[1], rlim[2]), col=col.grsq)
 
-    if(col.legend != 0)
+    if(!is.na.or.zero(col.legend))
         do.legend()
     NULL
 }
@@ -589,7 +589,7 @@ plot.cum <- function( # plot cumulative distribution of absolute residuals
     # col.points=0 gives a finer resolution graph (points are quite big regardless of pch)
     plot.stepfun(cum, add=add, main=main, xlab="abs(Residuals)", ylab="Proportion",
                  xlim=xlim, col.points=0, col.hor=col, col.vert=col, ...)
-    if(col.grid != 0 && !add) {
+    if(!is.na.or.zero(col.grid) && !add) {
         ngrid <- match.choices(cum.grid[1], c("none", "grid", "percentages"), "cum.grid")
         if(ngrid >= 2) {
             # add annotated grid lines, unattractive but useful
@@ -632,10 +632,10 @@ get.rlim <- function(object, rlim, col.grsq, col.rsq)
 
     if(rlim[1] == -1 || rlim[2] == -1) {
         grsq <- NULL
-        if(col.grsq != 0)
+        if(!is.na.or.zero(col.grsq))
             grsq <- get.rsq(object$gcv.per.subset, object$gcv.per.subset[1])
         rsq <- NULL
-        if(col.rsq != 0)
+        if(!is.na.or.zero(col.rsq))
             rsq <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
         if(rlim[1] == -1)
             rlim[1] <- min(grsq[-1], rsq[-1])

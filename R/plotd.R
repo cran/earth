@@ -181,7 +181,7 @@ plotd <- function(obj,      # obj is a model object
         plot(densities[[ifirst]], xlim=xlim, ylim=c(0, ymax), col=col[ifirst],
              main=main, xlab=xlab, ylab=ylab, lty=lty[ifirst],
              zero.line=zero.line, xaxt=xaxt, yaxt=yaxt)
-        if(ifirst == 1 && fill != 0)
+        if(ifirst == 1 && !is.na.or.zero(fill))
             polygon(densities[[1]], col=fill, border=col[1])
     }
     if(draw.own.axis) {
@@ -192,7 +192,7 @@ plotd <- function(obj,      # obj is a model object
     }
     # optional error region shading
 
-    if(!hist && any(err.col != 0))
+    if(!hist && any1(err.col))
         add.err.col(densities, err.thresh, err.col, err.border, err.lwd)
 
     # overlay the graphs
@@ -209,13 +209,13 @@ plotd <- function(obj,      # obj is a model object
         }
     # optional vertical line at vline.thresh
 
-    if(!is.null(vline.col) && vline.col != 0)
+    if(!is.null(vline.col) && !is.na.or.zero(vline.col))
         abline(v=vline.thresh, col=vline.col, lty=vline.lty, lwd=vline.lwd)
 
     # Redo optional error region shading if it has borders, because the
     # borders go on top of the other plotted lines.
 
-    if(any(err.border != 0))
+    if(any1(err.border))
         add.err.col(densities, err.thresh, err.col, err.border, err.lwd)
 
     # optional legend
@@ -237,20 +237,12 @@ is.lda.or.qda <- function(obj) # allows hacks for lda and qda specific code
 
 get.lda.yhat <- function(yhat, type, trace)
 {
-    if(trace)
-        cat("\nSpecial handling of \"type\" argument for lda or qda object\n")
-
     yhat1 <- switch(match.choices(type,
                          c("response", "ld", "class", "posterior"), "type"),
            yhat$x,              # response (default)
            yhat$x,              # ld
            yhat$class,          # class
            yhat$posterior)      # posterior
-
-        msg <- paste(
-            if(!is.null(yhat$x9)) "type=\"response\" " else "",
-            if(!is.null(yhat$class9)) "type=\"class\" " else "",
-            if(!is.null(yhat$posterior9)) "type=\"posterior\" " else "", sep="")
 
     if(is.null(yhat1)) {
         msg <- paste(
@@ -411,8 +403,11 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
     if(!is.na(pmatch(type, "terms")))
         stop1("type=\"terms\" is not allowed by plotd")
     yhat <- predict(obj, type=type, ...)
-    if(is.lda.or.qda(obj))
+    if(is.lda.or.qda(obj)) {
+        if(trace)
+            cat("\nSpecial handling of \"type\" argument for lda or qda object\n")
         yhat <- get.lda.yhat(yhat, type, trace)
+    }
     if(trace)
         print.matrix.info("yhat", yhat, "\nPredicted response",
                           details=TRUE, all.rows=trace>1, all.names=trace>=2)
@@ -619,7 +614,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
             legend.names[iclass] <- paste(legend.names[iclass], "(not plotted)")
     lwd <- rep(1, nclasses)
     # if the first histogram is filled in, then make its legend lwd bigger
-    if(fill==col[1] && fill != "white" && fill != 0)
+    if(fill[1]==col[1] && fill[1] != "white" && fill[1] != 0)
         lwd[1] <- 4
 
     if(legend.extra)
@@ -655,7 +650,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
         lwd[2] <- lwd[1]
     if(length(lwd) < 3)
         lwd[3] <- lwd[iden]
-    if(col[1] != 0 || border[1] != 0) {
+    if(!is.na.or.zero(col[1]) || !is.na.or.zero(border[1])) {
         # left side of threshold
         matches <- den2$x < thresh
         if(sum(matches)) {
@@ -668,7 +663,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             polygon(x, y, col=col[1], border=border[1], lwd=lwd[1])
         }
     }
-    if(col[2] != 0 || border[2] != 0) {
+    if(!is.na.or.zero(col[2]) || !is.na.or.zero(border[2])) {
         # right side of threshold
         matches <- den1$x > thresh
         if(sum(matches)) {
@@ -681,7 +676,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             polygon(x, y, col=col[2], border=border[2], lwd=lwd[2])
         }
     }
-    if(col[3] != 0 || border[3] != 0) {
+    if(!is.na.or.zero(col[3]) || !is.na.or.zero(border[3])) {
         if(iden == 1) {
             # reducible error, left side of threshold
             # get indices i1 of den1 and i2 of den2 where den1 crosses den2

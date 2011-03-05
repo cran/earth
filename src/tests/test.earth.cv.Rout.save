@@ -3,6 +3,8 @@
 > library(earth)
 Loading required package: leaps
 Loading required package: plotrix
+Warning message:
+package 'plotrix' was built under R version 2.12.1 
 > if(!interactive())
 +     postscript(paper="letter")
 > data(ozone1)
@@ -214,19 +216,16 @@ fold 1 fold 2 fold 3   mean
 $cv.list
 $cv.list$cv1
 Selected 4 of 5 terms, and 2 of 2 predictors 
-Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
 
 $cv.list$cv2
 Selected 4 of 5 terms, and 2 of 2 predictors 
-Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 
 $cv.list$cv3
 Selected 4 of 5 terms, and 2 of 2 predictors 
-Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 17.92712    RSS 167.3198    GRSq 0.910795    RSq 0.9562895
 
@@ -357,19 +356,16 @@ $namesx
 $cv.list
 $cv.list$cv1
 Selected 4 of 5 terms, and 2 of 2 predictors 
-Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
 
 $cv.list$cv2
 Selected 4 of 5 terms, and 2 of 2 predictors 
-Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 
 $cv.list$cv3
 Selected 4 of 5 terms, and 2 of 2 predictors 
-Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 17.92712    RSS 167.3198    GRSq 0.910795    RSq 0.9562895
 
@@ -691,7 +687,6 @@ Note: plotmo cannot use factors as axes for degree2 plots,
 > printh(a6$cv.list[[2]])
 === a6$cv.list[[2]]
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
-Importance: pclass2nd, pclass3rd, sexmale, age, sibsp, parch
 Number of terms at each degree of interaction: 1 2 6
 Earth GCV 0.1427513    RSS 92.45144    GRSq 0.4131453    RSq 0.4467688
 
@@ -713,7 +708,6 @@ sexmale * h(14-age)     0.32446563
 sexmale * h(age-32)    -0.03882517
 
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
-Importance: pclass2nd, pclass3rd, sexmale, age, sibsp, parch
 Number of terms at each degree of interaction: 1 2 6
 Earth GCV 0.1427513    RSS 92.45144    GRSq 0.4131453    RSq 0.4467688
 

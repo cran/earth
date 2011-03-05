@@ -21,6 +21,8 @@
 > library(earth)
 Loading required package: leaps
 Loading required package: plotrix
+Warning message:
+package 'plotrix' was built under R version 2.12.1 
 > data(ozone1)
 > options(warn=1) # print warnings as they occur
 > if(!interactive())
@@ -308,7 +310,8 @@ Warning: plotmo: Can't clip y to 18 to 118
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.7-0. For overview type 'help("mgcv-package")'.
+Warning: package 'mgcv' was built under R version 2.12.1
+This is mgcv 1.7-3. For overview type 'help("mgcv-package")'.
 > set.seed(1)
 > caption <- "test plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -377,21 +380,21 @@ This is mgcv 1.7-0. For overview type 'help("mgcv-package")'.
 > plot(a, select=2)
 > plot(a, select=4)
 > 
-> detach("package:mgcv")
-> library(gam)
-Loading required package: splines
-Loading required package: akima
-> caption <- "test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-> set.seed(1)
-> dopar(3,2,caption)
-                              test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality) 
-> data(airquality)
-> airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-> a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, trace=Trace)
-> # termplot gives fishy looking wind plot, plotmo looks ok
-> # termplot(a) #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-> detach("package:gam")
+> # TODO Following commented out because it no longer works:
+> #     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
+> #         NA/NaN/Inf in foreign function call (arg 6)
+> # detach("package:mgcv")
+> # library(gam)
+> # caption <- "test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
+> # set.seed(1)
+> # dopar(3,2,caption)
+> # data(airquality)
+> # airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
+> # a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
+> # plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, trace=Trace)
+> # # termplot gives fishy looking wind plot, plotmo looks ok
+> # # termplot(a) #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
+> # detach("package:gam")
 > 
 > library(mda)
 Loading required package: class
@@ -559,7 +562,6 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 > if(length(grep("package:gam", search())))
 +     detach("package:gam")
 > library(mgcv)
-This is mgcv 1.7-0. For overview type 'help("mgcv-package")'.
 > set.seed(1)
 > caption <- "test se=2, plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
 > dopar(3,2,caption)
@@ -585,26 +587,21 @@ This is mgcv 1.7-0. For overview type 'help("mgcv-package")'.
 > plot(a, select=2)
 > plot(a, select=3)
 > 
-> detach("package:mgcv")
-> library(gam)
-> set.seed(1)
-> caption <- "test se=2, gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-> dopar(3,2,caption)
-                              test se=2, gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality) 
-> data(airquality)
-> airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-> a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-> cat("Ignore three warnings: No standard errors (currently) for gam predictions with newdata\n")
-Ignore three warnings: No standard errors (currently) for gam predictions with newdata
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
-Warning in newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
-  No standard errors (currently) for gam predictions with newdata
-Warning in newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
-  No standard errors (currently) for gam predictions with newdata
-Warning in newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
-  No standard errors (currently) for gam predictions with newdata
-> # termplot(a)  #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-> detach("package:gam")
+> # TODO Following commented out because it no longer works:
+> #     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
+> #         NA/NaN/Inf in foreign function call (arg 6)
+> # detach("package:mgcv")
+> # library(gam)
+> # set.seed(1)
+> # caption <- "test se=2, gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
+> # dopar(3,2,caption)
+> # data(airquality)
+> # airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
+> # a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
+> # cat("Ignore three warnings: No standard errors (currently) for gam predictions with newdata\n")
+> # plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
+> # # termplot(a)  #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
+> # detach("package:gam")
 > 
 > # test factors by changing wind to a factor
 > 
@@ -673,7 +670,6 @@ Warning in newdata.predict.gam(object, newdata, type, dispersion, se.fit,  :
 +    detach("package:gam")
 > caption <- "test wind=factor, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
 > library(mgcv)
-This is mgcv 1.7-0. For overview type 'help("mgcv-package")'.
 > a <- gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)
 > plotmo(a, se=1, caption=caption, trace=Trace)
 
@@ -1081,7 +1077,7 @@ Note: plotmo cannot use factors as axes for degree2 plots,
 > plotmo(a, type="earth", ylim=c(0, 1), caption="type=\"earth\" plotmo glm with mixed fac and non-fac degree2 terms")
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
-> plotmo(a, type="link", ylim=c(0, 1), caption="type=\"link\" plotmo glm with mixed fac and non-fac degree2 terms")
+> plotmo(a, type="link", ylim=c(0, 1), clip=FALSE, caption="type=\"link\" plotmo glm with mixed fac and non-fac degree2 terms")
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
 > plotmo(a, type="class", ylim=c(0, 1), caption="type=\"class\" plotmo glm with mixed fac and non-fac degree2 terms")
@@ -1099,7 +1095,8 @@ Note: plotmo cannot use factors as axes for degree2 plots,
 Note: setting pclass in the degree2 grid to [1] 2nd
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
-> plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"))
+> plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"),
++        col.response=as.numeric(etitanic$survived)+2, pch.response=20)
 Note: setting pclass in the degree2 grid to [1] 2nd
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
@@ -1107,6 +1104,343 @@ Note: plotmo cannot use factors as axes for degree2 plots,
 Note: setting pclass in the degree2 grid to [1] 2nd
 Note: plotmo cannot use factors as axes for degree2 plots,
       so skipping degree2 plots for: pclass
+> 
+> # test lda and qda, and also col.response, pch.response, and jitter.response
+> library(MASS)
+> etitanic2 <- etitanic
+> etitanic2$pclass <- as.numeric(etitanic$pclass)
+> etitanic2$sex <- as.numeric(etitanic$sex)
+> etitanic2$sibsp <- NULL
+> etitanic2$parch <- NULL
+> lda.model <- lda(survived ~ ., data=etitanic2)
+> set.seed(7)
+> plotmo(lda.model, caption="lda", trace=1, clip=F,
++        col.response=as.numeric(etitanic2$survived)+2, type="posterior",
++        degree2="all", type2="image")
+
+--get.plotmo.x
+
+formula survived ~ .
+stripped formula survived~.
+get.formula.data: got x from data passed to original call to lda 
+about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
+got x with colnames from object$call$formula
+x[1046,3]
+  pclass sex     age
+1      1   1 29.0000
+2      1   2  0.9167
+3      1   1  2.0000
+is.factor FALSE FALSE FALSE 
+
+--get.plotmo.y
+
+formula survived ~ .
+stripped formula survived~.
+get.formula.data: got y from data passed to original call to lda 
+about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
+got y from object$call$formula
+get.plotmo.y returned length 1046 min 0 max 1 values 1 1 0 0 0 1 1 0 1 0 ...
+
+--get.singles
+
+singles: 1 pclass, 2 sex, 3 age 
+
+--get.pairs
+
+pairs:
+     [,1]       [,2]   
+[1,] "1 pclass" "2 sex"
+[2,] "1 pclass" "3 age"
+[3,] "2 sex"    "3 age"
+
+--plot1(draw.plot=FALSE) ntrace 2
+
+ grid:    pclass sex age
+               2   2  28
+
+
+plotmo.predict for predictor "pclass" with newdata[500,3]:
+    pclass sex age
+1 1.000000   2  28
+2 1.004008   2  28
+3 1.008016   2  28
+plotmo.predict returned length 500 min 0.5689119 max 0.935202 values 0.5689119 0.5700872 0.5712617 0.5724354 0.5736083 0.5747803 0.5759515 0.5771219 0.5782914 0.57946 ...
+
+plotmo.predict for predictor "sex" with newdata[500,3]:
+  pclass      sex age
+1      2 1.000000  28
+2      2 1.002004  28
+3      2 1.004008  28
+plotmo.predict returned length 500 min 0.1489949 max 0.8135813 values 0.1489949 0.1498139 0.1506366 0.1514631 0.1522932 0.1531271 0.1539647 0.1548061 0.1556512 0.1565001 ...
+
+plotmo.predict for predictor "age" with newdata[500,3]:
+  pclass sex       age
+1      2   2 0.1667000
+2      2   2 0.3266866
+3      2   2 0.4866732
+plotmo.predict returned length 500 min 0.6286389 max 0.9624145 values 0.6286389 0.6299089 0.631177 0.6324434 0.633708 0.6349707 0.6362315 0.6374905 0.6387476 0.6400028 ...
+
+--plot2(draw.plot=FALSE)
+
+plotmo.predict for predictors "pclass" and "sex" with newdata[400,3]:
+    pclass sex age
+1 1.000000   1  28
+2 1.105263   1  28
+3 1.210526   1  28
+inverse.func returned length 400 min 0.05028077 max 0.935202 values 0.05028077 0.05664467 0.06375996 0.0717011 0.08054619 0.09037618 0.1012737 0.1133216 0.1266008 0.1411883 ...
+
+plotmo.predict for predictors "pclass" and "age" with newdata[400,3]:
+    pclass sex    age
+1 1.000000   2 0.1667
+2 1.105263   2 0.1667
+3 1.210526   2 0.1667
+inverse.func returned length 400 min 0.338574 max 0.9883285 values 0.338574 0.3673141 0.3970294 0.4275243 0.45858 0.4899609 0.5214211 0.5527123 0.5835914 0.6138282 ...
+
+plotmo.predict for predictors "sex" and "age" with newdata[400,3]:
+  pclass      sex    age
+1      2 1.000000 0.1667
+2      2 1.052632 0.1667
+3      2 1.105263 0.1667
+inverse.func returned length 400 min 0.06359133 max 0.9624145 values 0.06359133 0.0744463 0.0869821 0.1013975 0.1178935 0.1366650 0.1578903 0.1817183 0.2082531 0.2375377 ...
+
+initialized ylims 0 1 
+
+--plot1(draw.plot=TRUE) ntrace 1
+
+--plot2(draw.plot=TRUE)
+> set.seed(8)
+> plotmo(lda.model, caption="lda with jitter", trace=1, clip=F,
++        col.response=as.numeric(etitanic2$survived)+2, type="posterior",
++        degree2="all", type2="image", jitter.response=1)
+
+--get.plotmo.x
+
+formula survived ~ .
+stripped formula survived~.
+get.formula.data: got x from data passed to original call to lda 
+about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
+got x with colnames from object$call$formula
+x[1046,3]
+  pclass sex     age
+1      1   1 29.0000
+2      1   2  0.9167
+3      1   1  2.0000
+is.factor FALSE FALSE FALSE 
+
+--get.plotmo.y
+
+formula survived ~ .
+stripped formula survived~.
+get.formula.data: got y from data passed to original call to lda 
+about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
+got y from object$call$formula
+get.plotmo.y returned length 1046 min 0 max 1 values 1 1 0 0 0 1 1 0 1 0 ...
+
+--get.singles
+
+singles: 1 pclass, 2 sex, 3 age 
+
+--get.pairs
+
+pairs:
+     [,1]       [,2]   
+[1,] "1 pclass" "2 sex"
+[2,] "1 pclass" "3 age"
+[3,] "2 sex"    "3 age"
+
+--plot1(draw.plot=FALSE) ntrace 2
+
+ grid:    pclass sex age
+               2   2  28
+
+
+plotmo.predict for predictor "pclass" with newdata[500,3]:
+    pclass sex age
+1 1.000000   2  28
+2 1.004008   2  28
+3 1.008016   2  28
+plotmo.predict returned length 500 min 0.5689119 max 0.935202 values 0.5689119 0.5700872 0.5712617 0.5724354 0.5736083 0.5747803 0.5759515 0.5771219 0.5782914 0.57946 ...
+
+plotmo.predict for predictor "sex" with newdata[500,3]:
+  pclass      sex age
+1      2 1.000000  28
+2      2 1.002004  28
+3      2 1.004008  28
+plotmo.predict returned length 500 min 0.1489949 max 0.8135813 values 0.1489949 0.1498139 0.1506366 0.1514631 0.1522932 0.1531271 0.1539647 0.1548061 0.1556512 0.1565001 ...
+
+plotmo.predict for predictor "age" with newdata[500,3]:
+  pclass sex       age
+1      2   2 0.1667000
+2      2   2 0.3266866
+3      2   2 0.4866732
+plotmo.predict returned length 500 min 0.6286389 max 0.9624145 values 0.6286389 0.6299089 0.631177 0.6324434 0.633708 0.6349707 0.6362315 0.6374905 0.6387476 0.6400028 ...
+
+--plot2(draw.plot=FALSE)
+
+plotmo.predict for predictors "pclass" and "sex" with newdata[400,3]:
+    pclass sex age
+1 1.000000   1  28
+2 1.105263   1  28
+3 1.210526   1  28
+inverse.func returned length 400 min 0.05028077 max 0.935202 values 0.05028077 0.05664467 0.06375996 0.0717011 0.08054619 0.09037618 0.1012737 0.1133216 0.1266008 0.1411883 ...
+
+plotmo.predict for predictors "pclass" and "age" with newdata[400,3]:
+    pclass sex    age
+1 1.000000   2 0.1667
+2 1.105263   2 0.1667
+3 1.210526   2 0.1667
+inverse.func returned length 400 min 0.338574 max 0.9883285 values 0.338574 0.3673141 0.3970294 0.4275243 0.45858 0.4899609 0.5214211 0.5527123 0.5835914 0.6138282 ...
+
+plotmo.predict for predictors "sex" and "age" with newdata[400,3]:
+  pclass      sex    age
+1      2 1.000000 0.1667
+2      2 1.052632 0.1667
+3      2 1.105263 0.1667
+inverse.func returned length 400 min 0.06359133 max 0.9624145 values 0.06359133 0.0744463 0.0869821 0.1013975 0.1178935 0.1366650 0.1578903 0.1817183 0.2082531 0.2375377 ...
+
+initialized ylims 0 1 
+
+--plot1(draw.plot=TRUE) ntrace 1
+
+--plot2(draw.plot=TRUE)
+> qda.model <- qda(survived ~ ., data=etitanic2)
+> set.seed(9)
+> plotmo(qda.model, caption="qda with jitter", trace=1, clip=F,
++        col.response=as.numeric(etitanic2$survived)+2, type="posterior",
++        degree2="all", type2="image", jitter.resp=.5, pch.resp=20)
+
+--get.plotmo.x
+
+formula survived ~ .
+stripped formula survived~.
+get.formula.data: got x from data passed to original call to qda 
+about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
+got x with colnames from object$call$formula
+x[1046,3]
+  pclass sex     age
+1      1   1 29.0000
+2      1   2  0.9167
+3      1   1  2.0000
+is.factor FALSE FALSE FALSE 
+
+--get.plotmo.y
+
+formula survived ~ .
+stripped formula survived~.
+get.formula.data: got y from data passed to original call to qda 
+about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
+got y from object$call$formula
+get.plotmo.y returned length 1046 min 0 max 1 values 1 1 0 0 0 1 1 0 1 0 ...
+
+--get.singles
+
+singles: 1 pclass, 2 sex, 3 age 
+
+--get.pairs
+
+pairs:
+     [,1]       [,2]   
+[1,] "1 pclass" "2 sex"
+[2,] "1 pclass" "3 age"
+[3,] "2 sex"    "3 age"
+
+--plot1(draw.plot=FALSE) ntrace 2
+
+ grid:    pclass sex age
+               2   2  28
+
+
+plotmo.predict for predictor "pclass" with newdata[500,3]:
+    pclass sex age
+1 1.000000   2  28
+2 1.004008   2  28
+3 1.008016   2  28
+plotmo.predict returned length 500 min 0.5863964 max 0.9082776 values 0.5863964 0.5878098 0.5892199 0.5906267 0.59203 0.5934301 0.5948267 0.5962199 0.5976097 0.5989961 ...
+
+plotmo.predict for predictor "sex" with newdata[500,3]:
+  pclass      sex age
+1      2 1.000000  28
+2      2 1.002004  28
+3      2 1.004008  28
+plotmo.predict returned length 500 min 0.0979003 max 0.826765 values 0.0979003 0.09886416 0.09983528 0.1008137 0.1017994 0.1027924 0.1037927 0.1048004 0.1058155 0.106838 ...
+
+plotmo.predict for predictor "age" with newdata[500,3]:
+  pclass sex       age
+1      2   2 0.1667000
+2      2   2 0.3266866
+3      2   2 0.4866732
+plotmo.predict returned length 500 min 0.4617214 max 0.9272462 values 0.4617214 0.4647778 0.4678299 0.4708773 0.47392 0.4769576 0.4799898 0.4830166 0.4860376 0.4890526 ...
+
+--plot2(draw.plot=FALSE)
+
+plotmo.predict for predictors "pclass" and "sex" with newdata[400,3]:
+    pclass sex age
+1 1.000000   1  28
+2 1.105263   1  28
+3 1.210526   1  28
+inverse.func returned length 400 min 0.01318245 max 0.9082776 values 0.01318245 0.01675264 0.02115758 0.02655039 0.03309903 0.0409833 0.05039007 0.06150656 0.0745115 0.08956434 ...
+
+plotmo.predict for predictors "pclass" and "age" with newdata[400,3]:
+    pclass sex    age
+1 1.000000   2 0.1667
+2 1.105263   2 0.1667
+3 1.210526   2 0.1667
+inverse.func returned length 400 min 0.1587544 max 0.9463507 values 0.1587544 0.1846193 0.2127288 0.2428512 0.2746754 0.3078247 0.341875 0.3763776 0.4108831 0.4449636 ...
+
+plotmo.predict for predictors "sex" and "age" with newdata[400,3]:
+  pclass      sex    age
+1      2 1.000000 0.1667
+2      2 1.052632 0.1667
+3      2 1.105263 0.1667
+inverse.func returned length 400 min 0.03722567 max 0.9271873 values 0.03722567 0.04707352 0.05886001 0.0727544 0.088877 0.1072814 0.1279392 0.1507298 0.1754376 0.2017574 ...
+
+initialized ylims 0 1 
+
+--plot1(draw.plot=TRUE) ntrace 1
+
+--plot2(draw.plot=TRUE)
 > 
 > # test vector main
 > 

@@ -3,6 +3,8 @@
 > library(earth)
 Loading required package: leaps
 Loading required package: plotrix
+Warning message:
+package 'plotrix' was built under R version 2.12.1 
 > if(!interactive())
 +     postscript(paper="letter")
 > options(warn=1) # print warnings as they occur

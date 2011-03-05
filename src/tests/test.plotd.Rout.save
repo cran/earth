@@ -3,6 +3,8 @@
 > library(earth)
 Loading required package: leaps
 Loading required package: plotrix
+Warning message:
+package 'plotrix' was built under R version 2.12.1 
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -265,7 +267,7 @@ predicted.response.per.class[as.numeric(sex) != 1]: 1.212219 1.723106 1.385648 1
 ===rpart
 > library(rpart); library(earth); data(etitanic)
 Warning message:
-package 'rpart' was built under R version 2.12.1 
+package 'rpart' was built under R version 2.12.2 
 > rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
 > # note that plotd's default type="response" is not accepted by rpart
 > plotd(rpart.model, type="prob", nresponse=1)

@@ -10,7 +10,8 @@ plotmo(object = stop("no 'object' arg"),
        degree1 = TRUE, degree2 = TRUE, ycolumn = 1, type="response",
        caption = if(do.par) NULL else "",
        ylim = NULL, clip = TRUE, inverse.func = NULL,
-       col.response = 0, pch.response = 1, trace = FALSE,
+       col.response = 0, pch.response = 1, jitter.response=0,
+       trace = FALSE,
        grid.func = median, grid.levels = NULL,
        ndegree1 = 500, lty.degree1 = 1, col.degree1 = 1,
        se = 0, col.shade = "lightblue", col.se = 0, lty.se = 2,
@@ -86,6 +87,8 @@ You will need the \code{ycolumn} argument if your model has multiple responses.
   \item{clip}{
      Plot only values that are in the range of the response of the original data.
      Default is \code{TRUE}.
+     If the display is artificially jagged, try using \code{clip=FALSE}
+     (the jagginess is probably an artifact of the way  \code{\link{persp}} works.)
   }
   \item{inverse.func}{
      Function applied to the predicted response before plotting.
@@ -100,11 +103,19 @@ You will need the \code{ycolumn} argument if your model has multiple responses.
      Color of response values (actually, the response sites in degree2 plots).
      Here "response" refers to the original data used to build the model.
      Default is 0, meaning don't plot the response.
+     Can be a vector, for example,xb \code{col.response=as.numeric(survived)+2}.
      Ignored by \code{persp} plots.
   }
   \item{pch.response}{
      Plot character for \code{col.response}.
      Default is 1.
+     Applies only if \code{col.response != 0}.
+  }
+  \item{jitter.response}{
+     Amount to jitter the response (passed on to \code{\link{jitter}} as the \code{factor} argument).
+     Applies only if \code{col.response != 0}.
+     Default \code{0}, no jitter.
+     A typical useful value is \code{1}.
   }
   \item{grid.func}{
      Function applied to x columns to calculate the values for numeric predictors
@@ -122,7 +133,7 @@ plotmo(a, grid.func = grid.func, trace=1) # use trace to see the grid values
      It has the same purpose as the \code{grid.func} argument above but applies to
      factor predictors, not numeric predictors.
      It is a list specifying which factor level to use for factor predictors
-     not on the axes.  If specified, plotmo will print messages reminding you of how the levels are set.
+     not on the axes.  If specified, \code{plotmo} will print messages reminding you of how the levels are set.
      Default is \code{NULL} meaning use the first level of each factor.
 \preformatted{a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
 plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
@@ -209,6 +220,7 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
   \item{main}{
     A vector of titles, one for each plot.
     Default is \code{NULL}, meaning generate figure headings automatically.
+    See also \code{caption}, for the overall caption.
   }
   \item{theta}{
      Rotation argument for \code{\link{persp}}.
@@ -251,13 +263,14 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
 \details{
 \code{Plotmo} is a general purpose model plotting function
 (but comes with the \code{\link{earth}} package).
-It is intended for models with quantitative responses.
+The Examples section shows \code{plotmo} on \code{\link{lm}}, \code{\link{rpart}}, and
+other objects (you will have to cut-and-paste the code into your R session).
 
 \bold{The general idea}
 
-Plotmo plots a degree1 plot of predicted values
+\code{Plotmo} plots a degree1 plot of predicted values
 by changing one predictor while holding all other predictors at a constant value.
-For degree2 plots, plotmo changes two variables
+For degree2 plots, \code{plotmo} changes two variables
 while holding all other predictors at a constant value.
 
 The question arises: what should the constant value be for each predictor?
@@ -307,7 +320,7 @@ Weights are currently ignored, with a warning.
 
 Factor predictors are not supported on degree2 graphs (you will get a reminder message).
 
-To avoid confusing error messages from plotmo,
+To avoid confusing error messages from \code{plotmo},
 keep the original formula you used to build the model simple.
 By default (i.e., when using \code{get.plotmo.x.default} and \code{get.pairs.default},
 but not when \code{plotmo} is used on an \code{earth} model),
@@ -372,8 +385,8 @@ See the source comments for details.
 
 \bold{FAQ}
 
-I want to add lines or points to a plot created by \code{plotmo}.
-and am having trouble getting my axis scaling right. Help?
+\emph{I want to add lines or points to a plot created by \code{plotmo}.
+and am having trouble getting my axis scaling right. Help?}
 
 Use \code{do.par=FALSE}.
 With \code{do.par=FALSE}, the axis scales match the axis labels.
@@ -381,6 +394,11 @@ With \code{do.par=TRUE}, plot.earth restores the
 \code{\link{par}} parameters and axis scales to
 what they were before calling plot.earth.
 This usually means that the x- and y-axis scales are both 0 to 1.
+
+\emph{The plotmo display is very jagged. How do I change that?}
+
+Try using \code{clip=FALSE}.
+The jagginess is probably an artifact of the way  \code{\link{persp}} works.
 }
 \seealso{
   \code{\link{termplot}},
@@ -406,17 +424,17 @@ plotmo(a)
   lm.fit2 <- lm(O3 ~ temp+ibh+doy, data=ozone1)
   plotmo(lm.fit2, degree2="all", clip=FALSE)
 
-  library(gam)
-  data(airquality)
-  airquality <- na.omit(airquality)  # plotmo doesn't know how to deal with NAs
-  plotmo(gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality))
-
   library(mgcv)
   plotmo(gam(O3 ~ s(doy) + s(humidity,temp), data=ozone1), se=2, ylim=NA)
 
   library(rpart)
+  data(ozone1)
   rpart.fit <- rpart(O3 ~ ., data=ozone1)
-  plotmo(rpart.fit, type="vector")
+  plotmo(rpart.fit, type="vector") # type gets passed on to predict.rpart
+
+  iris.fit <- rpart(Species ~ ., data=iris)
+  plotmo(iris.fit, type="vector",
+         type2="image", col.response=c("red", "green", "blue")[iris$Species])
 }
 }
 \keyword{models}

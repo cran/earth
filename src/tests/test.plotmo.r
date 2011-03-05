@@ -247,18 +247,21 @@ plot(a, select=3)
 plot(a, select=2)
 plot(a, select=4)
 
-detach("package:mgcv")
-library(gam)
-caption <- "test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-set.seed(1)
-dopar(3,2,caption)
-data(airquality)
-airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, trace=Trace)
-# termplot gives fishy looking wind plot, plotmo looks ok
-# termplot(a) #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-detach("package:gam")
+# TODO Following commented out because it no longer works:
+#     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
+#         NA/NaN/Inf in foreign function call (arg 6)
+# detach("package:mgcv")
+# library(gam)
+# caption <- "test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
+# set.seed(1)
+# dopar(3,2,caption)
+# data(airquality)
+# airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
+# a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
+# plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, trace=Trace)
+# # termplot gives fishy looking wind plot, plotmo looks ok
+# # termplot(a) #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
+# detach("package:gam")
 
 library(mda)
 caption <- "test mars and earth (expect not a close match)"
@@ -367,18 +370,21 @@ plot(a, select=1)
 plot(a, select=2)
 plot(a, select=3)
 
-detach("package:mgcv")
-library(gam)
-set.seed(1)
-caption <- "test se=2, gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-dopar(3,2,caption)
-data(airquality)
-airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-cat("Ignore three warnings: No standard errors (currently) for gam predictions with newdata\n")
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
-# termplot(a)  #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-detach("package:gam")
+# TODO Following commented out because it no longer works:
+#     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
+#         NA/NaN/Inf in foreign function call (arg 6)
+# detach("package:mgcv")
+# library(gam)
+# set.seed(1)
+# caption <- "test se=2, gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
+# dopar(3,2,caption)
+# data(airquality)
+# airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
+# a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
+# cat("Ignore three warnings: No standard errors (currently) for gam predictions with newdata\n")
+# plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
+# # termplot(a)  #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
+# detach("package:gam")
 
 # test factors by changing wind to a factor
 
@@ -561,14 +567,37 @@ plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 t
 plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms and grid.levels",
        grid.levels=list(pclass="2nd"))
 plotmo(a, type="earth", ylim=c(0, 1), caption="type=\"earth\" plotmo glm with mixed fac and non-fac degree2 terms")
-plotmo(a, type="link", ylim=c(0, 1), caption="type=\"link\" plotmo glm with mixed fac and non-fac degree2 terms")
+plotmo(a, type="link", ylim=c(0, 1), clip=FALSE, caption="type=\"link\" plotmo glm with mixed fac and non-fac degree2 terms")
 plotmo(a, type="class", ylim=c(0, 1), caption="type=\"class\" plotmo glm with mixed fac and non-fac degree2 terms")
 plotmo(a, type="response", ylim=c(0, 1), caption="type=\"response\" plotmo glm with mixed fac and non-fac degree2 terms")
 # now with different type2's
 plotmo(a, do.par=FALSE, type2="persp",   theta=-20, degree1=FALSE, grid.levels=list(pclass="2nd"))
 plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass="2nd"))
-plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"))
+plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"),
+       col.response=as.numeric(etitanic$survived)+2, pch.response=20)
 plotmo(a, do.par=FALSE, type="earth", type2="image", degree1=FALSE, grid.levels=list(pclass="2nd"))
+
+# test lda and qda, and also col.response, pch.response, and jitter.response
+library(MASS)
+etitanic2 <- etitanic
+etitanic2$pclass <- as.numeric(etitanic$pclass)
+etitanic2$sex <- as.numeric(etitanic$sex)
+etitanic2$sibsp <- NULL
+etitanic2$parch <- NULL
+lda.model <- lda(survived ~ ., data=etitanic2)
+set.seed(7)
+plotmo(lda.model, caption="lda", trace=1, clip=F,
+       col.response=as.numeric(etitanic2$survived)+2, type="posterior",
+       degree2="all", type2="image")
+set.seed(8)
+plotmo(lda.model, caption="lda with jitter", trace=1, clip=F,
+       col.response=as.numeric(etitanic2$survived)+2, type="posterior",
+       degree2="all", type2="image", jitter.response=1)
+qda.model <- qda(survived ~ ., data=etitanic2)
+set.seed(9)
+plotmo(qda.model, caption="qda with jitter", trace=1, clip=F,
+       col.response=as.numeric(etitanic2$survived)+2, type="posterior",
+       degree2="all", type2="image", jitter.resp=.5, pch.resp=20)
 
 # test vector main
 
