@@ -32,7 +32,7 @@ predict.earth <- function(
             which.
         }
         if(is.null(ylevels)) # should never happen
-            stop1("cannot use type=\"class\" with this model")
+            stop0("cannot use type=\"class\" with this model")
         resp <- ylevels[apply(resp, 1, which1, thresh)]
         if(is.character(ylevels))
             resp <- factor(resp, levels = ylevels)
@@ -96,7 +96,7 @@ predict.earth <- function(
     get.terms <- function(object, newdata)
     {
         if(!is.null(object$glm.list))
-            warning1("predict.earth: returning the earth (not glm) terms")
+            warning0("predict.earth: returning the earth (not glm) terms")
         env <- parent.frame()
         bx <- model.matrix.earth(object, x=newdata, env=env,
                                  trace=trace, Callers.name="predict.earth")
@@ -119,7 +119,7 @@ predict.earth <- function(
 
         termMat
     }
-    # predict.earth starts here
+    #--- predict.earth starts here ---
 
     check.classname(object, deparse(substitute(object)), "earth")
     warn.if.dots.used("predict.earth", ...)

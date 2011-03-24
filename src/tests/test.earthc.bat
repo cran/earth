@@ -1,10 +1,10 @@
 @rem test.earthc.bat:
-@rem 
-@rem This tests the earth C code.  It does this: builds test.earthc.exe 
+@rem
+@rem This tests the earth C code.  It does this: builds test.earthc.exe
 @rem (under MS VC 6.0), runs it, and compares results to test.earthc.out.save
 @rem You need to make Rdll.lib first -- see instructions in gnuwin32/README.packages
 @rem You will need to tweak this file and test.earthc.mak for your directories
-@rem 
+@rem
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
 @echo === test.earthc ==================================================

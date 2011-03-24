@@ -82,7 +82,7 @@ For cross validation, use the \code{nfold} argument.
 % %      You do not need to normalize \code{weights} --- earth does that.
 % %      \code{wp} is normalized so that its elements sum to
 % %      \code{nrow(x)} and all residuals calculated in the forward and pruning
-% %      pass are weighted by the the corresponding element of \code{weights}.
+% %      pass are weighted by the corresponding element of \code{weights}.
 % %      Zero values are converted to a small non zero value.
   }
   \item{wp}{
@@ -382,7 +382,7 @@ For cross validation, use the \code{nfold} argument.
      An estimate of the predictive power of the model (calculated over all responses).
      Unlike \code{rsq}, in MARS models \code{grsq} can be negative.
      A negative \code{grsq} would indicate
-     a severely over parameterized model --- a model that
+     a severely over parametrized model --- a model that
      would not generalize well
      even though it may be a good fit to the training data.
      Watch the GRSq take a nose dive in this example:\cr
@@ -580,7 +580,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
       the left-out data for each response of the model generated at that row's fold.
       The final column holds the row mean (a weighted mean if \code{wp} if specified).
       The final row of the table holds the column means.
-      The values in this final row are the CV-RSqs printed by \link{summary.earth}.
+      The values in this final row are the CV-RSqs printed by \code{\link{summary.earth}}.
 \cr\cr
       Example for a single response model (where the \code{mean} row and columns
 are redundant but included for uniformity with multiple response models):
@@ -828,15 +828,15 @@ Earth prints the results of the above calculation if \code{trace>=4}.
 Memory use peaks in the forward pass.
 The bulk of the forward pass is implemented in C.
 It allocates memory "outside of R" and so
-\link{memory.size} will not report the memory it uses.
+\code{\link{memory.size}} will not report the memory it uses.
 
 Before calling \code{earth}, R itself will of course allocate
 memory over and above the amount calculated above.
 To reduce total memory usage, it sometimes helps to \code{\link{remove}} variables
-and call \link{gc} before invoking \code{earth}.
+and call \code{\link{gc}} before invoking \code{earth}.
 
 Earth uses more memory if any elements of the
-\code{x} and \code{y} arguments are not \link{double},
+\code{x} and \code{y} arguments are not \code{\link{double}},
 because it must convert them to double internally.
 The same applies if the \code{subset} argument is used.
 Earth uses more memory if \code{trace>=2}
@@ -1137,8 +1137,8 @@ library(mda)
 plot(a)
 summary(a$fit)  # examine earth model embedded in fda model
 plot(a$fit)
-plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
-plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE)
+plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE)
 }
 
 \bold{Cross validation}
@@ -1149,6 +1149,12 @@ Example (note the \code{nfold} parameter):
 a <- earth(survived ~ ., data=etitanic, degree=2, nfold=10)
 summary(a) # note the CV-RSq field
 }
+Note that \code{earth} does not use cross validation
+for automatic model selection (unlike, say, \code{\link{rpart}})
+--- that's what \code{earth}'s backward pass and GCVs are for.
+Cross validation here merely give estimates of RSq on independent data,
+and it is up to the user to interpret those estimates.
+
 Cross validation is done if \code{nfold} is greater than 1 (typically 10).
 Earth first builds a standard model with all the data as usual.
 This means that all the standard fields in earth's return value
@@ -1158,7 +1164,7 @@ For each fold
 it builds an \code{earth} model with the left-in data (typically nine tenths of the complete data)
 and using this model measures the prediction RSq on the left-out data (typically one tenth of the complete data).
 The final cross validation RSq is the mean of these RSq's.
-Use \link{summary.earth} to see this final value and its standard deviation
+Use \code{\link{summary.earth}} to see this final value and its standard deviation
 across cross validation folds.
 
 The cross validation results go into extra fields in earth's return value.
@@ -1191,7 +1197,7 @@ With the \code{stratify} argument (which is enabled by default), earth
 attempts to keep the numbers of occurrences of any given level in the
 response constant across folds.
 
-For reproducibility, call \link{set.seed} before calling earth with \code{nfold}.
+For reproducibility, call \code{\link{set.seed}} before calling earth with \code{nfold}.
 
 A problem with cross-validation is that it tries to establish the
 quality of a model built on all the data by using models built on
@@ -1207,7 +1213,7 @@ earth returns the following additional statistics,
 Each of these is measured on the test set for each fold,
 and averaged across all folds
 (except that the signed max absolute value instead of the average is used for \code{MaxErr}).
-Use \link{summary.earth} to see these statistics
+Use \code{\link{summary.earth}} to see these statistics
 and their standard deviation across folds.
 
 \bold{CV-RSq} cross validated R-Squared, identical to CV-RSq for non-glm models
@@ -1299,7 +1305,7 @@ whereas \code{earth} returns "\code{bx}".
 Also, \code{earth} returns "\code{dirs}" rather than "\code{factors}",
 and in \code{earth} this matrix can have entries of value 2 for linear predictors.
 
-See also \link{mars.to.earth}.
+See also \code{\link{mars.to.earth}}.
 
 \bold{Standard model functions}
 
@@ -1726,7 +1732,7 @@ is a more flexible way of achieving the same end.
   Faraway takes a hands-on approach,
   using the \code{\link[=ozone1]{ozone}} data to compare \code{mda::mars} with other techniques.
   (If you use Faraway's examples with \code{earth} instead of \code{mars}, use \code{$bx}
-  instead of \code{$x}.)
+  instead of \code{$x}, and make sure you read the book's errata.)
   Friedman and Silverman is recommended background reading for the MARS paper.
   Earth's pruning pass uses the \code{\link[leaps]{leaps}} package which is based on
   techniques in Miller.

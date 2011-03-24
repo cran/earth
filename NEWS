@@ -1,6 +1,20 @@
 Changes to Earth Package
 ------------------------
 
+2.5-0  Mar 24 2011
+   Changes to plotmo:
+     The arguments were reordered (moved the most important arguments first).
+     The ycolumn arg is now called nresponse and handled more consistently.
+     The degree2="all" setting is now replaced by all2=TRUE, likewise for degree1.
+     The default for the type argument is now object dependent.
+     The cex parameter is now supported, and text is a little larger for most plots.
+     The degree2 graph titles now have a space for readability.
+     There is some minor backwards incompatibility in the minor arguments.
+     The plotmo graphs are now ordered on the variable order, for all model classes.
+     Plotmo now handles a wider range of object classes.
+     Factor predictors are now plotted in degree2 plots.
+   Miscellaneous other touchups.
+
 2.4-8  Mar 05 2011
    plotmo now handles vector colors better
    plotmo is now better at plotting lda and qda models
@@ -23,7 +37,7 @@ Changes to Earth Package
 
    A few code and doc touchups were also made.
 
-2.4-6
+2.4-6 Jan 26 2011
     Made the following changes to plotmo:
       We now print the fixed grid values unless trace < 0.
       The degree1 and degree2 arguments now have an "all" option.
@@ -272,6 +286,6 @@ form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a)
 
 Minor change to summary.earth formatting.  Man page fixes.
 
-1.0-6
+1.0-6  May 11 2007
 
 Initial release

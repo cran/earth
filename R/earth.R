@@ -54,23 +54,22 @@ check.allowed.arg <- function(allowed) # check earth's "allowed" argument
 {
     len <- 0
     if(!is.null(allowed)) {
-        allowed.func.needs <- paste(
+        allowed.func.needs <- paste0(
             "  The \"allowed\" function needs the following arguments ",
             "(but namesx and first are optional):\n      ",
-            paste.with.space(c("degree", "pred", "parents", "namesx", "first")),
-            sep="")
+            paste.with.space(c("degree", "pred", "parents", "namesx", "first")))
 
         if(!identical(typeof(allowed), "closure"))
             stop("your \"allowed\" argument is not a function");
         names. <- names(formals(allowed))
         len <- length(names.)
         if(len < 3 || len > 5)
-            stop1("your \"allowed\" function does not have the correct number of arguments\n",
+            stop0("your \"allowed\" function does not have the correct number of arguments\n",
                   allowed.func.needs)
 
         if(names.[1] != "degree" || names.[2] != "pred" || names.[3] != "parents" ||
            (len >= 4 && names.[4] != "namesx") || (len >= 5 && names.[5] != "first")) {
-              stop1(allowed.func.needs,
+              stop0(allowed.func.needs,
                 "\n  You have:\n      ", paste.with.space(names.))
         }
     }
@@ -88,34 +87,34 @@ check.and.standarize.wp <- function(wp, expected.len)
 check.weights <- function(w, expected.len, wname)
 {
     if(!is.vector(w))
-        stop1("\"", wname, "\" is not a vector")
+        stop0("\"", wname, "\" is not a vector")
     if(is.logical(w))
         w <- as.numeric(w)
     if(!is.numeric(w))
-        stop1("\"", wname, "\" is not numeric")
+        stop0("\"", wname, "\" is not numeric")
     if(length(w) != expected.len)
-        stop1("\"", wname, "\" has a bad length ",
+        stop0("\"", wname, "\" has a bad length ",
               length(w), ", expected ", expected.len)
     if(any(is.na(w)))
-        stop1("NA in \"", wname, "\"")
+        stop0("NA in \"", wname, "\"")
     if(any(!is.finite(w)))
-        stop1("non finite value in \"", wname, "\"")
+        stop0("non finite value in \"", wname, "\"")
     if(any(w < 0))
-        stop1("negative value in \"", wname, "\"")
+        stop0("negative value in \"", wname, "\"")
     meanw <- mean(w)
     if(meanw < 1e-8)
-        stop1("mean of \"", wname, "\" is 0")
+        stop0("mean of \"", wname, "\" is 0")
     meanw  # return mean
 }
 
 check.which.terms <- function(dirs, which.terms) # ensure which.terms is valid
 {
     if(is.null(which.terms))
-        stop1("\"which.terms\" is NULL")
+        stop0("\"which.terms\" is NULL")
     if(length(which.terms) == 0)
-        stop1("length(which.terms) == 0")
+        stop0("length(which.terms) == 0")
     if(which.terms[1] != 1)
-        stop1("first element of \"which.terms\" must be 1, the intercept term")
+        stop0("first element of \"which.terms\" must be 1, the intercept term")
     check.index.vec("which.terms", which.terms[1], dirs)
 }
 
@@ -147,12 +146,12 @@ earth.default <- function(
     if(trace >= 4)
         my.print.call("Call: ", Call)
     if(!is.null(Call$data))
-        stop1("\"data\" argument not allowed in earth.default")
+        stop0("\"data\" argument not allowed in earth.default")
     if(is.character(na.action)) {
         if(is.na(pmatch(na.action, "na.fail")))
-            stop1("illegal \"na.action\", only na.action=na.fail is allowed")
+            stop0("illegal \"na.action\", only na.action=na.fail is allowed")
     } else if(!identical(na.action, na.fail))
-        stop1("illegal \"na.action\", only na.action=na.fail is allowed")
+        stop0("illegal \"na.action\", only na.action=na.fail is allowed")
     if(keepxy) {
         x.org <- x
         y.org <- y
@@ -253,10 +252,10 @@ earth.formula <- function(
     Call <- make.call.generic(match.call(expand.dots=TRUE), "earth")
     if(trace >= 4)
         my.print.call("Call: ", Call)
-    if(!is.null(Call$x))
-        stop1("\"x\" argument not allowed in earth.formula")
-    if(!is.null(Call$y))
-        stop1("\"y\" argument not allowed in earth.formula")
+    if(!is.null(Call[["x"]]))
+        stop0("\"x\" argument not allowed in earth.formula")
+    if(!is.null(Call[["y"]]))
+        stop0("\"y\" argument not allowed in earth.formula")
     Call2 <- match.call(expand.dots=FALSE)
 
     # subset and weights handled in earth.fit, so match only on formula, data, and na.action
@@ -265,7 +264,7 @@ earth.formula <- function(
     mf <- Call2[c(1, m)]
     mf[[1]] <- as.name("model.frame")
     if(!is.null(mf$na.action))
-        stop1("\"na.action\" argument is not allowed (it is set internally to na.fail)")
+        stop0("\"na.action\" argument is not allowed (it is set internally to na.fail)")
     mf$na.action <- na.fail
     mf <- eval.parent(mf)
 
@@ -277,7 +276,7 @@ earth.formula <- function(
     if(intercept)
         x <- x[, -intercept, drop=FALSE]     # silently discard intercept
     else
-        warning1("ignored -1 in formula (earth objects always have an intercept)")
+        warning0("ignored -1 in formula (earth objects always have an intercept)")
     # strip white space for better reading earth formula for e.g. earth(y~I(X-3))
     # because model.matrix inserts spaces around the minus
     if(!is.null(colnames(x)))
@@ -315,7 +314,7 @@ earth.formula <- function(
         if(!is.null(data))
             rval$data <- data
         else # OLD: if(trace >= 1)
-            warning1("No 'data' argument to earth so ignoring keepxy for 'data'\n")
+            warning0("No 'data' argument to earth so ignoring keepxy for 'data'\n")
         rval$subset <- subset
         rval$weights <- weights
     }
@@ -406,7 +405,7 @@ earth.fit <- function(
     check.no.family.arg.to.earth(...)
     warn.if.dots.used("earth.fit", ...)
     if(is.logical(trace) && trace) {
-        warning1("earth: converted trace=TRUE to trace=4")
+        warning0("earth: converted trace=TRUE to trace=4")
         trace <- 4
     }
     y.org <- y
@@ -425,17 +424,17 @@ earth.fit <- function(
     }
     # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)
-        stop1("\"nk\" ", nk, " is less than 1")
+        stop0("\"nk\" ", nk, " is less than 1")
     if(is.character(na.action)) {
         if(is.na(pmatch(na.action, "na.fail")))
-            stop1("illegal \"na.action\", only na.action=na.fail is allowed")
+            stop0("illegal \"na.action\", only na.action=na.fail is allowed")
     } else if(!identical(na.action, na.fail))
-        stop1("illegal \"na.action\", only na.action=na.fail is allowed")
+        stop0("illegal \"na.action\", only na.action=na.fail is allowed")
     na.action <- na.fail
     # TODO implementation of case weights is not complete so don't allow case weights
     if(!is.null(weights) &&
             !isTRUE(all.equal(weights, rep(weights[1], length(weights))))) {
-        warning1("\"weights\" are not supported by \"earth\", ignoring them")
+        warning0("\"weights\" are not supported by \"earth\", ignoring them")
         weights <- NULL
     }
     n.allowedfunc.args <- check.allowed.arg(allowed)
@@ -647,7 +646,7 @@ eval.model.subsets.with.leaps <- function(
         prune.terms[upper.tri(prune.terms, diag=TRUE)] <- lopt
         t(prune.terms)
     }
-    # eval.model.subsets.with.leaps starts here
+    #--- eval.model.subsets.with.leaps starts here ---
 
     pacify <- pmatch(pmethod[1], "exhaustive", 0) == 1 && nrow(bx) > 40 && nprune > 8
     if(pacify) {                # pruning could take a while so print a reminder
@@ -703,7 +702,7 @@ eval.model.subsets.using.xtx <- function(
             reason <- "ncol(y) > 1"
         else if(ncol(bx) <= 2)
             reason <- "ncol(bx) <= 2"
-        stop1("You have pmethod=\"", pmethod, "\" ",
+        stop0("You have pmethod=\"", pmethod, "\" ",
             "but only pmethod=\"backward\" or \"none\"\n",
             "is supported by eval.model.subsets.using.xtx\n",
             "(eval.model.subsets.using.xtx was invoked because ", reason, ")\n")
@@ -733,7 +732,7 @@ eval.model.subsets.using.xtx <- function(
 
         list(rval$rss.per.subset[1:nprune], rval$prune.terms[1:nprune, 1:nprune, drop=FALSE])
     }
-    # eval.model.subsets.using.xtx starts here
+    #--- eval.model.subsets.using.xtx starts here ---
 
     rprune <- switch(match.arg1(pmethod),
                 backward(bx, y, weights),    # "backward"
@@ -786,9 +785,9 @@ forward.pass <- function(x, y, weights,  # must be all double
         i <- which(attr(y.scaled,"scaled:scale") == 0)
         if(length(i)) {
             if(ncol(y) > 1)
-                stop1("cannot scale column ", i[1], " of y (values are all equal to ", y[1,i], ")")
+                stop0("cannot scale column ", i[1], " of y (values are all equal to ", y[1,i], ")")
             else
-                stop1("cannot scale y (values are all equal to ", y[1,1], ")")
+                stop0("cannot scale y (values are all equal to ", y[1,1], ")")
         }
     } else
         y.scaled <- y
@@ -861,7 +860,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
         {
             pred.name <- pred.names[ipred]
             if(is.null(pred.name) || is.na(pred.name))
-                paste("x[,", ipred, "]", sep="")
+                paste0("x[,", ipred, "]")
             else
                 pred.name
         }
@@ -873,7 +872,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
         for(ipred in 1:ncol(dirs))
             if(dirs[nterm,ipred]) {
                 if(!first.fac)
-                    s <- paste(s, "*", sep="")
+                    s <- paste0(s, "*")
                 first.fac <- FALSE
                 if(dirs[nterm,ipred] == 2)  # linear predictor?
                     s <- pastef(s, "%s", get.name(ipred))
@@ -892,7 +891,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
             }
         s
     }
-    # --- get.earth.term.name starts here ---
+    #--- --- get.earth.term.name starts here --- ---
     stopifnot(ncol(dirs) == ncol(x))
     xrange <- NULL      # 1st row is min, 2nd row is max, a column for each pred
     if(!is.null(x))
@@ -911,7 +910,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
     # check for duplicate term names
     duplicated <- duplicated(term.names)
     if(any(duplicated))
-        warning1("duplicate term name \"", term.names[which(duplicated)[1]], "\"\n",
+        warning0("duplicate term name \"", term.names[which(duplicated)[1]], "\"\n",
                  "This is usually caused by cuts that are very close to each other\n",
                  "Remedy: use options(digits=NDIGITS), ",
                  "typically NDIGITS has to be at least 7 ",
@@ -933,7 +932,7 @@ get.gcv <- function(    # default Get.crit function
     nparams <- effective.nbr.of.params(ntermsVec, nknotsVec, penalty)
 
     if(max(nparams, na.rm=TRUE) >= ncases)
-        warning1("effective number ", max(nparams, na.rm=TRUE),
+        warning0("effective number ", max(nparams, na.rm=TRUE),
                  " of GCV parameters >= number ", ncases, " of cases")
 
     rss.per.subset / (ncases * (1 - nparams/ncases)^2)
@@ -1038,13 +1037,13 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
             prev.grsq <- grsq
             selected <- prune.terms[iterm,]
             selected <- selected[selected != 0]
-            cat(if(iterm==nselected) "chosen " else "       ",
-                format(iterm, width=4),
-                sprintf("%12.4f ", grsq),
-                sprintf("%7.4f",   get.rsq(rss.per.subset[iterm], rss.per.subset[1])),
-                sprintf("%11.4f ", delta.grsq),
-                sprintf("%6d",     get.nused.preds.per.subset(dirs, selected)),
-                "  ", sep="")
+            cat0(if(iterm==nselected) "chosen " else "       ",
+                 format(iterm, width=4),
+                 sprintf("%12.4f ", grsq),
+                 sprintf("%7.4f",   get.rsq(rss.per.subset[iterm], rss.per.subset[1])),
+                 sprintf("%11.4f ", delta.grsq),
+                 sprintf("%6d",     get.nused.preds.per.subset(dirs, selected)),
+                 "  ")
             if(trace >= 4)
                 cat(selected)
         cat("\n")
@@ -1052,8 +1051,8 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
     cat("\n")
     }
     if(trace >= 1) {
-        cat("Prune method \"", pmethod[1], "\" penalty ", penalty,
-                " nprune ", nprune, ": selected ", nselected, " of ", sep="")
+        cat0("Prune method \"", pmethod[1], "\" penalty ", penalty,
+             " nprune ", nprune, ": selected ", nselected, " of ")
         selected <- prune.terms[nselected,]
         selected <- selected[selected != 0]
         cat(nrow(dirs), "terms, and",
@@ -1078,16 +1077,16 @@ pruning.pass <- function(x, y, weights, subset,
         if(is.null(nprune))
             nprune <- nterms
         if(nprune > nterms) {
-            warning1("specified \"nprune\" ", nprune,
+            warning0("specified \"nprune\" ", nprune,
                     " is greater than the number ", nterms, " of available model terms ",
                     "\nForcing \"nprune\" to ", nterms)
             nprune <- nterms
         }
         if(nprune < 1)
-            stop1("\"nprune\" is less than 1")
+            stop0("\"nprune\" is less than 1")
         nprune
     }
-    # pruning.pass starts here
+    #--- pruning.pass starts here ---
 
     if(!is.null(bx) && is.null(subset))
         bx.prune <- bx   # use bx created in forward pass
@@ -1108,10 +1107,10 @@ pruning.pass <- function(x, y, weights, subset,
     stopif(any(prune.terms[,1] != 1))   # check intercept column
     gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, penalty, nrow(bx.prune))
     if(!all(is.finite(rss.per.subset)))
-        warning1("earth: non finite RSS in model subsets ",
+        warning0("earth: non finite RSS in model subsets ",
                  "(see the rss.per.subset returned by earth)")
     else if(!all(is.finite(gcv.per.subset)))
-        warning1("earth: non finite GCV in model subsets ",
+        warning0("earth: non finite GCV in model subsets ",
                  "(see the gcv.per.subset returned by earth)")
     do.prune <- pmatch(pmethod[1], "none", 0) != 1
     selected.terms <- 1:nprune  # all terms
@@ -1178,11 +1177,11 @@ reorder.earth <- function(
 {
     warn.if.dots.used("reorder.earth", ...)
     if(degree < 0)
-        stop1("degree ", degree, " < 0")
+        stop0("degree ", degree, " < 0")
     if(min.degree < 0)
-        stop1("min.degree ", min.degree, " < 0")
+        stop0("min.degree ", min.degree, " < 0")
     if(degree < min.degree)
-        stop1("degree ", degree, " < min.degree ", min.degree)
+        stop0("degree ", degree, " < min.degree ", min.degree)
     check.which.terms(x$dirs, which.terms)
     dirs <- x$dirs[which.terms, , drop=FALSE]
     new.order <- switch(match.arg1(decomp),
@@ -1233,7 +1232,7 @@ update.earth <- function(
     ...,                # dots passed on to earth()
     evaluate = TRUE)    # for compatibility with generic update
 {
-    # update.earth starts here
+    #--- update.earth starts here ---
 
     check.classname(object, deparse(substitute(object)), "earth")
     Call <- object$call
@@ -1241,7 +1240,7 @@ update.earth <- function(
     do.forward.pass <- FALSE
     if(!is.null(formula.)) {
         if(is.null(Call$formula))
-            stop1("\"formula.\" argument cannot be used on ",
+            stop0("\"formula.\" argument cannot be used on ",
                   "objects created without a formula")
         Call$formula <- update.formula(formula(object), formula.)
         do.forward.pass <- TRUE
@@ -1304,14 +1303,14 @@ update.earth <- function(
 deviance.earth <- function(object, warn=TRUE, ...)
 {
     if(warn && !is.null(object$glm.list))
-        warning1("deviance.earth: returning earth (not GLM) deviance")
+        warning0("deviance.earth: returning earth (not GLM) deviance")
     object$rss
 }
 
 effects.earth <- function(object, warn=TRUE, ...)
 {
     if(warn)
-        warning1("effects.earth: returning NULL")
+        warning0("effects.earth: returning NULL")
     NULL
 }
 
@@ -1323,7 +1322,7 @@ family.earth <- function(object, ...)
 anova.earth <- function(object, warn=TRUE, ...)
 {
     if(warn)
-        warning1("anova.earth: returning NULL")
+        warning0("anova.earth: returning NULL")
     NULL
 }
 
@@ -1337,7 +1336,7 @@ variable.names.earth <- function(object, ..., use.names=TRUE)
     if(use.names)
         var.name <- colnames(object$dirs)[ipred]
     if(!use.names || is.null(var.name) || is.na(var.name))
-        paste("x[,", ipred, "]", sep="")
+        paste0("x[,", ipred, "]")
     else
         var.name
 }
@@ -1358,14 +1357,14 @@ residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=
     {
         g <- object$glm.list
         if(is.null(g))
-            stop1("residuals.earth: type \"", type, "\" can only be used on earth-glm models")
+            stop0("residuals.earth: type \"", type, "\" can only be used on earth-glm models")
         colnames <- ""
         for(imodel in seq_along(g)) {
             rval1 <- residuals(g[[imodel]], type)
             if(imodel == 1)
                 rval <- rval1
             if(NROW(rval1) != NROW(rval)) # should never happen
-                stop1("residuals.earth: glm.list[[", imodel, "]] does ",
+                stop0("residuals.earth: glm.list[[", imodel, "]] does ",
                       "not conform to glm.list[[", 1, "]] (residuals have a different length)")
             if(imodel > 1) {
                 colnames <- c(colnames)
@@ -1374,11 +1373,11 @@ residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=
         }
         rval
     }
-    # residuals.earth starts here
+    #--- residuals.earth starts here ---
 
     warn.if.dots.used("residuals.earth", ...)
     if(warn && is.null(type) && !is.null(object$glm.list))
-        warning1("residuals.earth: returning earth (not glm) residuals")
+        warning0("residuals.earth: returning earth (not glm) residuals")
 
     if(is.null(type))
         type <- "earth"
@@ -1412,11 +1411,11 @@ resid.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=TRUE
 extractAIC.earth <- function(fit, scale = 0, k = 2, warn=TRUE, ...)
 {
     if(warn)
-        warning1("extractAIC.earth: returning GCV instead of AIC")
+        warning0("extractAIC.earth: returning GCV instead of AIC")
     if(scale != 0)
-        warning1("extractAIC.earth: ignored scale parameter ", scale)
+        warning0("extractAIC.earth: ignored scale parameter ", scale)
     if(k != 2)
-        warning1("extractAIC.earth: ignored k parameter ", k)
+        warning0("extractAIC.earth: ignored k parameter ", k)
     warn.if.dots.used("extractAIC.earth", ...)
     nterms <- length(fit$selected.terms)
     c(effective.nbr.of.params(nterms, get.nknots(nterms), fit$penalty), fit$gcv)

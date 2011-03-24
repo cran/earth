@@ -106,7 +106,7 @@ format.one.response <- function( # called by format.earth
         iterm <- iterm + 1
     }
     if(pmatch(style, "bf", nomatch=0)) # append table of basis functions?
-        s <- paste(s, "\n", get.table.of.basis.functions(obj, new.order), sep="")
+        s <- paste0(s, "\n", get.table.of.basis.functions(obj, new.order))
     s
 }
 
@@ -197,7 +197,7 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
                                      format(cut[ipred], width=width,
                                      digits=digits))
                 else
-                    stop1("illegal direction ", dir[ipred], " in 'dirs'")
+                    stop0("illegal direction ", dir[ipred], " in 'dirs'")
 
                 prefix <- "* "
             }
@@ -223,7 +223,7 @@ get.bfs <- function(names)
     original <- unique(s3)                  # "(Intercept)", "h(temp-58)", "h(humidity-55)" "h(temp-58)", ...
 
     # -1 below so first term is bf1 (i.e. intercept is bf0, which is unused)
-    new <- paste("bf", seq_along(original)-1, sep="") # "bf1", "bf2", "bf3", ...
+    new <- paste0("bf", seq_along(original)-1) # "bf1", "bf2", "bf3", ...
 
     data.frame(original, new)
 }
@@ -258,7 +258,7 @@ get.table.of.basis.functions <- function(obj, new.order)
     bfs <- get.bfs(names)
     s <- ""
     if(nrow(bfs) > 1) for(i in 2:nrow(bfs)) # start at 2 to skip intercept
-        s <- paste(s, sprintf("%6s  %s\n", bfs[i,2], bfs[i,1]), sep="")
+        s <- paste0(s, sprintf("%6s  %s\n", bfs[i,2], bfs[i,1]))
     s
 }
 
@@ -285,7 +285,7 @@ format.lm <- function(
     {                               # return "name" if possible, else "x[,i]"
         pred.name <- pred.names[ipred]
         if(is.null(pred.name) || is.na(pred.name) || !use.names)
-            pred.name <- paste("x[,", ipred, "]", sep="")
+            pred.name <- paste0("x[,", ipred, "]")
         # convert colons to colon.char
         make.unique(gsub(":", colon.char, pred.name), sep="_")
     }

@@ -21,7 +21,7 @@ earthmain.exe > Debug\test.earthmain.out
 @if %errorlevel% neq 0 goto error:
 
 @rem we use -w on diff so it treats \r\n the same as \n
-diff -w Debug\test.earthmain.out test.earthmain.out.save 
+diff -w Debug\test.earthmain.out test.earthmain.out.save
 @if %errorlevel% neq 0 goto error:
 
 @rm -f R.dll Rblas.dll iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll earthmain.exe *.map *.ilk *.pdb

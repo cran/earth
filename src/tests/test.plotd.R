@@ -172,15 +172,17 @@ printh("lm.model example from man page")
 library(earth); data(etitanic)
 lm.model <- lm(as.numeric(sex) ~ ., data=etitanic)
 plotd(lm.model, trace=1)
+plot(1,1) # dummy plot
+plot(1,1)
 
 # test with rpart
 printh("rpart")
 library(rpart); library(earth); data(etitanic)
 rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
-# note that plotd's default type="response" is not accepted by rpart
 plotd(rpart.model, type="prob", nresponse=1)
 plotd(rpart.model, type="prob", nresponse=2)
 plotd(rpart.model, type="class", hist=TRUE, labels=TRUE)
+plotd(rpart.model, hist=TRUE, labels=TRUE) # default type is "vector"
 
 printh("lda.model examples from man pages")
 library(MASS); library(earth); data(etitanic)
@@ -191,7 +193,7 @@ plotd(lda.model, type="class", hist=TRUE, labels=TRUE)
 library(MASS); library(earth); set.seed(420)
 example(lda)
 plotd(z, nresponse=1) # nresponse=1 selects first linear discriminant
-do.caption("lda.model example from example(lda), and rpart")
+do.caption("lda.model example from example(lda)")
 
 a.qda <- qda(survived ~ ., data=etitanic)
 plotd(a.qda, type="class")
@@ -259,8 +261,8 @@ glm4 <- glm(pclass ~ ., data=etitanic, family=binomial)
 plotd(glm4, dichot = TRUE, type="link")
 do.caption("glm, 3 level factor with dichot")
 plotd(glm4, dichot = FALSE, type="link")
-plotd(glm4, dichot = TRUE, type="response")
-plotd(glm4, dichot = FALSE, type="response")
+plotd(glm4, dichot = TRUE) # default type="response"
+plotd(glm4, dichot = FALSE, type=NULL) # default type="response"
 
 # lda with formula interface
 
@@ -368,7 +370,7 @@ plotd(a.shade, vline.thresh = .7, vline.col=1, vline.lty=2, vline.lwd=3, fill=0,
       err.border=c(3,4,5), err.lwd=c(1,2,3), xlim=c(.3,.6))
 # reverse direction of reducible error area
 a1.shade <- earth(!survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
-plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"), 
+plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"),
       err.border=c("slategray1","slategray3","red"), xlim=c(.52, .9))
 
 par(old.par)

@@ -36,7 +36,7 @@ evimp <- function(obj, trim=TRUE, sqrt.=FALSE) # see help page for description
 
     check.classname(obj, deparse(substitute(obj)), "earth")
     if(is.null(obj$prune.terms)) # this occurs on mars.to.earth objects
-        stop1("object has no prune.terms, cannot get variable importances")
+        stop0("object has no prune.terms, cannot get variable importances")
     nsubsets <- length(obj$selected.terms)
     dirs <- obj$dirs
     pred.names <- generate.colnames(dirs)
@@ -48,7 +48,7 @@ evimp <- function(obj, trim=TRUE, sqrt.=FALSE) # see help page for description
     used.preds <- to.logical(get.used.preds(obj), len=length(pred.names))
     tagged.pred.names <- pred.names
     tagged.pred.names[!used.preds] <-
-            paste(tagged.pred.names[!used.preds], "-unused", sep="")
+            paste0(tagged.pred.names[!used.preds], "-unused")
 
     # deltas[isubset, icrit] is the change in criterion value
     # for isubset using criterion icrit

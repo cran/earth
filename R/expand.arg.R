@@ -77,7 +77,7 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
         }
         y
     }
-    # expand.arg starts here
+    #--- expand.arg starts here ---
 
     if(is.null(ncol(x)))        # make sure x is a matrix, not a vector
         dim(x) <- c(nrow=length(x), ncol=1)

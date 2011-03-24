@@ -22,7 +22,7 @@ earth.regress <- function(
     if(!all(is.double(y)))
         stop("non double entries in \"y\" argument")
     if(!is.null(weights) && length(weights) != nrow(x))
-        stop1("length(weights) ", length(weights), " != nrow(x) ", nrow(y))
+        stop0("length(weights) ", length(weights), " != nrow(x) ", nrow(y))
 
     # add intercept to x
     colnames. <- colnames(x)

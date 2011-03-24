@@ -6,7 +6,7 @@
 
 print(R.version.string)
 
-Trace = FALSE
+Trace <- 0
 
 dopar <- function(nrows, ncols, caption = "")
 {
@@ -19,18 +19,19 @@ dopar <- function(nrows, ncols, caption = "")
 }
 library(earth)
 data(ozone1)
+data(etitanic)
 options(warn=1) # print warnings as they occur
 if(!interactive())
     postscript(paper="letter")
 
 caption <- "basic earth test of plotmo"
 a <- earth(O3 ~ ., data=ozone1, degree=2)
-plotmo(a, degree1=2, degree2=4, caption=caption, trace=Trace)
+plotmo(a, degree1=2, degree2=4, caption=caption, trace=TRUE)
 
 caption <- "test 5 x 5 layout"
 dopar(1,1,caption)
 a <- earth(O3 ~ ., data=ozone1, nk=51, pmethod="n", degree=2)
-plotmo(a, xlab="", ylab="", caption=caption, trace=Trace)
+plotmo(a, xlab="", ylab="", caption=caption, trace=1)
 
 caption <- "test 4 x 4 layout with ylab"
 dopar(1,1,caption)
@@ -59,13 +60,21 @@ set.seed(1) # needed for reproducibility because of sample for rug in plotmo
 plotmo(a, do.par=FALSE, degree1=1, nrug=-1, degree2=F, caption=caption,
         main="test main", xlab="test xlab", ylab="test ylab", trace=Trace)
 set.seed(1)
-plotmo(a, do.par=FALSE, degree1=F, degree2=4, grid.func=mean, col.persp="white", ngrid=10, phi=40, trace=Trace)
+plotmo(a, do.par=FALSE, degree1=F, degree2=4, grid.func=mean, col.persp="white", ngrid2=10, phi=40, trace=Trace)
 set.seed(1)
 plotmo(a, do.par=FALSE, degree1=1, lty.degree1=2, col.degree1=2, nrug=50, degree2=F, main="nrug=50", trace=Trace)
 set.seed(1)
 plotmo(a, do.par=FALSE, degree1=1, nrug=-1, degree2=F, main="nrug=-1", trace=Trace)
 set.seed(1)
-plotmo(a, do.par=FALSE, degree1=1, nrug=20, ndegree1=50, degree2=F, main="ndegree1=50 nrug=20", trace=Trace)
+plotmo(a, do.par=FALSE, degree1=1, nrug=20, ngrid1=50, degree2=F, main="ngrid1=50 nrug=20", trace=Trace)
+plotmo(a, do.par=FALSE, degree1=NA, degree2=1, phi=60, box=F, r=100) # dots args
+
+
+try(plotmo(a, no.such.arg=9)) # expect Error: plotmo: illegal argument "no.such.arg"
+try(plotmo(a, degree1="all")) # Expect Error: degree1="all" is no longer legal, use all1=TRUE instead
+try(plotmo(a, degree2="all")) # Expect Error: degree2="all" is no longer legal, use all2=TRUE instead
+try(plotmo(a, ycolumn=1))     # Expect Error: ycolumn is no longer legal, use nresponse instead
+try(plotmo(a, title="abc"))   # Expect Error: "title" is illegal, use "caption" instead
 
 caption <- "test plotmo ylim"
 a <- earth(O3 ~ ., data=ozone1, degree=2)
@@ -84,39 +93,52 @@ plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=FALSE, trace=Trace)
 cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
 termplot(a)
 
-caption <- "test change order of earth predictors"
+caption <- "test change order of earth predictors and cex"
 dopar(4,4,caption)
 a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
-plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,2), trace=Trace)
+plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,2), trace=Trace, cex=1)
 termplot(a)
+
+caption <- "test all1=TRUE"
+a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
+plotmo(a, caption=caption, all1=TRUE)
+caption <- "test all2=TRUE"
+print(summary(a))
+plotmo(a, caption=caption, all2=TRUE)
 
 a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
 func1 <- function()
 {
-    caption <- "test call plotmo from within a function, global dataframe"
+    caption <- "test call plotmo from within a function\nglobal dataframe (predict doy)"
     dopar(4,4,caption)
     a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
-    plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
-    plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
+    plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
+           trace=Trace, type2="image", col.response=3, pch.response=20)
+    plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
+          trace=Trace, type2="image", col.response=3, pch.response=20)
 
-    caption <- "test call plotmo from within a function, local dataframe"
+    caption <- "test call plotmo from within a function\nlocal dataframe, clip=FALSE"
     dopar(4,4,caption)
     ozone1.local <- ozone1[,c(1,2,3,4,5,6,7,8,10)]  # drop vis
     a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2, minspan=-1)
-    plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
-    plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
+    plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
+           trace=Trace, type2="image", col.response=3, pch.response=20, clip=FALSE)
+    plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
+           trace=Trace, type2="image", col.response=3, pch.response=20, clip=FALSE)
 
-    caption <- "test call plotmo from within a function, local dataframe using x,y interface"
+    caption <- "test call plotmo from within a function\nlocal dataframe using x,y interface"
     dopar(4,4,caption)
     x <- ozone1.local[,c(4,5,3)]    # humidty temp wind
     y <- ozone1.local[,9]           # doy
     a <- earth(x, y, degree=2, minspan=-1)
-    plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
-    plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
+    plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
+           trace=Trace, type2="image", col.response=3, pch.response=20)
+    plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
+           trace=Trace, type2="image", col.response=3, pch.response=20)
 }
 func1()
 
-caption <- "test earth formula versus to x,y model"
+caption <- "test earth formula versus x,y model"
 dopar(4,4,caption)
 a <- earth(O3 ~ ., data=ozone1, degree=2)
 plotmo(a, do.par=FALSE, caption=caption, trace=Trace)
@@ -129,193 +151,6 @@ dopar(2,2,caption)
 a <- earth(O3~wind, data=ozone1, degree=2)
 plotmo(a, trace=Trace)
 
-caption <- "test lm(log(doy) ~ vh+wind+humidity+temp+log(ibh), data=ozone1)"
-dopar(4,5,caption)
-a <- lm(log(doy) ~ vh + wind + humidity + temp + log(ibh), data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, pch.response=20, trace=Trace)
-termplot(a)
-
-caption <- "test lm(log(doy) ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1)"
-dopar(4,5,caption)
-a <- lm(log(doy) ~ vh + wind + humidity + temp + log(ibh), data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.resp=3, pch.response=20, clip=FALSE, trace=Trace)
-termplot(a)
-
-caption <- "test lm(doy ~ (vh+wind+humidity)^2, data=ozone1)"
-dopar(4,3,caption)
-a <- lm(doy ~ (vh+wind+humidity)^2, data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, trace=Trace)
-# termplot(a) # termplot fails with Error in `[.data.frame`(mf, , i): undefined columns selected
-
-caption <- "test lm(doy^2 ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1)"
-dopar(4,3,caption)
-a <- lm(doy^2 ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, trace=Trace)
-termplot(a) # termplot draws a funky second wind plot
-
-caption <- "test lm with data=ozone versus attach(ozone)"
-dopar(4,3,caption)
-a <- lm(log(doy) ~ I(vh*wind) + wind + I(humidity*temp) + log(ibh), data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, degree1=c(1,2,4,5), trace=Trace)
-attach(ozone1)
-a <- lm(log(doy) ~ I(vh*wind) + wind + I(humidity*temp) + log(ibh))
-plotmo(a, do.par=FALSE, degree1=c(1,2,4,5), trace=Trace)
-detach(ozone1)
-
-# commented out because "$" in names is not yet supported
-# a <- lm(log(ozone1$doy) ~ I(ozone1$vh*ozone1$wind) + log(ozone1$ibh))
-# plotmo(a, trace=Trace)
-
-set.seed(1)
-caption <- "test glm, glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)"
-dopar(2,2,caption)
-library(faraway)
-data(orings)
-a <- lm(damage/6 ~ temp, data=orings)
-plotmo(a, do.par=FALSE, caption=caption, col.response="pink", clip=FALSE, nrug=-1, ylim=c(0,1),
-    main="lm(damage/6 ~ temp, data=orings)", trace=Trace)
-a <- glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)
-plotmo(a, do.par=FALSE, caption=caption, col.response="pink", clip=FALSE, nrug=-1, ylim=c(0,1),
-    main="glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)", trace=Trace)
-termplot(a)
-plotmo(a, type="link", main="type=\"link\" glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)", trace=Trace)
-
-set.seed(1)
-caption <- "test glm(lot2~log(u),data=clotting,family=Gamma)"
-dopar(2,2,caption)
-u = c(5,10,15,20,30,40,60,80,100)
-lota = c(118,58,42,35,27,25,21,19,18)
-clotting <- data.frame(u = u, lota = lota)
-a <- glm(lota ~ log(u), data=clotting, family=Gamma)
-plotmo(a, do.par=FALSE, caption=caption, col.response=3, clip=FALSE, nrug=-1, trace=Trace)
-termplot(a)
-plotmo(a, type="link", caption=paste("type=\"link\"", caption))
-
-if(length(grep("package:gam", search())))
-    detach("package:gam")
-library(mgcv)
-set.seed(1)
-caption <- "test plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
-dopar(3,2,caption)
-par(mar = c(3, 5, 1.7, 0.5))    # more space for left and bottom axis
-test1 <- function(x,sx=0.3,sz=0.4)
-    (pi**sx*sz)*(1.2*exp(-(x[,1]-0.2)^2/sx^2-(x[,2]-0.3)^2/sz^2)+
-    0.8*exp(-(x[,1]-0.7)^2/sx^2-(x[,2]-0.8)^2/sz^2))
-n <- 100
-set.seed(1)
-x <- runif(n);
-z <- runif(n);
-y <- test1(cbind(x,z)) + rnorm(n) * 0.1
-a <- gam(y ~ s(x) + s(x,z))
-plotmo(a, do.par=FALSE, type2="contour", caption=caption, col.response=3, func=test1, col.func=4, pch.func=1, trace=Trace)
-plotmo(a, do.par=FALSE, degree1=F, degree2=1, type2="image", ylim=NA, trace=Trace)
-plot(a, select=1)
-plot(a, select=2)
-plot(a, select=3)
-
-n<-400
-sig<-2
-set.seed(1)
-x0 <- runif(n, 0, 1)
-x1 <- runif(n, 0, 1)
-x2 <- runif(n, 0, 1)
-x3 <- runif(n, 0, 1)
-f0 <- function(x) 2 * sin(pi * x)
-f1 <- function(x) exp(2 * x)
-f2 <- function(x) 0.2*x^11*(10*(1-x))^6+10*(10*x)^3*(1-x)^10
-f <- f0(x0) + f1(x1) + f2(x2)
-e <- rnorm(n, 0, sig)
-y <- f + e
-test.func <- function(x) f0(x[,1]) + f1(x[,2]) + f2(x[,3])
-library(mgcv)
-caption <- "test mgcv::gam(y~s(x0,x1,k=12)+s(x2)+s(x3,k=20,fx=20)) (and extra persp plot)"
-dopar(3,3,caption)
-a <- gam(y~s(x0,x1,k=12)+s(x2)+s(x3,k=20,fx=20))
-plot(a, select=2)
-plot(a, select=3)
-plot(a, select=1)
-plotmo(a, do.par=FALSE, type2="contour", caption=caption, xlab=NULL, main="", func=test.func, trace=Trace)
-plotmo(a, do.par=FALSE, degree1=F, degree2=1, theta=-35, trace=Trace)
-
-set.seed(1)
-caption <- "test plot.gam, with mgcv::gam(doy~s(wind)+s(humidity,wind)+s(vh)+temp,data=ozone1)"
-dopar(3,3,caption)
-a <- gam(doy ~ s(wind) + s(humidity,wind) + s(vh) + temp, data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, type2="contour", degree1=c(1,3), xlab=NULL, main="", clip=FALSE, trace=Trace)
-plot(a, select=1)
-plot(a, select=3)
-plot(a, select=2)
-plot(a, select=4)
-
-# TODO Following commented out because it no longer works:
-#     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
-#         NA/NaN/Inf in foreign function call (arg 6)
-# detach("package:mgcv")
-# library(gam)
-# caption <- "test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-# set.seed(1)
-# dopar(3,2,caption)
-# data(airquality)
-# airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-# a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-# plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, trace=Trace)
-# # termplot gives fishy looking wind plot, plotmo looks ok
-# # termplot(a) #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-# detach("package:gam")
-
-library(mda)
-caption <- "test mars and earth (expect not a close match)"
-dopar(6,3,caption)
-a <- mars( ozone1[, -1], ozone1[,1], degree=2)
-b <- earth(ozone1[, -1], ozone1[,1], degree=2)
-plotmo(a, do.par=FALSE, caption=caption, trace=Trace)
-plotmo(b, do.par=FALSE, trace=Trace)
-
-caption <- "test mars and mars.to.earth(mars) (expect no degree2 for mars)"
-dopar(6,3,caption)
-a <- mars(ozone1[, -1], ozone1[,1], degree=2)
-b <- mars.to.earth(a)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, trace=Trace)
-plotmo(b, do.par=FALSE, ylim=NA, trace=Trace)
-
-# check fix for bug reported by Martin Maechler:
-# form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a) fails
-
-dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1)")
-fa <- log(O3) ~ .
-a <- earth(fa, data=ozone1, degree=2, minspan=-1)
-print(summary(a))
-plot(a, do.par=FALSE)
-plotmo(a, do.par=FALSE, degree1=2:3, degree2=c(1,3), col.response = "pink")
-a <- lm(log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh), data=ozone1)
-plotmo(a, do.par=FALSE, degree1=1:2)
-fa <- log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh)
-a <- lm(fa, data=ozone1)
-plotmo(a, do.par=FALSE, degree1=1:2)
-
-# test inverse.func and func
-
-caption <- "test inverse.func=exp"
-a <- lm(log(Volume) ~ Girth + Height + I(Girth*Height), data=trees)
-my.func <- function(x) -60 + 5 * x[,1] + x[,2] / 3
-plotmo(a, caption=caption, inverse.func = exp, col.response = "pink", func=my.func, col.func="grey", ndegree1=1000, type2="p", trace=Trace)
-
-# se testing
-
-caption = "se=2, lm(doy~., data=ozone1) versus termplot"
-dopar(6,3,caption)
-a <- lm(doy~., data=ozone1)
-plotmo(a, se=2, do.par=FALSE, trace=Trace, caption=caption)
-termplot(a, se=2)
-
-caption <- "test different se options, se=2, lm(log(doy)~vh+wind+log(humidity),data=ozone1)"
-dopar(4,3,caption)
-a <- lm(log(doy) ~ vh + wind + log(humidity), data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, trace=Trace)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, col.shade.se=0, col.se=1, trace=Trace)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, col.se=1, trace=Trace)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, se=2, col.se=1, trace=Trace)
-
 caption = "se=2, earth(doy~humidity+temp+wind, data=ozone1) versus termplot (expect no se lines)"
 dopar(3,2,caption)
 a <- earth(doy~humidity + temp + wind, data=ozone1, degree=2)
@@ -323,128 +158,6 @@ cat("Ignore warning: predict.earth ignored argument \"se\"\n")
 termplot(a)
 cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
 plotmo(a, se=2, do.par=FALSE, ylim=NA, degree2=c(1:2), clip=FALSE, caption=caption, trace=Trace)
-
-caption <- "test se=2, lm(log(doy)~vh+wind+log(humidity),data=ozone1)"
-dopar(2,3,caption)
-a <- lm(log(doy) ~ vh + wind + log(humidity), data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, trace=Trace)
-termplot(a, se=TRUE)
-
-caption <- "test se=2 and inverse.func, lm(log(doy)~vh+wind+log(humidity),data=ozone1)"
-dopar(3,3,caption)
-a <- lm(log(doy) ~ vh + wind + log(humidity), data=ozone1)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, trace=Trace)
-plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, se=2, inverse.func=exp, trace=Trace)
-termplot(a, se=TRUE)
-
-caption <- "test se=3, glm(lot2~log(u),data=clotting,family=Gamma)"
-set.seed(1)
-dopar(2,2,caption)
-u = c(5,10,15,20,30,40,60,80,100)
-lota = c(118,58,42,35,27,25,21,19,18)
-clotting <- data.frame(u = u, lota = lota)
-a <- glm(lota ~ log(u), data=clotting, family=Gamma)
-plotmo(a, do.par=FALSE, caption=caption, col.response=4, pch.response=7, clip=FALSE, nrug=-1, se=3, trace=Trace)
-termplot(a, se=TRUE)
-
-if(length(grep("package:gam", search())))
-    detach("package:gam")
-library(mgcv)
-set.seed(1)
-caption <- "test se=2, plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
-dopar(3,2,caption)
-par(mar = c(3, 5, 1.7, 0.5))    # more space for left and bottom axis
-test1 <- function(x,sx=0.3,sz=0.4)
-    (pi**sx*sz)*(1.2*exp(-(x[,1]-0.2)^2/sx^2-(x[,2]-0.3)^2/sz^2)+
-    0.8*exp(-(x[,1]-0.7)^2/sx^2-(x[,2]-0.8)^2/sz^2))
-n <- 100
-set.seed(1)
-x <- runif(n);
-z <- runif(n);
-y <- test1(cbind(x,z)) + rnorm(n) * 0.1
-a <- gam(y ~ s(x) + s(x,z))
-plotmo(a, do.par=FALSE, type2="contour", caption=caption, col.response=3, func=test1, col.func=4, se=2, trace=Trace)
-plotmo(a, do.par=FALSE, degree1=F, degree2=1, type2="image", col.image=topo.colors(10),
-        ylim=NA, se=2, trace=Trace, main="topo.colors")
-plot(a, select=1)
-plot(a, select=2)
-plot(a, select=3)
-
-# TODO Following commented out because it no longer works:
-#     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
-#         NA/NaN/Inf in foreign function call (arg 6)
-# detach("package:mgcv")
-# library(gam)
-# set.seed(1)
-# caption <- "test se=2, gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-# dopar(3,2,caption)
-# data(airquality)
-# airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-# a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-# cat("Ignore three warnings: No standard errors (currently) for gam predictions with newdata\n")
-# plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
-# # termplot(a)  #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-# detach("package:gam")
-
-# test factors by changing wind to a factor
-
-ozone1[,"wind"] <- factor(ozone1[,"wind"])
-
-# commented out because factors are not yet supported by plotmo.earth
-# caption <- "test wind=factor, earth(O3 ~ ., data=ozone1)"
-# a <- earth(doy ~ ., data=ozone1)
-# set.seed(1)
-# dopar(4,3,caption)
-# plotmo(a, col.response="gray", se=2, nrug=-1, do.par=FALSE, caption=caption, trace=Trace)
-# termplot(a)
-
-caption <- "test wind=factor, lm(doy ~ vh + wind + I(humidity*temp) + log(ibh), data=ozone1)"
-a <- lm(doy ~ vh + wind + I(humidity*temp) + log(ibh), data=ozone1)
-set.seed(1)
-dopar(4,3,caption)
-plotmo(a, col.response="gray", se=2, nrug=-1, do.par=FALSE, caption=caption, trace=Trace)
-termplot(a, se=TRUE)
-
-caption <- "test test se options like col.se"
-dopar(2,2,caption)
-plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, caption=caption, trace=Trace)
-plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, lty.se=1, col.se=2, trace=Trace)
-plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, lty.se=1, col.shade=0, trace=Trace)
-plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, lty.se=3, col.shade="gray", trace=Trace)
-
-caption <- "test wind=factor, glm(y ~ i + j, family=poisson())"
-y <- c(18,17,15,20,10,20,25,13,12)
-i <- gl(3,1,9)
-j <- gl(3,3)
-a <- glm(y ~ i + j, family=poisson())
-set.seed(1)
-dopar(2,2,caption)
-plotmo(a, do.par=F, se=2, nrug=-1, caption=caption, trace=Trace)
-termplot(a, se=1, rug=T)
-
-if(length(grep("package:gam", search())))
-   detach("package:gam")
-caption <- "test wind=factor, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
-library(mgcv)
-a <- gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)
-plotmo(a, se=1, caption=caption, trace=Trace)
-caption <- "test wind=factor, clip=TRUE, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
-plotmo(a, se=1, caption=caption, clip=FALSE, trace=Trace)
-# termplot doesn't work here so code commented out
-# dopar(3,3,caption)
-# plotmo(a, do.par=FALSE, trace=Trace)
-# termplot(a)
-
-# commented out because se is not supported for gam::predict.gam
-# detach("package:mgcv")
-# library(gam)
-# caption <- "test wind=factor, gam:gam(doy ~ vh + wind + lo(humidity) + lo(vh) + temp, data=ozone1)"
-# a <- gam(doy ~ vh + wind + lo(humidity) + lo(vh) + temp, data=ozone1)
-# set.seed(1)
-# dopar(4,3,caption)
-# plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, subcaption=caption, trace=Trace)
-# termplot(a, se=1)
-# detach("package:gam")
 
 # test fix to bug reported by Joe Retzer, FIXED Dec 7, 2007
 N <- 650
@@ -544,60 +257,51 @@ print(summary(a.rather.long.in.fact.very.long.name.for.the.modelC, digits = 2))
 plot(a.rather.long.in.fact.very.long.name.for.the.modelC)
 plotmo(a.rather.long.in.fact.very.long.name.for.the.modelC)
 
-cat("==test plotmo with factors==\n")
 data(etitanic)
 a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
 print(summary(a))
 plotmo(a, trace=Trace, caption="plotmo with facs: pclass+sex+age")
 plotmo(a, trace=Trace, clip=FALSE, degree2=FALSE, caption="plotmo (no degree2) with facs: pclass+sex+age")
-plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2nd", sex="male"),
+plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2n", sex="ma"),
        caption="plotmo with grid.levels: pclass+sex+age")
 # in above tests, all degree2 terms use facs
 # now build a model with some degree2 term that use facs, some that don't
 a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2)
 print(summary(a))
-plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms")
+plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms", border=NA)
 plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms and grid.levels",
-       grid.levels=list(pclass="2nd"))
+       grid.levels=list(pclass="2n", age=20), # test partial matching of grid levels, and numeric preds
+       ticktype="d", nticks=2)
+
+# check detection of illegal grid.levels argument
+try(plotmo(a, grid.levels=list(pcla="1", pclass="2")))  # Expect error
+try(plotmo(a, grid.levels=list(pclass="1", pcla="2")))  # Expect error
+try(plotmo(a, grid.levels=list(pcla=1)))                # Expect error
+try(plotmo(a, grid.levels=list(pcla=c("ab", "cd"))))    # Expect error
+try(plotmo(a, grid.levels=list(pcla=NA)))               # Expect error
+try(plotmo(a, grid.levels=list(pcla=Inf)))              # Expect error
+try(plotmo(a, grid.levels=list(pcla=9)))                # Expect error
+try(plotmo(a, grid.levels=list(age="ab")))              # Expect error
+try(plotmo(a, grid.levels=list(age=NA)))                # Expect error
+try(plotmo(a, grid.levels=list(age=Inf)))               # Expect error
+try(plotmo(a, grid.lev=list(age=list(1,2))))            # Expect error
 
 # more-or-less repeat above, but with glm models
 a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2, glm=list(family=binomial))
 print(summary(a))
 plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms")
 plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms and grid.levels",
-       grid.levels=list(pclass="2nd"))
+       grid.levels=list(pcl="2nd")) # test partial matching of variable name in grid levels
 plotmo(a, type="earth", ylim=c(0, 1), caption="type=\"earth\" plotmo glm with mixed fac and non-fac degree2 terms")
 plotmo(a, type="link", ylim=c(0, 1), clip=FALSE, caption="type=\"link\" plotmo glm with mixed fac and non-fac degree2 terms")
 plotmo(a, type="class", ylim=c(0, 1), caption="type=\"class\" plotmo glm with mixed fac and non-fac degree2 terms")
-plotmo(a, type="response", ylim=c(0, 1), caption="type=\"response\" plotmo glm with mixed fac and non-fac degree2 terms")
+plotmo(a, ylim=c(0, 1), caption="default type (\"response\")\nplotmo glm with mixed fac and non-fac degree2 terms")
 # now with different type2's
 plotmo(a, do.par=FALSE, type2="persp",   theta=-20, degree1=FALSE, grid.levels=list(pclass="2nd"))
 plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass="2nd"))
 plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"),
        col.response=as.numeric(etitanic$survived)+2, pch.response=20)
-plotmo(a, do.par=FALSE, type="earth", type2="image", degree1=FALSE, grid.levels=list(pclass="2nd"))
-
-# test lda and qda, and also col.response, pch.response, and jitter.response
-library(MASS)
-etitanic2 <- etitanic
-etitanic2$pclass <- as.numeric(etitanic$pclass)
-etitanic2$sex <- as.numeric(etitanic$sex)
-etitanic2$sibsp <- NULL
-etitanic2$parch <- NULL
-lda.model <- lda(survived ~ ., data=etitanic2)
-set.seed(7)
-plotmo(lda.model, caption="lda", trace=1, clip=F,
-       col.response=as.numeric(etitanic2$survived)+2, type="posterior",
-       degree2="all", type2="image")
-set.seed(8)
-plotmo(lda.model, caption="lda with jitter", trace=1, clip=F,
-       col.response=as.numeric(etitanic2$survived)+2, type="posterior",
-       degree2="all", type2="image", jitter.response=1)
-qda.model <- qda(survived ~ ., data=etitanic2)
-set.seed(9)
-plotmo(qda.model, caption="qda with jitter", trace=1, clip=F,
-       col.response=as.numeric(etitanic2$survived)+2, type="posterior",
-       degree2="all", type2="image", jitter.resp=.5, pch.resp=20)
+plotmo(a, do.par=FALSE, type="earth", type2="image", degree1=FALSE, grid.levels=list(pclass="2"))
 
 # test vector main
 
@@ -619,6 +323,14 @@ set.seed(1) # needed for nrug
 cat("Expect warning below\n")
 plotmo(a20, nrug=-1, caption="Test plotmo with a vector main, missing single titles",
        main=c("Humidity", "Temperature"))
+
+aflip <- earth(O3~vh + wind + humidity + temp, data=ozone1, degree=2)
+
+# test all1 and all2, with and without degree1 and degree2
+plotmo(aflip, all2=T, caption="all2=T")
+plotmo(aflip, all2=T, degree2=c(4, 2), caption="all2=T, degree2=c(4, 2)")
+plotmo(aflip, all1=T, caption="all1=T")
+plotmo(aflip, all1=T, degree1=c(3,1), degree2=NA, caption="all1=T, degree1=c(3,1), degree2=NA")
 
 if(!interactive()) {
     dev.off()         # finish postscript plot

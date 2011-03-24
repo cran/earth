@@ -8,14 +8,14 @@ check.glm.model <- function(g, response.name) # g is a model created by calling 
     # TODO following check is pointless? df is only defined for summary.glm?
     df <- if("df" %in% names(g)) g[["df"]] else NULL # avoid partial matching
     if(!is.null(df) && (nsingular <- df[3] - df[1]))
-        stop1("earth glm response \"", response.name, "\": ", nsingular,
+        stop0("earth glm response \"", response.name, "\": ", nsingular,
               " coefficients not defined because of singularities")
 
     if(length(coef(g)) == 0)
-        stop1("earth glm response \"", response.name, "\": no glm coefficients");
+        stop0("earth glm response \"", response.name, "\": no glm coefficients");
 
     if(any(is.na(coef(g))))
-        stop1("earth glm response \"", response.name, "\": NA in glm coefficients")
+        stop0("earth glm response \"", response.name, "\": NA in glm coefficients")
 }
 
 # Check for a common user error: specifying a family argument
@@ -25,7 +25,7 @@ check.no.family.arg.to.earth <- function(...)
 {
     dots <- match.call(expand.dots=FALSE)$...
     if(!is.null(dots$fa)) # partial match
-        stop1("illegal \"family\" argument to earth\n", try.something.like)
+        stop0("illegal \"family\" argument to earth\n", try.something.like)
 }
 
 # This duplicates some tests in binomial in family.R for
@@ -39,9 +39,9 @@ check.yarg.for.binomial.glm <- function(yarg, weights, mustart, more.y.columns)
         if(more.y.columns)
             cat("Possible remedy: pair this column with",
                 "the next column using the \"bpairs\" arg\n")
-        cat("The first few rows of the y argument to glm are\n", sep="")
+        cat0("The first few rows of the y argument to glm are\n")
         print(head(yarg))
-        stop1("glm with earth failed, see above messages")
+        stop0("glm with earth failed, see above messages")
     }
 }
 
@@ -143,7 +143,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
             yarg <- y[, iycol, drop=FALSE]      # single y column
         else {
             if(!glm.bpairs[iycol])
-                stop1(
+                stop0(
 "unmatched FALSE value in \"bpairs\" for y column ", iycol, "\n",
 "       Each FALSE in \"bpairs\" should be preceded by a TRUE\n",
 "       Your bpairs is ", paste.with.space(glm.bpairs))
@@ -175,10 +175,10 @@ earth.glm <- function(bx, y, weights, na.action, glm,
             g <- hack.intercept.only.glm.model(g)
 
         if(trace == 0 && !g$converged) # give a message specific to this response
-            cat("earth glm ", response.name,
-                ": did not converge after ", g$iter," iterations\n", sep="")
+            cat0("earth glm ", response.name,
+                 ": did not converge after ", g$iter," iterations\n")
         if(trace >= 1) {
-            cat("GLM ", colnames(yarg)[1], ": ", sep="")
+            cat0("GLM ", colnames(yarg)[1], ": ")
             print.one.earth.glm(g, digits=getOption("digits"))
         }
         check.glm.model(g, colnames(yarg)[1])
@@ -199,7 +199,7 @@ get.glm.family <- function(family, env)
     if(is.function(family))
         family <- family()
     if(is.null(family$family))
-        stop1("earth: illegal \"family\" in \"glm\" argument\n",
+        stop0("earth: illegal \"family\" in \"glm\" argument\n",
               try.something.like)
     family
 }
@@ -226,7 +226,7 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
         for(i in 1:length(glm)) {
             j <- pmatch(names(glm)[[i]], glm.args, nomatch=0)
             if(j == 0)
-                stop1("earth: \"",
+                stop0("earth: \"",
                       names(glm)[[i]], "\" is not supported in glm argument to earth")
             names(glm)[[i]] <- glm.args[j]
         }
@@ -239,24 +239,24 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
 
             i <- pmatch(glm$family, family.strings, nomatch=0)
             if(i == 0)
-                stop1("earth: illegal family \"", glm$family, "\" in glm argument\n",
+                stop0("earth: illegal family \"", glm$family, "\" in glm argument\n",
                       try.something.like)
             glm$family <- family.strings[i]
         }
         glm
     }
-    # get.glm.arg starts here
+    #--- get.glm.arg starts here ---
 
     if(!is.list(glm))
-        stop1("earth: \"glm\" argument must be a list\n", try.something.like)
+        stop0("earth: \"glm\" argument must be a list\n", try.something.like)
     if(length(glm) == 0)
-        stop1("earth: \"glm\" argument list is empty\n", try.something.like)
+        stop0("earth: \"glm\" argument list is empty\n", try.something.like)
     arg.names <- names(glm)
     if(length(arg.names) == 0)
-        stop1("earth: no argument names in \"glm\" argument list\n", try.something.like)
+        stop0("earth: no argument names in \"glm\" argument list\n", try.something.like)
     glm <- match.glm.arg(glm)  # expand argument names to their full name
     if(is.null(glm$family))
-        stop1("earth: \"glm\" argument must have a \"family\" parameter\n",
+        stop0("earth: \"glm\" argument must have a \"family\" parameter\n",
               try.something.like)
 
     always.true.args <- c("x", "y", "model")
@@ -264,7 +264,7 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
     imatch <- pmatch(always.true.args, arg.names)
     imatch <- imatch[!is.na(imatch)]
     if(any(imatch))
-        stop1("earth: illegal \"", arg.names[imatch[1]],
+        stop0("earth: illegal \"", arg.names[imatch[1]],
               "\" in \"glm\" argument\n",
               "These are always effectively TRUE")
 
@@ -276,7 +276,7 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
     imatch <- pmatch(earths.args, arg.names)
     imatch <- imatch[!is.na(imatch)]
     if(any(imatch)) {
-        stop1("earth: illegal \"", arg.names[imatch[1]],
+        stop0("earth: illegal \"", arg.names[imatch[1]],
               "\" in \"glm\" argument\n",
               "Use earth's \"", arg.names[imatch[1]], "\" argument instead")
     }
@@ -310,9 +310,9 @@ get.glm.bpairs <- function(y, glm)
     bpairs <- glm$bpairs
     if(!is.null(bpairs)) {              # bpairs provided by user?
         if(ncol(y) == 1)
-            stop1("\"bpairs\" argument is illegal because y has only one column")
+            stop0("\"bpairs\" argument is illegal because y has only one column")
         if(!is.binomial(glm$family))
-            stop1("\"bpairs\" argument is illegal because the family ",
+            stop0("\"bpairs\" argument is illegal because the family ",
                   "is not binomial or quasibinomial")
         check.index.vec("bpairs", bpairs, y,
                         check.empty=TRUE, use.as.col.index=TRUE)
@@ -350,11 +350,11 @@ is.binomial <- function(family) # return true if family is binom or quasibinom
             (substr(family, 1, 1) == "b" ||
              substr(family, 1, 6) == "quasib"))
         ||
-        (class(family) == "function" &&     # e.g. binomial
+        (class(family)[1] == "function" &&  # e.g. binomial
             (identical(body(family), body(binomial)) ||
              identical(body(family), body(quasibinomial))))
         ||
-        (class(family) == "family" &&       # e.g. binomial()
+        (class(family)[1] == "family" &&    # e.g. binomial()
             (family$family == "binomial" ||
              family$family == "quasibinomial"))
     )
@@ -367,11 +367,11 @@ is.poisson <- function(family) # return true if family is poisson or quasipoisso
             (substr(family, 1, 1) == "p" ||
              substr(family, 1, 6) == "quasip"))
         ||
-        (class(family) == "function" &&     # e.g. poisson
+        (class(family)[1] == "function" &&  # e.g. poisson
             (identical(body(family), body(poisson)) ||
              identical(body(family), body(quasipoisson))))
         ||
-        (class(family) == "family" &&       # e.g. poisson()
+        (class(family)[1] == "family" &&    # e.g. poisson()
             (family$family == "poisson" ||
              family$family == "quasipoisson"))
     )
@@ -388,8 +388,8 @@ print.earth.glm <- function(obj, digits, fixed.point)    # obj is an earth objec
     if(nresp == 1)
         print.one.earth.glm(glm.list[[1]], digits)
     else {                                  # create a matrix and print that
-        cat("(family ", glm.list[[1]]$family$family, ", link ",
-             glm.list[[1]]$family$link, ")\n", sep="")
+        cat0("(family ", glm.list[[1]]$family$family, ", link ",
+             glm.list[[1]]$family$link, ")\n")
 
         a <- matrix(nrow=nresp, ncol=6)
         colnames(a) <- c("null.deviance", "df", "deviance", "df", "iters", "converged")
@@ -419,19 +419,18 @@ print.glm.details <- function(g, nresp, digits, fixed.point, response.name)
     else
         prefix <- paste("GLM")
     sumg <- summary(g)
-    cat(prefix, " deviance residuals:\n", sep="")
+    cat0(prefix, " deviance residuals:\n")
     if(sumg$df.residual > 5) {
         sumg$deviance.resid <- quantile(sumg$deviance.resid,na.rm=TRUE)
         names(sumg$deviance.resid) <- c("Min", "1Q", "Median", "3Q", "Max")
     }
     print.default(sumg$deviance.resid, digits=digits, na.print="", print.gap=2)
     df <- if("df" %in% names(sumg)) sumg[["df"]] else NULL
-    cat("\n", prefix, sep="")
-    cat(" coefficients (family ", g$family$family, ", link ",
-         g$family$link, ")\n", sep="")
+    cat0("\n", prefix)
+    cat0(" coefficients (family ", g$family$family, ", link ", g$family$link, ")\n")
     if(!is.null(df) && (nsingular <- df[3] - df[1]))
-        cat(nsingular,  # should never happen for earth glm
-            " coefficients not defined because of singularities\n", sep="")
+        cat0(nsingular,  # should never happen for earth glm
+             " coefficients not defined because of singularities\n")
     aliased <- is.na(coef(g))
     stopif(length(aliased) == 0 || any(aliased)) # already checked in check.glm.model
     coefs <- sumg$coefficients
@@ -439,19 +438,19 @@ print.glm.details <- function(g, nresp, digits, fixed.point, response.name)
     # TODO can't use fixed.point here, would like to
     printCoefmat(coefs, digits=digits, signif.stars=FALSE, na.print="NA")
     if(sumg$dispersion != 1) # only show dispersion if it is not 1
-        cat("\n", prefix, " dispersion parameter for ", sumg$family$family,
-            " family taken to be ", format(sumg$dispersion), "\n", sep="")
+        cat0("\n", prefix, " dispersion parameter for ", sumg$family$family,
+             " family taken to be ", format(sumg$dispersion), "\n")
     cat("\n")
     NULL
 }
 
 print.one.earth.glm <- function(g, digits)
 {
-    cat("null.deviance ",  format(g$null.deviance, digits=digits),
+    cat0("null.deviance ",  format(g$null.deviance, digits=digits),
          " (",             g$df.null, " dof)",
          "   deviance ",   format(g$deviance, digits=digits),
          " (",             g$df.residual, " dof)",
          "   iters ",      g$iter,
          if(!g$converged) " did not converge" else "",
-         "\n", sep="")
+         "\n")
 }

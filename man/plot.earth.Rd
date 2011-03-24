@@ -8,7 +8,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
 }
 \usage{
 \method{plot}{earth}(x = stop("no 'x' arg"),
-     which = 1:4, ycolumn = 1,
+     which = 1:4, nresponse = 1,
      caption = if(do.par) NULL else "",
      col.rsq = "lightblue", col.loess = col.rsq,
      col.qq = col.rsq, col.grid = "grey",
@@ -32,14 +32,13 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
 3)  residuals versus fitted values\cr
 4)  QQ plot of residuals
   }
-  \item{ycolumn}{
+  \item{nresponse}{
      Specify which column of the response to plot if the model has multiple responses.
      Default is 1.
      This argument does not affect the model selection plot which is always across all responses.\cr
-TODO there is an issue in the handling of \code{ycolumn} for multiple
+TODO there is an issue in the handling of \code{nresponse} for multiple
 level factor responses.
-Does \code{ycolumn} refer to the column in the observed or predicted response?
-
+Does \code{nresponse} refer to the column in the observed or predicted response?
   }
   \item{caption}{
     Overall caption.  The default value is

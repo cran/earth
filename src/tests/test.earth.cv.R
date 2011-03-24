@@ -134,7 +134,7 @@ printh(a7$cv.list.)
 printh(a7)
 printh(summary(a7))
 # expect a note: plotmo cannot use factors as axes for degree2 plots...
-plotmo(a7, ycolumn=1)
+plotmo(a7, nresponse=1)
 printh(a7$cv.list[[3]])
 printh(summary(a7$cv.list[[3]]))
 

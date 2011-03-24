@@ -158,14 +158,14 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
         # mars and earth normalize wp differently, see header comments
         # TODO there is probably a better way of handling this
 
-        warning1("w or wp were used in the original call to mars.\n",
+        warning0("w or wp were used in the original call to mars.\n",
                  "         Running update.earth to conform mars ",
                  "use of weights to earth.\n")
 
         rval <- update(object=rval)
     }
     else if(!isTRUE(all.equal(object$gcv, rval$gcv)))
-        warning1("the original mars GCV is              ", object$gcv,
+        warning0("the original mars GCV is              ", object$gcv,
                  "\n         ",
                  "but the GCV recalculated for earth is ", rval$gcv, "\n")
 

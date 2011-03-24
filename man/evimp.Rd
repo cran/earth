@@ -163,7 +163,7 @@ followed by \code{humidity}, and so on.
 We see that \code{vh} is unused in the final model,
 and thus is given an \code{unused} suffix and a 0 in the \code{used} column.
 
-The \code{col} column gives the the column indices of the variables
+The \code{col} column gives the column indices of the variables
 in the \code{x} argument to \code{earth}
 (after factors, if any, have been expanded; none in this example).
 

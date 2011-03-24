@@ -4,7 +4,7 @@
 Loading required package: leaps
 Loading required package: plotrix
 Warning message:
-package 'plotrix' was built under R version 2.12.1 
+package 'plotrix' was built under R version 2.12.2 
 > if(!interactive())
 +     postscript(paper="letter")
 > data(ozone1)
@@ -28,7 +28,7 @@ package 'plotrix' was built under R version 2.12.1
 > 
 > count <- 0
 > 
-> print.earth.models <- function(a)
+> print.earth.models <- function(a, nresponse=NA)
 + {
 +     model.name <- deparse(substitute(a))
 +     cat("\nPrint", model.name, "\n\n")
@@ -58,7 +58,10 @@ package 'plotrix' was built under R version 2.12.1
 +             "family", family$family, "link", family$link, "\n")
 +     }
 +     cat("\nplotmo", model.name, "\n")
-+     plotmo(a)
++     if(is.na(nresponse))
++         plotmo(a, trace=2)
++     else
++         plotmo(a, trace=2, nresponse=nresponse)
 +     cat("-------------------------------------------------------------------------------\n\n")
 + }
 > 
@@ -236,11 +239,51 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a1 
 
+--get.plotmo.x
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got x with colnames from object$call$formula
+x[12,3]
+   sex ldose ldose1
+1 male    -2    0.1
+2 male    -1    1.2
+3 male     0    0.1
+is.factor TRUE FALSE FALSE 
+
+--get.plotmo.y
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got y from object$call$formula
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose, 3 ldose1 
+
+--get.pairs
+
+pairs:
+     [,1]      [,2]      
+[1,] "1 sex"   "2 ldose" 
+[2,] "2 ldose" "3 ldose1"
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    sex ldose ldose1
        female   0.5    0.6
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: sex
+
+--plot.degree2(draw.plot=TRUE)
+persp(sex:ldose) theta -35 ylim 0 1 cex  phi 30
+persp(ldose:ldose1) theta 235 ylim 0 1 cex  phi 30
 -------------------------------------------------------------------------------
 
 > printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
@@ -419,11 +462,51 @@ glm params: epsilon 1e-08 maxit 2 trace TRUE family binomial link logit
 
 plotmo a1h 
 
+--get.plotmo.x
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got x with colnames from object$call$formula
+x[12,3]
+   sex ldose ldose1
+1 male    -2    0.1
+2 male    -1    1.2
+3 male     0    0.1
+is.factor TRUE FALSE FALSE 
+
+--get.plotmo.y
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got y from object$call$formula
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose, 3 ldose1 
+
+--get.pairs
+
+pairs:
+     [,1]      [,2]      
+[1,] "1 sex"   "2 ldose" 
+[2,] "2 ldose" "3 ldose1"
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    sex ldose ldose1
        female   0.5    0.6
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: sex
+
+--plot.degree2(draw.plot=TRUE)
+persp(sex:ldose) theta -35 ylim 0 1 cex  phi 30
+persp(ldose:ldose1) theta 235 ylim 0 1 cex  phi 30
 -------------------------------------------------------------------------------
 
 > check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
@@ -536,11 +619,51 @@ glm params: epsilon 1e-08 maxit 8 trace FALSE family binomial link probit
 
 plotmo a1h.update1 
 
+--get.plotmo.x
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got x with colnames from object$call$formula
+x[12,3]
+   sex ldose ldose1
+1 male    -2    0.1
+2 male    -1    1.2
+3 male     0    0.1
+is.factor TRUE FALSE FALSE 
+
+--get.plotmo.y
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got y from object$call$formula
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose, 3 ldose1 
+
+--get.pairs
+
+pairs:
+     [,1]      [,2]      
+[1,] "1 sex"   "2 ldose" 
+[2,] "2 ldose" "3 ldose1"
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    sex ldose ldose1
        female   0.5    0.6
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: sex
+
+--plot.degree2(draw.plot=TRUE)
+persp(sex:ldose) theta -35 ylim 0 1 cex  phi 30
+persp(ldose:ldose1) theta 235 ylim 0 1 cex  phi 30
 -------------------------------------------------------------------------------
 
 > a1h.update2 <- update(a1h, glm=list(family=gaussian, maxit=9), degree=1)
@@ -554,7 +677,7 @@ After backward pass GRSq 0.9525 RSq 0.9808
 GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
 GLM numalive: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
 > stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
-> print.earth.models(a1h.update2)
+> print.earth.models(a1h.update2, nresponse="numali")
 
 Print a1h.update2 
 
@@ -672,6 +795,148 @@ ldose1-unused   3    0        0   0.000000 1   0.000 1
 glm params: epsilon 1e-08 maxit 9 trace FALSE family gaussian link identity 
 
 plotmo a1h.update2 
+
+--get.plotmo.x
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got x with colnames from object$call$formula
+x[12,3]
+   sex ldose ldose1
+1 male    -2    0.1
+2 male    -1    1.2
+3 male     0    0.1
+is.factor TRUE FALSE FALSE 
+
+--get.plotmo.y
+
+formula SF ~ sex + ldose + ldose1
+stripped formula SF~sex+ldose+ldose1
+about to call model.frame(formula=SF~sex+ldose+ldose1)
+got y from object$call$formula
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 20 
+
+--get.singles
+
+singles: 1 sex, 2 ldose, 3 ldose1 
+
+--get.pairs
+
+no pairs
+
+--plot.degree1(draw.plot=FALSE)
+
+plotmo.predict(type="response") for predictor "sex" with newdata[500,3]:
+     sex ldose ldose1
+1 female   0.5    0.6
+2   male   0.5    0.6
+3 female   0.5    0.6
+get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose ldose1
+1 female   0.5    0.6
+2   male   0.5    0.6
+3 female   0.5    0.6
+4   male   0.5    0.6
+5 female   0.5    0.6
+6   male   0.5    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose ldose1
+1 female   0.5    0.6
+2   male   0.5    0.6
+3 female   0.5    0.6
+4   male   0.5    0.6
+5 female   0.5    0.6
+6   male   0.5    0.6
+predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1         2.5       0
+[2,]           1         2.5       1
+[3,]           1         2.5       0
+[4,]           1         2.5       1
+[5,]           1         2.5       0
+[6,]           1         2.5       1
+predict.earth: returning glm response predictions
+predict() returned "numalive" length 500 min 9.166667 max 12.33333 values 12.33333 9.166667 12.33333 9.166667 12.33333 9.166667 12.33333 9.166667 12.33333 9.166667 ...
+
+plotmo.predict(type="response") for predictor "ldose" with newdata[500,3]:
+     sex    ldose ldose1
+1 female -2.00000    0.6
+2 female -1.98998    0.6
+3 female -1.97996    0.6
+get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex     ldose ldose1
+1 female -2.000000    0.6
+2 female -1.989980    0.6
+3 female -1.979960    0.6
+4 female -1.969940    0.6
+5 female -1.959920    0.6
+6 female -1.949900    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex     ldose ldose1
+1 female -2.000000    0.6
+2 female -1.989980    0.6
+3 female -1.979960    0.6
+4 female -1.969940    0.6
+5 female -1.959920    0.6
+6 female -1.949900    0.6
+predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1  0.00000000       0
+[2,]           1  0.01002004       0
+[3,]           1  0.02004008       0
+[4,]           1  0.03006012       0
+[5,]           1  0.04008016       0
+[6,]           1  0.05010020       0
+predict.earth: returning glm response predictions
+predict() returned "numalive" length 500 min 3.226190 max 21.44048 values 21.44048 21.40397 21.36747 21.33097 21.29447 21.25797 21.22147 21.18497 21.14846 21.11196 ...
+
+plotmo.predict(type="response") for predictor "ldose1" with newdata[500,3]:
+     sex ldose    ldose1
+1 female   0.5 0.1000000
+2 female   0.5 0.1026052
+3 female   0.5 0.1052104
+get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose    ldose1
+1 female   0.5 0.1000000
+2 female   0.5 0.1026052
+3 female   0.5 0.1052104
+4 female   0.5 0.1078156
+5 female   0.5 0.1104208
+6 female   0.5 0.1130261
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose    ldose1
+1 female   0.5 0.1000000
+2 female   0.5 0.1026052
+3 female   0.5 0.1052104
+4 female   0.5 0.1078156
+5 female   0.5 0.1104208
+6 female   0.5 0.1130261
+predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1         2.5       0
+[2,]           1         2.5       0
+[3,]           1         2.5       0
+[4,]           1         2.5       0
+[5,]           1         2.5       0
+[6,]           1         2.5       0
+predict.earth: returning glm response predictions
+predict() returned "numalive" length 500 min 12.33333 max 12.33333 values 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 ...
+
+ylim 3.226190 19.98041 
+
+--plot.degree1(draw.plot=TRUE)
 
  grid:    sex ldose ldose1
        female   0.5    0.6
@@ -823,6 +1088,41 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a2 
 
+--get.plotmo.x
+
+formula SF ~ sex * ldose
+stripped formula SF~sex+ldose
+about to call model.frame(formula=SF~sex+ldose)
+got x with colnames from object$call$formula
+x[12,2]
+   sex ldose
+1 male    -2
+2 male    -1
+3 male     0
+is.factor TRUE FALSE 
+
+--get.plotmo.y
+
+formula SF ~ sex * ldose
+stripped formula SF~sex+ldose
+about to call model.frame(formula=SF~sex+ldose)
+got y from object$call$formula
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose 
+
+--get.pairs
+
+no pairs
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    sex ldose
        female   0.5
 
@@ -898,8 +1198,6 @@ Number of Fisher Scoring iterations: 4
  grid:    sex ldose
        female   0.5
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: sex
 > cat("-------------------------------------------------------------------------------\n\n")
 -------------------------------------------------------------------------------
 
@@ -919,7 +1217,7 @@ Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a4)
+> print.earth.models(a4, nresponse="numdead")
 
 Print a4 
 
@@ -1033,6 +1331,41 @@ sexmale:ldose-unused   3    0        0   0.000000 1   0.000000 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a4 
+
+--get.plotmo.x
+
+formula SF.both ~ sex * ldose
+stripped formula SF.both~sex+ldose
+about to call model.frame(formula=SF.both~sex+ldose)
+got x with colnames from object$call$formula
+x[12,2]
+   sex ldose
+1 male    -2
+2 male    -1
+3 male     0
+is.factor TRUE FALSE 
+
+--get.plotmo.y
+
+formula SF.both ~ sex * ldose
+stripped formula SF.both~sex+ldose
+about to call model.frame(formula=SF.both~sex+ldose)
+got y from object$call$formula
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose 
+
+--get.pairs
+
+no pairs
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
 
  grid:    sex ldose
        female   0.5
@@ -1234,7 +1567,7 @@ check.models.equal not identical: a4update a4d no keepxy [but within numerical t
 a5: titanic data, multiple responses (i.e. 3 level factor)
 
 > a5 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
-> print.earth.models(a5)
+> print.earth.models(a5, nresponse=3)
 
 Print a5 
 
@@ -1406,11 +1739,71 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a5 
 
+--get.plotmo.x
+
+formula pclass ~ .
+stripped formula pclass~.
+get.formula.data: got x from data passed to original call to earth 
+about to call model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+got x with colnames from object$call$formula
+x[1046,5]
+  survived    sex     age sibsp parch
+1        1 female 29.0000     0     0
+2        1   male  0.9167     1     2
+3        0 female  2.0000     1     2
+is.factor FALSE TRUE FALSE FALSE FALSE 
+
+--get.plotmo.y
+
+formula pclass ~ .
+stripped formula pclass~.
+get.formula.data: got y from data passed to original call to earth 
+about to call model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+got y from object$call$formula
+get.plotmo.y returned "1st" length 1046 min 0 max 1 values 1 1 1 1 1 1 1 1 1 1 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 survived, 2 sex, 3 age, 4 sibsp, 5 parch 
+
+--get.pairs
+
+pairs:
+     [,1]         [,2]     
+[1,] "1 survived" "2 sex"  
+[2,] "1 survived" "3 age"  
+[3,] "3 age"      "5 parch"
+[4,] "4 sibsp"    "5 parch"
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    survived    sex age sibsp parch
                  0 female  28     0     0
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: sex
+
+--plot.degree2(draw.plot=TRUE)
+persp(survived:sex) theta 145 ylim 0 1 cex  phi 30
+persp(survived:age) theta 145 ylim 0 1 cex  phi 30
+persp(age:parch) theta 145 ylim 0 1 cex  phi 30
+persp(sibsp:parch) theta -35 ylim 0 1 cex  phi 30
 -------------------------------------------------------------------------------
 
 > printh(a5$levels)
@@ -1803,11 +2196,71 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a6 
 
+--get.plotmo.x
+
+formula pclass1 ~ .
+stripped formula pclass1~.
+get.formula.data: got x from data passed to original call to earth 
+about to call model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
+              1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
+              1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
+              0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
+              0L, 1L, 1L, 1L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 
+              1L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 
+              1L, 0L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, etc.
+got x with colnames from object$call$formula
+x[1046,5]
+  survived    sex     age sibsp parch
+1        1 female 29.0000     0     0
+2        1   male  0.9167     1     2
+3        0 female  2.0000     1     2
+is.factor FALSE TRUE FALSE FALSE FALSE 
+
+--get.plotmo.y
+
+formula pclass1 ~ .
+stripped formula pclass1~.
+get.formula.data: got y from data passed to original call to earth 
+about to call model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
+              1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
+              1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
+              0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
+              0L, 1L, 1L, 1L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 
+              1L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 
+              1L, 0L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, etc.
+got y from object$call$formula
+get.plotmo.y returned length 1046 min 0 max 1 values 1 1 1 1 1 1 1 1 1 1 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 survived, 2 sex, 3 age, 4 sibsp, 5 parch 
+
+--get.pairs
+
+pairs:
+     [,1]         [,2]     
+[1,] "1 survived" "3 age"  
+[2,] "2 sex"      "3 age"  
+[3,] "3 age"      "5 parch"
+[4,] "4 sibsp"    "5 parch"
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    survived    sex age sibsp parch
                  0 female  28     0     0
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: sex
+
+--plot.degree2(draw.plot=TRUE)
+persp(survived:age) theta -35 ylim 0 1 cex  phi 30
+persp(sex:age) theta -35 ylim 0 1 cex  phi 30
+persp(age:parch) theta -35 ylim 0 1 cex  phi 30
+persp(sibsp:parch) theta -35 ylim 0 1 cex  phi 30
 -------------------------------------------------------------------------------
 
 > printh(a6$levels) # expect levels to be NULL
@@ -2157,11 +2610,73 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a7 
 
+--get.plotmo.x
+
+formula sex ~ .
+stripped formula sex~.
+get.formula.data: got x from data passed to original call to earth 
+about to call model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+got x with colnames from object$call$formula
+x[1046,5]
+  pclass survived     age sibsp parch
+1    1st        1 29.0000     0     0
+2    1st        1  0.9167     1     2
+3    1st        0  2.0000     1     2
+is.factor TRUE FALSE FALSE FALSE FALSE 
+
+--get.plotmo.y
+
+formula sex ~ .
+stripped formula sex~.
+get.formula.data: got y from data passed to original call to earth 
+about to call model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+got y from object$call$formula
+get.plotmo.y returned "male" length 1046 min 0 max 1 values 0 1 0 1 0 1 0 1 0 1 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 pclass, 2 survived, 3 age, 4 sibsp, 5 parch 
+
+--get.pairs
+
+pairs:
+     [,1]         [,2]        
+[1,] "1 pclass"   "2 survived"
+[2,] "1 pclass"   "5 parch"   
+[3,] "2 survived" "3 age"     
+[4,] "3 age"      "5 parch"   
+[5,] "4 sibsp"    "5 parch"   
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    pclass survived age sibsp parch
              1st        0  28     0     0
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
+
+--plot.degree2(draw.plot=TRUE)
+persp(pclass:survived) theta 145 ylim 0 1 cex  phi 30
+persp(pclass:parch) theta 145 ylim 0 1 cex  phi 30
+persp(survived:age) theta 55 ylim 0 1 cex  phi 30
+persp(age:parch) theta 235 ylim 0 1 cex  phi 30
+persp(sibsp:parch) theta 235 ylim 0 1 cex  phi 30
 -------------------------------------------------------------------------------
 
 > printh(a7$levels)
@@ -2592,6 +3107,78 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log
 
 plotmo a8p 
 
+--get.plotmo.x
+
+formula counts ~ outcome + treatment
+stripped formula counts~outcome+treatment
+about to call model.frame(formula=counts~outcome+treatment)
+got x with colnames from object$call$formula
+x[9,2]
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+is.factor TRUE TRUE 
+
+--get.plotmo.y
+
+formula counts ~ outcome + treatment
+stripped formula counts~outcome+treatment
+about to call model.frame(formula=counts~outcome+treatment)
+got y from object$call$formula
+get.plotmo.y returned length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 ...
+
+clip.limits 10 25 
+
+--get.singles
+
+singles: 1 outcome 
+
+--get.pairs
+
+no pairs
+
+--plot.degree1(draw.plot=FALSE)
+
+plotmo.predict(type="response") for predictor "outcome" with newdata[500,2]:
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+First few rows of x are
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+4       1         1
+5       2         1
+6       3         1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+First few rows of data after call to model.frame are
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+4       1         1
+5       2         1
+6       3         1
+predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=outcome2, 3=outcome3
+First few rows of bx are
+     (Intercept) outcome2 outcome3
+[1,]           1        0        0
+[2,]           1        1        0
+[3,]           1        0        1
+[4,]           1        0        0
+[5,]           1        1        0
+[6,]           1        0        1
+predict.earth: returning glm response predictions
+predict() returned "counts" length 500 min 13.33333 max 21 values 21 13.33333 15.66667 21 13.33333 15.66667 21 13.33333 15.66667 21 ...
+
+ylim 13.33333 21 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    outcome treatment
                 1         1
 
@@ -2639,8 +3226,6 @@ Number of Fisher Scoring iterations: 4
  grid:    outcome treatment
                 2         1
 
-Note: setting outcome in the degree1 grid to [1] 2
-Note: setting treatment in the degree1 grid to [1] 1
 > 
 > # two response poisson model
 > cat("a10: two response poisson model\n\n")
@@ -2656,7 +3241,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.894 RSq 0.5265 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 GLM counts2: null.deviance 105.166 (8 dof)   deviance 50.96448 (6 dof)   iters 4
-> print.earth.models(a10)
+> print.earth.models(a10, nresponse="counts2")
 
 Print a10 
 
@@ -2771,6 +3356,80 @@ treatment3-unused   4    0        0    0.00000 1   0.00000 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a10 
+
+--get.plotmo.x
+
+formula cbind(counts, counts2) ~ outcome + treatment
+stripped formula cbind(counts,counts2)~outcome+treatment
+about to call model.frame(formula=cbind(counts, counts2)~outcome+treatment)
+got x with colnames from object$call$formula
+x[9,2]
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+is.factor TRUE TRUE 
+
+--get.plotmo.y
+
+formula cbind(counts, counts2) ~ outcome + treatment
+stripped formula cbind(counts,counts2)~outcome+treatment
+about to call model.frame(formula=cbind(counts, counts2)~outcome+treatment)
+got y from object$call$formula
+get.plotmo.y returned "counts" length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 ...
+
+clip.limits 10 25 
+
+--get.singles
+
+singles: 1 outcome 
+
+--get.pairs
+
+no pairs
+
+--plot.degree1(draw.plot=FALSE)
+
+plotmo.predict(type="response") for predictor "outcome" with newdata[500,2]:
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+First few rows of x are
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+4       1         1
+5       2         1
+6       3         1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+First few rows of data after call to model.frame are
+  outcome treatment
+1       1         1
+2       2         1
+3       3         1
+4       1         1
+5       2         1
+6       3         1
+predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=outcome2, 3=outcome3
+First few rows of bx are
+     (Intercept) outcome2 outcome3
+[1,]           1        0        0
+[2,]           1        1        0
+[3,]           1        0        1
+[4,]           1        0        0
+[5,]           1        1        0
+[6,]           1        0        1
+predict.earth: returning glm response predictions
+predict() returned "counts2" length 500 min 134.3333 max 211 values 211 134.3333 157.6667 211 134.3333 157.6667 211 134.3333 157.6667 211 ...
+Warning: All predicted values in the "outcome" graph are out of ylim=(10, 25).
+         Use clip=FALSE to make this warning go away.
+
+ylim 134.3333 211 
+
+--plot.degree1(draw.plot=TRUE)
 
  grid:    outcome treatment
                 1         1
@@ -3144,7 +3803,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(aref)
+> print.earth.models(aref, nresponse=1)
 
 Print aref 
 
@@ -3258,6 +3917,51 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo aref 
 
+--get.plotmo.x
+
+formula SF.both ~ .
+stripped formula SF.both~.
+get.formula.data: got x from data passed to original call to earth 
+about to call model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
+              2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
+              "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
+              -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
+              -12L), class="data.frame"))
+got x with colnames from object$call$formula
+x[12,2]
+   sex ldose
+1 male    -2
+2 male    -1
+3 male     0
+is.factor TRUE FALSE 
+
+--get.plotmo.y
+
+formula SF.both ~ .
+stripped formula SF.both~.
+get.formula.data: got y from data passed to original call to earth 
+about to call model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
+              2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
+              "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
+              -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
+              -12L), class="data.frame"))
+got y from object$call$formula
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose 
+
+--get.pairs
+
+no pairs
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    sex ldose
        female   0.5
 
@@ -3274,7 +3978,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21)
+> print.earth.models(a21, nresponse="numdead2")
 
 Print a21 
 
@@ -3388,6 +4092,35 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a21 
 
+--get.plotmo.x
+
+got x with colnames from object$call$x
+x[12,2]
+   sex ldose
+1 male    -2
+2 male    -1
+3 male     0
+is.factor TRUE FALSE 
+
+--get.plotmo.y
+
+got y from object$call$y
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose 
+
+--get.pairs
+
+no pairs
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    sex ldose
        female   0.5
 
@@ -3406,7 +4139,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21)
+> print.earth.models(a21, nresponse="numdead")
 
 Print a21 
 
@@ -3520,6 +4253,34 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a21 
 
+--get.plotmo.x
+
+got x with colnames from object$call$x
+x[12,2]
+  sex ldose
+1   2    -2
+2   2    -1
+3   2     0
+
+--get.plotmo.y
+
+got y from object$call$y
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose 
+
+--get.pairs
+
+no pairs
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
+
  grid:    sex ldose
           1.5   0.5
 
@@ -3539,7 +4300,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a22)
+> print.earth.models(a22, nresponse=1)
 
 Print a22 
 
@@ -3652,6 +4413,34 @@ sex     1    1        1   5.432272 1   5.148163 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a22 
+
+--get.plotmo.x
+
+got x with colnames from object$call$x
+x[12,2]
+  sex ldose
+1   2    -2
+2   2    -1
+3   2     0
+
+--get.plotmo.y
+
+got y from object$call$y
+get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+singles: 1 sex, 2 ldose 
+
+--get.pairs
+
+no pairs
+
+ylim 0 1 
+
+--plot.degree1(draw.plot=TRUE)
 
  grid:    sex ldose
           1.5   0.5
@@ -8038,6 +8827,52 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a.intercept.only 
 Warning: 'a' appears to be an intercept only model
+
+--get.plotmo.x
+
+formula aaa ~ bbb + ccc
+stripped formula aaa~bbb+ccc
+get.formula.data: got x from data passed to original call to earth 
+about to call model.frame(formula=aaa~bbb+ccc, data=structure(list(
+              aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
+              1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
+              0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
+              0.236885007470846, 0.791147409472615, 0.599731565685943, 
+              0.910147710936144, 0.560424553928897, 0.755704769166186, 
+              0.379171891137958, 0.373280976898968, 0.170290642883629, 
+              0.453307323623449, 0.258413960458711, 0.336265952326357), etc.
+got x with colnames from object$call$formula
+x[18,2]
+        bbb        ccc
+1 0.8974883  1.2243136
+2 0.2797326  0.1998116
+3 0.2282019 -0.5784837
+
+--get.plotmo.y
+
+formula aaa ~ bbb + ccc
+stripped formula aaa~bbb+ccc
+get.formula.data: got y from data passed to original call to earth 
+about to call model.frame(formula=aaa~bbb+ccc, data=structure(list(
+              aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
+              1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
+              0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
+              0.236885007470846, 0.791147409472615, 0.599731565685943, 
+              0.910147710936144, 0.560424553928897, 0.755704769166186, 
+              0.379171891137958, 0.373280976898968, 0.170290642883629, 
+              0.453307323623449, 0.258413960458711, 0.336265952326357), etc.
+got y from object$call$formula
+get.plotmo.y returned length 18 min 0 max 1 values 0 1 0 0 1 1 0 0 1 1 ...
+
+clip.limits 0 1 
+
+--get.singles
+
+no singles
+
+--get.pairs
+
+no pairs
 Warning: plotmo: nothing to plot
 -------------------------------------------------------------------------------
 

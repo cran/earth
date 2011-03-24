@@ -1,176 +1,199 @@
 \name{plotmo}
 \alias{plotmo}
-\title{Plot the predicted model response}
+\concept{partial dependence plot}
+\title{Plot a model's response with varying predictor values}
 \description{
-Plot the predicted model response when varying one
-or two predictors while holding all the other predictors constant.
+Plot a model's response when varying one or two predictors while
+holding all the other predictors constant.  A poor man's partial
+dependence plot.
 }
 \usage{
 plotmo(object = stop("no 'object' arg"),
-       degree1 = TRUE, degree2 = TRUE, ycolumn = 1, type="response",
-       caption = if(do.par) NULL else "",
-       ylim = NULL, clip = TRUE, inverse.func = NULL,
-       col.response = 0, pch.response = 1, jitter.response=0,
-       trace = FALSE,
+       type=NULL, nresponse = NA, clip = TRUE, ylim = NULL,
+       degree1 = TRUE, all1=FALSE, degree2 = TRUE, all2=FALSE,
        grid.func = median, grid.levels = NULL,
-       ndegree1 = 500, lty.degree1 = 1, col.degree1 = 1,
+       col.response = 0, cex.response = 1, pch.response = 1,
+       jitter.response=0, inverse.func = NULL,
+       xflip=FALSE, yflip=FALSE, swapxy=FALSE,
+       trace = FALSE, nrug = 0,
        se = 0, col.shade = "lightblue", col.se = 0, lty.se = 2,
-       func = NULL, col.func = "pink", pch.func = 20, nrug = 0,
-       type2 = "persp", ngrid = 20,
-       col.persp = "lightblue", col.image = grey(0:9/10),
-       do.par = TRUE, main = NULL, theta = NA, phi = 30, shade = 0.5,
-       ticktype = "simple", xlab = "", ylab = "", cex = NULL, cex.lab = 1, \dots)
+       func = NULL, col.func = "pink", pch.func = 20,
+       ngrid1 = 500, lty.degree1 = 1, col.degree1 = 1,
+       type2 = "persp", ngrid2 = 20,
+       col.image = grey(0:9/10), col.persp = "lightblue",
+       theta = NA, phi = 30, shade = 0.5,
+       do.par = TRUE, caption = NULL, main = NULL,
+       xlab = "", ylab = "", cex = NULL, cex.lab = 1, ...)
 }
 \arguments{
 To start off, look at the arguments
   \code{object},
-  \code{degree1},
-  \code{degree2},
-  \code{ylim},
-  \code{clip}, and
-  \code{do.par}.
-You will need the \code{ycolumn} argument if your model has multiple responses.
+  \code{type},
+  and \code{clip}.
 
   \item{object}{
-        Model object.
-        This is the only required argument.
+     Model object.
+  }
+  \item{type}{
+     Type parameter passed to \code{\link{predict}}.
+     For legal values see the \code{predict} method for
+     your \code{object}; for example, see
+     \code{\link[earth]{predict.earth}} or \code{\link{predict.rpart}}.
+     By default,
+     \code{plotmo} tries to automatically select a suitable value
+     (usually \code{"response"}, set \code{trace=TRUE} to see the value).
+  }
+  \item{nresponse}{
+     Which column to use when \code{predict} returns multiple columns.
+     This can be a column index or column name
+     (which may be abbreviated, partial matching is used).
+     Ignored when \code{predict} returns a single column.
+  }
+  \item{clip}{
+     Default is \code{TRUE}, meaning plot only predicted values that
+     are in the range of the response of the original data.
+     Use \code{FALSE} to plot all predicted values.
+  }
+  \item{ylim}{Three possibilities:\cr
+
+     (i) \code{NULL} (default) all y axes have same limits
+     (where ``y'' is actually ``z'' on \code{degree2} plots).
+     The limits are the min and max values of the predicted response
+     across all plots (after applying \code{clip}).
+     If \code{col.response != 0} then the original response is
+     also included in the min and max calculation.\cr
+
+     (ii) \code{NA} each graph has its own y limits.\cr
+
+     (iii) \code{c(ymin,ymax)} graphs have the specified y limits.\cr
+\cr
   }
   \item{degree1}{
      Index vector specifying main effect plots to include.
-     Default is \code{TRUE}, meaning all \code{degree1} plots.
-     Perhaps the easiest way to use this argument (and \code{degree2}) is to
-     first plot all figures to see how the figures are numbered, then
-     replot, using \code{degree1} to select the figures you want.\cr
-     The special value \code{degree1="all"} means plot all (used) predictors
-     (not just those that appear in \code{degree1} plots).
+     Default is \code{TRUE}, meaning all \code{degree1} plots (the \code{TRUE} gets recycled).
+     Use \code{FALSE} (or \code{0} or \code{NA}) for no \code{degree1} plots.\cr
+     The easiest way to use this argument (and \code{degree2}) is to
+     first use the default (and possibly \code{all1=TRUE})
+     to plot all figures.  This shows how the figures are numbered.
+     Then replot using \code{degree1} to select the figures you want,
+     for example, \code{degree1=c(1,3)}.
+  }
+  \item{all1}{
+     Default is \code{FALSE}.
+     Use \code{TRUE} to plot all predictors,
+     not just those usually selected by \code{plotmo}.
+     See ``What variables get plotted?'' below.
   }
   \item{degree2}{
      Index vector specifying interaction plots to include.
      Default is \code{TRUE}, meaning all \code{degree2} plots.
-     The special value \code{degree2="all"} means plot all possible pairs of
-     (used) predictors (not just those that appear in \code{degree2} plots.)
+     Use \code{FALSE} for no \code{degree2} plots.
   }
-  \item{ycolumn}{
-     Specify which column of the response to plot if the model has multiple responses.
-     Default is 1.
-  }
-  \item{type}{
-    type parameter passed onto \code{\link{predict}}.
-    Default is \code{"response"}.
-    See \code{\link{predict.earth}} for other values for earth models.
-  }
-  \item{caption}{
-    Overall caption.  The default value is
-    \code{if(do.par) NULL else ""}. Values are:\cr
-       \code{"string"}  string\cr
-       \code{""}  no caption\cr
-       \code{NULL}  generate a caption from \code{object$call} and the response name.
-  }
-  \item{trace}{
-     Set to \code{TRUE} to trace operation.
-     Useful for tracking down error messages.
+  \item{all2}{
      Default is \code{FALSE}.
+     Use \code{TRUE} to plot all pairs of predictors,
+     not just those usually selected by \code{plotmo}.
   }
-  \item{ylim}{Values are:\cr
-
-     \code{NULL} (default) all y axes have same limits
-     (where "y" is actually "z" on degree2 plots).
-     The limits are the min and max values of y across all (degree1 and degree2) plots.
-     If \code{col.response!=0} then the original response is
-     also included in the min and max calculation.\cr
-
-     \code{NA} each graph has its own y limits.\cr
-
-     \code{c(ymin,ymax)} all graphs have the specified y limits.\cr
-
+  \item{grid.func}{
+     Function applied to columns of the x matrix to fix the values of
+     variables not on the axes.
+     Default is \code{\link{median}}.
+     (This argument is ignored for factors.  The first level of
+     factors is used. That can be changed with \code{grid.levels}.)
+     Examples:
+\preformatted{  plotmo(a, grid.func = mean) # mean instead of median
+  grid.func <- function(x) quantile(x)[2] # 25\% quantile
+  plotmo(a, grid.func = grid.func)
+}
   }
-  \item{clip}{
-     Plot only values that are in the range of the response of the original data.
-     Default is \code{TRUE}.
-     If the display is artificially jagged, try using \code{clip=FALSE}
-     (the jagginess is probably an artifact of the way  \code{\link{persp}} works.)
+  \item{grid.levels}{
+     Default is \code{NULL}.
+     Else a list of variables and their fixed value to be used
+     when the variable is not on the axis.
+     Supersedes \code{grid.func} for variables in the list.
+     Names can be abbreviated, partial matching is used.
+     Example:
+\preformatted{  a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
+  plotmo(a, degree2=0, grid.levels=list(sex="m", age=21))
+}
+     }
+  \item{col.response}{
+     Color of response points (response sites in \code{degree2} plots).
+     Here ``response'' refers to the response in the original data
+     used to build the model.
+     Default is 0, don't plot the response.
+     Can be a vector, for example, \code{col.response=as.numeric(survived)+1}.
+  }
+  \item{cex.response}{
+     Relative size of response points.
+     Default is 1.
+     Applies only if \code{col.response!=0}.
+  }
+  \item{pch.response}{
+     Plot character for response points.
+     Default is 1.
+     Applies only if \code{col.response!=0}.
+  }
+  \item{jitter.response}{
+     Amount to jitter the response points
+     (passed to \code{\link{jitter}} as the \code{factor} argument).
+     Default \code{0}, no jitter.
+     A typical useful value is \code{1}.
+     Applies only if \code{col.response!=0}.
   }
   \item{inverse.func}{
      Function applied to the predicted response before plotting.
      Default is \code{NULL}, meaning do not apply a function.
      For example, you could use \code{inverse.func=exp} if your
      model formula is \code{log(y)~x}.
-     Note, however, that is usually unnecessary
-     to use \code{inverse.func} for models such as \code{\link{glm}}
-     with \code{family=binomial}, because the plotted response is already a probability.
   }
-  \item{col.response}{
-     Color of response values (actually, the response sites in degree2 plots).
-     Here "response" refers to the original data used to build the model.
-     Default is 0, meaning don't plot the response.
-     Can be a vector, for example,xb \code{col.response=as.numeric(survived)+2}.
-     Ignored by \code{persp} plots.
+  \item{xflip}{
+     Default \code{FALSE}.
+     Use \code{TRUE} to flip the direction of the x axis.
+     This argument (and \code{yflip} and \code{swapxy}) is useful when comparing
+     to a plot from another source and you want the axes to be the same.
+     (Note that \code{xflip} and \code{yflip} cannot be used on the \code{persp} plots,
+     a limitation of the \code{persp} function.)
   }
-  \item{pch.response}{
-     Plot character for \code{col.response}.
-     Default is 1.
-     Applies only if \code{col.response != 0}.
+  \item{yflip}{
+     Default \code{FALSE}.
+     Use \code{TRUE} to flip the direction of the y axis of the \code{degree2} graphs.
   }
-  \item{jitter.response}{
-     Amount to jitter the response (passed on to \code{\link{jitter}} as the \code{factor} argument).
-     Applies only if \code{col.response != 0}.
-     Default \code{0}, no jitter.
-     A typical useful value is \code{1}.
+  \item{swapxy}{
+     Default \code{FALSE}.
+     Use \code{TRUE} to swap the x and y axes on the \code{degree2} graphs.
   }
-  \item{grid.func}{
-     Function applied to x columns to calculate the values for numeric predictors
-     not on the axes.  This is called with \code{na.rm=TRUE}.
-     (For factor predictors, see the \code{grid.levels} argument below.)
-     Default is \code{\link{median}}.
-     Examples:
-\preformatted{plotmo(a, grid.func = mean) # mean instead of median
-grid.func <- function(x) quantile(x)[2]   # 25\% quantile
-plotmo(a, grid.func = grid.func, trace=1) # use trace to see the grid values
-}
-  }
-  \item{grid.levels}{
-     This argument only applies if model x-matrix has factors.
-     It has the same purpose as the \code{grid.func} argument above but applies to
-     factor predictors, not numeric predictors.
-     It is a list specifying which factor level to use for factor predictors
-     not on the axes.  If specified, \code{plotmo} will print messages reminding you of how the levels are set.
-     Default is \code{NULL} meaning use the first level of each factor.
-\preformatted{a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
-plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
-}
-\bold{The following arguments are for degree1 (main effect) plots}
-  }
-  \item{ndegree1}{
-     Maximum number of points in each degree1 plot.
-     Default is \code{500}.
-     Special value \code{-1} means use \code{nrow(x)}.
-  }
-  \item{lty.degree1}{
-     Line type of degree 1 plots.  Default is \code{1}.
-  }
-  \item{col.degree1}{
-     Color of degree 1 plots.  Default is \code{1}.
+  \item{trace}{
+     Default is \code{FALSE}.
+     Use \code{TRUE} to trace operation.
+     Use values greater than \code{1} for more detailed tracing.\cr
+\cr
+\bold{The following arguments are for \code{degree1} (main effect) plots}
   }
   \item{nrug}{
      Number of points in (jittered) rug.
-     Default is \code{0} meaning no rug.
+     Default is \code{0}, no rug.
      Special value \code{-1} for all, i.e., \code{nrow(x)}.
-     (For exact reproducibility, call \code{\link{set.seed}} before calling \code{plotmo}
-     so the random selection of points in the rug and the jittering is constant across invocations.)
+     Otherwise a random subset of \code{nrug} points is taken.
   }
   \item{se}{
      Draw standard error bands at plus and minus \code{se} times the pointwise standard errors.
-     Default is \code{0}, meaning no standard error bands.
-     A common value is \code{2}.
-     The predict method for \code{object} must be callable with \code{se.fit=TRUE}
-     (examples are \code{\link{predict.lm}} but not \code{\link{predict.earth}}).
+     Default is \code{0}, no standard error bands.
+     A typical value would be \code{2}.
+     The predict method for \code{object} must support standard errors,
+     i.e. be callable with \code{se.fit=TRUE}
+     (for example \code{\link{predict.lm}} but not \code{\link{predict.earth}}).
+     Example:
+\preformatted{  fit <- lm(stack.loss ~ ., stackloss)
+  plotmo(fit, se=2, col.response=2, nrug=-1)
+}
   }
   \item{col.shade}{
      Color of \code{se} shading.  Default is \code{"lightblue"}.
-     Set to \code{0} for no shading.
+     Use \code{0} for no shading.
   }
   \item{col.se}{
-     Color of \code{se} lines.  Default is \code{0} meaning no lines just shading.
+     Color of \code{se} lines.  Default is \code{0}, no lines just shading.
   }
   \item{lty.se}{
      Line type of \code{se} lines.  Default is \code{2}.
@@ -179,10 +202,10 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
      Superimpose \code{func(x)} if \code{func} is not \code{NULL}.
      Default is \code{NULL}.
      This is useful if you are comparing the model to a known function.
-     Note that \code{func} is called with a single argument which
-     is a dataframe with columns in the same order as the predictors
+     The \code{func} is called with a single argument which
+     is a dataframe with columns in the same order as the variables
      in the \code{formula} or \code{x} used to build the model.
-     Set \code{trace=TRUE} to see the column names and first few rows of this dataframe.
+     Use \code{trace=TRUE} to see the column names and first few rows of this dataframe.
   }
   \item{col.func}{
      Color of \code{func} points.
@@ -190,186 +213,191 @@ plotmo(a, degree2=0, grid.levels=list(pclass="2nd", sex="male"))
   }
   \item{pch.func}{
      Plot character for \code{func} points.
-     Default is 20.\cr
-
-  \bold{The following arguments are for degree2 plots}
+     Default is 20.
+  }
+  \item{ngrid1}{
+     Number of points in \code{degree1} plots.
+     Default is \code{500}.
+  }
+  \item{lty.degree1}{
+     Line type of \code{degree1} plots.  Default is \code{1}.
+  }
+  \item{col.degree1}{
+     Color of \code{degree1} plots.  Default is \code{1}.\cr
+\cr
+  \bold{The following arguments are for \code{degree2} plots}
   }
   \item{type2}{
-     Degree2 plot type.
-     One of \code{"persp"} (default), \code{"contour"}, or \code{"image"}.
+     \code{Degree2} plot type.
+     One of \code{"\link{persp}"} (default), \code{"\link{contour}"}, or \code{"\link{image}"}.
   }
-  \item{col.persp}{
-     Color of \code{\link{persp}} surface. Default is \code{"lightblue"}.
-     Set to 0 for no color.
+  \item{ngrid2}{
+     Grid size for \code{degree2} plots (\code{ngrid2 x ngrid2} points are plotted).
+     Default is \code{20}.\cr
+     Note 1: the default will often be too small for \code{contour} and \code{image} plots.\cr
+     Note 2: with large \code{ngrid2} values, \code{persp} plots look better with \code{border=NA}.
   }
   \item{col.image}{
      Colors of \code{\link{image}} plot. Default is \code{grey(0:9/10)}.
-     The default excludes \code{grey(1)} because that is the "color" of clipped
-     values, see \code{clip}.
+     The default excludes \code{grey(1)} (white) because that is
+     the color of clipped values, see \code{clip}.
   }
-  \item{ngrid}{
-     Grid side length for degree2 plots. Default is \code{20}.\cr
-
-  \bold{The following settings are related to \code{par()} and are included so you can override the defaults.}
-  }
-  \item{do.par}{
-    Call \code{par()} for global settings as appropriate.
-    Default is \code{TRUE}.
-    Set to \code{FALSE} if you want to append figures to an existing plot.
-  }
-  \item{main}{
-    A vector of titles, one for each plot.
-    Default is \code{NULL}, meaning generate figure headings automatically.
-    See also \code{caption}, for the overall caption.
+  \item{col.persp}{
+     Color of \code{\link{persp}} surface. Default is \code{"lightblue"}.
+     Use 0 for no color.
   }
   \item{theta}{
-     Rotation argument for \code{\link{persp}}.
-     Default is \code{NA}, meaning automatically rotate each graph so the highest corner is furthest away.
-     Use \code{theta=-45} for x and y increasing as you move into the paper.
+     Rotation parameter for \code{\link{persp}}.
+     Default is \code{NA}, meaning automatically rotate each graph
+     so the highest corner is furthest away.
+     (Use \code{trace=TRUE} to see the calculated value for \code{theta}.)
   }
   \item{phi}{
-     Phi argument for \code{\link{persp}}. Default is \code{30}.
+     Passed to \code{\link{persp}}. Default is \code{30}.
   }
   \item{shade}{
-     Shade arg for \code{\link{persp}}. Default is \code{0.5}.
+     Passed to \code{\link{persp}}. Default is \code{0.5}.\cr
+\cr
+  \bold{The following settings are related to \code{par()}.}
   }
-  \item{ticktype}{
-     Ticks on \code{\link{persp}} plot.  One of \code{simple} or \code{detailed}.
-     Default is \code{"simple"}.
+  \item{do.par}{
+    Default is \code{TRUE}, meaning
+    call \code{\link{par}()} as appropriate for settings such as \code{mfrow}.
+    Use \code{FALSE} if you don't want \code{plotmo} to start a new page.
+  }
+  \item{caption}{
+    Overall caption.  The default is to automatically create a caption
+    from the \code{call} and response name.\cr
+  }
+  \item{main}{
+    A vector of titles, one for each plot.  Will be recycled if necessary.
+    The default generates titles automatically.
+    See also \code{caption}, for the overall title.
   }
   \item{xlab}{
-     Horizontal axis label on degree1 plots
-     (for degree2 plots the abscissa labels are always the predictor names).
-     Default is \code{""}, meaning none, which gives more plottable area.
-     Set to \code{NULL} to use the predictor names as labels.
-     If you use \code{NULL}, you may want to set \code{main=""} to avoid
+     Horizontal axis label on \code{degree1} plots
+     (for \code{degree2} plots the abscissa labels are always the variable names).
+     Default is \code{""}, no label, which gives more plottable area.
+     Use the special value \code{NULL} for the variable names as labels.
+     If you use \code{NULL}, you may want to use \code{main=""} to avoid
      redundant labeling.
   }
   \item{ylab}{
-     Vertical axis label.
-     Default is \code{""}, meaning none, which gives more plottable area.
+     Vertical axis label.  Values as for \code{xlab}.
   }
   \item{cex}{
     Character expansion.
   }
   \item{cex.lab}{
-    Character expansion of axis labels and text.  Default \code{1}.
+    Relative size of axis labels and text. Default \code{1}.
   }
   \item{\dots}{
-     Extra arguments passed to plotting functions called by \code{plotmo}.
-     Using arguments here may cause warnings which can often be safely ignored.
+     Extra arguments are passed on to the \code{degree2} plotting functions.
   }
 }
 \details{
-\code{Plotmo} is a general purpose model plotting function
-(but comes with the \code{\link{earth}} package).
-The Examples section shows \code{plotmo} on \code{\link{lm}}, \code{\link{rpart}}, and
-other objects (you will have to cut-and-paste the code into your R session).
+\code{Plotmo} can be used on a wide variety of regression models even
+though it comes with the \code{\link{earth}} package.
+It plots a \code{degree1} plot by calling \code{\link{predict}} to
+predict the response when changing one variable while holding all
+other variables at their median values.
+For \code{degree2} plots, two variables are changed while holding others
+at their medians.
+For factors, the first level is used instead of the median.
+You can change this value with the \code{grid.func} and
+\code{grid.levels} arguments.
 
-\bold{The general idea}
-
-\code{Plotmo} plots a degree1 plot of predicted values
-by changing one predictor while holding all other predictors at a constant value.
-For degree2 plots, \code{plotmo} changes two variables
-while holding all other predictors at a constant value.
-
-The question arises: what should the constant value be for each predictor?
-For numerical predictors it is the median of the predictor values in the input matrix x;
-for factor predictors it is the first level of the factor.
-The \code{plotmo} function prints these values if \code{trace>0}.
-You can change the defaults with the \code{grid.func} and \code{grid.levels} arguments.
-
-Each graph shows only a thin slice of the data because most variables are fixed.
-You should be aware of that when interpreting the graph.
-
-\bold{Details of operation}
-
-Let's say the model \code{object} has three predictors,
-\code{x1}, \code{x2}, and \code{x3} (all numeric)
-and \code{plotmo} is about to plot the degree1 plot for \code{x2}.
-\code{Plotmo} first builds an input matrix
-with \code{ndegree1} rows and with column names \code{x1}, \code{x2}, and \code{x3}.
-It sets all entries for the \code{x1} column to \code{x1}'s median value (actually,
-the value returned by \code{grid.func} applied to \code{x1}).
-Likewise for the \code{x3} column.
-It sets the \code{x2} column to an equally spaced sequence of values
-from \code{min(x2)} to \code{max(x2)}.
-Finally, it calls \code{\link{predict}}\code{(type=type)} with the newly created input matrix,
-and plots the predicted values against the sequence of \code{x2} values.
-
-Operation is similar for degree2 plots: all columns of the input
-matrix for \code{\link{predict}} are set to their medians except for the columns of the two
-predictors being plotted.
-
-Note that by default \code{plotmo} calls \code{\link{predict}} with new data and
-\code{type="response"}, whereas \code{\link{termplot}}
-calls \code{\link{predict}} with \code{type="terms"}.
+Each graph shows only a thin slice of the data because most variables
+are fixed.  Please be aware of that when interpreting the graph ---
+over-interpretation is a temptation.
 
 \bold{Limitations}
 
-NAs are not allowed.
-To prevent confusing error messages from \code{plotmo},
-remove NAs before building your model.
-(To be safe, you can use \code{na.action=na.fail} when building your model
-so you get an error message if you inadvertently have a NA.
-Also, \code{\link[rpart]{rpart}} models are treated specially by \code{plotmo},
-actually allowing NAs
-so you can use \code{plotmo} with the default args for \code{rpart}).
+Observation weights are currently ignored, with a warning.
 
-Weights are currently ignored, with a warning.
+NAs are not supported.
+To prevent confusing error messages from functions called by \code{plotmo},
+it is safest to remove NAs before building your model.
+(However, \code{\link[rpart]{rpart}} models are treated specially by
+\code{plotmo}, actually allowing NAs so you can use \code{plotmo} with
+the default arguments for \code{rpart}.)
 
-Factor predictors are not supported on degree2 graphs (you will get a reminder message).
+Keep the variable names in the original model formula simple.
+Use temporary variables or \code{\link{attach}} rather than using
+\code{$} and similar in names in formulas.
 
-To avoid confusing error messages from \code{plotmo},
-keep the original formula you used to build the model simple.
-By default (i.e., when using \code{get.plotmo.x.default} and \code{get.pairs.default},
-but not when \code{plotmo} is used on an \code{earth} model),
-\code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
-This crude approach is not infallible but works for the common formulas.
-It determines which predictors are paired by looking for
-forms such as \code{"x1:x2"} or \code{"x1*x2"} in the model formula.
+% By default (i.e., when using \code{get.plotmo.x.default} and \code{get.pairs.default},
+% but not when \code{plotmo} is used on an \code{earth} model),
+% \code{plotmo} parses the input \code{\link{formula}} using \code{\link{gsub}}.
+% This crude approach is not infallible but works for the common formulas.
+% It determines which predictors are paired by looking for
+% forms such as \code{"x1:x2"} or \code{"x1*x2"} in the model formula.
 
-Variable names containing $ are not supported.
-The work around is to build the model using temporary variables
-or to use \code{\link{attach}}.
+\bold{What variables get plotted?}
 
-\code{Plotmo} can get confused by predictors in formulas which use indexing, such as \code{x[,3]}.
-The symptom is usually a message along the lines\cr
-\code{Error in model.frame: invalid type (list) for variable 'x[,3]'}.
+\code{Plotmo} invokes object-specific methods to select which variables to plot.
+This selection may leave out variables you want to see ---
+in that case use \code{all1=TRUE} or \code{all2=TRUE}.
+The set of variables plotted for some common classes is as follows:
+\describe{
+\item{\code{o earth}}{\code{degree1}: variables in additive (non interaction) terms\cr
+\code{degree2}: variables appearing together in interaction terms.}
 
-A mesage like\cr
-\code{Warning in model.frame.default: 'newdata' had 50 rows but variable(s) found have 31 rows}\cr
-means that \code{\link{model.frame.default}} cannot find all the variables in the data frame
-created by \code{plotmo}.
+\item{\code{o rpart}}{\code{degree1}: variables used in the tree\cr
+\code{degree2}: parent-child pairs.}
 
-\bold{Minimum Requirements}
+\item{\code{o randomForest}}{\code{degree1}: all variables\cr
+\code{degree2}: pairs of the four most important variables (ranked
+on the first column of \code{object$importance)}.}
 
-For use on model objects other than \code{earth} objects,
-\code{plotmo} requires the following of the object.
-These requirements are for default operation, which can be changed
-as described in the next section.
-
-1) \code{object} must have a \code{\link{predict}} method that supports \code{type=response}.
-
-2) \code{object} must have the following two components
-(which are searched for in the order given for each):
-
-\itemize{
-  \item \code{$x}, or \code{$call$formula}
-  (\code{formula} is required for degree2 plots),
-  or \code{$call$x}.
-
-  \item \code{$y}, or \code{$call$formula}, or \code{$call$y}.
+\item{\code{o lm, glm, lda, etc.}}{\code{degree1}: all variables\cr
+\code{degree2}: variables in formula terms
+like \code{x1*x2} and \code{x1:x2}.}
 }
-3) for optional standard error bands (see the \code{se} argument),
-\code{object} must have a \code{\link{predict}}
-method that can be called with \code{se.fit=TRUE}.
 
+\bold{Using \code{plotmo} on other objects}
+
+Here are some examples which illustrate \code{plotmo} on
+non-\code{earth} objects.
+\preformatted{
+    # use a small set of variables for illustration
+    data(ozone1)
+    oz <- ozone1[,c("O3", "humidity", "temp", "ibt")]
+
+    lm.fit <- lm(O3 ~ humidity + temp*ibt, data=oz)
+    plotmo(lm.fit, se=2, col.response=2, nrug=-1)
+
+    library(mgcv)
+    gam.fit <- gam(O3 ~ s(humidity) + s(temp) + s(ibt) + s(temp, ibt), data=oz)
+    plotmo(gam.fit, se=2, all2=TRUE)
+
+    library(rpart)
+    plotmo(rpart(O3 ~ ., data=oz), all2=TRUE)
+
+    library(randomForest)
+    rf.fit <- randomForest(O3~., data=oz)
+    plotmo(rf.fit) # surfaces are smoother than the rpart model above
+    partialPlot(rf.fit, oz, temp) # compare partial dependence plot
+
+    library(MASS)  # QDA example, c.f. MASS page 340
+    lcush <- data.frame(Type=as.numeric(Cushings$Type), log(Cushings[,1:2]))
+    lcush <- lcush[1:21,]
+    qda.fit <- qda(Type~., data=lcush)
+    plotmo(qda.fit, type="class", all2=TRUE,
+       type2="contour", ngrid2=100, nlevels=2, drawlabels=FALSE,
+       col.response=as.numeric(lcush$Type)+1,
+       pch.response=as.character(lcush$Type))
+
+}
+\code{Plotmo} has to make some assumptions about the model object.  If
+the model function did not save the call or data with the object in a
+standard fashion, \code{plotmo} cannot proceed and will issue an error.
+Object-specific methods can be usually written to deal with such
+issues, see the next section.
 
 \bold{Extending plotmo}
 
-\code{Plotmo} calls the following generic functions, all defined in
-the file \code{plotmo.R}:
+\code{Plotmo} calls the following class methods, defined in \code{plotmo.methods.R}:
 
 \code{plotmo.prolog}\cr
 \code{get.plotmo.x}\cr
@@ -378,10 +406,60 @@ the file \code{plotmo.R}:
 \code{get.singles}\cr
 \code{get.pairs}
 
-Thus \code{plotmo} can be extended
-by writing new method functions, although the default
-functions may suffice for your object's class.
-See the source comments for details.
+Thus \code{plotmo} can be extended by writing new methods, although
+the defaults suffice for many objects.  See the source code
+for details.
+
+\bold{Alternatives}
+
+An alternative approach is to use partial dependence plots.
+(See the book by Hastie, Tibshirani, and
+Friedman 2nd ed. section 10.13.2.)
+\code{Plotmo} sets the ``other'' variables to their median
+value, whereas in a partial dependence plot at each plotted point the
+effect of the other variables is averaged.
+
+There appears to be no general-purpose R function for partial
+dependence plots similar to \code{plotmo}.
+Averaging over the sample at every point is a slow process
+unless the effect of the averaging can be
+determined without actually doing the calculation.
+That is not the case for most models, but it is for trees.
+See \code{\link[randomForest]{partialPlot}} in the
+\code{\link[randomForest]{randomForest}} package.
+
+\code{\link[=termplot]{Termplot}} is effective where applicable, but
+it can be used only on models with a \code{predict} method that
+supports \code{type="terms"}, and it does not generate
+\code{degree2} plots.
+
+\bold{Common error messages}
+
+\code{Warning in model.frame.default: 'newdata' had 50 rows but vars have 31 rows}
+
+This message usually means that \code{\link{model.frame}} cannot
+find all the variables in the data frame created by \code{plotmo}.
+Make sure the variables you used to build the model are still
+available when you call \code{plotmo}.  Try also simplifying
+the formula used to create the model.
+
+\code{Error in model.frame: invalid type (list) for variable 'x[,3]'}
+
+\code{Plotmo} can get confused by variables in formulas
+which use indexing, such as \code{x[,3]}.
+The symptom is usually a message similar to the above.
+
+\code{Error in match.arg(type): 'arg' should be one of ...}
+
+The message is probably issued by the \code{predict} method for your \code{object}.
+Set \code{type} to an appropriate value.
+
+\code{Error: get.plotmo.x.default cannot get the x matrix}
+
+This and similar messages mean that \code{plotmo} cannot get the data
+it needs from the model \code{object}.
+Typically this means that class methods need to be written for the
+object, see ``Extending plotmo'' above (and contact the author).
 
 \bold{FAQ}
 
@@ -390,18 +468,18 @@ and am having trouble getting my axis scaling right. Help?}
 
 Use \code{do.par=FALSE}.
 With \code{do.par=FALSE}, the axis scales match the axis labels.
-With \code{do.par=TRUE}, plot.earth restores the
+With \code{do.par=TRUE}, \code{plotmo} restores the
 \code{\link{par}} parameters and axis scales to
-what they were before calling plot.earth.
-This usually means that the x- and y-axis scales are both 0 to 1.
+their values before \code{plotmo} was called.
 
-\emph{The plotmo display is very jagged. How do I change that?}
+\emph{The \code{persp} display is very jagged. How can I change that?}
 
 Try using \code{clip=FALSE}.
-The jagginess is probably an artifact of the way  \code{\link{persp}} works.
+The jaggedness is probably an artifact of the way  \code{\link{persp}} works.
+You can also try increasing \code{ngrid2}.
 }
 \seealso{
-  \code{\link{termplot}},
+  \code{www.milbo.org/rpart-plot/prp.pdf} has a section on \code{plotmo}\cr\cr
   \code{\link{plot.earth}},
   \code{\link{plot.earth.models}},
   \code{\link{plotd}}
@@ -410,32 +488,6 @@ The jagginess is probably an artifact of the way  \code{\link{persp}} works.
 data(ozone1)
 a <- earth(O3 ~ ., data = ozone1, degree = 2)
 plotmo(a)
-
-\dontrun{
-  # example with some arguments
-
-  plotmo(a, caption = "example", ylim = NULL, degree1 = c(1,2,4),
-    degree2 = 4, col.response = 3, clip = FALSE, ticktype = "d", theta = -30)
-
-  # examples using functions other than earth (the models are more or less bogus)
-
-  lm.fit <- lm(O3 ~ log(temp) + humidity*temp, data=ozone1)
-  plotmo(lm.fit, se=2)
-  lm.fit2 <- lm(O3 ~ temp+ibh+doy, data=ozone1)
-  plotmo(lm.fit2, degree2="all", clip=FALSE)
-
-  library(mgcv)
-  plotmo(gam(O3 ~ s(doy) + s(humidity,temp), data=ozone1), se=2, ylim=NA)
-
-  library(rpart)
-  data(ozone1)
-  rpart.fit <- rpart(O3 ~ ., data=ozone1)
-  plotmo(rpart.fit, type="vector") # type gets passed on to predict.rpart
-
-  iris.fit <- rpart(Species ~ ., data=iris)
-  plotmo(iris.fit, type="vector",
-         type2="image", col.response=c("red", "green", "blue")[iris$Species])
-}
 }
 \keyword{models}
 \keyword{regression}

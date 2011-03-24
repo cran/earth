@@ -7,7 +7,7 @@
 > print(R.version.string)
 [1] "R version 2.12.0 (2010-10-15)"
 > 
-> Trace = FALSE
+> Trace <- 0
 > 
 > dopar <- function(nrows, ncols, caption = "")
 + {
@@ -22,29 +22,127 @@
 Loading required package: leaps
 Loading required package: plotrix
 Warning message:
-package 'plotrix' was built under R version 2.12.1 
+package 'plotrix' was built under R version 2.12.2 
 > data(ozone1)
+> data(etitanic)
 > options(warn=1) # print warnings as they occur
 > if(!interactive())
 +     postscript(paper="letter")
 > 
 > caption <- "basic earth test of plotmo"
 > a <- earth(O3 ~ ., data=ozone1, degree=2)
-> plotmo(a, degree1=2, degree2=4, caption=caption, trace=Trace)
+> plotmo(a, degree1=2, degree2=4, caption=caption, trace=TRUE)
+
+--get.plotmo.x
+
+get.formula.data: got x from data passed to original call to earth 
+got x with colnames from object$call$formula
+x[330,9]
+    vh wind humidity temp  ibh dpg ibt vis doy
+1 5710    4       28   40 2693 -25  87 250  33
+2 5700    3       37   45  590 -24 128 100  34
+3 5760    3       51   54 1450  25 139  60  35
+
+--get.plotmo.y
+
+get.formula.data: got y from data passed to original call to earth 
+got y from object$call$formula
+get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
+clip.limits 1 38 
+
+--plot.degree1(draw.plot=FALSE)
+
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,9]:
+    vh wind humidity temp    ibh dpg       ibt vis   doy
+1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
+2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
+3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
+
+predict() returned "O3" length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
+
+--plot.degree2(draw.plot=FALSE)
+
+plotmo.predict(type="response") for predictors "ibh" and "dpg" with newdata[400,9]:
+    vh wind humidity temp      ibh dpg   ibt vis   doy
+1 5760    5       64   62 111.0000 -69 167.5 120 205.5
+2 5760    5       64   62 368.3158 -69 167.5 120 205.5
+3 5760    5       64   62 625.6316 -69 167.5 120 205.5
+
+predict() returned "O3" length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+
+ylim 3.947176 15.71664 
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
+persp(ibh:dpg) theta 235 ylim 3.947176 15.71664 cex  phi 30
 > 
 > caption <- "test 5 x 5 layout"
 > dopar(1,1,caption)
                               test 5 x 5 layout 
 > a <- earth(O3 ~ ., data=ozone1, nk=51, pmethod="n", degree=2)
-> plotmo(a, xlab="", ylab="", caption=caption, trace=Trace)
+> plotmo(a, xlab="", ylab="", caption=caption, trace=1)
+
+--get.plotmo.x
+
+get.formula.data: got x from data passed to original call to earth 
+got x with colnames from object$call$formula
+x[330,9]
+    vh wind humidity temp  ibh dpg ibt vis doy
+1 5710    4       28   40 2693 -25  87 250  33
+2 5700    3       37   45  590 -24 128 100  34
+3 5760    3       51   54 1450  25 139  60  35
+
+--get.plotmo.y
+
+get.formula.data: got y from data passed to original call to earth 
+got y from object$call$formula
+get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
+clip.limits 1 38 
+
+--plot.degree1(draw.plot=FALSE)
+
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
+    vh wind humidity     temp    ibh dpg   ibt vis   doy
+1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
+2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
+3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
+
+predict() returned "O3" length 500 min -52.26858 max 18.74451 values 9.631048 9.637125 9.6432 9.649277 9.655353 9.66143 9.667506 9.673582 9.679659 9.685735 ...
+
+--plot.degree2(draw.plot=FALSE)
+
+plotmo.predict(type="response") for predictors "vh" and "temp" with newdata[400,9]:
+        vh wind humidity temp    ibh dpg   ibt vis   doy
+1 5320.000    5       64   25 2112.5  24 167.5 120 205.5
+2 5353.158    5       64   25 2112.5  24 167.5 120 205.5
+3 5386.316    5       64   25 2112.5  24 167.5 120 205.5
+
+predict() returned "O3" length 400 min -77.76078 max 32.37834 values 8.873429 8.930522 8.987615 9.044709 9.101802 9.158895 9.215989 9.273082 9.330176 9.387269 ...
+
+ylim 1.017623 36.30875 
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
+persp(vh:temp) theta 235 ylim 1.017623 36.30875 cex  phi 30
+persp(vh:vis) theta 235 ylim 1.017623 36.30875 cex  phi 30
+persp(vh:doy) theta -35 ylim 1.017623 36.30875 cex  phi 30
+persp(wind:temp) theta 145 ylim 1.017623 36.30875 cex  phi 30
+persp(wind:ibt) theta -35 ylim 1.017623 36.30875 cex  phi 30
+persp(wind:vis) theta 145 ylim 1.017623 36.30875 cex  phi 30
+persp(humidity:temp) theta 145 ylim 1.017623 36.30875 cex  phi 30
+persp(humidity:ibt) theta -35 ylim 1.017623 36.30875 cex  phi 30
+persp(temp:dpg) theta 235 ylim 1.017623 36.30875 cex  phi 30
+persp(temp:ibt) theta 235 ylim 1.017623 36.30875 cex  phi 30
+persp(temp:vis) theta 145 ylim 1.017623 36.30875 cex  phi 30
+persp(temp:doy) theta -35 ylim 1.017623 36.30875 cex  phi 30
+persp(ibh:dpg) theta 235 ylim 1.017623 36.30875 cex  phi 30
+persp(ibh:ibt) theta 55 ylim 1.017623 36.30875 cex  phi 30
+persp(dpg:vis) theta 55 ylim 1.017623 36.30875 cex  phi 30
+persp(ibt:vis) theta -35 ylim 1.017623 36.30875 cex  phi 30
 > 
 > caption <- "test 4 x 4 layout with ylab"
 > dopar(1,1,caption)
@@ -98,7 +196,7 @@ package 'plotrix' was built under R version 2.12.1
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
 > set.seed(1)
-> plotmo(a, do.par=FALSE, degree1=F, degree2=4, grid.func=mean, col.persp="white", ngrid=10, phi=40, trace=Trace)
+> plotmo(a, do.par=FALSE, degree1=F, degree2=4, grid.func=mean, col.persp="white", ngrid2=10, phi=40, trace=Trace)
 > set.seed(1)
 > plotmo(a, do.par=FALSE, degree1=1, lty.degree1=2, col.degree1=2, nrug=50, degree2=F, main="nrug=50", trace=Trace)
 
@@ -112,11 +210,24 @@ package 'plotrix' was built under R version 2.12.1
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
 > set.seed(1)
-> plotmo(a, do.par=FALSE, degree1=1, nrug=20, ndegree1=50, degree2=F, main="ndegree1=50 nrug=20", trace=Trace)
+> plotmo(a, do.par=FALSE, degree1=1, nrug=20, ngrid1=50, degree2=F, main="ngrid1=50 nrug=20", trace=Trace)
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
+> plotmo(a, do.par=FALSE, degree1=NA, degree2=1, phi=60, box=F, r=100) # dots args
+> 
+> 
+> try(plotmo(a, no.such.arg=9)) # expect Error: plotmo: illegal argument "no.such.arg"
+Error : plotmo: illegal argument "no.such.arg"
+> try(plotmo(a, degree1="all")) # Expect Error: degree1="all" is no longer legal, use all1=TRUE instead
+Error : degree1="all" is no longer legal, use all1=TRUE instead
+> try(plotmo(a, degree2="all")) # Expect Error: degree2="all" is no longer legal, use all2=TRUE instead
+Error : degree2="all" is no longer legal, use all2=TRUE instead
+> try(plotmo(a, ycolumn=1))     # Expect Error: ycolumn is no longer legal, use nresponse instead
+Error : "ycolumn" is no longer legal, use "nresponse" instead
+> try(plotmo(a, title="abc"))   # Expect Error: "title" is illegal, use "caption" instead
+Error : "title" is illegal, use "caption" instead
 > 
 > caption <- "test plotmo ylim"
 > a <- earth(O3 ~ ., data=ozone1, degree=2)
@@ -128,7 +239,15 @@ package 'plotrix' was built under R version 2.12.1
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
 > plotmo(a, do.par=FALSE, degree1=2:3, degree2=4, ylim=NA, xlab="ylim=NA", trace=Trace)
+
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
 > plotmo(a, do.par=FALSE, degree1=2:3, degree2=4, ylim=c(0,20), xlab="ylim=c(0,20)", trace=Trace)
+
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
 > 
 > # term.plot calls predict.earth with an se parameter, even with termplot(se=FALSE)
 > 
@@ -139,51 +258,124 @@ package 'plotrix' was built under R version 2.12.1
 NULL
 > a <- earth(O3 ~ ., data=ozone1, degree=2)
 > plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=FALSE, trace=Trace)
+
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
 > cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
 Ignore two warnings: predict.earth ignored argument "se.fit"
 > termplot(a)
 Warning: predict.earth ignored unrecognized argument "se.fit"
 > 
-> caption <- "test change order of earth predictors"
+> caption <- "test change order of earth predictors and cex"
 > dopar(4,4,caption)
-                              test change order of earth predictors 
+                              test change order of earth predictors and cex 
 > a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
-> plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,2), trace=Trace)
+> plotmo(a, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,2), trace=Trace, cex=1)
+
+ grid:    humidity temp wind
+                64   62    5
+
 > termplot(a)
 Warning: predict.earth ignored unrecognized argument "se.fit"
+> 
+> caption <- "test all1=TRUE"
+> a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2)
+> plotmo(a, caption=caption, all1=TRUE)
+
+ grid:    humidity temp wind
+                64   62    5
+
+> caption <- "test all2=TRUE"
+> print(summary(a))
+Call: earth(formula=doy~humidity+temp+wind, data=ozone1, 
+      degree=2)
+
+                            coefficients
+(Intercept)                   157.999815
+h(humidity-28)                  1.697095
+h(3-wind)                      51.628255
+h(28-humidity) * h(temp-60)     1.848360
+h(28-humidity) * h(60-temp)     0.970502
+h(humidity-28) * h(61-temp)    -0.130054
+h(humidity-77) * h(49-temp)     3.727939
+h(41-humidity) * h(wind-3)     -0.943635
+
+Selected 8 of 19 terms, and 3 of 3 predictors 
+Importance: wind, humidity, temp
+Number of terms at each degree of interaction: 1 2 5
+GCV 8498.516    RSS 2498879    GRSq 0.2222847    RSq 0.3028199
+> plotmo(a, caption=caption, all2=TRUE)
+
+ grid:    humidity temp wind
+                64   62    5
+
 > 
 > a.global <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
 > func1 <- function()
 + {
-+     caption <- "test call plotmo from within a function, global dataframe"
++     caption <- "test call plotmo from within a function\nglobal dataframe (predict doy)"
 +     dopar(4,4,caption)
 +     a <- earth(doy ~ humidity + temp + wind, data=ozone1, degree=2, minspan=-1)
-+     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
-+     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
++     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
++            trace=Trace, type2="image", col.response=3, pch.response=20)
++     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
++           trace=Trace, type2="image", col.response=3, pch.response=20)
 + 
-+     caption <- "test call plotmo from within a function, local dataframe"
++     caption <- "test call plotmo from within a function\nlocal dataframe, clip=FALSE"
 +     dopar(4,4,caption)
 +     ozone1.local <- ozone1[,c(1,2,3,4,5,6,7,8,10)]  # drop vis
 +     a <- earth(doy ~ humidity + temp + wind, data=ozone1.local, degree=2, minspan=-1)
-+     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
-+     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
++     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
++            trace=Trace, type2="image", col.response=3, pch.response=20, clip=FALSE)
++     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
++            trace=Trace, type2="image", col.response=3, pch.response=20, clip=FALSE)
 + 
-+     caption <- "test call plotmo from within a function, local dataframe using x,y interface"
++     caption <- "test call plotmo from within a function\nlocal dataframe using x,y interface"
 +     dopar(4,4,caption)
 +     x <- ozone1.local[,c(4,5,3)]    # humidty temp wind
 +     y <- ozone1.local[,9]           # doy
 +     a <- earth(x, y, degree=2, minspan=-1)
-+     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
-+     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3), trace=Trace)
++     plotmo(a,        do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
++            trace=Trace, type2="image", col.response=3, pch.response=20)
++     plotmo(a.global, do.par=FALSE, ylim=NA, caption=caption, degree2=c(1,3),
++            trace=Trace, type2="image", col.response=3, pch.response=20)
 + }
 > func1()
-                              test call plotmo from within a function, global dataframe 
-                              test call plotmo from within a function, local dataframe 
-                              test call plotmo from within a function, local dataframe using x,y interface 
+                              test call plotmo from within a function
+global dataframe (predict doy) 
+
+ grid:    humidity temp wind
+                64   62    5
+
+
+ grid:    humidity temp wind
+                64   62    5
+
+                              test call plotmo from within a function
+local dataframe, clip=FALSE 
+
+ grid:    humidity temp wind
+                64   62    5
+
+
+ grid:    humidity temp wind
+                64   62    5
+
+                              test call plotmo from within a function
+local dataframe using x,y interface 
+
+ grid:    humidity temp wind
+                64   62    5
+
+
+ grid:    humidity temp wind
+                64   62    5
+
 > 
-> caption <- "test earth formula versus to x,y model"
+> caption <- "test earth formula versus x,y model"
 > dopar(4,4,caption)
-                              test earth formula versus to x,y model 
+                              test earth formula versus x,y model 
 > a <- earth(O3 ~ ., data=ozone1, degree=2)
 > plotmo(a, do.par=FALSE, caption=caption, trace=Trace)
 
@@ -208,309 +400,6 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
              5
 
 > 
-> caption <- "test lm(log(doy) ~ vh+wind+humidity+temp+log(ibh), data=ozone1)"
-> dopar(4,5,caption)
-                              test lm(log(doy) ~ vh+wind+humidity+temp+log(ibh), data=ozone1) 
-> a <- lm(log(doy) ~ vh + wind + humidity + temp + log(ibh), data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, pch.response=20, trace=Trace)
-> termplot(a)
-> 
-> caption <- "test lm(log(doy) ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1)"
-> dopar(4,5,caption)
-                              test lm(log(doy) ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1) 
-> a <- lm(log(doy) ~ vh + wind + humidity + temp + log(ibh), data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.resp=3, pch.response=20, clip=FALSE, trace=Trace)
-> termplot(a)
-> 
-> caption <- "test lm(doy ~ (vh+wind+humidity)^2, data=ozone1)"
-> dopar(4,3,caption)
-                              test lm(doy ~ (vh+wind+humidity)^2, data=ozone1) 
-> a <- lm(doy ~ (vh+wind+humidity)^2, data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, trace=Trace)
-
- grid:    vh wind humidity
-        5760    5       64
-
-> # termplot(a) # termplot fails with Error in `[.data.frame`(mf, , i): undefined columns selected
-> 
-> caption <- "test lm(doy^2 ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1)"
-> dopar(4,3,caption)
-                              test lm(doy^2 ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1) 
-> a <- lm(doy^2 ~ vh+wind+humidity+I(wind*humidity)+temp+log(ibh), data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    5       64   62 2112.5
-
-> termplot(a) # termplot draws a funky second wind plot
-> 
-> caption <- "test lm with data=ozone versus attach(ozone)"
-> dopar(4,3,caption)
-                              test lm with data=ozone versus attach(ozone) 
-> a <- lm(log(doy) ~ I(vh*wind) + wind + I(humidity*temp) + log(ibh), data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, degree1=c(1,2,4,5), trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    5       64   62 2112.5
-
-> attach(ozone1)
-> a <- lm(log(doy) ~ I(vh*wind) + wind + I(humidity*temp) + log(ibh))
-> plotmo(a, do.par=FALSE, degree1=c(1,2,4,5), trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    5       64   62 2112.5
-
-> detach(ozone1)
-> 
-> # commented out because "$" in names is not yet supported
-> # a <- lm(log(ozone1$doy) ~ I(ozone1$vh*ozone1$wind) + log(ozone1$ibh))
-> # plotmo(a, trace=Trace)
-> 
-> set.seed(1)
-> caption <- "test glm, glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)"
-> dopar(2,2,caption)
-                              test glm, glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings) 
-> library(faraway)
-> data(orings)
-> a <- lm(damage/6 ~ temp, data=orings)
-> plotmo(a, do.par=FALSE, caption=caption, col.response="pink", clip=FALSE, nrug=-1, ylim=c(0,1),
-+     main="lm(damage/6 ~ temp, data=orings)", trace=Trace)
-> a <- glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)
-> plotmo(a, do.par=FALSE, caption=caption, col.response="pink", clip=FALSE, nrug=-1, ylim=c(0,1),
-+     main="glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)", trace=Trace)
-> termplot(a)
-> plotmo(a, type="link", main="type=\"link\" glm(cbind(damage, 6-damage) ~ temp, family=binomial, data=orings)", trace=Trace)
-
- grid:    temp
-            70
-
-> 
-> set.seed(1)
-> caption <- "test glm(lot2~log(u),data=clotting,family=Gamma)"
-> dopar(2,2,caption)
-                              test glm(lot2~log(u),data=clotting,family=Gamma) 
-> u = c(5,10,15,20,30,40,60,80,100)
-> lota = c(118,58,42,35,27,25,21,19,18)
-> clotting <- data.frame(u = u, lota = lota)
-> a <- glm(lota ~ log(u), data=clotting, family=Gamma)
-> plotmo(a, do.par=FALSE, caption=caption, col.response=3, clip=FALSE, nrug=-1, trace=Trace)
-
- grid:    u
-         30
-
-> termplot(a)
-> plotmo(a, type="link", caption=paste("type=\"link\"", caption))
-
- grid:    u
-         30
-
-Warning: plotmo: Can't clip y to 18 to 118
-Warning: plotmo: Can't clip y to 18 to 118
-> 
-> if(length(grep("package:gam", search())))
-+     detach("package:gam")
-> library(mgcv)
-Warning: package 'mgcv' was built under R version 2.12.1
-This is mgcv 1.7-3. For overview type 'help("mgcv-package")'.
-> set.seed(1)
-> caption <- "test plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
-> dopar(3,2,caption)
-                              test plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot) 
-> par(mar = c(3, 5, 1.7, 0.5))    # more space for left and bottom axis
-> test1 <- function(x,sx=0.3,sz=0.4)
-+     (pi**sx*sz)*(1.2*exp(-(x[,1]-0.2)^2/sx^2-(x[,2]-0.3)^2/sz^2)+
-+     0.8*exp(-(x[,1]-0.7)^2/sx^2-(x[,2]-0.8)^2/sz^2))
-> n <- 100
-> set.seed(1)
-> x <- runif(n);
-> z <- runif(n);
-> y <- test1(cbind(x,z)) + rnorm(n) * 0.1
-> a <- gam(y ~ s(x) + s(x,z))
-> plotmo(a, do.par=FALSE, type2="contour", caption=caption, col.response=3, func=test1, col.func=4, pch.func=1, trace=Trace)
-
- grid:    x         z
-  0.4878107 0.5185988
-
-> plotmo(a, do.par=FALSE, degree1=F, degree2=1, type2="image", ylim=NA, trace=Trace)
-> plot(a, select=1)
-> plot(a, select=2)
-> plot(a, select=3)
-> 
-> n<-400
-> sig<-2
-> set.seed(1)
-> x0 <- runif(n, 0, 1)
-> x1 <- runif(n, 0, 1)
-> x2 <- runif(n, 0, 1)
-> x3 <- runif(n, 0, 1)
-> f0 <- function(x) 2 * sin(pi * x)
-> f1 <- function(x) exp(2 * x)
-> f2 <- function(x) 0.2*x^11*(10*(1-x))^6+10*(10*x)^3*(1-x)^10
-> f <- f0(x0) + f1(x1) + f2(x2)
-> e <- rnorm(n, 0, sig)
-> y <- f + e
-> test.func <- function(x) f0(x[,1]) + f1(x[,2]) + f2(x[,3])
-> library(mgcv)
-> caption <- "test mgcv::gam(y~s(x0,x1,k=12)+s(x2)+s(x3,k=20,fx=20)) (and extra persp plot)"
-> dopar(3,3,caption)
-                              test mgcv::gam(y~s(x0,x1,k=12)+s(x2)+s(x3,k=20,fx=20)) (and extra persp plot) 
-> a <- gam(y~s(x0,x1,k=12)+s(x2)+s(x3,k=20,fx=20))
-> plot(a, select=2)
-> plot(a, select=3)
-> plot(a, select=1)
-> plotmo(a, do.par=FALSE, type2="contour", caption=caption, xlab=NULL, main="", func=test.func, trace=Trace)
-
- grid:    x0        x1        x2       x3
-    0.474141 0.5151294 0.4460308 0.479208
-
-> plotmo(a, do.par=FALSE, degree1=F, degree2=1, theta=-35, trace=Trace)
-> 
-> set.seed(1)
-> caption <- "test plot.gam, with mgcv::gam(doy~s(wind)+s(humidity,wind)+s(vh)+temp,data=ozone1)"
-> dopar(3,3,caption)
-                              test plot.gam, with mgcv::gam(doy~s(wind)+s(humidity,wind)+s(vh)+temp,data=ozone1) 
-> a <- gam(doy ~ s(wind) + s(humidity,wind) + s(vh) + temp, data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, type2="contour", degree1=c(1,3), xlab=NULL, main="", clip=FALSE, trace=Trace)
-
- grid:    wind humidity   vh temp
-             5       64 5760   62
-
-> plot(a, select=1)
-> plot(a, select=3)
-> plot(a, select=2)
-> plot(a, select=4)
-> 
-> # TODO Following commented out because it no longer works:
-> #     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
-> #         NA/NaN/Inf in foreign function call (arg 6)
-> # detach("package:mgcv")
-> # library(gam)
-> # caption <- "test gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-> # set.seed(1)
-> # dopar(3,2,caption)
-> # data(airquality)
-> # airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-> # a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-> # plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, trace=Trace)
-> # # termplot gives fishy looking wind plot, plotmo looks ok
-> # # termplot(a) #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-> # detach("package:gam")
-> 
-> library(mda)
-Loading required package: class
-> caption <- "test mars and earth (expect not a close match)"
-> dopar(6,3,caption)
-                              test mars and earth (expect not a close match) 
-> a <- mars( ozone1[, -1], ozone1[,1], degree=2)
-> b <- earth(ozone1[, -1], ozone1[,1], degree=2)
-> plotmo(a, do.par=FALSE, caption=caption, trace=Trace)
-
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-> plotmo(b, do.par=FALSE, trace=Trace)
-
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-> 
-> caption <- "test mars and mars.to.earth(mars) (expect no degree2 for mars)"
-> dopar(6,3,caption)
-                              test mars and mars.to.earth(mars) (expect no degree2 for mars) 
-> a <- mars(ozone1[, -1], ozone1[,1], degree=2)
-> b <- mars.to.earth(a)
-Converted mars(x=ozone1[, -1], y=ozone1[, 1], degree=2)
-to        earth(x=ozone1[, -1], y=ozone1[, 1], degree=2)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, trace=Trace)
-> plotmo(b, do.par=FALSE, ylim=NA, trace=Trace)
-> 
-> # check fix for bug reported by Martin Maechler:
-> # form <- Volume ~ .; a <- earth(form, data = trees); plotmo(a) fails
-> 
-> dopar(4,4, "test f <- O3 ~ .; a <- earth(f, data=ozone1)")
-                              test f <- O3 ~ .; a <- earth(f, data=ozone1) 
-> fa <- log(O3) ~ .
-> a <- earth(fa, data=ozone1, degree=2, minspan=-1)
-> print(summary(a))
-Call: earth(formula=fa, data=ozone1, degree=2, minspan=-1)
-
-                            coefficients
-(Intercept)                   2.70208646
-h(5740-vh)                   -0.00263742
-h(50-humidity)               -0.01388240
-h(temp-52)                    0.02571597
-h(ibh-1108)                  -0.00005086
-h(1108-ibh)                  -0.00024807
-h(dpg-13)                    -0.00732749
-h(13-dpg)                    -0.00443066
-h(200-vis)                    0.00159726
-h(doy-92)                    -0.00239156
-h(92-doy)                    -0.01391381
-h(humidity-69) * h(52-temp)  -0.00333375
-h(humidity-50) * h(195-ibt)  -0.00011493
-h(dpg-13) * h(doy-236)       -0.00012956
-
-Selected 14 of 21 terms, and 8 of 9 predictors 
-Importance: temp, humidity, ibt, doy, vh, dpg, ibh, vis, wind-unused
-Number of terms at each degree of interaction: 1 10 3
-GCV 0.1079334    RSS 28.75354    GRSq 0.8078581    RSq 0.8439443
-> plot(a, do.par=FALSE)
-> plotmo(a, do.par=FALSE, degree1=2:3, degree2=c(1,3), col.response = "pink")
-
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-> a <- lm(log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh), data=ozone1)
-> plotmo(a, do.par=FALSE, degree1=1:2)
-
- grid:    vh wind humidity temp    ibh
-        5760    5       64   62 2112.5
-
-> fa <- log(doy) ~ I(vh*wind) + I(humidity*temp) + log(ibh)
-> a <- lm(fa, data=ozone1)
-> plotmo(a, do.par=FALSE, degree1=1:2)
-
- grid:    vh wind humidity temp    ibh
-        5760    5       64   62 2112.5
-
-> 
-> # test inverse.func and func
-> 
-> caption <- "test inverse.func=exp"
-> a <- lm(log(Volume) ~ Girth + Height + I(Girth*Height), data=trees)
-> my.func <- function(x) -60 + 5 * x[,1] + x[,2] / 3
-> plotmo(a, caption=caption, inverse.func = exp, col.response = "pink", func=my.func, col.func="grey", ndegree1=1000, type2="p", trace=Trace)
-
- grid:    Girth Height
-           12.9     76
-
-> 
-> # se testing
-> 
-> caption = "se=2, lm(doy~., data=ozone1) versus termplot"
-> dopar(6,3,caption)
-                              se=2, lm(doy~., data=ozone1) versus termplot 
-> a <- lm(doy~., data=ozone1)
-> plotmo(a, se=2, do.par=FALSE, trace=Trace, caption=caption)
-
- grid:    O3   vh wind humidity temp    ibh dpg   ibt vis
-          10 5760    5       64   62 2112.5  24 167.5 120
-
-> termplot(a, se=2)
-> 
-> caption <- "test different se options, se=2, lm(log(doy)~vh+wind+log(humidity),data=ozone1)"
-> dopar(4,3,caption)
-                              test different se options, se=2, lm(log(doy)~vh+wind+log(humidity),data=ozone1) 
-> a <- lm(log(doy) ~ vh + wind + log(humidity), data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, trace=Trace)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, col.shade.se=0, col.se=1, trace=Trace)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, col.se=1, trace=Trace)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, se=2, col.se=1, trace=Trace)
-
- grid:    vh wind humidity
-        5760    5       64
-
-> 
 > caption = "se=2, earth(doy~humidity+temp+wind, data=ozone1) versus termplot (expect no se lines)"
 > dopar(3,2,caption)
                               se=2, earth(doy~humidity+temp+wind, data=ozone1) versus termplot (expect no se lines) 
@@ -522,181 +411,12 @@ Warning: predict.earth ignored unrecognized argument "se.fit"
 > cat("Ignore two warnings: predict.earth ignored argument \"se.fit\"\n")
 Ignore two warnings: predict.earth ignored argument "se.fit"
 > plotmo(a, se=2, do.par=FALSE, ylim=NA, degree2=c(1:2), clip=FALSE, caption=caption, trace=Trace)
+
+ grid:    humidity temp wind
+                64   62    5
+
 Warning: predict.earth ignored unrecognized argument "se.fit"
 Warning: predict.earth ignored unrecognized argument "se.fit"
-> 
-> caption <- "test se=2, lm(log(doy)~vh+wind+log(humidity),data=ozone1)"
-> dopar(2,3,caption)
-                              test se=2, lm(log(doy)~vh+wind+log(humidity),data=ozone1) 
-> a <- lm(log(doy) ~ vh + wind + log(humidity), data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, trace=Trace)
-> termplot(a, se=TRUE)
-> 
-> caption <- "test se=2 and inverse.func, lm(log(doy)~vh+wind+log(humidity),data=ozone1)"
-> dopar(3,3,caption)
-                              test se=2 and inverse.func, lm(log(doy)~vh+wind+log(humidity),data=ozone1) 
-> a <- lm(log(doy) ~ vh + wind + log(humidity), data=ozone1)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NA, se=2, trace=Trace)
-> plotmo(a, do.par=FALSE, caption=caption, ylim=NULL, se=2, inverse.func=exp, trace=Trace)
-
- grid:    vh wind humidity
-        5760    5       64
-
-> termplot(a, se=TRUE)
-> 
-> caption <- "test se=3, glm(lot2~log(u),data=clotting,family=Gamma)"
-> set.seed(1)
-> dopar(2,2,caption)
-                              test se=3, glm(lot2~log(u),data=clotting,family=Gamma) 
-> u = c(5,10,15,20,30,40,60,80,100)
-> lota = c(118,58,42,35,27,25,21,19,18)
-> clotting <- data.frame(u = u, lota = lota)
-> a <- glm(lota ~ log(u), data=clotting, family=Gamma)
-> plotmo(a, do.par=FALSE, caption=caption, col.response=4, pch.response=7, clip=FALSE, nrug=-1, se=3, trace=Trace)
-
- grid:    u
-         30
-
-> termplot(a, se=TRUE)
-> 
-> if(length(grep("package:gam", search())))
-+     detach("package:gam")
-> library(mgcv)
-> set.seed(1)
-> caption <- "test se=2, plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot)"
-> dopar(3,2,caption)
-                              test se=2, plot.gam, with mgcv::gam(y ~ s(x) + s(x,z)) with response and func (and extra image plot) 
-> par(mar = c(3, 5, 1.7, 0.5))    # more space for left and bottom axis
-> test1 <- function(x,sx=0.3,sz=0.4)
-+     (pi**sx*sz)*(1.2*exp(-(x[,1]-0.2)^2/sx^2-(x[,2]-0.3)^2/sz^2)+
-+     0.8*exp(-(x[,1]-0.7)^2/sx^2-(x[,2]-0.8)^2/sz^2))
-> n <- 100
-> set.seed(1)
-> x <- runif(n);
-> z <- runif(n);
-> y <- test1(cbind(x,z)) + rnorm(n) * 0.1
-> a <- gam(y ~ s(x) + s(x,z))
-> plotmo(a, do.par=FALSE, type2="contour", caption=caption, col.response=3, func=test1, col.func=4, se=2, trace=Trace)
-
- grid:    x         z
-  0.4878107 0.5185988
-
-> plotmo(a, do.par=FALSE, degree1=F, degree2=1, type2="image", col.image=topo.colors(10),
-+         ylim=NA, se=2, trace=Trace, main="topo.colors")
-> plot(a, select=1)
-> plot(a, select=2)
-> plot(a, select=3)
-> 
-> # TODO Following commented out because it no longer works:
-> #     Error in gam.lo(data[["lo(Wind, Temp)"]], z, w, span = 0.5, degree = 1,  :
-> #         NA/NaN/Inf in foreign function call (arg 6)
-> # detach("package:mgcv")
-> # library(gam)
-> # set.seed(1)
-> # caption <- "test se=2, gam:gam(Ozone^(1/3)~lo(Solar.R)+lo(Wind, Temp),data=airquality)"
-> # dopar(3,2,caption)
-> # data(airquality)
-> # airquality <- na.omit(airquality)   # plotmo doesn't know how to deal with NAs yet
-> # a <- gam(Ozone^(1/3) ~ lo(Solar.R) + lo(Wind, Temp), data = airquality)
-> # cat("Ignore three warnings: No standard errors (currently) for gam predictions with newdata\n")
-> # plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, trace=Trace)
-> # # termplot(a)  #TODO this fails with R2.5: dim(data) <- dim: attempt to set an attribute on NULL
-> # detach("package:gam")
-> 
-> # test factors by changing wind to a factor
-> 
-> ozone1[,"wind"] <- factor(ozone1[,"wind"])
-> 
-> # commented out because factors are not yet supported by plotmo.earth
-> # caption <- "test wind=factor, earth(O3 ~ ., data=ozone1)"
-> # a <- earth(doy ~ ., data=ozone1)
-> # set.seed(1)
-> # dopar(4,3,caption)
-> # plotmo(a, col.response="gray", se=2, nrug=-1, do.par=FALSE, caption=caption, trace=Trace)
-> # termplot(a)
-> 
-> caption <- "test wind=factor, lm(doy ~ vh + wind + I(humidity*temp) + log(ibh), data=ozone1)"
-> a <- lm(doy ~ vh + wind + I(humidity*temp) + log(ibh), data=ozone1)
-> set.seed(1)
-> dopar(4,3,caption)
-                              test wind=factor, lm(doy ~ vh + wind + I(humidity*temp) + log(ibh), data=ozone1) 
-> plotmo(a, col.response="gray", se=2, nrug=-1, do.par=FALSE, caption=caption, trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    0       64   62 2112.5
-
-> termplot(a, se=TRUE)
-> 
-> caption <- "test test se options like col.se"
-> dopar(2,2,caption)
-                              test test se options like col.se 
-> plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, caption=caption, trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    0       64   62 2112.5
-
-> plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, lty.se=1, col.se=2, trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    0       64   62 2112.5
-
-> plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, lty.se=1, col.shade=0, trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    0       64   62 2112.5
-
-> plotmo(a, do.par=FALSE, degree1=2, degree2=FALSE, se=2, lty.se=3, col.shade="gray", trace=Trace)
-
- grid:    vh wind humidity temp    ibh
-        5760    0       64   62 2112.5
-
-> 
-> caption <- "test wind=factor, glm(y ~ i + j, family=poisson())"
-> y <- c(18,17,15,20,10,20,25,13,12)
-> i <- gl(3,1,9)
-> j <- gl(3,3)
-> a <- glm(y ~ i + j, family=poisson())
-> set.seed(1)
-> dopar(2,2,caption)
-                              test wind=factor, glm(y ~ i + j, family=poisson()) 
-> plotmo(a, do.par=F, se=2, nrug=-1, caption=caption, trace=Trace)
-
- grid:    i j
-          1 1
-
-> termplot(a, se=1, rug=T)
-> 
-> if(length(grep("package:gam", search())))
-+    detach("package:gam")
-> caption <- "test wind=factor, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
-> library(mgcv)
-> a <- gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)
-> plotmo(a, se=1, caption=caption, trace=Trace)
-
- grid:    vh wind humidity temp
-        5760    0       64   62
-
-> caption <- "test wind=factor, clip=TRUE, gam(doy ~ vh + wind + s(humidity) + s(vh) + temp, data=ozone1)"
-> plotmo(a, se=1, caption=caption, clip=FALSE, trace=Trace)
-
- grid:    vh wind humidity temp
-        5760    0       64   62
-
-> # termplot doesn't work here so code commented out
-> # dopar(3,3,caption)
-> # plotmo(a, do.par=FALSE, trace=Trace)
-> # termplot(a)
-> 
-> # commented out because se is not supported for gam::predict.gam
-> # detach("package:mgcv")
-> # library(gam)
-> # caption <- "test wind=factor, gam:gam(doy ~ vh + wind + lo(humidity) + lo(vh) + temp, data=ozone1)"
-> # a <- gam(doy ~ vh + wind + lo(humidity) + lo(vh) + temp, data=ozone1)
-> # set.seed(1)
-> # dopar(4,3,caption)
-> # plotmo(a, do.par=FALSE, caption=caption, ylim=NA, col.response=3, se=2, subcaption=caption, trace=Trace)
-> # termplot(a, se=1)
-> # detach("package:gam")
 > 
 > # test fix to bug reported by Joe Retzer, FIXED Dec 7, 2007
 > N <- 650
@@ -960,8 +680,6 @@ GCV 2.5    RSS 1388    GRSq 0.54    RSq 0.6
                                   0.02821214
 
 > 
-> cat("==test plotmo with factors==\n")
-==test plotmo with factors==
 > data(etitanic)
 > a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
 > print(summary(a))
@@ -986,25 +704,17 @@ GCV 0.1447330    RSS 146.7947    GRSq 0.4020269    RSq 0.4190703
  grid:    pclass    sex age
              1st female  28
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass, sex
 > plotmo(a, trace=Trace, clip=FALSE, degree2=FALSE, caption="plotmo (no degree2) with facs: pclass+sex+age")
 
  grid:    pclass    sex age
              1st female  28
 
-> plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2nd", sex="male"),
+> plotmo(a, trace=Trace, clip=FALSE, grid.levels=list(pclass="2n", sex="ma"),
 +        caption="plotmo with grid.levels: pclass+sex+age")
 
  grid:    pclass  sex age
              2nd male  28
 
-Note: setting pclass in the degree1 grid to [1] 2nd
-Note: setting sex in the degree1 grid to [1] male
-Note: setting pclass in the degree2 grid to [1] 2nd
-Note: setting sex in the degree2 grid to [1] male
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass, sex
 > # in above tests, all degree2 terms use facs
 > # now build a model with some degree2 term that use facs, some that don't
 > a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2)
@@ -1025,23 +735,42 @@ Selected 7 of 17 terms, and 4 of 4 predictors
 Importance: pclass3rd, age, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 2 4
 GCV 0.2038010    RSS 206.7041    GRSq 0.1579841    RSq 0.1819833
-> plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms")
+> plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms", border=NA)
 
  grid:    pclass age sibsp
              1st  28     0
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
 > plotmo(a, caption="plotmo with mixed fac and non-fac degree2 terms and grid.levels",
-+        grid.levels=list(pclass="2nd"))
++        grid.levels=list(pclass="2n", age=20), # test partial matching of grid levels, and numeric preds
++        ticktype="d", nticks=2)
 
  grid:    pclass age sibsp
-             2nd  28     0
+             2nd  20     0
 
-Note: setting pclass in the degree1 grid to [1] 2nd
-Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
+> 
+> # check detection of illegal grid.levels argument
+> try(plotmo(a, grid.levels=list(pcla="1", pclass="2")))  # Expect error
+Error : bad grid.levels argument ("pcla" and "pclass" both match "pclass")
+> try(plotmo(a, grid.levels=list(pclass="1", pcla="2")))  # Expect error
+Error : bad grid.levels argument ("pclass" and "pcla" both match "pclass")
+> try(plotmo(a, grid.levels=list(pcla=1)))                # Expect error
+Error : illegal level for "pcla" in grid.levels (specify factor levels with a string)
+> try(plotmo(a, grid.levels=list(pcla=c("ab", "cd"))))    # Expect error
+Error : illegal value for pclass in grid.levels
+> try(plotmo(a, grid.levels=list(pcla=NA)))               # Expect error
+Error : illegal value for pclass in grid.levels
+> try(plotmo(a, grid.levels=list(pcla=Inf)))              # Expect error
+Error : illegal level for "pcla" in grid.levels (specify factor levels with a string)
+> try(plotmo(a, grid.levels=list(pcla=9)))                # Expect error
+Error : illegal level for "pcla" in grid.levels (specify factor levels with a string)
+> try(plotmo(a, grid.levels=list(age="ab")))              # Expect error
+Error : illegal value for age in grid.levels
+> try(plotmo(a, grid.levels=list(age=NA)))                # Expect error
+Error : illegal value for age in grid.levels
+> try(plotmo(a, grid.levels=list(age=Inf)))               # Expect error
+Error : illegal value for age in grid.levels
+> try(plotmo(a, grid.lev=list(age=list(1,2))))            # Expect error
+Error : illegal value for age in grid.levels
 > 
 > # more-or-less repeat above, but with glm models
 > a <- earth(survived ~ pclass+age+sibsp, data=etitanic, degree=2, glm=list(family=binomial))
@@ -1066,381 +795,42 @@ Earth GCV 0.2038010    RSS 206.7041    GRSq 0.1579841    RSq 0.1819833
 
 GLM null.deviance 1414.620 (1045 dof)   deviance 1204.995 (1039 dof)   iters 7
 > plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms")
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
+
+ grid:    pclass age sibsp
+             1st  28     0
+
 > plotmo(a, ylim=c(0, 1), caption="plotmo glm with mixed fac and non-fac degree2 terms and grid.levels",
-+        grid.levels=list(pclass="2nd"))
-Note: setting pclass in the degree1 grid to [1] 2nd
-Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
++        grid.levels=list(pcl="2nd")) # test partial matching of variable name in grid levels
+
+ grid:    pclass age sibsp
+             2nd  28     0
+
 > plotmo(a, type="earth", ylim=c(0, 1), caption="type=\"earth\" plotmo glm with mixed fac and non-fac degree2 terms")
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
+
+ grid:    pclass age sibsp
+             1st  28     0
+
 > plotmo(a, type="link", ylim=c(0, 1), clip=FALSE, caption="type=\"link\" plotmo glm with mixed fac and non-fac degree2 terms")
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
+
+ grid:    pclass age sibsp
+             1st  28     0
+
 > plotmo(a, type="class", ylim=c(0, 1), caption="type=\"class\" plotmo glm with mixed fac and non-fac degree2 terms")
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
-> plotmo(a, type="response", ylim=c(0, 1), caption="type=\"response\" plotmo glm with mixed fac and non-fac degree2 terms")
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
+
+ grid:    pclass age sibsp
+             1st  28     0
+
+> plotmo(a, ylim=c(0, 1), caption="default type (\"response\")\nplotmo glm with mixed fac and non-fac degree2 terms")
+
+ grid:    pclass age sibsp
+             1st  28     0
+
 > # now with different type2's
 > plotmo(a, do.par=FALSE, type2="persp",   theta=-20, degree1=FALSE, grid.levels=list(pclass="2nd"))
-Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
 > plotmo(a, do.par=FALSE, type2="contour", degree1=FALSE, grid.levels=list(pclass="2nd"))
-Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
 > plotmo(a, do.par=FALSE, type2="image",   degree1=FALSE, grid.levels=list(pclass="2nd"),
 +        col.response=as.numeric(etitanic$survived)+2, pch.response=20)
-Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
-> plotmo(a, do.par=FALSE, type="earth", type2="image", degree1=FALSE, grid.levels=list(pclass="2nd"))
-Note: setting pclass in the degree2 grid to [1] 2nd
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass
-> 
-> # test lda and qda, and also col.response, pch.response, and jitter.response
-> library(MASS)
-> etitanic2 <- etitanic
-> etitanic2$pclass <- as.numeric(etitanic$pclass)
-> etitanic2$sex <- as.numeric(etitanic$sex)
-> etitanic2$sibsp <- NULL
-> etitanic2$parch <- NULL
-> lda.model <- lda(survived ~ ., data=etitanic2)
-> set.seed(7)
-> plotmo(lda.model, caption="lda", trace=1, clip=F,
-+        col.response=as.numeric(etitanic2$survived)+2, type="posterior",
-+        degree2="all", type2="image")
-
---get.plotmo.x
-
-formula survived ~ .
-stripped formula survived~.
-get.formula.data: got x from data passed to original call to lda 
-about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
-got x with colnames from object$call$formula
-x[1046,3]
-  pclass sex     age
-1      1   1 29.0000
-2      1   2  0.9167
-3      1   1  2.0000
-is.factor FALSE FALSE FALSE 
-
---get.plotmo.y
-
-formula survived ~ .
-stripped formula survived~.
-get.formula.data: got y from data passed to original call to lda 
-about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
-got y from object$call$formula
-get.plotmo.y returned length 1046 min 0 max 1 values 1 1 0 0 0 1 1 0 1 0 ...
-
---get.singles
-
-singles: 1 pclass, 2 sex, 3 age 
-
---get.pairs
-
-pairs:
-     [,1]       [,2]   
-[1,] "1 pclass" "2 sex"
-[2,] "1 pclass" "3 age"
-[3,] "2 sex"    "3 age"
-
---plot1(draw.plot=FALSE) ntrace 2
-
- grid:    pclass sex age
-               2   2  28
-
-
-plotmo.predict for predictor "pclass" with newdata[500,3]:
-    pclass sex age
-1 1.000000   2  28
-2 1.004008   2  28
-3 1.008016   2  28
-plotmo.predict returned length 500 min 0.5689119 max 0.935202 values 0.5689119 0.5700872 0.5712617 0.5724354 0.5736083 0.5747803 0.5759515 0.5771219 0.5782914 0.57946 ...
-
-plotmo.predict for predictor "sex" with newdata[500,3]:
-  pclass      sex age
-1      2 1.000000  28
-2      2 1.002004  28
-3      2 1.004008  28
-plotmo.predict returned length 500 min 0.1489949 max 0.8135813 values 0.1489949 0.1498139 0.1506366 0.1514631 0.1522932 0.1531271 0.1539647 0.1548061 0.1556512 0.1565001 ...
-
-plotmo.predict for predictor "age" with newdata[500,3]:
-  pclass sex       age
-1      2   2 0.1667000
-2      2   2 0.3266866
-3      2   2 0.4866732
-plotmo.predict returned length 500 min 0.6286389 max 0.9624145 values 0.6286389 0.6299089 0.631177 0.6324434 0.633708 0.6349707 0.6362315 0.6374905 0.6387476 0.6400028 ...
-
---plot2(draw.plot=FALSE)
-
-plotmo.predict for predictors "pclass" and "sex" with newdata[400,3]:
-    pclass sex age
-1 1.000000   1  28
-2 1.105263   1  28
-3 1.210526   1  28
-inverse.func returned length 400 min 0.05028077 max 0.935202 values 0.05028077 0.05664467 0.06375996 0.0717011 0.08054619 0.09037618 0.1012737 0.1133216 0.1266008 0.1411883 ...
-
-plotmo.predict for predictors "pclass" and "age" with newdata[400,3]:
-    pclass sex    age
-1 1.000000   2 0.1667
-2 1.105263   2 0.1667
-3 1.210526   2 0.1667
-inverse.func returned length 400 min 0.338574 max 0.9883285 values 0.338574 0.3673141 0.3970294 0.4275243 0.45858 0.4899609 0.5214211 0.5527123 0.5835914 0.6138282 ...
-
-plotmo.predict for predictors "sex" and "age" with newdata[400,3]:
-  pclass      sex    age
-1      2 1.000000 0.1667
-2      2 1.052632 0.1667
-3      2 1.105263 0.1667
-inverse.func returned length 400 min 0.06359133 max 0.9624145 values 0.06359133 0.0744463 0.0869821 0.1013975 0.1178935 0.1366650 0.1578903 0.1817183 0.2082531 0.2375377 ...
-
-initialized ylims 0 1 
-
---plot1(draw.plot=TRUE) ntrace 1
-
---plot2(draw.plot=TRUE)
-> set.seed(8)
-> plotmo(lda.model, caption="lda with jitter", trace=1, clip=F,
-+        col.response=as.numeric(etitanic2$survived)+2, type="posterior",
-+        degree2="all", type2="image", jitter.response=1)
-
---get.plotmo.x
-
-formula survived ~ .
-stripped formula survived~.
-get.formula.data: got x from data passed to original call to lda 
-about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
-got x with colnames from object$call$formula
-x[1046,3]
-  pclass sex     age
-1      1   1 29.0000
-2      1   2  0.9167
-3      1   1  2.0000
-is.factor FALSE FALSE FALSE 
-
---get.plotmo.y
-
-formula survived ~ .
-stripped formula survived~.
-get.formula.data: got y from data passed to original call to lda 
-about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
-got y from object$call$formula
-get.plotmo.y returned length 1046 min 0 max 1 values 1 1 0 0 0 1 1 0 1 0 ...
-
---get.singles
-
-singles: 1 pclass, 2 sex, 3 age 
-
---get.pairs
-
-pairs:
-     [,1]       [,2]   
-[1,] "1 pclass" "2 sex"
-[2,] "1 pclass" "3 age"
-[3,] "2 sex"    "3 age"
-
---plot1(draw.plot=FALSE) ntrace 2
-
- grid:    pclass sex age
-               2   2  28
-
-
-plotmo.predict for predictor "pclass" with newdata[500,3]:
-    pclass sex age
-1 1.000000   2  28
-2 1.004008   2  28
-3 1.008016   2  28
-plotmo.predict returned length 500 min 0.5689119 max 0.935202 values 0.5689119 0.5700872 0.5712617 0.5724354 0.5736083 0.5747803 0.5759515 0.5771219 0.5782914 0.57946 ...
-
-plotmo.predict for predictor "sex" with newdata[500,3]:
-  pclass      sex age
-1      2 1.000000  28
-2      2 1.002004  28
-3      2 1.004008  28
-plotmo.predict returned length 500 min 0.1489949 max 0.8135813 values 0.1489949 0.1498139 0.1506366 0.1514631 0.1522932 0.1531271 0.1539647 0.1548061 0.1556512 0.1565001 ...
-
-plotmo.predict for predictor "age" with newdata[500,3]:
-  pclass sex       age
-1      2   2 0.1667000
-2      2   2 0.3266866
-3      2   2 0.4866732
-plotmo.predict returned length 500 min 0.6286389 max 0.9624145 values 0.6286389 0.6299089 0.631177 0.6324434 0.633708 0.6349707 0.6362315 0.6374905 0.6387476 0.6400028 ...
-
---plot2(draw.plot=FALSE)
-
-plotmo.predict for predictors "pclass" and "sex" with newdata[400,3]:
-    pclass sex age
-1 1.000000   1  28
-2 1.105263   1  28
-3 1.210526   1  28
-inverse.func returned length 400 min 0.05028077 max 0.935202 values 0.05028077 0.05664467 0.06375996 0.0717011 0.08054619 0.09037618 0.1012737 0.1133216 0.1266008 0.1411883 ...
-
-plotmo.predict for predictors "pclass" and "age" with newdata[400,3]:
-    pclass sex    age
-1 1.000000   2 0.1667
-2 1.105263   2 0.1667
-3 1.210526   2 0.1667
-inverse.func returned length 400 min 0.338574 max 0.9883285 values 0.338574 0.3673141 0.3970294 0.4275243 0.45858 0.4899609 0.5214211 0.5527123 0.5835914 0.6138282 ...
-
-plotmo.predict for predictors "sex" and "age" with newdata[400,3]:
-  pclass      sex    age
-1      2 1.000000 0.1667
-2      2 1.052632 0.1667
-3      2 1.105263 0.1667
-inverse.func returned length 400 min 0.06359133 max 0.9624145 values 0.06359133 0.0744463 0.0869821 0.1013975 0.1178935 0.1366650 0.1578903 0.1817183 0.2082531 0.2375377 ...
-
-initialized ylims 0 1 
-
---plot1(draw.plot=TRUE) ntrace 1
-
---plot2(draw.plot=TRUE)
-> qda.model <- qda(survived ~ ., data=etitanic2)
-> set.seed(9)
-> plotmo(qda.model, caption="qda with jitter", trace=1, clip=F,
-+        col.response=as.numeric(etitanic2$survived)+2, type="posterior",
-+        degree2="all", type2="image", jitter.resp=.5, pch.resp=20)
-
---get.plotmo.x
-
-formula survived ~ .
-stripped formula survived~.
-get.formula.data: got x from data passed to original call to qda 
-about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
-got x with colnames from object$call$formula
-x[1046,3]
-  pclass sex     age
-1      1   1 29.0000
-2      1   2  0.9167
-3      1   1  2.0000
-is.factor FALSE FALSE FALSE 
-
---get.plotmo.y
-
-formula survived ~ .
-stripped formula survived~.
-get.formula.data: got y from data passed to original call to qda 
-about to call model.frame(formula=survived~., data=structure(list(pclass=c(1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, etc.
-got y from object$call$formula
-get.plotmo.y returned length 1046 min 0 max 1 values 1 1 0 0 0 1 1 0 1 0 ...
-
---get.singles
-
-singles: 1 pclass, 2 sex, 3 age 
-
---get.pairs
-
-pairs:
-     [,1]       [,2]   
-[1,] "1 pclass" "2 sex"
-[2,] "1 pclass" "3 age"
-[3,] "2 sex"    "3 age"
-
---plot1(draw.plot=FALSE) ntrace 2
-
- grid:    pclass sex age
-               2   2  28
-
-
-plotmo.predict for predictor "pclass" with newdata[500,3]:
-    pclass sex age
-1 1.000000   2  28
-2 1.004008   2  28
-3 1.008016   2  28
-plotmo.predict returned length 500 min 0.5863964 max 0.9082776 values 0.5863964 0.5878098 0.5892199 0.5906267 0.59203 0.5934301 0.5948267 0.5962199 0.5976097 0.5989961 ...
-
-plotmo.predict for predictor "sex" with newdata[500,3]:
-  pclass      sex age
-1      2 1.000000  28
-2      2 1.002004  28
-3      2 1.004008  28
-plotmo.predict returned length 500 min 0.0979003 max 0.826765 values 0.0979003 0.09886416 0.09983528 0.1008137 0.1017994 0.1027924 0.1037927 0.1048004 0.1058155 0.106838 ...
-
-plotmo.predict for predictor "age" with newdata[500,3]:
-  pclass sex       age
-1      2   2 0.1667000
-2      2   2 0.3266866
-3      2   2 0.4866732
-plotmo.predict returned length 500 min 0.4617214 max 0.9272462 values 0.4617214 0.4647778 0.4678299 0.4708773 0.47392 0.4769576 0.4799898 0.4830166 0.4860376 0.4890526 ...
-
---plot2(draw.plot=FALSE)
-
-plotmo.predict for predictors "pclass" and "sex" with newdata[400,3]:
-    pclass sex age
-1 1.000000   1  28
-2 1.105263   1  28
-3 1.210526   1  28
-inverse.func returned length 400 min 0.01318245 max 0.9082776 values 0.01318245 0.01675264 0.02115758 0.02655039 0.03309903 0.0409833 0.05039007 0.06150656 0.0745115 0.08956434 ...
-
-plotmo.predict for predictors "pclass" and "age" with newdata[400,3]:
-    pclass sex    age
-1 1.000000   2 0.1667
-2 1.105263   2 0.1667
-3 1.210526   2 0.1667
-inverse.func returned length 400 min 0.1587544 max 0.9463507 values 0.1587544 0.1846193 0.2127288 0.2428512 0.2746754 0.3078247 0.341875 0.3763776 0.4108831 0.4449636 ...
-
-plotmo.predict for predictors "sex" and "age" with newdata[400,3]:
-  pclass      sex    age
-1      2 1.000000 0.1667
-2      2 1.052632 0.1667
-3      2 1.105263 0.1667
-inverse.func returned length 400 min 0.03722567 max 0.9271873 values 0.03722567 0.04707352 0.05886001 0.0727544 0.088877 0.1072814 0.1279392 0.1507298 0.1754376 0.2017574 ...
-
-initialized ylims 0 1 
-
---plot1(draw.plot=TRUE) ntrace 1
-
---plot2(draw.plot=TRUE)
+> plotmo(a, do.par=FALSE, type="earth", type2="image", degree1=FALSE, grid.levels=list(pclass="2"))
 > 
 > # test vector main
 > 
@@ -1482,6 +872,30 @@ Expect warning below
                 64   62 205.5
 
 Warning: not enough elements in "main" (there are more plots than strings in "main")
+> 
+> aflip <- earth(O3~vh + wind + humidity + temp, data=ozone1, degree=2)
+> 
+> # test all1 and all2, with and without degree1 and degree2
+> plotmo(aflip, all2=T, caption="all2=T")
+
+ grid:    vh wind humidity temp
+        5760    5       64   62
+
+> plotmo(aflip, all2=T, degree2=c(4, 2), caption="all2=T, degree2=c(4, 2)")
+
+ grid:    vh wind humidity temp
+        5760    5       64   62
+
+> plotmo(aflip, all1=T, caption="all1=T")
+
+ grid:    vh wind humidity temp
+        5760    5       64   62
+
+> plotmo(aflip, all1=T, degree1=c(3,1), degree2=NA, caption="all1=T, degree1=c(3,1), degree2=NA")
+
+ grid:    vh wind humidity temp
+        5760    5       64   62
+
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot
