@@ -4,7 +4,7 @@
 Loading required package: leaps
 Loading required package: plotrix
 Warning message:
-package 'plotrix' was built under R version 2.12.1 
+package 'plotrix' was built under R version 2.12.2 
 > if(!interactive())
 +     postscript(paper="letter")
 > data(ozone1)
@@ -682,8 +682,6 @@ survived. 0.4183267 0.004641934 0.8876037 0.01425373 -0.04517342 0.2183072  0.92
  grid:    pclass    sex age sibsp parch
              1st female  28     0     0
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: pclass, sex
 > printh(a6$cv.list[[2]])
 === a6$cv.list[[2]]
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
@@ -1004,13 +1002,11 @@ Cross validation: nterms 10.00 sd 1.25  nvars 5.00 sd 0.00
 3rd  0.24518338 0.06819219 1.112533 0.09931092  0.002921066 0.09693898  0.9431313 0.2335650 0.7913946 0.04170909 0.9715114 0.75433525
 mean 0.17550724 0.04994987 1.035524 0.06176683 -0.133525644 0.11353116  0.8614162 0.1685641 0.7339773 0.03081695 0.9715114 0.01288484
 > # expect a note: plotmo cannot use factors as axes for degree2 plots...
-> plotmo(a7, ycolumn=1)
+> plotmo(a7, nresponse=1)
 
  grid:    survived    sex age sibsp parch
                  0 female  28     0     0
 
-Note: plotmo cannot use factors as axes for degree2 plots,
-      so skipping degree2 plots for: sex
 > printh(a7$cv.list[[3]])
 === a7$cv.list[[3]]
 Earth selected 9 of 17 terms, and 5 of 5 predictors 

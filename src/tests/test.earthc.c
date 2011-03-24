@@ -198,7 +198,7 @@ static double func2collinear(const double x[], const int iResponse)
 //-----------------------------------------------------------------------------
 static void TestEarth(char sTestName[],
                 double (__cdecl *func)(const double xVec[], const int iResponse),
-                const int nCases, const int nResponses, const int nPreds,
+                const int nCases, const int nresponses, const int nPreds,
                 const int nMaxDegree, const int nMaxTerms,
                 const int nTrace, const bool Format,
                 const double ForwardStepThresh,
@@ -211,13 +211,13 @@ static void TestEarth(char sTestName[],
     int *LinPreds  = (int *)calloc(nPreds, sizeof(int));
 
     double *x         = (double *)malloc(nCases    * nPreds     * sizeof(double));
-    double *y         = (double *)malloc(nCases    * nResponses * sizeof(double));
+    double *y         = (double *)malloc(nCases    * nresponses * sizeof(double));
     double *bx        = (double *)malloc(nCases    * nMaxTerms  * sizeof(double));
     bool   *BestSet   = (bool *)  malloc(nMaxTerms *              sizeof(bool));
     int    *Dirs      = (int *)   malloc(nMaxTerms * nPreds     * sizeof(int));
     double *Cuts      = (double *)malloc(nMaxTerms * nPreds     * sizeof(double));
-    double *Residuals = (double *)malloc(nCases    * nResponses * sizeof(double));
-    double *Betas     = (double *)malloc(nMaxTerms * nResponses * sizeof(double));
+    double *Residuals = (double *)malloc(nCases    * nresponses * sizeof(double));
+    double *Betas     = (double *)malloc(nMaxTerms * nresponses * sizeof(double));
 
     static int nTest;
     nTest++;
@@ -243,7 +243,7 @@ static void TestEarth(char sTestName[],
             x[iCase + 1 * nCases] = xtemp;
             xVec[1] = xtemp;
         }
-        for (int iResponse = 0; iResponse < nResponses; iResponse++)
+        for (int iResponse = 0; iResponse < nresponses; iResponse++)
             y_(iCase, iResponse) = func(xVec, iResponse);
     }
     free(xVec);
@@ -255,7 +255,7 @@ static void TestEarth(char sTestName[],
 
     Earth(&BestGcv, &nTerms, BestSet, bx, Dirs, Cuts, Residuals, Betas,
         x, y, NULL, // weights are NULL
-        nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
+        nCases, nresponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0,      // MinSpan
         true,   // Prune
         K, FastBeta, NewVarPenalty, LinPreds, true, nTrace, NULL);
@@ -269,17 +269,17 @@ static void TestEarth(char sTestName[],
 
     // calc RSquared, GRSquared
 
-    for (int iResponse = 0; iResponse < nResponses; iResponse++) {
+    for (int iResponse = 0; iResponse < nresponses; iResponse++) {
         double Rss = 0, Tss = 0, meanY = 0;
         for (iCase = 0; iCase < nCases; iCase++)
             meanY += y_(iCase, iResponse);
         meanY /= nCases;
         xVec = (double *)malloc(nPreds * sizeof(double));
-        double *yHat = (double *)malloc(nResponses * sizeof(double));
+        double *yHat = (double *)malloc(nresponses * sizeof(double));
         for (iCase = 0; iCase < nCases; iCase++) {
             for (int iPred = 0; iPred < nPreds; iPred++)
                 xVec[iPred] = x[iCase + iPred * nCases];
-            PredictEarth(yHat, xVec, BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms);
+            PredictEarth(yHat, xVec, BestSet, Dirs, Cuts, Betas, nPreds, nresponses, nTerms, nMaxTerms);
             double Residual = y_(iCase,iResponse) - yHat[iResponse];
             Rss += sq(Residual);
             Tss += sq(y_(iCase,iResponse) - meanY);
@@ -296,7 +296,7 @@ static void TestEarth(char sTestName[],
         double TimeDelta = 99.99;
 #endif
         // show results
-        if (nResponses > 1) {
+        if (nresponses > 1) {
             printf("RESULT %d Response %d: GRSq %g RSq %g nTerms %d of %d of %d",
                 nTest, iResponse+1, GRSq, RSq, nUsedTerms, nTerms, nMaxTerms, TimeDelta);
             if (iResponse == 0)
@@ -310,7 +310,7 @@ static void TestEarth(char sTestName[],
     }
     if (Format && nTrace) {
         printf("\nTEST %d: FUNCTION %s\n", nTest, sTestName);
-        FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms, 3, 1e-6);
+        FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nresponses, nTerms, nMaxTerms, 3, 1e-6);
         printf("\n");
     }
     free(LinPreds);

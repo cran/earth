@@ -18,6 +18,12 @@ time /T
 @call test.plotmo.bat
                         @if %errorlevel% NEQ 0 goto error
 @echo.
+@call test.plotmo.non.earth.bat
+                        @if %errorlevel% NEQ 0 goto error
+@echo.
+@call test.plotmo.fac.bat
+                        @if %errorlevel% NEQ 0 goto error
+@echo.
 @call test.earth.big.bat
                         @if %errorlevel% NEQ 0 goto error
 @echo.
@@ -33,6 +39,7 @@ time /T
 :error
 @echo ==== ERROR ====
 :done
-time /T
 @rm -f ../earth_res.rc ../Makedeps
 @rm -f test.*.pdf
+time /T
+@exit /B  0

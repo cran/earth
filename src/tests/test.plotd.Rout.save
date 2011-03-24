@@ -4,7 +4,7 @@
 Loading required package: leaps
 Loading required package: plotrix
 Warning message:
-package 'plotrix' was built under R version 2.12.1 
+package 'plotrix' was built under R version 2.12.2 
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -261,6 +261,8 @@ Grouping criterion: CLASS1 as.numeric(sex) == 1, CLASS2 as.numeric(sex) != 1
 predicted.response.per.class[as.numeric(sex) == 1]: 1.392914 1.733813 1.725018 1.353087 1.330086 1.370295 ...
 predicted.response.per.class[as.numeric(sex) != 1]: 1.212219 1.723106 1.385648 1.911098 1.898862 1.881214 ...
 
+> plot(1,1) # dummy plot
+> plot(1,1)
 > 
 > # test with rpart
 > printh("rpart")
@@ -269,10 +271,10 @@ predicted.response.per.class[as.numeric(sex) != 1]: 1.212219 1.723106 1.385648 1
 Warning message:
 package 'rpart' was built under R version 2.12.2 
 > rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
-> # note that plotd's default type="response" is not accepted by rpart
 > plotd(rpart.model, type="prob", nresponse=1)
 > plotd(rpart.model, type="prob", nresponse=2)
 > plotd(rpart.model, type="class", hist=TRUE, labels=TRUE)
+> plotd(rpart.model, hist=TRUE, labels=TRUE) # default type is "vector"
 > 
 > printh("lda.model examples from man pages")
 ===lda.model examples from man pages
@@ -332,7 +334,7 @@ Proportion of trace:
    LD1    LD2 
 0.9934 0.0066 
 > plotd(z, nresponse=1) # nresponse=1 selects first linear discriminant
-> do.caption("lda.model example from example(lda), and rpart")
+> do.caption("lda.model example from example(lda)")
 > 
 > a.qda <- qda(survived ~ ., data=etitanic)
 > plotd(a.qda, type="class")
@@ -410,8 +412,8 @@ Proportion of trace:
 > plotd(glm4, dichot = TRUE, type="link")
 > do.caption("glm, 3 level factor with dichot")
 > plotd(glm4, dichot = FALSE, type="link")
-> plotd(glm4, dichot = TRUE, type="response")
-> plotd(glm4, dichot = FALSE, type="response")
+> plotd(glm4, dichot = TRUE) # default type="response"
+> plotd(glm4, dichot = FALSE, type=NULL) # default type="response"
 > 
 > # lda with formula interface
 > 
@@ -592,7 +594,7 @@ predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.064072
 +       err.border=c(3,4,5), err.lwd=c(1,2,3), xlim=c(.3,.6))
 > # reverse direction of reducible error area
 > a1.shade <- earth(!survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
-> plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"), 
+> plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"),
 +       err.border=c("slategray1","slategray3","red"), xlim=c(.52, .9))
 > 
 > par(old.par)

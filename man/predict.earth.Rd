@@ -6,8 +6,8 @@ Predict with an \code{\link{earth}} model.
 }
 \usage{
 \method{predict}{earth}(object = stop("no 'object' arg"), newdata = NULL,
-                        type = c("link", "response", "earth", "class", "terms"),
-                        thresh = .5, trace = FALSE, \dots)
+        type = c("link", "response", "earth", "class", "terms"),
+        thresh = .5, trace = FALSE, \dots)
 }
 \arguments{
   \item{object}{

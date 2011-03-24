@@ -5,8 +5,8 @@
 
 plotd <- function(obj,      # obj is a model object
     hist   = FALSE,         # FALSE to use density(), TRUE to use hist()
-    type   = "response",    # passed on to predict
-    nresponse = NULL,       # which response, for multiple response models, NULL for all
+    type   = NULL,          # NULL gets changed to a value which is passed on to predict
+    nresponse = NULL,        # which response, for multiple response models, NULL for all
     dichot = FALSE,
     trace  = FALSE,
     xlim   = NULL,          # NULL means auto
@@ -59,11 +59,11 @@ plotd <- function(obj,      # obj is a model object
             text(x$mids, x$counts, labels=labels, adj=c(0.5, -0.5), cex=cex)
         }
     }
-    # plotd starts here
+    #--- plotd starts here ---
 
     if(typeof(obj) != "list")
-        stop1("'", deparse(substitute(obj)), "' is not a model obj")
-
+        stop0("'", deparse(substitute(obj)), "' is not a model obj")
+    type <- get.plotmo.type(obj, type, "plotd")
     yhat.per.class <- get.yhat.per.class(obj, type, nresponse, dichot, trace, ...)
     nclasses <- length(yhat.per.class)
 
@@ -94,7 +94,7 @@ plotd <- function(obj,      # obj is a model object
         xlim <- c(min1, max1)
     }
     if(length(xlim) != 2)
-        stop1("length(xlim) != 2")
+        stop0("length(xlim) != 2")
     xspan <- xlim[2] - xlim[1]
 
     # sanity check the ranges of each class, issue warnings if need be
@@ -103,7 +103,7 @@ plotd <- function(obj,      # obj is a model object
     for(iclass in 1:nclasses) {
         range <- range(yhat.per.class[[iclass]])
         if(sd(yhat.per.class[[iclass]]) < sd.thresh) {
-            warning1("standard deviation of \"", names(yhat.per.class)[iclass],
+            warning0("standard deviation of \"", names(yhat.per.class)[iclass],
                     "\" density is ", sd(yhat.per.class[[iclass]]),
                     ",  density is degenerate?")
             degenerate[iclass] <- TRUE
@@ -128,12 +128,12 @@ plotd <- function(obj,      # obj is a model object
         ymax <- 1.1 * ymax # hack to make space for labels
     if(!is.null(ylim)) {
         if(length(ylim) != 2)
-            stop1("length(ylim) != 2")
+            stop0("length(ylim) != 2")
         ymax <- ylim[2]
         if(ymax <= 0)
-            stop1("ylim[2] <= 0")
+            stop0("ylim[2] <= 0")
         if(ylim[1] != 0)
-            warning1("ignoring ylim[1], treating it as 0")
+            warning0("ignoring ylim[1], treating it as 0")
     }
     # expand lty and other arguments if necessary
 
@@ -146,12 +146,11 @@ plotd <- function(obj,      # obj is a model object
 
     main.org <- main
     if(is.null(main))
-        main <- paste(deparse(substitute(obj)), " ", paste(type, collapse=" "),
+        main <- paste0(deparse(substitute(obj)), " ", paste(type, collapse=" "),
                       if(missing(nresponse)) ""
-                      else paste(" nresp=", paste(nresponse, collapse=","), sep=""),
+                      else paste0(" nresp=", paste(nresponse, collapse=",")),
                       if(missing(dichot)) ""
-                      else paste(" dichot=", dichot, sep=""),
-                      sep="")
+                      else paste0(" dichot=", dichot))
 
     main <- show.caption(main, if(is.null(main.org)) trim=.5 else trim=0, show=FALSE)
 
@@ -235,7 +234,7 @@ is.lda.or.qda <- function(obj) # allows hacks for lda and qda specific code
 
 # special handling for MASS lda and qda predicted response
 
-get.lda.yhat <- function(yhat, type, trace)
+get.lda.yhat <- function(object, yhat, type, trace)
 {
     yhat1 <- switch(match.choices(type,
                          c("response", "ld", "class", "posterior"), "type"),
@@ -245,13 +244,13 @@ get.lda.yhat <- function(yhat, type, trace)
            yhat$posterior)      # posterior
 
     if(is.null(yhat1)) {
-        msg <- paste(
+        msg <- paste0(
             if(!is.null(yhat$x)) "type=\"response\" " else "",
             if(!is.null(yhat$class)) "type=\"class\" " else "",
-            if(!is.null(yhat$posterior)) "type=\"posterior\" " else "", sep="")
-        stop1("type=\"", type, "\" is illegal for this object.  ",
+            if(!is.null(yhat$posterior)) "type=\"posterior\" " else "")
+        stop0("type=\"", type, "\" is illegal for predict.", class(object)[1], ".  ",
               if(nchar(msg)) paste("Use one of:", msg) else "",
-              "\n", sep="")
+              "\n")
     }
     yhat1
 }
@@ -278,7 +277,7 @@ get.observed.response <- function(obj)
         y <- eval.parent(obj$call[[3]], n=3) # n=3 takes us to the caller of plotd
         # sanity check
         if(NCOL(y) != 1 || length(y) < 3 || (!is.numeric(y) && !is.factor(y)))
-            stop1("cannot get \"grouping\" argument from obj$call")
+            stop0("cannot get \"grouping\" argument from obj$call")
     } else
         y <- get.update.arg(NULL, "y", obj, trace1=FALSE, reeval=FALSE)
 
@@ -294,10 +293,10 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
     {
         len <- length(x)
         if(len == 0)
-            warning1("no occurrences of ", paste(..., sep=""),
+            warning0("no occurrences of ", paste0(...),
                      " in the observed response")
         else if(len < 3) # 3 is arbitrary
-            warning1("only ", len, " occurrences of ", paste(..., sep=""),
+            warning0("only ", len, " occurrences of ", paste0(...),
                      " in the observed response")
     }
     get.binary.class.names <- function(yhat, fitted.values, last.resort)
@@ -311,7 +310,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
     }
     get.class.names <- function(y, yhat, fitted.values)
     {
-        ynames <- paste("response", 1:ncol(yhat), sep="")
+        ynames <- paste0("response", 1:ncol(yhat))
         if(length(colnames(yhat)) == ncol(yhat))
              class.names <- colnames(yhat)
         else if(length(colnames(y)) == ncol(y))
@@ -360,7 +359,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
             print.matrix.info(description, yhat.per.class[[iclass]],
                               details=TRUE, all.rows=TRUE, all.names=TRUE)
         else {
-            cat(description, ": ", sep="")
+            cat0(description, ": ")
             yhat1 <- yhat.per.class[[iclass]]
             names(yhat1) <- NULL
             cat(yhat1[1:min(6,length(yhat))])
@@ -370,16 +369,16 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
         cat("\n")
     }
     cannot.plot <- function(...)
-        stop1("cannot plot this kind of response with type=\"",
+        stop0("cannot plot this kind of response with type=\"",
               type, "\"\n", ...,
-              "Additional information:\n  class(observed)=", class(y),
-              if(nlevs > 0) paste(" nlevels(observed)=", nlevs, sep="") else "",
+              "Additional information:\n  class(observed)=", class(y)[1],
+              if(nlevs > 0) paste0(" nlevels(observed)=", nlevs) else "",
               " ncol(observed)=", NCOL(y),
               if(!is.null(colnames(y)))
                   sprintf(" colnames(observed) %s", paste(colnames(y), collapse=" "))
               else
                   "",
-              "\n  class(predicted)=", class(yhat),
+              "\n  class(predicted)=", class(yhat)[1],
               " ncol(predicted)=", NCOL(yhat),
               if(!is.null(colnames(yhat)))
                   sprintf(" colnames(response) %s", paste(colnames(yhat), collapse=" "))
@@ -388,32 +387,32 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
 
     trace.response.type <- function(observed, predicted, ...) {
         if(trace)
-            cat("\nObserved response: ", observed, "\n",
-                "Predicted response type=\"", type, "\": ", predicted, "\n",
-                "Grouping criterion: ", ..., "\n\n", sep="")
+            cat0("\nObserved response: ", observed, "\n",
+                 "Predicted response type=\"", type, "\": ", predicted, "\n",
+                 "Grouping criterion: ", ..., "\n\n")
     }
-    # get.yhat.per.class starts here
+    #--- get.yhat.per.class starts here ---
     # nomeclature: y is the observed response, yhat is the predicted response
     y <- get.observed.response(obj)
     if(trace)
         print.matrix.info("y", y, "\nObserved response",
                           details=TRUE, all.rows=trace>=2, all.names=trace>=2)
     if(!is.character(type))
-        stop1("type of \"type\" is not character")
+        stop0("type of \"type\" is not character")
     if(!is.na(pmatch(type, "terms")))
-        stop1("type=\"terms\" is not allowed by plotd")
+        stop0("type=\"terms\" is not allowed by plotd")
     yhat <- predict(obj, type=type, ...)
     if(is.lda.or.qda(obj)) {
         if(trace)
             cat("\nSpecial handling of \"type\" argument for lda or qda object\n")
-        yhat <- get.lda.yhat(yhat, type, trace)
+        yhat <- get.lda.yhat(obj, yhat, type, trace)
     }
     if(trace)
         print.matrix.info("yhat", yhat, "\nPredicted response",
                           details=TRUE, all.rows=trace>1, all.names=trace>=2)
     if(!is.null(nresponse)) {
         if(!is.numeric(nresponse) || nresponse < 1 || nresponse > NCOL(yhat))
-            stop1("illegal nresponse argument, ",
+            stop0("illegal nresponse argument, ",
                   "allowed range for this model and type is 1 to ", NCOL(yhat))
         if(NCOL(yhat) > 1) {
             row.names(yhat) = NULL  # needed for fda type="hier" because dup rownames
@@ -517,7 +516,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
                 yhat.per.class[[iclass]] <- yhat[y == lev, iclass]
                 check.min(yhat.per.class[[iclass]], lev)
                 if(length(yhat.per.class[[iclass]]) == length(yhat[,iclass]))
-                    stop1("no occurrences of ", lev,
+                    stop0("no occurrences of ", lev,
                           " in the observed response")
             }
             if(!is.null(colnames(yhat)))
@@ -533,7 +532,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
 #             if(!is.null(colnames(yhat)))
 #                 names(yhat.per.class) <- colnames(yhat)
 #             else
-#                 names(yhat.per.class) <-  paste(type, "[,", 1:ncol(yhat), "]", sep="")
+#                 names(yhat.per.class) <-  paste0(type, "[,", 1:ncol(yhat), "]")
         } else if(is.numeric(y) && NCOL(y) == NCOL(yhat)) {
             th <- get.thresh(y, "response")
             trace.response.type("multicolum numeric",
@@ -543,7 +542,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
                 yhat.per.class[[iclass]] <- yhat[y[,iclass] > th$thresh, iclass]
                 check.min(yhat.per.class[[iclass]], th$text.gt)
                 if(length(yhat.per.class[[iclass]]) == length(yhat[,iclass]))
-                    stop1("no occurrences of ", th$text.le,
+                    stop0("no occurrences of ", th$text.le,
                           " in the observed response")
             }
             names(yhat.per.class) <- get.class.names(y, yhat, obj$fitted.values)
@@ -593,7 +592,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
             pos[1] <- xlim[1] + (xlim[2] - xlim[1]) / 2.1 # slightly to left of center
         pos
     }
-    # draw.legend starts here
+    #--- draw.legend starts here ---
 
     nclasses <- length(yhat.per.class)
     if(is.null(legend.pos))
@@ -601,11 +600,11 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
     else if(length(legend.pos) == 1)
         legend.pos <- c(legend.pos, 0)
     if(length(legend.pos) != 2)
-        stop1("length(legend.pos) != 2")
+        stop0("length(legend.pos) != 2")
     if(is.null(legend.names))
         legend.names <- names(yhat.per.class)
     if(length(legend.names) < nclasses) {
-        warning1("length ", length(legend.names), " of legend.names ",
+        warning0("length ", length(legend.names), " of legend.names ",
              "is less than the number ", nclasses, " of classes")
         legend.names <- rep(legend.names, nclasses)
     }
@@ -618,8 +617,8 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
         lwd[1] <- 4
 
     if(legend.extra)
-        legend.names <- paste(legend.names, " (", sapply(yhat.per.class, length),
-                              " cases)", sep="")
+        legend.names <- paste0(legend.names, " (", sapply(yhat.per.class, length),
+                               " cases)")
 
     legend(x=legend.pos[1], y=legend.pos[2], legend=legend.names,
            cex=legend.cex, bg=legend.bg, lty=lty, lwd=lwd, col=col)
@@ -634,7 +633,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
     # set iden=1 if to the left, iden=2 if to the right
     iden <- den1$y[den1$x >= thresh][1] > den2$y[den2$x >= thresh][1]
     if(is.na(iden)) { # no overlap between classes?
-        warning1("no overlap between (first two) classes, ignoring \"err.col\" argument")
+        warning0("no overlap between (first two) classes, ignoring \"err.col\" argument")
         return(NULL)
     }
     iden <- if(iden) 2 else 1

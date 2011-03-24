@@ -10,7 +10,7 @@ Can be used for \code{\link[earth]{earth}} models, but also for models built by
 etc.
 }
 \usage{
-plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
+plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
       trace = FALSE, xlim = NULL, ylim = NULL, jitter = FALSE, main=NULL,
       xlab = "Predicted Value", ylab = if(hist) "Count" else "Density",
       lty = 1, col = c("grey70", 1, "lightblue", "brown", "pink", 2, 3, 4),
@@ -38,10 +38,12 @@ plotd(obj, hist = FALSE, type = "response", nresponse = NULL, dichot = FALSE,
   }
   \item{type}{
     Type parameter passed to \code{\link{predict}}.
-    Default is \code{"response"}.
-    See the predict method for your object for possible values;
-    for example see \code{\link{predict.glm}} or \code{\link[earth]{predict.earth}}.
-    Typically you would set \code{hist=TRUE} if \code{type="class"}.
+    Default is \code{NULL}, meaning use a value suitable for the object
+    (actually \code{"response"} for all objects except \code{rpart} models, where \code{"vector"} 
+    is used --- these choices will often be inappropriate).
+    See the predict method for your object for legal values;
+    for example see \code{\link[earth]{predict.earth}} or \code{\link{predict.glm}}.
+    Typically you would set \code{hist=TRUE} when \code{type="class"}.
   }
   \item{nresponse}{
      Column index for predicted responses with multiple columns.
@@ -288,7 +290,6 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
 %   Example with \code{\link[rpart]{rpart}}:\preformatted{
 %        library(rpart); library(earth); data(etitanic)
 %        rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
-%        # note that plotd's default type="response" is not accepted by rpart
 %        plotd(rpart.model, type="prob", nresponse=1)
 %        plotd(rpart.model, type="prob", nresponse=2)
 %        plotd(rpart.model, type="class", hist=TRUE, labels=TRUE)
@@ -326,7 +327,8 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
     For \code{lda} responses with more than two factor levels,
     use the \code{nresponse} argument to
     select a column in the predicted response.
-    Thus with the default \code{type="response"},
+    Thus with the default \code{type=NULL},
+    (which gets automatically converted by \code{plotd} to \code{type="response"}),
     use \code{nresponse=1} to select just the first linear discriminant.
     The default \code{nresponse=NULL} selects all columns,
     which is typically not what you want for \code{lda} models.
@@ -336,7 +338,7 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
     example(lda)     # creates a model called "z"
     plot(z, dimen=1) # invokes plot.lda from the MASS package
     plotd(z, nresponse=1, hist=1) # equivalent using plotd
-                                  # nresponse=1 selects first linear discr.
+                                 # nresponse=1 selects first linear discr.
     }
     The \code{dichot=TRUE} argument is also useful for \code{lda}
     responses with more than two factor levels.

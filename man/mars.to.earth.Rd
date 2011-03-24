@@ -1,15 +1,15 @@
 \name{mars.to.earth}
 \alias{mars.to.earth}
-\title{Convert a "mars" object from the "mda" package to an "earth" object}
+\title{Convert a mars object from the mda package to an earth object}
 \description{
-Convert a \code{\link[mda]{mars}} object from the "mda" package to an \code{\link{earth}} object
+Convert a \code{\link[mda]{mars}} object from the \code{mda} package to an \code{\link{earth}} object
 }
 \usage{
 mars.to.earth(object)
 }
 \arguments{
   \item{object}{
-    A "mars" object, created using \code{\link[mda]{mars}} in the \code{mda} package.
+    A \code{mars} object, created using \code{\link[mda]{mars}} in the \code{mda} package.
   }
 }
 \value{

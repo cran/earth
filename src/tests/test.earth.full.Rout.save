@@ -7,7 +7,7 @@
 Loading required package: leaps
 Loading required package: plotrix
 Warning message:
-package 'plotrix' was built under R version 2.12.1 
+package 'plotrix' was built under R version 2.12.2 
 > library(mda)
 Loading required package: class
 > source("check.models.equal.R")
@@ -384,43 +384,10 @@ Coefficients:
 (Intercept)         temp          ibh          doy  
  -7.6740829    0.3785184   -0.0009858   -0.0066324  
 
-> plotmo(lm.fit2, degree2="all", clip=FALSE)
+> plotmo(lm.fit2, all2=TRUE, clip=FALSE)
 
  grid:    temp    ibh   doy
             62 2112.5 205.5
-
-> 
-> library(rpart)
-Warning: package 'rpart' was built under R version 2.12.2
-> rpart.fit <- rpart(O3 ~ ., data=ozone1)
-> printh(rpart.fit)
-===rpart.fit 
-n= 330 
-
-node), split, n, deviance, yval
-      * denotes terminal node
-
- 1) root 330 21115.4100 11.775760  
-   2) temp< 67.5 214  4114.3040  7.425234  
-     4) ibh>=3573.5 108   689.6296  5.148148 *
-     5) ibh< 3573.5 106  2294.1230  9.745283  
-      10) dpg< -9.5 35   362.6857  6.457143 *
-      11) dpg>=-9.5 71  1366.4790 11.366200  
-        22) ibt< 159 40   287.9000  9.050000 *
-        23) ibt>=159 31   587.0968 14.354840 *
-   3) temp>=67.5 116  5478.4400 19.801720  
-     6) ibt< 226.5 55  1276.8360 15.945450  
-      12) humidity< 59.5 10   167.6000 10.800000 *
-      13) humidity>=59.5 45   785.6444 17.088890 *
-     7) ibt>=226.5 61  2646.2620 23.278690  
-      14) doy>=306.5 8   398.0000 16.000000 *
-      15) doy< 306.5 53  1760.4530 24.377360  
-        30) vis>=55 36  1149.8890 22.944440 *
-        31) vis< 55 17   380.1176 27.411760 *
-> plotmo(rpart.fit, type="vector")
-
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
 
 > 
 > cat("--- print.default of earth object---------\n")
@@ -652,9 +619,17 @@ y2  0.12559901 15.260280 0.8760701 0.8982648
 All 0.19005183 23.091297 0.9062369 0.9230290
 > if (PLOT) {
 +     plot(a$fit)
-+     plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
-+     plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
++     plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE)
++     plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE)
 + }
+
+ grid:    Sepal.Length Sepal.Width Petal.Length Petal.Width
+                   5.8           3         4.35         1.3
+
+
+ grid:    Sepal.Length Sepal.Width Petal.Length Petal.Width
+                   5.8           3         4.35         1.3
+
 > a <- update(a, nk=3) # not on man page
 > printh(a)
 ===a 
@@ -3791,14 +3766,14 @@ GCV 14.58982    RSS 4166.897    GRSq 0.7733643    RSq 0.8026608
 +     caption <- paste("itest ", itest, ": ", funcnames, " degree=", degree, " nk=", nk, sep="")
 +     if(plotit) {
 +         if(typeof(func1) == "character") {
-+             plotmo(fite, caption=caption)
-+             plotmo(fite, ycolumn=2)
++             plotmo(fite, caption=caption, nresponse=1)
++             plotmo(fite, nresponse=2)
 +         } else {
-+             plotmo(fite, func=func1, caption=caption)
-+             plotmo(fite, func=func2, ycolumn=2)
++             plotmo(fite, func=func1, caption=caption, nresponse=1)
++             plotmo(fite, func=func2, nresponse=2)
 +         }
 +         plot(fite, caption=caption)
-+         plot(fite, ycolumn=2)
++         plot(fite, nresponse=2)
 +     }
 +     cat("\n")
 +     if(test.mars.to.earth) {
@@ -3809,8 +3784,8 @@ GCV 14.58982    RSS 4166.897    GRSq 0.7733643    RSq 0.8026608
 +         printh(fitme)
 +         printh(summary(fitme))
 +         if(plotit) {
-+             plotmo(fitm, func=func1, caption=caption)
-+             plotmo(fitm, func=func2, ycolumn=2)
++             plotmo(fitm, func=func1, caption=caption, nresponse=1)
++             plotmo(fitm, func=func2, nresponse=2)
 +         }
 + # TODO following code causes error "nk" not found, looking in wrong environment?
 + #       cat("Expect warnings because of weights in the mars model\n")
@@ -3927,10 +3902,10 @@ func1 0.002378554 0.1638586 0.9971927 0.9980268
 func7 0.009641121 0.6641768 0.9812104 0.9867930
 All   0.012019676 0.8280355 0.9911645 0.9937896
 > if (PLOT) {
-+     plotmo(a, ycolumn=1)     # test generation of caption based on response name
-+     plotmo(a, ycolumn=2)
-+     plot(a, ycolumn=1)
-+     plot(a, ycolumn=2)
++     plotmo(a, nresponse=1)     # test generation of caption based on response name
++     plotmo(a, nresponse=2)
++     plot(a, nresponse=1)
++     plot(a, nresponse=2)
 + }
 
  grid:    x1         x2
@@ -4235,6 +4210,8 @@ All   0.09919337 4.386579 0.9997589 0.9998912
  grid:    l1       l2   theta1   theta2         phi
    0.4878107 1.018599 2.375682 2.907589 -0.06541174
 
+Warning: All predicted values in the "l1" graph are out of ylim=(0.153942786708902, 2.1424869948254).
+         Use clip=FALSE to make this warning go away.
 
  grid:    l1       l2   theta1   theta2         phi
    0.4878107 1.018599 2.375682 2.907589 -0.06541174
@@ -4374,12 +4351,12 @@ All 7252.4851 1619990.90 0.3401983 0.5506743
 > 
 > a2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=2)
 > if (PLOT) {
-+     plotmo(a2)                  # test generation of caption based on response name
-+     plotmo(a2, ycolumn=1)
-+     plotmo(a2, ycolumn=2)
-+     plot(a2)
-+     plot(a2, ycolumn=1)
-+     plot(a2, ycolumn=2)
++     plotmo(a2, nresponse=1)                  # TODO1 delete
++     plotmo(a2, nresponse=1) # test generation of caption based on response name
++     plotmo(a2, nresponse=2)
++     plot(a2, nresponse=1) # TODO delete
++     plot(a2, nresponse=1)
++     plot(a2, nresponse=2)
 + }
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis
@@ -4405,7 +4382,7 @@ All 7252.4851 1619990.90 0.3401983 0.5506743
 +     plot.earth.models(list(a, a2), caption="plot.earth.models with multiple responses, list(a,a2)")
 +     plot.earth.models(list(a2, a), caption="plot.earth.models with multiple responses, list(a2,a)",
 +                       col.rsq=c(2,3), col.npreds=c(2,3))
-+     plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)", 
++     plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)",
 +                       col.rsq=c(2,3), col.npreds=c(4,5), jitter=.01, legend.pos="topleft")
 + }
 > 
@@ -4642,10 +4619,18 @@ attr(,"error")
 +     par(oma=c(0,0,4,0))      # make space for caption
 +     layout(rbind(c(1,1,0,0), c(2,3,4,5), c(6,7,8,9)), heights=c(2,1,1))
 +     plot(a)
-+     plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
-+     plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
++     plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
++     plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
 +     mtext("fda test", outer=TRUE, font=2, line=1.5, cex=1)
 + }
+
+ grid:    Sepal.Length Sepal.Width Petal.Length Petal.Width
+                   5.8           3         4.35         1.3
+
+
+ grid:    Sepal.Length Sepal.Width Petal.Length Petal.Width
+                   5.8           3         4.35         1.3
+
 > 
 > data(glass)
 > set.seed(123)
@@ -4692,8 +4677,12 @@ mda with mars   0.32
 mda with earth  0.24 
 > if (PLOT) {
 +     plot(a$fit, caption="mda on glass data")
-+     plotmo(a$fit, ycolumn=9, clip=FALSE, ylim=NA, caption="mda on glass data")
++     plotmo(a$fit, nresponse=9, clip=FALSE, ylim=NA, caption="mda on glass data")
 + }
+
+ grid:    RI     Na  Mg    Al    Si     K   Ca Ba Fe
+     1.51762 13.235 3.5 1.335 72.85 0.545 8.54  0  0
+
 > 
 > cat("\n---- update and keepxy, formula interface --------------------------\n")
 
@@ -6609,7 +6598,7 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> plotmo(a, trace=TRUE, caption="getdata earth test1")
+> plotmo(a, trace=2, caption="getdata earth test1")
 
 --get.plotmo.x
 
@@ -6630,7 +6619,6 @@ x[330,9]
 1 5710    4       28   40 2693 -25  87 250  33
 2 5700    3       37   45  590 -24 128 100  34
 3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
@@ -6647,6 +6635,7 @@ about to call model.frame(formula=O3~., data=structure(list(O3=c(3,
               16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
 got y from object$call$formula
 get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -6662,13 +6651,9 @@ pairs:
 [3,] "4 temp"     "6 dpg" 
 [4,] "5 ibh"      "6 dpg" 
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "temp" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
@@ -6715,9 +6700,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "O3" length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,9]:
     vh wind humidity temp    ibh dpg       ibt vis   doy
 1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
@@ -6764,9 +6749,9 @@ First few rows of bx are
 [5,]                     0   255.1383
 [6,]                     0   254.4228
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
+predict() returned "O3" length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
 
-plotmo.predict for predictor "vis" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt       vis   doy
 1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
@@ -6813,9 +6798,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
+predict() returned "O3" length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
 
-plotmo.predict for predictor "doy" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt vis      doy
 1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2 5760    5       64   62 2112.5  24 167.5 120 33.71543
@@ -6862,11 +6847,11 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
+predict() returned "O3" length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
 
---plot2(draw.plot=FALSE)
+--plot.degree2(draw.plot=FALSE)
 
-plotmo.predict for predictors "wind" and "vis" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "wind" and "vis" with newdata[400,9]:
     vh      wind humidity temp    ibh dpg   ibt vis   doy
 1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
 2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
@@ -6913,9 +6898,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
+predict() returned "O3" length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
 
-plotmo.predict for predictors "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "humidity" and "temp" with newdata[400,9]:
     vh wind humidity temp    ibh dpg   ibt vis   doy
 1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -6962,9 +6947,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "O3" length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "temp" and "dpg" with newdata[400,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -7011,9 +6996,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "O3" length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "ibh" and "dpg" with newdata[400,9]:
     vh wind humidity temp      ibh dpg   ibt vis   doy
 1 5760    5       64   62 111.0000 -69 167.5 120 205.5
 2 5760    5       64   62 368.3158 -69 167.5 120 205.5
@@ -7060,13 +7045,21 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict() returned "O3" length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
-initialized ylims 1.371590 37.17335 
+ylim 1.371590 37.17335 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
 
---plot2(draw.plot=TRUE)
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
+
+--plot.degree2(draw.plot=TRUE)
+persp(wind:vis) theta 145 ylim 1.371590 37.17335 cex  phi 30
+persp(humidity:temp) theta -35 ylim 1.371590 37.17335 cex  phi 30
+persp(temp:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
+persp(ibh:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
 > a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
 > printh(summary(a))
 ===summary(a) 
@@ -7089,464 +7082,55 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> plotmo(a, trace=TRUE, caption="getdata earth test2")
+> plotmo(a, trace=1, caption="getdata earth test2")
 
 --get.plotmo.x
 
-formula O3 ~ .
-stripped formula O3~.
 get.formula.data: got x from object$data 
-about to call model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
 got x with colnames from object$call$formula
 x[330,9]
     vh wind humidity temp  ibh dpg ibt vis doy
 1 5710    4       28   40 2693 -25  87 250  33
 2 5700    3       37   45  590 -24 128 100  34
 3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
-formula O3 ~ .
-stripped formula O3~.
 get.formula.data: got y from object$data 
-about to call model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
 got y from object$call$formula
 get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
---get.singles
+--plot.degree1(draw.plot=FALSE)
 
-singles: 4 temp, 7 ibt, 8 vis, 9 doy 
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
+    vh wind humidity     temp    ibh dpg   ibt vis   doy
+1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
+2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
+3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
 
---get.pairs
+predict() returned "O3" length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-pairs:
-     [,1]         [,2]    
-[1,] "2 wind"     "8 vis" 
-[2,] "3 humidity" "4 temp"
-[3,] "4 temp"     "6 dpg" 
-[4,] "5 ibh"      "6 dpg" 
+--plot.degree2(draw.plot=FALSE)
 
---plot1(draw.plot=FALSE) ntrace 2
+plotmo.predict(type="response") for predictors "wind" and "vis" with newdata[400,9]:
+    vh      wind humidity temp    ibh dpg   ibt vis   doy
+1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
+2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
+3 5760 1.1578947       64   62 2112.5  24 167.5   0 205.5
+
+predict() returned "O3" length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
+
+ylim 1.371590 37.17335 
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
-
-plotmo.predict for predictor "temp" with newdata[500,9]:
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
-2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
-3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
-2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
-3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-4 5760    5       64 25.40882 2112.5  24 167.5 120 205.5
-5 5760    5       64 25.54509 2112.5  24 167.5 120 205.5
-6 5760    5       64 25.68136 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
-2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
-3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-4 5760    5       64 25.40882 2112.5  24 167.5 120 205.5
-5 5760    5       64 25.54509 2112.5  24 167.5 120 205.5
-6 5760    5       64 25.68136 2112.5  24 167.5 120 205.5
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          0     116.5         0                         0
-[2,]           1          0     116.5         0                         0
-[3,]           1          0     116.5         0                         0
-[4,]           1          0     116.5         0                         0
-[5,]           1          0     116.5         0                         0
-[6,]           1          0     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                    0         80                    0
-[2,]                    0                    0         80                    0
-[3,]                    0                    0         80                    0
-[4,]                    0                    0         80                    0
-[5,]                    0                    0         80                    0
-[6,]                    0                    0         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
-
-plotmo.predict for predictor "ibt" with newdata[500,9]:
-    vh wind humidity temp    ibh dpg       ibt vis   doy
-1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
-2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
-3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg       ibt vis   doy
-1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
-2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
-3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-4 5760    5       64   62 2112.5  24 -22.85371 120 205.5
-5 5760    5       64   62 2112.5  24 -22.13828 120 205.5
-6 5760    5       64   62 2112.5  24 -21.42285 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg       ibt vis   doy
-1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
-2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
-3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-4 5760    5       64   62 2112.5  24 -22.85371 120 205.5
-5 5760    5       64   62 2112.5  24 -22.13828 120 205.5
-6 5760    5       64   62 2112.5  24 -21.42285 120 205.5
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120         80                    0
-[2,]                    0                  120         80                    0
-[3,]                    0                  120         80                    0
-[4,]                    0                  120         80                    0
-[5,]                    0                  120         80                    0
-[6,]                    0                  120         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0   258.0000
-[2,]                     0   257.2846
-[3,]                     0   256.5691
-[4,]                     0   255.8537
-[5,]                     0   255.1383
-[6,]                     0   254.4228
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
-
-plotmo.predict for predictor "vis" with newdata[500,9]:
-    vh wind humidity temp    ibh dpg   ibt       vis   doy
-1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
-2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
-3 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg   ibt       vis   doy
-1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
-2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
-3 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-4 5760    5       64   62 2112.5  24 167.5 2.1042084 205.5
-5 5760    5       64   62 2112.5  24 167.5 2.8056112 205.5
-6 5760    5       64   62 2112.5  24 167.5 3.5070140 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg   ibt       vis   doy
-1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
-2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
-3 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-4 5760    5       64   62 2112.5  24 167.5 2.1042084 205.5
-5 5760    5       64   62 2112.5  24 167.5 2.8056112 205.5
-6 5760    5       64   62 2112.5  24 167.5 3.5070140 205.5
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120   200.0000                    0
-[2,]                    0                  120   199.2986                    0
-[3,]                    0                  120   198.5972                    0
-[4,]                    0                  120   197.8958                    0
-[5,]                    0                  120   197.1944                    0
-[6,]                    0                  120   196.4930                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
-
-plotmo.predict for predictor "doy" with newdata[500,9]:
-    vh wind humidity temp    ibh dpg   ibt vis      doy
-1 5760    5       64   62 2112.5  24 167.5 120 33.00000
-2 5760    5       64   62 2112.5  24 167.5 120 33.71543
-3 5760    5       64   62 2112.5  24 167.5 120 34.43086
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg   ibt vis      doy
-1 5760    5       64   62 2112.5  24 167.5 120 33.00000
-2 5760    5       64   62 2112.5  24 167.5 120 33.71543
-3 5760    5       64   62 2112.5  24 167.5 120 34.43086
-4 5760    5       64   62 2112.5  24 167.5 120 35.14629
-5 5760    5       64   62 2112.5  24 167.5 120 35.86172
-6 5760    5       64   62 2112.5  24 167.5 120 36.57715
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg   ibt vis      doy
-1 5760    5       64   62 2112.5  24 167.5 120 33.00000
-2 5760    5       64   62 2112.5  24 167.5 120 33.71543
-3 5760    5       64   62 2112.5  24 167.5 120 34.43086
-4 5760    5       64   62 2112.5  24 167.5 120 35.14629
-5 5760    5       64   62 2112.5  24 167.5 120 35.86172
-6 5760    5       64   62 2112.5  24 167.5 120 36.57715
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4         0  56.00000                         0
-[2,]           1          4         0  55.28457                         0
-[3,]           1          4         0  54.56914                         0
-[4,]           1          4         0  53.85371                         0
-[5,]           1          4         0  53.13828                         0
-[6,]           1          4         0  52.42285                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120         80                    0
-[2,]                    0                  120         80                    0
-[3,]                    0                  120         80                    0
-[4,]                    0                  120         80                    0
-[5,]                    0                  120         80                    0
-[6,]                    0                  120         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
-
---plot2(draw.plot=FALSE)
-
-plotmo.predict for predictors "wind" and "vis" with newdata[400,9]:
-    vh      wind humidity temp    ibh dpg   ibt vis   doy
-1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
-2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
-3 5760 1.1578947       64   62 2112.5  24 167.5   0 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh      wind humidity temp    ibh dpg   ibt vis   doy
-1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
-2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
-3 5760 1.1578947       64   62 2112.5  24 167.5   0 205.5
-4 5760 1.7368421       64   62 2112.5  24 167.5   0 205.5
-5 5760 2.3157895       64   62 2112.5  24 167.5   0 205.5
-6 5760 2.8947368       64   62 2112.5  24 167.5   0 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh      wind humidity temp    ibh dpg   ibt vis   doy
-1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
-2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
-3 5760 1.1578947       64   62 2112.5  24 167.5   0 205.5
-4 5760 1.7368421       64   62 2112.5  24 167.5   0 205.5
-5 5760 2.3157895       64   62 2112.5  24 167.5   0 205.5
-6 5760 2.8947368       64   62 2112.5  24 167.5   0 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120        200                    0
-[2,]                    0                  120        200                    0
-[3,]                    0                  120        200                    0
-[4,]                    0                  120        200                    0
-[5,]                    0                  120        200                    0
-[6,]                    0                  120        200                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
-
-plotmo.predict for predictors "humidity" and "temp" with newdata[400,9]:
-    vh wind humidity temp    ibh dpg   ibt vis   doy
-1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
-2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
-3 5760    5 26.78947   25 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg   ibt vis   doy
-1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
-2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
-3 5760    5 26.78947   25 2112.5  24 167.5 120 205.5
-4 5760    5 30.68421   25 2112.5  24 167.5 120 205.5
-5 5760    5 34.57895   25 2112.5  24 167.5 120 205.5
-6 5760    5 38.47368   25 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg   ibt vis   doy
-1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
-2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
-3 5760    5 26.78947   25 2112.5  24 167.5 120 205.5
-4 5760    5 30.68421   25 2112.5  24 167.5 120 205.5
-5 5760    5 34.57895   25 2112.5  24 167.5 120 205.5
-6 5760    5 38.47368   25 2112.5  24 167.5 120 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          0     116.5         0                         0
-[2,]           1          0     116.5         0                         0
-[3,]           1          0     116.5         0                         0
-[4,]           1          0     116.5         0                         0
-[5,]           1          0     116.5         0                         0
-[6,]           1          0     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                    0         80                    0
-[2,]                    0                    0         80                    0
-[3,]                    0                    0         80                    0
-[4,]                    0                    0         80                    0
-[5,]                    0                    0         80                    0
-[6,]                    0                    0         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
-
-plotmo.predict for predictors "temp" and "dpg" with newdata[400,9]:
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
-2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
-3 5760    5       64 32.15789 2112.5 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
-2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
-3 5760    5       64 32.15789 2112.5 -69 167.5 120 205.5
-4 5760    5       64 35.73684 2112.5 -69 167.5 120 205.5
-5 5760    5       64 39.31579 2112.5 -69 167.5 120 205.5
-6 5760    5       64 42.89474 2112.5 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
-2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
-3 5760    5       64 32.15789 2112.5 -69 167.5 120 205.5
-4 5760    5       64 35.73684 2112.5 -69 167.5 120 205.5
-5 5760    5       64 39.31579 2112.5 -69 167.5 120 205.5
-6 5760    5       64 42.89474 2112.5 -69 167.5 120 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          0     116.5         0                         0
-[2,]           1          0     116.5         0                         0
-[3,]           1          0     116.5         0                         0
-[4,]           1          0     116.5         0                         0
-[5,]           1          0     116.5         0                         0
-[6,]           1          0     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                    0         80                    0
-[2,]                    0                    0         80                    0
-[3,]                    0                    0         80                    0
-[4,]                    0                    0         80                    0
-[5,]                    0                    0         80                    0
-[6,]                    0                    0         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
-
-plotmo.predict for predictors "ibh" and "dpg" with newdata[400,9]:
-    vh wind humidity temp      ibh dpg   ibt vis   doy
-1 5760    5       64   62 111.0000 -69 167.5 120 205.5
-2 5760    5       64   62 368.3158 -69 167.5 120 205.5
-3 5760    5       64   62 625.6316 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp       ibh dpg   ibt vis   doy
-1 5760    5       64   62  111.0000 -69 167.5 120 205.5
-2 5760    5       64   62  368.3158 -69 167.5 120 205.5
-3 5760    5       64   62  625.6316 -69 167.5 120 205.5
-4 5760    5       64   62  882.9474 -69 167.5 120 205.5
-5 5760    5       64   62 1140.2632 -69 167.5 120 205.5
-6 5760    5       64   62 1397.5789 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp       ibh dpg   ibt vis   doy
-1 5760    5       64   62  111.0000 -69 167.5 120 205.5
-2 5760    5       64   62  368.3158 -69 167.5 120 205.5
-3 5760    5       64   62  625.6316 -69 167.5 120 205.5
-4 5760    5       64   62  882.9474 -69 167.5 120 205.5
-5 5760    5       64   62 1140.2632 -69 167.5 120 205.5
-6 5760    5       64   62 1397.5789 -69 167.5 120 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  492         80                    0
-[2,]                    0                  492         80                    0
-[3,]                    0                  492         80                    0
-[4,]                    0                  492         80                    0
-[5,]                    0                  492         80                    0
-[6,]                    0                  492         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]             108254.00       65.5
-[2,]              79177.32       65.5
-[3,]              50100.63       65.5
-[4,]              21023.95       65.5
-[5,]                  0.00       65.5
-[6,]                  0.00       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
-
-initialized ylims 1.371590 37.17335 
-
---plot1(draw.plot=TRUE) ntrace 1
-
---plot2(draw.plot=TRUE)
+persp(wind:vis) theta 145 ylim 1.371590 37.17335 cex  phi 30
+persp(humidity:temp) theta -35 ylim 1.371590 37.17335 cex  phi 30
+persp(temp:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
+persp(ibh:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
 > a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
 > se <- NULL
 > printh(summary(a))
@@ -7570,464 +7154,11 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> plotmo(a, trace=TRUE, caption="getdata earth test3")
-
---get.plotmo.x
-
-formula O3 ~ .
-stripped formula O3~.
-get.formula.data: got x from object$data 
-about to call model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
-got x with colnames from object$call$formula
-x[330,9]
-    vh wind humidity temp  ibh dpg ibt vis doy
-1 5710    4       28   40 2693 -25  87 250  33
-2 5700    3       37   45  590 -24 128 100  34
-3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
-
---get.plotmo.y
-
-formula O3 ~ .
-stripped formula O3~.
-get.formula.data: got y from object$data 
-about to call model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
-got y from object$call$formula
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
-clip.limits 1 38 
-
---get.singles
-
-singles: 4 temp, 7 ibt, 8 vis, 9 doy 
-
---get.pairs
-
-pairs:
-     [,1]         [,2]    
-[1,] "2 wind"     "8 vis" 
-[2,] "3 humidity" "4 temp"
-[3,] "4 temp"     "6 dpg" 
-[4,] "5 ibh"      "6 dpg" 
-
---plot1(draw.plot=FALSE) ntrace 2
+> plotmo(a, trace=FALSE, caption="getdata earth test3")
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
         5760    5       64   62 2112.5  24 167.5 120 205.5
 
-
-plotmo.predict for predictor "temp" with newdata[500,9]:
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
-2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
-3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
-2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
-3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-4 5760    5       64 25.40882 2112.5  24 167.5 120 205.5
-5 5760    5       64 25.54509 2112.5  24 167.5 120 205.5
-6 5760    5       64 25.68136 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
-2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
-3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-4 5760    5       64 25.40882 2112.5  24 167.5 120 205.5
-5 5760    5       64 25.54509 2112.5  24 167.5 120 205.5
-6 5760    5       64 25.68136 2112.5  24 167.5 120 205.5
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          0     116.5         0                         0
-[2,]           1          0     116.5         0                         0
-[3,]           1          0     116.5         0                         0
-[4,]           1          0     116.5         0                         0
-[5,]           1          0     116.5         0                         0
-[6,]           1          0     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                    0         80                    0
-[2,]                    0                    0         80                    0
-[3,]                    0                    0         80                    0
-[4,]                    0                    0         80                    0
-[5,]                    0                    0         80                    0
-[6,]                    0                    0         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
-
-plotmo.predict for predictor "ibt" with newdata[500,9]:
-    vh wind humidity temp    ibh dpg       ibt vis   doy
-1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
-2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
-3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg       ibt vis   doy
-1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
-2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
-3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-4 5760    5       64   62 2112.5  24 -22.85371 120 205.5
-5 5760    5       64   62 2112.5  24 -22.13828 120 205.5
-6 5760    5       64   62 2112.5  24 -21.42285 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg       ibt vis   doy
-1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
-2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
-3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-4 5760    5       64   62 2112.5  24 -22.85371 120 205.5
-5 5760    5       64   62 2112.5  24 -22.13828 120 205.5
-6 5760    5       64   62 2112.5  24 -21.42285 120 205.5
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120         80                    0
-[2,]                    0                  120         80                    0
-[3,]                    0                  120         80                    0
-[4,]                    0                  120         80                    0
-[5,]                    0                  120         80                    0
-[6,]                    0                  120         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0   258.0000
-[2,]                     0   257.2846
-[3,]                     0   256.5691
-[4,]                     0   255.8537
-[5,]                     0   255.1383
-[6,]                     0   254.4228
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
-
-plotmo.predict for predictor "vis" with newdata[500,9]:
-    vh wind humidity temp    ibh dpg   ibt       vis   doy
-1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
-2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
-3 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg   ibt       vis   doy
-1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
-2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
-3 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-4 5760    5       64   62 2112.5  24 167.5 2.1042084 205.5
-5 5760    5       64   62 2112.5  24 167.5 2.8056112 205.5
-6 5760    5       64   62 2112.5  24 167.5 3.5070140 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg   ibt       vis   doy
-1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
-2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
-3 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-4 5760    5       64   62 2112.5  24 167.5 2.1042084 205.5
-5 5760    5       64   62 2112.5  24 167.5 2.8056112 205.5
-6 5760    5       64   62 2112.5  24 167.5 3.5070140 205.5
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120   200.0000                    0
-[2,]                    0                  120   199.2986                    0
-[3,]                    0                  120   198.5972                    0
-[4,]                    0                  120   197.8958                    0
-[5,]                    0                  120   197.1944                    0
-[6,]                    0                  120   196.4930                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
-
-plotmo.predict for predictor "doy" with newdata[500,9]:
-    vh wind humidity temp    ibh dpg   ibt vis      doy
-1 5760    5       64   62 2112.5  24 167.5 120 33.00000
-2 5760    5       64   62 2112.5  24 167.5 120 33.71543
-3 5760    5       64   62 2112.5  24 167.5 120 34.43086
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg   ibt vis      doy
-1 5760    5       64   62 2112.5  24 167.5 120 33.00000
-2 5760    5       64   62 2112.5  24 167.5 120 33.71543
-3 5760    5       64   62 2112.5  24 167.5 120 34.43086
-4 5760    5       64   62 2112.5  24 167.5 120 35.14629
-5 5760    5       64   62 2112.5  24 167.5 120 35.86172
-6 5760    5       64   62 2112.5  24 167.5 120 36.57715
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg   ibt vis      doy
-1 5760    5       64   62 2112.5  24 167.5 120 33.00000
-2 5760    5       64   62 2112.5  24 167.5 120 33.71543
-3 5760    5       64   62 2112.5  24 167.5 120 34.43086
-4 5760    5       64   62 2112.5  24 167.5 120 35.14629
-5 5760    5       64   62 2112.5  24 167.5 120 35.86172
-6 5760    5       64   62 2112.5  24 167.5 120 36.57715
-predict.earth: bx is a 500 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4         0  56.00000                         0
-[2,]           1          4         0  55.28457                         0
-[3,]           1          4         0  54.56914                         0
-[4,]           1          4         0  53.85371                         0
-[5,]           1          4         0  53.13828                         0
-[6,]           1          4         0  52.42285                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120         80                    0
-[2,]                    0                  120         80                    0
-[3,]                    0                  120         80                    0
-[4,]                    0                  120         80                    0
-[5,]                    0                  120         80                    0
-[6,]                    0                  120         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
-
---plot2(draw.plot=FALSE)
-
-plotmo.predict for predictors "wind" and "vis" with newdata[400,9]:
-    vh      wind humidity temp    ibh dpg   ibt vis   doy
-1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
-2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
-3 5760 1.1578947       64   62 2112.5  24 167.5   0 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh      wind humidity temp    ibh dpg   ibt vis   doy
-1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
-2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
-3 5760 1.1578947       64   62 2112.5  24 167.5   0 205.5
-4 5760 1.7368421       64   62 2112.5  24 167.5   0 205.5
-5 5760 2.3157895       64   62 2112.5  24 167.5   0 205.5
-6 5760 2.8947368       64   62 2112.5  24 167.5   0 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh      wind humidity temp    ibh dpg   ibt vis   doy
-1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
-2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
-3 5760 1.1578947       64   62 2112.5  24 167.5   0 205.5
-4 5760 1.7368421       64   62 2112.5  24 167.5   0 205.5
-5 5760 2.3157895       64   62 2112.5  24 167.5   0 205.5
-6 5760 2.8947368       64   62 2112.5  24 167.5   0 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  120        200                    0
-[2,]                    0                  120        200                    0
-[3,]                    0                  120        200                    0
-[4,]                    0                  120        200                    0
-[5,]                    0                  120        200                    0
-[6,]                    0                  120        200                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
-
-plotmo.predict for predictors "humidity" and "temp" with newdata[400,9]:
-    vh wind humidity temp    ibh dpg   ibt vis   doy
-1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
-2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
-3 5760    5 26.78947   25 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp    ibh dpg   ibt vis   doy
-1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
-2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
-3 5760    5 26.78947   25 2112.5  24 167.5 120 205.5
-4 5760    5 30.68421   25 2112.5  24 167.5 120 205.5
-5 5760    5 34.57895   25 2112.5  24 167.5 120 205.5
-6 5760    5 38.47368   25 2112.5  24 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp    ibh dpg   ibt vis   doy
-1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
-2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
-3 5760    5 26.78947   25 2112.5  24 167.5 120 205.5
-4 5760    5 30.68421   25 2112.5  24 167.5 120 205.5
-5 5760    5 34.57895   25 2112.5  24 167.5 120 205.5
-6 5760    5 38.47368   25 2112.5  24 167.5 120 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          0     116.5         0                         0
-[2,]           1          0     116.5         0                         0
-[3,]           1          0     116.5         0                         0
-[4,]           1          0     116.5         0                         0
-[5,]           1          0     116.5         0                         0
-[6,]           1          0     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                    0         80                    0
-[2,]                    0                    0         80                    0
-[3,]                    0                    0         80                    0
-[4,]                    0                    0         80                    0
-[5,]                    0                    0         80                    0
-[6,]                    0                    0         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
-
-plotmo.predict for predictors "temp" and "dpg" with newdata[400,9]:
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
-2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
-3 5760    5       64 32.15789 2112.5 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
-2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
-3 5760    5       64 32.15789 2112.5 -69 167.5 120 205.5
-4 5760    5       64 35.73684 2112.5 -69 167.5 120 205.5
-5 5760    5       64 39.31579 2112.5 -69 167.5 120 205.5
-6 5760    5       64 42.89474 2112.5 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity     temp    ibh dpg   ibt vis   doy
-1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
-2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
-3 5760    5       64 32.15789 2112.5 -69 167.5 120 205.5
-4 5760    5       64 35.73684 2112.5 -69 167.5 120 205.5
-5 5760    5       64 39.31579 2112.5 -69 167.5 120 205.5
-6 5760    5       64 42.89474 2112.5 -69 167.5 120 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          0     116.5         0                         0
-[2,]           1          0     116.5         0                         0
-[3,]           1          0     116.5         0                         0
-[4,]           1          0     116.5         0                         0
-[5,]           1          0     116.5         0                         0
-[6,]           1          0     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                    0         80                    0
-[2,]                    0                    0         80                    0
-[3,]                    0                    0         80                    0
-[4,]                    0                    0         80                    0
-[5,]                    0                    0         80                    0
-[6,]                    0                    0         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]                     0       65.5
-[2,]                     0       65.5
-[3,]                     0       65.5
-[4,]                     0       65.5
-[5,]                     0       65.5
-[6,]                     0       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
-
-plotmo.predict for predictors "ibh" and "dpg" with newdata[400,9]:
-    vh wind humidity temp      ibh dpg   ibt vis   doy
-1 5760    5       64   62 111.0000 -69 167.5 120 205.5
-2 5760    5       64   62 368.3158 -69 167.5 120 205.5
-3 5760    5       64   62 625.6316 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: x is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of x are
-    vh wind humidity temp       ibh dpg   ibt vis   doy
-1 5760    5       64   62  111.0000 -69 167.5 120 205.5
-2 5760    5       64   62  368.3158 -69 167.5 120 205.5
-3 5760    5       64   62  625.6316 -69 167.5 120 205.5
-4 5760    5       64   62  882.9474 -69 167.5 120 205.5
-5 5760    5       64   62 1140.2632 -69 167.5 120 205.5
-6 5760    5       64   62 1397.5789 -69 167.5 120 205.5
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 400 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
-First few rows of data after call to model.frame are
-    vh wind humidity temp       ibh dpg   ibt vis   doy
-1 5760    5       64   62  111.0000 -69 167.5 120 205.5
-2 5760    5       64   62  368.3158 -69 167.5 120 205.5
-3 5760    5       64   62  625.6316 -69 167.5 120 205.5
-4 5760    5       64   62  882.9474 -69 167.5 120 205.5
-5 5760    5       64   62 1140.2632 -69 167.5 120 205.5
-6 5760    5       64   62 1397.5789 -69 167.5 120 205.5
-predict.earth: bx is a 400 by 11 matrix: 1=(Intercept), 2=h(temp-58), 3=h(doy-89), 4=h(89-doy), 5=h(56-humidity)*h(temp-58), 6=h(temp-58)*h(dpg-54), 7=h(temp-58)*h(54-dpg), 8=h(200-vis), 9=h(wind-7)*h(200-vis), 10=h(1069-ibh)*h(44-dpg), 11=h(233-ibt)
-First few rows of bx are
-     (Intercept) h(temp-58) h(doy-89) h(89-doy) h(56-humidity)*h(temp-58)
-[1,]           1          4     116.5         0                         0
-[2,]           1          4     116.5         0                         0
-[3,]           1          4     116.5         0                         0
-[4,]           1          4     116.5         0                         0
-[5,]           1          4     116.5         0                         0
-[6,]           1          4     116.5         0                         0
-     h(temp-58)*h(dpg-54) h(temp-58)*h(54-dpg) h(200-vis) h(wind-7)*h(200-vis)
-[1,]                    0                  492         80                    0
-[2,]                    0                  492         80                    0
-[3,]                    0                  492         80                    0
-[4,]                    0                  492         80                    0
-[5,]                    0                  492         80                    0
-[6,]                    0                  492         80                    0
-     h(1069-ibh)*h(44-dpg) h(233-ibt)
-[1,]             108254.00       65.5
-[2,]              79177.32       65.5
-[3,]              50100.63       65.5
-[4,]              21023.95       65.5
-[5,]                  0.00       65.5
-[6,]                  0.00       65.5
-predict.earth: returning earth predictions 
-inverse.func returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
-
-initialized ylims 1.371590 37.17335 
-
---plot1(draw.plot=TRUE) ntrace 1
-
---plot2(draw.plot=TRUE)
 > se <- ozone1
 > a <- earth(O3 ~ ., data=se, degree=2, keepxy=0)
 > se <- NULL
@@ -8052,7 +7183,7 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> z <- try(plotmo(a, trace=TRUE, caption="getdata earth test4"))
+> z <- try(plotmo(a, trace=2, caption="getdata earth test4"))
 
 --get.plotmo.x
 
@@ -8086,7 +7217,7 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> plotmo(a, trace=TRUE, caption="getdata earth test5")
+> plotmo(a, trace=2, caption="getdata earth test5")
 
 --get.plotmo.x
 
@@ -8096,12 +7227,12 @@ x[330,9]
 1 5710    4       28   40 2693 -25  87 250  33
 2 5700    3       37   45  590 -24 128 100  34
 3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
 got y from object$call$y
 get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -8117,13 +7248,9 @@ pairs:
 [3,] "4 temp"     "6 dpg" 
 [4,] "5 ibh"      "6 dpg" 
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "temp" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
@@ -8161,9 +7288,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,9]:
     vh wind humidity temp    ibh dpg       ibt vis   doy
 1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
@@ -8201,9 +7328,9 @@ First few rows of bx are
 [5,]                     0   255.1383
 [6,]                     0   254.4228
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
+predict() returned "se[,1]" length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
 
-plotmo.predict for predictor "vis" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt       vis   doy
 1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
@@ -8241,9 +7368,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
+predict() returned "se[,1]" length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
 
-plotmo.predict for predictor "doy" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt vis      doy
 1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2 5760    5       64   62 2112.5  24 167.5 120 33.71543
@@ -8281,11 +7408,11 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
+predict() returned "se[,1]" length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
 
---plot2(draw.plot=FALSE)
+--plot.degree2(draw.plot=FALSE)
 
-plotmo.predict for predictors "wind" and "vis" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "wind" and "vis" with newdata[400,9]:
     vh      wind humidity temp    ibh dpg   ibt vis   doy
 1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
 2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
@@ -8323,9 +7450,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
+predict() returned "se[,1]" length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
 
-plotmo.predict for predictors "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "humidity" and "temp" with newdata[400,9]:
     vh wind humidity temp    ibh dpg   ibt vis   doy
 1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -8363,9 +7490,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "temp" and "dpg" with newdata[400,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -8403,9 +7530,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "ibh" and "dpg" with newdata[400,9]:
     vh wind humidity temp      ibh dpg   ibt vis   doy
 1 5760    5       64   62 111.0000 -69 167.5 120 205.5
 2 5760    5       64   62 368.3158 -69 167.5 120 205.5
@@ -8443,13 +7570,21 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict() returned "se[,1]" length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
-initialized ylims 1.371590 37.17335 
+ylim 1.371590 37.17335 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
 
---plot2(draw.plot=TRUE)
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
+
+--plot.degree2(draw.plot=TRUE)
+persp(wind:vis) theta 145 ylim 1.371590 37.17335 cex  phi 30
+persp(humidity:temp) theta -35 ylim 1.371590 37.17335 cex  phi 30
+persp(temp:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
+persp(ibh:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 > printh(summary(a))
 ===summary(a) 
@@ -8472,7 +7607,7 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> plotmo(a, trace=TRUE, caption="getdata earth test6")
+> plotmo(a, trace=2, caption="getdata earth test6")
 
 --get.plotmo.x
 
@@ -8482,12 +7617,12 @@ x[330,9]
 1 5710    4       28   40 2693 -25  87 250  33
 2 5700    3       37   45  590 -24 128 100  34
 3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned "se[,1]" length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -8503,13 +7638,9 @@ pairs:
 [3,] "4 temp"     "6 dpg" 
 [4,] "5 ibh"      "6 dpg" 
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "temp" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
@@ -8547,9 +7678,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,9]:
     vh wind humidity temp    ibh dpg       ibt vis   doy
 1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
@@ -8587,9 +7718,9 @@ First few rows of bx are
 [5,]                     0   255.1383
 [6,]                     0   254.4228
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
+predict() returned "se[,1]" length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
 
-plotmo.predict for predictor "vis" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt       vis   doy
 1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
@@ -8627,9 +7758,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
+predict() returned "se[,1]" length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
 
-plotmo.predict for predictor "doy" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt vis      doy
 1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2 5760    5       64   62 2112.5  24 167.5 120 33.71543
@@ -8667,11 +7798,11 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
+predict() returned "se[,1]" length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
 
---plot2(draw.plot=FALSE)
+--plot.degree2(draw.plot=FALSE)
 
-plotmo.predict for predictors "wind" and "vis" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "wind" and "vis" with newdata[400,9]:
     vh      wind humidity temp    ibh dpg   ibt vis   doy
 1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
 2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
@@ -8709,9 +7840,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
+predict() returned "se[,1]" length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
 
-plotmo.predict for predictors "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "humidity" and "temp" with newdata[400,9]:
     vh wind humidity temp    ibh dpg   ibt vis   doy
 1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -8749,9 +7880,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "temp" and "dpg" with newdata[400,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -8789,9 +7920,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "ibh" and "dpg" with newdata[400,9]:
     vh wind humidity temp      ibh dpg   ibt vis   doy
 1 5760    5       64   62 111.0000 -69 167.5 120 205.5
 2 5760    5       64   62 368.3158 -69 167.5 120 205.5
@@ -8829,13 +7960,21 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict() returned "se[,1]" length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
-initialized ylims 1.371590 37.17335 
+ylim 1.371590 37.17335 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
 
---plot2(draw.plot=TRUE)
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
+
+--plot.degree2(draw.plot=TRUE)
+persp(wind:vis) theta 145 ylim 1.371590 37.17335 cex  phi 30
+persp(humidity:temp) theta -35 ylim 1.371590 37.17335 cex  phi 30
+persp(temp:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
+persp(ibh:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 > se <- NULL
 > printh(summary(a))
@@ -8859,7 +7998,7 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> plotmo(a, trace=TRUE, caption="getdata earth test7")
+> plotmo(a, trace=2, caption="getdata earth test7")
 
 --get.plotmo.x
 
@@ -8869,12 +8008,12 @@ x[330,9]
 1 5710    4       28   40 2693 -25  87 250  33
 2 5700    3       37   45  590 -24 128 100  34
 3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned "se[,1]" length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -8890,13 +8029,9 @@ pairs:
 [3,] "4 temp"     "6 dpg" 
 [4,] "5 ibh"      "6 dpg" 
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "temp" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
@@ -8934,9 +8069,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,9]:
     vh wind humidity temp    ibh dpg       ibt vis   doy
 1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
@@ -8974,9 +8109,9 @@ First few rows of bx are
 [5,]                     0   255.1383
 [6,]                     0   254.4228
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
+predict() returned "se[,1]" length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
 
-plotmo.predict for predictor "vis" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt       vis   doy
 1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
@@ -9014,9 +8149,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
+predict() returned "se[,1]" length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
 
-plotmo.predict for predictor "doy" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt vis      doy
 1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2 5760    5       64   62 2112.5  24 167.5 120 33.71543
@@ -9054,11 +8189,11 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
+predict() returned "se[,1]" length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
 
---plot2(draw.plot=FALSE)
+--plot.degree2(draw.plot=FALSE)
 
-plotmo.predict for predictors "wind" and "vis" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "wind" and "vis" with newdata[400,9]:
     vh      wind humidity temp    ibh dpg   ibt vis   doy
 1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
 2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
@@ -9096,9 +8231,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
+predict() returned "se[,1]" length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
 
-plotmo.predict for predictors "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "humidity" and "temp" with newdata[400,9]:
     vh wind humidity temp    ibh dpg   ibt vis   doy
 1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -9136,9 +8271,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "temp" and "dpg" with newdata[400,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -9176,9 +8311,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "ibh" and "dpg" with newdata[400,9]:
     vh wind humidity temp      ibh dpg   ibt vis   doy
 1 5760    5       64   62 111.0000 -69 167.5 120 205.5
 2 5760    5       64   62 368.3158 -69 167.5 120 205.5
@@ -9216,17 +8351,25 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict() returned "se[,1]" length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
-initialized ylims 1.371590 37.17335 
+ylim 1.371590 37.17335 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
 
---plot2(draw.plot=TRUE)
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
+
+--plot.degree2(draw.plot=TRUE)
+persp(wind:vis) theta 145 ylim 1.371590 37.17335 cex  phi 30
+persp(humidity:temp) theta -35 ylim 1.371590 37.17335 cex  phi 30
+persp(temp:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
+persp(ibh:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
 > se <- ozone1
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 > se <- NULL
-> z <- try(plotmo(a, trace=TRUE, caption="getdata earth test8"))
+> z <- try(plotmo(a, trace=2, caption="getdata earth test8"))
 
 --get.plotmo.x
 
@@ -9241,15 +8384,15 @@ NULL
 object$call$x:
 NULL
 
-Error : get.plotmo.x.default cannot get x matrix --- tried object$x, object$call$formula, and object$call$x
+Error : get.plotmo.x.default cannot get the x matrix --- tried object$x, object$call$formula, and object$call$x
 > if (class(z) != "try-error")
 +     stop("test failed")
 > se <- ozone1
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
-> # expect Error: get.plotmo.x.default cannot get x matrix
+> # expect Error: get.plotmo.x.default cannot get the x matrix
 > # TODO error message could be improved here
 > se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
-> z <- try(plotmo(a, trace=TRUE, caption="getdata earth test9"))
+> z <- try(plotmo(a, trace=2, caption="getdata earth test9"))
 
 --get.plotmo.x
 
@@ -9264,7 +8407,7 @@ NULL
 object$call$x:
 `[.data.frame`(se, , 2:10) : undefined columns selected
 
-Error : get.plotmo.x.default cannot get x matrix --- tried object$x, object$call$formula, and object$call$x
+Error : get.plotmo.x.default cannot get the x matrix --- tried object$x, object$call$formula, and object$call$x
 > if (class(z) != "try-error")
 +     stop("test failed")
 > se <- ozone1
@@ -9291,7 +8434,7 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
-> plotmo(a, trace=TRUE, caption="getdata earth test9")
+> plotmo(a, trace=2, caption="getdata earth test9")
 
 --get.plotmo.x
 
@@ -9301,12 +8444,12 @@ x[330,9]
 1 5710    4       28   40 2693 -25  87 250  33
 2 5700    3       37   45  590 -24 128 100  34
 3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned "se[,1]" length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -9322,13 +8465,9 @@ pairs:
 [3,] "4 temp"     "6 dpg" 
 [4,] "5 ibh"      "6 dpg" 
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "temp" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
@@ -9366,9 +8505,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 500 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,9]:
     vh wind humidity temp    ibh dpg       ibt vis   doy
 1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
@@ -9406,9 +8545,9 @@ First few rows of bx are
 [5,]                     0   255.1383
 [6,]                     0   254.4228
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
+predict() returned "se[,1]" length 500 min 3.947176 max 15.71664 values 3.947176 3.979812 4.012449 4.045085 4.077722 4.110359 4.142995 4.175632 4.208268 4.240905 ...
 
-plotmo.predict for predictor "vis" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt       vis   doy
 1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
@@ -9446,9 +8585,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
+predict() returned "se[,1]" length 500 min 10.96742 max 15.3705 values 15.3705 15.35506 15.33962 15.32417 15.30873 15.29329 15.27785 15.26241 15.24697 15.23152 ...
 
-plotmo.predict for predictor "doy" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt vis      doy
 1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2 5760    5       64   62 2112.5  24 167.5 120 33.71543
@@ -9486,11 +8625,11 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-plotmo.predict returned length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
+predict() returned "se[,1]" length 500 min 7.391714 max 15.42488 values 7.391714 7.494496 7.597278 7.70006 7.802842 7.905625 8.008407 8.11119 8.213971 8.316754 ...
 
---plot2(draw.plot=FALSE)
+--plot.degree2(draw.plot=FALSE)
 
-plotmo.predict for predictors "wind" and "vis" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "wind" and "vis" with newdata[400,9]:
     vh      wind humidity temp    ibh dpg   ibt vis   doy
 1 5760 0.0000000       64   62 2112.5  24 167.5   0 205.5
 2 5760 0.5789474       64   62 2112.5  24 167.5   0 205.5
@@ -9528,9 +8667,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
+predict() returned "se[,1]" length 400 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 ...
 
-plotmo.predict for predictors "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "humidity" and "temp" with newdata[400,9]:
     vh wind humidity temp    ibh dpg   ibt vis   doy
 1 5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2 5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -9568,9 +8707,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "temp" and "dpg" with newdata[400,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2 5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -9608,9 +8747,9 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict() returned "se[,1]" length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict for predictors "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for predictors "ibh" and "dpg" with newdata[400,9]:
     vh wind humidity temp      ibh dpg   ibt vis   doy
 1 5760    5       64   62 111.0000 -69 167.5 120 205.5
 2 5760    5       64   62 368.3158 -69 167.5 120 205.5
@@ -9648,13 +8787,21 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-inverse.func returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict() returned "se[,1]" length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
-initialized ylims 1.371590 37.17335 
+ylim 1.371590 37.17335 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
 
---plot2(draw.plot=TRUE)
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
+
+--plot.degree2(draw.plot=TRUE)
+persp(wind:vis) theta 145 ylim 1.371590 37.17335 cex  phi 30
+persp(humidity:temp) theta -35 ylim 1.371590 37.17335 cex  phi 30
+persp(temp:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
+persp(ibh:dpg) theta 235 ylim 1.371590 37.17335 cex  phi 30
 > 
 > # test the way plotmo gets the data with lm
 > se <- ozone1
@@ -9758,7 +8905,7 @@ Residual standard error: 4.441 on 320 degrees of freedom
 Multiple R-squared: 0.7012,	Adjusted R-squared: 0.6927 
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16 
 
-> plotmo(a, trace=TRUE, caption="getdata lm test3")
+> plotmo(a, trace=2, caption="getdata lm test3")
 
 --get.plotmo.x
 
@@ -9779,12 +8926,12 @@ x[330,9]
 1 5710    4       28   40 2693 -25  87 250  33
 2 5700    3       37   45  590 -24 128 100  34
 3 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
 got y from object$y
 get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -9806,78 +8953,78 @@ considering vis
 considering doy
 no pairs
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "vh" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "vh" with newdata[500,9]:
         vh wind humidity temp    ibh dpg   ibt vis   doy
 1 5320.000    5       64   62 2112.5  24 167.5 120 205.5
 2 5321.263    5       64   62 2112.5  24 167.5 120 205.5
 3 5322.525    5       64   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 11.57289 max 14.99199 values 14.99199 14.98513 14.97828 14.97143 14.96458 14.95773 14.95087 14.94402 14.93717 14.93032 ...
+predict() returned length 500 min 11.57289 max 14.99199 values 14.99199 14.98513 14.97828 14.97143 14.96458 14.95773 14.95087 14.94402 14.93717 14.93032 ...
 
-plotmo.predict for predictor "wind" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "wind" with newdata[500,9]:
     vh       wind humidity temp    ibh dpg   ibt vis   doy
 1 5760 0.00000000       64   62 2112.5  24 167.5 120 205.5
 2 5760 0.02204409       64   62 2112.5  24 167.5 120 205.5
 3 5760 0.04408818       64   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 12.27655 max 12.87696 values 12.87696 12.87576 12.87456 12.87336 12.87215 12.87095 12.86975 12.86854 12.86734 12.86614 ...
+predict() returned length 500 min 12.27655 max 12.87696 values 12.87696 12.87576 12.87456 12.87336 12.87215 12.87095 12.86975 12.86854 12.86734 12.86614 ...
 
-plotmo.predict for predictor "humidity" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "humidity" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt vis   doy
 1 5760    5 19.00000   62 2112.5  24 167.5 120 205.5
 2 5760    5 19.14830   62 2112.5  24 167.5 120 205.5
 3 5760    5 19.29659   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 8.960214 max 14.95230 values 8.960214 8.972222 8.98423 8.996239 9.008247 9.020255 9.032263 9.044271 9.05628 9.068288 ...
+predict() returned length 500 min 8.960214 max 14.95230 values 8.960214 8.972222 8.98423 8.996239 9.008247 9.020255 9.032263 9.044271 9.05628 9.068288 ...
 
-plotmo.predict for predictor "temp" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,9]:
     vh wind humidity     temp    ibh dpg   ibt vis   doy
 1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
 3 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 2.408729 max 21.14607 values 2.408729 2.446279 2.483829 2.521379 2.558929 2.596478 2.634028 2.671578 2.709128 2.746678 ...
+predict() returned length 500 min 2.408729 max 21.14607 values 2.408729 2.446279 2.483829 2.521379 2.558929 2.596478 2.634028 2.671578 2.709128 2.746678 ...
 
-plotmo.predict for predictor "ibh" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "ibh" with newdata[500,9]:
     vh wind humidity temp      ibh dpg   ibt vis   doy
 1 5760    5       64   62 111.0000  24 167.5 120 205.5
 2 5760    5       64   62 120.7976  24 167.5 120 205.5
 3 5760    5       64   62 130.5952  24 167.5 120 205.5
-plotmo.predict returned length 500 min 11.92886 max 13.07206 values 13.07206 13.06977 13.06748 13.06519 13.0629 13.06061 13.05832 13.05603 13.05374 13.05145 ...
+predict() returned length 500 min 11.92886 max 13.07206 values 13.07206 13.06977 13.06748 13.06519 13.0629 13.06061 13.05832 13.05603 13.05374 13.05145 ...
 
-plotmo.predict for predictor "dpg" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "dpg" with newdata[500,9]:
     vh wind humidity temp    ibh       dpg   ibt vis   doy
 1 5760    5       64   62 2112.5 -69.00000 167.5 120 205.5
 2 5760    5       64   62 2112.5 -68.64729 167.5 120 205.5
 3 5760    5       64   62 2112.5 -68.29459 167.5 120 205.5
-plotmo.predict returned length 500 min 12.32493 max 12.91680 values 12.91680 12.91561 12.91442 12.91324 12.91205 12.91087 12.90968 12.90849 12.90731 12.90612 ...
+predict() returned length 500 min 12.32493 max 12.91680 values 12.91680 12.91561 12.91442 12.91324 12.91205 12.91087 12.90968 12.90849 12.90731 12.90612 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,9]:
     vh wind humidity temp    ibh dpg       ibt vis   doy
 1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2 5760    5       64   62 2112.5  24 -24.28457 120 205.5
 3 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-plotmo.predict returned length 500 min 6.89813 max 17.48002 values 6.89813 6.919336 6.940542 6.961748 6.982954 7.00416 7.025367 7.046573 7.067779 7.088985 ...
+predict() returned length 500 min 6.89813 max 17.48002 values 6.89813 6.919336 6.940542 6.961748 6.982954 7.00416 7.025367 7.046573 7.067779 7.088985 ...
 
-plotmo.predict for predictor "vis" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt       vis   doy
 1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
 3 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-plotmo.predict returned length 500 min 10.76612 max 13.56297 values 13.56297 13.55736 13.55176 13.54615 13.54055 13.53494 13.52934 13.52373 13.51813 13.51252 ...
+predict() returned length 500 min 10.76612 max 13.56297 values 13.56297 13.55736 13.55176 13.54615 13.54055 13.53494 13.52934 13.52373 13.51813 13.51252 ...
 
-plotmo.predict for predictor "doy" with newdata[500,9]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,9]:
     vh wind humidity temp    ibh dpg   ibt vis      doy
 1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2 5760    5       64   62 2112.5  24 167.5 120 33.71543
 3 5760    5       64   62 2112.5  24 167.5 120 34.43086
-plotmo.predict returned length 500 min 10.92151 max 14.17715 values 14.17715 14.17063 14.1641 14.15758 14.15105 14.14453 14.13800 14.13148 14.12496 14.11843 ...
+predict() returned length 500 min 10.92151 max 14.17715 values 14.17715 14.17063 14.1641 14.15758 14.15105 14.14453 14.13800 14.13148 14.12496 14.11843 ...
 
-initialized ylims 2.408729 21.14607 
+ylim 2.408729 21.14607 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
+
+ grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+        5760    5       64   62 2112.5  24 167.5 120 205.5
+
 > a <- lm(O3 ~ ., data=se, x=1, y=1)
 > printh(summary(a))
 ===summary(a) 
@@ -9908,7 +9055,7 @@ Residual standard error: 4.441 on 320 degrees of freedom
 Multiple R-squared: 0.7012,	Adjusted R-squared: 0.6927 
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16 
 
-> plotmo(a, trace=TRUE, caption="getdata lm test3")
+> plotmo(a, trace=2, caption="getdata lm test3")
 
 --get.plotmo.x
 
@@ -9918,12 +9065,12 @@ x[330,10]
 1           1 5710    4       28   40 2693 -25  87 250  33
 2           1 5700    3       37   45  590 -24 128 100  34
 3           1 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
 got y from object$y
 get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -9946,81 +9093,81 @@ considering vis
 considering doy
 no pairs
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    (Intercept)   vh wind humidity temp    ibh dpg   ibt vis   doy
-                    1 5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "vh" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "vh" with newdata[500,10]:
   (Intercept)       vh wind humidity temp    ibh dpg   ibt vis   doy
 1           1 5320.000    5       64   62 2112.5  24 167.5 120 205.5
 2           1 5321.263    5       64   62 2112.5  24 167.5 120 205.5
 3           1 5322.525    5       64   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 11.57289 max 14.99199 values 14.99199 14.98513 14.97828 14.97143 14.96458 14.95773 14.95087 14.94402 14.93717 14.93032 ...
+predict() returned length 500 min 11.57289 max 14.99199 values 14.99199 14.98513 14.97828 14.97143 14.96458 14.95773 14.95087 14.94402 14.93717 14.93032 ...
 
-plotmo.predict for predictor "wind" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "wind" with newdata[500,10]:
   (Intercept)   vh       wind humidity temp    ibh dpg   ibt vis   doy
 1           1 5760 0.00000000       64   62 2112.5  24 167.5 120 205.5
 2           1 5760 0.02204409       64   62 2112.5  24 167.5 120 205.5
 3           1 5760 0.04408818       64   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 12.27655 max 12.87696 values 12.87696 12.87576 12.87456 12.87336 12.87215 12.87095 12.86975 12.86854 12.86734 12.86614 ...
+predict() returned length 500 min 12.27655 max 12.87696 values 12.87696 12.87576 12.87456 12.87336 12.87215 12.87095 12.86975 12.86854 12.86734 12.86614 ...
 
-plotmo.predict for predictor "humidity" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "humidity" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg   ibt vis   doy
 1           1 5760    5 19.00000   62 2112.5  24 167.5 120 205.5
 2           1 5760    5 19.14830   62 2112.5  24 167.5 120 205.5
 3           1 5760    5 19.29659   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 8.960214 max 14.95230 values 8.960214 8.972222 8.98423 8.996239 9.008247 9.020255 9.032263 9.044271 9.05628 9.068288 ...
+predict() returned length 500 min 8.960214 max 14.95230 values 8.960214 8.972222 8.98423 8.996239 9.008247 9.020255 9.032263 9.044271 9.05628 9.068288 ...
 
-plotmo.predict for predictor "temp" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,10]:
   (Intercept)   vh wind humidity     temp    ibh dpg   ibt vis   doy
 1           1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2           1 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
 3           1 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 2.408729 max 21.14607 values 2.408729 2.446279 2.483829 2.521379 2.558929 2.596478 2.634028 2.671578 2.709128 2.746678 ...
+predict() returned length 500 min 2.408729 max 21.14607 values 2.408729 2.446279 2.483829 2.521379 2.558929 2.596478 2.634028 2.671578 2.709128 2.746678 ...
 
-plotmo.predict for predictor "ibh" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "ibh" with newdata[500,10]:
   (Intercept)   vh wind humidity temp      ibh dpg   ibt vis   doy
 1           1 5760    5       64   62 111.0000  24 167.5 120 205.5
 2           1 5760    5       64   62 120.7976  24 167.5 120 205.5
 3           1 5760    5       64   62 130.5952  24 167.5 120 205.5
-plotmo.predict returned length 500 min 11.92886 max 13.07206 values 13.07206 13.06977 13.06748 13.06519 13.0629 13.06061 13.05832 13.05603 13.05374 13.05145 ...
+predict() returned length 500 min 11.92886 max 13.07206 values 13.07206 13.06977 13.06748 13.06519 13.0629 13.06061 13.05832 13.05603 13.05374 13.05145 ...
 
-plotmo.predict for predictor "dpg" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "dpg" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh       dpg   ibt vis   doy
 1           1 5760    5       64   62 2112.5 -69.00000 167.5 120 205.5
 2           1 5760    5       64   62 2112.5 -68.64729 167.5 120 205.5
 3           1 5760    5       64   62 2112.5 -68.29459 167.5 120 205.5
-plotmo.predict returned length 500 min 12.32493 max 12.91680 values 12.91680 12.91561 12.91442 12.91324 12.91205 12.91087 12.90968 12.90849 12.90731 12.90612 ...
+predict() returned length 500 min 12.32493 max 12.91680 values 12.91680 12.91561 12.91442 12.91324 12.91205 12.91087 12.90968 12.90849 12.90731 12.90612 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg       ibt vis   doy
 1           1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2           1 5760    5       64   62 2112.5  24 -24.28457 120 205.5
 3           1 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-plotmo.predict returned length 500 min 6.89813 max 17.48002 values 6.89813 6.919336 6.940542 6.961748 6.982954 7.00416 7.025367 7.046573 7.067779 7.088985 ...
+predict() returned length 500 min 6.89813 max 17.48002 values 6.89813 6.919336 6.940542 6.961748 6.982954 7.00416 7.025367 7.046573 7.067779 7.088985 ...
 
-plotmo.predict for predictor "vis" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg   ibt       vis   doy
 1           1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2           1 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
 3           1 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-plotmo.predict returned length 500 min 10.76612 max 13.56297 values 13.56297 13.55736 13.55176 13.54615 13.54055 13.53494 13.52934 13.52373 13.51813 13.51252 ...
+predict() returned length 500 min 10.76612 max 13.56297 values 13.56297 13.55736 13.55176 13.54615 13.54055 13.53494 13.52934 13.52373 13.51813 13.51252 ...
 
-plotmo.predict for predictor "doy" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg   ibt vis      doy
 1           1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2           1 5760    5       64   62 2112.5  24 167.5 120 33.71543
 3           1 5760    5       64   62 2112.5  24 167.5 120 34.43086
-plotmo.predict returned length 500 min 10.92151 max 14.17715 values 14.17715 14.17063 14.1641 14.15758 14.15105 14.14453 14.13800 14.13148 14.12496 14.11843 ...
+predict() returned length 500 min 10.92151 max 14.17715 values 14.17715 14.17063 14.1641 14.15758 14.15105 14.14453 14.13800 14.13148 14.12496 14.11843 ...
 
-initialized ylims 2.408729 21.14607 
+ylim 2.408729 21.14607 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
+
+ grid:    (Intercept)   vh wind humidity temp    ibh dpg   ibt vis   doy
+                    1 5760    5       64   62 2112.5  24 167.5 120 205.5
+
 > a <- lm(O3 ~ ., data=se, x=0, y=1)
 > se <- NULL
-> z <- try(plotmo(a, trace=TRUE, caption="getdata lm test4"))
+> z <- try(plotmo(a, trace=2, caption="getdata lm test4"))
 
 --get.plotmo.x
 
@@ -10061,7 +9208,7 @@ Residual standard error: 4.441 on 320 degrees of freedom
 Multiple R-squared: 0.7012,	Adjusted R-squared: 0.6927 
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16 
 
-> plotmo(a, trace=TRUE, caption="getdata lm test5")
+> plotmo(a, trace=2, caption="getdata lm test5")
 
 --get.plotmo.x
 
@@ -10071,12 +9218,12 @@ x[330,10]
 1           1 5710    4       28   40 2693 -25  87 250  33
 2           1 5700    3       37   45  590 -24 128 100  34
 3           1 5760    3       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
 got y from object$y
 get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -10099,82 +9246,82 @@ considering vis
 considering doy
 no pairs
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    (Intercept)   vh wind humidity temp    ibh dpg   ibt vis   doy
-                    1 5760    5       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "vh" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "vh" with newdata[500,10]:
   (Intercept)       vh wind humidity temp    ibh dpg   ibt vis   doy
 1           1 5320.000    5       64   62 2112.5  24 167.5 120 205.5
 2           1 5321.263    5       64   62 2112.5  24 167.5 120 205.5
 3           1 5322.525    5       64   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 11.57289 max 14.99199 values 14.99199 14.98513 14.97828 14.97143 14.96458 14.95773 14.95087 14.94402 14.93717 14.93032 ...
+predict() returned length 500 min 11.57289 max 14.99199 values 14.99199 14.98513 14.97828 14.97143 14.96458 14.95773 14.95087 14.94402 14.93717 14.93032 ...
 
-plotmo.predict for predictor "wind" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "wind" with newdata[500,10]:
   (Intercept)   vh       wind humidity temp    ibh dpg   ibt vis   doy
 1           1 5760 0.00000000       64   62 2112.5  24 167.5 120 205.5
 2           1 5760 0.02204409       64   62 2112.5  24 167.5 120 205.5
 3           1 5760 0.04408818       64   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 12.27655 max 12.87696 values 12.87696 12.87576 12.87456 12.87336 12.87215 12.87095 12.86975 12.86854 12.86734 12.86614 ...
+predict() returned length 500 min 12.27655 max 12.87696 values 12.87696 12.87576 12.87456 12.87336 12.87215 12.87095 12.86975 12.86854 12.86734 12.86614 ...
 
-plotmo.predict for predictor "humidity" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "humidity" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg   ibt vis   doy
 1           1 5760    5 19.00000   62 2112.5  24 167.5 120 205.5
 2           1 5760    5 19.14830   62 2112.5  24 167.5 120 205.5
 3           1 5760    5 19.29659   62 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 8.960214 max 14.95230 values 8.960214 8.972222 8.98423 8.996239 9.008247 9.020255 9.032263 9.044271 9.05628 9.068288 ...
+predict() returned length 500 min 8.960214 max 14.95230 values 8.960214 8.972222 8.98423 8.996239 9.008247 9.020255 9.032263 9.044271 9.05628 9.068288 ...
 
-plotmo.predict for predictor "temp" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "temp" with newdata[500,10]:
   (Intercept)   vh wind humidity     temp    ibh dpg   ibt vis   doy
 1           1 5760    5       64 25.00000 2112.5  24 167.5 120 205.5
 2           1 5760    5       64 25.13627 2112.5  24 167.5 120 205.5
 3           1 5760    5       64 25.27255 2112.5  24 167.5 120 205.5
-plotmo.predict returned length 500 min 2.408729 max 21.14607 values 2.408729 2.446279 2.483829 2.521379 2.558929 2.596478 2.634028 2.671578 2.709128 2.746678 ...
+predict() returned length 500 min 2.408729 max 21.14607 values 2.408729 2.446279 2.483829 2.521379 2.558929 2.596478 2.634028 2.671578 2.709128 2.746678 ...
 
-plotmo.predict for predictor "ibh" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "ibh" with newdata[500,10]:
   (Intercept)   vh wind humidity temp      ibh dpg   ibt vis   doy
 1           1 5760    5       64   62 111.0000  24 167.5 120 205.5
 2           1 5760    5       64   62 120.7976  24 167.5 120 205.5
 3           1 5760    5       64   62 130.5952  24 167.5 120 205.5
-plotmo.predict returned length 500 min 11.92886 max 13.07206 values 13.07206 13.06977 13.06748 13.06519 13.0629 13.06061 13.05832 13.05603 13.05374 13.05145 ...
+predict() returned length 500 min 11.92886 max 13.07206 values 13.07206 13.06977 13.06748 13.06519 13.0629 13.06061 13.05832 13.05603 13.05374 13.05145 ...
 
-plotmo.predict for predictor "dpg" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "dpg" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh       dpg   ibt vis   doy
 1           1 5760    5       64   62 2112.5 -69.00000 167.5 120 205.5
 2           1 5760    5       64   62 2112.5 -68.64729 167.5 120 205.5
 3           1 5760    5       64   62 2112.5 -68.29459 167.5 120 205.5
-plotmo.predict returned length 500 min 12.32493 max 12.91680 values 12.91680 12.91561 12.91442 12.91324 12.91205 12.91087 12.90968 12.90849 12.90731 12.90612 ...
+predict() returned length 500 min 12.32493 max 12.91680 values 12.91680 12.91561 12.91442 12.91324 12.91205 12.91087 12.90968 12.90849 12.90731 12.90612 ...
 
-plotmo.predict for predictor "ibt" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "ibt" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg       ibt vis   doy
 1           1 5760    5       64   62 2112.5  24 -25.00000 120 205.5
 2           1 5760    5       64   62 2112.5  24 -24.28457 120 205.5
 3           1 5760    5       64   62 2112.5  24 -23.56914 120 205.5
-plotmo.predict returned length 500 min 6.89813 max 17.48002 values 6.89813 6.919336 6.940542 6.961748 6.982954 7.00416 7.025367 7.046573 7.067779 7.088985 ...
+predict() returned length 500 min 6.89813 max 17.48002 values 6.89813 6.919336 6.940542 6.961748 6.982954 7.00416 7.025367 7.046573 7.067779 7.088985 ...
 
-plotmo.predict for predictor "vis" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "vis" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg   ibt       vis   doy
 1           1 5760    5       64   62 2112.5  24 167.5 0.0000000 205.5
 2           1 5760    5       64   62 2112.5  24 167.5 0.7014028 205.5
 3           1 5760    5       64   62 2112.5  24 167.5 1.4028056 205.5
-plotmo.predict returned length 500 min 10.76612 max 13.56297 values 13.56297 13.55736 13.55176 13.54615 13.54055 13.53494 13.52934 13.52373 13.51813 13.51252 ...
+predict() returned length 500 min 10.76612 max 13.56297 values 13.56297 13.55736 13.55176 13.54615 13.54055 13.53494 13.52934 13.52373 13.51813 13.51252 ...
 
-plotmo.predict for predictor "doy" with newdata[500,10]:
+plotmo.predict(type="response") for predictor "doy" with newdata[500,10]:
   (Intercept)   vh wind humidity temp    ibh dpg   ibt vis      doy
 1           1 5760    5       64   62 2112.5  24 167.5 120 33.00000
 2           1 5760    5       64   62 2112.5  24 167.5 120 33.71543
 3           1 5760    5       64   62 2112.5  24 167.5 120 34.43086
-plotmo.predict returned length 500 min 10.92151 max 14.17715 values 14.17715 14.17063 14.1641 14.15758 14.15105 14.14453 14.13800 14.13148 14.12496 14.11843 ...
+predict() returned length 500 min 10.92151 max 14.17715 values 14.17715 14.17063 14.1641 14.15758 14.15105 14.14453 14.13800 14.13148 14.12496 14.11843 ...
 
-initialized ylims 2.408729 21.14607 
+ylim 2.408729 21.14607 
 
---plot1(draw.plot=TRUE) ntrace 1
+--plot.degree1(draw.plot=TRUE)
+
+ grid:    (Intercept)   vh wind humidity temp    ibh dpg   ibt vis   doy
+                    1 5760    5       64   62 2112.5  24 167.5 120 205.5
+
 > se <- ozone1
 > a <- lm(O3 ~ ., data=se)
 > se$wind <- NULL
-> z <- try(plotmo(a, trace=TRUE, caption="getdata lm test6"))
+> z <- try(plotmo(a, trace=2, caption="getdata lm test6"))
 
 --get.plotmo.x
 
@@ -10195,7 +9342,6 @@ x[330,8]
 1 5710       28   40 2693 -25  87 250  33
 2 5700       37   45  590 -24 128 100  34
 3 5760       51   54 1450  25 139  60  35
-is.factor FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE 
 
 --get.plotmo.y
 
@@ -10212,6 +9358,7 @@ about to call model.frame(formula=O3~., data=structure(list(O3=c(3,
               16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
 got y from object$call$formula
 get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+
 clip.limits 1 38 
 
 --get.singles
@@ -10232,20 +9379,14 @@ considering vis
 considering doy
 no pairs
 
---plot1(draw.plot=FALSE) ntrace 2
+--plot.degree1(draw.plot=FALSE)
 
- grid:    vh humidity temp    ibh dpg   ibt vis   doy
-        5760       64   62 2112.5  24 167.5 120 205.5
-
-
-plotmo.predict for predictor "vh" with newdata[500,8]:
+plotmo.predict(type="response") for predictor "vh" with newdata[500,8]:
         vh humidity temp    ibh dpg   ibt vis   doy
 1 5320.000       64   62 2112.5  24 167.5 120 205.5
 2 5321.263       64   62 2112.5  24 167.5 120 205.5
 3 5322.525       64   62 2112.5  24 167.5 120 205.5
 Error in eval(expr, envir, enclos) : object 'wind' not found
-
-Error : Call to predict.lm failed
 > if (class(z) != "try-error")
 +     stop("test failed")
 > 

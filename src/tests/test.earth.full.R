@@ -114,12 +114,7 @@ printh(lm.fit)
 plotmo(lm.fit, se=2)
 lm.fit2 <- lm(O3 ~ temp+ibh+doy, data=ozone1)
 printh(lm.fit2)
-plotmo(lm.fit2, degree2="all", clip=FALSE)
-
-library(rpart)
-rpart.fit <- rpart(O3 ~ ., data=ozone1)
-printh(rpart.fit)
-plotmo(rpart.fit, type="vector")
+plotmo(lm.fit2, all2=TRUE, clip=FALSE)
 
 cat("--- print.default of earth object---------\n")
 print.default(a, digits=3)
@@ -133,8 +128,8 @@ if (PLOT)
 printh(summary(a$fit))
 if (PLOT) {
     plot(a$fit)
-    plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE)
-    plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE)
+    plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE)
+    plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE)
 }
 a <- update(a, nk=3) # not on man page
 printh(a)
@@ -800,14 +795,14 @@ test.earth.two.responses <- function(itest, func1, func2,
     caption <- paste("itest ", itest, ": ", funcnames, " degree=", degree, " nk=", nk, sep="")
     if(plotit) {
         if(typeof(func1) == "character") {
-            plotmo(fite, caption=caption)
-            plotmo(fite, ycolumn=2)
+            plotmo(fite, caption=caption, nresponse=1)
+            plotmo(fite, nresponse=2)
         } else {
-            plotmo(fite, func=func1, caption=caption)
-            plotmo(fite, func=func2, ycolumn=2)
+            plotmo(fite, func=func1, caption=caption, nresponse=1)
+            plotmo(fite, func=func2, nresponse=2)
         }
         plot(fite, caption=caption)
-        plot(fite, ycolumn=2)
+        plot(fite, nresponse=2)
     }
     cat("\n")
     if(test.mars.to.earth) {
@@ -818,8 +813,8 @@ test.earth.two.responses <- function(itest, func1, func2,
         printh(fitme)
         printh(summary(fitme))
         if(plotit) {
-            plotmo(fitm, func=func1, caption=caption)
-            plotmo(fitm, func=func2, ycolumn=2)
+            plotmo(fitm, func=func1, caption=caption, nresponse=1)
+            plotmo(fitm, func=func2, nresponse=2)
         }
 # TODO following code causes error "nk" not found, looking in wrong environment?
 #       cat("Expect warnings because of weights in the mars model\n")
@@ -839,10 +834,10 @@ itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degr
 printh(summary(a))
 printh(summary(a, style="bf"))
 if (PLOT) {
-    plotmo(a, ycolumn=1)     # test generation of caption based on response name
-    plotmo(a, ycolumn=2)
-    plot(a, ycolumn=1)
-    plot(a, ycolumn=2)
+    plotmo(a, nresponse=1)     # test generation of caption based on response name
+    plotmo(a, nresponse=2)
+    plot(a, nresponse=1)
+    plot(a, nresponse=2)
 }
 x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
@@ -890,12 +885,12 @@ cat("--- formula based multiple response -------------\n")
 
 a2 <- earth(cbind(O3,doy) ~ ., data=ozone1, degree=2)
 if (PLOT) {
-    plotmo(a2)                  # test generation of caption based on response name
-    plotmo(a2, ycolumn=1)
-    plotmo(a2, ycolumn=2)
-    plot(a2)
-    plot(a2, ycolumn=1)
-    plot(a2, ycolumn=2)
+    plotmo(a2, nresponse=1)                  # TODO1 delete
+    plotmo(a2, nresponse=1) # test generation of caption based on response name
+    plotmo(a2, nresponse=2)
+    plot(a2, nresponse=1) # TODO delete
+    plot(a2, nresponse=1)
+    plot(a2, nresponse=2)
 }
 
 cat("--- test plot.earth.models with multiple responses ---\n")
@@ -908,7 +903,7 @@ if (PLOT) {
     plot.earth.models(list(a, a2), caption="plot.earth.models with multiple responses, list(a,a2)")
     plot.earth.models(list(a2, a), caption="plot.earth.models with multiple responses, list(a2,a)",
                       col.rsq=c(2,3), col.npreds=c(2,3))
-    plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)", 
+    plot.earth.models(list(a2, b2), caption="plot.earth.models with multiple responses, list(a2,b2)",
                       col.rsq=c(2,3), col.npreds=c(4,5), jitter=.01, legend.pos="topleft")
 }
 
@@ -993,8 +988,8 @@ if (PLOT) {
     par(oma=c(0,0,4,0))      # make space for caption
     layout(rbind(c(1,1,0,0), c(2,3,4,5), c(6,7,8,9)), heights=c(2,1,1))
     plot(a)
-    plotmo(a$fit, ycolumn=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
-    plotmo(a$fit, ycolumn=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+    plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
+    plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE, do.par=FALSE)
     mtext("fda test", outer=TRUE, font=2, line=1.5, cex=1)
 }
 
@@ -1011,7 +1006,7 @@ cat("mda with mars  ", attr(confusion(am), "error"), "\n")
 cat("mda with earth ", attr(confusion(a),  "error"), "\n")
 if (PLOT) {
     plot(a$fit, caption="mda on glass data")
-    plotmo(a$fit, ycolumn=9, clip=FALSE, ylim=NA, caption="mda on glass data")
+    plotmo(a$fit, nresponse=9, clip=FALSE, ylim=NA, caption="mda on glass data")
 }
 
 cat("\n---- update and keepxy, formula interface --------------------------\n")
@@ -1566,19 +1561,19 @@ printh(family(a1))
 se <- ozone1
 a <- earth(O3 ~ ., data=se, degree=2, keepxy=0)
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata earth test1")
+plotmo(a, trace=2, caption="getdata earth test1")
 a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata earth test2")
+plotmo(a, trace=1, caption="getdata earth test2")
 a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
 se <- NULL
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata earth test3")
+plotmo(a, trace=FALSE, caption="getdata earth test3")
 se <- ozone1
 a <- earth(O3 ~ ., data=se, degree=2, keepxy=0)
 se <- NULL
 printh(summary(a))
-z <- try(plotmo(a, trace=TRUE, caption="getdata earth test4"))
+z <- try(plotmo(a, trace=2, caption="getdata earth test4"))
 if (class(z) != "try-error")
     stop("test failed")
 
@@ -1586,33 +1581,33 @@ if (class(z) != "try-error")
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata earth test5")
+plotmo(a, trace=2, caption="getdata earth test5")
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata earth test6")
+plotmo(a, trace=2, caption="getdata earth test6")
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 se <- NULL
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata earth test7")
+plotmo(a, trace=2, caption="getdata earth test7")
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 se <- NULL
-z <- try(plotmo(a, trace=TRUE, caption="getdata earth test8"))
+z <- try(plotmo(a, trace=2, caption="getdata earth test8"))
 if (class(z) != "try-error")
     stop("test failed")
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
-# expect Error: get.plotmo.x.default cannot get x matrix
+# expect Error: get.plotmo.x.default cannot get the x matrix
 # TODO error message could be improved here
 se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
-z <- try(plotmo(a, trace=TRUE, caption="getdata earth test9"))
+z <- try(plotmo(a, trace=2, caption="getdata earth test9"))
 if (class(z) != "try-error")
     stop("test failed")
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=TRUE)
 se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata earth test9")
+plotmo(a, trace=2, caption="getdata earth test9")
 
 # test the way plotmo gets the data with lm
 se <- ozone1
@@ -1624,24 +1619,24 @@ printh(summary(a))
 plotmo(a, trace=0, caption="getdata lm test2")
 a <- lm(O3 ~ ., data=se, y=1)
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata lm test3")
+plotmo(a, trace=2, caption="getdata lm test3")
 a <- lm(O3 ~ ., data=se, x=1, y=1)
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata lm test3")
+plotmo(a, trace=2, caption="getdata lm test3")
 a <- lm(O3 ~ ., data=se, x=0, y=1)
 se <- NULL
-z <- try(plotmo(a, trace=TRUE, caption="getdata lm test4"))
+z <- try(plotmo(a, trace=2, caption="getdata lm test4"))
 if (class(z) != "try-error")
     stop("test failed")
 se <- ozone1
 a <- lm(O3 ~ ., data=se, x=1, y=1)
 se <- NULL
 printh(summary(a))
-plotmo(a, trace=TRUE, caption="getdata lm test5")
+plotmo(a, trace=2, caption="getdata lm test5")
 se <- ozone1
 a <- lm(O3 ~ ., data=se)
 se$wind <- NULL
-z <- try(plotmo(a, trace=TRUE, caption="getdata lm test6"))
+z <- try(plotmo(a, trace=2, caption="getdata lm test6"))
 if (class(z) != "try-error")
     stop("test failed")
 

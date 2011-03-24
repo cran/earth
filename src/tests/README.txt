@@ -13,7 +13,7 @@ For regression tests on plotmo: run test.plotmo.bat
 For some old timing test results: see timing-tests.txt
 For timing tests (as shown on the earth web page): run earth.times.bat
 
-None of these test appropriate behaviour for bad arguments.
+None of these do much testing of appropriate behaviour for bad arguments.
 
 See earth-data-structures.jpg for a description of earth's 
 internal data structures.

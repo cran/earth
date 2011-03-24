@@ -23,9 +23,9 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
 
     nlinpreds <- sum(x$dirs[x$selected.terms,] == 2)
     if(nlinpreds == 1)
-        cat(nlinpreds, " linear predictor", sep="")
+        cat0(nlinpreds, " linear predictor")
     else if(nlinpreds > 1)
-        cat(nlinpreds, " linear predictors", sep="")
+        cat0(nlinpreds, " linear predictors")
     cat("\n")
 
     print.one.line.evimp(x) # print estimated var importances on a single line
@@ -33,10 +33,10 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
     nterms.per.degree <- get.nterms.per.degree(x, x$selected.terms)
     cat("Number of terms at each degree of interaction:", nterms.per.degree)
 
-    cat(switch(length(nterms.per.degree),
-            " (intercept only model)",
-            " (additive model)"),
-        "\n", sep="")
+    cat0(switch(length(nterms.per.degree),
+           " (intercept only model)",
+           " (additive model)"),
+         "\n")
 
     nresp <- NCOL(x$coefficients)
     is.cv <- !is.null(x$cv.list)
@@ -72,13 +72,13 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
     } else {
         if(!is.null(x$glm.list))
             cat("Earth ")   # remind user
-        cat("GCV ",   format(x$gcv,  digits=digits),
-            "    RSS ",  format(x$rss,  digits=digits),
-            "    GRSq ", format(x$grsq, digits=digits),
-            "    RSq ",  format(x$rsq,  digits=digits), sep="")
+        cat0("GCV ",   format(x$gcv,  digits=digits),
+             "    RSS ",  format(x$rss,  digits=digits),
+             "    GRSq ", format(x$grsq, digits=digits),
+             "    RSq ",  format(x$rsq,  digits=digits))
         if(is.cv)
-            cat("    CV-RSq ",
-                format(x$cv.rsq.tab[ilast,1], digits=digits), sep="")
+            cat0("    CV-RSq ",
+                 format(x$cv.rsq.tab[ilast,1], digits=digits))
         cat("\n")
     }
     if(print.glm && !is.null(x$glm.list))
@@ -110,7 +110,7 @@ print.summary.earth <- function(
     if(!is.glm || details) {
         if(!is.null(x$strings)) {      # old style expression formatting?
             for(iresp in 1:nresp) {
-                cat(response.names[iresp], " =\n", sep="")
+                cat0(response.names[iresp], " =\n")
                 cat(x$strings[iresp])
                 cat("\n")
            }
@@ -132,7 +132,7 @@ print.summary.earth <- function(
            for(iresp in 1:nresp) {
                g <- x$glm.list[[iresp]]
                cat("GLM ")
-               cat(response.names[iresp], " =\n", sep="")
+               cat0(response.names[iresp], " =\n")
                cat(x$strings[nresp+iresp]) # glm strings index is offset by nresp
                cat("\n")
            }
@@ -150,7 +150,7 @@ print.summary.earth <- function(
                              my.fixed.point, response.names[iresp])
     }
     if(details)
-        cat("Number of cases: ", nrow(x$residuals), "\n", sep="")
+        cat0("Number of cases: ", nrow(x$residuals), "\n")
     print.earth(x, digits, print.glm=FALSE)
     if(!is.null(x$glm.list))
         print.earth.glm(x, digits, fixed.point)

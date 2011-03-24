@@ -15,35 +15,29 @@ any1 <- function(x) any(x != 0) # like any but no warning if x not logical
 
 stopif <- function(...) stopifnot(!(...))
 
-stop1 <- function(...)          # call.=FALSE so use traceback() to see call
-    stop(..., call.=FALSE)
+stop0 <- function(...) stop(..., call.=FALSE)
 
-warning1 <- function(...)       # set options(warn=2) and traceback() to see the call
-    warning(..., call.=FALSE)
+warning0 <- function(...) warning(..., call.=FALSE)
 
-paste.with.space <- function(s)
-    paste(s, collapse=" ")
+cat0 <- function(...) cat(..., sep="")      # cat with no added spaces
 
-paste.with.comma <- function(s)
-    paste(s, collapse=", ")
+paste0 <- function(...) paste(..., sep="")  # paste with no added spaces
+
+paste.with.space <- function(s) paste(s, collapse=" ")
+
+paste.with.comma <- function(s) paste(s, collapse=", ")
 
 paste.quoted.names <- function(names) # add quotes and comma seperators
-    paste("\"", paste(names, collapse="\" \""), "\"", sep="")
+    paste0("\"", paste(names, collapse="\" \""), "\"")
 
-strip.white.space <- function(s)
-    gsub("[ \t\n]", "", s)
-
-printf <- function(format, ...) # like c printf
-    cat(sprintf(format, ...))
+printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
 
 pastef <- function(s, format, ...) # paste the c printf style args to s
-    paste(s, sprintf(format, ...), sep="")
+    paste0(s, sprintf(format, ...))
 
-is.try.error <- function(obj)
-   class(obj)[1] == "try-error"
+strip.white.space <- function(s) gsub("[ \t\n]", "", s)
 
-paste1 <- function(...) # paste with no added spaces
-    paste(..., sep="")
+is.try.error <- function(obj) class(obj)[1] == "try-error"
 
 # is.na.or.zero's main purpose is to see if a plot component should be
 # drawn, i.e., to see if the component "has a color"
@@ -57,16 +51,28 @@ warn.if.dots.used <- function(func.name, ...)
 {
     dots <- match.call(expand.dots = FALSE)$...
     if(length(dots) == 1)
-        warning1(func.name, " ignored unrecognized argument \"", names(dots), "\"")
+        warning0(func.name, " ignored unrecognized argument \"", names(dots), "\"")
     else if(length(dots) > 1)
-        warning1(func.name, " ignored unrecognized arguments ",
+        warning0(func.name, " ignored unrecognized arguments ",
                  paste.quoted.names(names(dots)))
 }
 
+stopifnot.boolean <- function(b) # b==0 or b==1 is also ok
+{
+    if(length(b) != 1 || !(is.logical(b) || is.numeric(b)) ||
+            is.na(b) || !(b == 0 || b == 1)) {
+        name <- deparse(substitute(b))
+        cat0("\n", name, ": ")
+        print(b)
+        cat("\n")
+        stop0("the ", name,
+              " argument is not FALSE or TRUE or 0 or 1 (see above print)")
+    }
+}
 check.classname <- function(object, object.name, class.names)
 {
     if(!inherits(object, class.names))
-        stop1("the class of \"", object.name, "\" is not \"",
+        stop0("the class of \"", object.name, "\" is not \"",
             paste(class.names, collapse="\" or \""), "\"")
 }
 
@@ -80,9 +86,9 @@ to.logical <- function(x, len)
 check.trace.arg <- function(trace) # make sure trace is a one element vector
 {
     if(!is.vector(trace))
-        warning1("bad \"trace\" argument")
+        warning0("bad \"trace\" argument")
     if(length(trace) != 1)
-        warning1("\"trace\" argument has more than one element")
+        warning0("\"trace\" argument has more than one element")
     as.numeric(trace[1])
 }
 
@@ -104,16 +110,16 @@ warn.if.not.all.finite <- function(x, text="unknown")
 {
     is.factors <- sapply(x, is.factor)
     if(any(is.factors)) {
-        if(NCOL(x) == 1 || all(is.factors)) #TODO suspect
+        if(NCOL(x) == 1 || all(is.factors)) # TODO suspect
             return(FALSE)
         x <- x[, !is.factors]               # remove factor columns before is.finite check
     }
     if(any(sapply(x, is.na))) {
-        warning1("NA in ", text)
+        warning0("NA in ", text)
         return(TRUE)
     }
     if(!all(sapply(x, is.finite))) {
-        warning1("non finite value in ", text)
+        warning0("non finite value in ", text)
         return(TRUE)
     }
     FALSE
@@ -139,13 +145,13 @@ check.index.vec <- function(index.name, indexVec, object,
 {
     if(is.null(indexVec)) {
         if(check.empty)
-            stop1("\"", index.name, "\" is NULL and cannot be used as an index vector")
+            stop0("\"", index.name, "\" is NULL and cannot be used as an index vector")
         return(NULL)
     }
     if(any(is.na(indexVec)))
-        stop1("NA in \"", index.name, "\"")
+        stop0("NA in \"", index.name, "\"")
     if(!(NROW(indexVec) == 1 || NCOL(indexVec) == 1))
-        stop1("\"", index.name, "\" must be a vector not a matrix ",
+        stop0("\"", index.name, "\" must be a vector not a matrix ",
             "(\"", index.name, "\" has dimensions ",
             NROW(indexVec), " x ", NCOL(indexVec), ")")
 
@@ -159,42 +165,44 @@ check.index.vec <- function(index.name, indexVec, object,
     if(is.logical(indexVec)) {
         if(check.empty) {
             if(length(indexVec) == 0)
-                stop1("length(", index.name, ") == 0")
+                stop0("length(", index.name, ") == 0")
             if(length(indexVec[indexVec == TRUE]) == 0)
-                stop1("\"", index.name, "\" is all FALSE")
+                stop0("\"", index.name, "\" is all FALSE")
         }
-        if(length(indexVec) > len)
-            stop1("logical index vector \"", index.name, "\" is too long\n",
+        # note that a single FALSE or TRUE is ok regardless of length(object)
+        if(length(indexVec) > len && length(indexVec) != 1) {
+            stop0("logical index vector \"", index.name, "\" is too long\n",
                 "       Its length is ", length(indexVec),
                 " and the max allowed length is ", len)
+        }
     } else if(is.numeric(indexVec)) {
         if(check.empty) {
             if(length(indexVec) == 0)
-                stop1("length(", index.name, ") == 0")
+                stop0("length(", index.name, ") == 0")
             else if(all(indexVec == 0))
                 if(length(indexVec) == 1)
-                    stop1("\"", index.name, "\" is 0")
+                    stop0("\"", index.name, "\" is 0")
                 else
-                    stop1("\"", index.name, "\" is all zeroes")
+                    stop0("\"", index.name, "\" is all zeroes")
         }
         if(any(indexVec < 0) && any(indexVec > 0))
-            stop1("mixed negative and positive values in \"", index.name, "\"")
+            stop0("mixed negative and positive values in \"", index.name, "\"")
         if(!allow.zeroes && any(indexVec == 0) && length(indexVec) != 1)
-            warning1("zero in \"", index.name, "\"")
+            warning0("zero in \"", index.name, "\"")
         if(!allow.duplicates && any(duplicated(indexVec)))
-            warning1("duplicates in \"", index.name, "\"")
+            warning0("duplicates in \"", index.name, "\"")
         if(!allow.negative.indices && any(indexVec < 0))
-            stop1("negative value in \"", index.name, "\"")
+            stop0("negative value in \"", index.name, "\"")
         if(any(abs(indexVec) > len))
             if(len == 1)
-                stop1("out of range value in \"", index.name,
+                stop0("out of range value in \"", index.name,
                     "\" (the only legal value is 1)")
             else
-                stop1("out of range value in \"", index.name,
+                stop0("out of range value in \"", index.name,
                     "\" (allowed index range is 1:",  len, ")")
     } else
-        warning1("index vector \"", index.name,
-            "\" has an unusual class \"", class(indexVec), "\"")
+        warning0("index vector \"", index.name,
+            "\" has an unusual class \"", class(indexVec)[1], "\"")
     indexVec
 }
 
@@ -202,23 +210,23 @@ exists.and.not.null <- function(object, mode="any", argname="")
 {
     # following "if" is like is.null(object) but no error msg if object doesn't exist
 
-    if(paste("'", object, "'", sep="") == "'NULL'")
+    if(paste0("'", object, "'") == "'NULL'")
         return(FALSE)
 
-    if(paste("'", object, "'", sep="") == "'NA'")
+    if(paste0("'", object, "'") == "'NA'")
         if(length(argname))
-            stop1(argname, "=NA")
+            stop0(argname, "=NA")
         else
-            stop1(object, "illegal NA")
+            stop0(object, "illegal NA")
 
     # TODO removed until I can get this to work reliably
     #
-    #   if(!exists(paste("'", object, "'", sep=""), where=parent.frame(), mode=mode))
+    #   if(!exists(paste0("'", object, "'"), where=parent.frame(), mode=mode))
     #       if(length(argname))
-    #           stop1("you specified ", argname, "=", object,
+    #           stop0("you specified ", argname, "=", object,
     #               " but there is no such ", if(mode=="any") "object" else mode)
     #       else
-    #           stop1(object, ": no such", if(mode=="any") "object" else mode)
+    #           stop0(object, ": no such", if(mode=="any") "object" else mode)
 
     return(TRUE)
 }
@@ -235,7 +243,6 @@ discrete.plot.cols <- function(ncolors=5)
     cols[1:ncolors]
 }
 
-
 # Example of my.print.call:
 #
 # Call: earth(formula=O3~., data=ozone1, trace=4, linpreds=c(3,
@@ -250,14 +257,14 @@ my.print.call <- function(msg, Call)
     if(!is.null(Call$x)) {
         x. <- Call$x
         if(length(paste(substitute(x.))) > 100)
-            Call$x <- paste("[", NROW(Call$x), ",", NCOL(Call$x),
-                            "]-too-long-to-display", sep="")
+            Call$x <- paste0("[", NROW(Call$x), ",", NCOL(Call$x),
+                             "]-too-long-to-display")
     }
     if(!is.null(Call$y)) {
         y. <- Call$y
         if(length(paste(substitute(y.))) > 100)
-            Call$y <- paste("[", NROW(Call$y), ",", NCOL(Call$y),
-                            "]-too-long-to-display", sep="")
+            Call$y <- paste0("[", NROW(Call$y), ",", NCOL(Call$y),
+                             "]-too-long-to-display")
     }
     Call$na.action <- NULL # don't want to print the na.action
     s <- format(Call)
@@ -272,7 +279,7 @@ my.print.call <- function(msg, Call)
 
     s <- gsub(",", ", ", s)                     # replace comma with comma space
     s <- paste(s, collapse=paste("\n", spaces., sep=""), sep="")
-    cat(msg, s, "\n", sep="")
+    cat0(msg, s, "\n")
 }
 
 #------------------------------------------------------------------------------
@@ -292,11 +299,11 @@ match.choices <- function(arg, choices, arg.name)   # choices is a vector of str
         return(1)
     i <- pmatch(arg, choices)
     if(any(is.na(i)))
-        stop1(paste("bad \"", arg.name, "\" argument \"", arg, "\"\n",
-            "Choose one of: ", paste.with.space(choices), sep=""))
+        stop0(paste0("bad \"", arg.name, "\" argument \"", arg, "\"\n",
+              "Choose one of: ", paste.quoted.names(choices)))
     if(i == 0)
-        stop1(paste("the \"", arg.name, "\" argument is ambiguous\n",
-              "Choose one of: ", paste.with.space(choices), sep=""))
+        stop0(paste("the \"", arg.name, "\" argument is ambiguous\n",
+              "Choose one of: ", paste.quoted.names(choices)))
     i
 }
 
@@ -304,18 +311,17 @@ match.choices <- function(arg, choices, arg.name)   # choices is a vector of str
 get.caption.from.call <- function(caption, object)
 {
     if(is.null(caption))
-        caption <- strip.white.space(paste(deparse(object$call), sep="", collapse=""))
+        caption <- strip.white.space(paste0(deparse(object$call), collapse=""))
     caption
 }
 
 # Call this only after a plot is on the screen to avoid
 # an error message "plot.new has not been called yet"
-# TODO the trimming code overtrims
+# TODO the trimming code sometimes overtrims
 
-show.caption <- function(caption, trim=0, show=TRUE)
+show.caption <- function(caption, trim=0, show=TRUE, cex=1)
 {
-    len.caption <- nchar(caption)
-    if(len.caption > 0) {
+    if(!is.null(caption) && (len.caption <- nchar(caption))) {
         if(trim) {
             if(is.logical(trim))
                 trim <- 1
@@ -324,10 +330,10 @@ show.caption <- function(caption, trim=0, show=TRUE)
             caption <- substr(caption, 1, len)
             # append ellipsis if chars deleted
             if(len < len.caption)
-                caption <- paste(caption, "...", sep="")
+                caption <- paste0(caption, "...")
         }
         if(show)
-            mtext(caption, outer=TRUE, font=2, line=1.5, cex=1)
+            mtext(caption, outer=TRUE, font=2, line=1.5, cex=cex)
     }
     caption
 }
@@ -438,58 +444,61 @@ first.non.matching.arg <- function(s1, s2)
 # TODO don't print all colnames if too many
 
 print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
-                              details=TRUE, all.rows=FALSE, all.names=FALSE)
+                              details=TRUE, all.rows=FALSE, all.names=FALSE,
+                              prefix=TRUE)
 {
-    if(!is.null(Callers.name))
-        cat(Callers.name, ": ", sep="")
-    cat(xname, " is a ", NROW(x), " by ", NCOL(x), " matrix: ", sep="")
-    if(is.null(bpairs))
-        bpairs <- rep(TRUE, NCOL(x))
-    colnames <- colnames(x)
-    if(is.null(colnames))
-        colnames <- rep("", NCOL(x))
-    stopifnot(length(bpairs) == length(colnames))
-    icol <- 0
-    n.names <- length(colnames)
-    if(!all.names && !details)
-        n.names <- min(5, n.names)
-    for(i in 1:n.names) {
-        if(bpairs[i]) {
-            icol <- icol+1
-            cat(icol, "=", sep="")
-        } else
-            cat(" (paired with ")
-        if(nchar(colnames[i]))
-            cat(colnames[i])
-        else
-            cat("UNNAMED")
-        if(NCOL(x) > 1)
-            xi <- x[,i]
-        else
-            xi <- x
-        if(!(class(xi) == "numeric" || class(xi) == "matrix"))
-            cat(" (", class(xi), ")", sep="")
-        else if(typeof(xi) != "double")
-            cat(" (", mode(xi), ")", sep="")
-        if(!bpairs[i])
-            cat(")")
-        if(i < length(colnames) && (i == length(colnames) || bpairs[i+1]))
-            cat(", ")
+    if(prefix) {
+        if(!is.null(Callers.name))
+            cat0(Callers.name, ": ")
+        cat0(xname, " is a ", NROW(x), " by ", NCOL(x), " matrix: ")
+        if(is.null(bpairs))
+            bpairs <- rep(TRUE, NCOL(x))
+        colnames <- colnames(x)
+        if(is.null(colnames))
+            colnames <- rep("", NCOL(x))
+        stopifnot(length(bpairs) == length(colnames))
+        icol <- 0
+        n.names <- length(colnames)
+        if(!all.names && !details)
+            n.names <- min(5, n.names)
+        for(i in 1:n.names) {
+            if(bpairs[i]) {
+                icol <- icol+1
+                cat0(icol, "=")
+            } else
+                cat(" (paired with ")
+            if(nchar(colnames[i]))
+                cat(colnames[i])
+            else
+                cat("UNNAMED")
+            if(NCOL(x) > 1)
+                xi <- x[,i]
+            else
+                xi <- x
+            if(!(class(xi)[1] == "numeric" || class(xi)[1] == "matrix"))
+                cat0(" (", class(xi)[1], ")")
+            else if(typeof(xi) != "double")
+                cat0(" (", mode(xi), ")")
+            if(!bpairs[i])
+                cat(")")
+            if(i < length(colnames) && (i == length(colnames) || bpairs[i+1]))
+                cat(", ")
+        }
+        if(i < length(colnames))
+            cat("...")
+        cat("\n")
     }
-    if(i < length(colnames))
-        cat("...")
-    cat("\n")
     if(details) {
         rownames(x) <- NULL
         if(all.rows || NROW(x) <= 6) { # head prints 6 rows
-            cat("Contents of ", xname, " are\n", sep="")
+            cat0("Contents of ", xname, " are\n")
             print(x)
         } else {
-            rowstring <- if(class(x) == "numeric" || class(x) == "factor")
+            rowstring <- if(class(x)[1] == "numeric" || class(x)[1] == "factor")
                              "elements"
                          else
                              "rows"
-            cat("First few ", rowstring, " of ", xname, " are\n", sep="")
+            cat0("First few ", rowstring, " of ", xname, " are\n")
             print(head(x))
         }
     }

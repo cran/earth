@@ -6,17 +6,17 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
                      glm, glm.bpairs, trace, keepxy, nfold, stratify, ...)
 {
     if(!is.numeric(nfold))
-        stop1("nfold argument must be numeric")
+        stop0("nfold argument must be numeric")
     if(floor(nfold) != nfold)
-        stop1("nfold argument must be an integer, you have nfold=", nfold)
+        stop0("nfold argument must be an integer, you have nfold=", nfold)
     if(nfold < 0 || nfold > 10000) # 10000 is arbitrary
-        stop1("nfold argument must be between 0 and 10000, you have nfold=", nfold)
+        stop0("nfold argument must be between 0 and 10000, you have nfold=", nfold)
     # if(nfold == 1)
-    #   warning1("nfold=1 treated as nfold=0 i.e. no cross validation")
+    #   warning0("nfold=1 treated as nfold=0 i.e. no cross validation")
     if(nfold <= 1)
         return (NULL)
     if(!is.null(glm.bpairs))
-        stop1("earth does not (yet) support cross validation of paired binomial responses")
+        stop0("earth does not (yet) support cross validation of paired binomial responses")
 
     # get here if must do the cross validation
 
@@ -39,7 +39,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
         }
     }
     if(any(table(groups) == 0))
-        stop1("Not enough data to do ", nfold,
+        stop0("Not enough data to do ", nfold,
               " fold cross validation (a CV test set is empty)")
     is.binomial <- is.poisson <- FALSE
     if(!is.null(glm)) {
@@ -50,7 +50,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
     }
     augmented.resp.names <- c(colnames(y), "mean") # response names plus "mean"
     format.string <- if(nfold < 10) "%d" else "%2d"
-    augmented.fold.names <- c(paste("fold ", sprintf(format.string, 1:nfold), sep=""), "mean")
+    augmented.fold.names <- c(paste0("fold ", sprintf(format.string, 1:nfold)), "mean")
     nvars <- double(nfold+1)    # number of used predictors in each CV model
     nterms <- double(nfold+1)   # number of selected terms in each CV model
     names(nvars) <- names(nterms) <- augmented.fold.names
@@ -61,7 +61,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
 
     maxerr.tab <- matrix(0, nrow=nfold+1, ncol=1+nresp) # table of cv results, +1 for max
     colnames(maxerr.tab) <- c(colnames(y), "max") # response names plus "max"
-    rownames(maxerr.tab) <- c(paste("fold ", sprintf(format.string, 1:nfold), sep=""), "max")
+    rownames(maxerr.tab) <- c(paste0("fold ", sprintf(format.string, 1:nfold)), "max")
 
     # the following remain NULL unless is.binomial or is.poisson
     deviance.tab <- calib.int.tab <- calib.slope.tab <- test.tab <- NULL
@@ -153,7 +153,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
         if(trace >= .5)
             trace.fold(ifold, trace, y, train.subset, test.subset, ndigits, rsq.tab[ifold,])
     }
-    names(list.) <- paste1("cv", 1:nfold)
+    names(list.) <- paste0("cv", 1:nfold)
 
     # init last row of summary tables
 
