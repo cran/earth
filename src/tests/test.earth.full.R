@@ -30,6 +30,8 @@ printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a
         print(x)
 }
 
+print(citation("earth"))
+
 #--- test examples from man pages ------------------------------------------------------------
 
 cat("--- earth.Rd -----------------------------\n")

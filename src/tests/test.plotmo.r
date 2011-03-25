@@ -69,13 +69,6 @@ set.seed(1)
 plotmo(a, do.par=FALSE, degree1=1, nrug=20, ngrid1=50, degree2=F, main="ngrid1=50 nrug=20", trace=Trace)
 plotmo(a, do.par=FALSE, degree1=NA, degree2=1, phi=60, box=F, r=100) # dots args
 
-
-try(plotmo(a, no.such.arg=9)) # expect Error: plotmo: illegal argument "no.such.arg"
-try(plotmo(a, degree1="all")) # Expect Error: degree1="all" is no longer legal, use all1=TRUE instead
-try(plotmo(a, degree2="all")) # Expect Error: degree2="all" is no longer legal, use all2=TRUE instead
-try(plotmo(a, ycolumn=1))     # Expect Error: ycolumn is no longer legal, use nresponse instead
-try(plotmo(a, title="abc"))   # Expect Error: "title" is illegal, use "caption" instead
-
 caption <- "test plotmo ylim"
 a <- earth(O3 ~ ., data=ozone1, degree=2)
 dopar(3,3,caption)
@@ -331,6 +324,28 @@ plotmo(aflip, all2=T, caption="all2=T")
 plotmo(aflip, all2=T, degree2=c(4, 2), caption="all2=T, degree2=c(4, 2)")
 plotmo(aflip, all1=T, caption="all1=T")
 plotmo(aflip, all1=T, degree1=c(3,1), degree2=NA, caption="all1=T, degree1=c(3,1), degree2=NA")
+
+try(plotmo(aflip, no.such.arg=9)) # expect Error: plotmo: illegal argument "no.such.arg"
+try(plotmo(aflip, degree1="all")) # Expect Error: degree1="all" is no longer legal, use all1=TRUE instead
+try(plotmo(aflip, degree1="a"))   # Expect Error: degree1="all" is no longer legal, use all1=TRUE instead
+try(plotmo(aflip, degree1="x"))   # Expect Error: degree1 must be an index vector (numeric or logical)
+try(plotmo(aflip, degree2="all")) # Expect Error: degree2="all" is no longer legal, use all2=TRUE instead
+try(plotmo(aflip, ycolumn=1))     # Expect Error: ycolumn is no longer legal, use nresponse instead
+try(plotmo(aflip, title="abc"))   # Expect Error: "title" is illegal, use "caption" instead
+try(plotmo(aflip, ticktype="d", ntick=3, tic=3, tick=9)) # expect Error : duplicated arguments "ticktype" "tic" "tick"
+try(plotmo(aflip, ticktype="d", ntick=3, tic=3)) # expect Error : duplicated arguments "ticktype" "tic"
+try(plotmo(aflip, ticktype="s", nt=3)) # expect Error : nticks is illegal with ticktype="simple"
+try(plotmo(aflip, tic="s", nt=3)) # expect Error : nticks is illegal with ticktype="simple"
+try(plotmo(aflip, tic="s", nt=3)) # expect Error : nticks is illegal with ticktype="simple"
+try(plotmo(aflip, adj=8, adj=9)) # Error : duplicated arguments "adj" "adj"
+try(plotmo(aflip, adj1=8, adj2=9)) # Error : plotmo: illegal argument "adj1"
+try(plotmo(aflip, yc=8, x2=9)) # expect Error : "ycolumn" is no longer legal, use "nresponse" instead
+try(plotmo(aflip, ticktype="d", ntick=3, ti=3)) # Error : "title" is illegal, use "caption" instead ("ti" taken to mean "title")
+try(plotmo(aflip, ticktype="d", ntick=3, title=3)) # Error : "title" is illegal, use "caption" instead
+try(plotmo(aflip, ticktype="d", ntick=3, tit=3, titl=7)) # Error : "title" is illegal, use "caption" instead ("tit" taken to mean "title")
+try(plotmo(aflip, zlab="abc")) # expect Error : "zlab" is illegal, use "ylab" instead
+try(plotmo(aflip, z="abc")) # expect Error : "zlab" is illegal, use "ylab" instead ("z" taken to mean "zlab")
+try(plotmo(aflip, degree2="abc")) # expect Error : degree2 must be an index vector (numeric or logical)
 
 if(!interactive()) {
     dev.off()         # finish postscript plot

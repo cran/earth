@@ -1,5 +1,5 @@
 Package: earth
-Version: 2.5-0
+Version: 2.5-1
 Title: Multivariate Adaptive Regression Spline Models
 Author: Stephen Milborrow derived from mda:mars by Trevor Hastie and
         Rob Tibshirani.
@@ -12,6 +12,6 @@ Description: Build regression models using the techniques in Friedman's
         the name of the package.)
 License: GPL-3
 URL: http://www.milbo.users.sonic.net/earth
-Packaged: 2011-03-24 11:48:36 UTC; milbo
+Packaged: 2011-03-25 10:56:58 UTC; milbo
 Repository: CRAN
-Date/Publication: 2011-03-24 16:56:04
+Date/Publication: 2011-03-26 15:44:16

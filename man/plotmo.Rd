@@ -83,6 +83,8 @@ To start off, look at the arguments
      Use \code{TRUE} to plot all predictors,
      not just those usually selected by \code{plotmo}.
      See ``What variables get plotted?'' below.
+     The \code{all1} argument \emph{increases} the number of plots;
+     the \code{degree1} argument \emph{reduces} the number of plots.
   }
   \item{degree2}{
      Index vector specifying interaction plots to include.
@@ -114,7 +116,7 @@ To start off, look at the arguments
      Names can be abbreviated, partial matching is used.
      Example:
 \preformatted{  a <- earth(survived ~ pclass+sex+age, data=etitanic, degree=2)
-  plotmo(a, degree2=0, grid.levels=list(sex="m", age=21))
+  plotmo(a, grid.levels=list(sex="m", age=21))
 }
      }
   \item{col.response}{
@@ -184,7 +186,7 @@ To start off, look at the arguments
      i.e. be callable with \code{se.fit=TRUE}
      (for example \code{\link{predict.lm}} but not \code{\link{predict.earth}}).
      Example:
-\preformatted{  fit <- lm(stack.loss ~ ., stackloss)
+\preformatted{  fit <- lm(stack.loss~., stackloss)
   plotmo(fit, se=2, col.response=2, nrug=-1)
 }
   }
@@ -364,22 +366,22 @@ non-\code{earth} objects.
     data(ozone1)
     oz <- ozone1[,c("O3", "humidity", "temp", "ibt")]
 
-    lm.fit <- lm(O3 ~ humidity + temp*ibt, data=oz)
+    lm.fit <- lm(O3 ~ humidity + temp*ibt, data=oz)     # linear model
     plotmo(lm.fit, se=2, col.response=2, nrug=-1)
 
-    library(mgcv)
+    library(mgcv)                                       # GAM
     gam.fit <- gam(O3 ~ s(humidity) + s(temp) + s(ibt) + s(temp, ibt), data=oz)
     plotmo(gam.fit, se=2, all2=TRUE)
 
     library(rpart)
     plotmo(rpart(O3 ~ ., data=oz), all2=TRUE)
 
-    library(randomForest)
+    library(randomForest)                               # randomForest
     rf.fit <- randomForest(O3~., data=oz)
     plotmo(rf.fit) # surfaces are smoother than the rpart model above
     partialPlot(rf.fit, oz, temp) # compare partial dependence plot
 
-    library(MASS)  # QDA example, c.f. MASS page 340
+    library(MASS)                                       # QDA
     lcush <- data.frame(Type=as.numeric(Cushings$Type), log(Cushings[,1:2]))
     lcush <- lcush[1:21,]
     qda.fit <- qda(Type~., data=lcush)
@@ -398,14 +400,14 @@ issues, see the next section.
 \bold{Extending plotmo}
 
 \code{Plotmo} calls the following class methods, defined in \code{plotmo.methods.R}:
-
-\code{plotmo.prolog}\cr
-\code{get.plotmo.x}\cr
-\code{get.plotmo.y}\cr
-\code{plotmo.predict}\cr
-\code{get.singles}\cr
-\code{get.pairs}
-
+\describe{
+\item{\code{plotmo.prolog}}{ called before plotting begins}
+\item{\code{get.singles}}{ get the vector of variables for \code{degree2} plots}
+\item{\code{get.pairs}}{ get the list of pairs for \code{degree2} plots}
+\item{\code{get.plotmo.x}}{ get the model matrix \code{x}}
+\item{\code{get.plotmo.y}}{ get the model response \code{y}}
+\item{\code{plotmo.predict}}{ called for each sub-plot}
+}
 Thus \code{plotmo} can be extended by writing new methods, although
 the defaults suffice for many objects.  See the source code
 for details.

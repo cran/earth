@@ -36,6 +36,31 @@ Loading required package: class
 +         print(x)
 + }
 > 
+> print(citation("earth"))
+Warning in citation("earth") :
+  no date field in DESCRIPTION file of package 'earth'
+
+To cite package 'earth' in publications use:
+
+  Stephen Milborrow derived from mda:mars by Trevor Hastie and Rob
+  Tibshirani. (). earth: Multivariate Adaptive Regression Spline
+  Models. R package version 2.5-1.
+  http://www.milbo.users.sonic.net/earth
+
+A BibTeX entry for LaTeX users is
+
+  @Manual{,
+    title = {earth: Multivariate Adaptive Regression Spline Models},
+    author = {Stephen Milborrow derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
+    note = {R package version 2.5-1},
+    url = {http://www.milbo.users.sonic.net/earth},
+  }
+
+ATTENTION: This citation information has been auto-generated from the
+package DESCRIPTION file and may need manual editing, see
+'help("citation")' .
+
+> 
 > #--- test examples from man pages ------------------------------------------------------------
 > 
 > cat("--- earth.Rd -----------------------------\n")
