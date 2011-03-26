@@ -1,6 +1,9 @@
 Changes to Earth Package
 ------------------------
 
+2.5-1  Mar 25 2011
+   Modified handling of illegal arguments
+
 2.5-0  Mar 24 2011
    Changes to plotmo:
      The arguments were reordered (moved the most important arguments first).

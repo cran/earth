@@ -148,16 +148,29 @@ plotmo <- function(object = stop("no 'object' arg"),
     }
     check.dots <- function(type2, dots) # check dots arguments, if any
     {
-        stopifnot(is.character(type2) && length(type2) == 1)
+        check.illegal <- function(illegal.argname, msg)
+        {
+            # if illegal.argname is in dots then issue msg
+            ibad <- pmatch(names(dots), illegal.argname, 0)
+            if(any(ibad)) {
+                culprit <- names(dots)[as.logical(ibad)][1]
+                if(culprit == illegal.argname)
+                    stop0(msg)
+                else # partial match, tell user what was matched
+                    stop0(msg, " (\"", culprit, "\" taken to mean \"",
+                         illegal.argname, "\")")
+            }
+        }
+        #--- check.dots starts here
         if(is.null(dots))
             return()
-        if(any(pmatch(names(dots), "ndegree1", 0)))
-            stop0("\"ndegree1\" is no longer legal, use \"ngrid1\" instead")
-        if(any(pmatch(names(dots), "ycolumn", 0)))
-            stop0("\"ycolumn\" is no longer legal, use \"nresponse\" instead")
-        if(any(pmatch(names(dots), "title", 0))) # an easy mistake
-            stop0("\"title\" is illegal, use \"caption\" instead")
-        # Not all of the following may make sense in a plotmo context.
+        check.illegal("ndegree1",
+                      "\"ndegree1\" is no longer legal, use \"ngrid1\" instead")
+        check.illegal("ycolumn",
+                      "\"ycolumn\" is no longer legal, use \"nresponse\" instead")
+        check.illegal("title",
+                      "\"title\" is illegal, use \"caption\" instead")
+        # Not all of the args in legal.all may make sense in a plotmo context.
         # Following excluded because we use them when calling plot: cex.axis xaxt yaxt.
         # TODO pass these to plot.degree1, but not args like contour plot's drawlabels.
         legal.all <- c(
@@ -169,8 +182,8 @@ plotmo <- function(object = stop("no 'object' arg"),
             "srt", "sub", "tck", "tcl", "usr", "xaxs", "xlog", "xpd",
             "yaxp", "yaxs", "yaxt", "ylog")
         if(pmatch(type2, "persp", 0)) {
-            if(any(pmatch(names(dots), "zlab", 0))) # a common mistake
-                stop0("\"zlab\" is illegal, use \"ylab\" instead")
+            check.illegal("zlab", # a common mistake
+                          "\"zlab\" is illegal, use \"ylab\" instead")
             legal.dots.args <- # "d" is not included, causes partial matching issues
                 c("phi", "r", "scale", "expand", "ltheta", "lphi",
                   "border", "shade", "box", "axes", "ticktype", "nticks", legal.all)
@@ -192,7 +205,8 @@ plotmo <- function(object = stop("no 'object' arg"),
         }
         duplicated <- duplicated(pmatch)
         if(any(duplicated))
-            stop0("plotmo: duplicated argument \"", names[duplicated][1], "\"")
+            stop0("duplicated arguments ",
+                  paste.quoted.names(names[pmatch == pmatch[which(duplicated)[1]]]))
     }
     do.par.degree2 <- function(type2, caption, dots) # adjust par settings for degree2 plots
     {
@@ -200,10 +214,10 @@ plotmo <- function(object = stop("no 'object' arg"),
             make.space.for.bottom.axis()
             make.space.for.left.axis()
         } else {                            # persp plot, must look at ticktype arg
-            i <- pmatch(names(dots), "ticktype", 0)      # get ticktype arg
+            i <- as.logical(pmatch(names(dots), "ticktype", 0)) # get ticktype arg
             if(any(i) && pmatch(dots[i], "detailed", 0)) # ticktype="detailed"?
-               par(mar=c(1, .3, 1.7, 0.1))               # extra space at bottom
-            else {                                       # ticktype="simple"
+               par(mar=c(1, .3, 1.7, 0.1))  # extra space at bottom for axis labs
+            else { # ticktype="simple"
                 par(mar=c(.2, .3, 1.7, 0.1))
                 # avoid a very obscure error message from persp
                 if(any(pmatch(names(dots), "nticks", 0)))
@@ -308,6 +322,7 @@ plotmo <- function(object = stop("no 'object' arg"),
     func.arg <- deparse(substitute(func))
     inverse.func.arg <- deparse(substitute(inverse.func))
     dots <- match.call(expand.dots=FALSE)$...
+    stopifnot(is.character(type2) && length(type2) == 1)
     check.dots(type2, dots)
     stopifnot.boolean(clip)
     stopifnot.boolean(all1)
@@ -319,7 +334,7 @@ plotmo <- function(object = stop("no 'object' arg"),
     stopifnot(is.numeric(ngrid1) && length(ngrid1) == 1)
     if(ngrid1 == -1)
         ngrid1 <- nrow(x)
-    else if(ngrid1 < 1)
+    else if(ngrid1 < 1 || ngrid1 > 1e5)
         stop0("illegal ngrid1 ", ngrid1, ", allowed range is 1 to 1e5 or -1")
     stopifnot(is.numeric(ngrid2) && length(ngrid2) == 1 && ngrid2 > 1)
     if(ngrid2 > 500) {
@@ -512,8 +527,8 @@ plot.degree1 <- function(
     draw.func <- function() # draw the func argument, if specified
     {
         if(exists.and.not.null(func.arg, "function", "func")) {
-            if(trace1) {
-                cat("\nApplying 'func' arg to\n")
+            if(trace) {
+                cat("\nApplying \"func\" arg to\n")
                 print(head(xframe, 3))
             }
             y.func <- func(xframe)
@@ -611,7 +626,7 @@ plot.degree1 <- function(
         } else {    # not is.fac
             if(!is.null(y.se.lower))
                 draw.numeric.se()
-            draw.func()
+            draw.func() # draw the func argument, if specified
             if(!is.na.or.zero(col.response)) {
                 points(jitter(x[,ipred], factor=jitter.response),
                        jitter(y,  factor=jitter.response),
