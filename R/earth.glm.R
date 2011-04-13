@@ -49,7 +49,7 @@ check.yarg.for.binomial.glm <- function(yarg, weights, mustart, more.y.columns)
 # Most args are direct copies of args to earth.fit.
 
 earth.glm <- function(bx, y, weights, na.action, glm,
-                      trace, glm.bpairs, response.name)
+                      trace, glm.bpairs, response.name, env)
 {
     hack.intercept.only.glm.model <- function(g)
     {
@@ -122,7 +122,6 @@ earth.glm <- function(bx, y, weights, na.action, glm,
        control$maxit <- glm$maxit
     if(!is.null(glm$trace))
        control$trace <- glm$trace
-    env <- parent.frame()
     family <- get.glm.family(glm$family, env=env)
     is.binomial <- is.binomial(family)
 

@@ -2,6 +2,7 @@
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotmo
 Loading required package: plotrix
 Warning message:
 package 'plotrix' was built under R version 2.12.2 
@@ -209,7 +210,7 @@ predicted.response.per.class[survived    ]: 0.9637242 0.953888 0.2922077 0.90938
 ===example(plotd)
 > example(plotd)
 
-plotd> old.par <- par(no.readonly=TRUE); 
+plotd> old.par <- par(no.readonly=TRUE);
 
 plotd> par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
 

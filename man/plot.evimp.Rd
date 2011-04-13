@@ -70,7 +70,7 @@
   \code{\link{earth}},
   \code{\link{evimp}},
   \code{\link{plot.earth.models}},
-  \code{\link{plotmo}}
+  \code{\link[plotmo]{plotmo}}
 }
 \examples{
 data(ozone1)

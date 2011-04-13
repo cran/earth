@@ -68,7 +68,7 @@ For example, if two variables are highly correlated,
 MARS will usually drop one when building the model.
 Both variables have the same importance in the data but
 not in the MARS equation (one variable does not even appear in the equation).
-A section below has a few words on how to use \code{\link{plotmo}}
+A section below has a few words on how to use \code{\link[plotmo]{plotmo}}
 to estimate variable importance in the MARS equation.
 
 You might say that you can measure a variable's importance
@@ -181,7 +181,7 @@ criterion, but not with the \code{gcv} and \code{rss} criteria.
 
 \bold{Estimating variable importance in the MARS equation}
 
-Running \code{\link{plotmo}} with \code{ylim=NULL} (the default)
+Running \code{\link[plotmo]{plotmo}} with \code{ylim=NULL} (the default)
 gives an idea of which predictors in the MARS equation
 make the largest changes to the predicted value
 (but only with all other predictors at their median values).

@@ -6,7 +6,6 @@ export(earth)
 export(mars.to.earth)
 export(plot.earth.models)
 export(plotd)
-export(plotmo)
 export(evimp)
 export(contr.earth.response)
 

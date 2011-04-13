@@ -2,6 +2,7 @@
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotmo
 Loading required package: plotrix
 Warning message:
 package 'plotrix' was built under R version 2.12.2 
@@ -676,7 +677,6 @@ Cross validation: nterms 8.67 sd 0.58  nvars 6.00 sd 0.00
 
              CV-RSq          sd   MeanDev         sd    CalibInt        sd CalibSlope         sd       AUC          sd    MaxErr       sd
 survived. 0.4183267 0.004641934 0.8876037 0.01425373 -0.04517342 0.2183072  0.9263124 0.04936612 0.8574092 0.004603173 0.9817507 1.120815
-> # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a6)
 
  grid:    pclass    sex age sibsp parch
@@ -1001,7 +1001,6 @@ Cross validation: nterms 10.00 sd 1.25  nvars 5.00 sd 0.00
 2nd  0.01469927 0.03315714 1.108196 0.03624298 -0.366966250 0.30939280  0.6679992 0.3054087 0.5844027 0.04655134 0.9278989 0.03591290
 3rd  0.24518338 0.06819219 1.112533 0.09931092  0.002921066 0.09693898  0.9431313 0.2335650 0.7913946 0.04170909 0.9715114 0.75433525
 mean 0.17550724 0.04994987 1.035524 0.06176683 -0.133525644 0.11353116  0.8614162 0.1685641 0.7339773 0.03081695 0.9715114 0.01288484
-> # expect a note: plotmo cannot use factors as axes for degree2 plots...
 > plotmo(a7, nresponse=1)
 
  grid:    survived    sex age sibsp parch
