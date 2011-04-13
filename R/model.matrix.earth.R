@@ -30,16 +30,16 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
                   Callers.name)
         else  # can probably never get here
             warning0(Callers.name, " returned a number ", actual.nrows,
-                    " of rows that was different from the number ",
-                    expected.nrows,
-                    " of rows in the data")
+                     " of rows that was different from the number ",
+                     expected.nrows,
+                     " of rows in the data")
     }
 }
 
 # Generate a column name for each column in x.
 # x could be a vector.
 # if xname is specified and x is a vector then use xname
-# else use the existing colnumn names where possible.
+# else use the existing column names where possible.
 
 generate.colnames <- function(x, is.y.arg=FALSE, xname=NULL)
 {
@@ -218,17 +218,17 @@ get.earth.x <- function(    # returns x expanded for factors
                 dim(x) <- c(nrow=nrows, ncol=length(x) / nrows)
             else
                 stop0(Callers.name, ":\n",
-                    "       could not convert vector x to matrix because ",
-                    "length(x) ", length(x), "\n",
-                    "       is not a multiple of the number ",
-                    if(length(ncol(object$namesx))) ncol(object$namesx) else 0,
-                    " of predictors ",
-                    "\n       Expected predictors: ",
-                    if(is.null(colnames(object$namesx)))
-                        "none?"
-                    else
-                        paste.with.space(colnames(object$namesx))
-                    )
+                      "       could not convert vector x to matrix because ",
+                      "length(x) ", length(x), "\n",
+                      "       is not a multiple of the number ",
+                      if(length(ncol(object$namesx))) ncol(object$namesx) else 0,
+                      " of predictors ",
+                      "\n       Expected predictors: ",
+                      if(is.null(colnames(object$namesx)))
+                          "none?"
+                      else
+                          paste.with.space(colnames(object$namesx))
+                      )
         }
         x
     }
@@ -351,7 +351,7 @@ model.matrix.earth <- function(     # returns bx
     x            = NULL,            # x arg must not yet be expanded
     subset       = NULL,
     which.terms  = NULL,
-    ...,                                 # unused, for generic method comparibility
+    ...,                            # unused, for generic method comparibility
     env          = parent.frame(),
     trace        = 0,
     Callers.name = "model.matrix.earth") # caller's name for trace messages

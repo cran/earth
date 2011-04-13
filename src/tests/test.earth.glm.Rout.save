@@ -2,6 +2,7 @@
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotmo
 Loading required package: plotrix
 Warning message:
 package 'plotrix' was built under R version 2.12.2 
@@ -243,30 +244,38 @@ plotmo a1
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got x with colnames from object$call$formula
-x[12,3]
-   sex ldose ldose1
-1 male    -2    0.1
-2 male    -1    1.2
-3 male     0    0.1
-is.factor TRUE FALSE FALSE 
+
+x[12,3]:
+       sex ldose ldose1
+1     male    -2    0.1
+2     male    -1    1.2
+3     male     0    0.1
+...   male     1    1.2
+12  female     3    0.9
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 ldose1=6 
 
 --get.plotmo.y
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
-singles: 1 sex, 2 ldose, 3 ldose1 
+singles: 2 ldose, 3 ldose1 
 
---get.pairs
+--get.plotmo.pairs
 
 pairs:
      [,1]      [,2]      
@@ -281,9 +290,198 @@ ylim 0 1
        female   0.5    0.6
 
 
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,3]:
+       sex ldose ldose1
+1   female    -2    0.6
+2   female    -1    0.6
+3   female     0    0.6
+... female     1    0.6
+6   female     3    0.6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+predict.earth: bx is a 6 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                       0.0
+[2,]           1           1                   0                       0.5
+[3,]           1           2                   0                       1.0
+[4,]           1           3                   0                       1.5
+[5,]           1           4                   0                       2.0
+[6,]           1           5                   0                       2.5
+     h(ldose1-0.1)
+[1,]           0.5
+[2,]           0.5
+[3,]           0.5
+[4,]           0.5
+[5,]           0.5
+[6,]           0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05135789 max 0.819583 values 0.05135789 0.1160617 0.2415285 0.4357644 0.65194 0.819583 
+
+plotmo.predict(type="response") for degree1 plot "ldose1" with newdata[6,3]:
+       sex ldose ldose1
+1   female   0.5    0.1
+2   female   0.5    0.3
+3   female   0.5    0.9
+... female   0.5    1.0
+6   female   0.5    1.4
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
+     sex ldose ldose1
+1 female   0.5    0.1
+2 female   0.5    0.3
+3 female   0.5    0.9
+4 female   0.5    1.0
+5 female   0.5    1.2
+6 female   0.5    1.4
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1 female   0.5    0.1
+2 female   0.5    0.3
+3 female   0.5    0.9
+4 female   0.5    1.0
+5 female   0.5    1.2
+6 female   0.5    1.4
+predict.earth: bx is a 6 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1         2.5                   0                      0.00
+[2,]           1         2.5                   0                      0.50
+[3,]           1         2.5                   0                      2.00
+[4,]           1         2.5                   0                      2.25
+[5,]           1         2.5                   0                      2.75
+[6,]           1         2.5                   0                      3.25
+     h(ldose1-0.1)
+[1,]           0.0
+[2,]           0.2
+[3,]           0.8
+[4,]           0.9
+[5,]           1.1
+[6,]           1.3
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.3220784 max 0.3374819 values 0.3374819 0.3350886 0.3279595 0.3267788 0.3244242 0.3220784 
+
 --plot.degree2(draw.plot=TRUE)
-persp(sex:ldose) theta -35 ylim 0 1 cex  phi 30
-persp(ldose:ldose1) theta 235 ylim 0 1 cex  phi 30
+
+plotmo.predict(type="response") for  degree2 plot "sex" and "ldose" with newdata[12,3]:
+       sex ldose ldose1
+1   female    -2    0.6
+2     male    -2    0.6
+1.1 female    -1    0.6
+...   male    -1    0.6
+2.5   male     3    0.6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose ldose1
+1 female    -2    0.6
+2   male    -2    0.6
+3 female    -1    0.6
+4   male    -1    0.6
+5 female     0    0.6
+6   male     0    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 12 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.6
+2   male    -2    0.6
+3 female    -1    0.6
+4   male    -1    0.6
+5 female     0    0.6
+6   male     0    0.6
+predict.earth: bx is a 12 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                       0.0
+[2,]           1           0                   0                       0.0
+[3,]           1           1                   0                       0.5
+[4,]           1           1                   1                       0.5
+[5,]           1           2                   0                       1.0
+[6,]           1           2                   2                       1.0
+     h(ldose1-0.1)
+[1,]           0.5
+[2,]           0.5
+[3,]           0.5
+[4,]           0.5
+[5,]           0.5
+[6,]           0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.05135789 max 0.9727988 values 0.05135789 0.05135789 0.1160617 0.1655379 0.2415285 0.4209289 0.4357644 0.7270416 0.65194 0.907063 ...
+persp(sex:ldose) theta -35 ylim 0 1 cex 0.83
+
+plotmo.predict(type="response") for  degree2 plot "ldose" and "ldose1" with newdata[36,3]:
+       sex ldose ldose1
+1   female    -2    0.1
+2   female    -1    0.1
+3   female     0    0.1
+... female     1    0.1
+6.5 female     3    1.4
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 36 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose ldose1
+1 female    -2    0.1
+2 female    -1    0.1
+3 female     0    0.1
+4 female     1    0.1
+5 female     2    0.1
+6 female     3    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 36 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.1
+2 female    -1    0.1
+3 female     0    0.1
+4 female     1    0.1
+5 female     2    0.1
+6 female     3    0.1
+predict.earth: bx is a 36 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           1                   0                         0
+[3,]           1           2                   0                         0
+[4,]           1           3                   0                         0
+[5,]           1           4                   0                         0
+[6,]           1           5                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+[3,]             0
+[4,]             0
+[5,]             0
+[6,]             0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04849071 max 0.8358414 values 0.04849071 0.1134656 0.2432462 0.4466767 0.6696824 0.8358414 0.04961889 0.1144979 0.2425581 0.442305 ...
+persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
+
 -------------------------------------------------------------------------------
 
 > printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
@@ -466,30 +664,38 @@ plotmo a1h
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got x with colnames from object$call$formula
-x[12,3]
-   sex ldose ldose1
-1 male    -2    0.1
-2 male    -1    1.2
-3 male     0    0.1
-is.factor TRUE FALSE FALSE 
+
+x[12,3]:
+       sex ldose ldose1
+1     male    -2    0.1
+2     male    -1    1.2
+3     male     0    0.1
+...   male     1    1.2
+12  female     3    0.9
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 ldose1=6 
 
 --get.plotmo.y
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
-singles: 1 sex, 2 ldose, 3 ldose1 
+singles: 2 ldose, 3 ldose1 
 
---get.pairs
+--get.plotmo.pairs
 
 pairs:
      [,1]      [,2]      
@@ -504,9 +710,198 @@ ylim 0 1
        female   0.5    0.6
 
 
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,3]:
+       sex ldose ldose1
+1   female    -2    0.6
+2   female    -1    0.6
+3   female     0    0.6
+... female     1    0.6
+6   female     3    0.6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+predict.earth: bx is a 6 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                       0.0
+[2,]           1           1                   0                       0.5
+[3,]           1           2                   0                       1.0
+[4,]           1           3                   0                       1.5
+[5,]           1           4                   0                       2.0
+[6,]           1           5                   0                       2.5
+     h(ldose1-0.1)
+[1,]           0.5
+[2,]           0.5
+[3,]           0.5
+[4,]           0.5
+[5,]           0.5
+[6,]           0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05141619 max 0.8195168 values 0.05141619 0.1161507 0.2416272 0.435816 0.651913 0.8195168 
+
+plotmo.predict(type="response") for degree1 plot "ldose1" with newdata[6,3]:
+       sex ldose ldose1
+1   female   0.5    0.1
+2   female   0.5    0.3
+3   female   0.5    0.9
+... female   0.5    1.0
+6   female   0.5    1.4
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
+     sex ldose ldose1
+1 female   0.5    0.1
+2 female   0.5    0.3
+3 female   0.5    0.9
+4 female   0.5    1.0
+5 female   0.5    1.2
+6 female   0.5    1.4
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1 female   0.5    0.1
+2 female   0.5    0.3
+3 female   0.5    0.9
+4 female   0.5    1.0
+5 female   0.5    1.2
+6 female   0.5    1.4
+predict.earth: bx is a 6 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1         2.5                   0                      0.00
+[2,]           1         2.5                   0                      0.50
+[3,]           1         2.5                   0                      2.00
+[4,]           1         2.5                   0                      2.25
+[5,]           1         2.5                   0                      2.75
+[6,]           1         2.5                   0                      3.25
+     h(ldose1-0.1)
+[1,]           0.0
+[2,]           0.2
+[3,]           0.8
+[4,]           0.9
+[5,]           1.1
+[6,]           1.3
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.3221352 max 0.3375815 values 0.3375815 0.3351814 0.3280325 0.3268486 0.3244875 0.3221352 
+
 --plot.degree2(draw.plot=TRUE)
-persp(sex:ldose) theta -35 ylim 0 1 cex  phi 30
-persp(ldose:ldose1) theta 235 ylim 0 1 cex  phi 30
+
+plotmo.predict(type="response") for  degree2 plot "sex" and "ldose" with newdata[12,3]:
+       sex ldose ldose1
+1   female    -2    0.6
+2     male    -2    0.6
+1.1 female    -1    0.6
+...   male    -1    0.6
+2.5   male     3    0.6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose ldose1
+1 female    -2    0.6
+2   male    -2    0.6
+3 female    -1    0.6
+4   male    -1    0.6
+5 female     0    0.6
+6   male     0    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 12 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.6
+2   male    -2    0.6
+3 female    -1    0.6
+4   male    -1    0.6
+5 female     0    0.6
+6   male     0    0.6
+predict.earth: bx is a 12 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                       0.0
+[2,]           1           0                   0                       0.0
+[3,]           1           1                   0                       0.5
+[4,]           1           1                   1                       0.5
+[5,]           1           2                   0                       1.0
+[6,]           1           2                   2                       1.0
+     h(ldose1-0.1)
+[1,]           0.5
+[2,]           0.5
+[3,]           0.5
+[4,]           0.5
+[5,]           0.5
+[6,]           0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.05141619 max 0.9727625 values 0.05141619 0.05141619 0.1161507 0.1656322 0.2416272 0.4209701 0.435816 0.7269733 0.651913 0.9069907 ...
+persp(sex:ldose) theta -35 ylim 0 1 cex 0.83
+
+plotmo.predict(type="response") for  degree2 plot "ldose" and "ldose1" with newdata[36,3]:
+       sex ldose ldose1
+1   female    -2    0.1
+2   female    -1    0.1
+3   female     0    0.1
+... female     1    0.1
+6.5 female     3    1.4
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 36 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose ldose1
+1 female    -2    0.1
+2 female    -1    0.1
+3 female     0    0.1
+4 female     1    0.1
+5 female     2    0.1
+6 female     3    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 36 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.1
+2 female    -1    0.1
+3 female     0    0.1
+4 female     1    0.1
+5 female     2    0.1
+6 female     3    0.1
+predict.earth: bx is a 36 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           1                   0                         0
+[3,]           1           2                   0                         0
+[4,]           1           3                   0                         0
+[5,]           1           4                   0                         0
+[6,]           1           5                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+[3,]             0
+[4,]             0
+[5,]             0
+[6,]             0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04858232 max 0.8356912 values 0.04858232 0.1136033 0.2433848 0.4467106 0.6695766 0.8356912 0.04969764 0.1146163 0.2426807 0.442346 ...
+persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
+
 -------------------------------------------------------------------------------
 
 > check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
@@ -623,30 +1018,38 @@ plotmo a1h.update1
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got x with colnames from object$call$formula
-x[12,3]
-   sex ldose ldose1
-1 male    -2    0.1
-2 male    -1    1.2
-3 male     0    0.1
-is.factor TRUE FALSE FALSE 
+
+x[12,3]:
+       sex ldose ldose1
+1     male    -2    0.1
+2     male    -1    1.2
+3     male     0    0.1
+...   male     1    1.2
+12  female     3    0.9
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 ldose1=6 
 
 --get.plotmo.y
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
-singles: 1 sex, 2 ldose, 3 ldose1 
+singles: 2 ldose, 3 ldose1 
 
---get.pairs
+--get.plotmo.pairs
 
 pairs:
      [,1]      [,2]      
@@ -661,9 +1064,198 @@ ylim 0 1
        female   0.5    0.6
 
 
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,3]:
+       sex ldose ldose1
+1   female    -2    0.6
+2   female    -1    0.6
+3   female     0    0.6
+... female     1    0.6
+6   female     3    0.6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+predict.earth: bx is a 6 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                       0.0
+[2,]           1           1                   0                       0.5
+[3,]           1           2                   0                       1.0
+[4,]           1           3                   0                       1.5
+[5,]           1           4                   0                       2.0
+[6,]           1           5                   0                       2.5
+     h(ldose1-0.1)
+[1,]           0.5
+[2,]           0.5
+[3,]           0.5
+[4,]           0.5
+[5,]           0.5
+[6,]           0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.04230679 max 0.8164251 values 0.04230679 0.1152148 0.2501609 0.4408897 0.6467481 0.8164251 
+
+plotmo.predict(type="response") for degree1 plot "ldose1" with newdata[6,3]:
+       sex ldose ldose1
+1   female   0.5    0.1
+2   female   0.5    0.3
+3   female   0.5    0.9
+... female   0.5    1.0
+6   female   0.5    1.4
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
+     sex ldose ldose1
+1 female   0.5    0.1
+2 female   0.5    0.3
+3 female   0.5    0.9
+4 female   0.5    1.0
+5 female   0.5    1.2
+6 female   0.5    1.4
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1 female   0.5    0.1
+2 female   0.5    0.3
+3 female   0.5    0.9
+4 female   0.5    1.0
+5 female   0.5    1.2
+6 female   0.5    1.4
+predict.earth: bx is a 6 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1         2.5                   0                      0.00
+[2,]           1         2.5                   0                      0.50
+[3,]           1         2.5                   0                      2.00
+[4,]           1         2.5                   0                      2.25
+[5,]           1         2.5                   0                      2.75
+[6,]           1         2.5                   0                      3.25
+     h(ldose1-0.1)
+[1,]           0.0
+[2,]           0.2
+[3,]           0.8
+[4,]           0.9
+[5,]           1.1
+[6,]           1.3
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.330163 max 0.3468728 values 0.3468728 0.3442816 0.3365521 0.3352704 0.3327128 0.330163 
+
 --plot.degree2(draw.plot=TRUE)
-persp(sex:ldose) theta -35 ylim 0 1 cex  phi 30
-persp(ldose:ldose1) theta 235 ylim 0 1 cex  phi 30
+
+plotmo.predict(type="response") for  degree2 plot "sex" and "ldose" with newdata[12,3]:
+       sex ldose ldose1
+1   female    -2    0.6
+2     male    -2    0.6
+1.1 female    -1    0.6
+...   male    -1    0.6
+2.5   male     3    0.6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 12 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose ldose1
+1 female    -2    0.6
+2   male    -2    0.6
+3 female    -1    0.6
+4   male    -1    0.6
+5 female     0    0.6
+6   male     0    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 12 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.6
+2   male    -2    0.6
+3 female    -1    0.6
+4   male    -1    0.6
+5 female     0    0.6
+6   male     0    0.6
+predict.earth: bx is a 12 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                       0.0
+[2,]           1           0                   0                       0.0
+[3,]           1           1                   0                       0.5
+[4,]           1           1                   1                       0.5
+[5,]           1           2                   0                       1.0
+[6,]           1           2                   2                       1.0
+     h(ldose1-0.1)
+[1,]           0.5
+[2,]           0.5
+[3,]           0.5
+[4,]           0.5
+[5,]           0.5
+[6,]           0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.04230679 max 0.9824617 values 0.04230679 0.04230679 0.1152148 0.1690003 0.2501609 0.4239791 0.4408897 0.7172444 0.6467481 0.9100518 ...
+persp(sex:ldose) theta -35 ylim 0 1 cex 0.83
+
+plotmo.predict(type="response") for  degree2 plot "ldose" and "ldose1" with newdata[36,3]:
+       sex ldose ldose1
+1   female    -2    0.1
+2   female    -1    0.1
+3   female     0    0.1
+... female     1    0.1
+6.5 female     3    1.4
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 36 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of x are
+     sex ldose ldose1
+1 female    -2    0.1
+2 female    -1    0.1
+3 female     0    0.1
+4 female     1    0.1
+5 female     2    0.1
+6 female     3    0.1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 36 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+First few rows of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.1
+2 female    -1    0.1
+3 female     0    0.1
+4 female     1    0.1
+5 female     2    0.1
+6 female     3    0.1
+predict.earth: bx is a 36 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale*h(ldose--2), 4=h(ldose--2)*h(ldose1-0.1), 5=h(ldose1-0.1)
+First few rows of bx are
+     (Intercept) h(ldose--2) sexmale*h(ldose--2) h(ldose--2)*h(ldose1-0.1)
+[1,]           1           0                   0                         0
+[2,]           1           1                   0                         0
+[3,]           1           2                   0                         0
+[4,]           1           3                   0                         0
+[5,]           1           4                   0                         0
+[6,]           1           5                   0                         0
+     h(ldose1-0.1)
+[1,]             0
+[2,]             0
+[3,]             0
+[4,]             0
+[5,]             0
+[6,]             0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04023484 max 0.8315764 values 0.04023484 0.1138526 0.2531484 0.4510777 0.6622959 0.8315764 0.04105351 0.1143961 0.2519511 0.4469983 ...
+persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
+
 -------------------------------------------------------------------------------
 
 > a1h.update2 <- update(a1h, glm=list(family=gaussian, maxit=9), degree=1)
@@ -800,141 +1392,109 @@ plotmo a1h.update2
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got x with colnames from object$call$formula
-x[12,3]
-   sex ldose ldose1
-1 male    -2    0.1
-2 male    -1    1.2
-3 male     0    0.1
-is.factor TRUE FALSE FALSE 
+
+x[12,3]:
+       sex ldose ldose1
+1     male    -2    0.1
+2     male    -1    1.2
+3     male     0    0.1
+...   male     1    1.2
+12  female     3    0.9
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 ldose1=6 
 
 --get.plotmo.y
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
-about to call model.frame(formula=SF~sex+ldose+ldose1)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 20 
 
---get.singles
+--get.plotmo.singles
 
-singles: 1 sex, 2 ldose, 3 ldose1 
+singles: 1 sex, 2 ldose 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
 --plot.degree1(draw.plot=FALSE)
 
-plotmo.predict(type="response") for predictor "sex" with newdata[500,3]:
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,3]:
      sex ldose ldose1
 1 female   0.5    0.6
 2   male   0.5    0.6
-3 female   0.5    0.6
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
-First few rows of x are
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
      sex ldose ldose1
 1 female   0.5    0.6
 2   male   0.5    0.6
-3 female   0.5    0.6
-4   male   0.5    0.6
-5 female   0.5    0.6
-6   male   0.5    0.6
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
-First few rows of data after call to model.frame are
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
      sex ldose ldose1
 1 female   0.5    0.6
 2   male   0.5    0.6
-3 female   0.5    0.6
-4   male   0.5    0.6
-5 female   0.5    0.6
-6   male   0.5    0.6
-predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
-First few rows of bx are
+predict.earth: bx is a 2 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
      (Intercept) h(ldose--2) sexmale
 [1,]           1         2.5       0
 [2,]           1         2.5       1
-[3,]           1         2.5       0
-[4,]           1         2.5       1
-[5,]           1         2.5       0
-[6,]           1         2.5       1
 predict.earth: returning glm response predictions
-predict() returned "numalive" length 500 min 9.166667 max 12.33333 values 12.33333 9.166667 12.33333 9.166667 12.33333 9.166667 12.33333 9.166667 12.33333 9.166667 ...
+predict.earth(xgrid, type="response") column "numalive" returned length 2 min 9.166667 max 12.33333 values 12.33333 9.166667 
 
-plotmo.predict(type="response") for predictor "ldose" with newdata[500,3]:
-     sex    ldose ldose1
-1 female -2.00000    0.6
-2 female -1.98998    0.6
-3 female -1.97996    0.6
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
-First few rows of x are
-     sex     ldose ldose1
-1 female -2.000000    0.6
-2 female -1.989980    0.6
-3 female -1.979960    0.6
-4 female -1.969940    0.6
-5 female -1.959920    0.6
-6 female -1.949900    0.6
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
-First few rows of data after call to model.frame are
-     sex     ldose ldose1
-1 female -2.000000    0.6
-2 female -1.989980    0.6
-3 female -1.979960    0.6
-4 female -1.969940    0.6
-5 female -1.959920    0.6
-6 female -1.949900    0.6
-predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
-First few rows of bx are
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,3]:
+       sex ldose ldose1
+1   female    -2    0.6
+2   female    -1    0.6
+3   female     0    0.6
+... female     1    0.6
+6   female     3    0.6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of x are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
+Contents of data after call to model.frame are
+     sex ldose ldose1
+1 female    -2    0.6
+2 female    -1    0.6
+3 female     0    0.6
+4 female     1    0.6
+5 female     2    0.6
+6 female     3    0.6
+predict.earth: bx is a 6 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
      (Intercept) h(ldose--2) sexmale
-[1,]           1  0.00000000       0
-[2,]           1  0.01002004       0
-[3,]           1  0.02004008       0
-[4,]           1  0.03006012       0
-[5,]           1  0.04008016       0
-[6,]           1  0.05010020       0
+[1,]           1           0       0
+[2,]           1           1       0
+[3,]           1           2       0
+[4,]           1           3       0
+[5,]           1           4       0
+[6,]           1           5       0
 predict.earth: returning glm response predictions
-predict() returned "numalive" length 500 min 3.226190 max 21.44048 values 21.44048 21.40397 21.36747 21.33097 21.29447 21.25797 21.22147 21.18497 21.14846 21.11196 ...
+predict.earth(xgrid, type="response") column "numalive" returned length 6 min 3.226190 max 21.44048 values 21.44048 17.79762 14.15476 10.51190 6.869048 3.226190 
 
-plotmo.predict(type="response") for predictor "ldose1" with newdata[500,3]:
-     sex ldose    ldose1
-1 female   0.5 0.1000000
-2 female   0.5 0.1026052
-3 female   0.5 0.1052104
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
-First few rows of x are
-     sex ldose    ldose1
-1 female   0.5 0.1000000
-2 female   0.5 0.1026052
-3 female   0.5 0.1052104
-4 female   0.5 0.1078156
-5 female   0.5 0.1104208
-6 female   0.5 0.1130261
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 3 matrix: 1=sex (factor), 2=ldose, 3=ldose1
-First few rows of data after call to model.frame are
-     sex ldose    ldose1
-1 female   0.5 0.1000000
-2 female   0.5 0.1026052
-3 female   0.5 0.1052104
-4 female   0.5 0.1078156
-5 female   0.5 0.1104208
-6 female   0.5 0.1130261
-predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
-First few rows of bx are
-     (Intercept) h(ldose--2) sexmale
-[1,]           1         2.5       0
-[2,]           1         2.5       0
-[3,]           1         2.5       0
-[4,]           1         2.5       0
-[5,]           1         2.5       0
-[6,]           1         2.5       0
-predict.earth: returning glm response predictions
-predict() returned "numalive" length 500 min 12.33333 max 12.33333 values 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 12.33333 ...
-
-ylim 3.226190 19.98041 
+ylim 3.226190 17.79762 
 
 --plot.degree1(draw.plot=TRUE)
 
@@ -1092,30 +1652,38 @@ plotmo a2
 
 formula SF ~ sex * ldose
 stripped formula SF~sex+ldose
-about to call model.frame(formula=SF~sex+ldose)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose)
 got x with colnames from object$call$formula
-x[12,2]
-   sex ldose
-1 male    -2
-2 male    -1
-3 male     0
-is.factor TRUE FALSE 
+
+x[12,2]:
+       sex ldose
+1     male    -2
+2     male    -1
+3     male     0
+...   male     1
+12  female     3
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 
 
 --get.plotmo.y
 
 formula SF ~ sex * ldose
 stripped formula SF~sex+ldose
-about to call model.frame(formula=SF~sex+ldose)
+no explicit data for formula
+about to eval model.frame(formula=SF~sex+ldose)
 got y from object$call$formula
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 sex, 2 ldose 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
@@ -1126,6 +1694,71 @@ ylim 0 1
  grid:    sex ldose
        female   0.5
 
+
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,2]:
+     sex ldose
+1 female   0.5
+2   male   0.5
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female   0.5
+2   male   0.5
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+     sex ldose
+1 female   0.5
+2   male   0.5
+predict.earth: bx is a 2 by 4 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale, 4=h(sexmale:ldose--2)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale h(sexmale:ldose--2)
+[1,]           1         2.5       0                 2.0
+[2,]           1         2.5       1                 2.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3255348 max 0.5814719 values 0.3255348 0.5814719 
+
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
+       sex ldose
+1   female    -2
+2   female    -1
+3   female     0
+... female     1
+6   female     3
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female    -2
+2 female    -1
+3 female     0
+4 female     1
+5 female     2
+6 female     3
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+     sex ldose
+1 female    -2
+2 female    -1
+3 female     0
+4 female     1
+5 female     2
+6 female     3
+predict.earth: bx is a 6 by 4 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale, 4=h(sexmale:ldose--2)
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale h(sexmale:ldose--2)
+[1,]           1           0       0                   2
+[2,]           1           1       0                   2
+[3,]           1           2       0                   2
+[4,]           1           3       0                   2
+[5,]           1           4       0                   2
+[6,]           1           5       0                   2
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.04771849 max 0.8229758 values 0.04771849 0.1103172 0.2347882 0.4315739 0.6526264 0.8229758 
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -1336,30 +1969,38 @@ plotmo a4
 
 formula SF.both ~ sex * ldose
 stripped formula SF.both~sex+ldose
-about to call model.frame(formula=SF.both~sex+ldose)
+no explicit data for formula
+about to eval model.frame(formula=SF.both~sex+ldose)
 got x with colnames from object$call$formula
-x[12,2]
-   sex ldose
-1 male    -2
-2 male    -1
-3 male     0
-is.factor TRUE FALSE 
+
+x[12,2]:
+       sex ldose
+1     male    -2
+2     male    -1
+3     male     0
+...   male     1
+12  female     3
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 
 
 --get.plotmo.y
 
 formula SF.both ~ sex * ldose
 stripped formula SF.both~sex+ldose
-about to call model.frame(formula=SF.both~sex+ldose)
+no explicit data for formula
+about to eval model.frame(formula=SF.both~sex+ldose)
 got y from object$call$formula
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 sex, 2 ldose 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
@@ -1370,6 +2011,71 @@ ylim 0 1
  grid:    sex ldose
        female   0.5
 
+
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,2]:
+     sex ldose
+1 female   0.5
+2   male   0.5
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female   0.5
+2   male   0.5
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+     sex ldose
+1 female   0.5
+2   male   0.5
+predict.earth: bx is a 2 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1         2.5       0
+[2,]           1         2.5       1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
+       sex ldose
+1   female    -2
+2   female    -1
+3   female     0
+... female     1
+6   female     3
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female    -2
+2 female    -1
+3 female     0
+4 female     1
+5 female     2
+6 female     3
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+     sex ldose
+1 female    -2
+2 female    -1
+3 female     0
+4 female     1
+5 female     2
+6 female     3
+predict.earth: bx is a 6 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1           0       0
+[2,]           1           1       0
+[3,]           1           2       0
+[4,]           1           3       0
+[5,]           1           4       0
+[6,]           1           5       0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.03008577 max 0.863882 values 0.03008577 0.08249341 0.2067337 0.4303279 0.6864771 0.863882 
 -------------------------------------------------------------------------------
 
 > print.stripped.earth.model(a4, "a4")
@@ -1743,8 +2449,8 @@ plotmo a5
 
 formula pclass ~ .
 stripped formula pclass~.
-get.formula.data: got x from data passed to original call to earth 
-about to call model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
+get.data.for.formula: using x from "etitanic" passed to earth 
+about to eval model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
@@ -1753,19 +2459,25 @@ about to call model.frame(formula=pclass~., data=structure(list(pclass=structure
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
 got x with colnames from object$call$formula
-x[1046,5]
-  survived    sex     age sibsp parch
-1        1 female 29.0000     0     0
-2        1   male  0.9167     1     2
-3        0 female  2.0000     1     2
-is.factor FALSE TRUE FALSE FALSE FALSE 
+
+x[1046,5]:
+     survived    sex     age sibsp parch
+1           1 female 29.0000     0     0
+2           1   male  0.9167     1     2
+3           0 female  2.0000     1     2
+...         0   male 30.0000     1     2
+1309        0   male 29.0000     0     0
+
+factors: sex 
+
+nlevels: survived=2 sex=2 age=98 sibsp=7 parch=7 
 
 --get.plotmo.y
 
 formula pclass ~ .
 stripped formula pclass~.
-get.formula.data: got y from data passed to original call to earth 
-about to call model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
+get.data.for.formula: using y from "etitanic" passed to earth 
+about to eval model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
@@ -1774,15 +2486,15 @@ about to call model.frame(formula=pclass~., data=structure(list(pclass=structure
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
 got y from object$call$formula
-get.plotmo.y returned "1st" length 1046 min 0 max 1 values 1 1 1 1 1 1 1 1 1 1 ...
+get.plotmo.y column "1st" returned length 1046 min 0 max 1 values 1 1 1 1 1 1 1 1 1 1 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
-singles: 1 survived, 2 sex, 3 age, 4 sibsp, 5 parch 
+singles: 1 survived, 2 sex, 4 sibsp, 5 parch 
 
---get.pairs
+--get.plotmo.pairs
 
 pairs:
      [,1]         [,2]     
@@ -1799,11 +2511,341 @@ ylim 0 1
                  0 female  28     0     0
 
 
+plotmo.predict(type="response") for degree1 plot "survived" with newdata[2,5]:
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+predict.earth: bx is a 2 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+Contents of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2                  0
+[2,]           1        1          0          2                  0
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0                   54                     1
+[2,]                0       0                   54                     1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 2 min 0.3324828 max 0.8953702 values 0.8953702 0.3324828 
+
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,5]:
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0   male  28     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0   male  28     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0   male  28     0     0
+predict.earth: bx is a 2 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+Contents of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2                  0
+[2,]           1        0          0          2                  0
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0                   54                     1
+[2,]                0       1                   54                     1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 2 min 0.6669479 max 0.8953702 values 0.8953702 0.6669479 
+
+plotmo.predict(type="response") for degree1 plot "sibsp" with newdata[7,5]:
+    survived    sex age sibsp parch
+1          0 female  28     0     0
+2          0 female  28     1     0
+3          0 female  28     2     0
+...        0 female  28     3     0
+7          0 female  28     8     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 7 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp (integer), 5=parch
+First few rows of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     1     0
+3        0 female  28     2     0
+4        0 female  28     3     0
+5        0 female  28     4     0
+6        0 female  28     5     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 7 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp (integer), 5=parch
+First few rows of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     1     0
+3        0 female  28     2     0
+4        0 female  28     3     0
+5        0 female  28     4     0
+6        0 female  28     5     0
+predict.earth: bx is a 7 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+First few rows of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2                  0
+[2,]           1        0          0          2                  0
+[3,]           1        0          1          2                  0
+[4,]           1        0          2          2                  0
+[5,]           1        0          3          2                  0
+[6,]           1        0          4          2                  0
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0                   54                     1
+[2,]                0       0                   54                     0
+[3,]                0       0                   54                     0
+[4,]                0       0                   54                     0
+[5,]                0       0                   54                     0
+[6,]                0       0                   54                     0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 7 min 0.7353427 max 0.9986685 values 0.8953702 0.7353427 0.8607637 0.9322259 0.9683588 0.985527 0.9986685 
+
+plotmo.predict(type="response") for degree1 plot "parch" with newdata[7,5]:
+    survived    sex age sibsp parch
+1          0 female  28     0     0
+2          0 female  28     0     1
+3          0 female  28     0     2
+...        0 female  28     0     3
+7          0 female  28     0     6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 7 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     0     1
+3        0 female  28     0     2
+4        0 female  28     0     3
+5        0 female  28     0     4
+6        0 female  28     0     5
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 7 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     0     1
+3        0 female  28     0     2
+4        0 female  28     0     3
+5        0 female  28     0     4
+6        0 female  28     0     5
+predict.earth: bx is a 7 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+First few rows of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2                  0
+[2,]           1        0          0          1                  0
+[3,]           1        0          0          0                  0
+[4,]           1        0          0          0                  0
+[5,]           1        0          0          0                  0
+[6,]           1        0          0          0                  0
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0                   54                     1
+[2,]                0       0                   27                     0
+[3,]                0       0                    0                     0
+[4,]                0       0                    0                     0
+[5,]                0       0                    0                     0
+[6,]                0       0                    0                     0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 7 min 0.7686875 max 0.8953702 values 0.8953702 0.7686875 0.7989797 0.7989797 0.7989797 0.7989797 0.7989797 
+
 --plot.degree2(draw.plot=TRUE)
-persp(survived:sex) theta 145 ylim 0 1 cex  phi 30
-persp(survived:age) theta 145 ylim 0 1 cex  phi 30
-persp(age:parch) theta 145 ylim 0 1 cex  phi 30
-persp(sibsp:parch) theta -35 ylim 0 1 cex  phi 30
+
+plotmo.predict(type="response") for  degree2 plot "survived" and "sex" with newdata[4,5]:
+    survived    sex age sibsp parch
+1          0 female  28     0     0
+2          1 female  28     0     0
+1.1        0   male  28     0     0
+2.1        1   male  28     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 4 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+3        0   male  28     0     0
+4        1   male  28     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 4 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+3        0   male  28     0     0
+4        1   male  28     0     0
+predict.earth: bx is a 4 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+Contents of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2                  0
+[2,]           1        1          0          2                  0
+[3,]           1        0          0          2                  0
+[4,]           1        1          0          2                  0
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0                   54                     1
+[2,]                0       0                   54                     1
+[3,]                0       1                   54                     1
+[4,]                1       1                   54                     1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 4 min 0.3324828 max 0.8953702 values 0.8953702 0.3324828 0.6669479 0.5339905 
+persp(survived:sex) theta 145 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "survived" and "age" with newdata[40,5]:
+    survived    sex       age sibsp parch
+1          0 female  0.166700     0     0
+2          1 female  0.166700     0     0
+3          0 female  4.368453     0     0
+...        1 female  4.368453     0     0
+40         1 female 80.000000     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 40 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of x are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        1 female 0.166700     0     0
+3        0 female 4.368453     0     0
+4        1 female 4.368453     0     0
+5        0 female 8.570205     0     0
+6        1 female 8.570205     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 40 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of data after call to model.frame are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        1 female 0.166700     0     0
+3        0 female 4.368453     0     0
+4        1 female 4.368453     0     0
+5        0 female 8.570205     0     0
+6        1 female 8.570205     0     0
+predict.earth: bx is a 40 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+First few rows of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2           0.000000
+[2,]           1        1          0          2          15.833300
+[3,]           1        0          0          2           0.000000
+[4,]           1        1          0          2          11.631547
+[5,]           1        0          0          2           0.000000
+[6,]           1        1          0          2           7.429795
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0            109.66660                     1
+[2,]                0       0            109.66660                     1
+[3,]                0       0            101.26309                     1
+[4,]                0       0            101.26309                     1
+[5,]                0       0             92.85959                     1
+[6,]                0       0             92.85959                     1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 40 min 0.05039939 max 0.9885132 values 0.9885132 0.8732194 0.9838022 0.81709 0.9772039 0.7434127 0.968005 0.6526728 0.955264 0.5541427 ...
+persp(survived:age) theta 145 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "age" and "parch" with newdata[140,5]:
+     survived    sex       age sibsp parch
+1           0 female  0.166700     0     0
+2           0 female  4.368453     0     0
+3           0 female  8.570205     0     0
+...         0 female 12.771958     0     0
+20.6        0 female 80.000000     0     6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 140 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of x are
+  survived    sex       age sibsp parch
+1        0 female  0.166700     0     0
+2        0 female  4.368453     0     0
+3        0 female  8.570205     0     0
+4        0 female 12.771958     0     0
+5        0 female 16.973711     0     0
+6        0 female 21.175463     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 140 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of data after call to model.frame are
+  survived    sex       age sibsp parch
+1        0 female  0.166700     0     0
+2        0 female  4.368453     0     0
+3        0 female  8.570205     0     0
+4        0 female 12.771958     0     0
+5        0 female 16.973711     0     0
+6        0 female 21.175463     0     0
+predict.earth: bx is a 140 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+First few rows of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2                  0
+[2,]           1        0          0          2                  0
+[3,]           1        0          0          2                  0
+[4,]           1        0          0          2                  0
+[5,]           1        0          0          2                  0
+[6,]           1        0          0          2                  0
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0            109.66660                     1
+[2,]                0       0            101.26309                     1
+[3,]                0       0             92.85959                     1
+[4,]                0       0             84.45608                     1
+[5,]                0       0             76.05258                     1
+[6,]                0       0             67.64907                     1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 140 min 0.4769472 max 0.9885132 values 0.9885132 0.9838022 0.9772039 0.968005 0.955264 0.9377755 0.9140653 0.8824529 0.8412314 0.7890105 ...
+persp(age:parch) theta 145 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "sibsp" and "parch" with newdata[49,5]:
+    survived    sex age sibsp parch
+1          0 female  28     0     0
+2          0 female  28     1     0
+3          0 female  28     2     0
+...        0 female  28     3     0
+7.6        0 female  28     8     6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 49 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp (integer), 5=parch (integer)
+First few rows of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     1     0
+3        0 female  28     2     0
+4        0 female  28     3     0
+5        0 female  28     4     0
+6        0 female  28     5     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 49 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp (integer), 5=parch (integer)
+First few rows of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     1     0
+3        0 female  28     2     0
+4        0 female  28     3     0
+5        0 female  28     4     0
+6        0 female  28     5     0
+predict.earth: bx is a 49 by 9 matrix: 1=(Intercept), 2=survived, 3=h(sibsp-1), 4=h(2-parch), 5=survived*h(16-age), 6=survived*sexmale, 7=sexmale, 8=h(55-age)*h(2-parch), 9=h(1-sibsp)*h(1-parch)
+First few rows of bx are
+     (Intercept) survived h(sibsp-1) h(2-parch) survived*h(16-age)
+[1,]           1        0          0          2                  0
+[2,]           1        0          0          2                  0
+[3,]           1        0          1          2                  0
+[4,]           1        0          2          2                  0
+[5,]           1        0          3          2                  0
+[6,]           1        0          4          2                  0
+     survived*sexmale sexmale h(55-age)*h(2-parch) h(1-sibsp)*h(1-parch)
+[1,]                0       0                   54                     1
+[2,]                0       0                   54                     0
+[3,]                0       0                   54                     0
+[4,]                0       0                   54                     0
+[5,]                0       0                   54                     0
+[6,]                0       0                   54                     0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "3rd" returned length 49 min 0.7353427 max 0.9990688 values 0.8953702 0.7353427 0.8607637 0.9322259 0.9683588 0.985527 0.9986685 0.7686875 0.7686875 0.8808666 ...
+persp(sibsp:parch) theta -35 ylim 0 1 cex 0.66
+
 -------------------------------------------------------------------------------
 
 > printh(a5$levels)
@@ -2200,8 +3242,8 @@ plotmo a6
 
 formula pclass1 ~ .
 stripped formula pclass1~.
-get.formula.data: got x from data passed to original call to earth 
-about to call model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
+get.data.for.formula: using x from "etitanic[,-1]" passed to earth 
+about to eval model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
               1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
               1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
               0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
@@ -2210,19 +3252,25 @@ about to call model.frame(formula=pclass1~., data=structure(list(survived=c(1L,
               1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 
               1L, 0L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, etc.
 got x with colnames from object$call$formula
-x[1046,5]
-  survived    sex     age sibsp parch
-1        1 female 29.0000     0     0
-2        1   male  0.9167     1     2
-3        0 female  2.0000     1     2
-is.factor FALSE TRUE FALSE FALSE FALSE 
+
+x[1046,5]:
+     survived    sex     age sibsp parch
+1           1 female 29.0000     0     0
+2           1   male  0.9167     1     2
+3           0 female  2.0000     1     2
+...         0   male 30.0000     1     2
+1309        0   male 29.0000     0     0
+
+factors: sex 
+
+nlevels: survived=2 sex=2 age=98 sibsp=7 parch=7 
 
 --get.plotmo.y
 
 formula pclass1 ~ .
 stripped formula pclass1~.
-get.formula.data: got y from data passed to original call to earth 
-about to call model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
+get.data.for.formula: using y from "etitanic[,-1]" passed to earth 
+about to eval model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
               1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
               1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
               0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
@@ -2235,11 +3283,11 @@ get.plotmo.y returned length 1046 min 0 max 1 values 1 1 1 1 1 1 1 1 1 1 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
-singles: 1 survived, 2 sex, 3 age, 4 sibsp, 5 parch 
+singles: 1 survived, 3 age, 5 parch 
 
---get.pairs
+--get.plotmo.pairs
 
 pairs:
      [,1]         [,2]     
@@ -2256,11 +3304,367 @@ ylim 0 1
                  0 female  28     0     0
 
 
+plotmo.predict(type="response") for degree1 plot "survived" with newdata[2,5]:
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+Contents of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        1 female  28     0     0
+predict.earth: bx is a 2 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(52-age), 4=h(2-parch), 5=h(sibsp-1)*h(2-parch), 6=h(1-sibsp)*h(2-parch), 7=sexmale*h(age-26), 8=h(age-55)*h(2-parch), 9=h(55-age)*h(2-parch), 10=h(age-54)
+Contents of bx are
+     (Intercept) survived survived*h(52-age) h(2-parch) h(sibsp-1)*h(2-parch)
+[1,]           1        0                  0          2                     0
+[2,]           1        1                 24          2                     0
+     h(1-sibsp)*h(2-parch) sexmale*h(age-26) h(age-55)*h(2-parch)
+[1,]                     2                 0                    0
+[2,]                     2                 0                    0
+     h(55-age)*h(2-parch) h(age-54)
+[1,]                   54         0
+[2,]                   54         0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "pclass1" returned length 2 min 0.06728234 max 0.2926305 values 0.06728234 0.2926305 
+
+plotmo.predict(type="response") for degree1 plot "age" with newdata[50,5]:
+    survived    sex       age sibsp parch
+1          0 female  0.166700     0     0
+2          0 female  1.795951     0     0
+3          0 female  3.425202     0     0
+...        0 female  5.054453     0     0
+50         0 female 80.000000     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 50 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of x are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        0 female 1.795951     0     0
+3        0 female 3.425202     0     0
+4        0 female 5.054453     0     0
+5        0 female 6.683704     0     0
+6        0 female 8.312955     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 50 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of data after call to model.frame are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        0 female 1.795951     0     0
+3        0 female 3.425202     0     0
+4        0 female 5.054453     0     0
+5        0 female 6.683704     0     0
+6        0 female 8.312955     0     0
+predict.earth: bx is a 50 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(52-age), 4=h(2-parch), 5=h(sibsp-1)*h(2-parch), 6=h(1-sibsp)*h(2-parch), 7=sexmale*h(age-26), 8=h(age-55)*h(2-parch), 9=h(55-age)*h(2-parch), 10=h(age-54)
+First few rows of bx are
+     (Intercept) survived survived*h(52-age) h(2-parch) h(sibsp-1)*h(2-parch)
+[1,]           1        0                  0          2                     0
+[2,]           1        0                  0          2                     0
+[3,]           1        0                  0          2                     0
+[4,]           1        0                  0          2                     0
+[5,]           1        0                  0          2                     0
+[6,]           1        0                  0          2                     0
+     h(1-sibsp)*h(2-parch) sexmale*h(age-26) h(age-55)*h(2-parch)
+[1,]                     2                 0                    0
+[2,]                     2                 0                    0
+[3,]                     2                 0                    0
+[4,]                     2                 0                    0
+[5,]                     2                 0                    0
+[6,]                     2                 0                    0
+     h(55-age)*h(2-parch) h(age-54)
+[1,]            109.66660         0
+[2,]            106.40810         0
+[3,]            103.14960         0
+[4,]             99.89109         0
+[5,]             96.63259         0
+[6,]             93.37409         0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "pclass1" returned length 50 min 0.01040828 max 0.4107282 values 0.01040828 0.01163562 0.01300578 0.01453492 0.01624088 0.01814339 0.02026417 0.02262713 0.02525854 0.02818713 ...
+
+plotmo.predict(type="response") for degree1 plot "parch" with newdata[7,5]:
+    survived    sex age sibsp parch
+1          0 female  28     0     0
+2          0 female  28     0     1
+3          0 female  28     0     2
+...        0 female  28     0     3
+7          0 female  28     0     6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 7 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     0     1
+3        0 female  28     0     2
+4        0 female  28     0     3
+5        0 female  28     0     4
+6        0 female  28     0     5
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 7 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     0     1
+3        0 female  28     0     2
+4        0 female  28     0     3
+5        0 female  28     0     4
+6        0 female  28     0     5
+predict.earth: bx is a 7 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(52-age), 4=h(2-parch), 5=h(sibsp-1)*h(2-parch), 6=h(1-sibsp)*h(2-parch), 7=sexmale*h(age-26), 8=h(age-55)*h(2-parch), 9=h(55-age)*h(2-parch), 10=h(age-54)
+First few rows of bx are
+     (Intercept) survived survived*h(52-age) h(2-parch) h(sibsp-1)*h(2-parch)
+[1,]           1        0                  0          2                     0
+[2,]           1        0                  0          1                     0
+[3,]           1        0                  0          0                     0
+[4,]           1        0                  0          0                     0
+[5,]           1        0                  0          0                     0
+[6,]           1        0                  0          0                     0
+     h(1-sibsp)*h(2-parch) sexmale*h(age-26) h(age-55)*h(2-parch)
+[1,]                     2                 0                    0
+[2,]                     1                 0                    0
+[3,]                     0                 0                    0
+[4,]                     0                 0                    0
+[5,]                     0                 0                    0
+[6,]                     0                 0                    0
+     h(55-age)*h(2-parch) h(age-54)
+[1,]                   54         0
+[2,]                   27         0
+[3,]                    0         0
+[4,]                    0         0
+[5,]                    0         0
+[6,]                    0         0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "pclass1" returned length 7 min 0.06728234 max 0.1038310 values 0.06728234 0.08376292 0.1038310 0.1038310 0.1038310 0.1038310 0.1038310 
+
 --plot.degree2(draw.plot=TRUE)
-persp(survived:age) theta -35 ylim 0 1 cex  phi 30
-persp(sex:age) theta -35 ylim 0 1 cex  phi 30
-persp(age:parch) theta -35 ylim 0 1 cex  phi 30
-persp(sibsp:parch) theta -35 ylim 0 1 cex  phi 30
+
+plotmo.predict(type="response") for  degree2 plot "survived" and "age" with newdata[40,5]:
+    survived    sex       age sibsp parch
+1          0 female  0.166700     0     0
+2          1 female  0.166700     0     0
+3          0 female  4.368453     0     0
+...        1 female  4.368453     0     0
+40         1 female 80.000000     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 40 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of x are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        1 female 0.166700     0     0
+3        0 female 4.368453     0     0
+4        1 female 4.368453     0     0
+5        0 female 8.570205     0     0
+6        1 female 8.570205     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 40 by 5 matrix: 1=survived (integer), 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of data after call to model.frame are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        1 female 0.166700     0     0
+3        0 female 4.368453     0     0
+4        1 female 4.368453     0     0
+5        0 female 8.570205     0     0
+6        1 female 8.570205     0     0
+predict.earth: bx is a 40 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(52-age), 4=h(2-parch), 5=h(sibsp-1)*h(2-parch), 6=h(1-sibsp)*h(2-parch), 7=sexmale*h(age-26), 8=h(age-55)*h(2-parch), 9=h(55-age)*h(2-parch), 10=h(age-54)
+First few rows of bx are
+     (Intercept) survived survived*h(52-age) h(2-parch) h(sibsp-1)*h(2-parch)
+[1,]           1        0            0.00000          2                     0
+[2,]           1        1           51.83330          2                     0
+[3,]           1        0            0.00000          2                     0
+[4,]           1        1           47.63155          2                     0
+[5,]           1        0            0.00000          2                     0
+[6,]           1        1           43.42979          2                     0
+     h(1-sibsp)*h(2-parch) sexmale*h(age-26) h(age-55)*h(2-parch)
+[1,]                     2                 0                    0
+[2,]                     2                 0                    0
+[3,]                     2                 0                    0
+[4,]                     2                 0                    0
+[5,]                     2                 0                    0
+[6,]                     2                 0                    0
+     h(55-age)*h(2-parch) h(age-54)
+[1,]            109.66660         0
+[2,]            109.66660         0
+[3,]            101.26309         0
+[4,]            101.26309         0
+[5,]             92.85959         0
+[6,]             92.85959         0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "pclass1" returned length 40 min 0.01040828 max 0.8885824 values 0.01040828 0.02494495 0.01387059 0.0374828 0.01846315 0.05596075 0.02453847 0.08276453 0.03254659 0.1207643 ...
+persp(survived:age) theta -35 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "sex" and "age" with newdata[40,5]:
+    survived    sex       age sibsp parch
+1          0 female  0.166700     0     0
+2          0   male  0.166700     0     0
+3          0 female  4.368453     0     0
+...        0   male  4.368453     0     0
+40         0   male 80.000000     0     0
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 40 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of x are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        0   male 0.166700     0     0
+3        0 female 4.368453     0     0
+4        0   male 4.368453     0     0
+5        0 female 8.570205     0     0
+6        0   male 8.570205     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 40 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch
+First few rows of data after call to model.frame are
+  survived    sex      age sibsp parch
+1        0 female 0.166700     0     0
+2        0   male 0.166700     0     0
+3        0 female 4.368453     0     0
+4        0   male 4.368453     0     0
+5        0 female 8.570205     0     0
+6        0   male 8.570205     0     0
+predict.earth: bx is a 40 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(52-age), 4=h(2-parch), 5=h(sibsp-1)*h(2-parch), 6=h(1-sibsp)*h(2-parch), 7=sexmale*h(age-26), 8=h(age-55)*h(2-parch), 9=h(55-age)*h(2-parch), 10=h(age-54)
+First few rows of bx are
+     (Intercept) survived survived*h(52-age) h(2-parch) h(sibsp-1)*h(2-parch)
+[1,]           1        0                  0          2                     0
+[2,]           1        0                  0          2                     0
+[3,]           1        0                  0          2                     0
+[4,]           1        0                  0          2                     0
+[5,]           1        0                  0          2                     0
+[6,]           1        0                  0          2                     0
+     h(1-sibsp)*h(2-parch) sexmale*h(age-26) h(age-55)*h(2-parch)
+[1,]                     2                 0                    0
+[2,]                     2                 0                    0
+[3,]                     2                 0                    0
+[4,]                     2                 0                    0
+[5,]                     2                 0                    0
+[6,]                     2                 0                    0
+     h(55-age)*h(2-parch) h(age-54)
+[1,]            109.66660         0
+[2,]            109.66660         0
+[3,]            101.26309         0
+[4,]            101.26309         0
+[5,]             92.85959         0
+[6,]             92.85959         0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "pclass1" returned length 40 min 0.01040828 max 0.6537535 values 0.01040828 0.01040828 0.01387059 0.01387059 0.01846315 0.01846315 0.02453847 0.02453847 0.03254659 0.03254659 ...
+persp(sex:age) theta -35 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "age" and "parch" with newdata[140,5]:
+     survived    sex       age sibsp parch
+1           0 female  0.166700     0     0
+2           0 female  4.368453     0     0
+3           0 female  8.570205     0     0
+...         0 female 12.771958     0     0
+20.6        0 female 80.000000     0     6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 140 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of x are
+  survived    sex       age sibsp parch
+1        0 female  0.166700     0     0
+2        0 female  4.368453     0     0
+3        0 female  8.570205     0     0
+4        0 female 12.771958     0     0
+5        0 female 16.973711     0     0
+6        0 female 21.175463     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 140 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp, 5=parch (integer)
+First few rows of data after call to model.frame are
+  survived    sex       age sibsp parch
+1        0 female  0.166700     0     0
+2        0 female  4.368453     0     0
+3        0 female  8.570205     0     0
+4        0 female 12.771958     0     0
+5        0 female 16.973711     0     0
+6        0 female 21.175463     0     0
+predict.earth: bx is a 140 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(52-age), 4=h(2-parch), 5=h(sibsp-1)*h(2-parch), 6=h(1-sibsp)*h(2-parch), 7=sexmale*h(age-26), 8=h(age-55)*h(2-parch), 9=h(55-age)*h(2-parch), 10=h(age-54)
+First few rows of bx are
+     (Intercept) survived survived*h(52-age) h(2-parch) h(sibsp-1)*h(2-parch)
+[1,]           1        0                  0          2                     0
+[2,]           1        0                  0          2                     0
+[3,]           1        0                  0          2                     0
+[4,]           1        0                  0          2                     0
+[5,]           1        0                  0          2                     0
+[6,]           1        0                  0          2                     0
+     h(1-sibsp)*h(2-parch) sexmale*h(age-26) h(age-55)*h(2-parch)
+[1,]                     2                 0                    0
+[2,]                     2                 0                    0
+[3,]                     2                 0                    0
+[4,]                     2                 0                    0
+[5,]                     2                 0                    0
+[6,]                     2                 0                    0
+     h(55-age)*h(2-parch) h(age-54)
+[1,]            109.66660         0
+[2,]            101.26309         0
+[3,]             92.85959         0
+[4,]             84.45608         0
+[5,]             76.05258         0
+[6,]             67.64907         0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "pclass1" returned length 140 min 0.01040828 max 0.99995 values 0.01040828 0.01387059 0.01846315 0.02453847 0.03254659 0.0430528 0.05675154 0.07446981 0.09715011 0.125799 ...
+persp(age:parch) theta -35 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "sibsp" and "parch" with newdata[49,5]:
+    survived    sex age sibsp parch
+1          0 female  28     0     0
+2          0 female  28     1     0
+3          0 female  28     2     0
+...        0 female  28     3     0
+7.6        0 female  28     8     6
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 49 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp (integer), 5=parch (integer)
+First few rows of x are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     1     0
+3        0 female  28     2     0
+4        0 female  28     3     0
+5        0 female  28     4     0
+6        0 female  28     5     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 49 by 5 matrix: 1=survived, 2=sex (factor), 3=age, 4=sibsp (integer), 5=parch (integer)
+First few rows of data after call to model.frame are
+  survived    sex age sibsp parch
+1        0 female  28     0     0
+2        0 female  28     1     0
+3        0 female  28     2     0
+4        0 female  28     3     0
+5        0 female  28     4     0
+6        0 female  28     5     0
+predict.earth: bx is a 49 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(52-age), 4=h(2-parch), 5=h(sibsp-1)*h(2-parch), 6=h(1-sibsp)*h(2-parch), 7=sexmale*h(age-26), 8=h(age-55)*h(2-parch), 9=h(55-age)*h(2-parch), 10=h(age-54)
+First few rows of bx are
+     (Intercept) survived survived*h(52-age) h(2-parch) h(sibsp-1)*h(2-parch)
+[1,]           1        0                  0          2                     0
+[2,]           1        0                  0          2                     0
+[3,]           1        0                  0          2                     2
+[4,]           1        0                  0          2                     4
+[5,]           1        0                  0          2                     6
+[6,]           1        0                  0          2                     8
+     h(1-sibsp)*h(2-parch) sexmale*h(age-26) h(age-55)*h(2-parch)
+[1,]                     2                 0                    0
+[2,]                     0                 0                    0
+[3,]                     0                 0                    0
+[4,]                     0                 0                    0
+[5,]                     0                 0                    0
+[6,]                     0                 0                    0
+     h(55-age)*h(2-parch) h(age-54)
+[1,]                   54         0
+[2,]                   54         0
+[3,]                   54         0
+[4,]                   54         0
+[5,]                   54         0
+[6,]                   54         0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "pclass1" returned length 49 min 4.178724e-06 max 0.1503422 values 0.06728234 0.1503422 0.03718844 0.008360844 0.001837078 0.0004015888 4.178724e-06 0.08376292 0.1252483 0.06270175 ...
+persp(sibsp:parch) theta -35 ylim 0 1 cex 0.66
+
 -------------------------------------------------------------------------------
 
 > printh(a6$levels) # expect levels to be NULL
@@ -2614,8 +4018,8 @@ plotmo a7
 
 formula sex ~ .
 stripped formula sex~.
-get.formula.data: got x from data passed to original call to earth 
-about to call model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
+get.data.for.formula: using x from "etitanic" passed to earth 
+about to eval model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
@@ -2624,19 +4028,25 @@ about to call model.frame(formula=sex~., data=structure(list(pclass=structure(c(
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
 got x with colnames from object$call$formula
-x[1046,5]
-  pclass survived     age sibsp parch
-1    1st        1 29.0000     0     0
-2    1st        1  0.9167     1     2
-3    1st        0  2.0000     1     2
-is.factor TRUE FALSE FALSE FALSE FALSE 
+
+x[1046,5]:
+     pclass survived     age sibsp parch
+1       1st        1 29.0000     0     0
+2       1st        1  0.9167     1     2
+3       1st        0  2.0000     1     2
+...     1st        0 30.0000     1     2
+1309    3rd        0 29.0000     0     0
+
+factors: pclass 
+
+nlevels: pclass=3 survived=2 age=98 sibsp=7 parch=7 
 
 --get.plotmo.y
 
 formula sex ~ .
 stripped formula sex~.
-get.formula.data: got y from data passed to original call to earth 
-about to call model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
+get.data.for.formula: using y from "etitanic" passed to earth 
+about to eval model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
@@ -2645,15 +4055,15 @@ about to call model.frame(formula=sex~., data=structure(list(pclass=structure(c(
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
               1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
 got y from object$call$formula
-get.plotmo.y returned "male" length 1046 min 0 max 1 values 0 1 0 1 0 1 0 1 0 1 ...
+get.plotmo.y column "male" returned length 1046 min 0 max 1 values 0 1 0 1 0 1 0 1 0 1 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
-singles: 1 pclass, 2 survived, 3 age, 4 sibsp, 5 parch 
+singles: 1 pclass, 2 survived 
 
---get.pairs
+--get.plotmo.pairs
 
 pairs:
      [,1]         [,2]        
@@ -2671,12 +4081,351 @@ ylim 0 1
              1st        0  28     0     0
 
 
+plotmo.predict(type="response") for degree1 plot "pclass" with newdata[3,5]:
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    2nd        0  28     0     0
+3    3rd        0  28     0     0
+
+factors: pclass 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp, 5=parch
+Contents of x are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    2nd        0  28     0     0
+3    3rd        0  28     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp, 5=parch
+Contents of data after call to model.frame are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    2nd        0  28     0     0
+3    3rd        0  28     0     0
+predict.earth: bx is a 3 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(16-age), 4=h(25-age)*h(3-parch), 5=pclass3rd*survived, 6=h(sibsp-2)*h(3-parch), 7=h(2-sibsp)*h(3-parch), 8=pclass3rd, 9=pclass3rd*h(3-parch), 10=pclass2nd*survived
+Contents of bx are
+     (Intercept) survived survived*h(16-age) h(25-age)*h(3-parch)
+[1,]           1        0                  0                    0
+[2,]           1        0                  0                    0
+[3,]           1        0                  0                    0
+     pclass3rd*survived h(sibsp-2)*h(3-parch) h(2-sibsp)*h(3-parch) pclass3rd
+[1,]                  0                     0                     6         0
+[2,]                  0                     0                     6         0
+[3,]                  0                     0                     6         1
+     pclass3rd*h(3-parch) pclass2nd*survived
+[1,]                    0                  0
+[2,]                    0                  0
+[3,]                    3                  0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "male" returned length 3 min 0.8908182 max 0.9571902 values 0.9571902 0.9571902 0.8908182 
+
+plotmo.predict(type="response") for degree1 plot "survived" with newdata[2,5]:
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    1st        1  28     0     0
+
+factors: pclass 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 5 matrix: 1=pclass (factor), 2=survived (integer), 3=age, 4=sibsp, 5=parch
+Contents of x are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    1st        1  28     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 5 matrix: 1=pclass (factor), 2=survived (integer), 3=age, 4=sibsp, 5=parch
+Contents of data after call to model.frame are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    1st        1  28     0     0
+predict.earth: bx is a 2 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(16-age), 4=h(25-age)*h(3-parch), 5=pclass3rd*survived, 6=h(sibsp-2)*h(3-parch), 7=h(2-sibsp)*h(3-parch), 8=pclass3rd, 9=pclass3rd*h(3-parch), 10=pclass2nd*survived
+Contents of bx are
+     (Intercept) survived survived*h(16-age) h(25-age)*h(3-parch)
+[1,]           1        0                  0                    0
+[2,]           1        1                  0                    0
+     pclass3rd*survived h(sibsp-2)*h(3-parch) h(2-sibsp)*h(3-parch) pclass3rd
+[1,]                  0                     0                     6         0
+[2,]                  0                     0                     6         0
+     pclass3rd*h(3-parch) pclass2nd*survived
+[1,]                    0                  0
+[2,]                    0                  0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "male" returned length 2 min 0.3862374 max 0.9571902 values 0.9571902 0.3862374 
+
 --plot.degree2(draw.plot=TRUE)
-persp(pclass:survived) theta 145 ylim 0 1 cex  phi 30
-persp(pclass:parch) theta 145 ylim 0 1 cex  phi 30
-persp(survived:age) theta 55 ylim 0 1 cex  phi 30
-persp(age:parch) theta 235 ylim 0 1 cex  phi 30
-persp(sibsp:parch) theta 235 ylim 0 1 cex  phi 30
+
+plotmo.predict(type="response") for  degree2 plot "pclass" and "survived" with newdata[6,5]:
+    pclass survived age sibsp parch
+1      1st        0  28     0     0
+2      2nd        0  28     0     0
+3      3rd        0  28     0     0
+...    1st        1  28     0     0
+3.1    3rd        1  28     0     0
+
+factors: pclass 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 5 matrix: 1=pclass (factor), 2=survived (integer), 3=age, 4=sibsp, 5=parch
+Contents of x are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    2nd        0  28     0     0
+3    3rd        0  28     0     0
+4    1st        1  28     0     0
+5    2nd        1  28     0     0
+6    3rd        1  28     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 5 matrix: 1=pclass (factor), 2=survived (integer), 3=age, 4=sibsp, 5=parch
+Contents of data after call to model.frame are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    2nd        0  28     0     0
+3    3rd        0  28     0     0
+4    1st        1  28     0     0
+5    2nd        1  28     0     0
+6    3rd        1  28     0     0
+predict.earth: bx is a 6 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(16-age), 4=h(25-age)*h(3-parch), 5=pclass3rd*survived, 6=h(sibsp-2)*h(3-parch), 7=h(2-sibsp)*h(3-parch), 8=pclass3rd, 9=pclass3rd*h(3-parch), 10=pclass2nd*survived
+Contents of bx are
+     (Intercept) survived survived*h(16-age) h(25-age)*h(3-parch)
+[1,]           1        0                  0                    0
+[2,]           1        0                  0                    0
+[3,]           1        0                  0                    0
+[4,]           1        1                  0                    0
+[5,]           1        1                  0                    0
+[6,]           1        1                  0                    0
+     pclass3rd*survived h(sibsp-2)*h(3-parch) h(2-sibsp)*h(3-parch) pclass3rd
+[1,]                  0                     0                     6         0
+[2,]                  0                     0                     6         0
+[3,]                  0                     0                     6         1
+[4,]                  0                     0                     6         0
+[5,]                  0                     0                     6         0
+[6,]                  1                     0                     6         1
+     pclass3rd*h(3-parch) pclass2nd*survived
+[1,]                    0                  0
+[2,]                    0                  0
+[3,]                    3                  0
+[4,]                    0                  0
+[5,]                    0                  1
+[6,]                    3                  0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "male" returned length 6 min 0.2227743 max 0.9571902 values 0.9571902 0.9571902 0.8908182 0.3862374 0.2227743 0.5517942 
+persp(pclass:survived) theta 145 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "pclass" and "parch" with newdata[21,5]:
+    pclass survived age sibsp parch
+1      1st        0  28     0     0
+2      2nd        0  28     0     0
+3      3rd        0  28     0     0
+...    1st        0  28     0     1
+3.6    3rd        0  28     0     6
+
+factors: pclass 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 21 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp, 5=parch (integer)
+First few rows of x are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    2nd        0  28     0     0
+3    3rd        0  28     0     0
+4    1st        0  28     0     1
+5    2nd        0  28     0     1
+6    3rd        0  28     0     1
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 21 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp, 5=parch (integer)
+First few rows of data after call to model.frame are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    2nd        0  28     0     0
+3    3rd        0  28     0     0
+4    1st        0  28     0     1
+5    2nd        0  28     0     1
+6    3rd        0  28     0     1
+predict.earth: bx is a 21 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(16-age), 4=h(25-age)*h(3-parch), 5=pclass3rd*survived, 6=h(sibsp-2)*h(3-parch), 7=h(2-sibsp)*h(3-parch), 8=pclass3rd, 9=pclass3rd*h(3-parch), 10=pclass2nd*survived
+First few rows of bx are
+     (Intercept) survived survived*h(16-age) h(25-age)*h(3-parch)
+[1,]           1        0                  0                    0
+[2,]           1        0                  0                    0
+[3,]           1        0                  0                    0
+[4,]           1        0                  0                    0
+[5,]           1        0                  0                    0
+[6,]           1        0                  0                    0
+     pclass3rd*survived h(sibsp-2)*h(3-parch) h(2-sibsp)*h(3-parch) pclass3rd
+[1,]                  0                     0                     6         0
+[2,]                  0                     0                     6         0
+[3,]                  0                     0                     6         1
+[4,]                  0                     0                     4         0
+[5,]                  0                     0                     4         0
+[6,]                  0                     0                     4         1
+     pclass3rd*h(3-parch) pclass2nd*survived
+[1,]                    0                  0
+[2,]                    0                  0
+[3,]                    3                  0
+[4,]                    0                  0
+[5,]                    0                  0
+[6,]                    2                  0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "male" returned length 21 min 0.2773473 max 0.9571902 values 0.9571902 0.9571902 0.8908182 0.9362599 0.9362599 0.7465314 0.9061003 0.9061003 0.5153127 0.863747 ...
+persp(pclass:parch) theta 145 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "survived" and "age" with newdata[40,5]:
+    pclass survived       age sibsp parch
+1      1st        0  0.166700     0     0
+2      1st        1  0.166700     0     0
+3      1st        0  4.368453     0     0
+...    1st        1  4.368453     0     0
+40     1st        1 80.000000     0     0
+
+factors: pclass 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 40 by 5 matrix: 1=pclass (factor), 2=survived (integer), 3=age, 4=sibsp, 5=parch
+First few rows of x are
+  pclass survived      age sibsp parch
+1    1st        0 0.166700     0     0
+2    1st        1 0.166700     0     0
+3    1st        0 4.368453     0     0
+4    1st        1 4.368453     0     0
+5    1st        0 8.570205     0     0
+6    1st        1 8.570205     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 40 by 5 matrix: 1=pclass (factor), 2=survived (integer), 3=age, 4=sibsp, 5=parch
+First few rows of data after call to model.frame are
+  pclass survived      age sibsp parch
+1    1st        0 0.166700     0     0
+2    1st        1 0.166700     0     0
+3    1st        0 4.368453     0     0
+4    1st        1 4.368453     0     0
+5    1st        0 8.570205     0     0
+6    1st        1 8.570205     0     0
+predict.earth: bx is a 40 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(16-age), 4=h(25-age)*h(3-parch), 5=pclass3rd*survived, 6=h(sibsp-2)*h(3-parch), 7=h(2-sibsp)*h(3-parch), 8=pclass3rd, 9=pclass3rd*h(3-parch), 10=pclass2nd*survived
+First few rows of bx are
+     (Intercept) survived survived*h(16-age) h(25-age)*h(3-parch)
+[1,]           1        0           0.000000             74.49990
+[2,]           1        1          15.833300             74.49990
+[3,]           1        0           0.000000             61.89464
+[4,]           1        1          11.631547             61.89464
+[5,]           1        0           0.000000             49.28938
+[6,]           1        1           7.429795             49.28938
+     pclass3rd*survived h(sibsp-2)*h(3-parch) h(2-sibsp)*h(3-parch) pclass3rd
+[1,]                  0                     0                     6         0
+[2,]                  0                     0                     6         0
+[3,]                  0                     0                     6         0
+[4,]                  0                     0                     6         0
+[5,]                  0                     0                     6         0
+[6,]                  0                     0                     6         0
+     pclass3rd*h(3-parch) pclass2nd*survived
+[1,]                    0                  0
+[2,]                    0                  0
+[3,]                    0                  0
+[4,]                    0                  0
+[5,]                    0                  0
+[6,]                    0                  0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "male" returned length 40 min 0.2384194 max 0.9571902 values 0.7205077 0.6727357 0.78793 0.5495086 0.84264 0.4198927 0.8852907 0.300459 0.917513 0.2384194 ...
+persp(survived:age) theta 55 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "age" and "parch" with newdata[140,5]:
+     pclass survived       age sibsp parch
+1       1st        0  0.166700     0     0
+2       1st        0  4.368453     0     0
+3       1st        0  8.570205     0     0
+...     1st        0 12.771958     0     0
+20.6    1st        0 80.000000     0     6
+
+factors: pclass 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 140 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp, 5=parch (integer)
+First few rows of x are
+  pclass survived       age sibsp parch
+1    1st        0  0.166700     0     0
+2    1st        0  4.368453     0     0
+3    1st        0  8.570205     0     0
+4    1st        0 12.771958     0     0
+5    1st        0 16.973711     0     0
+6    1st        0 21.175463     0     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 140 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp, 5=parch (integer)
+First few rows of data after call to model.frame are
+  pclass survived       age sibsp parch
+1    1st        0  0.166700     0     0
+2    1st        0  4.368453     0     0
+3    1st        0  8.570205     0     0
+4    1st        0 12.771958     0     0
+5    1st        0 16.973711     0     0
+6    1st        0 21.175463     0     0
+predict.earth: bx is a 140 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(16-age), 4=h(25-age)*h(3-parch), 5=pclass3rd*survived, 6=h(sibsp-2)*h(3-parch), 7=h(2-sibsp)*h(3-parch), 8=pclass3rd, 9=pclass3rd*h(3-parch), 10=pclass2nd*survived
+First few rows of bx are
+     (Intercept) survived survived*h(16-age) h(25-age)*h(3-parch)
+[1,]           1        0                  0             74.49990
+[2,]           1        0                  0             61.89464
+[3,]           1        0                  0             49.28938
+[4,]           1        0                  0             36.68413
+[5,]           1        0                  0             24.07887
+[6,]           1        0                  0             11.47361
+     pclass3rd*survived h(sibsp-2)*h(3-parch) h(2-sibsp)*h(3-parch) pclass3rd
+[1,]                  0                     0                     6         0
+[2,]                  0                     0                     6         0
+[3,]                  0                     0                     6         0
+[4,]                  0                     0                     6         0
+[5,]                  0                     0                     6         0
+[6,]                  0                     0                     6         0
+     pclass3rd*h(3-parch) pclass2nd*survived
+[1,]                    0                  0
+[2,]                    0                  0
+[3,]                    0                  0
+[4,]                    0                  0
+[5,]                    0                  0
+[6,]                    0                  0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "male" returned length 140 min 0.7205077 max 0.9571902 values 0.7205077 0.78793 0.84264 0.8852907 0.917513 0.9412843 0.9571902 0.9571902 0.9571902 0.9571902 ...
+persp(age:parch) theta 235 ylim 0 1 cex 0.66
+
+plotmo.predict(type="response") for  degree2 plot "sibsp" and "parch" with newdata[49,5]:
+    pclass survived age sibsp parch
+1      1st        0  28     0     0
+2      1st        0  28     1     0
+3      1st        0  28     2     0
+...    1st        0  28     3     0
+7.6    1st        0  28     8     6
+
+factors: pclass 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 49 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp (integer), 5=parch (integer)
+First few rows of x are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    1st        0  28     1     0
+3    1st        0  28     2     0
+4    1st        0  28     3     0
+5    1st        0  28     4     0
+6    1st        0  28     5     0
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 49 by 5 matrix: 1=pclass (factor), 2=survived, 3=age, 4=sibsp (integer), 5=parch (integer)
+First few rows of data after call to model.frame are
+  pclass survived age sibsp parch
+1    1st        0  28     0     0
+2    1st        0  28     1     0
+3    1st        0  28     2     0
+4    1st        0  28     3     0
+5    1st        0  28     4     0
+6    1st        0  28     5     0
+predict.earth: bx is a 49 by 10 matrix: 1=(Intercept), 2=survived, 3=survived*h(16-age), 4=h(25-age)*h(3-parch), 5=pclass3rd*survived, 6=h(sibsp-2)*h(3-parch), 7=h(2-sibsp)*h(3-parch), 8=pclass3rd, 9=pclass3rd*h(3-parch), 10=pclass2nd*survived
+First few rows of bx are
+     (Intercept) survived survived*h(16-age) h(25-age)*h(3-parch)
+[1,]           1        0                  0                    0
+[2,]           1        0                  0                    0
+[3,]           1        0                  0                    0
+[4,]           1        0                  0                    0
+[5,]           1        0                  0                    0
+[6,]           1        0                  0                    0
+     pclass3rd*survived h(sibsp-2)*h(3-parch) h(2-sibsp)*h(3-parch) pclass3rd
+[1,]                  0                     0                     6         0
+[2,]                  0                     0                     3         0
+[3,]                  0                     0                     0         0
+[4,]                  0                     3                     0         0
+[5,]                  0                     6                     0         0
+[6,]                  0                     9                     0         0
+     pclass3rd*h(3-parch) pclass2nd*survived
+[1,]                    0                  0
+[2,]                    0                  0
+[3,]                    0                  0
+[4,]                    0                  0
+[5,]                    0                  0
+[6,]                    0                  0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "male" returned length 49 min 0.863747 max 0.9999963 values 0.9571902 0.9225137 0.863747 0.9740112 0.995507 0.9992372 0.9999963 0.9362599 0.9061003 0.863747 ...
+persp(sibsp:parch) theta 235 ylim 0 1 cex 0.66
+
 -------------------------------------------------------------------------------
 
 > printh(a7$levels)
@@ -3111,69 +4860,71 @@ plotmo a8p
 
 formula counts ~ outcome + treatment
 stripped formula counts~outcome+treatment
-about to call model.frame(formula=counts~outcome+treatment)
+no explicit data for formula
+about to eval model.frame(formula=counts~outcome+treatment)
 got x with colnames from object$call$formula
-x[9,2]
-  outcome treatment
-1       1         1
-2       2         1
-3       3         1
-is.factor TRUE TRUE 
+
+x[9,2]:
+    outcome treatment
+1         1         1
+2         2         1
+3         3         1
+...       1         2
+9         3         3
+
+factors: outcome treatment 
+
+nlevels: outcome=3 treatment=3 
 
 --get.plotmo.y
 
 formula counts ~ outcome + treatment
 stripped formula counts~outcome+treatment
-about to call model.frame(formula=counts~outcome+treatment)
+no explicit data for formula
+about to eval model.frame(formula=counts~outcome+treatment)
 got y from object$call$formula
-get.plotmo.y returned length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 ...
+get.plotmo.y returned length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 
 
 clip.limits 10 25 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 outcome 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
 --plot.degree1(draw.plot=FALSE)
 
-plotmo.predict(type="response") for predictor "outcome" with newdata[500,2]:
+plotmo.predict(type="response") for degree1 plot "outcome" with newdata[3,2]:
   outcome treatment
 1       1         1
 2       2         1
 3       3         1
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
-First few rows of x are
+
+factors: outcome treatment 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+Contents of x are
   outcome treatment
 1       1         1
 2       2         1
 3       3         1
-4       1         1
-5       2         1
-6       3         1
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
-First few rows of data after call to model.frame are
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+Contents of data after call to model.frame are
   outcome treatment
 1       1         1
 2       2         1
 3       3         1
-4       1         1
-5       2         1
-6       3         1
-predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=outcome2, 3=outcome3
-First few rows of bx are
+predict.earth: bx is a 3 by 3 matrix: 1=(Intercept), 2=outcome2, 3=outcome3
+Contents of bx are
      (Intercept) outcome2 outcome3
 [1,]           1        0        0
 [2,]           1        1        0
 [3,]           1        0        1
-[4,]           1        0        0
-[5,]           1        1        0
-[6,]           1        0        1
 predict.earth: returning glm response predictions
-predict() returned "counts" length 500 min 13.33333 max 21 values 21 13.33333 15.66667 21 13.33333 15.66667 21 13.33333 15.66667 21 ...
+predict.earth(xgrid, type="response") column "counts" returned length 3 min 13.33333 max 21 values 21 13.33333 15.66667 
 
 ylim 13.33333 21 
 
@@ -3361,70 +5112,72 @@ plotmo a10
 
 formula cbind(counts, counts2) ~ outcome + treatment
 stripped formula cbind(counts,counts2)~outcome+treatment
-about to call model.frame(formula=cbind(counts, counts2)~outcome+treatment)
+no explicit data for formula
+about to eval model.frame(formula=cbind(counts, counts2)~outcome+treatment)
 got x with colnames from object$call$formula
-x[9,2]
-  outcome treatment
-1       1         1
-2       2         1
-3       3         1
-is.factor TRUE TRUE 
+
+x[9,2]:
+    outcome treatment
+1         1         1
+2         2         1
+3         3         1
+...       1         2
+9         3         3
+
+factors: outcome treatment 
+
+nlevels: outcome=3 treatment=3 
 
 --get.plotmo.y
 
 formula cbind(counts, counts2) ~ outcome + treatment
 stripped formula cbind(counts,counts2)~outcome+treatment
-about to call model.frame(formula=cbind(counts, counts2)~outcome+treatment)
+no explicit data for formula
+about to eval model.frame(formula=cbind(counts, counts2)~outcome+treatment)
 got y from object$call$formula
-get.plotmo.y returned "counts" length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 ...
+get.plotmo.y column "counts" returned length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 
 
 clip.limits 10 25 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 outcome 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
 --plot.degree1(draw.plot=FALSE)
 
-plotmo.predict(type="response") for predictor "outcome" with newdata[500,2]:
+plotmo.predict(type="response") for degree1 plot "outcome" with newdata[3,2]:
   outcome treatment
 1       1         1
 2       2         1
 3       3         1
-get.earth.x from model.matrix.earth from predict.earth: x is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
-First few rows of x are
+
+factors: outcome treatment 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 3 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+Contents of x are
   outcome treatment
 1       1         1
 2       2         1
 3       3         1
-4       1         1
-5       2         1
-6       3         1
-get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 500 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
-First few rows of data after call to model.frame are
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 3 by 2 matrix: 1=outcome (factor), 2=treatment (factor)
+Contents of data after call to model.frame are
   outcome treatment
 1       1         1
 2       2         1
 3       3         1
-4       1         1
-5       2         1
-6       3         1
-predict.earth: bx is a 500 by 3 matrix: 1=(Intercept), 2=outcome2, 3=outcome3
-First few rows of bx are
+predict.earth: bx is a 3 by 3 matrix: 1=(Intercept), 2=outcome2, 3=outcome3
+Contents of bx are
      (Intercept) outcome2 outcome3
 [1,]           1        0        0
 [2,]           1        1        0
 [3,]           1        0        1
-[4,]           1        0        0
-[5,]           1        1        0
-[6,]           1        0        1
 predict.earth: returning glm response predictions
-predict() returned "counts2" length 500 min 134.3333 max 211 values 211 134.3333 157.6667 211 134.3333 157.6667 211 134.3333 157.6667 211 ...
-Warning: All predicted values in the "outcome" graph are out of ylim=(10, 25).
+predict.earth(xgrid, type="response") column "counts2" returned length 3 min 134.3333 max 211 values 211 134.3333 157.6667 
+Warning: predicted values in the "outcome" graph are out of ylim=(10, 25).
          Use clip=FALSE to make this warning go away.
 
 ylim 134.3333 211 
@@ -3921,40 +5674,46 @@ plotmo aref
 
 formula SF.both ~ .
 stripped formula SF.both~.
-get.formula.data: got x from data passed to original call to earth 
-about to call model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
+get.data.for.formula: using x from "df" passed to earth 
+about to eval model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
               2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
               "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
               -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
               -12L), class="data.frame"))
 got x with colnames from object$call$formula
-x[12,2]
-   sex ldose
-1 male    -2
-2 male    -1
-3 male     0
-is.factor TRUE FALSE 
+
+x[12,2]:
+       sex ldose
+1     male    -2
+2     male    -1
+3     male     0
+...   male     1
+12  female     3
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 
 
 --get.plotmo.y
 
 formula SF.both ~ .
 stripped formula SF.both~.
-get.formula.data: got y from data passed to original call to earth 
-about to call model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
+get.data.for.formula: using y from "df" passed to earth 
+about to eval model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
               2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
               "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
               -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
               -12L), class="data.frame"))
 got y from object$call$formula
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 sex, 2 ldose 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
@@ -3965,6 +5724,71 @@ ylim 0 1
  grid:    sex ldose
        female   0.5
 
+
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,2]:
+     sex ldose
+1 female   0.5
+2   male   0.5
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female   0.5
+2   male   0.5
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 2 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+     sex ldose
+1 female   0.5
+2   male   0.5
+predict.earth: bx is a 2 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1         2.5       0
+[2,]           1         2.5       1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
+       sex ldose
+1   female    -2
+2   female    -1
+3   female     0
+... female     1
+6   female     3
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female    -2
+2 female    -1
+3 female     0
+4 female     1
+5 female     2
+6 female     3
+get.earth.x from model.matrix.earth from predict.earth: data after call to model.frame is a 6 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of data after call to model.frame are
+     sex ldose
+1 female    -2
+2 female    -1
+3 female     0
+4 female     1
+5 female     2
+6 female     3
+predict.earth: bx is a 6 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1           0       0
+[2,]           1           1       0
+[3,]           1           2       0
+[4,]           1           3       0
+[5,]           1           4       0
+[6,]           1           5       0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.03008577 max 0.863882 values 0.03008577 0.08249341 0.2067337 0.4303279 0.6864771 0.863882 
 -------------------------------------------------------------------------------
 
 > 
@@ -4095,25 +5919,31 @@ plotmo a21
 --get.plotmo.x
 
 got x with colnames from object$call$x
-x[12,2]
-   sex ldose
-1 male    -2
-2 male    -1
-3 male     0
-is.factor TRUE FALSE 
+
+x[12,2]:
+       sex ldose
+1     male    -2
+2     male    -1
+3     male     0
+...   male     1
+12  female     3
+
+factors: sex 
+
+nlevels: sex=2 ldose=6 
 
 --get.plotmo.y
 
 got y from object$call$y
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 sex, 2 ldose 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
@@ -4124,6 +5954,57 @@ ylim 0 1
  grid:    sex ldose
        female   0.5
 
+
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,2]:
+     sex ldose
+1 female   0.5
+2   male   0.5
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female   0.5
+2   male   0.5
+predict.earth: bx is a 2 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1         2.5       0
+[2,]           1         2.5       1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead2" returned length 2 min 0.3719003 max 0.6003872 values 0.3719003 0.6003872 
+
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
+       sex ldose
+1   female    -2
+2   female    -1
+3   female     0
+... female     1
+6   female     3
+
+factors: sex 
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 2 matrix: 1=sex (factor), 2=ldose
+Contents of x are
+     sex ldose
+1 female    -2
+2 female    -1
+3 female     0
+4 female     1
+5 female     2
+6 female     3
+predict.earth: bx is a 6 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=sexmale
+Contents of bx are
+     (Intercept) h(ldose--2) sexmale
+[1,]           1           0       0
+[2,]           1           1       0
+[3,]           1           2       0
+[4,]           1           3       0
+[5,]           1           4       0
+[6,]           1           5       0
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead2" returned length 6 min 0.03864002 max 0.8971466 values 0.03864002 0.1054517 0.256914 0.5034811 0.7483666 0.8971466 
 -------------------------------------------------------------------------------
 
 > check.models.equal(aref, a21, msg="aref a21")
@@ -4256,24 +6137,29 @@ plotmo a21
 --get.plotmo.x
 
 got x with colnames from object$call$x
-x[12,2]
-  sex ldose
-1   2    -2
-2   2    -1
-3   2     0
+
+x[12,2]:
+    sex ldose
+1     2    -2
+2     2    -1
+3     2     0
+...   2     1
+12    1     3
+
+nlevels: sex=2 ldose=6 
 
 --get.plotmo.y
 
 got y from object$call$y
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 sex, 2 ldose 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
@@ -4284,6 +6170,53 @@ ylim 0 1
  grid:    sex ldose
           1.5   0.5
 
+
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,2]:
+  sex ldose
+1   1   0.5
+2   2   0.5
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=sex, 2=ldose
+Contents of x are
+  sex ldose
+1   1   0.5
+2   2   0.5
+predict.earth: bx is a 2 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=h(sex-1)
+Contents of bx are
+     (Intercept) h(ldose--2) h(sex-1)
+[1,]           1         2.5        0
+[2,]           1         2.5        1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
+    sex ldose
+1   1.5    -2
+2   1.5    -1
+3   1.5     0
+... 1.5     1
+6   1.5     3
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 2 matrix: 1=sex, 2=ldose
+Contents of x are
+  sex ldose
+1 1.5    -2
+2 1.5    -1
+3 1.5     0
+4 1.5     1
+5 1.5     2
+6 1.5     3
+predict.earth: bx is a 6 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=h(sex-1)
+Contents of bx are
+     (Intercept) h(ldose--2) h(sex-1)
+[1,]           1           0      0.5
+[2,]           1           1      0.5
+[3,]           1           2      0.5
+[4,]           1           3      0.5
+[5,]           1           4      0.5
+[6,]           1           5      0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05103871 max 0.9166965 values 0.05103871 0.1348699 0.3112342 0.5670581 0.7915134 0.9166965 
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -4417,24 +6350,29 @@ plotmo a22
 --get.plotmo.x
 
 got x with colnames from object$call$x
-x[12,2]
-  sex ldose
-1   2    -2
-2   2    -1
-3   2     0
+
+x[12,2]:
+    sex ldose
+1     2    -2
+2     2    -1
+3     2     0
+...   2     1
+12    1     3
+
+nlevels: sex=2 ldose=6 
 
 --get.plotmo.y
 
 got y from object$call$y
-get.plotmo.y returned "numdead" length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
 singles: 1 sex, 2 ldose 
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 
@@ -4445,6 +6383,53 @@ ylim 0 1
  grid:    sex ldose
           1.5   0.5
 
+
+plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,2]:
+  sex ldose
+1   1   0.5
+2   2   0.5
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 2 matrix: 1=sex, 2=ldose
+Contents of x are
+  sex ldose
+1   1   0.5
+2   2   0.5
+predict.earth: bx is a 2 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=h(sex-1)
+Contents of bx are
+     (Intercept) h(ldose--2) h(sex-1)
+[1,]           1         2.5        0
+[2,]           1         2.5        1
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+
+plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
+    sex ldose
+1   1.5    -2
+2   1.5    -1
+3   1.5     0
+... 1.5     1
+6   1.5     3
+
+get.earth.x from model.matrix.earth from predict.earth: x is a 6 by 2 matrix: 1=sex, 2=ldose
+Contents of x are
+  sex ldose
+1 1.5    -2
+2 1.5    -1
+3 1.5     0
+4 1.5     1
+5 1.5     2
+6 1.5     3
+predict.earth: bx is a 6 by 3 matrix: 1=(Intercept), 2=h(ldose--2), 3=h(sex-1)
+Contents of bx are
+     (Intercept) h(ldose--2) h(sex-1)
+[1,]           1           0      0.5
+[2,]           1           1      0.5
+[3,]           1           2      0.5
+[4,]           1           3      0.5
+[5,]           1           4      0.5
+[6,]           1           5      0.5
+predict.earth: returning glm response predictions
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05103871 max 0.9166965 values 0.05103871 0.1348699 0.3112342 0.5670581 0.7915134 0.9166965 
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -8609,6 +10594,12 @@ numdead.2      84.92686 11  1.525354  9     4         1
 1    -1.266139    -1.631657    -1.398041
 2    -2.247324    -1.757049    -2.386927
 3    -3.948707    -3.458432    -4.088310
+> try(printh(resid(a, type="nonesuch"), max.print=3)) # Expect Error : type="nonesuch" is illegal.
+=== resid(a, type = "nonesuch")Error : type="nonesuch" is illegal.
+Choose one of: "earth" "deviance" "pearson" "working" "response" "partial"
+> try(printh(resid(a, type="p"), max.print=3)) # Expect Error : type="p" is ambiguous.
+=== resid(a, type = "p")Error : type="p" is ambiguous.
+Choose one of: "earth" "deviance" "pearson" "working" "response" "partial"
 > 
 > # tests based on Gavin Simpson's bug report
 > # fit a MARS model allowing one-way interactions
@@ -8826,14 +10817,13 @@ ccc-unused   2    0        0   0 1   0 1
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a.intercept.only 
-Warning: 'a' appears to be an intercept only model
 
 --get.plotmo.x
 
 formula aaa ~ bbb + ccc
 stripped formula aaa~bbb+ccc
-get.formula.data: got x from data passed to original call to earth 
-about to call model.frame(formula=aaa~bbb+ccc, data=structure(list(
+get.data.for.formula: using x from "df" passed to earth 
+about to eval model.frame(formula=aaa~bbb+ccc, data=structure(list(
               aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
               1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
               0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
@@ -8842,18 +10832,23 @@ about to call model.frame(formula=aaa~bbb+ccc, data=structure(list(
               0.379171891137958, 0.373280976898968, 0.170290642883629, 
               0.453307323623449, 0.258413960458711, 0.336265952326357), etc.
 got x with colnames from object$call$formula
-x[18,2]
-        bbb        ccc
-1 0.8974883  1.2243136
-2 0.2797326  0.1998116
-3 0.2282019 -0.5784837
+
+x[18,2]:
+           bbb        ccc
+1   0.89748826  1.2243136
+2   0.27973255  0.1998116
+3   0.22820188 -0.5784837
+... 0.01532989 -0.9423007
+18  0.33626595  0.7055155
+
+nlevels: bbb=18 ccc=18 
 
 --get.plotmo.y
 
 formula aaa ~ bbb + ccc
 stripped formula aaa~bbb+ccc
-get.formula.data: got y from data passed to original call to earth 
-about to call model.frame(formula=aaa~bbb+ccc, data=structure(list(
+get.data.for.formula: using y from "df" passed to earth 
+about to eval model.frame(formula=aaa~bbb+ccc, data=structure(list(
               aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
               1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
               0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
@@ -8866,11 +10861,12 @@ get.plotmo.y returned length 18 min 0 max 1 values 0 1 0 0 1 1 0 0 1 1 ...
 
 clip.limits 0 1 
 
---get.singles
+--get.plotmo.singles
 
+Warning: the earth model appears to be an intercept only model
 no singles
 
---get.pairs
+--get.plotmo.pairs
 
 no pairs
 Warning: plotmo: nothing to plot

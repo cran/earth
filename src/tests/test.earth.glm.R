@@ -1293,6 +1293,8 @@ printh(resid(a, type="pearson"), max.print=3)
 printh(resid(a, type="working"), max.print=3)
 printh(resid(a, type="response"), max.print=3)
 printh(resid(a, type="partial"), max.print=3)
+try(printh(resid(a, type="nonesuch"), max.print=3)) # Expect Error : type="nonesuch" is illegal.
+try(printh(resid(a, type="p"), max.print=3)) # Expect Error : type="p" is ambiguous.
 
 # tests based on Gavin Simpson's bug report
 # fit a MARS model allowing one-way interactions

@@ -445,26 +445,28 @@ test.model.rsq <- function(object, x, y, MarsFunc, nCases, nUsedTerms, penalty, 
 # this uses the global matrix data.global (data.global[,1] is the response)
 
 test.earth <- function(itest, func, degree=2, nk=51, plotit=PLOT,
-                       test.rsq=TRUE, trace=0, linpreds=FALSE)
+                       test.rsq=TRUE, trace=0, linpreds=FALSE, pmethod="backward", nprune=NULL)
 {
     cat("itest", sprintf("%-3d", itest), sprintf("%-32s", deparse(substitute(func))),
-        "degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk))
+        "degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk), "pmethod", pmethod)
     if(trace)
         cat("\n")
     gc()
     earthTime <- system.time(fite <- earth(data.global[,-1], data.global[,1],
                                         degree=degree, trace=trace, nk=nk,
-                                        pmethod="b", fast.k=-1, linpreds=linpreds))
+                                        pmethod=pmethod, fast.k=-1, linpreds=linpreds,
+                                        nprune=nprune))
     funca <- make.func(fite)
     nCases <- nrow(data.global)
     penalty <- ifelse(degree>1,3,2)
     nUsedTerms <- sum(fite$selected.terms!=0)
     cat(" nTerms",  sprintf("%-2d", nUsedTerms), "of", sprintf("%-3d ", nrow(fite$dirs)))
     if(PRINT.TIME)
-        cat(" time", earthTime[1])
+        cat(" time", earthTime[1], " ")
     cat("GRSq", sprintf("%4.2g", fite$grsq))
     caption <- paste("itest ", itest, ": ", deparse(substitute(func)),
-                        " degree=", degree, " nk=", nk, sep="")
+                        " degree=", degree, " nk=", nk,
+                        if(pmethod!="backward") paste("pmethod", pmethod) else "", sep="")
     if(test.rsq)
         test.model.rsq(fite, x=data.global[,-1, drop=FALSE], y=data.global[,1], MarsFunc=funca,
             nCases=nCases, nUsedTerms=nUsedTerms, penalty=penalty, RefFunc=func)
@@ -533,6 +535,9 @@ itest <- itest+1; test.earth(itest, func1, nk=5,   degree=1)
 itest <- itest+1; test.earth(itest, func1, nk=5,   degree=2)
 itest <- itest+1; test.earth(itest, func1, nk=51, degree=1)
 itest <- itest+1; test.earth(itest, func1, nk=51, degree=2)
+# test pmethod="exhaustive" with and without tracing
+itest <- itest+1; test.earth(itest, func1, trace=0, nk=51, degree=1, pmethod="exhaustive", nprune=5)
+itest <- itest+1; test.earth(itest, func1, trace=2, nk=51, degree=1, pmethod="exhaust", nprune=5)
 
 func7 <- function(x)    # just one predictor
 {
@@ -782,7 +787,7 @@ cat("--- test multiple responses ---------------------\n")
 
 test.earth.two.responses <- function(itest, func1, func2,
     degree=2, nk=51, plotit=PLOT, test.rsq=TRUE, trace=0, minspan=0,
-    test.mars.to.earth=FALSE)
+    test.mars.to.earth=FALSE, pmethod="backward")
 {
     if(typeof(func1) == "character")
         funcnames <- paste("multiple responses", func1, func2)
@@ -792,7 +797,7 @@ test.earth.two.responses <- function(itest, func1, func2,
         " degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk), "\n\n")
     gc()
     fite <- earth(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
-                degree=degree, trace=trace, nk=nk, pmethod="b", fast.k=-1, minspan=minspan)
+                degree=degree, trace=trace, nk=nk, pmethod=pmethod, fast.k=-1, minspan=minspan)
     printh(fite)
     caption <- paste("itest ", itest, ": ", funcnames, " degree=", degree, " nk=", nk, sep="")
     if(plotit) {
@@ -832,6 +837,10 @@ test.earth.two.responses <- function(itest, func1, func2,
 x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
 colnames(data.global) = c("func1", "func7", "x1", "x2")
+# expect pmethod="ex" cannot be used with multiple response models
+try(test.earth.two.responses(itest, func1, func7, nk=51, degree=1, pmethod="ex"))
+# expect pmethod="seq" cannot be used with multiple response models
+try(test.earth.two.responses(itest, func1, func7, nk=51, degree=1, pmethod="seq"))
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=1)
 printh(summary(a))
 printh(summary(a, style="bf"))
@@ -954,6 +963,9 @@ printh(a)
 printh(all.equal(a$bx, a.backwards$bx))
 
 cat("--- Force.xtx.prune -----------------------------\n")
+
+# expect pmethod="ex" cannot be used with Force.xtx.prune
+try(earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE, pmethod="ex"))
 
 m1 <- earth(Volume ~ ., data = trees)
 m2 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
@@ -1559,7 +1571,7 @@ printh(family(a1))
 # plotmo(a.no.thresh, degree1=1, degree2=c(4,9,16), clip=0, , caption="test with thresh=0")
 
 # test the way plotmo gets the data with earth with a formula interface
-# use strange data name se to make sure eval.parent n's are correct (don't pick up se in plotmo)
+# use strange data name se to make sure eval gets correct environment (don't pick up se in plotmo)
 se <- ozone1
 a <- earth(O3 ~ ., data=se, degree=2, keepxy=0)
 printh(summary(a))

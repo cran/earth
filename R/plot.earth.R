@@ -201,7 +201,7 @@ plot.earth <- function(
     if(any(show[2:4])) {
         if(NROW(object$fitted.values) != nrow(object$residuals))
             stop0("NROW(object$fitted.values) ",  NROW(object$fitted.values),
-                " != nrow(object$residuals) ", nrow(object$residuals))
+                  " != nrow(object$residuals) ", nrow(object$residuals))
         iresiduals <- get.iresiduals(nresiduals, object$residuals, object$fitted.values)
         residuals <- object$residuals[iresiduals]
         fitted.values <- object$fitted.values[iresiduals]
@@ -625,10 +625,10 @@ get.rlim <- function(object, rlim, col.grsq, col.rsq)
         stop0("rlim[2] <= rlim[1]")
     if(rlim[1] < -1 || rlim[1] >  1 || rlim[2] < -1 || rlim[2] >  1)
         stop0(paste0(
-            "illegal 'rlim' c(", rlim[1], ",", rlim[2], ")\n",
-            "Legal settings are from -1 to 1, with special values:\n",
-            "  rlim[1]=-1 means use min(RSq) or min(GRSq) excluding intercept)\n",
-            "  rlim[2]=-1 means use max(RSq) or max(GRSq)\n"))
+              "illegal 'rlim' c(", rlim[1], ",", rlim[2], ")\n",
+              "Legal settings are from -1 to 1, with special values:\n",
+              "  rlim[1]=-1 means use min(RSq) or min(GRSq) excluding intercept)\n",
+              "  rlim[2]=-1 means use max(RSq) or max(GRSq)\n"))
 
     if(rlim[1] == -1 || rlim[2] == -1) {
         grsq <- NULL

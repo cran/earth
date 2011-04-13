@@ -62,7 +62,6 @@ predict.earth <- function(
                     rval[,i] = predict.glm(object$glm.list[[i]], type=type)
             }
         } else {        # user supplied newdata
-            env <- parent.frame()
             bx <- model.matrix.earth(object, newdata, env=env,
                                      trace=trace,
                                      Callers.name="model.matrix.earth from predict.earth")
@@ -77,8 +76,7 @@ predict.earth <- function(
                 rval <- matrix(0, nrow=nrow(bx),
                                   ncol=ncol(object$fitted.values))
                 colnames(rval) <- colnames(object$fitted.values)
-                #TODO should be eval or eval.parent?
-                bx <- eval.parent(bx[,-1, drop=FALSE]) # -1 to drop intercept
+                bx <- eval(bx[,-1, drop=FALSE], env) # -1 to drop intercept
                 bx.data.frame <- as.data.frame(bx)
                 for(i in 1:length(object$glm.list)) {
                     rval[,i] = predict.glm(object$glm.list[[i]],
@@ -97,7 +95,6 @@ predict.earth <- function(
     {
         if(!is.null(object$glm.list))
             warning0("predict.earth: returning the earth (not glm) terms")
-        env <- parent.frame()
         bx <- model.matrix.earth(object, x=newdata, env=env,
                                  trace=trace, Callers.name="predict.earth")
         dirs <- object$dirs[object$selected.terms, , drop=FALSE]
@@ -124,6 +121,7 @@ predict.earth <- function(
     check.classname(object, deparse(substitute(object)), "earth")
     warn.if.dots.used("predict.earth", ...)
     trace <- check.trace.arg(trace)
+    env <- parent.frame() # the environment from which predict.earth was called
     switch(match.arg1(type),
         get.predicted.response(object, newdata, "link"),
         get.predicted.response(object, newdata, "response"),

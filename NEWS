@@ -1,6 +1,21 @@
 Changes to Earth Package
 ------------------------
 
+2.6-1  Apr 13, 2011
+   Fixed an issue of dependency on the plotmo package.
+
+2.6-0  Apr 12, 2011
+   Moved plotmo to the plotmo package, and added "depends plotmo" to earth's DESCRIPTION
+   Added the Exhaustive.tol arg as a work-around for leaps.exhaustive error code -999
+      (Thanks to David Marra for help tracking this down.)
+   The "Exhaustive pruning" pacifier is now printed based on the number of subsets
+   Warnings from leaps routines are now treated as errors (because ret val is bad with warning)
+   Replaced n=2 and similar in calls to eval with an explicit environment
+   The decision to use eval.subsets.xtx is now more automatic and less obtrusive
+   The response y is now named in certain situations where it used to be unnamed
+   Removed annoying warning "specified nprune 20 is greater than the number of model terms"
+   Some code tidying
+
 2.5-1  Mar 25 2011
    Modified handling of illegal arguments
 

@@ -144,7 +144,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 2.4-6"; // change if you modify this file!
+static const char   *VERSION    = "version 2.6-0"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -893,9 +893,9 @@ static void RegressAndFix(
             warning("Could not fix rank deficient bx: nUsedCols %d nRank %d",
                 nUsedCols,  nRank);
         else if (nTraceGlobal >= 1)
-            printf("Fixed rank deficient bx by removing %d term%s, %d term%s remain\n",
+            printf("Fixed rank deficient bx by removing %d term%s, %d term%s remain%s\n",
                 nDeficient, ((nDeficient==1)? "": "s"),
-                nUsedCols,  ((nUsedCols==1)? "": "s"));
+                nUsedCols,  ((nUsedCols==1)? "": "s"), ((nUsedCols==1)? "s": ""));
     }
     free1(iPivots);
 }
@@ -2307,7 +2307,7 @@ void ForwardPassR(              // for use by R
 
     FreeAllowedFunc();
 
-    // remove linearly independent rows if necessary -- this updates BoolFullSet
+    // remove linearly independent columns if necessary -- this updates BoolFullSet
 
     RegressAndFix(NULL, NULL, NULL, BoolFullSet,
         bx, y, WeightsArg, nCases, nResp, nMaxTerms);

@@ -117,7 +117,7 @@ Does \code{nresponse} refer to the column in the observed or predicted response?
   }
   \item{legend.pos}{
     \code{NULL} (default) means position legend automatically.
-    Else specify \code{c(x,y)} in user coordinates, 
+    Else specify \code{c(x,y)} in user coordinates,
     or use \code{"topleft"} etc. as explained in \code{\link{legend}}.\cr
 
      \emph{The following settings are related to \code{par()} and are included so you can override the defaults.}
@@ -317,7 +317,7 @@ This usually means that the x- and y-axis scales are both 0 to 1.
   \code{\link{earth}},
   \code{\link{plot.earth.models}},
   \code{\link{plotd}},
-  \code{\link{plotmo}}
+  \code{\link[plotmo]{plotmo}}
 }
 \examples{
 data(ozone1)

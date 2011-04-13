@@ -30,10 +30,10 @@ and "Fast MARS".
     penalty = if(degree > 1) 3 else 2, thresh = 0.001,
     minspan = 0, newvar.penalty = 0, fast.k = 20, fast.beta = 1,
     linpreds = FALSE, allowed = NULL,
-    pmethod = "backward", nprune = NULL, Object = NULL,
-    Get.crit = get.gcv, Eval.model.subsets = eval.model.subsets,
+    pmethod = c("backward", "none", "exhaustive", "forward", "seqrep"), nprune = NULL,
+    Object = NULL, Get.crit = get.gcv, Eval.model.subsets = eval.model.subsets,
     Print.pruning.pass = print.pruning.pass, Force.xtx.prune = FALSE,
-    Use.beta.cache = TRUE, \dots)
+    Use.beta.cache = TRUE, Exhaustive.tol = 1e-10, \dots)
 }
 \arguments{
 % % All arguments are optional except \code{formula}, or \code{x} and \code{y}.
@@ -279,7 +279,7 @@ For cross validation, use the \code{nfold} argument.
      occur in each cross validation subset.
      This means that when the response \code{y} is a factor there will be
      approximately equal numbers of each factor level in each fold
-     (because a factor response gets expanded to columns of zeros and ones, 
+     (because a factor response gets expanded to columns of zeros and ones,
      see the "Factors" section below).
      We say "approximately equal" because the number of occurrences of a factor
      level may not be exactly divisible by the number of folds.
@@ -349,6 +349,13 @@ For cross validation, use the \code{nfold} argument.
     the \code{fast.beta} argument.  Certain regression coefficients
     in the forward pass can be re-used, and are saved, thus
     saving recalculation time.)
+  }
+  \item{Exhaustive.tol}{
+         Default \code{1e-10}.
+     Applies only when \code{pmethod="exhaustive"}.
+     If the reciprocal of the condition number of \code{bx}
+     is less than \code{Exhaustive.tol}, \code{earth} forces \code{pmethod="backward"}.
+     See ``\emph{XHAUST returned error code -999}'' in the FAQ section.
   }
   \item{\dots}{
      Dots are passed on to \code{earth.fit}.
@@ -707,7 +714,7 @@ The following aspects of MARS
 are mentioned in Friedman's papers but not implemented in \code{earth}:
 
 i) Piecewise cubic models\cr
-ii) Model slicing (\code{\link{plotmo}} goes part way)\cr
+ii) Model slicing (\code{\link[plotmo]{plotmo}} goes part way)\cr
 iii) Handling missing values\cr
 iv) Automatic grouping of categorical predictors into subsets\cr
 v) Fast MARS h parameter
@@ -1122,7 +1129,7 @@ you want to call \code{\link{plot.earth}} later
 (actually only necessary for large datasets, see the description of
 \code{keep.fitted} in \code{fda}).
 Use the \code{earth} argument \code{keepxy=TRUE} if you want to call
-\code{\link{update.earth}} or \code{\link{plotmo}} later.
+\code{\link{update.earth}} or \code{\link[plotmo]{plotmo}} later.
 
 Using \code{fda} is recommended for a response that is a factor with more
 than two levels, rather than using \code{earth} directly on an
@@ -1430,7 +1437,7 @@ Starting with
 a1 <- earth(Volume ~ ., data = trees)
 plotmo(a1)
 }
-we see in the \code{\link{plotmo}} graphs or by running \code{\link{evimp}}
+we see in the \code{\link[plotmo]{plotmo}} graphs or by running \code{\link{evimp}}
 that \code{Height} is not as important as \code{Girth}.
 For collaborative evidence that \code{Girth} is a more reliable
 indicator of \code{Volume} you can use \code{\link{pairs}}:
@@ -1575,6 +1582,55 @@ example1b  <- function(degree, pred, parents, namesx, first)
     pred != iheight
 }
 }
+\bold{Why do I get ``\code{Error: XHAUST returned error code -999}''?}
+
+The short answer: you should never see the above message (fixed in
+\code{earth} version 2.6-0).
+If you do, please let me know.
+
+One work-around is to change \code{pmethod} from \code{"exhaustive"}
+to \code{"backward"}.
+
+You can also try the following.
+(These instructions work on the assumption that the default value of
+\code{Exhaustive.tol} is too big for your data.)
+First please read the description of the \code{Exhaustive.tol} argument.
+Then run \code{earth} with \code{trace=1}, so \code{earth} prints the
+reciprocal of the condition number of the \code{earth} basis matrix
+\code{bx}.  (The condition number here is the ratio of largest to the
+smallest singular value of \code{bx}.)
+Then set \code{Exhaustive.tol} to greater than the printed value (something like
+\code{Exhaustive.tol=1e-8}), and run \code{earth} again.
+Now \code{earth} will automatically change \code{pmethod} from
+\code{"exhaustive"} to \code{"backward"} when necessary to avoid the
+above error message.
+
+It must be said that it is hard to believe under these conditions
+that the resulting model will be much good.  The data does not allow a
+decent predictive model to be built.
+
+Some details.  Certain data causes collinearity in the
+\code{earth} basis matrix \code{bx} which slips by the usual checks.
+This causes the \code{leaps} routine to fail.
+The usual checks are:
+
+(a) while building the basis matrix, the C code does a basic check to
+drop collinear terms (\code{BX_TOL} and \code{QR_TOL} in the C code)
+
+(b) after building the basis matrix, the C code drops any remaining
+collinear terms (\code{RegressAndFix})
+
+(c) the \code{leaps} Fortran routine \code{sing} checks for
+collinearity.
+
+Some data gets through all these tests, probably because we are at
+the numerical noise floor and numerical rounding is essentially
+changing the data randomly.
+When \code{pmethod="exhaustive"}, \code{earth}
+performs an SVD of \code{bx}, and as a last resort
+if the condition number is out-of-range
+forces \code{pmethod} from \code{"exhaustive"} to \code{"backward"}.
+
 \bold{How does \code{summary.earth} order terms?}
 
 With \code{decomp="none"},
@@ -1771,7 +1827,7 @@ is a more flexible way of achieving the same end.
 }
 \seealso{
   Start with \code{\link{summary.earth}}, \code{\link{plot.earth}},
-  \code{\link{plotmo}}, and \code{\link{evimp}}.
+  \code{\link{evimp}}, and \code{\link[plotmo]{plotmo}}.
 
   \code{\link{etitanic}}\cr
   \code{\link{evimp}}\cr
@@ -1782,7 +1838,7 @@ is a more flexible way of achieving the same end.
   \code{\link{plot.earth.models}}\cr
   \code{\link{plot.earth}}\cr
   \code{\link{plotd}}\cr
-  \code{\link{plotmo}}\cr
+  \code{\link[plotmo]{plotmo}}\cr
   \code{\link{predict.earth}}\cr
   \code{\link{residuals.earth}}\cr
   \code{\link{summary.earth}}\cr
@@ -1790,21 +1846,8 @@ is a more flexible way of achieving the same end.
 }
 \examples{
 a <- earth(Volume ~ ., data = trees)
+plotmo(a)
 summary(a, digits = 2, style = "pmax")
-
-# yields:
-# Call: earth(formula=Volume~., data=trees)
-#
-# Volume =
-#   27
-#   +  6.2 * pmax(0,  Girth -     14)
-#   -  3.3 * pmax(0,     14 -  Girth)
-#   + 0.49 * pmax(0, Height -     72)
-#
-# Selected 4 of 6 terms, and 2 of 2 predictors
-# Importance: Girth, Height
-# Number of terms at each degree of interaction: 1 3 (additive model)
-# GCV 11    RSS 197    GRSq 0.96    RSq 0.98
 }
 \keyword{smooth}
 \keyword{models}

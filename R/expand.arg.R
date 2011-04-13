@@ -97,7 +97,7 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
         mf <- call("model.frame", formula = ~., data=x, na.action=na.pass)
     else
         mf <- call("model.frame", formula = ~x, na.action=na.pass)
-    mf <- eval.parent(mf, n=2)
+    mf <- eval(mf, env)
     mf.has.colnames <- !is.null(colnames(mf))
     x <- model.matrix(object=attr(mf, "terms"), data=mf)
     intercept <- match("(Intercept)", colnames(x), nomatch=0)

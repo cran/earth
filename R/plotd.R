@@ -63,8 +63,9 @@ plotd <- function(obj,      # obj is a model object
 
     if(typeof(obj) != "list")
         stop0("'", deparse(substitute(obj)), "' is not a model obj")
-    type <- get.plotmo.type(obj, type, "plotd")
-    yhat.per.class <- get.yhat.per.class(obj, type, nresponse, dichot, trace, ...)
+    type <- plotmo:::get.plotmo.type(obj, type, "plotd")
+    env <- parent.frame() # the environment from which plotd was called
+    yhat.per.class <- get.yhat.per.class(obj, type, nresponse, dichot, trace, env, ...)
     nclasses <- length(yhat.per.class)
 
     # get densities
@@ -104,8 +105,8 @@ plotd <- function(obj,      # obj is a model object
         range <- range(yhat.per.class[[iclass]])
         if(sd(yhat.per.class[[iclass]]) < sd.thresh) {
             warning0("standard deviation of \"", names(yhat.per.class)[iclass],
-                    "\" density is ", sd(yhat.per.class[[iclass]]),
-                    ",  density is degenerate?")
+                     "\" density is ", sd(yhat.per.class[[iclass]]),
+                     ",  density is degenerate?")
             degenerate[iclass] <- TRUE
         }
     }
@@ -232,7 +233,9 @@ is.numlog <- function(x)
 is.lda.or.qda <- function(obj) # allows hacks for lda and qda specific code
     inherits(obj, "lda") || inherits(obj, "qda")
 
-# special handling for MASS lda and qda predicted response
+# Special handling for MASS lda and qda predicted response, which
+# is a data.frame with columns "x", "class", and "posterior".
+# Here we use plotd's type argument to choose a column.
 
 get.lda.yhat <- function(object, yhat, type, trace)
 {
@@ -256,7 +259,7 @@ get.lda.yhat <- function(object, yhat, type, trace)
 }
 # get the original observed response (it's needed to determine correct classes)
 
-get.observed.response <- function(obj)
+get.observed.response <- function(obj, env)
 {
     if(!is.null(obj$call$formula)) {
         # get y from formula and data used in original call
@@ -265,7 +268,7 @@ get.observed.response <- function(obj)
         m <- match(c("formula", "data", "na.action", "subset"), names(Call), 0)
         mf <- Call[c(1, m)]
         mf[[1]] <- as.name("model.frame")
-        mf <- eval.parent(mf, n=3)      # n=3 takes us to the caller of plotd
+        mf <- eval(mf, env)
         y <- model.response(mf, "any")  # "any" means factors are allowed
         if(NCOL(y) == 1 && is.numlog(y)) {
             # turn into a matrix so we have the column name
@@ -274,7 +277,7 @@ get.observed.response <- function(obj)
             colnames(y) <- colnames(mf)[attr(obj$terms,"response")]
         }
     } else if(is.lda.or.qda(obj)) { # hack for lda and qda, get grouping arg
-        y <- eval.parent(obj$call[[3]], n=3) # n=3 takes us to the caller of plotd
+        y <- eval(obj$call[[3]], env)
         # sanity check
         if(NCOL(y) != 1 || length(y) < 3 || (!is.numeric(y) && !is.factor(y)))
             stop0("cannot get \"grouping\" argument from obj$call")
@@ -287,7 +290,7 @@ get.observed.response <- function(obj)
 }
 # return the predictions for each class, in a list with each class named
 
-get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
+get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
 {
     check.min <- function(x, ...)
     {
@@ -393,7 +396,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, ...)
     }
     #--- get.yhat.per.class starts here ---
     # nomeclature: y is the observed response, yhat is the predicted response
-    y <- get.observed.response(obj)
+    y <- get.observed.response(obj, env)
     if(trace)
         print.matrix.info("y", y, "\nObserved response",
                           details=TRUE, all.rows=trace>=2, all.names=trace>=2)
@@ -605,7 +608,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
         legend.names <- names(yhat.per.class)
     if(length(legend.names) < nclasses) {
         warning0("length ", length(legend.names), " of legend.names ",
-             "is less than the number ", nclasses, " of classes")
+                 "is less than the number ", nclasses, " of classes")
         legend.names <- rep(legend.names, nclasses)
     }
     else for(iclass in 1:nclasses)

@@ -39,7 +39,7 @@ plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
   \item{type}{
     Type parameter passed to \code{\link{predict}}.
     Default is \code{NULL}, meaning use a value suitable for the object
-    (actually \code{"response"} for all objects except \code{rpart} models, where \code{"vector"} 
+    (actually \code{"response"} for all objects except \code{rpart} models, where \code{"vector"}
     is used --- these choices will often be inappropriate).
     See the predict method for your object for legal values;
     for example see \code{\link[earth]{predict.earth}} or \code{\link{predict.glm}}.
@@ -351,10 +351,10 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
 \seealso{
   \code{\link{density}}, \code{\link{plot.density}}\cr
   \code{\link{hist}}, \code{\link{plot.histogram}}\cr
-  \code{\link[earth]{earth}}, \code{\link[earth]{plot.earth}}, \code{\link[earth]{plotmo}}\cr
+  \code{\link[earth]{earth}}, \code{\link[earth]{plot.earth}}
 }
 \examples{
-old.par <- par(no.readonly=TRUE); 
+old.par <- par(no.readonly=TRUE);
 par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
 data(etitanic)
 fit <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))

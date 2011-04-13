@@ -2,6 +2,7 @@
 > 
 > library(earth)
 Loading required package: leaps
+Loading required package: plotmo
 Loading required package: plotrix
 Warning message:
 package 'plotrix' was built under R version 2.12.2 

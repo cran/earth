@@ -1,4 +1,4 @@
-@rem test.all.bat
+@rem earth/src/tests/make.bat
 
 time /T
 @echo.
@@ -13,15 +13,6 @@ time /T
                         @if %errorlevel% NEQ 0 goto error
 @echo.
 @call test.earth.glm.bat
-                        @if %errorlevel% NEQ 0 goto error
-@echo.
-@call test.plotmo.bat
-                        @if %errorlevel% NEQ 0 goto error
-@echo.
-@call test.plotmo.non.earth.bat
-                        @if %errorlevel% NEQ 0 goto error
-@echo.
-@call test.plotmo.fac.bat
                         @if %errorlevel% NEQ 0 goto error
 @echo.
 @call test.earth.big.bat

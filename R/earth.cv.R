@@ -3,7 +3,7 @@
 # earth.cv returns null unless nfold > 1
 
 earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
-                     glm, glm.bpairs, trace, keepxy, nfold, stratify, ...)
+                     glm, glm.bpairs, trace, keepxy, nfold, stratify, env, ...)
 {
     if(!is.numeric(nfold))
         stop0("nfold argument must be numeric")
@@ -44,7 +44,7 @@ earth.cv <- function(x, y, weights, wp, scale.y, subset, na.action,
     is.binomial <- is.poisson <- FALSE
     if(!is.null(glm)) {
         glm1 <- get.glm.arg(glm)
-        family <- get.glm.family(glm1$family, env=parent.frame())
+        family <- get.glm.family(glm1$family, env=env)
         is.binomial <- is.binomial(family)
         is.poisson <- is.poisson(family)
     }

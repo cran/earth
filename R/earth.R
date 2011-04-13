@@ -142,6 +142,7 @@ earth.default <- function(
     ...)                    # passed on to earth.fit
 {
     trace <- check.trace.arg(trace)
+    env <- parent.frame() # the environment from which earth was called
     Call <- make.call.generic(match.call(expand.dots=TRUE), "earth")
     if(trace >= 4)
         my.print.call("Call: ", Call)
@@ -165,7 +166,6 @@ earth.default <- function(
 
     # expand factors, convert to double matrix with col names
 
-    env <- parent.frame()
     x <- expand.arg(x, env, FALSE, xname=xname)
     rownames(x) <- possibly.delete.rownames(x)
     ylevels <- levels(y)          # save levels if any before expanding y
@@ -200,7 +200,7 @@ earth.default <- function(
     cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
                    if(is.null(subset)) y else y[subset,,drop=FALSE],
                    weights, wp, scale.y, subset, na.action,
-                   glm, rval$glm.bpairs, trace, keepxy, nfold, stratify, ...)
+                   glm, rval$glm.bpairs, trace, keepxy, nfold, stratify, env, ...)
     if(!is.null(cv)) {
          rval$cv.list <- cv$list.
          rval$cv.nterms <- cv$nterms
@@ -249,6 +249,7 @@ earth.formula <- function(
         namesx
     }
     trace <- check.trace.arg(trace)
+    env <- parent.frame() # the environment from which earth was called
     Call <- make.call.generic(match.call(expand.dots=TRUE), "earth")
     if(trace >= 4)
         my.print.call("Call: ", Call)
@@ -289,13 +290,9 @@ earth.formula <- function(
     if(is.logical(y))
         ylevels <- c(FALSE, TRUE)    # needed for predict.earth(type="class")
     terms. <- attr(mf, "terms")
-    yname <- NULL                   # yname=NULL means let expand.arg choose name
-    if(is.vector(y)) {
-        # following ruse is needed else vector y's lose their name
-        names. <- names(attr(terms., "dataClasses"))
-        yname <- names.[[attr(terms., "response")]]
-    }
-    env <- parent.frame()
+    yname <- NULL
+    if(!is.factor(y))
+        yname <- names(attr(terms., "dataClasses"))[[attr(terms., "response")[1]]]
     y <- expand.arg(y, env, is.y.arg=TRUE, xname=yname)
     rownames(y) <- possibly.delete.rownames(y)
 
@@ -323,7 +320,7 @@ earth.formula <- function(
     cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
                    if(is.null(subset)) y else y[subset,,drop=FALSE],
                    weights, wp, scale.y, subset, na.action,
-                   glm, rval$glm.bpairs, trace, keepxy,  nfold, stratify, ...)
+                   glm, rval$glm.bpairs, trace, keepxy,  nfold, stratify, env, ...)
     if(!is.null(cv)) {
          rval$cv.rsq.tab <- cv$rsq.tab
          rval$cv.maxerr.tab <- cv$maxerr.tab
@@ -354,7 +351,6 @@ earth.fit <- function(
     glm = NULL,             # glm parameter from earth.formula or earth.default
     trace = 0,              # 0 none 1 overview 2 forward 3 pruning
                             # 4 model mats, memory use, more pruning, etc. 5  ...
-
     nk      = max(21, 2 * ncol(x) + 1),
                             # max number of model terms including intercept
 
@@ -387,7 +383,7 @@ earth.fit <- function(
 
     allowed        = NULL,  # constraint function specifying allowed interactions
 
-    pmethod = "backward",   # for legal values see eval.model.subsets.*
+    pmethod = c("backward", "none", "exhaustive", "forward", "seqrep"),
     nprune  = NULL,         # max nbr of terms (including intercept) in prune subset
 
                             # Following will not usually be used by the user
@@ -400,15 +396,19 @@ earth.fit <- function(
     Print.pruning.pass = print.pruning.pass, # function used to print pruning pass results
     Force.xtx.prune    = FALSE, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
     Use.beta.cache     = TRUE,  # TRUE to use beta cache, for speed
+    Exhaustive.tol     = 1e-10,
     ...)                        # unused
 {
     check.no.family.arg.to.earth(...)
-    warn.if.dots.used("earth.fit", ...)
+    stop.if.dots.used("earth.fit", ...)
     if(is.logical(trace) && trace) {
         warning0("earth: converted trace=TRUE to trace=4")
         trace <- 4
     }
+    env <- parent.frame()
     y.org <- y
+    pmethods <- c("backward", "none", "exhaustive", "forward", "seqrep")
+    pmethod <- pmethods[match.arg1(pmethod)] # check pmethod is illegal, and expand
 
     # For binomial glms we have to drop paired y cols before passing y to
     # to the C earth routines.  The logical vector glm.bpairs keeps track
@@ -474,7 +474,6 @@ earth.fit <- function(
     if(!is.null(glm.bpairs))
         y <- y[, glm.bpairs, drop=FALSE]
     if(is.null(Object)) {
-        env <- parent.frame()
         rval <- forward.pass(x, y, standardized.weights, scale.y, trace, penalty,
                              nk, degree, linpreds,
                              allowed, thresh, minspan, newvar.penalty,
@@ -494,7 +493,8 @@ earth.fit <- function(
     }
     rval <- pruning.pass(x, y, standardized.weights, subset,
                          trace, penalty, pmethod, nprune, bx, dirs, cuts, Get.crit,
-                         Eval.model.subsets, Print.pruning.pass, Force.xtx.prune)
+                         Eval.model.subsets, Print.pruning.pass, Force.xtx.prune,
+                         Exhaustive.tol)
       bx             <- rval[[1]]
       rss.per.subset <- rval[[2]]   # vector of RSSs for each model (index on subset size)
       gcv.per.subset <- rval[[3]]   # vector of GCVs for each model
@@ -545,7 +545,7 @@ earth.fit <- function(
         if(!is.null(subset))
             y.glm <- y.glm[subset, , drop=FALSE]
         glm.list <- earth.glm(bx, y.glm, weights, na.action, glm,
-                              trace, glm.bpairs, response.names[1])
+                              trace, glm.bpairs, response.names[1], env)
         glm.coefs <- get.glm.coefs(glm.list, ncol(coefficients),
                                    selected.terms, term.names, response.names)
     }
@@ -619,25 +619,39 @@ eval.model.subsets <- function(     # this is the default Eval.model.subsets
     weights,
     pmethod,
     nprune,     # max nbr of terms (including intercept) in prune subset, in range 1..nterms
-    Force.xtx.prune) # TRUE to always call EvalSubsetsUsingXtx rather than leaps
+    Force.xtx.prune, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
+    trace)
 {
     stopifnot(nprune >= 1 && nprune <= nrow(bx))
-    if(Force.xtx.prune ||   # user explicitly asked for xtx subset evaluation
-            ncol(y) > 1 ||  # leaps cannot deal with multiple responses
-            ncol(bx) <= 2)  # leaps code gives an error for small number of cols
-        eval.model.subsets.using.xtx(bx, y, weights, pmethod, nprune, Force.xtx.prune)
-    else
-        eval.model.subsets.with.leaps(bx, y, weights, pmethod, nprune)
+
+    if(Force.xtx.prune)         # user explicitly asked for xtx subset evaluation
+        eval.subsets.xtx(bx, y, weights, pmethod, nprune, Force.xtx.prune)
+
+    else if(ncol(y) > 1)  {     # leaps cannot deal with multiple responses
+        if(pmethod != "none" && pmethod != "backward")
+            stop0("pmethod == \"", pmethod,
+                  "\" cannot be used with multiple response models\n",
+                  "       (y has ", ncol(y), " columns, use trace=4 to see y)")
+        eval.subsets.xtx(bx, y, weights, pmethod, nprune, Force.xtx.prune)
+
+    } else if(ncol(bx) <= 2) {  # leaps code gives an error for small number of cols
+        if(pmethod != "none" && pmethod != "backward")
+            pmethod <- "backward"
+        eval.subsets.xtx(bx, y, weights, pmethod, nprune, Force.xtx.prune)
+
+    } else
+        eval.model.subsets.with.leaps(bx, y, weights, pmethod, nprune, trace)
 }
 
 eval.model.subsets.with.leaps <- function(
     bx,
     y,
     weights,
-    pmethod = c("backward", "none", "exhaustive", "forward", "seqrep"),
-    nprune)
+    pmethod,
+    nprune,
+    trace)
 {
-    convert.lopt <- function(lopt)  # convert lopt format to prune.terms format
+    convert.lopt <- function(lopt, nprune) # convert lopt format to prune.terms format
     {
         # Assignment fills matrix column wise. We want row wise, so
         # take upper triangle and then transpose.
@@ -648,11 +662,14 @@ eval.model.subsets.with.leaps <- function(
     }
     #--- eval.model.subsets.with.leaps starts here ---
 
-    pacify <- pmatch(pmethod[1], "exhaustive", 0) == 1 && nrow(bx) > 40 && nprune > 8
-    if(pacify) {                # pruning could take a while so print a reminder
-        cat("Pruning...")
-        flush.console()
-    }
+    # Make warnings in the leaps routines behave as errors.
+    # We have seen the routines return bad data (?) after issuing
+    # the warning "XHAUST returned error code -999",
+    # and we don't want to continue in that situation.
+    old.warn <- getOption("warn")
+    on.exit(options(warn=old.warn))
+    options(warn=2)
+
     if(is.null(weights))
         rprune <- leaps:::leaps.setup(x=bx, y=y,
                     force.in=1,        # make sure intercept is in model
@@ -666,16 +683,15 @@ eval.model.subsets.with.leaps <- function(
                     intercept=FALSE,
                     nvmax=nprune, nbest=1, warn.dep=TRUE)
 
-    rprune <- switch(match.arg1(pmethod),
-                    leaps:::leaps.backward(rprune),     # "backward"
-                    leaps:::leaps.backward(rprune),     # "none"
-                    leaps:::leaps.exhaustive(rprune, really.big=TRUE),
-                    leaps:::leaps.forward(rprune),
-                    leaps:::leaps.seqrep(rprune))
-    if(pacify)
-        cat("\n")
+    rprune <- switch(pmethod,
+                    backward   = leaps:::leaps.backward(rprune),
+                    none       = leaps:::leaps.backward(rprune), # for stats, won't actually prune
+                    exhaustive = leaps:::leaps.exhaustive(rprune, really.big=TRUE),
+                    forward    = leaps:::leaps.forward(rprune),
+                    seqrep     = leaps:::leaps.seqrep(rprune))
+
     rss.per.subset <- as.vector(rprune$ress) # convert from n x 1 mat to vector
-    prune.terms <- convert.lopt(rprune$lopt)
+    prune.terms <- convert.lopt(rprune$lopt, nprune)
 
     list(rss.per.subset,    # vector of RSSs for each model (index on subset size)
          prune.terms)       # triangular mat: each row is a vector of term indices
@@ -684,29 +700,18 @@ eval.model.subsets.with.leaps <- function(
 # This calls the earth.c routine EvalSubsetsUsingXtxR.
 # Unlike the leaps code, it can deal with multiple responses (i.e. multiple y columns)
 
-eval.model.subsets.using.xtx <- function(
+eval.subsets.xtx <- function(
     bx,
     y,
     weights,
-    pmethod = c("backward", "none", "exhaustive", "forward", "seqrep"),
+    pmethod,
     nprune,
     Force.xtx.prune)
 {
     bad.pmethod <- function()
     {
-        # following reasons must match conditions in eval.model.subsets
-        reason <- "unknown"
-        if(Force.xtx.prune)
-            reason <- "Force.xtx.prune==TRUE"
-        else if(ncol(y) > 1)
-            reason <- "ncol(y) > 1"
-        else if(ncol(bx) <= 2)
-            reason <- "ncol(bx) <= 2"
-        stop0("You have pmethod=\"", pmethod, "\" ",
-            "but only pmethod=\"backward\" or \"none\"\n",
-            "is supported by eval.model.subsets.using.xtx\n",
-            "(eval.model.subsets.using.xtx was invoked because ", reason, ")\n")
-        NULL
+        stop0("pmethod=\"", pmethod,
+              "\" cannot be used with \"eval.subsets.xtx\"")
     }
     backward <- function(bx, y, weights.)
     {
@@ -732,14 +737,14 @@ eval.model.subsets.using.xtx <- function(
 
         list(rval$rss.per.subset[1:nprune], rval$prune.terms[1:nprune, 1:nprune, drop=FALSE])
     }
-    #--- eval.model.subsets.using.xtx starts here ---
+    #--- eval.subsets.xtx starts here ---
 
-    rprune <- switch(match.arg1(pmethod),
-                backward(bx, y, weights),    # "backward"
-                backward(bx, y, weights),    # "none"
-                bad.pmethod(),
-                bad.pmethod(),
-                bad.pmethod())
+    rprune <- switch(pmethod,
+                backward   = backward(bx, y, weights),
+                none       = backward(bx, y, weights), # for stats, won't actually prune
+                exhaustive = bad.pmethod(),
+                forward    = bad.pmethod(),
+                seqrep     = bad.pmethod())
 }
 
 forward.pass <- function(x, y, weights,  # must be all double
@@ -793,7 +798,6 @@ forward.pass <- function(x, y, weights,  # must be all double
         y.scaled <- y
 
     on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interupts
-
     rval <- .C("ForwardPassR",
         fullset = as.integer(fullset),          # out: int FullSet[]
         bx = matrix(0, nrow=nrow(x), ncol=nk),  # out: double bx[]
@@ -1069,17 +1073,68 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
 
 pruning.pass <- function(x, y, weights, subset,
                          trace, penalty, pmethod, nprune, bx, dirs, cuts,
-                         Get.crit, Eval.model.subsets, Print.pruning.pass, Force.xtx.prune)
+                         Get.crit, Eval.model.subsets, Print.pruning.pass, Force.xtx.prune,
+                         Exhaustive.tol)
 {
+    possibly.print.pacifier <- function(bx, nprune) # print a reminder if pruning will be slow
+    {
+        if(pmethod == "exhaustive" && nprune > 1) {
+            nsubsets <- 0 # approx, assumes brute force exhaustive search
+            for(subset.size in 1:nprune)
+                nsubsets <- nsubsets + choose(ncol(bx), subset.size)
+            if(trace >= 1 || nsubsets > 1e9) {
+                cat0("Exhaustive pruning: number of subsets ",
+                     format(nsubsets, digits=2),
+                     if(trace >= 1) " " else "\n")
+            }
+        }
+    }
+    # If pmethod is exhaustive and bx is ill conditioned, change pmethod to
+    # backward. This prevents leaps.exhaustive returning error code -999.
+    #
+    # Note that bx should never be ill-conditioned (RegressAndFix should
+    # take care of that).  However it seems that dqrdc2 (called by
+    # RegressAndFix) does not detect certain types of ill conditioning (with
+    # any tol). This is probably because we are near the numerical noise floor
+    # and the column norms in dqrdc are not monotically decreasing.
+    # This change was made in Apr 2011.
+
+    possibly.change.exhaustive.to.backward <- function(pmethod, bx)
+    {
+        if(pmethod == "exhaustive") {
+            if(!is.numeric(Exhaustive.tol) || length(Exhaustive.tol) != 1) {
+                cat("\n")
+                stop0("illegal Exhaustive.tol, try something like Exhaustive.tol=1e-8")
+            }
+            if(Exhaustive.tol < 0 || Exhaustive.tol > .1) {
+                cat("\n")
+                stop0("illegal Exhaustive.tol ", Exhaustive.tol,
+                      ", try something like Exhaustive.tol=1e-8")
+            }
+            sing.vals <- svd(bx)$d  # expensive
+            cond <- sing.vals[length(sing.vals)] / sing.vals[1]
+            if(is.na(cond) || cond < Exhaustive.tol) {
+                if(trace >= 1)
+                    cat("\n")
+                warning0("forced pmethod=\"backward\" ",
+                    "(bx is ill conditioned, sing val ratio ",
+                    format(cond, digits=2), ")")
+                pmethod <- "backward"
+            } else if (trace >= 1)
+                cat0("(bx sing val ratio ", format(cond, digits=2), ")\n")
+        }
+        pmethod
+    }
     get.nprune <- function()  # convert user's nprune argument to a valid value
     {
         nterms <- nrow(dirs)
         if(is.null(nprune))
             nprune <- nterms
         if(nprune > nterms) {
-            warning0("specified \"nprune\" ", nprune,
-                    " is greater than the number ", nterms, " of available model terms ",
-                    "\nForcing \"nprune\" to ", nterms)
+            # Commented out Apr 2011
+            # warning0("specified \"nprune\" ", nprune,
+            #         " is greater than the number ", nterms, " of available model terms ",
+            #         "\nForcing \"nprune\" to ", nterms)
             nprune <- nterms
         }
         if(nprune < 1)
@@ -1087,15 +1142,17 @@ pruning.pass <- function(x, y, weights, subset,
         nprune
     }
     #--- pruning.pass starts here ---
-
     if(!is.null(bx) && is.null(subset))
         bx.prune <- bx   # use bx created in forward pass
     else                 # else recreate bx with all terms (update invoked earth)
         bx.prune <- get.bx(x, 1:nrow(dirs), dirs, cuts) # all terms
-    stopifnot(nrow(bx) == nrow(y))
+    stopifnot(nrow(bx.prune) == nrow(y))
     nprune <- get.nprune()
+    possibly.print.pacifier(bx.prune, nprune)
+    pmethod <- possibly.change.exhaustive.to.backward(pmethod, bx.prune)
+    flush.console() # make sure previous messages get seen, pruning make take a while
     rval <- Eval.model.subsets(bx.prune, y, weights,
-                               pmethod, nprune, Force.xtx.prune)
+                               pmethod, nprune, Force.xtx.prune, trace)
       rss.per.subset <- rval[[1]]   # RSS for each subset (across all responses)
       prune.terms    <- rval[[2]]   # terms in each subset
 
@@ -1103,7 +1160,6 @@ pruning.pass <- function(x, y, weights, subset,
     stopifnot(length(rss.per.subset) == nprune)
     stopifnot(nrow(prune.terms) == nprune)
     stopifnot(ncol(prune.terms) == nprune)
-
     stopif(any(prune.terms[,1] != 1))   # check intercept column
     gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, penalty, nrow(bx.prune))
     if(!all(is.finite(rss.per.subset)))
@@ -1112,9 +1168,8 @@ pruning.pass <- function(x, y, weights, subset,
     else if(!all(is.finite(gcv.per.subset)))
         warning0("earth: non finite GCV in model subsets ",
                  "(see the gcv.per.subset returned by earth)")
-    do.prune <- pmatch(pmethod[1], "none", 0) != 1
     selected.terms <- 1:nprune  # all terms
-    if(do.prune) {
+    if(pmethod != "none") {
         # choose the subset which has the lowest GCV in the vector of GCVS
         selected.terms <- prune.terms[which.min(gcv.per.subset),]
         selected.terms <- selected.terms[selected.terms != 0]

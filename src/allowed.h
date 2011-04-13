@@ -1,6 +1,6 @@
 // allowed.h: externs for allowed.c
 
-void InitAllowedFunc(SEXP Allowed, int nAllowedFuncArgs, SEXP Env, 
+void InitAllowedFunc(SEXP Allowed, int nAllowedFuncArgs, SEXP Env,
                      const char *sPredNames[], int nPreds);
 
 void FreeAllowedFunc(void);
