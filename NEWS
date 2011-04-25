@@ -1,6 +1,10 @@
 Changes to Earth Package
 ------------------------
 
+2.6-2  Apr 25, 2011
+   Moved plotmo.methods.earth.R to here so the plotmo package is independent of earth.
+   Modified test scripts to conform to R 2.13.0's way of printing numbers.
+
 2.6-1  Apr 13, 2011
    Fixed an issue of dependency on the plotmo package.
 

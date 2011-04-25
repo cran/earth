@@ -1098,6 +1098,8 @@ pruning.pass <- function(x, y, weights, subset,
     # any tol). This is probably because we are near the numerical noise floor
     # and the column norms in dqrdc are not monotically decreasing.
     # This change was made in Apr 2011.
+    #
+    # TODO this would be better handled by simply removing collinear cols in bx?
 
     possibly.change.exhaustive.to.backward <- function(pmethod, bx)
     {

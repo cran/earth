@@ -8,8 +8,9 @@ source("check.models.equal.R")
 data(ozone1)
 data(trees)
 data(etitanic)
+source("fast.postscript.R")
 if(!interactive())
-    postscript(paper="letter")
+    fast.postscript(paper="letter")
 
 PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
 PLOT <- TRUE                # TRUE to do plots too, FALSE for speed

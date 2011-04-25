@@ -4,8 +4,6 @@
 Loading required package: leaps
 Loading required package: plotmo
 Loading required package: plotrix
-Warning message:
-package 'plotrix' was built under R version 2.12.2 
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -24,8 +22,10 @@ package 'plotrix' was built under R version 2.12.2
 > do.caption <- function(caption)
 +     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
 > data(etitanic)
+> source("fast.postscript.R")
 > if(!interactive())
-+     postscript(paper="letter")
++     fast.postscript(paper="letter")
+Opening Rplots.ps 
 > old.par <- par(no.readonly=TRUE)
 > 
 > # test plotd basic functionality on a numeric response
@@ -67,7 +67,7 @@ Predicted response type="response": numeric or logical vector
 Grouping criterion: CLASS1 survived == 0, CLASS2 survived != 0
 
 predicted.response.per.class[not survived]: 0.9829214 0.4087048 0.9675222 0.3481902 0.2117923 0.2981643 ...
-predicted.response.per.class[survived    ]: 0.9637242 0.953888 0.2922077 0.9093885 0.9303776 0.9732628 ...
+predicted.response.per.class[survived    ]: 0.9637242 0.9538879 0.2922077 0.9093885 0.9303776 0.9732628 ...
 
 > 
 > plotd(a1, main="earth-glm, numeric, type=earth, params",
@@ -269,8 +269,6 @@ predicted.response.per.class[as.numeric(sex) != 1]: 1.212219 1.723106 1.385648 1
 > printh("rpart")
 ===rpart
 > library(rpart); library(earth); data(etitanic)
-Warning message:
-package 'rpart' was built under R version 2.12.2 
 > rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
 > plotd(rpart.model, type="prob", nresponse=1)
 > plotd(rpart.model, type="prob", nresponse=2)
@@ -495,7 +493,7 @@ Grouping criterion: predicted[observed == level] for 3 levels
 
 predicted.response.per.class[LD2: 1st]: -1.297405 -0.3240236 -0.2234925 1.192311 0.4591737 -0.1487316 ...
 predicted.response.per.class[LD2: 2nd]: 0.8584136 -0.4387892 -0.02988314 -0.3860568 -0.1782889 0.9771382 ...
-predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.06407257 -1.683260 -0.8313979 ...
+predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.06407257 -1.68326 -0.8313979 ...
 
 > # plotd(lda2, main="lda2, 3 lev fac, nresponse=NULL", jitter=TRUE, nresponse=NULL)
 > 

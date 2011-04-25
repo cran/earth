@@ -1,7 +1,7 @@
 @rem test.earth.glm.bat
 
 @echo === test.earth.glm ===============================================
-@"\PROGRA~1\R\R-2.12.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.earth.glm.R
+@"\PROGRA~1\R\R-2.13.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.earth.glm.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.glm.Rout:
 @echo.
@@ -12,12 +12,12 @@
 diff test.earth.glm.Rout test.earth.glm.Rout.save
 @if %errorlevel% equ 0 goto good2:
 @echo === Files are different ===
-@diffps -s Rplots.ps ..\..\.#\test.earth.glm.save.ps
+@diffps -s Rplots.ps ..\..\.#\test-reference\test.earth.glm.save.ps
 @exit /B 1
 :good2
 @rem test.earth.glm.save.ps is too big to be included in the release
 @rem so it is stored elsewhere
-diffps Rplots.ps ..\..\.#\test.earth.glm.save.ps
+diffps Rplots.ps ..\..\.#\test-reference\test.earth.glm.save.ps
 @if %errorlevel% equ 0 goto good3:
 @echo === Files are different ===
 @exit /B 1

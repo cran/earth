@@ -2,7 +2,7 @@
 @rem Stephen Milborrow Apr 2007 Petaluma
 
 @echo === test.earth.full ==============================================
-@"\PROGRA~1\R\R-2.12.0\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.full.R
+@"\PROGRA~1\R\R-2.13.0\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.full.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.full.Rout:
 @echo.
@@ -13,12 +13,12 @@
 diff test.earth.full.Rout test.earth.full.Rout.save
 @if %errorlevel% equ 0 goto good2:
 @echo === Files are different ===
-@diffps -s Rplots.ps ..\..\.#\test.earth.full.save.ps
+@diffps -s Rplots.ps ..\..\.#\test-reference\test.earth.full.save.ps
 @exit /B 1
 :good2
 @rem test.earth.full.save.ps is too big to be included in the release
 @rem so it is stored elsewhere
-diffps Rplots.ps ..\..\.#\test.earth.full.save.ps
+diffps Rplots.ps ..\..\.#\test-reference\test.earth.full.save.ps
 @if %errorlevel% equ 0 goto good3:
 @echo === Files are different ===
 @exit /B 1

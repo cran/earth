@@ -1,8 +1,9 @@
 # test.earth.glm.R: tests glm and factors added for earth release 2.0
 
 library(earth)
+source("fast.postscript.R")
 if(!interactive())
-    postscript(paper="letter")
+    fast.postscript(paper="letter")
 data(ozone1)
 data(trees)
 data(etitanic)
