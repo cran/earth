@@ -1,22 +1,22 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.12.0 (2010-10-15)"
+[1] "R version 2.13.0 (2011-04-13)"
 > 
 > library(earth)
 Loading required package: leaps
 Loading required package: plotmo
 Loading required package: plotrix
-Warning message:
-package 'plotrix' was built under R version 2.12.2 
 > library(mda)
 Loading required package: class
 > source("check.models.equal.R")
 > data(ozone1)
 > data(trees)
 > data(etitanic)
+> source("fast.postscript.R")
 > if(!interactive())
-+     postscript(paper="letter")
++     fast.postscript(paper="letter")
+Opening Rplots.ps 
 > 
 > PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
 > PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
@@ -45,7 +45,7 @@ To cite package 'earth' in publications use:
 
   Stephen Milborrow, derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. (). earth: Multivariate Adaptive Regression Spline
-  Models. R package version 2.6-0.
+  Models. R package version 2.6-2.
   http://www.milbo.users.sonic.net/earth
 
 A BibTeX entry for LaTeX users is
@@ -53,7 +53,7 @@ A BibTeX entry for LaTeX users is
   @Manual{,
     title = {earth: Multivariate Adaptive Regression Spline Models},
     author = {Stephen Milborrow and derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
-    note = {R package version 2.6-0},
+    note = {R package version 2.6-2},
     url = {http://www.milbo.users.sonic.net/earth},
   }
 
@@ -175,7 +175,7 @@ Reached max number of terms 21
 After forward pass GRSq 0.4069 RSq 0.4487
 Prune method "backward" penalty 3 nprune 16: selected 9 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.4222 RSq 0.4441 
-GLM survived: null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM survived: null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(a1)
 ===a1 
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
@@ -183,7 +183,7 @@ Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > 
 > a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
 +              degree=2, trace=1,
@@ -195,7 +195,7 @@ Reached max number of terms 21
 After forward pass GRSq 0.4069 RSq 0.4487
 Prune method "backward" penalty 3 nprune 16: selected 9 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.4222 RSq 0.4441 
-GLM etitanic[,2]: null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM etitanic[,2]: null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(a1a)
 ===a1a 
 Earth selected 9 of 16 terms, and 6 of 6 predictors 
@@ -203,7 +203,7 @@ Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > 
 > a2 <- earth(pclass ~ ., data=etitanic, trace=1, glm=list(family=binomial))
 x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
@@ -212,7 +212,7 @@ Forward pass term 1, 2, 4, 6, 8, 10, 12, 14
 Reached delta RSq threshold (DeltaRSq 0.00061857 < 0.001)
 After forward pass GRSq 0.163 RSq 0.1947
 Prune method "backward" penalty 2 nprune 10: selected 8 of 10 terms, and 4 of 5 predictors
-After backward pass GRSq 0.1670 RSq 0.1891 
+After backward pass GRSq 0.167 RSq 0.1891 
 GLM 1st: null.deviance 1223.308 (1045 dof)   deviance 920.8021 (1038 dof)   iters 5
 GLM 2nd: null.deviance 1175.305 (1045 dof)   deviance 1147.518 (1038 dof)   iters 5
 GLM 3rd: null.deviance 1448.212 (1045 dof)   deviance 1142.756 (1038 dof)   iters 5
@@ -255,7 +255,7 @@ GLM numdead: null.deviance 124.8756 (11 dof)   deviance 5.565963 (9 dof)   iters
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 2.376093    RSS 9.70238    GRSq 0.952486    RSq 0.9807588
+Earth GCV 2.376093    RSS 9.702381    GRSq 0.952486    RSq 0.9807588
 
 GLM null.deviance 124.8756 (11 dof)   deviance 5.565963 (9 dof)   iters 4
 > 
@@ -303,7 +303,7 @@ Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq -6.576 RSq 0.5265
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
-After backward pass GRSq -0.894 RSq 0.5265 
+After backward pass GRSq -0.8939 RSq 0.5265 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 > printh(a5)
 ===a5 
@@ -323,7 +323,7 @@ Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
-GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
+GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.702381 (9 dof)   iters 2
 > printh(a6$coefficients == a6$glm.coefficients)  # all TRUE
 ===a6$coefficients == a6$glm.coefficients 
             numdead
@@ -335,9 +335,9 @@ sexmale        TRUE
 Earth selected 3 of 3 terms, and 2 of 2 predictors 
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 2.376093    RSS 9.70238    GRSq 0.952486    RSq 0.9807588
+Earth GCV 2.376093    RSS 9.702381    GRSq 0.952486    RSq 0.9807588
 
-GLM null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
+GLM null.deviance 504.25 (11 dof)   deviance 9.702381 (9 dof)   iters 2
 > 
 > remove(ldose)
 > remove(sex)
@@ -703,7 +703,7 @@ Reached delta RSq threshold (DeltaRSq 0.00061857 < 0.001)
 After forward pass GRSq 0.163 RSq 0.1947
 Forward pass complete: 13 terms (10 terms used)
 Prune method "backward" penalty 2 nprune 10: selected 8 of 10 terms, and 4 of 5 predictors
-After backward pass GRSq 0.1670 RSq 0.1891 
+After backward pass GRSq 0.167 RSq 0.1891 
 Selected 8 of 10 terms, and 4 of 5 predictors 
 Importance: age, survived, sibsp, parch, sexmale-unused
 Number of terms at each degree of interaction: 1 7 (additive model)
@@ -2392,7 +2392,7 @@ itest 5   func1                            degree 1  nk 5   pmethod backward nTe
 Selected 5 of 5 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 4 (additive model)
-GCV 0.1220314    RSS 10.10542    GRSq 0.855971    RSq 0.878308
+GCV 0.1220314    RSS 10.10542    GRSq 0.855971    RSq 0.8783079
 > itest <- itest+1; test.earth(itest, func1, nk=5,   degree=2)
 itest 6   func1                            degree 2  nk 5   pmethod backward nTerms 5  of 5   GRSq 0.85
  grid:    x1         x2
@@ -2402,7 +2402,7 @@ itest 6   func1                            degree 2  nk 5   pmethod backward nTe
 Selected 5 of 5 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 4 (additive model)
-GCV 0.1275776    RSS 10.10542    GRSq 0.849425    RSq 0.878308
+GCV 0.1275776    RSS 10.10542    GRSq 0.8494251    RSq 0.8783079
 > itest <- itest+1; test.earth(itest, func1, nk=51, degree=1)
 itest 7   func1                            degree 1  nk 51  pmethod backward nTerms 9  of 9   GRSq    1
  grid:    x1         x2
@@ -2433,7 +2433,7 @@ itest 9   func1                            degree 1  nk 51  pmethod exhaustive n
 Selected 5 of 9 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 4 (additive model)
-GCV 0.01906992    RSS 1.579180    GRSq 0.9774925    RSq 0.9809831
+GCV 0.01906992    RSS 1.57918    GRSq 0.9774925    RSq 0.9809831
 > itest <- itest+1; test.earth(itest, func1, trace=2, nk=51, degree=1, pmethod="exhaust", nprune=5)
 itest 10  func1                            degree 1  nk 51  pmethod exhaust
 x is a 100 by 2 matrix: 1=x1, 2=x2
@@ -2463,7 +2463,7 @@ After backward pass GRSq 0.9775 RSq 0.981
 Selected 5 of 9 terms, and 2 of 2 predictors 
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 4 (additive model)
-GCV 0.01906992    RSS 1.579180    GRSq 0.9774925    RSq 0.9809831
+GCV 0.01906992    RSS 1.57918    GRSq 0.9774925    RSq 0.9809831
 > 
 > func7 <- function(x)    # just one predictor
 + {
@@ -2480,7 +2480,7 @@ itest 11  func7                            degree 1  nk 5   pmethod backward nTe
 Selected 4 of 4 terms, and 1 of 1 predictors 
 Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 0.1355322    RSS 11.72218    GRSq 0.7358613    RSq 0.766908
+GCV 0.1355322    RSS 11.72218    GRSq 0.7358613    RSq 0.7669079
 > itest <- itest+1; test.earth(itest, func7, nk=5,  degree=2)
 itest 12  func7                            degree 2  nk 5   pmethod backward nTerms 4  of 4   GRSq 0.73
   grid:    x
@@ -2490,7 +2490,7 @@ itest 12  func7                            degree 2  nk 5   pmethod backward nTe
 Selected 4 of 4 terms, and 1 of 1 predictors 
 Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 0.1400123    RSS 11.72218    GRSq 0.72713    RSq 0.766908
+GCV 0.1400123    RSS 11.72218    GRSq 0.7271301    RSq 0.7669079
 > itest <- itest+1; test.earth(itest, func7, nk=51, degree=1)
 itest 13  func7                            degree 1  nk 51  pmethod backward nTerms 7  of 8   GRSq 0.99
   grid:    x
@@ -2510,7 +2510,7 @@ itest 14  func7                            degree 2  nk 51  pmethod backward nTe
 Selected 7 of 8 terms, and 1 of 1 predictors 
 Importance: data.global[,-1]
 Number of terms at each degree of interaction: 1 6 (additive model)
-GCV 0.007653    RSS 0.5399957    GRSq 0.985085    RSq 0.9892623
+GCV 0.007653001    RSS 0.5399957    GRSq 0.9850851    RSq 0.9892623
 > 
 > func8 <- function(x)
 + {
@@ -2577,7 +2577,7 @@ itest 19  func8                            degree 2  nk 51  pmethod backward nTe
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.9952229
 > itest <- itest+1; test.earth(itest, func8, nk=51, degree=10)
 itest 20  func8                            degree 10 nk 51  pmethod backward nTerms 20 of 23  GRSq 0.98
  grid:    x1         x2         x3          x4          x5
@@ -2587,7 +2587,7 @@ itest 20  func8                            degree 10 nk 51  pmethod backward nTe
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.9952229
 > itest <- itest+1; test.earth(itest, func8noise, nk=11, degree=1,  test.rsq=FALSE)
 itest 21  func8noise                       degree 1  nk 11  pmethod backward nTerms 10 of 11  GRSq 0.89
  grid:    x1         x2         x3          x4          x5
@@ -2637,7 +2637,7 @@ itest 25  func8noise                       degree 2  nk 51  pmethod backward nTe
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.9952229
 > 
 > itest <- itest+1; test.earth(itest, func8noise, nk=51, degree=10, test.rsq=FALSE)
 itest 26  func8noise                       degree 10 nk 51  pmethod backward nTerms 20 of 23  GRSq 0.98
@@ -2648,7 +2648,7 @@ itest 26  func8noise                       degree 10 nk 51  pmethod backward nTe
 Selected 20 of 23 terms, and 5 of 5 predictors 
 Importance: x1, x5, x3, x2, x4
 Number of terms at each degree of interaction: 1 14 5
-GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.995223
+GCV 0.05130346    RSS 1.360696    GRSq 0.982347    RSq 0.9952229
 > 
 > eqn56 <- function(x) # Friedman MARS paper equation 56
 + {
@@ -2736,7 +2736,7 @@ itest 31  eqn56                            degree 2  nk 51  pmethod backward nTe
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
+GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=10)
 itest 32  eqn56                            degree 10 nk 51  pmethod backward nTerms 13 of 16  GRSq    1
  grid:    x1         x2         x3          x4          x5        x6         x7
@@ -2748,7 +2748,7 @@ itest 32  eqn56                            degree 10 nk 51  pmethod backward nTe
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
+GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=1,  test.rsq=FALSE)
 itest 33  eqn56noise                       degree 1  nk 11  pmethod backward nTerms 11 of 11  GRSq 0.96
  grid:    x1         x2         x3          x4          x5        x6         x7
@@ -2808,7 +2808,7 @@ itest 37  eqn56noise                       degree 2  nk 51  pmethod backward nTe
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
+GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=10, test.rsq=FALSE)
 itest 38  eqn56noise                       degree 10 nk 51  pmethod backward nTerms 13 of 16  GRSq    1
  grid:    x1         x2         x3          x4          x5        x6         x7
@@ -2820,7 +2820,7 @@ itest 38  eqn56noise                       degree 10 nk 51  pmethod backward nTe
 Selected 13 of 16 terms, and 5 of 10 predictors 
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 11 1
-GCV 0.02440621    RSS 1.161980    GRSq 0.997103    RSq 0.9985927
+GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > 
 > robotArm <- function(x) # Friedman Fast MARS paper
 + {
@@ -2920,9 +2920,9 @@ data.global[,1] =
   -   0.2451107 * bf13 * bf15
   -   0.3336347 * bf13 * bf16
   +   0.2275069 * bf5 * bf17
-  -   0.3394100 * bf18 * bf13 * bf16
-  +    1.121190 * bf2 * bf19 * bf20
-  +   0.2594880 * bf2 * bf19 * bf21
+  -     0.33941 * bf18 * bf13 * bf16
+  +     1.12119 * bf2 * bf19 * bf20
+  +    0.259488 * bf2 * bf19 * bf21
 
    bf1  h(l1-0.875321)
    bf2  h(0.875321-l1)
@@ -3022,9 +3022,9 @@ data.global[,1] =
   -   0.2451107 * bf13 * bf15
   -   0.3336347 * bf13 * bf16
   +   0.2275069 * bf5 * bf17
-  -   0.3394100 * bf18 * bf13 * bf16
-  +    1.121190 * bf2 * bf19 * bf20
-  +   0.2594880 * bf2 * bf19 * bf21
+  -     0.33941 * bf18 * bf13 * bf16
+  +     1.12119 * bf2 * bf19 * bf20
+  +    0.259488 * bf2 * bf19 * bf21
 
    bf1  h(l1-0.875321)
    bf2  h(0.875321-l1)
@@ -3280,7 +3280,7 @@ itest 45  eqn56                            degree 2  nk 21  pmethod backward nTe
 Selected 11 of 14 terms, and 5 of 10 predictors 3 linear predictors
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 9 1
-GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.998505
+GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.9985051
 > # check symmetry by using negative of eqn56
 > itest <- itest+1; data.global <- cbind(neg.eqn56(x.global), x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 )
 > test.earth(itest, neg.eqn56, nk=21, degree=2, linpreds=c(3,5))
@@ -3294,7 +3294,7 @@ itest 46  neg.eqn56                        degree 2  nk 21  pmethod backward nTe
 Selected 11 of 14 terms, and 5 of 10 predictors 3 linear predictors
 Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
 Number of terms at each degree of interaction: 1 9 1
-GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.998505
+GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.9985051
 > 
 > cat("--- tests with ozone data ----------------------\n")
 --- tests with ozone data ----------------------
@@ -3330,8 +3330,8 @@ y =
   133.5871
   +   57.5238 * bf1
   +  1.483386 * bf2
-  +   8.74905 * bf3
-  +  1.140510 * bf4
+  +  8.749051 * bf3
+  +   1.14051 * bf4
   -  4.903351 * bf5
 
    bf1  h(3-wind)
@@ -3588,7 +3588,7 @@ h(ibt-258) * h(200-vis)       -0.0025072
 Selected 27 of 48 terms, and 9 of 9 predictors 
 Importance: temp, ibt, doy, vis, dpg, ibh, humidity, wind, vh
 Number of terms at each degree of interaction: 1 6 20
-GCV 12.45516    RSS 2630.530    GRSq 0.8065237    RSq 0.8754213
+GCV 12.45516    RSS 2630.53    GRSq 0.8065237    RSq 0.8754213
 ===summary(fite, style = "bf") 
 Call: earth(x=x, y=y, trace=trace, degree=degree, nk=nk)
 
@@ -3611,7 +3611,7 @@ y =
   -  0.007321349 * bf16 * bf2
   -   0.01480744 * bf1 * bf17
   -   0.05426002 * bf18 * bf3
-  -  0.003772030 * bf19 * bf4
+  -   0.00377203 * bf19 * bf4
   +   0.01989054 * bf20 * bf4
   -   0.02277855 * bf21 * bf4
   -  0.002117587 * bf1 * bf22
@@ -3653,7 +3653,7 @@ y =
 Selected 27 of 48 terms, and 9 of 9 predictors 
 Importance: temp, ibt, doy, vis, dpg, ibh, humidity, wind, vh
 Number of terms at each degree of interaction: 1 6 20
-GCV 12.45516    RSS 2630.530    GRSq 0.8065237    RSq 0.8754213
+GCV 12.45516    RSS 2630.53    GRSq 0.8065237    RSq 0.8754213
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 to        earth(x=x, y=y, degree=degree, nk=nk)
 
@@ -3667,7 +3667,7 @@ to        earth(x=x, y=y, degree=degree, nk=nk)
 Selected 27 of 48 terms, and 9 of 9 predictors 
 Importance: temp, ibt, doy, vis, dpg, ibh, humidity, wind, vh
 Number of terms at each degree of interaction: 1 6 20
-GCV 12.45516    RSS 2630.530    GRSq 0.8065237    RSq 0.8754213
+GCV 12.45516    RSS 2630.53    GRSq 0.8065237    RSq 0.8754213
 > 
 > detach(ozone1)
 > 
@@ -3691,7 +3691,7 @@ GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 Selected 13 of 30 terms, and 8 of 9 predictors 
 Importance: temp, humidity, dpg, ibt, doy, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 6 6
-GCV 12.81700    RSS 3472.281    GRSq 0.800903    RSq 0.835557
+GCV 12.817    RSS 3472.281    GRSq 0.8009029    RSq 0.835557
 > printh(earth(O3 ~ ., data=ozone1, degree=2, nk = 31, fast.k = 5, fast.beta = 0))
 ===earth(O3 ~ ., data = ozone1, degree = 2, nk = 31, fast.k = 5,     fast.beta = 0) 
 Selected 18 of 31 terms, and 9 of 9 predictors 
@@ -4533,20 +4533,20 @@ GCV 10.77088    RSS 3554.389    GRSq 0.8316684    RSq 0.8316684
 Selected 11 of 21 terms, and 8 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
-GCV 17.18340    RSS 3767.904    GRSq 0.733076    RSq 0.8215567
+GCV 17.1834    RSS 3767.904    GRSq 0.733076    RSq 0.8215567
 > a <- earth(O3 ~ ., data=ozone1, nk=31, pmethod="n", degree=2)
 > a.none <- printh(update(a, nprune=10, pmethod="n"))
 ===update(a, nprune = 10, pmethod = "n") 
 Selected 10 of 31 terms, and 5 of 9 predictors 
 Importance: temp, humidity, ibt-unused, doy, dpg, ibh, vis-unused, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 6 3
-GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
+GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(update(a.none, pmethod="b"))
 ===update(a.none, pmethod = "b") 
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
+GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(update(a.none, nprune=4, pmethod="e"))
 ===update(a.none, nprune = 4, pmethod = "e") 
 Selected 4 of 31 terms, and 3 of 9 predictors 
@@ -4559,14 +4559,14 @@ GCV 18.55929    RSS 5813.122    GRSq 0.7117032    RSq 0.7246976
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
+GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > a.backwards <- update(a, nprune=10, pmethod="b")
 > printh(a.backwards)
 ===a.backwards 
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
+GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(all.equal(a.updated$bx, a.backwards$bx))
 ===all.equal(a.updated$bx, a.backwards$bx) [1] TRUE
 > a <- earth(O3 ~ ., data=ozone1, nk=31, nprune=10, pmethod="b", degree=2)
@@ -4575,7 +4575,7 @@ GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
 Selected 10 of 31 terms, and 7 of 9 predictors 
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
 Number of terms at each degree of interaction: 1 5 4
-GCV 13.83619    RSS 3938.796    GRSq 0.785071    RSq 0.8134634
+GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(all.equal(a$bx, a.backwards$bx))
 ===all.equal(a$bx, a.backwards$bx) [1] TRUE
 > 
@@ -4796,7 +4796,7 @@ update.earth: using 31 by 1 subset argument from original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 8.77394e-005 < 0.001)
+Reached delta RSq threshold (DeltaRSq 8.77394e-05 < 0.001)
 After forward pass GRSq 0.71 RSq 0.9369
 Prune method "backward" penalty 2 nprune 8: selected 4 of 8 terms, and 2 of 2 predictors
 After backward pass GRSq 0.883 RSq 0.9251 
@@ -4836,7 +4836,7 @@ Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0.000205816 < 0.001)
 After forward pass GRSq 0.925 RSq 0.9716
 Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
-After backward pass GRSq 0.9474 RSq 0.969 
+After backward pass GRSq 0.9474 RSq 0.9689 
 > a.formula.4  <- earth(Volume ~ ., data = trees, subset=subset.new)
 > check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4")
 check.models.equal identical: a4update a4
@@ -4870,7 +4870,7 @@ update.earth: using 1 by 1 wp saved by keepxy in original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 8.77394e-005 < 0.001)
+Reached delta RSq threshold (DeltaRSq 8.77394e-05 < 0.001)
 After forward pass GRSq 0.71 RSq 0.9369
 Prune method "backward" penalty 2 nprune 8: selected 4 of 8 terms, and 2 of 2 predictors
 After backward pass GRSq 0.883 RSq 0.9251 
@@ -5019,7 +5019,7 @@ Call: earth(x=structure(c(70, 65, 63, 72, 81, 83, 66, 75, 80, 75,
       25.7, 24.9, 34.5, 31.7, 36.3, 38.3, 42.6, 55.4, 55.7, 58.3, 51.5, 
       51, 77), .Dim=c(31L, 2L), .Dimnames=list(NULL, c("Height", 
       "Volume"))), y=structure(c(10.3, 10.3, 10.2, 16.4, 18.8, 19.7, 
-      15.6, 18.2, 22.6, 19.9, 24.2, 21, 21.4, 21.3, 19.1, 22.2, 33.8, etc.
+      15.6, 18.2, 22.6, 19.9, 24.2, 21, 21.4, 21.3, 19.1, 22.2, 33.8, ...
 x is a 31 by 2 matrix: 1=Height, 2=Volume
 First few rows of x are
      Height Volume
@@ -6123,7 +6123,7 @@ h(9-ff)       -0.1445003
 Selected 3 of 4 terms, and 1 of 1 predictors 
 Importance: ff
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 0.828019    RSS 17.25040    GRSq 0.5906149    RSq 0.6957602
+GCV 0.828019    RSS 17.2504    GRSq 0.5906149    RSq 0.6957602
 > if (PLOT)
 +     plot(a8)
 > a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
@@ -6224,10 +6224,10 @@ Selected 7 of 9 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 6 (additive model)
 
-             GCV        RSS     GRSq       RSq
-y1  0.0198479574 1.50229190 0.922188 0.9399083
-y2  0.0007267033 0.05500417 0.992885 0.9945053
-All 0.0142009094 1.07486683 0.953627 0.9641876
+             GCV        RSS      GRSq       RSq
+y1  0.0198479574 1.50229190 0.9221881 0.9399083
+y2  0.0007267033 0.05500417 0.9928850 0.9945053
+All 0.0142009094 1.07486683 0.9536270 0.9641876
 > m3 <- mars(cbind(x1,x2), cbind(y1, y2),  wp=wp)
 > cat("response weights: wp", wp, "earth gcv", e3$gcv,
 +     "mars gcv", m3$gcv, "mars gcv*length(wp)",
@@ -6687,13 +6687,13 @@ formula O3 ~ .
 stripped formula O3~.
 get.data.for.formula: using x from "se" passed to earth 
 about to eval model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
+    5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
+    9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
+    7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
+    7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
+    11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
+    3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
+    16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, ...
 got x with colnames from object$call$formula
 
 x[330,9]:
@@ -6712,15 +6712,16 @@ formula O3 ~ .
 stripped formula O3~.
 get.data.for.formula: using y from "se" passed to earth 
 about to eval model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
+    5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
+    9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
+    7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
+    7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
+    11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
+    3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
+    16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, ...
 got y from object$call$formula
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -6789,7 +6790,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 50 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "O3" returned length 50 min 10.95348 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -6841,7 +6843,8 @@ First few rows of bx are
 [5,]                     0   228.8571
 [6,]                     0   221.5714
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 50 min 3.947176 max 15.71664 values 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
+predict.earth(xgrid, type="response") column "O3" returned length 50 min 3.947176 max 15.71664
+                                      value 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -6893,7 +6896,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 24 min 10.96742 max 15.3705 values 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
+predict.earth(xgrid, type="response") column "O3" returned length 24 min 10.96742 max 15.3705
+                                      value 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -6945,11 +6949,12 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 50 min 7.391714 max 15.38381 values 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
+predict.earth(xgrid, type="response") column "O3" returned length 50 min 7.391714 max 15.38381
+                                      value 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
 
 --plot.degree2(draw.plot=FALSE)
 
-plotmo.predict(type="response") for  degree2 plot "wind" and "vis" with newdata[220,9]:
+plotmo.predict(type="response") for degree2 plot "wind:vis" with newdata[220,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    0       64   62 2112.5  24 167.5   0 205.5
 2   5760    2       64   62 2112.5  24 167.5   0 205.5
@@ -6999,9 +7004,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 220 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.62740 7.884299 4.141199 ...
+predict.earth(xgrid, type="response") column "O3" returned length 220 min 0.3980991 max 15.3705
+                                      value 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.6274 7.884299 4.141199 ...
 
-plotmo.predict(type="response") for  degree2 plot "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "humidity:temp" with newdata[400,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2   5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -7051,9 +7057,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "O3" returned length 400 min -0.6569983 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "temp:dpg" with newdata[400,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
 1   5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2   5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -7103,9 +7110,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "O3" returned length 400 min -12.89537 max 39.83191
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "ibh:dpg" with newdata[400,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
 1   5760    5       64   62  111.0000 -69 167.5 120 205.5
 2   5760    5       64   62  368.3158 -69 167.5 120 205.5
@@ -7155,10 +7163,11 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "O3" returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict.earth(xgrid, type="response") column "O3" returned length 400 min 5.537547 max 14.25387
+                                      value 5.537547 7.878725 10.2199 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
 
-ylim 1.371590 37.17335 
+ylim 1.37159 37.17335 
 
 --plot.degree1(draw.plot=TRUE)
 
@@ -7216,7 +7225,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 
 get.data.for.formula: using y from object$data 
 got y from object$call$formula
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -7230,11 +7240,12 @@ plotmo.predict(type="response") for degree1 plot "temp" with newdata[50,9]:
 ... 5760    5       64 29.16327 2112.5  24 167.5 120 205.5
 50  5760    5       64 93.00000 2112.5  24 167.5 120 205.5
 
-predict.earth(xgrid, type="response") column "O3" returned length 50 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "O3" returned length 50 min 10.95348 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
 --plot.degree2(draw.plot=FALSE)
 
-plotmo.predict(type="response") for  degree2 plot "wind" and "vis" with newdata[220,9]:
+plotmo.predict(type="response") for degree2 plot "wind:vis" with newdata[220,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    0       64   62 2112.5  24 167.5   0 205.5
 2   5760    2       64   62 2112.5  24 167.5   0 205.5
@@ -7242,9 +7253,10 @@ plotmo.predict(type="response") for  degree2 plot "wind" and "vis" with newdata[
 ... 5760    4       64   62 2112.5  24 167.5   0 205.5
 220 5760   11       64   62 2112.5  24 167.5 350 205.5
 
-predict.earth(xgrid, type="response") column "O3" returned length 220 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.62740 7.884299 4.141199 ...
+predict.earth(xgrid, type="response") column "O3" returned length 220 min 0.3980991 max 15.3705
+                                      value 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.6274 7.884299 4.141199 ...
 
-ylim 1.371590 37.17335 
+ylim 1.37159 37.17335 
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
         5760    5       64   62 2112.5  24 167.5 120 205.5
@@ -7359,7 +7371,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 --get.plotmo.y
 
 got y from object$call$y
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -7419,7 +7432,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -7462,7 +7476,8 @@ First few rows of bx are
 [5,]                     0   228.8571
 [6,]                     0   221.5714
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664 values 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664
+                                      value 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -7505,7 +7520,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705 values 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705
+                                      value 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -7548,11 +7564,12 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381 values 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381
+                                      value 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
 
 --plot.degree2(draw.plot=FALSE)
 
-plotmo.predict(type="response") for  degree2 plot "wind" and "vis" with newdata[220,9]:
+plotmo.predict(type="response") for degree2 plot "wind:vis" with newdata[220,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    0       64   62 2112.5  24 167.5   0 205.5
 2   5760    2       64   62 2112.5  24 167.5   0 205.5
@@ -7593,9 +7610,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.62740 7.884299 4.141199 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705
+                                      value 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.6274 7.884299 4.141199 ...
 
-plotmo.predict(type="response") for  degree2 plot "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "humidity:temp" with newdata[400,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2   5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -7636,9 +7654,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "temp:dpg" with newdata[400,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
 1   5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2   5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -7679,9 +7698,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "ibh:dpg" with newdata[400,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
 1   5760    5       64   62  111.0000 -69 167.5 120 205.5
 2   5760    5       64   62  368.3158 -69 167.5 120 205.5
@@ -7722,10 +7742,11 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387
+                                      value 5.537547 7.878725 10.2199 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
 
-ylim 1.371590 37.17335 
+ylim 1.37159 37.17335 
 
 --plot.degree1(draw.plot=TRUE)
 
@@ -7781,7 +7802,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y column "se[,1]" returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -7841,7 +7863,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -7884,7 +7907,8 @@ First few rows of bx are
 [5,]                     0   228.8571
 [6,]                     0   221.5714
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664 values 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664
+                                      value 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -7927,7 +7951,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705 values 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705
+                                      value 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -7970,11 +7995,12 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381 values 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381
+                                      value 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
 
 --plot.degree2(draw.plot=FALSE)
 
-plotmo.predict(type="response") for  degree2 plot "wind" and "vis" with newdata[220,9]:
+plotmo.predict(type="response") for degree2 plot "wind:vis" with newdata[220,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    0       64   62 2112.5  24 167.5   0 205.5
 2   5760    2       64   62 2112.5  24 167.5   0 205.5
@@ -8015,9 +8041,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.62740 7.884299 4.141199 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705
+                                      value 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.6274 7.884299 4.141199 ...
 
-plotmo.predict(type="response") for  degree2 plot "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "humidity:temp" with newdata[400,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2   5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -8058,9 +8085,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "temp:dpg" with newdata[400,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
 1   5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2   5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -8101,9 +8129,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "ibh:dpg" with newdata[400,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
 1   5760    5       64   62  111.0000 -69 167.5 120 205.5
 2   5760    5       64   62  368.3158 -69 167.5 120 205.5
@@ -8144,10 +8173,11 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387
+                                      value 5.537547 7.878725 10.2199 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
 
-ylim 1.371590 37.17335 
+ylim 1.37159 37.17335 
 
 --plot.degree1(draw.plot=TRUE)
 
@@ -8204,7 +8234,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y column "se[,1]" returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -8264,7 +8295,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -8307,7 +8339,8 @@ First few rows of bx are
 [5,]                     0   228.8571
 [6,]                     0   221.5714
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664 values 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664
+                                      value 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -8350,7 +8383,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705 values 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705
+                                      value 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -8393,11 +8427,12 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381 values 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381
+                                      value 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
 
 --plot.degree2(draw.plot=FALSE)
 
-plotmo.predict(type="response") for  degree2 plot "wind" and "vis" with newdata[220,9]:
+plotmo.predict(type="response") for degree2 plot "wind:vis" with newdata[220,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    0       64   62 2112.5  24 167.5   0 205.5
 2   5760    2       64   62 2112.5  24 167.5   0 205.5
@@ -8438,9 +8473,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.62740 7.884299 4.141199 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705
+                                      value 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.6274 7.884299 4.141199 ...
 
-plotmo.predict(type="response") for  degree2 plot "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "humidity:temp" with newdata[400,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2   5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -8481,9 +8517,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "temp:dpg" with newdata[400,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
 1   5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2   5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -8524,9 +8561,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "ibh:dpg" with newdata[400,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
 1   5760    5       64   62  111.0000 -69 167.5 120 205.5
 2   5760    5       64   62  368.3158 -69 167.5 120 205.5
@@ -8567,10 +8605,11 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387
+                                      value 5.537547 7.878725 10.2199 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
 
-ylim 1.371590 37.17335 
+ylim 1.37159 37.17335 
 
 --plot.degree1(draw.plot=TRUE)
 
@@ -8674,7 +8713,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y column "se[,1]" returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -8734,7 +8774,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 10.95348 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -8777,7 +8818,8 @@ First few rows of bx are
 [5,]                     0   228.8571
 [6,]                     0   221.5714
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664 values 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 3.947176 max 15.71664
+                                      value 3.947176 4.279536 4.611896 4.944256 5.276616 5.608977 5.941337 6.273697 6.606057 6.938417 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -8820,7 +8862,8 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705 values 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 24 min 10.96742 max 15.3705
+                                      value 15.3705 15.32647 15.28244 15.23841 15.21639 15.15034 14.99624 14.93019 14.77608 14.71004 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -8863,11 +8906,12 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381 values 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 50 min 7.391714 max 15.38381
+                                      value 7.391714 8.438414 9.485115 10.53182 11.57852 12.62522 13.67192 14.71862 15.38381 15.21443 ...
 
 --plot.degree2(draw.plot=FALSE)
 
-plotmo.predict(type="response") for  degree2 plot "wind" and "vis" with newdata[220,9]:
+plotmo.predict(type="response") for degree2 plot "wind:vis" with newdata[220,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    0       64   62 2112.5  24 167.5   0 205.5
 2   5760    2       64   62 2112.5  24 167.5   0 205.5
@@ -8908,9 +8952,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705 values 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.62740 7.884299 4.141199 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 220 min 0.3980991 max 15.3705
+                                      value 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 15.3705 11.6274 7.884299 4.141199 ...
 
-plotmo.predict(type="response") for  degree2 plot "humidity" and "temp" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "humidity:temp" with newdata[400,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
 1   5760    5 19.00000   25 2112.5  24 167.5 120 205.5
 2   5760    5 22.89474   25 2112.5  24 167.5 120 205.5
@@ -8951,9 +8996,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -0.6569983 max 26.48623
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "temp" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "temp:dpg" with newdata[400,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
 1   5760    5       64 25.00000 2112.5 -69 167.5 120 205.5
 2   5760    5       64 28.57895 2112.5 -69 167.5 120 205.5
@@ -8994,9 +9040,10 @@ First few rows of bx are
 [5,]                     0       65.5
 [6,]                     0       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191 values 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min -12.89537 max 39.83191
+                                      value 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 10.95348 ...
 
-plotmo.predict(type="response") for  degree2 plot "ibh" and "dpg" with newdata[400,9]:
+plotmo.predict(type="response") for degree2 plot "ibh:dpg" with newdata[400,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
 1   5760    5       64   62  111.0000 -69 167.5 120 205.5
 2   5760    5       64   62  368.3158 -69 167.5 120 205.5
@@ -9037,10 +9084,11 @@ First few rows of bx are
 [5,]                  0.00       65.5
 [6,]                  0.00       65.5
 predict.earth: returning earth predictions 
-predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387 values 5.537547 7.878725 10.21990 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
+predict.earth(xgrid, type="response") column "se[,1]" returned length 400 min 5.537547 max 14.25387
+                                      value 5.537547 7.878725 10.2199 12.56108 14.25387 14.25387 14.25387 14.25387 14.25387 14.25387 ...
 
 
-ylim 1.371590 37.17335 
+ylim 1.37159 37.17335 
 
 --plot.degree1(draw.plot=TRUE)
 
@@ -9166,13 +9214,13 @@ formula O3 ~ .
 stripped formula O3~.
 get.data.for.formula: using x from "se" passed to lm 
 about to eval model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
+    5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
+    9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
+    7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
+    7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
+    11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
+    3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
+    16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, ...
 got x with colnames from object$call$formula
 
 x[330,9]:
@@ -9188,7 +9236,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -9221,7 +9270,8 @@ plotmo.predict(type="response") for degree1 plot "vh" with newdata[50,9]:
 ... 5358.571    5       64   62 2112.5  24 167.5 120 205.5
 50  5950.000    5       64   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 11.57289 max 14.99199 values 14.99199 14.92221 14.85243 14.78265 14.71288 14.64310 14.57332 14.50354 14.43377 14.36399 ...
+predict.lm(xgrid, type="response") returned length 50 min 11.57289 max 14.99199
+                                   value 14.99199 14.92221 14.85243 14.78265 14.71288 14.6431 14.57332 14.50354 14.43377 14.36399 ...
 
 plotmo.predict(type="response") for degree1 plot "wind" with newdata[11,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9231,7 +9281,8 @@ plotmo.predict(type="response") for degree1 plot "wind" with newdata[11,9]:
 ... 5760    4       64   62 2112.5  24 167.5 120 205.5
 11  5760   11       64   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 11 min 12.27655 max 12.87696 values 12.87696 12.76780 12.71322 12.65863 12.60405 12.54947 12.49488 12.4403 12.38572 12.33113 ...
+predict.lm(xgrid, type="response") returned length 11 min 12.27655 max 12.87696
+                                   value 12.87696 12.7678 12.71322 12.65863 12.60405 12.54947 12.49488 12.4403 12.38572 12.33113 ...
 
 plotmo.predict(type="response") for degree1 plot "humidity" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9241,7 +9292,8 @@ plotmo.predict(type="response") for degree1 plot "humidity" with newdata[50,9]:
 ... 5760    5 23.53061   62 2112.5  24 167.5 120 205.5
 50  5760    5 93.00000   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 8.960214 max 14.95230 values 8.960214 9.082502 9.204789 9.327076 9.449364 9.571651 9.693939 9.816226 9.938514 10.06080 ...
+predict.lm(xgrid, type="response") returned length 50 min 8.960214 max 14.9523
+                                   value 8.960214 9.082502 9.204789 9.327076 9.449364 9.571651 9.693939 9.816226 9.938514 10.0608 ...
 
 plotmo.predict(type="response") for degree1 plot "temp" with newdata[50,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
@@ -9251,7 +9303,8 @@ plotmo.predict(type="response") for degree1 plot "temp" with newdata[50,9]:
 ... 5760    5       64 29.16327 2112.5  24 167.5 120 205.5
 50  5760    5       64 93.00000 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 2.408729 max 21.14607 values 2.408729 2.791124 3.173519 3.555914 3.938309 4.320703 4.703098 5.085493 5.467888 5.850282 ...
+predict.lm(xgrid, type="response") returned length 50 min 2.408729 max 21.14607
+                                   value 2.408729 2.791124 3.173519 3.555914 3.938309 4.320703 4.703098 5.085493 5.467888 5.850282 ...
 
 plotmo.predict(type="response") for degree1 plot "ibh" with newdata[50,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
@@ -9261,7 +9314,8 @@ plotmo.predict(type="response") for degree1 plot "ibh" with newdata[50,9]:
 ... 5760    5       64   62  410.3265  24 167.5 120 205.5
 50  5760    5       64   62 5000.0000  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 11.92886 max 13.07206 values 13.07206 13.04873 13.02540 13.00207 12.97874 12.95541 12.93208 12.90875 12.88542 12.86209 ...
+predict.lm(xgrid, type="response") returned length 50 min 11.92886 max 13.07206
+                                   value 13.07206 13.04873 13.0254 13.00207 12.97874 12.95541 12.93208 12.90875 12.88542 12.86209 ...
 
 plotmo.predict(type="response") for degree1 plot "dpg" with newdata[50,9]:
       vh wind humidity temp    ibh       dpg   ibt vis   doy
@@ -9271,7 +9325,8 @@ plotmo.predict(type="response") for degree1 plot "dpg" with newdata[50,9]:
 ... 5760    5       64   62 2112.5 -58.22449 167.5 120 205.5
 50  5760    5       64   62 2112.5 107.00000 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 12.32493 max 12.91680 values 12.91680 12.90472 12.89264 12.88056 12.86848 12.85640 12.84432 12.83224 12.82016 12.80809 ...
+predict.lm(xgrid, type="response") returned length 50 min 12.32493 max 12.9168
+                                   value 12.9168 12.90472 12.89264 12.88056 12.86848 12.8564 12.84432 12.83224 12.82016 12.80809 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -9281,7 +9336,8 @@ plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
 ... 5760    5       64   62 2112.5  24  -3.142857 120 205.5
 50  5760    5       64   62 2112.5  24 332.000000 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 6.89813 max 17.48002 values 6.89813 7.114087 7.330043 7.546 7.761957 7.977914 8.193871 8.409828 8.625785 8.841742 ...
+predict.lm(xgrid, type="response") returned length 50 min 6.89813 max 17.48002
+                                   value 6.89813 7.114087 7.330043 7.546 7.761957 7.977914 8.193871 8.409828 8.625785 8.841742 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9291,7 +9347,8 @@ plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
 ... 5760    5       64   62 2112.5  24 167.5   6 205.5
 24  5760    5       64   62 2112.5  24 167.5 350 205.5
 
-predict.lm(xgrid, type="response") returned length 24 min 10.76612 max 13.56297 values 13.56297 13.54698 13.53100 13.51502 13.50703 13.48306 13.42712 13.40315 13.34721 13.32324 ...
+predict.lm(xgrid, type="response") returned length 24 min 10.76612 max 13.56297
+                                   value 13.56297 13.54698 13.531 13.51502 13.50703 13.48306 13.42712 13.40315 13.34721 13.32324 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -9301,7 +9358,8 @@ plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
 ... 5760    5       64   62 2112.5  24 167.5 120  54.85714
 50  5760    5       64   62 2112.5  24 167.5 120 390.00000
 
-predict.lm(xgrid, type="response") returned length 50 min 10.92151 max 14.17715 values 14.17715 14.11071 14.04427 13.97783 13.91138 13.84494 13.7785 13.71206 13.64562 13.57918 ...
+predict.lm(xgrid, type="response") returned length 50 min 10.92151 max 14.17715
+                                   value 14.17715 14.11071 14.04427 13.97783 13.91138 13.84494 13.7785 13.71206 13.64562 13.57918 ...
 
 ylim 2.408729 21.14607 
 
@@ -9359,7 +9417,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -9393,7 +9452,8 @@ plotmo.predict(type="response") for degree1 plot "vh" with newdata[50,9]:
 ... 5358.571    5       64   62 2112.5  24 167.5 120 205.5
 50  5950.000    5       64   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 11.57289 max 14.99199 values 14.99199 14.92221 14.85243 14.78265 14.71288 14.64310 14.57332 14.50354 14.43377 14.36399 ...
+predict.lm(xgrid, type="response") returned length 50 min 11.57289 max 14.99199
+                                   value 14.99199 14.92221 14.85243 14.78265 14.71288 14.6431 14.57332 14.50354 14.43377 14.36399 ...
 
 plotmo.predict(type="response") for degree1 plot "wind" with newdata[11,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9403,7 +9463,8 @@ plotmo.predict(type="response") for degree1 plot "wind" with newdata[11,9]:
 ... 5760    4       64   62 2112.5  24 167.5 120 205.5
 11  5760   11       64   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 11 min 12.27655 max 12.87696 values 12.87696 12.76780 12.71322 12.65863 12.60405 12.54947 12.49488 12.4403 12.38572 12.33113 ...
+predict.lm(xgrid, type="response") returned length 11 min 12.27655 max 12.87696
+                                   value 12.87696 12.7678 12.71322 12.65863 12.60405 12.54947 12.49488 12.4403 12.38572 12.33113 ...
 
 plotmo.predict(type="response") for degree1 plot "humidity" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9413,7 +9474,8 @@ plotmo.predict(type="response") for degree1 plot "humidity" with newdata[50,9]:
 ... 5760    5 23.53061   62 2112.5  24 167.5 120 205.5
 50  5760    5 93.00000   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 8.960214 max 14.95230 values 8.960214 9.082502 9.204789 9.327076 9.449364 9.571651 9.693939 9.816226 9.938514 10.06080 ...
+predict.lm(xgrid, type="response") returned length 50 min 8.960214 max 14.9523
+                                   value 8.960214 9.082502 9.204789 9.327076 9.449364 9.571651 9.693939 9.816226 9.938514 10.0608 ...
 
 plotmo.predict(type="response") for degree1 plot "temp" with newdata[50,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
@@ -9423,7 +9485,8 @@ plotmo.predict(type="response") for degree1 plot "temp" with newdata[50,9]:
 ... 5760    5       64 29.16327 2112.5  24 167.5 120 205.5
 50  5760    5       64 93.00000 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 2.408729 max 21.14607 values 2.408729 2.791124 3.173519 3.555914 3.938309 4.320703 4.703098 5.085493 5.467888 5.850282 ...
+predict.lm(xgrid, type="response") returned length 50 min 2.408729 max 21.14607
+                                   value 2.408729 2.791124 3.173519 3.555914 3.938309 4.320703 4.703098 5.085493 5.467888 5.850282 ...
 
 plotmo.predict(type="response") for degree1 plot "ibh" with newdata[50,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
@@ -9433,7 +9496,8 @@ plotmo.predict(type="response") for degree1 plot "ibh" with newdata[50,9]:
 ... 5760    5       64   62  410.3265  24 167.5 120 205.5
 50  5760    5       64   62 5000.0000  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 11.92886 max 13.07206 values 13.07206 13.04873 13.02540 13.00207 12.97874 12.95541 12.93208 12.90875 12.88542 12.86209 ...
+predict.lm(xgrid, type="response") returned length 50 min 11.92886 max 13.07206
+                                   value 13.07206 13.04873 13.0254 13.00207 12.97874 12.95541 12.93208 12.90875 12.88542 12.86209 ...
 
 plotmo.predict(type="response") for degree1 plot "dpg" with newdata[50,9]:
       vh wind humidity temp    ibh       dpg   ibt vis   doy
@@ -9443,7 +9507,8 @@ plotmo.predict(type="response") for degree1 plot "dpg" with newdata[50,9]:
 ... 5760    5       64   62 2112.5 -58.22449 167.5 120 205.5
 50  5760    5       64   62 2112.5 107.00000 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 12.32493 max 12.91680 values 12.91680 12.90472 12.89264 12.88056 12.86848 12.85640 12.84432 12.83224 12.82016 12.80809 ...
+predict.lm(xgrid, type="response") returned length 50 min 12.32493 max 12.9168
+                                   value 12.9168 12.90472 12.89264 12.88056 12.86848 12.8564 12.84432 12.83224 12.82016 12.80809 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -9453,7 +9518,8 @@ plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
 ... 5760    5       64   62 2112.5  24  -3.142857 120 205.5
 50  5760    5       64   62 2112.5  24 332.000000 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 6.89813 max 17.48002 values 6.89813 7.114087 7.330043 7.546 7.761957 7.977914 8.193871 8.409828 8.625785 8.841742 ...
+predict.lm(xgrid, type="response") returned length 50 min 6.89813 max 17.48002
+                                   value 6.89813 7.114087 7.330043 7.546 7.761957 7.977914 8.193871 8.409828 8.625785 8.841742 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9463,7 +9529,8 @@ plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
 ... 5760    5       64   62 2112.5  24 167.5   6 205.5
 24  5760    5       64   62 2112.5  24 167.5 350 205.5
 
-predict.lm(xgrid, type="response") returned length 24 min 10.76612 max 13.56297 values 13.56297 13.54698 13.53100 13.51502 13.50703 13.48306 13.42712 13.40315 13.34721 13.32324 ...
+predict.lm(xgrid, type="response") returned length 24 min 10.76612 max 13.56297
+                                   value 13.56297 13.54698 13.531 13.51502 13.50703 13.48306 13.42712 13.40315 13.34721 13.32324 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -9473,7 +9540,8 @@ plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
 ... 5760    5       64   62 2112.5  24 167.5 120  54.85714
 50  5760    5       64   62 2112.5  24 167.5 120 390.00000
 
-predict.lm(xgrid, type="response") returned length 50 min 10.92151 max 14.17715 values 14.17715 14.11071 14.04427 13.97783 13.91138 13.84494 13.7785 13.71206 13.64562 13.57918 ...
+predict.lm(xgrid, type="response") returned length 50 min 10.92151 max 14.17715
+                                   value 14.17715 14.11071 14.04427 13.97783 13.91138 13.84494 13.7785 13.71206 13.64562 13.57918 ...
 
 ylim 2.408729 21.14607 
 
@@ -9545,7 +9613,8 @@ nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=32
 --get.plotmo.y
 
 got y from object$y
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 
@@ -9579,7 +9648,8 @@ plotmo.predict(type="response") for degree1 plot "vh" with newdata[50,9]:
 ... 5358.571    5       64   62 2112.5  24 167.5 120 205.5
 50  5950.000    5       64   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 11.57289 max 14.99199 values 14.99199 14.92221 14.85243 14.78265 14.71288 14.64310 14.57332 14.50354 14.43377 14.36399 ...
+predict.lm(xgrid, type="response") returned length 50 min 11.57289 max 14.99199
+                                   value 14.99199 14.92221 14.85243 14.78265 14.71288 14.6431 14.57332 14.50354 14.43377 14.36399 ...
 
 plotmo.predict(type="response") for degree1 plot "wind" with newdata[11,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9589,7 +9659,8 @@ plotmo.predict(type="response") for degree1 plot "wind" with newdata[11,9]:
 ... 5760    4       64   62 2112.5  24 167.5 120 205.5
 11  5760   11       64   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 11 min 12.27655 max 12.87696 values 12.87696 12.76780 12.71322 12.65863 12.60405 12.54947 12.49488 12.4403 12.38572 12.33113 ...
+predict.lm(xgrid, type="response") returned length 11 min 12.27655 max 12.87696
+                                   value 12.87696 12.7678 12.71322 12.65863 12.60405 12.54947 12.49488 12.4403 12.38572 12.33113 ...
 
 plotmo.predict(type="response") for degree1 plot "humidity" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9599,7 +9670,8 @@ plotmo.predict(type="response") for degree1 plot "humidity" with newdata[50,9]:
 ... 5760    5 23.53061   62 2112.5  24 167.5 120 205.5
 50  5760    5 93.00000   62 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 8.960214 max 14.95230 values 8.960214 9.082502 9.204789 9.327076 9.449364 9.571651 9.693939 9.816226 9.938514 10.06080 ...
+predict.lm(xgrid, type="response") returned length 50 min 8.960214 max 14.9523
+                                   value 8.960214 9.082502 9.204789 9.327076 9.449364 9.571651 9.693939 9.816226 9.938514 10.0608 ...
 
 plotmo.predict(type="response") for degree1 plot "temp" with newdata[50,9]:
       vh wind humidity     temp    ibh dpg   ibt vis   doy
@@ -9609,7 +9681,8 @@ plotmo.predict(type="response") for degree1 plot "temp" with newdata[50,9]:
 ... 5760    5       64 29.16327 2112.5  24 167.5 120 205.5
 50  5760    5       64 93.00000 2112.5  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 2.408729 max 21.14607 values 2.408729 2.791124 3.173519 3.555914 3.938309 4.320703 4.703098 5.085493 5.467888 5.850282 ...
+predict.lm(xgrid, type="response") returned length 50 min 2.408729 max 21.14607
+                                   value 2.408729 2.791124 3.173519 3.555914 3.938309 4.320703 4.703098 5.085493 5.467888 5.850282 ...
 
 plotmo.predict(type="response") for degree1 plot "ibh" with newdata[50,9]:
       vh wind humidity temp       ibh dpg   ibt vis   doy
@@ -9619,7 +9692,8 @@ plotmo.predict(type="response") for degree1 plot "ibh" with newdata[50,9]:
 ... 5760    5       64   62  410.3265  24 167.5 120 205.5
 50  5760    5       64   62 5000.0000  24 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 11.92886 max 13.07206 values 13.07206 13.04873 13.02540 13.00207 12.97874 12.95541 12.93208 12.90875 12.88542 12.86209 ...
+predict.lm(xgrid, type="response") returned length 50 min 11.92886 max 13.07206
+                                   value 13.07206 13.04873 13.0254 13.00207 12.97874 12.95541 12.93208 12.90875 12.88542 12.86209 ...
 
 plotmo.predict(type="response") for degree1 plot "dpg" with newdata[50,9]:
       vh wind humidity temp    ibh       dpg   ibt vis   doy
@@ -9629,7 +9703,8 @@ plotmo.predict(type="response") for degree1 plot "dpg" with newdata[50,9]:
 ... 5760    5       64   62 2112.5 -58.22449 167.5 120 205.5
 50  5760    5       64   62 2112.5 107.00000 167.5 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 12.32493 max 12.91680 values 12.91680 12.90472 12.89264 12.88056 12.86848 12.85640 12.84432 12.83224 12.82016 12.80809 ...
+predict.lm(xgrid, type="response") returned length 50 min 12.32493 max 12.9168
+                                   value 12.9168 12.90472 12.89264 12.88056 12.86848 12.8564 12.84432 12.83224 12.82016 12.80809 ...
 
 plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
       vh wind humidity temp    ibh dpg        ibt vis   doy
@@ -9639,7 +9714,8 @@ plotmo.predict(type="response") for degree1 plot "ibt" with newdata[50,9]:
 ... 5760    5       64   62 2112.5  24  -3.142857 120 205.5
 50  5760    5       64   62 2112.5  24 332.000000 120 205.5
 
-predict.lm(xgrid, type="response") returned length 50 min 6.89813 max 17.48002 values 6.89813 7.114087 7.330043 7.546 7.761957 7.977914 8.193871 8.409828 8.625785 8.841742 ...
+predict.lm(xgrid, type="response") returned length 50 min 6.89813 max 17.48002
+                                   value 6.89813 7.114087 7.330043 7.546 7.761957 7.977914 8.193871 8.409828 8.625785 8.841742 ...
 
 plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
       vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -9649,7 +9725,8 @@ plotmo.predict(type="response") for degree1 plot "vis" with newdata[24,9]:
 ... 5760    5       64   62 2112.5  24 167.5   6 205.5
 24  5760    5       64   62 2112.5  24 167.5 350 205.5
 
-predict.lm(xgrid, type="response") returned length 24 min 10.76612 max 13.56297 values 13.56297 13.54698 13.53100 13.51502 13.50703 13.48306 13.42712 13.40315 13.34721 13.32324 ...
+predict.lm(xgrid, type="response") returned length 24 min 10.76612 max 13.56297
+                                   value 13.56297 13.54698 13.531 13.51502 13.50703 13.48306 13.42712 13.40315 13.34721 13.32324 ...
 
 plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
       vh wind humidity temp    ibh dpg   ibt vis       doy
@@ -9659,7 +9736,8 @@ plotmo.predict(type="response") for degree1 plot "doy" with newdata[50,9]:
 ... 5760    5       64   62 2112.5  24 167.5 120  54.85714
 50  5760    5       64   62 2112.5  24 167.5 120 390.00000
 
-predict.lm(xgrid, type="response") returned length 50 min 10.92151 max 14.17715 values 14.17715 14.11071 14.04427 13.97783 13.91138 13.84494 13.7785 13.71206 13.64562 13.57918 ...
+predict.lm(xgrid, type="response") returned length 50 min 10.92151 max 14.17715
+                                   value 14.17715 14.11071 14.04427 13.97783 13.91138 13.84494 13.7785 13.71206 13.64562 13.57918 ...
 
 ylim 2.408729 21.14607 
 
@@ -9679,13 +9757,13 @@ formula O3 ~ .
 stripped formula O3~.
 get.data.for.formula: using x from "se" passed to lm 
 about to eval model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
+    5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
+    9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
+    7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
+    7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
+    11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
+    3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
+    16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, ...
 got x with colnames from object$call$formula
 
 x[330,8]:
@@ -9704,15 +9782,16 @@ formula O3 ~ .
 stripped formula O3~.
 get.data.for.formula: using y from "se" passed to lm 
 about to eval model.frame(formula=O3~., data=structure(list(O3=c(3, 
-              5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
-              9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
-              7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
-              7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
-              11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
-              3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
-              16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, etc.
+    5, 5, 6, 4, 4, 6, 7, 4, 6, 5, 4, 4, 7, 5, 9, 4, 3, 4, 4, 5, 6, 
+    9, 6, 6, 11, 10, 7, 12, 9, 2, 3, 3, 2, 3, 3, 4, 6, 8, 6, 4, 3, 
+    7, 11, 13, 6, 5, 4, 4, 6, 10, 15, 23, 17, 7, 2, 3, 3, 4, 6, 7, 
+    7, 6, 3, 2, 8, 12, 12, 16, 9, 24, 13, 8, 10, 8, 9, 10, 14, 9, 
+    11, 7, 9, 12, 12, 8, 9, 5, 4, 4, 9, 13, 5, 10, 10, 7, 5, 4, 7, 
+    3, 4, 7, 11, 15, 22, 17, 7, 10, 19, 18, 12, 6, 9, 19, 21, 29, 
+    16, 11, 2, 12, 16, 22, 20, 27, 33, 25, 31, 18, 24, 16, 12, 9, ...
 got y from object$call$formula
-get.plotmo.y returned length 330 min 1 max 38 values 3 5 5 6 4 4 6 7 4 6 ...
+get.plotmo.y returned length 330 min 1 max 38
+             value 3 5 5 6 4 4 6 7 4 6 ...
 
 clip.limits 1 38 
 

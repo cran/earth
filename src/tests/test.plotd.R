@@ -19,8 +19,9 @@ par(oma=oma)
 do.caption <- function(caption)
     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
 data(etitanic)
+source("fast.postscript.R")
 if(!interactive())
-    postscript(paper="letter")
+    fast.postscript(paper="letter")
 old.par <- par(no.readonly=TRUE)
 
 # test plotd basic functionality on a numeric response

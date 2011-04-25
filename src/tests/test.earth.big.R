@@ -1,8 +1,9 @@
 # test.earth.big: test earth with a biggish model
 
 library(earth)
+source("fast.postscript.R")
 if(!interactive())
-    postscript(paper="letter")
+    fast.postscript(paper="letter")
 options(warn=1) # print warnings as they occur
 options(digits = 3)
 set.seed(777)

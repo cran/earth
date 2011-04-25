@@ -4,10 +4,10 @@
 Loading required package: leaps
 Loading required package: plotmo
 Loading required package: plotrix
-Warning message:
-package 'plotrix' was built under R version 2.12.2 
+> source("fast.postscript.R")
 > if(!interactive())
-+     postscript(paper="letter")
++     fast.postscript(paper="letter")
+Opening Rplots.ps 
 > data(ozone1)
 > data(trees)
 > data(etitanic)
@@ -138,7 +138,7 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
 chosen    5      0.7309  0.9978    -0.1856      3  1 2 3 4 5
 
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 
 y arg to glm() is a 12 by 2 matrix: 1=numdead, 2=numalive
 First few rows of y arg to glm() are
@@ -267,7 +267,8 @@ stripped formula SF~sex+ldose+ldose1
 no explicit data for formula
 about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -335,7 +336,8 @@ Contents of bx are
 [5,]           0.5
 [6,]           0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05135789 max 0.819583 values 0.05135789 0.1160617 0.2415285 0.4357644 0.65194 0.819583 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05135789 max 0.8195831
+                                      value 0.05135789 0.1160617 0.2415285 0.4357644 0.65194 0.8195831 
 
 plotmo.predict(type="response") for degree1 plot "ldose1" with newdata[6,3]:
        sex ldose ldose1
@@ -382,11 +384,12 @@ Contents of bx are
 [5,]           1.1
 [6,]           1.3
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.3220784 max 0.3374819 values 0.3374819 0.3350886 0.3279595 0.3267788 0.3244242 0.3220784 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.3220784 max 0.3374819
+                                      value 0.3374819 0.3350886 0.3279595 0.3267788 0.3244242 0.3220784 
 
 --plot.degree2(draw.plot=TRUE)
 
-plotmo.predict(type="response") for  degree2 plot "sex" and "ldose" with newdata[12,3]:
+plotmo.predict(type="response") for degree2 plot "sex:ldose" with newdata[12,3]:
        sex ldose ldose1
 1   female    -2    0.6
 2     male    -2    0.6
@@ -431,10 +434,11 @@ First few rows of bx are
 [5,]           0.5
 [6,]           0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.05135789 max 0.9727988 values 0.05135789 0.05135789 0.1160617 0.1655379 0.2415285 0.4209289 0.4357644 0.7270416 0.65194 0.907063 ...
+predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.05135789 max 0.9727988
+                                      value 0.05135789 0.05135789 0.1160617 0.1655379 0.2415285 0.4209289 0.4357644 0.7270416 0.65194 0.907063 ...
 persp(sex:ldose) theta -35 ylim 0 1 cex 0.83
 
-plotmo.predict(type="response") for  degree2 plot "ldose" and "ldose1" with newdata[36,3]:
+plotmo.predict(type="response") for degree2 plot "ldose:ldose1" with newdata[36,3]:
        sex ldose ldose1
 1   female    -2    0.1
 2   female    -1    0.1
@@ -479,7 +483,8 @@ First few rows of bx are
 [5,]             0
 [6,]             0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04849071 max 0.8358414 values 0.04849071 0.1134656 0.2432462 0.4466767 0.6696824 0.8358414 0.04961889 0.1144979 0.2425581 0.442305 ...
+predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04849071 max 0.8358414
+                                      value 0.04849071 0.1134656 0.2432462 0.4466767 0.6696824 0.8358414 0.04961889 0.1144979 0.2425581 0.442305 ...
 persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
 
 -------------------------------------------------------------------------------
@@ -502,7 +507,7 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > check.models.equal(a1a, a1, msg="a1 a1a")
 check.models.equal not identical: a1 a1a [but within numerical tolerances]
@@ -513,7 +518,7 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > check.models.equal(a1, a1b, msg="a1 a1b")
 check.models.equal not identical: a1 a1b [but within numerical tolerances]
@@ -524,7 +529,7 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > check.models.equal(a1, a1c, msg="a1 a1c")
 check.models.equal not identical: a1 a1c [but within numerical tolerances]
@@ -535,7 +540,7 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > check.models.equal(a1, a1d, msg="a1 a1d")
 check.models.equal not identical: a1 a1d [but within numerical tolerances]
@@ -551,7 +556,7 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > check.models.equal(a1, a1g, msg="a1 a1g")
 check.models.equal not identical: a1 a1g [but within numerical tolerances]
@@ -563,7 +568,7 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 Deviance = 4.982452 Iterations - 1 
 Deviance = 4.956514 Iterations - 2 
 Warning: glm.fit: algorithm did not converge
@@ -630,9 +635,9 @@ GLM coefficients (family binomial, link logit)
                               Estimate Std. Error z value  Pr(>|z|)
 (Intercept)                  -2.974693   0.552676 -5.3823 7.352e-08
 h(ldose- -2)                  0.920241   0.193835  4.7476 2.059e-06
-sexmale * h(ldose- -2)        0.412494   0.125575  3.2848  0.001020
-h(ldose- -2) * h(ldose1-0.1) -0.069244   0.266797 -0.2595  0.795219
-h(ldose1-0.1)                 0.119353   0.714913  0.1669  0.867411
+sexmale * h(ldose- -2)        0.412494   0.125575  3.2848   0.00102
+h(ldose- -2) * h(ldose1-0.1) -0.069244   0.266797 -0.2595   0.79522
+h(ldose1-0.1)                 0.119353   0.714913  0.1669   0.86741
 
 Number of cases: 12
 Earth selected 5 of 5 terms, and 3 of 3 predictors 
@@ -687,7 +692,8 @@ stripped formula SF~sex+ldose+ldose1
 no explicit data for formula
 about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -755,7 +761,8 @@ Contents of bx are
 [5,]           0.5
 [6,]           0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05141619 max 0.8195168 values 0.05141619 0.1161507 0.2416272 0.435816 0.651913 0.8195168 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05141619 max 0.8195168
+                                      value 0.05141619 0.1161507 0.2416272 0.435816 0.651913 0.8195168 
 
 plotmo.predict(type="response") for degree1 plot "ldose1" with newdata[6,3]:
        sex ldose ldose1
@@ -802,11 +809,12 @@ Contents of bx are
 [5,]           1.1
 [6,]           1.3
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.3221352 max 0.3375815 values 0.3375815 0.3351814 0.3280325 0.3268486 0.3244875 0.3221352 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.3221352 max 0.3375815
+                                      value 0.3375815 0.3351814 0.3280325 0.3268486 0.3244875 0.3221352 
 
 --plot.degree2(draw.plot=TRUE)
 
-plotmo.predict(type="response") for  degree2 plot "sex" and "ldose" with newdata[12,3]:
+plotmo.predict(type="response") for degree2 plot "sex:ldose" with newdata[12,3]:
        sex ldose ldose1
 1   female    -2    0.6
 2     male    -2    0.6
@@ -851,10 +859,11 @@ First few rows of bx are
 [5,]           0.5
 [6,]           0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.05141619 max 0.9727625 values 0.05141619 0.05141619 0.1161507 0.1656322 0.2416272 0.4209701 0.435816 0.7269733 0.651913 0.9069907 ...
+predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.05141619 max 0.9727625
+                                      value 0.05141619 0.05141619 0.1161507 0.1656322 0.2416272 0.4209701 0.435816 0.7269733 0.651913 0.9069907 ...
 persp(sex:ldose) theta -35 ylim 0 1 cex 0.83
 
-plotmo.predict(type="response") for  degree2 plot "ldose" and "ldose1" with newdata[36,3]:
+plotmo.predict(type="response") for degree2 plot "ldose:ldose1" with newdata[36,3]:
        sex ldose ldose1
 1   female    -2    0.1
 2   female    -1    0.1
@@ -899,7 +908,8 @@ First few rows of bx are
 [5,]             0
 [6,]             0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04858232 max 0.8356912 values 0.04858232 0.1136033 0.2433848 0.4467106 0.6695766 0.8356912 0.04969764 0.1146163 0.2426807 0.442346 ...
+predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04858232 max 0.8356912
+                                      value 0.04858232 0.1136033 0.2433848 0.4467106 0.6695766 0.8356912 0.04969764 0.1146163 0.2426807 0.442346 ...
 persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
 
 -------------------------------------------------------------------------------
@@ -921,7 +931,7 @@ x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Skipped forward pass
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 3.830772 (7 dof)   iters 5
 > stopifnot(a1h.update1$glm.list[[1]]$control$maxit == 8)
 > print.earth.models(a1h.update1)
@@ -1041,7 +1051,8 @@ stripped formula SF~sex+ldose+ldose1
 no explicit data for formula
 about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -1109,7 +1120,8 @@ Contents of bx are
 [5,]           0.5
 [6,]           0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.04230679 max 0.8164251 values 0.04230679 0.1152148 0.2501609 0.4408897 0.6467481 0.8164251 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.04230679 max 0.8164251
+                                      value 0.04230679 0.1152148 0.2501609 0.4408897 0.6467481 0.8164251 
 
 plotmo.predict(type="response") for degree1 plot "ldose1" with newdata[6,3]:
        sex ldose ldose1
@@ -1156,11 +1168,12 @@ Contents of bx are
 [5,]           1.1
 [6,]           1.3
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.330163 max 0.3468728 values 0.3468728 0.3442816 0.3365521 0.3352704 0.3327128 0.330163 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.330163 max 0.3468728
+                                      value 0.3468728 0.3442816 0.3365521 0.3352704 0.3327128 0.330163 
 
 --plot.degree2(draw.plot=TRUE)
 
-plotmo.predict(type="response") for  degree2 plot "sex" and "ldose" with newdata[12,3]:
+plotmo.predict(type="response") for degree2 plot "sex:ldose" with newdata[12,3]:
        sex ldose ldose1
 1   female    -2    0.6
 2     male    -2    0.6
@@ -1205,10 +1218,11 @@ First few rows of bx are
 [5,]           0.5
 [6,]           0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.04230679 max 0.9824617 values 0.04230679 0.04230679 0.1152148 0.1690003 0.2501609 0.4239791 0.4408897 0.7172444 0.6467481 0.9100518 ...
+predict.earth(xgrid, type="response") column "numdead" returned length 12 min 0.04230679 max 0.9824617
+                                      value 0.04230679 0.04230679 0.1152148 0.1690003 0.2501609 0.4239791 0.4408897 0.7172444 0.6467481 0.9100518 ...
 persp(sex:ldose) theta -35 ylim 0 1 cex 0.83
 
-plotmo.predict(type="response") for  degree2 plot "ldose" and "ldose1" with newdata[36,3]:
+plotmo.predict(type="response") for degree2 plot "ldose:ldose1" with newdata[36,3]:
        sex ldose ldose1
 1   female    -2    0.1
 2   female    -1    0.1
@@ -1253,7 +1267,8 @@ First few rows of bx are
 [5,]             0
 [6,]             0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04023484 max 0.8315764 values 0.04023484 0.1138526 0.2531484 0.4510777 0.6622959 0.8315764 0.04105351 0.1143961 0.2519511 0.4469983 ...
+predict.earth(xgrid, type="response") column "numdead" returned length 36 min 0.04023484 max 0.8315764
+                                      value 0.04023484 0.1138526 0.2531484 0.4510777 0.6622959 0.8315764 0.04105351 0.1143961 0.2519511 0.4469983 ...
 persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
 
 -------------------------------------------------------------------------------
@@ -1266,8 +1281,8 @@ Reached delta RSq threshold (DeltaRSq 8.50718e-05 < 0.001)
 After forward pass GRSq 0.9073 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 3 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
-GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
-GLM numalive: null.deviance 504.25 (11 dof)   deviance 9.70238 (9 dof)   iters 2
+GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.702381 (9 dof)   iters 2
+GLM numalive: null.deviance 504.25 (11 dof)   deviance 9.702381 (9 dof)   iters 2
 > stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
 > print.earth.models(a1h.update2, nresponse="numali")
 
@@ -1285,8 +1300,8 @@ All      4.752187 19.404762 0.952486 0.9807588
 
 GLM (family gaussian, link identity)
          null.deviance df deviance df iters converged
-numdead         504.25 11  9.70238  9     2         1
-numalive        504.25 11  9.70238  9     2         1
+numdead         504.25 11 9.702381  9     2         1
+numalive        504.25 11 9.702381  9     2         1
 
 Summary a1h.update2 
 
@@ -1311,8 +1326,8 @@ All      4.752187 19.404762 0.952486 0.9807588
 
 GLM (family gaussian, link identity)
          null.deviance df deviance df iters converged
-numdead         504.25 11  9.70238  9     2         1
-numalive        504.25 11  9.70238  9     2         1
+numdead         504.25 11 9.702381  9     2         1
+numalive        504.25 11 9.702381  9     2         1
 
 Summary a1h.update2 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -1332,8 +1347,8 @@ h(ldose- -2)  3.6429  -3.6429
 sexmale       3.1667  -3.1667
 
 GLM numdead deviance residuals:
-      Min         1Q     Median         3Q        Max  
--1.369048  -0.738095   0.023810   0.386905   1.702381  
+     Min        1Q    Median        3Q       Max  
+-1.36905  -0.73810   0.02381   0.38690   1.70238  
 
 GLM numdead coefficients (family gaussian, link identity)
              Estimate Std. Error t value  Pr(>|t|)
@@ -1344,8 +1359,8 @@ sexmale       3.16667    0.59946  5.2826 0.0005054
 GLM numdead dispersion parameter for gaussian family taken to be 1.078042
 
 GLM numalive deviance residuals:
-      Min         1Q     Median         3Q        Max  
--1.702381  -0.386905  -0.023810   0.738095   1.369048  
+     Min        1Q    Median        3Q       Max  
+-1.70238  -0.38690  -0.02381   0.73810   1.36905  
 
 GLM numalive coefficients (family gaussian, link identity)
              Estimate Std. Error  t value  Pr(>|t|)
@@ -1415,7 +1430,8 @@ stripped formula SF~sex+ldose+ldose1
 no explicit data for formula
 about to eval model.frame(formula=SF~sex+ldose+ldose1)
 got y from object$call$formula
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 20 
 
@@ -1452,7 +1468,8 @@ Contents of bx are
 [1,]           1         2.5       0
 [2,]           1         2.5       1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numalive" returned length 2 min 9.166667 max 12.33333 values 12.33333 9.166667 
+predict.earth(xgrid, type="response") column "numalive" returned length 2 min 9.166667 max 12.33333
+                                      value 12.33333 9.166667 
 
 plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,3]:
        sex ldose ldose1
@@ -1492,9 +1509,10 @@ Contents of bx are
 [5,]           1           4       0
 [6,]           1           5       0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numalive" returned length 6 min 3.226190 max 21.44048 values 21.44048 17.79762 14.15476 10.51190 6.869048 3.226190 
+predict.earth(xgrid, type="response") column "numalive" returned length 6 min 3.22619 max 21.44048
+                                      value 21.44048 17.79762 14.15476 10.5119 6.869048 3.22619 
 
-ylim 3.226190 17.79762 
+ylim 3.22619 17.79762 
 
 --plot.degree1(draw.plot=TRUE)
 
@@ -1512,7 +1530,7 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
 > print(summary(a1i))
 Call: earth(formula=SF~sex+ldose+I(ldose1-3), glm=list(family="binomial"), 
@@ -1559,7 +1577,7 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds
 chosen    4      0.9569  0.9911     0.0044      3  
 
 Prune method "none" penalty 2 nprune 4: selected 4 of 4 terms, and 3 of 3 predictors
-After backward pass GRSq 0.9569 RSq 0.991 
+After backward pass GRSq 0.9569 RSq 0.9911 
 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
 > print.earth.models(a2)
@@ -1626,7 +1644,7 @@ Number of cases: 12
 Earth selected 4 of 4 terms, and 3 of 3 predictors 
 Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 3 (additive model)
-Earth GCV 2.16    RSS 4.50    GRSq 0.957    RSq 0.991
+Earth GCV 2.16    RSS 4.5    GRSq 0.957    RSq 0.991
 
 GLM null.deviance 125 (11 dof)   deviance 4.99 (8 dof)   iters 4
 
@@ -1675,7 +1693,8 @@ stripped formula SF~sex+ldose
 no explicit data for formula
 about to eval model.frame(formula=SF~sex+ldose)
 got y from object$call$formula
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -1718,7 +1737,8 @@ Contents of bx are
 [1,]           1         2.5       0                 2.0
 [2,]           1         2.5       1                 2.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3255348 max 0.5814719 values 0.3255348 0.5814719 
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3255348 max 0.5814719
+                                      value 0.3255348 0.5814719 
 
 plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
        sex ldose
@@ -1758,7 +1778,8 @@ Contents of bx are
 [5,]           1           4       0                   2
 [6,]           1           5       0                   2
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.04771849 max 0.8229758 values 0.04771849 0.1103172 0.2347882 0.4315739 0.6526264 0.8229758 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.04771849 max 0.8229758
+                                      value 0.04771849 0.1103172 0.2347882 0.4315739 0.6526264 0.8229758 
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -1785,7 +1806,7 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds
 chosen    4      0.9569  0.9911     0.0044      3  
 
 Prune method "none" penalty 2 nprune 4: selected 4 of 4 terms, and 3 of 3 predictors
-After backward pass GRSq 0.9569 RSq 0.991 
+After backward pass GRSq 0.9569 RSq 0.9911 
 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
 > stopifnot(identical(a2$glm.list[[1]]$coefficients, a2a$glm.list[[1]]$coefficients))
@@ -1992,7 +2013,8 @@ stripped formula SF.both~sex+ldose
 no explicit data for formula
 about to eval model.frame(formula=SF.both~sex+ldose)
 got y from object$call$formula
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -2035,7 +2057,8 @@ Contents of bx are
 [1,]           1         2.5       0
 [2,]           1         2.5       1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365
+                                      value 0.3073324 0.5715365 
 
 plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
        sex ldose
@@ -2075,7 +2098,8 @@ Contents of bx are
 [5,]           1           4       0
 [6,]           1           5       0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.03008577 max 0.863882 values 0.03008577 0.08249341 0.2067337 0.4303279 0.6864771 0.863882 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.03008577 max 0.8638821
+                                      value 0.03008577 0.08249341 0.2067337 0.4303279 0.6864771 0.8638821 
 -------------------------------------------------------------------------------
 
 > print.stripped.earth.model(a4, "a4")
@@ -2117,7 +2141,7 @@ $grsq
 [1] 0.9392766
 
 $rss.per.response
-[1]  9.70238 15.47619
+[1]  9.702381 15.476190
 
 $rsq.per.response
 [1] 0.9807588 0.9702190
@@ -2451,13 +2475,13 @@ formula pclass ~ .
 stripped formula pclass~.
 get.data.for.formula: using x from "etitanic" passed to earth 
 about to eval model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, ...
 got x with colnames from object$call$formula
 
 x[1046,5]:
@@ -2478,15 +2502,16 @@ formula pclass ~ .
 stripped formula pclass~.
 get.data.for.formula: using y from "etitanic" passed to earth 
 about to eval model.frame(formula=pclass~., data=structure(list(pclass=structure(c(1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, ...
 got y from object$call$formula
-get.plotmo.y column "1st" returned length 1046 min 0 max 1 values 1 1 1 1 1 1 1 1 1 1 ...
+get.plotmo.y column "1st" returned length 1046 min 0 max 1
+             value 1 1 1 1 1 1 1 1 1 1 ...
 
 clip.limits 0 1 
 
@@ -2537,7 +2562,8 @@ Contents of bx are
 [1,]                0       0                   54                     1
 [2,]                0       0                   54                     1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 2 min 0.3324828 max 0.8953702 values 0.8953702 0.3324828 
+predict.earth(xgrid, type="response") column "3rd" returned length 2 min 0.3324828 max 0.8953702
+                                      value 0.8953702 0.3324828 
 
 plotmo.predict(type="response") for degree1 plot "sex" with newdata[2,5]:
   survived    sex age sibsp parch
@@ -2565,7 +2591,8 @@ Contents of bx are
 [1,]                0       0                   54                     1
 [2,]                0       1                   54                     1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 2 min 0.6669479 max 0.8953702 values 0.8953702 0.6669479 
+predict.earth(xgrid, type="response") column "3rd" returned length 2 min 0.6669479 max 0.8953702
+                                      value 0.8953702 0.6669479 
 
 plotmo.predict(type="response") for degree1 plot "sibsp" with newdata[7,5]:
     survived    sex age sibsp parch
@@ -2612,7 +2639,8 @@ First few rows of bx are
 [5,]                0       0                   54                     0
 [6,]                0       0                   54                     0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 7 min 0.7353427 max 0.9986685 values 0.8953702 0.7353427 0.8607637 0.9322259 0.9683588 0.985527 0.9986685 
+predict.earth(xgrid, type="response") column "3rd" returned length 7 min 0.7353427 max 0.9986685
+                                      value 0.8953702 0.7353427 0.8607637 0.9322259 0.9683588 0.9855269 0.9986685 
 
 plotmo.predict(type="response") for degree1 plot "parch" with newdata[7,5]:
     survived    sex age sibsp parch
@@ -2659,11 +2687,12 @@ First few rows of bx are
 [5,]                0       0                    0                     0
 [6,]                0       0                    0                     0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 7 min 0.7686875 max 0.8953702 values 0.8953702 0.7686875 0.7989797 0.7989797 0.7989797 0.7989797 0.7989797 
+predict.earth(xgrid, type="response") column "3rd" returned length 7 min 0.7686875 max 0.8953702
+                                      value 0.8953702 0.7686875 0.7989797 0.7989797 0.7989797 0.7989797 0.7989797 
 
 --plot.degree2(draw.plot=TRUE)
 
-plotmo.predict(type="response") for  degree2 plot "survived" and "sex" with newdata[4,5]:
+plotmo.predict(type="response") for degree2 plot "survived:sex" with newdata[4,5]:
     survived    sex age sibsp parch
 1          0 female  28     0     0
 2          1 female  28     0     0
@@ -2699,10 +2728,11 @@ Contents of bx are
 [3,]                0       1                   54                     1
 [4,]                1       1                   54                     1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 4 min 0.3324828 max 0.8953702 values 0.8953702 0.3324828 0.6669479 0.5339905 
+predict.earth(xgrid, type="response") column "3rd" returned length 4 min 0.3324828 max 0.8953702
+                                      value 0.8953702 0.3324828 0.6669479 0.5339905 
 persp(survived:sex) theta 145 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "survived" and "age" with newdata[40,5]:
+plotmo.predict(type="response") for degree2 plot "survived:age" with newdata[40,5]:
     survived    sex       age sibsp parch
 1          0 female  0.166700     0     0
 2          1 female  0.166700     0     0
@@ -2747,10 +2777,11 @@ First few rows of bx are
 [5,]                0       0             92.85959                     1
 [6,]                0       0             92.85959                     1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 40 min 0.05039939 max 0.9885132 values 0.9885132 0.8732194 0.9838022 0.81709 0.9772039 0.7434127 0.968005 0.6526728 0.955264 0.5541427 ...
+predict.earth(xgrid, type="response") column "3rd" returned length 40 min 0.05039939 max 0.9885132
+                                      value 0.9885132 0.8732194 0.9838022 0.8170901 0.9772039 0.7434127 0.968005 0.6526728 0.955264 0.5541427 ...
 persp(survived:age) theta 145 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "age" and "parch" with newdata[140,5]:
+plotmo.predict(type="response") for degree2 plot "age:parch" with newdata[140,5]:
      survived    sex       age sibsp parch
 1           0 female  0.166700     0     0
 2           0 female  4.368453     0     0
@@ -2795,10 +2826,11 @@ First few rows of bx are
 [5,]                0       0             76.05258                     1
 [6,]                0       0             67.64907                     1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 140 min 0.4769472 max 0.9885132 values 0.9885132 0.9838022 0.9772039 0.968005 0.955264 0.9377755 0.9140653 0.8824529 0.8412314 0.7890105 ...
+predict.earth(xgrid, type="response") column "3rd" returned length 140 min 0.4769472 max 0.9885132
+                                      value 0.9885132 0.9838022 0.9772039 0.968005 0.955264 0.9377755 0.9140653 0.8824529 0.8412314 0.7890105 ...
 persp(age:parch) theta 145 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "sibsp" and "parch" with newdata[49,5]:
+plotmo.predict(type="response") for degree2 plot "sibsp:parch" with newdata[49,5]:
     survived    sex age sibsp parch
 1          0 female  28     0     0
 2          0 female  28     1     0
@@ -2843,7 +2875,8 @@ First few rows of bx are
 [5,]                0       0                   54                     0
 [6,]                0       0                   54                     0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "3rd" returned length 49 min 0.7353427 max 0.9990688 values 0.8953702 0.7353427 0.8607637 0.9322259 0.9683588 0.985527 0.9986685 0.7686875 0.7686875 0.8808666 ...
+predict.earth(xgrid, type="response") column "3rd" returned length 49 min 0.7353427 max 0.9990688
+                                      value 0.8953702 0.7353427 0.8607637 0.9322259 0.9683588 0.9855269 0.9986685 0.7686875 0.7686875 0.8808666 ...
 persp(sibsp:parch) theta -35 ylim 0 1 cex 0.66
 
 -------------------------------------------------------------------------------
@@ -3244,13 +3277,13 @@ formula pclass1 ~ .
 stripped formula pclass1~.
 get.data.for.formula: using x from "etitanic[,-1]" passed to earth 
 about to eval model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
-              1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
-              1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
-              0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
-              0L, 1L, 1L, 1L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 
-              1L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 
-              1L, 0L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, etc.
+    1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
+    1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
+    0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
+    0L, 1L, 1L, 1L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 
+    1L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 
+    1L, 0L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, ...
 got x with colnames from object$call$formula
 
 x[1046,5]:
@@ -3271,15 +3304,16 @@ formula pclass1 ~ .
 stripped formula pclass1~.
 get.data.for.formula: using y from "etitanic[,-1]" passed to earth 
 about to eval model.frame(formula=pclass1~., data=structure(list(survived=c(1L, 
-              1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
-              1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
-              0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
-              0L, 1L, 1L, 1L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 
-              1L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 
-              1L, 0L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, etc.
+    1L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 
+    1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 
+    0L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 0L, 
+    0L, 1L, 1L, 1L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 
+    1L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 
+    1L, 0L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, ...
 got y from object$call$formula
-get.plotmo.y returned length 1046 min 0 max 1 values 1 1 1 1 1 1 1 1 1 1 ...
+get.plotmo.y returned length 1046 min 0 max 1
+             value 1 1 1 1 1 1 1 1 1 1 ...
 
 clip.limits 0 1 
 
@@ -3333,7 +3367,8 @@ Contents of bx are
 [1,]                   54         0
 [2,]                   54         0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "pclass1" returned length 2 min 0.06728234 max 0.2926305 values 0.06728234 0.2926305 
+predict.earth(xgrid, type="response") column "pclass1" returned length 2 min 0.06728234 max 0.2926305
+                                      value 0.06728234 0.2926305 
 
 plotmo.predict(type="response") for degree1 plot "age" with newdata[50,5]:
     survived    sex       age sibsp parch
@@ -3387,7 +3422,8 @@ First few rows of bx are
 [5,]             96.63259         0
 [6,]             93.37409         0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "pclass1" returned length 50 min 0.01040828 max 0.4107282 values 0.01040828 0.01163562 0.01300578 0.01453492 0.01624088 0.01814339 0.02026417 0.02262713 0.02525854 0.02818713 ...
+predict.earth(xgrid, type="response") column "pclass1" returned length 50 min 0.01040828 max 0.4107282
+                                      value 0.01040828 0.01163562 0.01300578 0.01453492 0.01624088 0.01814339 0.02026417 0.02262713 0.02525854 0.02818713 ...
 
 plotmo.predict(type="response") for degree1 plot "parch" with newdata[7,5]:
     survived    sex age sibsp parch
@@ -3441,11 +3477,12 @@ First few rows of bx are
 [5,]                    0         0
 [6,]                    0         0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "pclass1" returned length 7 min 0.06728234 max 0.1038310 values 0.06728234 0.08376292 0.1038310 0.1038310 0.1038310 0.1038310 0.1038310 
+predict.earth(xgrid, type="response") column "pclass1" returned length 7 min 0.06728234 max 0.103831
+                                      value 0.06728234 0.08376292 0.103831 0.103831 0.103831 0.103831 0.103831 
 
 --plot.degree2(draw.plot=TRUE)
 
-plotmo.predict(type="response") for  degree2 plot "survived" and "age" with newdata[40,5]:
+plotmo.predict(type="response") for degree2 plot "survived:age" with newdata[40,5]:
     survived    sex       age sibsp parch
 1          0 female  0.166700     0     0
 2          1 female  0.166700     0     0
@@ -3497,10 +3534,11 @@ First few rows of bx are
 [5,]             92.85959         0
 [6,]             92.85959         0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "pclass1" returned length 40 min 0.01040828 max 0.8885824 values 0.01040828 0.02494495 0.01387059 0.0374828 0.01846315 0.05596075 0.02453847 0.08276453 0.03254659 0.1207643 ...
+predict.earth(xgrid, type="response") column "pclass1" returned length 40 min 0.01040828 max 0.8885824
+                                      value 0.01040828 0.02494495 0.01387059 0.0374828 0.01846315 0.05596075 0.02453847 0.08276453 0.03254659 0.1207643 ...
 persp(survived:age) theta -35 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "sex" and "age" with newdata[40,5]:
+plotmo.predict(type="response") for degree2 plot "sex:age" with newdata[40,5]:
     survived    sex       age sibsp parch
 1          0 female  0.166700     0     0
 2          0   male  0.166700     0     0
@@ -3552,10 +3590,11 @@ First few rows of bx are
 [5,]             92.85959         0
 [6,]             92.85959         0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "pclass1" returned length 40 min 0.01040828 max 0.6537535 values 0.01040828 0.01040828 0.01387059 0.01387059 0.01846315 0.01846315 0.02453847 0.02453847 0.03254659 0.03254659 ...
+predict.earth(xgrid, type="response") column "pclass1" returned length 40 min 0.01040828 max 0.6537535
+                                      value 0.01040828 0.01040828 0.01387059 0.01387059 0.01846315 0.01846315 0.02453847 0.02453847 0.03254659 0.03254659 ...
 persp(sex:age) theta -35 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "age" and "parch" with newdata[140,5]:
+plotmo.predict(type="response") for degree2 plot "age:parch" with newdata[140,5]:
      survived    sex       age sibsp parch
 1           0 female  0.166700     0     0
 2           0 female  4.368453     0     0
@@ -3607,10 +3646,11 @@ First few rows of bx are
 [5,]             76.05258         0
 [6,]             67.64907         0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "pclass1" returned length 140 min 0.01040828 max 0.99995 values 0.01040828 0.01387059 0.01846315 0.02453847 0.03254659 0.0430528 0.05675154 0.07446981 0.09715011 0.125799 ...
+predict.earth(xgrid, type="response") column "pclass1" returned length 140 min 0.01040828 max 0.99995
+                                      value 0.01040828 0.01387059 0.01846315 0.02453847 0.03254659 0.0430528 0.05675154 0.07446981 0.09715011 0.125799 ...
 persp(age:parch) theta -35 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "sibsp" and "parch" with newdata[49,5]:
+plotmo.predict(type="response") for degree2 plot "sibsp:parch" with newdata[49,5]:
     survived    sex age sibsp parch
 1          0 female  28     0     0
 2          0 female  28     1     0
@@ -3662,7 +3702,8 @@ First few rows of bx are
 [5,]                   54         0
 [6,]                   54         0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "pclass1" returned length 49 min 4.178724e-06 max 0.1503422 values 0.06728234 0.1503422 0.03718844 0.008360844 0.001837078 0.0004015888 4.178724e-06 0.08376292 0.1252483 0.06270175 ...
+predict.earth(xgrid, type="response") column "pclass1" returned length 49 min 4.178724e-06 max 0.1503422
+                                      value 0.06728234 0.1503422 0.03718844 0.008360844 0.001837078 0.0004015888 4.178724e-06 0.08376292 0.1252483 0.06270175 ...
 persp(sibsp:parch) theta -35 ylim 0 1 cex 0.66
 
 -------------------------------------------------------------------------------
@@ -4020,13 +4061,13 @@ formula sex ~ .
 stripped formula sex~.
 get.data.for.formula: using x from "etitanic" passed to earth 
 about to eval model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, ...
 got x with colnames from object$call$formula
 
 x[1046,5]:
@@ -4047,15 +4088,16 @@ formula sex ~ .
 stripped formula sex~.
 get.data.for.formula: using y from "etitanic" passed to earth 
 about to eval model.frame(formula=sex~., data=structure(list(pclass=structure(c(1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-              1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, etc.
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, ...
 got y from object$call$formula
-get.plotmo.y column "male" returned length 1046 min 0 max 1 values 0 1 0 1 0 1 0 1 0 1 ...
+get.plotmo.y column "male" returned length 1046 min 0 max 1
+             value 0 1 0 1 0 1 0 1 0 1 ...
 
 clip.limits 0 1 
 
@@ -4116,7 +4158,8 @@ Contents of bx are
 [2,]                    0                  0
 [3,]                    3                  0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "male" returned length 3 min 0.8908182 max 0.9571902 values 0.9571902 0.9571902 0.8908182 
+predict.earth(xgrid, type="response") column "male" returned length 3 min 0.8908182 max 0.9571902
+                                      value 0.9571902 0.9571902 0.8908182 
 
 plotmo.predict(type="response") for degree1 plot "survived" with newdata[2,5]:
   pclass survived age sibsp parch
@@ -4147,11 +4190,12 @@ Contents of bx are
 [1,]                    0                  0
 [2,]                    0                  0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "male" returned length 2 min 0.3862374 max 0.9571902 values 0.9571902 0.3862374 
+predict.earth(xgrid, type="response") column "male" returned length 2 min 0.3862374 max 0.9571902
+                                      value 0.9571902 0.3862374 
 
 --plot.degree2(draw.plot=TRUE)
 
-plotmo.predict(type="response") for  degree2 plot "pclass" and "survived" with newdata[6,5]:
+plotmo.predict(type="response") for degree2 plot "pclass:survived" with newdata[6,5]:
     pclass survived age sibsp parch
 1      1st        0  28     0     0
 2      2nd        0  28     0     0
@@ -4203,10 +4247,11 @@ Contents of bx are
 [5,]                    0                  1
 [6,]                    3                  0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "male" returned length 6 min 0.2227743 max 0.9571902 values 0.9571902 0.9571902 0.8908182 0.3862374 0.2227743 0.5517942 
+predict.earth(xgrid, type="response") column "male" returned length 6 min 0.2227743 max 0.9571902
+                                      value 0.9571902 0.9571902 0.8908182 0.3862374 0.2227743 0.5517942 
 persp(pclass:survived) theta 145 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "pclass" and "parch" with newdata[21,5]:
+plotmo.predict(type="response") for degree2 plot "pclass:parch" with newdata[21,5]:
     pclass survived age sibsp parch
 1      1st        0  28     0     0
 2      2nd        0  28     0     0
@@ -4258,10 +4303,11 @@ First few rows of bx are
 [5,]                    0                  0
 [6,]                    2                  0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "male" returned length 21 min 0.2773473 max 0.9571902 values 0.9571902 0.9571902 0.8908182 0.9362599 0.9362599 0.7465314 0.9061003 0.9061003 0.5153127 0.863747 ...
+predict.earth(xgrid, type="response") column "male" returned length 21 min 0.2773473 max 0.9571902
+                                      value 0.9571902 0.9571902 0.8908182 0.9362599 0.9362599 0.7465314 0.9061003 0.9061003 0.5153127 0.863747 ...
 persp(pclass:parch) theta 145 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "survived" and "age" with newdata[40,5]:
+plotmo.predict(type="response") for degree2 plot "survived:age" with newdata[40,5]:
     pclass survived       age sibsp parch
 1      1st        0  0.166700     0     0
 2      1st        1  0.166700     0     0
@@ -4313,10 +4359,11 @@ First few rows of bx are
 [5,]                    0                  0
 [6,]                    0                  0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "male" returned length 40 min 0.2384194 max 0.9571902 values 0.7205077 0.6727357 0.78793 0.5495086 0.84264 0.4198927 0.8852907 0.300459 0.917513 0.2384194 ...
+predict.earth(xgrid, type="response") column "male" returned length 40 min 0.2384194 max 0.9571902
+                                      value 0.7205077 0.6727357 0.78793 0.5495086 0.8426401 0.4198927 0.8852907 0.300459 0.917513 0.2384194 ...
 persp(survived:age) theta 55 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "age" and "parch" with newdata[140,5]:
+plotmo.predict(type="response") for degree2 plot "age:parch" with newdata[140,5]:
      pclass survived       age sibsp parch
 1       1st        0  0.166700     0     0
 2       1st        0  4.368453     0     0
@@ -4368,10 +4415,11 @@ First few rows of bx are
 [5,]                    0                  0
 [6,]                    0                  0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "male" returned length 140 min 0.7205077 max 0.9571902 values 0.7205077 0.78793 0.84264 0.8852907 0.917513 0.9412843 0.9571902 0.9571902 0.9571902 0.9571902 ...
+predict.earth(xgrid, type="response") column "male" returned length 140 min 0.7205077 max 0.9571902
+                                      value 0.7205077 0.78793 0.8426401 0.8852907 0.917513 0.9412843 0.9571902 0.9571902 0.9571902 0.9571902 ...
 persp(age:parch) theta 235 ylim 0 1 cex 0.66
 
-plotmo.predict(type="response") for  degree2 plot "sibsp" and "parch" with newdata[49,5]:
+plotmo.predict(type="response") for degree2 plot "sibsp:parch" with newdata[49,5]:
     pclass survived age sibsp parch
 1      1st        0  28     0     0
 2      1st        0  28     1     0
@@ -4423,7 +4471,8 @@ First few rows of bx are
 [5,]                    0                  0
 [6,]                    0                  0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "male" returned length 49 min 0.863747 max 0.9999963 values 0.9571902 0.9225137 0.863747 0.9740112 0.995507 0.9992372 0.9999963 0.9362599 0.9061003 0.863747 ...
+predict.earth(xgrid, type="response") column "male" returned length 49 min 0.863747 max 0.9999963
+                                      value 0.9571902 0.9225137 0.863747 0.9740112 0.9955071 0.9992372 0.9999963 0.9362599 0.9061003 0.863747 ...
 persp(sibsp:parch) theta 235 ylim 0 1 cex 0.66
 
 -------------------------------------------------------------------------------
@@ -4565,13 +4614,13 @@ Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame,
 
 Coefficients:
             (Intercept)                 survived     `survived*h(16-age)`  
-                1.84677                 -3.57039                  0.21120  
+                 1.8468                  -3.5704                   0.2112  
  `h(25-age)*h(3-parch)`     `pclass3rd*survived`  `h(sibsp-2)*h(3-parch)`  
-               -0.02900                  1.67919                  0.59233  
+                -0.0290                   1.6792                   0.5923  
 `h(2-sibsp)*h(3-parch)`                pclass3rd   `pclass3rd*h(3-parch)`  
-                0.21008                 -2.80442                  0.59877  
+                 0.2101                  -2.8044                   0.5988  
    `pclass2nd*survived`  
-               -0.78642  
+                -0.7864  
 
 Degrees of Freedom: 1045 Total (i.e. Null);  1036 Residual
 Null Deviance:	    1380 
@@ -4771,7 +4820,7 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds
 chosen    3     -0.8939  0.5265    -0.6212      2  
 
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
-After backward pass GRSq -0.894 RSq 0.5265 
+After backward pass GRSq -0.8939 RSq 0.5265 
 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 > print.earth.models(a8p)
@@ -4883,7 +4932,8 @@ stripped formula counts~outcome+treatment
 no explicit data for formula
 about to eval model.frame(formula=counts~outcome+treatment)
 got y from object$call$formula
-get.plotmo.y returned length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 
+get.plotmo.y returned length 9 min 10 max 25
+             value 18 17 15 20 10 20 25 13 12 
 
 clip.limits 10 25 
 
@@ -4924,7 +4974,8 @@ Contents of bx are
 [2,]           1        1        0
 [3,]           1        0        1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "counts" returned length 3 min 13.33333 max 21 values 21 13.33333 15.66667 
+predict.earth(xgrid, type="response") column "counts" returned length 3 min 13.33333 max 21
+                                      value 21 13.33333 15.66667 
 
 ylim 13.33333 21 
 
@@ -4989,7 +5040,7 @@ Forward pass term 1, 2, 4, 6
 Reached delta RSq threshold (DeltaRSq 0 < 0.001)
 After forward pass GRSq -6.576 RSq 0.5265
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
-After backward pass GRSq -0.894 RSq 0.5265 
+After backward pass GRSq -0.8939 RSq 0.5265 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 GLM counts2: null.deviance 105.166 (8 dof)   deviance 50.96448 (6 dof)   iters 4
 > print.earth.models(a10, nresponse="counts2")
@@ -5135,7 +5186,8 @@ stripped formula cbind(counts,counts2)~outcome+treatment
 no explicit data for formula
 about to eval model.frame(formula=cbind(counts, counts2)~outcome+treatment)
 got y from object$call$formula
-get.plotmo.y column "counts" returned length 9 min 10 max 25 values 18 17 15 20 10 20 25 13 12 
+get.plotmo.y column "counts" returned length 9 min 10 max 25
+             value 18 17 15 20 10 20 25 13 12 
 
 clip.limits 10 25 
 
@@ -5176,7 +5228,8 @@ Contents of bx are
 [2,]           1        1        0
 [3,]           1        0        1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "counts2" returned length 3 min 134.3333 max 211 values 211 134.3333 157.6667 
+predict.earth(xgrid, type="response") column "counts2" returned length 3 min 134.3333 max 211
+                                      value 211 134.3333 157.6667 
 Warning: predicted values in the "outcome" graph are out of ylim=(10, 25).
          Use clip=FALSE to make this warning go away.
 
@@ -5316,7 +5369,7 @@ pclass3rd               -0.504402612  0.081581674  -6.18279 9.0457e-10
 pclass3rd * h(3-parch)   0.138022859  0.027974000   4.93397 9.3825e-07
 pclass2nd * survived    -0.134325609  0.046796406  -2.87043 0.00418259
 
-GLM dispersion parameter for gaussian family taken to be 0.1454780
+GLM dispersion parameter for gaussian family taken to be 0.145478
 
 Number of cases: 1046
 Earth selected 10 of 15 terms, and 6 of 6 predictors 
@@ -5526,7 +5579,7 @@ Number of cases: 60
 Selected 4 of 4 terms, and 2 of 2 predictors 
 Importance: my.input.matmy.x2, my.input.matmy.x1
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 17.52421    RSS 820.425    GRSq 0.705494    RSq 0.7623478
+GCV 17.52421    RSS 820.425    GRSq 0.7054941    RSq 0.7623478
 > 
 > stop.if.not.identical <- function(msg, a, b)
 + {
@@ -5676,10 +5729,10 @@ formula SF.both ~ .
 stripped formula SF.both~.
 get.data.for.formula: using x from "df" passed to earth 
 about to eval model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
-              2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
-              "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
-              -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
-              -12L), class="data.frame"))
+    2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
+    "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
+    -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
+    -12L), class="data.frame"))
 got x with colnames from object$call$formula
 
 x[12,2]:
@@ -5700,12 +5753,13 @@ formula SF.both ~ .
 stripped formula SF.both~.
 get.data.for.formula: using y from "df" passed to earth 
 about to eval model.frame(formula=SF.both~., data=structure(list(sex=structure(c(2L, 
-              2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
-              "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
-              -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
-              -12L), class="data.frame"))
+    2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L), .Label=c("female", 
+    "male"), class="factor"), ldose=c(-2, -1, 0, 1, 2, 3, -2, 
+    -1, 0, 1, 2, 3)), .Names=c("sex", "ldose"), row.names=c(NA, 
+    -12L), class="data.frame"))
 got y from object$call$formula
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -5748,7 +5802,8 @@ Contents of bx are
 [1,]           1         2.5       0
 [2,]           1         2.5       1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365
+                                      value 0.3073324 0.5715365 
 
 plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
        sex ldose
@@ -5788,7 +5843,8 @@ Contents of bx are
 [5,]           1           4       0
 [6,]           1           5       0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.03008577 max 0.863882 values 0.03008577 0.08249341 0.2067337 0.4303279 0.6864771 0.863882 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.03008577 max 0.8638821
+                                      value 0.03008577 0.08249341 0.2067337 0.4303279 0.6864771 0.8638821 
 -------------------------------------------------------------------------------
 
 > 
@@ -5872,7 +5928,7 @@ GLM numdead coefficients (family binomial, link logit)
              Estimate Std. Error z value Pr(>|z|)
 (Intercept)    -3.473      0.469   -7.41  1.2e-13
 h(ldose- -2)    1.064      0.131    8.12  4.7e-16
-sexmale         1.101      0.356    3.09   0.0020
+sexmale         1.101      0.356    3.09    0.002
 
 GLM numdead2 deviance residuals:
    Min      1Q  Median      3Q     Max  
@@ -5935,7 +5991,8 @@ nlevels: sex=2 ldose=6
 --get.plotmo.y
 
 got y from object$call$y
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -5973,7 +6030,8 @@ Contents of bx are
 [1,]           1         2.5       0
 [2,]           1         2.5       1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead2" returned length 2 min 0.3719003 max 0.6003872 values 0.3719003 0.6003872 
+predict.earth(xgrid, type="response") column "numdead2" returned length 2 min 0.3719003 max 0.6003872
+                                      value 0.3719003 0.6003872 
 
 plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
        sex ldose
@@ -6004,7 +6062,8 @@ Contents of bx are
 [5,]           1           4       0
 [6,]           1           5       0
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead2" returned length 6 min 0.03864002 max 0.8971466 values 0.03864002 0.1054517 0.256914 0.5034811 0.7483666 0.8971466 
+predict.earth(xgrid, type="response") column "numdead2" returned length 6 min 0.03864002 max 0.8971466
+                                      value 0.03864002 0.1054517 0.256914 0.5034811 0.7483666 0.8971466 
 -------------------------------------------------------------------------------
 
 > check.models.equal(aref, a21, msg="aref a21")
@@ -6151,7 +6210,8 @@ nlevels: sex=2 ldose=6
 --get.plotmo.y
 
 got y from object$call$y
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -6187,7 +6247,8 @@ Contents of bx are
 [1,]           1         2.5        0
 [2,]           1         2.5        1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365
+                                      value 0.3073324 0.5715365 
 
 plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
     sex ldose
@@ -6216,7 +6277,8 @@ Contents of bx are
 [5,]           1           4      0.5
 [6,]           1           5      0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05103871 max 0.9166965 values 0.05103871 0.1348699 0.3112342 0.5670581 0.7915134 0.9166965 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05103871 max 0.9166965
+                                      value 0.05103871 0.1348699 0.3112342 0.5670581 0.7915134 0.9166965 
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -6303,7 +6365,7 @@ GLM numdead coefficients (family binomial, link logit)
              Estimate Std. Error z value Pr(>|z|)
 (Intercept)    -3.473      0.469   -7.41  1.2e-13
 h(ldose- -2)    1.064      0.131    8.12  4.7e-16
-h(sex-1)        1.101      0.356    3.09   0.0020
+h(sex-1)        1.101      0.356    3.09    0.002
 
 GLM numdead2 deviance residuals:
    Min      1Q  Median      3Q     Max  
@@ -6364,7 +6426,8 @@ nlevels: sex=2 ldose=6
 --get.plotmo.y
 
 got y from object$call$y
-get.plotmo.y column "numdead" returned length 12 min 0 max 20 values 1 4 9 13 18 20 0 2 6 10 ...
+get.plotmo.y column "numdead" returned length 12 min 0 max 20
+             value 1 4 9 13 18 20 0 2 6 10 ...
 
 clip.limits 0 1 
 
@@ -6400,7 +6463,8 @@ Contents of bx are
 [1,]           1         2.5        0
 [2,]           1         2.5        1
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365 values 0.3073324 0.5715365 
+predict.earth(xgrid, type="response") column "numdead" returned length 2 min 0.3073324 max 0.5715365
+                                      value 0.3073324 0.5715365 
 
 plotmo.predict(type="response") for degree1 plot "ldose" with newdata[6,2]:
     sex ldose
@@ -6429,7 +6493,8 @@ Contents of bx are
 [5,]           1           4      0.5
 [6,]           1           5      0.5
 predict.earth: returning glm response predictions
-predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05103871 max 0.9166965 values 0.05103871 0.1348699 0.3112342 0.5670581 0.7915134 0.9166965 
+predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.05103871 max 0.9166965
+                                      value 0.05103871 0.1348699 0.3112342 0.5670581 0.7915134 0.9166965 
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -7200,14 +7265,14 @@ Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
 Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
-After backward pass GRSq 0.731 RSq 0.9978 
+After backward pass GRSq 0.7309 RSq 0.9978 
 check.models.equal not identical: predict with single level factors and a single response [but within numerical tolerances]
 A-20m head(predict(am, trace=1)
 predict.earth: returning earth fitted.values 
@@ -8497,7 +8562,7 @@ Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
 After forward pass GRSq 0.9392 RSq 0.992
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
-After backward pass GRSq 0.5201 RSq 0.991 
+After backward pass GRSq 0.5201 RSq 0.9911 
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
@@ -8507,7 +8572,7 @@ Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
 After forward pass GRSq 0.9392 RSq 0.992
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
-After backward pass GRSq 0.5201 RSq 0.991 
+After backward pass GRSq 0.5201 RSq 0.9911 
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 check.models.equal not identical: B predict with multiple level factors and a multiple real response [but within numerical tolerances]
@@ -10373,9 +10438,9 @@ GLM fac4P deviance residuals:
 
 GLM fac4P coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)     -24.00932  99179.33584 -0.00024   0.9998
-h(ldose- -2)    -44.55786  59044.00260 -0.00075   0.9994
-sexmale         135.40398 180267.24674  0.00075   0.9994
+(Intercept)     -24.00932  99179.33584 -0.00024  0.99981
+h(ldose- -2)    -44.55786  59044.00260 -0.00075  0.99940
+sexmale         135.40398 180267.24674  0.00075  0.99940
 
 GLM fac4Q deviance residuals:
           Min             1Q         Median             3Q            Max  
@@ -10393,9 +10458,9 @@ GLM fac4R deviance residuals:
 
 GLM fac4R coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)     111.39466 150533.42039  0.00074   0.9994
-h(ldose- -2)    -44.55786  59044.00259 -0.00075   0.9994
-sexmale        -135.40398 180267.24670 -0.00075   0.9994
+(Intercept)     111.39466 150533.42039  0.00074  0.99941
+h(ldose- -2)    -44.55786  59044.00259 -0.00075  0.99940
+sexmale        -135.40398 180267.24670 -0.00075  0.99940
 
 GLM fac4S deviance residuals:
           Min             1Q         Median             3Q            Max  
@@ -10403,9 +10468,9 @@ GLM fac4S deviance residuals:
 
 GLM fac4S coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)    -111.39466 150533.41921 -0.00074   0.9994
-h(ldose- -2)     44.55786  59044.00260  0.00075   0.9994
-sexmale        -135.40398 180267.24672 -0.00075   0.9994
+(Intercept)    -111.39466 150533.41921 -0.00074  0.99941
+h(ldose- -2)     44.55786  59044.00260  0.00075  0.99940
+sexmale        -135.40398 180267.24672 -0.00075  0.99940
 
 GLM numdead.1 deviance residuals:
        Min          1Q      Median          3Q         Max  
@@ -10433,9 +10498,9 @@ GLM fac4.1P deviance residuals:
 
 GLM fac4.1P coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)     -24.00932  99179.33584 -0.00024   0.9998
-h(ldose- -2)    -44.55786  59044.00260 -0.00075   0.9994
-sexmale         135.40398 180267.24674  0.00075   0.9994
+(Intercept)     -24.00932  99179.33584 -0.00024  0.99981
+h(ldose- -2)    -44.55786  59044.00260 -0.00075  0.99940
+sexmale         135.40398 180267.24674  0.00075  0.99940
 
 GLM fac4.1Q deviance residuals:
           Min             1Q         Median             3Q            Max  
@@ -10453,9 +10518,9 @@ GLM fac4.1R deviance residuals:
 
 GLM fac4.1R coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)     111.39466 150533.42039  0.00074   0.9994
-h(ldose- -2)    -44.55786  59044.00259 -0.00075   0.9994
-sexmale        -135.40398 180267.24670 -0.00075   0.9994
+(Intercept)     111.39466 150533.42039  0.00074  0.99941
+h(ldose- -2)    -44.55786  59044.00259 -0.00075  0.99940
+sexmale        -135.40398 180267.24670 -0.00075  0.99940
 
 GLM fac4.1S deviance residuals:
           Min             1Q         Median             3Q            Max  
@@ -10463,9 +10528,9 @@ GLM fac4.1S deviance residuals:
 
 GLM fac4.1S coefficients (family binomial, link logit)
                  Estimate   Std. Error  z value Pr(>|z|)
-(Intercept)    -111.39466 150533.41921 -0.00074   0.9994
-h(ldose- -2)     44.55786  59044.00260  0.00075   0.9994
-sexmale        -135.40398 180267.24672 -0.00075   0.9994
+(Intercept)    -111.39466 150533.41921 -0.00074  0.99941
+h(ldose- -2)     44.55786  59044.00260  0.00075  0.99940
+sexmale        -135.40398 180267.24672 -0.00075  0.99940
 
 GLM numdead.2 deviance residuals:
         Min           1Q       Median           3Q          Max  
@@ -10665,8 +10730,8 @@ residuals.earth Gamma type=partial:
 329             0.01643456              0.01216106 -0.003528313
 330             0.21260432              0.20833083  0.192641453
     `h(dpg-2)*h(ibt-138)` `h(humidity-46)*h(ibh-1069)`  `h(200-vis)`
-329            0.01642098                   0.02062310 -0.0007838572
-330            0.21259074                   0.27069968  0.2061707063
+329            0.01642098                    0.0206231 -0.0007838572
+330            0.21259074                    0.2706997  0.2061707063
     `h(171-ibt)*h(200-vis)`
 329              0.07538135
 330              0.26437376
@@ -10685,9 +10750,9 @@ residuals.earth binomial type=earth:
 1045 -0.1739235
 1046 -0.1668663
 residuals.earth binomial type=deviance:
-   survived
-1 0.2717830
-2 0.3071610
+  survived
+1 0.271783
+2 0.307161
       survived
 1045 -0.596125
 1046 -0.580672
@@ -10824,13 +10889,13 @@ formula aaa ~ bbb + ccc
 stripped formula aaa~bbb+ccc
 get.data.for.formula: using x from "df" passed to earth 
 about to eval model.frame(formula=aaa~bbb+ccc, data=structure(list(
-              aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
-              1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
-              0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
-              0.236885007470846, 0.791147409472615, 0.599731565685943, 
-              0.910147710936144, 0.560424553928897, 0.755704769166186, 
-              0.379171891137958, 0.373280976898968, 0.170290642883629, 
-              0.453307323623449, 0.258413960458711, 0.336265952326357), etc.
+    aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
+    1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
+    0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
+    0.236885007470846, 0.791147409472615, 0.599731565685943, 
+    0.910147710936144, 0.560424553928897, 0.755704769166186, 
+    0.379171891137958, 0.373280976898968, 0.170290642883629, 
+    0.453307323623449, 0.258413960458711, 0.336265952326357), ...
 got x with colnames from object$call$formula
 
 x[18,2]:
@@ -10849,15 +10914,16 @@ formula aaa ~ bbb + ccc
 stripped formula aaa~bbb+ccc
 get.data.for.formula: using y from "df" passed to earth 
 about to eval model.frame(formula=aaa~bbb+ccc, data=structure(list(
-              aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
-              1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
-              0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
-              0.236885007470846, 0.791147409472615, 0.599731565685943, 
-              0.910147710936144, 0.560424553928897, 0.755704769166186, 
-              0.379171891137958, 0.373280976898968, 0.170290642883629, 
-              0.453307323623449, 0.258413960458711, 0.336265952326357), etc.
+    aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
+    1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
+    0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
+    0.236885007470846, 0.791147409472615, 0.599731565685943, 
+    0.910147710936144, 0.560424553928897, 0.755704769166186, 
+    0.379171891137958, 0.373280976898968, 0.170290642883629, 
+    0.453307323623449, 0.258413960458711, 0.336265952326357), ...
 got y from object$call$formula
-get.plotmo.y returned length 18 min 0 max 1 values 0 1 0 0 1 1 0 0 1 1 ...
+get.plotmo.y returned length 18 min 0 max 1
+             value 0 1 0 0 1 1 0 0 1 1 ...
 
 clip.limits 0 1 
 

@@ -9,6 +9,13 @@ export(plotd)
 export(evimp)
 export(contr.earth.response)
 
+importFrom(plotmo, get.plotmo.singles, get.plotmo.pairs, get.plotmo.y)
+S3method(get.plotmo.singles, earth)
+S3method(get.plotmo.pairs, earth)
+S3method(get.plotmo.y, earth)
+S3method(get.plotmo.pairs, bagEarth)
+S3method(get.plotmo.y, bagEarth)
+
 S3method(anova, earth)
 S3method(case.names, earth)
 S3method(deviance, earth)

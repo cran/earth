@@ -1,8 +1,9 @@
 # test.earth.cv.R: test earth cross validation
 
 library(earth)
+source("fast.postscript.R")
 if(!interactive())
-    postscript(paper="letter")
+    fast.postscript(paper="letter")
 data(ozone1)
 data(trees)
 data(etitanic)

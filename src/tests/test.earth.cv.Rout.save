@@ -4,10 +4,10 @@
 Loading required package: leaps
 Loading required package: plotmo
 Loading required package: plotrix
-Warning message:
-package 'plotrix' was built under R version 2.12.2 
+> source("fast.postscript.R")
 > if(!interactive())
-+     postscript(paper="letter")
++     fast.postscript(paper="letter")
+Opening Rplots.ps 
 > data(ozone1)
 > data(trees)
 > data(etitanic)
@@ -63,7 +63,7 @@ mean   0.9505079 0.9505079
 Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
+GCV 10.60632    RSS 197.0722    GRSq 0.9620131    RSq 0.9756884    CV-RSq 0.9505079
 > printh(summary(a0))
 === summary(a0)
 Call: earth(formula=Volume~., data=trees, trace=0.5, nfold=3)
@@ -77,12 +77,12 @@ h(Height-72)    0.4912072
 Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
+GCV 10.60632    RSS 197.0722    GRSq 0.9620131    RSq 0.9756884    CV-RSq 0.9505079
 
 Cross validation: nterms 4.00 sd 0.00  nvars 2.00 sd 0.00
 
-         CV-RSq         sd  MaxErr       sd
-Volume 0.950508 0.02359896 8.13921 8.473541
+          CV-RSq         sd  MaxErr       sd
+Volume 0.9505079 0.02359896 8.13921 8.473541
 > print.stripped.earth.model(a0, "a0")
 print.stripped.earth.model(a0)
 $dirs
@@ -125,7 +125,7 @@ $gcv
 [1] 10.60632
 
 $grsq
-[1] 0.962013
+[1] 0.9620131
 
 $rss.per.response
 [1] 197.0722
@@ -137,7 +137,7 @@ $gcv.per.response
 [1] 10.60632
 
 $grsq.per.response
-[1] 0.962013
+[1] 0.9620131
 
 $rss.per.subset
 [1] 8106.0839 1147.4599  313.4085  197.0722  189.2489  185.6530
@@ -218,7 +218,7 @@ $cv.list
 $cv.list$cv1
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
+GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.9728721
 
 $cv.list$cv2
 Selected 4 of 5 terms, and 2 of 2 predictors 
@@ -228,7 +228,7 @@ GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 $cv.list$cv3
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 17.92712    RSS 167.3198    GRSq 0.910795    RSq 0.9562895
+GCV 17.92712    RSS 167.3198    GRSq 0.9107949    RSq 0.9562895
 
 
 attr(,"class")
@@ -253,7 +253,7 @@ CV all:     CV-RSq 0.951  ntrain-nz 31
 Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
+GCV 10.60632    RSS 197.0722    GRSq 0.9620131    RSq 0.9756884    CV-RSq 0.9505079
 > printh(summary(a0a))
 === summary(a0a)
 Call: earth(x=trees[, -3], y=trees[, 3], trace=0.5, nfold=3)
@@ -267,12 +267,12 @@ h(Height-72)    0.4912072
 Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.950508
+GCV 10.60632    RSS 197.0722    GRSq 0.9620131    RSq 0.9756884    CV-RSq 0.9505079
 
 Cross validation: nterms 4.00 sd 0.00  nvars 2.00 sd 0.00
 
-            CV-RSq         sd  MaxErr       sd
-trees[,3] 0.950508 0.02359896 8.13921 8.473541
+             CV-RSq         sd  MaxErr       sd
+trees[,3] 0.9505079 0.02359896 8.13921 8.473541
 > print.stripped.earth.model(a0a, "a0a")
 print.stripped.earth.model(a0a)
 $dirs
@@ -315,7 +315,7 @@ $gcv
 [1] 10.60632
 
 $grsq
-[1] 0.962013
+[1] 0.9620131
 
 $rss.per.response
 [1] 197.0722
@@ -327,7 +327,7 @@ $gcv.per.response
 [1] 10.60632
 
 $grsq.per.response
-[1] 0.962013
+[1] 0.9620131
 
 $rss.per.subset
 [1] 8106.0839 1147.4599  313.4085  197.0722  189.2489  185.6530
@@ -358,7 +358,7 @@ $cv.list
 $cv.list$cv1
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.972872
+GCV 18.27323    RSS 154.4088    GRSq 0.9420522    RSq 0.9728721
 
 $cv.list$cv2
 Selected 4 of 5 terms, and 2 of 2 predictors 
@@ -368,7 +368,7 @@ GCV 11.32282    RSS 105.6797    GRSq 0.9673022    RSq 0.9839781
 $cv.list$cv3
 Selected 4 of 5 terms, and 2 of 2 predictors 
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 17.92712    RSS 167.3198    GRSq 0.910795    RSq 0.9562895
+GCV 17.92712    RSS 167.3198    GRSq 0.9107949    RSq 0.9562895
 
 
 $cv.nterms
@@ -439,10 +439,10 @@ CV fold  3 --------------------------------------------------------------------
 x is a 21 by 2 matrix: 1=Girth, 2=Height
 y is a 21 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 2.00053e-005 < 0.001)
+Reached delta RSq threshold (DeltaRSq 2.00053e-05 < 0.001)
 After forward pass GRSq 0.8833 RSq 0.9708
 Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
-After backward pass GRSq 0.935 RSq 0.9682 
+After backward pass GRSq 0.9351 RSq 0.9682 
 CV fold  3: CV-RSq 0.989  ntrain-nz 21 ntest-nz 10 
 
 CV all:     CV-RSq 0.962  ntrain-nz 31 
@@ -453,7 +453,7 @@ CV all:     CV-RSq 0.962  ntrain-nz 31
 Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.9624252
+GCV 10.60632    RSS 197.0722    GRSq 0.9620131    RSq 0.9756884    CV-RSq 0.9624252
 > printh(summary(a1))
 === summary(a1)
 Call: earth(formula=Volume~., data=trees, trace=1, nfold=3)
@@ -467,7 +467,7 @@ h(Height-72)    0.4912072
 Selected 4 of 6 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10.60632    RSS 197.0722    GRSq 0.962013    RSq 0.9756884    CV-RSq 0.9624252
+GCV 10.60632    RSS 197.0722    GRSq 0.9620131    RSq 0.9756884    CV-RSq 0.9624252
 
 Cross validation: nterms 4.00 sd 0.00  nvars 2.00 sd 0.00
 
@@ -506,7 +506,7 @@ mean   0.9254611 0.9254611
 Selected 3 of 3 terms, and 1 of 1 predictors 
 Importance: Girth
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 14.25598    RSS 310.8724    GRSq 0.9489416    RSq 0.9616495    CV-RSq 0.925461
+GCV 14.25598    RSS 310.8724    GRSq 0.9489416    RSq 0.9616495    CV-RSq 0.9254611
 > printh(summary(a3))
 === summary(a3)
 Call: earth(formula=Volume~Girth, data=trees, trace=0.5, nfold=3)
@@ -519,12 +519,12 @@ h(13.7-Girth)    -3.388061
 Selected 3 of 3 terms, and 1 of 1 predictors 
 Importance: Girth
 Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 14.25598    RSS 310.8724    GRSq 0.9489416    RSq 0.9616495    CV-RSq 0.925461
+GCV 14.25598    RSS 310.8724    GRSq 0.9489416    RSq 0.9616495    CV-RSq 0.9254611
 
 Cross validation: nterms 3.00 sd 0.00  nvars 1.00 sd 0.00
 
-         CV-RSq        sd   MaxErr       sd
-Volume 0.925461 0.0530388 10.10898 9.241489
+          CV-RSq        sd   MaxErr       sd
+Volume 0.9254611 0.0530388 10.10898 9.241489
 > cat("a4 <- update(a0, nfold=0, trace=.5)  # should not do cv\n")
 a4 <- update(a0, nfold=0, trace=.5)  # should not do cv
 > set.seed(4)
@@ -648,7 +648,7 @@ Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4183267
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(summary(a6))
 === summary(a6)
 Call: earth(formula=survived.~., data=etitanic[, -2], glm=list(family="binomial"), 
@@ -671,7 +671,7 @@ Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4183267
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 
 Cross validation: nterms 8.67 sd 0.58  nvars 6.00 sd 0.00
 
@@ -735,7 +735,7 @@ Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4129805
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 > printh(summary(a6a))
 === summary(a6a)
 Call: earth(formula=survived.~., data=etitanic[, -2], glm=list(family="binomial"), 
@@ -758,7 +758,7 @@ Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1398544    RSS 140.4728    GRSq 0.422183    RSq 0.4440888    CV-RSq 0.4129805
 
-GLM null.deviance 1414.620 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
+GLM null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 
 Cross validation: nterms 8.00 sd 1.00  nvars 5.67 sd 0.58
 
@@ -1265,10 +1265,10 @@ counts2      418.8258 35 204.97309 32     4         1
 
 Cross validation: nterms 5.00 sd 0.00  nvars 4.00 sd 0.00
 
-             CV-RSq        sd   MeanDev        sd  CalibInt       sd CalibSlope        sd       cor        sd     MaxErr       sd
-counts   0.01192611 0.8203755 0.9011027 0.1269893 0.8518902 1.599211  0.7113432 0.5215928 0.5585294 0.2861361   6.609942  7.01380
-counts2 -0.14133055 1.0326875 9.6527867 1.9456886 1.1479040 2.649913  0.7787410 0.5080124 0.5806144 0.1866414 -68.872387 73.40375
-mean    -0.06470222 0.9252687 5.2769447 1.0360944 0.9998971 2.117370  0.7450421 0.5131495 0.5695719 0.2362784 -68.872387 73.40375
+             CV-RSq        sd   MeanDev        sd  CalibInt       sd CalibSlope        sd       cor        sd     MaxErr        sd
+counts   0.01192611 0.8203755 0.9011027 0.1269893 0.8518902 1.599211  0.7113432 0.5215928 0.5585294 0.2861361   6.609942  7.013801
+counts2 -0.14133055 1.0326875 9.6527867 1.9456886 1.1479040 2.649913  0.7787410 0.5080124 0.5806144 0.1866414 -68.872387 73.403751
+mean    -0.06470222 0.9252687 5.2769447 1.0360944 0.9998971 2.117370  0.7450421 0.5131495 0.5695719 0.2362784 -68.872387 73.403751
 > # two response binomial model (not yet supported)
 > cat("Expect an error here ")
 Expect an error here > z <- try(earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="bi"), trace=0.5, pmethod="none", nfold=3))

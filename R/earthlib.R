@@ -223,7 +223,7 @@ my.print.call <- function(msg, Call)
     s <- format(Call)
     if(length(s) > 8) {
         s <- s[1:8]
-        s[8] <- paste(s[8], "\netc.")
+        s[8] <- paste(s[8], "\n...")
     }
     s <- gsub("[ \t\n]", "", s)                 # remove white space
 
