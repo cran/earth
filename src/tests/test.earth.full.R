@@ -130,7 +130,7 @@ if (PLOT)
     plot(a)
 printh(summary(a$fit))
 if (PLOT) {
-    plot(a$fit)
+    plot(a$fit, col.residuals=iris$Species)
     plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE)
     plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE)
 }
@@ -747,12 +747,14 @@ a <- earth(O3 ~ ., data=ozone1) # formula interface
 
 if (PLOT)
     plot(a, caption="plot.earth test 1", col.rsq=3, col.loess=4, col.qq="pink",
-         col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid")
+         col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid",
+         col.grid="linen", col.sel.grid="linen")
 
 set.seed(1)
 if (PLOT) {
-    plot(a, caption="plot.earth test 2", which=c(3,4,1), rlim=c(.2,.9),
-         id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
+    plot(a, caption="plot.earth test 2", which=c(3,4,1), ylim=c(.2,.9),
+         id.n=20, legend.pos=c(10,.4), pch=20, lty.vline=1, cex.legend=1,
+         col.sel.grid="lightgray")
 
     plot(a, caption="plot.earth test 3", which=c(2), main="test main")
 }
@@ -762,13 +764,13 @@ a1 <- earth(ozone1[,c(2:4,10)], ozone1[,1])     # x,y interface
 if (PLOT) {
     plot(a, caption="plot.earth test 4", id.n=1)
     set.seed(1)
-    plot.earth.models(a, which=1, rlim=c(.4,.8), jitter=.01)
+    plot.earth.models(a, which=1, ylim=c(.4,.8), jitter=.01)
 
     plot.earth.models(a1)
 
     plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
          col.npreds=1, col.vline=1, lty.vline=3,
-         legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
+         legend.pos=c(5,.4), legend.text=c("a", "b", "c"), cex.legend=1.3)
 }
 
 cat("--- test minspan --------------------------------\n")
@@ -853,14 +855,21 @@ if (PLOT) {
 }
 x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
-colnames(data.global) = c("func1", "a.very.long.in.fact.extremely.long.name", "x1", "x2")
+colnames(data.global) = c("func1", 
+   "a.very.long.in.fact.extremely.long.response.name", 
+   "x1.a.very.long.in.fact.extremely.long.predictor.name", 
+   "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=3)
 printh(summary(a))
+print(evimp(a))
+print.default(evimp(a))
 
 x.global <- cbind(                                           x1, x2, x3, x4, x5)
 data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
 colnames(data.global) = c("", "neg.eqn56noise", "x1", "x2", "x3", "x4", "x5")
 itest <- itest+1; a <- test.earth.two.responses(itest, eqn56, neg.eqn56noise, nk=51, degree=1)
+print(evimp(a))
+print.default(evimp(a))
 
 x.global <- cbind(                                           x1, x2, x3, x4, x5)
 data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
@@ -1165,7 +1174,7 @@ example3 <- function(degree, pred, parents)
     # allow only humidity and temp in terms of degree > 1
     # 3 and 4 are the "humidity" and "temp" columns
     allowed.set = c(3,4)
-    if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
+    if (degree > 1 && (all(allowed.set != pred) || any(parents[-allowed.set])))
         return(FALSE)
     TRUE
 }
@@ -1186,7 +1195,8 @@ example3a  <- function(degree, pred, parents, namesx, first)
     }
     # allow only humidity and temp in terms of degree > 1
     allowed.set = c(ihumidity, itemp)
-    if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
+    if (degree > 1 &&
+           (all(allowed.set != pred) || any(parents[-allowed.set])))
         return(FALSE)
     TRUE
 }
@@ -1239,7 +1249,7 @@ y = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
       0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
       0,1,2,3,4,5,6,7,8,9,0)
 
-a <- earth(x = x, y=y, trace=4)
+a <- earth(x = x, y=y, trace=5)
 
 a.longx  <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
                         0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
@@ -1397,7 +1407,7 @@ e7 <- earth(pclass ~ ., data=etitanic, degree=2, wp=c(1,.001,.001))
 printh(e7)
 printh(summary(e7))
 if (PLOT)
-    plot(e7)
+    plot(e7, col.residuals=as.numeric(etitanic$pclass)+1)
 
 cat("--- earth.regress ---------------------------------\n")
 
@@ -1654,6 +1664,15 @@ se$wind <- NULL
 z <- try(plotmo(a, trace=2, caption="getdata lm test6"))
 if (class(z) != "try-error")
     stop("test failed")
+
+cat("test fixed.point warning in print.summary.earth\n")
+options(digits=3)
+et <- etitanic
+et$age <- 1000 * et$age
+a <- earth(survived~., data=et)
+print(summary(a))
+print(summary(a, fixed.point=FALSE))
+options(digits=7) # back to default
 
 cat("--- ../../tests/test.earth.R -------------------------\n")
 

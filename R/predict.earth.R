@@ -21,23 +21,6 @@ predict.earth <- function(
             else
                 cat("predict.earth: returning earth (not glm)", msg, "\n")
     }
-    convert.response.to.class <- function(resp, ylevels, thresh) # resp is a matrix
-    {                                                            # return a vector
-        which1 <- function(row, thresh) # row is a scalar or a vector
-        {
-            if(length(row) > 1)
-                which. <- which.max(row)
-            else
-                which. <- if(row > thresh) 2 else 1
-            which.
-        }
-        if(is.null(ylevels)) # should never happen
-            stop0("cannot use type=\"class\" with this model")
-        resp <- ylevels[apply(resp, 1, which1, thresh)]
-        if(is.character(ylevels))
-            resp <- factor(resp, levels = ylevels)
-        resp
-    }
     get.predicted.response <- function(object, newdata, type)
     {
         is.type.class <- FALSE
@@ -87,7 +70,7 @@ predict.earth <- function(
             }
         }
         if(is.type.class)
-            rval <- convert.response.to.class(rval, ylevels, thresh)
+            rval <- convert.predicted.response.to.class(rval, ylevels, thresh)
         rval
     }
     # returns just enough for termplot to work
@@ -128,4 +111,22 @@ predict.earth <- function(
         get.predicted.response(object, newdata, "earth"),
         get.predicted.response(object, newdata, "class"),
         get.terms(object, newdata))           # "terms"
+}
+# resp is a matrix, return a vector
+convert.predicted.response.to.class <- function(resp, ylevels, thresh=.5)
+{
+    which1 <- function(row, thresh) # row is a scalar or a vector
+    {
+        if(length(row) > 1)
+            which. <- which.max(row)
+        else
+            which. <- if(row > thresh) 2 else 1
+        which.
+    }
+    if(is.null(ylevels)) # should never happen
+        stop0("cannot use type=\"class\" with this model")
+    resp <- ylevels[apply(resp, 1, which1, thresh)]
+    if(is.character(ylevels))
+        resp <- factor(resp, levels = ylevels)
+    resp
 }

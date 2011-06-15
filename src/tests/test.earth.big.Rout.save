@@ -196,7 +196,6 @@ First few rows of y are
 [4,]  1.0904
 [5,]  1.1888
 [6,]  0.4007
-Approximate memory use after expanding x and y matrices: 1e+01 MBytes
 Forward pass: minspan 9 endspan 13
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -205,7 +204,7 @@ Forward pass: minspan 9 endspan 13
 4      0.8588 0.8590       0.4292    1          x01     0.76136  4   5   
 6      0.8589 0.8592    0.0002223   81          x81     0.62626  6   7   reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000222344 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000222344 < 0.001) at 5 terms
 After forward pass GRSq 0.8589 RSq 0.8592
 Forward pass complete: 5 terms
 

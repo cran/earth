@@ -29,7 +29,7 @@ print.one.line.evimp <- function(obj) # obj is an "earth" obj
     cat("\n")
 }
 
-evimp <- function(obj, trim=TRUE, sqrt.=FALSE) # see help page for description
+evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
 {
     # convert col numbers in predtab to col numbers in importances
     as.icriti <- function(icrit) c(3,4,6)[icrit]
@@ -67,7 +67,7 @@ evimp <- function(obj, trim=TRUE, sqrt.=FALSE) # see help page for description
     # importances is the matrix we return
 
     importances <- matrix(0, nrow=length(pred.names), ncol=7)
-    colnames(importances) <- c("col", "used", "nsubsets", "gcv", "", "rss", "")
+    colnames(importances) <- c("col", "used", "nsubsets", "gcv", "gcv.match", "rss", "rss.match")
     rownames(importances) <- tagged.pred.names
     importances[, "col"] <- 1:nrow(importances)
     importances[used.preds, "used"] <- 1
@@ -123,12 +123,27 @@ evimp <- function(obj, trim=TRUE, sqrt.=FALSE) # see help page for description
     importances
 }
 
-# utility to print an evimp object without printing the class
-
 print.evimp <- function(x = stop("no 'x' arg"), ...) # x is an "evimp" obj
 {
-    class(x) <- NULL
-    print(x, ...)
+    stopifnot(NCOL(x) == 7)
+    if(NROW(x) == 0) {
+        printf("    nsubsets   gcv    rss\n")
+        return()
+    }
+    # truncate rownames if necessary so each entry requires only one line on the screen
+    rownames <- rownames(x)
+    max.rowname <- max(nchar(rownames))
+    width <- getOption("width")
+    if(max.rowname > width-25)  { # width of stuff to right of rowname is slighty less than 25
+        rownames <- substr(rownames, 1, max(20, width-25))
+        max.rowname <- max(nchar(rownames))
+    }
+    printf("%*s nsubsets   gcv    rss\n", max.rowname, " ")
+    for(i in 1:nrow(x))
+        printf("%-*s %8d %5.1f%s %5.1f%s\n",
+            max.rowname, rownames[i], x[i, 3],
+            x[i, 4], if(x[i, 7]) " " else ">",
+            x[i, 6], if(x[i, 7]) "" else ">")
 }
 
 # TODO this would be better if rotated clockwise 90 degrees so could easily read var names
@@ -180,7 +195,7 @@ plot.evimp <- function(
     lines(max.subsets * x[,"rss"] / 100, type=type.rss, lty=lty.rss, col=col.rss)
     # plot gcv second so it goes on top of rss (gcv arguably more important than rss)
     lines(max.subsets * x[,"gcv"] / 100, type=type.gcv, lty=lty.gcv, col=col.gcv)
-    if(!is.null(x.legend) && !is.na.or.zero(x.legend))
+    if(!is.null(x.legend) && !is.naz(x.legend))
         legend(x=x.legend, y = y.legend, xjust=1,   # top right corner by default
                legend=c("nsubsets", "gcv", "rss"),
                col=c(col.nsubsets, col.gcv, col.rss),

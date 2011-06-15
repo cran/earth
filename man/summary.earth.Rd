@@ -46,8 +46,8 @@ Summary method for \code{\link{earth}} objects.
 \code{"bf"} basis function format.
   }
   \item{digits}{
-    The number of significant digits.
-    For \code{summary.earth}, the default is \code{getOption("digits")}.
+    The number of significant digits.\cr
+    For \code{summary.earth}, the default is \code{getOption("digits")}.\cr
     For \code{print.summary.earth}, the default is the \code{$digits} component of \code{object}.
   }
   \item{fixed.point}{
@@ -72,7 +72,8 @@ Matrices with two or fewer rows are never printed with a fixed point.
 }
 \value{
 The value is the same as that returned by \code{\link{earth}}
-but with the following extra components.
+but with the following extra components.\cr
+
   \item{strings}{
     String(s) created by \code{\link{format.earth}}.
     For multiple response models, a vector of strings.

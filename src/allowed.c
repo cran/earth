@@ -17,7 +17,7 @@ static SEXP AllowedEnv;
 static int  nArgs;
 static bool First;
 
-// Initialize the R function AllowedFunc from the Allowed functon
+// Initialize the R function AllowedFunc from the Allowed function
 // argument which was passed into ForwardPassR.
 // For efficiency, we initialize once here rather than in IsAllowed.
 //

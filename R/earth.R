@@ -31,7 +31,7 @@
 # a subset even when he or she isn't using the formula based approach
 # i.e.  using earth.default() and not earth.formula().
 #
-# --- Eval.model.subsets (and Print.pruning.pass)
+# --- Eval.model.subsets
 #
 # This function evaluates subsets of the MARS model.  It returns (in
 # prune.terms) the best terms to use for each number of terms i.e. for
@@ -45,7 +45,7 @@
 # NOTE: if you change the pruning formal arguments in earth.fit(), update this too!
 
 prune.only.args <- c("glm", "trace", "nprune", "pmethod",
-                     "Get.crit", "Eval.model.subsets", "Print.pruning.pass",
+                     "Get.crit", "Eval.model.subsets",
                      "Force.xtx.prune")
 
 # returns the number of arguments to the user's "allowed" function
@@ -137,7 +137,8 @@ earth.default <- function(
     glm     = NULL,
     trace   = 0,
     keepxy  = FALSE,        # true to retain x and y in returned value
-    nfold   = 0,            # cross validation folds, 0 means no cross validation
+    ncross  = 1,            # number of cross-validations, ignored unless nfold>0
+    nfold   = 0,            # number of folds per cross-validation
     stratify = TRUE,        # stratify levels in cross validation folds
     ...)                    # passed on to earth.fit
 {
@@ -164,21 +165,20 @@ earth.default <- function(
         namesx.org <- colnames(x)
     namesx <- generate.colnames(x, is.y.arg=FALSE, xname=xname)
 
-    # expand factors, convert to double matrix with col names
-
-    x <- expand.arg(x, env, FALSE, xname=xname)
-    rownames(x) <- possibly.delete.rownames(x)
-    ylevels <- levels(y)          # save levels if any before expanding y
-    if(is.logical(y))
-        ylevels <- c(FALSE, TRUE)  # needed for predict.earth(type="class")
-    if(is.logical(y))
-        ylevels <- c(FALSE, TRUE)
+    # the "if" saves memory when x is already in canonical form
+    if(!is.matrix(x) || !is.double(x[,1]) || !good.colnames(x)) {
+        # expand factors, convert to double matrix with column names
+        x <- expand.arg(x, env, FALSE, xname=xname)
+        rownames(x) <- possibly.delete.rownames(x)
+    }
+    ylevels <- get.ylevels(y, glm)
     y <- expand.arg(y, env, is.y.arg=TRUE, deparse(substitute(y)))
     rownames(y) <- possibly.delete.rownames(y)
 
     rval <- earth.fit(x=x, y=y, weights=weights, wp=wp, scale.y=scale.y,
                       subset=subset, na.action=na.action, glm=glm,
                       trace=trace, ...)
+
     rval$call <- Call
     rval$namesx.org <- namesx.org # name chosen not to alias with rval$x
     rval$namesx <- namesx         # ditto
@@ -195,24 +195,28 @@ earth.default <- function(
         rval$subset <- subset
         rval$weights <- weights
     }
-    # earth.cv will return null unless nfold>1
+    # earth.cv will return null unless nfold > 1
     # subset parameter was already checked in earth.fit so it's safe to use it here
-    cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
+    cv <- earth.cv(rval,
+                   if(is.null(subset)) x else x[subset,,drop=FALSE],
                    if(is.null(subset)) y else y[subset,,drop=FALSE],
-                   weights, wp, scale.y, subset, na.action,
-                   glm, rval$glm.bpairs, trace, keepxy, nfold, stratify, env, ...)
+                   weights, scale.y, subset, na.action, glm, trace, keepxy,
+                   ncross, nfold, stratify, env, ...)
     if(!is.null(cv)) {
-         rval$cv.list <- cv$list.
-         rval$cv.nterms <- cv$nterms
-         rval$cv.nvars <- cv$nvars
-         rval$cv.rsq.tab <- cv$rsq.tab
-         rval$cv.maxerr.tab <- cv$maxerr.tab
-         rval$cv.deviance.tab <- cv$deviance.tab
-         rval$cv.calib.int.tab <- cv$calib.int.tab
+         rval$cv.list            <- cv$list.
+         rval$cv.nterms          <- cv$nterms
+         rval$cv.nvars           <- cv$nvars
+         rval$cv.groups          <- cv$groups
+         rval$cv.rsq.tab         <- cv$rsq.tab
+         rval$cv.oof.rsq.tab     <- cv$oof.rsq.tab
+         rval$cv.infold.rsq.tab    <- cv$infold.rsq.tab
+         rval$cv.class.rate.tab  <- cv$class.rate.tab
+         rval$cv.maxerr.tab      <- cv$maxerr.tab
+         rval$cv.auc.tab         <- cv$auc.tab
+         rval$cv.cor.tab         <- cv$cor.tab
+         rval$cv.deviance.tab    <- cv$deviance.tab
+         rval$cv.calib.int.tab   <- cv$calib.int.tab
          rval$cv.calib.slope.tab <- cv$calib.slope.tab
-         rval$cv.auc.tab <- cv$auc.tab
-         rval$cv.cor.tab <- cv$cor.tab
-         rval$cv.groups <- cv$groups
     }
     rval
 }
@@ -228,7 +232,8 @@ earth.formula <- function(
     glm     = NULL,
     trace   = 0,
     keepxy  = FALSE,        # true to retain x and y in returned value
-    nfold   = 0,            # cross validation folds, 0 means no cross validation
+    ncross  = 1,            # number of cross-validations, ignored unless nfold>0
+    nfold   = 0,            # number of folds per cross-validation
     stratify = TRUE,        # stratify levels in cross validation folds
     ...)                    # passed on to earth.fit
 {
@@ -248,6 +253,7 @@ earth.formula <- function(
 
         namesx
     }
+    #--- earth.formula starts here
     trace <- check.trace.arg(trace)
     env <- parent.frame() # the environment from which earth was called
     Call <- make.call.generic(match.call(expand.dots=TRUE), "earth")
@@ -286,9 +292,7 @@ earth.formula <- function(
     # expand factors in y, convert to double matrix, add colnames
 
     y <- model.response(mf, "any")  # "any" means factors are allowed
-    ylevels <- levels(y)            # save levels if any before expanding y
-    if(is.logical(y))
-        ylevels <- c(FALSE, TRUE)    # needed for predict.earth(type="class")
+    ylevels <- get.ylevels(y, glm)
     terms. <- attr(mf, "terms")
     yname <- NULL
     if(!is.factor(y))
@@ -317,22 +321,26 @@ earth.formula <- function(
     }
     # earth.cv will return null unless nfold>1
     # subset parameter was already checked in earth.fit so it's safe to use it here
-    cv <- earth.cv(if(is.null(subset)) x else x[subset,,drop=FALSE],
+    cv <- earth.cv(rval,
+                   if(is.null(subset)) x else x[subset,,drop=FALSE],
                    if(is.null(subset)) y else y[subset,,drop=FALSE],
-                   weights, wp, scale.y, subset, na.action,
-                   glm, rval$glm.bpairs, trace, keepxy,  nfold, stratify, env, ...)
+                   weights, scale.y, subset, na.action, glm, trace,
+                   keepxy, ncross, nfold, stratify, env, ...)
     if(!is.null(cv)) {
-         rval$cv.rsq.tab <- cv$rsq.tab
-         rval$cv.maxerr.tab <- cv$maxerr.tab
-         rval$cv.deviance.tab <- cv$deviance.tab
-         rval$cv.calib.int.tab <- cv$calib.int.tab
+         rval$cv.list            <- cv$list.
+         rval$cv.nterms          <- cv$nterms
+         rval$cv.nvars           <- cv$nvars
+         rval$cv.groups          <- cv$groups
+         rval$cv.rsq.tab         <- cv$rsq.tab
+         rval$cv.oof.rsq.tab     <- cv$oof.rsq.tab
+         rval$cv.infold.rsq.tab    <- cv$infold.rsq.tab
+         rval$cv.class.rate.tab  <- cv$class.rate.tab
+         rval$cv.maxerr.tab      <- cv$maxerr.tab
+         rval$cv.auc.tab         <- cv$auc.tab
+         rval$cv.cor.tab         <- cv$cor.tab
+         rval$cv.deviance.tab    <- cv$deviance.tab
+         rval$cv.calib.int.tab   <- cv$calib.int.tab
          rval$cv.calib.slope.tab <- cv$calib.slope.tab
-         rval$cv.auc.tab <- cv$auc.tab
-         rval$cv.cor.tab <- cv$cor.tab
-         rval$cv.groups <- cv$groups
-         rval$cv.nterms <- cv$nterms
-         rval$cv.nvars <- cv$nvars
-         rval$cv.list <- cv$list.
     }
     rval
 }
@@ -343,8 +351,8 @@ earth.formula <- function(
 earth.fit <- function(
     x       = stop("no 'x' arg"), # x and y already processed by model.matrix
     y       = stop("no 'y' arg"), # NAs are not allowed in x or y, an error msg if so
-    weights = NULL,         # case weights
-    wp      = NULL,         # response column weights
+    weights = NULL,         # case weights (row weights)
+    wp      = NULL,         # response weights (column weights)
     scale.y = (NCOL(y)==1), # TRUE to scale y in the forward pass
     subset  = NULL,         # which rows in x to use
     na.action = na.fail,    # only legal value is na.fail
@@ -393,7 +401,6 @@ earth.fit <- function(
 
     Get.crit           = get.gcv,            # criterion func for model select during pruning
     Eval.model.subsets = eval.model.subsets, # function used to evaluate model subsets
-    Print.pruning.pass = print.pruning.pass, # function used to print pruning pass results
     Force.xtx.prune    = FALSE, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
     Use.beta.cache     = TRUE,  # TRUE to use beta cache, for speed
     Exhaustive.tol     = 1e-10,
@@ -419,8 +426,10 @@ earth.fit <- function(
         glm.bpairs <- get.glm.bpairs(y, glm) # returns NULL if all cols used
     }
     if(trace >= 1) {
-        print.matrix.info("x", x, NULL, NULL,       details=(trace >= 4), all.names=(trace >= 2))
-        print.matrix.info("y", y, NULL, glm.bpairs, details=(trace >= 4), all.names=(trace >= 2))
+        print.matrix.info("x", x, NULL, NULL,       details=(trace >= 4),
+                          all.names=(trace >= 2), all.rows=(trace >= 5))
+        print.matrix.info("y", y, NULL, glm.bpairs, details=(trace >= 4),
+                          all.names=(trace >= 2), all.rows=(trace >= 5))
     }
     # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)
@@ -479,9 +488,9 @@ earth.fit <- function(
                              allowed, thresh, minspan, newvar.penalty,
                              fast.k, fast.beta, Use.beta.cache,
                              n.allowedfunc.args, env)
-          bx   <- rval[[1]]
-          dirs <- rval[[2]]
-          cuts <- rval[[3]]
+          bx   <- rval$bx
+          dirs <- rval$dirs
+          cuts <- rval$cuts
     } else {
         # no forward pass: get here if update() called me with no forward pass params
         if(trace >= 1)
@@ -491,15 +500,15 @@ earth.fit <- function(
         dirs <- Object$dirs
         cuts <- Object$cuts
     }
-    rval <- pruning.pass(x, y, standardized.weights, subset,
+    rval <- pruning.pass(x, y, subset, standardized.weights,
                          trace, penalty, pmethod, nprune, bx, dirs, cuts, Get.crit,
-                         Eval.model.subsets, Print.pruning.pass, Force.xtx.prune,
-                         Exhaustive.tol)
-      bx             <- rval[[1]]
-      rss.per.subset <- rval[[2]]   # vector of RSSs for each model (index on subset size)
-      gcv.per.subset <- rval[[3]]   # vector of GCVs for each model
-      prune.terms    <- rval[[4]]   # triangular mat: each row is a vector of term indices
-      selected.terms <- rval[[5]]   # vector of term indices of selected model
+                         Eval.model.subsets, Force.xtx.prune, Exhaustive.tol)
+      bx             <- rval$bx.prune
+      rss.per.subset <- rval$rss.per.subset # vector of RSSs for each model (index on subset size)
+      gcv.per.subset <- rval$gcv.per.subset # vector of GCVs for each model
+      prune.terms    <- rval$prune.terms    # triang mat: each row is a vector of term indices
+      selected.terms <- rval$selected.terms # vec of term indices of selected model
+
     bx <- bx[, selected.terms, drop=FALSE]
 
     # add names for returned values
@@ -531,7 +540,7 @@ earth.fit <- function(
 
     if(!is.null(wp)) {
         tt <- outer(rep(1, nrow(y)), wp)
-        fitted.values <- fitted.values / tt
+        fitted.values <- fitted.values / tt # divide each column by its wp
         residuals <- residuals / tt
         y <- y / tt
         coefficients <- coefficients / outer(rep(1, nselected), wp)
@@ -551,7 +560,7 @@ earth.fit <- function(
     }
     # prepare returned summary statistics
 
-    rss  <- rss.per.subset[nselected]
+    rss <- rss.per.subset[nselected]
     rsq  <- get.rsq(rss, rss.per.subset[1])
     gcv  <- gcv.per.subset[nselected]
     grsq <- get.rsq(gcv, gcv.per.subset[1])
@@ -559,11 +568,12 @@ earth.fit <- function(
     rsq.per.response  <- vector(mode="numeric", length=nresp)
     gcv.per.response  <- vector(mode="numeric", length=nresp)
     grsq.per.response <- vector(mode="numeric", length=nresp)
+
     for(iresp in 1:nresp) {
-        rss.per.response[iresp]  <- sum(residuals[,iresp]^2)
-        rss.null                 <- sum((y[,iresp] - mean(y[,iresp]))^2)
-        rsq.per.response[iresp]  <- get.rsq(rss.per.response[iresp], rss.null)
-        gcv.null                 <- Get.crit(rss.null, 1, penalty, nrow(x))
+        rss.per.response[iresp]  <- ss(residuals[,iresp])
+        tss                      <- ss(y[,iresp] - mean(y[,iresp]))
+        rsq.per.response[iresp]  <- get.rsq(rss.per.response[iresp], tss)
+        gcv.null                 <- Get.crit(tss, 1, penalty, nrow(x))
         gcv.per.response[iresp]  <- Get.crit(rss.per.response[iresp], nselected,
                                              penalty, nrow(x))
         grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
@@ -584,6 +594,9 @@ earth.fit <- function(
         rsq.per.response  = rsq.per.response,   # nresp x 1, RSq for each response
         gcv.per.response  = gcv.per.response,   # nresp x 1, GCV for each response
         grsq.per.response = grsq.per.response,  # nresp x 1, GRSq for each response
+
+        rss.per.subset = rss.per.subset,# nprune x 1, RSS of each model, across all resp
+        gcv.per.subset = gcv.per.subset,# nprune x 1, GCV of each model, across all resp
 
         rss.per.subset = rss.per.subset,# nprune x 1, RSS of each model, across all resp
         gcv.per.subset = gcv.per.subset,# nprune x 1, GCV of each model, across all resp
@@ -663,38 +676,36 @@ eval.model.subsets.with.leaps <- function(
     #--- eval.model.subsets.with.leaps starts here ---
 
     # Make warnings in the leaps routines behave as errors.
-    # We have seen the routines return bad data (?) after issuing
+    # We have seen the leaps routines return bad data (?) after issuing
     # the warning "XHAUST returned error code -999",
     # and we don't want to continue in that situation.
     old.warn <- getOption("warn")
     on.exit(options(warn=old.warn))
     options(warn=2)
-
     if(is.null(weights))
         rprune <- leaps:::leaps.setup(x=bx, y=y,
-                    force.in=1,        # make sure intercept is in model
-                    force.out=NULL,
-                    intercept=FALSE,   # we have an intercept so leaps.setup must not add one
-                    nvmax=nprune, nbest=1, warn.dep=TRUE)
+            force.in=1,        # make sure intercept is in model
+            force.out=NULL,
+            intercept=FALSE,   # we have an intercept so leaps.setup must not add one
+            nvmax=nprune, nbest=1, warn.dep=TRUE)
     else
         rprune <- leaps:::leaps.setup(x=bx, y=y, wt=weights,
-                    force.in=1,
-                    force.out=NULL,
-                    intercept=FALSE,
-                    nvmax=nprune, nbest=1, warn.dep=TRUE)
+            force.in=1,
+            force.out=NULL,
+            intercept=FALSE,
+            nvmax=nprune, nbest=1, warn.dep=TRUE)
 
     rprune <- switch(pmethod,
-                    backward   = leaps:::leaps.backward(rprune),
-                    none       = leaps:::leaps.backward(rprune), # for stats, won't actually prune
-                    exhaustive = leaps:::leaps.exhaustive(rprune, really.big=TRUE),
-                    forward    = leaps:::leaps.forward(rprune),
-                    seqrep     = leaps:::leaps.seqrep(rprune))
+        backward   = leaps:::leaps.backward(rprune),
+        none       = leaps:::leaps.backward(rprune), # for stats, won't actually prune
+        exhaustive = leaps:::leaps.exhaustive(rprune, really.big=TRUE),
+        forward    = leaps:::leaps.forward(rprune),
+        seqrep     = leaps:::leaps.seqrep(rprune))
 
     rss.per.subset <- as.vector(rprune$ress) # convert from n x 1 mat to vector
-    prune.terms <- convert.lopt(rprune$lopt, nprune)
 
-    list(rss.per.subset,    # vector of RSSs for each model (index on subset size)
-         prune.terms)       # triangular mat: each row is a vector of term indices
+    list(rss.per.subset = rss.per.subset,    # vector of RSSs for each model (index on subset size)
+         prune.terms = convert.lopt(rprune$lopt, nprune)) # each row is a vec of term indices
 }
 
 # This calls the earth.c routine EvalSubsetsUsingXtxR.
@@ -722,90 +733,82 @@ eval.subsets.xtx <- function(
         stopifnot(is.double(y))
         stopifnot(is.null(weights.) || is.double(weights.))
         rval <- .C("EvalSubsetsUsingXtxR",
-            prune.terms = matrix(0, nrow=nterms, ncol=nterms),  # double PruneTerms[]
+            prune.terms = matrix(0, nrow=nterms, ncol=nterms), # double PruneTerms[]
             rss.per.subset = vector(mode="numeric", length=nterms),
-            as.integer(ncases),                       # const int *pnCases
-            as.integer(nresp),                        # const int *pnResp
-            as.integer(nterms),                       # const int *pnMaxTerms
-            bx,                                       # const double bx[]
-            y,                                        # const double y[]
-            if(is.null(weights.)) NULL else weights., # const double weights[]
+            as.integer(ncases),     # const int *pnCases
+            as.integer(nresp),      # const int *pnResp
+            as.integer(nterms),     # const int *pnMaxTerms
+            bx,                     # const double bx[]
+            y,                      # const double y[]
+            weights.,               # const double weights[]
             DUP = FALSE,
             PACKAGE="earth")
 
-        # above always evaluates all subsets, so trim back to nprune
+        # above returns all subsets, so trim back to nprune below
 
-        list(rval$rss.per.subset[1:nprune], rval$prune.terms[1:nprune, 1:nprune, drop=FALSE])
+        list(rss.per.subset = rval$rss.per.subset[1:nprune],
+             prune.terms    = rval$prune.terms[1:nprune, 1:nprune, drop=FALSE])
     }
     #--- eval.subsets.xtx starts here ---
 
     rprune <- switch(pmethod,
-                backward   = backward(bx, y, weights),
-                none       = backward(bx, y, weights), # for stats, won't actually prune
-                exhaustive = bad.pmethod(),
-                forward    = bad.pmethod(),
-                seqrep     = bad.pmethod())
+        backward   = backward(bx, y, weights),
+        none       = backward(bx, y, weights), # for stats, won't actually prune
+        exhaustive = bad.pmethod(),
+        forward    = bad.pmethod(),
+        seqrep     = bad.pmethod())
 }
 
-forward.pass <- function(x, y, weights,  # must be all double
+forward.pass <- function(x, y, weights, # must be all double
                          scale.y, trace, penalty, nk, degree, linpreds,
                          allowed, thresh, minspan, newvar.penalty,
                          fast.k, fast.beta, Use.beta.cache,
                          n.allowedfunc.args, env)
 {
     npreds <- ncol(x)
-
-    # CHANGED Mar 12, 2008: check.vec() moved to ForwardPass in earth.c
-    # because it uses lots of memory even if we do a gc afterwards, not
-    # sure why. Added NAOK=TRUE to .C call below to allow this.
-    #
-    # check.vec("x", x, xvec)
-    # check.vec("y", y, yvec)
-
     stopifnot(nrow(x) == nrow(y))
     fullset <- rep(0, nk)   # element will be set TRUE if corresponding term used
-
     linpreds <- convert.linpreds.to.logical(linpreds, npreds, x)
     if(trace >= 2)
         print.linpreds(linpreds, x)
 
-    # CHANGED Mar 12, 2008: We want DUP=FALSE in the .C call below to
-    # reduce memory useage.  But this isn't permitted if you pass a
-    # string array to .C, so we set pred.names=NULL unless tracing
-    # or unless we need pred.names for the "allowed" function.
-
-    if(trace >= 2 || n.allowedfunc.args >= 4)
-        pred.names <- colnames(x)
-    else
-        pred.names <- NULL
-
-    nbytes <- 8 * (nk^2 * ncol(x) + (nrow(x) * (3 + 2*nk + ncol(x)/2)))
-    if(nbytes > 1e7)  # need more than 10 MBytes to build model?
-        gc()
-
-    # CHANGED Jan 22, 2009: scale y for better stability in the forward pass
+    # scale y for better stability in the forward pass
     if(scale.y) {
         y.scaled <- scale(y)
         # make sure that scaling was ok
         i <- which(attr(y.scaled,"scaled:scale") == 0)
         if(length(i)) {
             if(ncol(y) > 1)
-                stop0("cannot scale column ", i[1], " of y (values are all equal to ", y[1,i], ")")
+                stop0("cannot scale column ", i[1],
+                      " of y (values are all equal to ", y[1,i], ")")
             else
                 stop0("cannot scale y (values are all equal to ", y[1,1], ")")
         }
     } else
         y.scaled <- y
 
+    # this calculation of nbytes if not accurate, it doesn't matter
+    nbytes <- 8 * (nk^2 * ncol(x) + (nrow(x) * (3 + 2*nk + ncol(x)/2)))
+    if(nbytes > 1e7)  # need more than 10 MBytes to build model?
+        gc()
+
+    # We want DUP=FALSE in the .C call below to reduce memory useage.  But
+    # this isn't permitted if you pass a string array to .C, so we set
+    # pred.names=NULL unless tracing or unless we need pred.names for the
+    # "allowed" function.
+
+    pred.names <- if(trace >= 2 || n.allowedfunc.args >= 4) colnames(x) else NULL
+
     on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interupts
+
     rval <- .C("ForwardPassR",
-        fullset = as.integer(fullset),          # out: int FullSet[]
+        fullset = as.integer(fullset),  # out: int FullSet[]
         bx = matrix(0, nrow=nrow(x), ncol=nk),  # out: double bx[]
         dirs = matrix(0, nrow=nk, ncol=npreds), # out: double Dirs[]
         cuts = matrix(0, nrow=nk, ncol=npreds), # out: double Cuts[]
         x,                              # in: const double x[]
         y.scaled,                       # in: const double y[]
-        weights,                        # in: const double weightsArg[]
+        weights,                        # in: const double WeightsArg[]
         as.integer(nrow(x)),            # in: const int *pnCases
         as.integer(ncol(y)),            # in: const int *pnResp
         as.integer(npreds),             # in: const int *pnPreds
@@ -830,9 +833,9 @@ forward.pass <- function(x, y, weights,  # must be all double
 
     fullset <- as.logical(rval$fullset)
 
-    list(rval$bx[, fullset, drop=FALSE],
-        rval$dirs[fullset, , drop=FALSE],
-        rval$cuts[fullset, , drop=FALSE])
+    list(bx  = rval$bx[, fullset, drop=FALSE],
+        dirs = rval$dirs[fullset, , drop=FALSE],
+        cuts = rval$cuts[fullset, , drop=FALSE])
 }
 
 # Return a vec which specifies the degree of each term in dirs.
@@ -982,12 +985,22 @@ get.nused.preds.per.subset <- function(dirs, which.terms)
     nused
 }
 
-get.rsq <- function(rss, rss.null)
+get.ylevels <- function(y, glm)
 {
-    1 - rss / rss.null
+    if(!is.null(levels(y)))
+        return(levels(y))
+    # following needed for predict.earth(type="class")
+    if(is.logical(y))
+        return(c(FALSE, TRUE))
+    if(is.numeric(y)) {
+        range <- range(y)
+        if(range[2] - range[1] == 1)
+            return(c(range[1], range[2]))
+    }
+    NULL
 }
 
-# remove useless(?) "1" "2" "3" ... rownames for x (added by
+# Remove useless(?) "1" "2" "3" ... rownames for x (added by
 # model.matrix) so earth.formula x is same as earth.default x,
 # and to save memory (although not as important now that R
 # hashes strings internally).
@@ -1017,16 +1030,8 @@ print.linpreds <- function(linpreds, x)
     }
 }
 
-print.pruning.pass <- function(     # this is the default Print.pruning.pass
-    trace,
-    pmethod,
-    penalty,
-    nprune,
-    selected.terms,
-    prune.terms,
-    rss.per.subset,
-    gcv.per.subset,
-    dirs)
+print.pruning.pass <- function(trace, pmethod, penalty, nprune, selected.terms,
+                               prune.terms, rss.per.subset, gcv.per.subset, dirs)
 {
     nselected <- length(selected.terms)
     prev.grsq <- 0
@@ -1068,13 +1073,11 @@ print.pruning.pass <- function(     # this is the default Print.pruning.pass
             format(get.rsq(rss.per.subset[nselected], rss.per.subset[1]), digits=4),
             "\n")
     }
-    NULL
 }
 
-pruning.pass <- function(x, y, weights, subset,
-                         trace, penalty, pmethod, nprune, bx, dirs, cuts,
-                         Get.crit, Eval.model.subsets, Print.pruning.pass, Force.xtx.prune,
-                         Exhaustive.tol)
+pruning.pass <- function(x, y, subset, weights,
+    trace, penalty, pmethod, nprune, bx, dirs, cuts, Get.crit,
+    Eval.model.subsets, Force.xtx.prune, Exhaustive.tol)
 {
     possibly.print.pacifier <- function(bx, nprune) # print a reminder if pruning will be slow
     {
@@ -1155,13 +1158,13 @@ pruning.pass <- function(x, y, weights, subset,
     flush.console() # make sure previous messages get seen, pruning make take a while
     rval <- Eval.model.subsets(bx.prune, y, weights,
                                pmethod, nprune, Force.xtx.prune, trace)
-      rss.per.subset <- rval[[1]]   # RSS for each subset (across all responses)
-      prune.terms    <- rval[[2]]   # terms in each subset
+      rss.per.subset <- rval$rss.per.subset # RSS for each subset (across all responses)
+      prune.terms    <- rval$prune.terms    # each row is a vec of term indices
 
     # sanity checks here because Eval.model.subsets may be user written
     stopifnot(length(rss.per.subset) == nprune)
-    stopifnot(nrow(prune.terms) == nprune)
-    stopifnot(ncol(prune.terms) == nprune)
+    stopifnot(NROW(prune.terms) == nprune)
+    stopifnot(NCOL(prune.terms) == nprune)
     stopif(any(prune.terms[,1] != 1))   # check intercept column
     gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, penalty, nrow(bx.prune))
     if(!all(is.finite(rss.per.subset)))
@@ -1176,13 +1179,14 @@ pruning.pass <- function(x, y, weights, subset,
         selected.terms <- prune.terms[which.min(gcv.per.subset),]
         selected.terms <- selected.terms[selected.terms != 0]
     }
-    Print.pruning.pass(trace, pmethod, penalty, nprune,
-        selected.terms, prune.terms, rss.per.subset, gcv.per.subset, dirs)
-    list(bx.prune,
-        rss.per.subset,     # vector of RSSs for each model (index on subset size)
-        gcv.per.subset,     # vector of GCVs for each model (index on subset size)
-        prune.terms,        # triangular mat: each row is a vector of term indices
-        selected.terms)     # vector of model terms in best model
+    print.pruning.pass(trace, pmethod, penalty, nprune, selected.terms,
+                       prune.terms, rss.per.subset, gcv.per.subset, dirs)
+
+    list(bx.prune      = bx.prune,
+        rss.per.subset = rss.per.subset, # vector of RSSs for each model (index on subset size)
+        gcv.per.subset = gcv.per.subset, # vector of GCVs for each model (index on subset size)
+        prune.terms    = prune.terms,    # triang mat: each row is a vector of term indices
+        selected.terms = selected.terms) # vec of model terms in best model
 }
 
 # return a vector of term numbers, ordered as per the "anova" decomposition
@@ -1307,9 +1311,13 @@ update.earth <- function(
     this.call <- match.call(expand.dots=TRUE)
     trace <- get.update.arg(this.call$trace, "trace", object,
                             trace1=NULL, "update.earth", print.trace=FALSE)
+    trace <- eval.parent(trace)
+    if(is.name(trace))      # TODO needed when called from earth.cv with glm=NULL, why?
+        trace <- eval.parent(trace)
     if(is.null(trace))
         trace <- 0
-
+    if(is.name(Call$glm))   # TODO needed when called from earth.cv with glm=NULL, why?
+        Call$glm <- eval.parent(Call$glm)
     dots <- match.call(expand.dots=FALSE)$...
     if(length(dots) > 0) {
         if(any(is.na(pmatch(names(dots), prune.only.args))))

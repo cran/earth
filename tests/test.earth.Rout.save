@@ -29,7 +29,6 @@ First few rows of y are
 [4,]  6
 [5,]  4
 [6,]  4
-Approximate memory use after expanding x and y matrices: 0.2 MBytes
 Forward pass: minspan 6 endspan 10
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -100,16 +99,16 @@ Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.5    RSS 3768    GRSq 0.791    RSq 0.822
 > print(evimp(a, trim=FALSE))
-          col used nsubsets    gcv       rss  
-temp        4    1       10 100.00 1 100.000 1
-humidity    3    1        8  12.65 1  14.766 1
-ibt         7    1        8  12.65 1  14.766 1
-doy         9    1        7  11.27 1  12.938 1
-dpg         6    1        5   6.73 1   7.822 1
-ibh         5    1        4   9.54 0  10.420 0
-vis         8    1        4   4.34 1   5.262 1
-wind        2    1        1   0.75 1   0.985 1
-vh-unused   1    0        0   0.00 1   0.000 1
+          nsubsets   gcv    rss
+temp            10 100.0  100.0
+humidity         8  35.6   38.4
+ibt              8  35.6   38.4
+doy              7  33.6   36.0
+dpg              5  25.9   28.0
+ibh              4  30.9>  32.3>
+vis              4  20.8   22.9
+wind             1   8.7    9.9
+vh-unused        0   0.0    0.0
 > a <- update(a, nprune = 5, trace = 0)
 > print(a, digits = 3)
 Selected 5 of 21 terms, and 4 of 9 predictors 

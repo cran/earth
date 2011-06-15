@@ -1,6 +1,32 @@
 Changes to Earth Package
 ------------------------
 
+3.1-1  Jun 15, 2011
+   Documentation emendations.
+   We now issue a warning if user uses a CV arg to plot.earth but no CV data to plot.
+   The CV summary print no longer prints response name for single response models.
+
+3.1-0  Jun 14, 2011
+   print.evimp now formats the results a little differently (more clearly).
+   "Reached min GRSq" and similar trace messages now also print the number of terms.
+   The min auto-calculated ylim in model selection plots is now clamped at -1.
+   Added the col.residuals, col.pch.max.oof.rsq, and col.pch.cv.rsq args to plot.earth.
+   Cross validation with wp no longer gives an error message.
+   Revised the documentation.
+
+3.0-0  Jun 10, 2011
+   Created the vignette earth-notes.pdf which collects and extends
+     documentation that was previously in the help files.
+   Revamped cross validation.  New argument "ncross" to earth.
+   Extended plot.earth, mostly for cross validation.
+   The default for evimp's "sqrt." argument is now TRUE.
+   plot.earth now uses lowess rather than loess (loess tends to issue ugly warnings).
+   Removed earth's Print.pruning.pass argument.
+   Earth now uses less memory if passed an x matrix of doubles.  Earth's memory report
+     (with trace>=4) was not accurate in all cases and has been removed.
+   Tweaked the Author: entry in DESCRIPTION for better results from citation().
+   Other minor touchups.
+
 2.6-2  Apr 25, 2011
    Moved plotmo.methods.earth.R to here so the plotmo package is independent of earth.
    Modified test scripts to conform to R 2.13.0's way of printing numbers.

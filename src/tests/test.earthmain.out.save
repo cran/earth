@@ -7,7 +7,7 @@ Forward pass: minspan 4 endspan 7
 6      0.9987 0.9989     0.008354    1        0.6  5       
 8      0.9988 0.9991     0.000138    1       0.92  6       reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000138017 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000138017 < 0.001) at 7 terms
 After forward pass GRSq 0.9988 RSq 0.9991
 Forward pass complete: 7 terms (5 terms used)
 

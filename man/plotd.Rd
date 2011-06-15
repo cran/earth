@@ -13,12 +13,12 @@ etc.
 plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
       trace = FALSE, xlim = NULL, ylim = NULL, jitter = FALSE, main=NULL,
       xlab = "Predicted Value", ylab = if(hist) "Count" else "Density",
-      lty = 1, col = c("grey70", 1, "lightblue", "brown", "pink", 2, 3, 4),
+      lty = 1, col = c("gray70", 1, "lightblue", "brown", "pink", 2, 3, 4),
       fill = if(hist) col[1] else 0,
       breaks = "Sturges", labels = FALSE,
       kernel = "gaussian", adjust = 1, zero.line = FALSE,
       legend = TRUE, legend.names = NULL, legend.pos = NULL,
-      legend.cex = .8, legend.bg = "white", legend.extra = FALSE,
+      cex.legend = .8, legend.bg = "white", legend.extra = FALSE,
       vline.col = 0, vline.thresh = .5, vline.lty = 1, vline.lwd = 1,
       err.thresh = vline.thresh, err.col = 0, err.border = 0, err.lwd = 1,
       xaxt = "s", yaxt = "s", xaxis.cex = 1, sd.thresh = 0.01, ...)
@@ -148,7 +148,7 @@ plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
     The default \code{NULL} means position the legend automatically,
     else specify \code{c(x,y)}.
   }
-  \item{legend.cex}{
+  \item{cex.legend}{
     \code{cex} for \code{\link[graphics]{legend}}.
     Default is \code{.8}.
   }

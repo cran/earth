@@ -36,6 +36,27 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
     }
 }
 
+good.colname <- function(name)
+{
+    # The nchar check prevents super long names
+    # that are actually contents of vectors e.g. c(1,2,3,etc.)
+    # The grep ensures that there are no more than three commas,
+    # also to prevent using the contents of vectors.
+
+    !is.null(name) && nchar(name) <= 60 && length(grep(",.*,.*,", name)) == 0
+}
+
+good.colnames <- function(x)
+{
+    colnames <- colnames(x)
+    if(is.null(colnames))
+        return(FALSE)
+    for(i in seq_along(colnames))
+        if(!good.colname(colnames[i]))
+            return(FALSE)
+    return(TRUE)
+}
+
 # Generate a column name for each column in x.
 # x could be a vector.
 # if xname is specified and x is a vector then use xname
@@ -43,28 +64,17 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
 
 generate.colnames <- function(x, is.y.arg=FALSE, xname=NULL)
 {
-    good.name <- function(x)
-    {
-        # The nchar check prevents super long names
-        # that are actually contents of vectors e.g. c(1,2,3,etc.)
-        # The grep ensures that there are no more than three commas,
-        # also to prevent using the contents of vectors.
-
-        !is.null(x) &&
-        nchar(x) <= 60 &&
-        length(grep(",.*,.*,", x)) == 0
-    }
     names. <- rep("", length=NCOL(x))
 
-    if(NCOL(x) == 1 && good.name(xname[1]))
+    if(NCOL(x) == 1 && good.colname(xname[1]))
         names. <- xname
     else {
         # copy valid names in colnames(x) to names.
 
-        col.names <- colnames(x)
+        colnames <- colnames(x)
         for(i in 1:NCOL(x))
-            if(good.name(col.names[i]))
-                names.[i] <- col.names[i]
+            if(good.colname(colnames[i]))
+                names.[i] <- colnames[i]
     }
     # if any name is still "", convert it to an "xN" style name
 
@@ -126,25 +136,25 @@ get.earth.x <- function(    # returns x expanded for factors
 
     fix.x.columns <- function(x, expected.colnames)
     {
-        col.names <- colnames(x)
-        ncol.names <- length(col.names)
+        colnames <- colnames(x)
+        ncolnames <- length(colnames)
         nexpected <- length(expected.colnames)
-        if(is.null(col.names)) {
+        if(is.null(colnames)) {
             if(trace >= 1)
                 cat0(Callers.name, ": x has no column names, ",
                      "adding column names: ", paste.with.space(expected.colnames),
                      "\n")
-            col.names <- expected.colnames
-         } else if(ncol.names < nexpected) {
+            colnames <- expected.colnames
+         } else if(ncolnames < nexpected) {
             # CHANGED Oct 2008: allow user to specify less than the expected
             # nbr of columns -- which is ok if he specifies all predictors
             # actually used by the model.
 
-            imatch <- pmatch(col.names, expected.colnames, nomatch=0)
+            imatch <- pmatch(colnames, expected.colnames, nomatch=0)
             if(any(imatch == 0)) {
                 # can't repair the error because there are colnames in x that aren't
                 # in expected.names (tends to happen with expanded factor names)
-                stop0(Callers.name, ": x has ", ncol.names,
+                stop0(Callers.name, ": x has ", ncolnames,
                       " columns, expected ", length(expected.colnames),
                       " to match: ", paste.with.space(expected.colnames))
             }
@@ -157,26 +167,26 @@ get.earth.x <- function(    # returns x expanded for factors
             if(trace >= 1)
                 cat0(Callers.name, ": x has missing columns, ",
                      "creating a new x with all cols\n")
-            imatch <- pmatch(expected.colnames, col.names, nomatch=0)
+            imatch <- pmatch(expected.colnames, colnames, nomatch=0)
             x.original <- x
             x <- matrix(data=999, nrow=nrow(x), ncol=nexpected)
             for(i in 1:nexpected)
                 if(imatch[i])
                     x[,i] <- x.original[,imatch[i]]
-            col.names <- expected.colnames
-        } else if(ncol.names > nexpected) {
+            colnames <- expected.colnames
+        } else if(ncolnames > nexpected) {
             # TODO not sure what to do here (do nothing so old regression tests pass)
         } else {
-            imatch <- pmatch(col.names, expected.colnames, nomatch=0)
+            imatch <- pmatch(colnames, expected.colnames, nomatch=0)
             if(all(imatch == 0)) {
                    if(trace >= 1)
                         cat0(Callers.name,
                              ": unexpected x column names, renaming columns\n",
-                             "    Old names: ", paste.with.space(col.names), "\n",
+                             "    Old names: ", paste.with.space(colnames), "\n",
                              "    New names: ", paste.with.space(expected.colnames),
                              "\n")
 
-                    col.names <- expected.colnames
+                    colnames <- expected.colnames
             } else {
                  # replace indices for non-found predictor names with their value
                  # i.e. assume columns with unknown names are in their right position
@@ -189,20 +199,20 @@ get.earth.x <- function(    # returns x expanded for factors
 
                  if(!all(imatch == seq_along(imatch))) {
                    s <- paste0(Callers.name, ": x columns are in the wrong order%s\n",
-                               "    Old columns: ", paste.with.space(col.names), "\n",
+                               "    Old columns: ", paste.with.space(colnames), "\n",
                                "    New columns: ", paste.with.space(expected.colnames),
                                "\n")
                    if(length(imatch) == ncol(x)) {
                        if(trace >= 1)
                            cat0(sprintf(s, ", correcting the column order"))
                        x <- x[,imatch]
-                       col.names <- col.names[imatch]
+                       colnames <- colnames[imatch]
                    } else
                        warning0(sprintf(s, ""))
                 }
             }
         }
-        colnames(x) <- col.names
+        colnames(x) <- colnames
         x
     }
     # Return x with matrix dimensions.

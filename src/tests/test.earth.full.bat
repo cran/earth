@@ -2,7 +2,7 @@
 @rem Stephen Milborrow Apr 2007 Petaluma
 
 @echo === test.earth.full ==============================================
-@"\PROGRA~1\R\R-2.13.0\bin\R.exe" CMD BATCH --quiet --vanilla test.earth.full.R
+@"\PROGRA~1\R\R-2.13.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.earth.full.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.full.Rout:
 @echo.
