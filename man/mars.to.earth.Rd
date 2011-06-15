@@ -30,11 +30,11 @@ mars.to.earth(object)
   whereas \code{earth} returns "\code{bx}" with only the selected terms.
   Also, \code{earth} returns "\code{dirs}" rather than "\code{factors}",
   and in \code{earth} this matrix can have entries of value 2 for linear predictors.
-  The calculation of minspan in \code{earth} follows Friedman's paper more closely
+  The calculation of \code{minspan} in \code{earth} follows Friedman's paper more closely
   and is slightly different from \code{mars}.
 
   For details of other differences between \code{mars} and \code{earth} objects,
-  see the comments in the source code of \code{mars.to.earth()}.
+  see the comments in the source code of \code{mars.to.earth}.
 
 \bold{Weights}
 

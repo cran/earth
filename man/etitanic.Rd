@@ -33,6 +33,8 @@ versions ("e" because it is part of the earth package).
 
 Note that \code{survived} is an integer (it should arguably be a logical).
 
+In this data the crew are conspicuous by their absence.
+
 Contents of \code{etitanic}:
     \preformatted{
          pclass survived    sex    age sibsp parch
@@ -53,11 +55,13 @@ How \code{etitanic} was built:
     save(etitanic, file="etitanic.rda")
     }
 }
-% \references{
-% Harrell (2001) \emph{
-% Regression Modeling Strategies with Applications to Linear Models, Logistic Regression, and Survival Analysis }
-% \url{http://biostat.mc.vanderbilt.edu/twiki/bin/view/Main/RmS}
-% }
+\references{
+Further details and analyses of the Titanic data may be found in:
+
+F. Harrell (2001) \emph{
+Regression Modeling Strategies with Applications to Linear Models, Logistic Regression, and Survival Analysis }
+\url{http://biostat.mc.vanderbilt.edu/twiki/bin/view/Main/RmS}
+}
 \seealso{
   \code{\link{earth}}
 }

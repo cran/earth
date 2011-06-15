@@ -20,7 +20,7 @@ Ozone readings in Los Angeles, with incomplete cases removed.}
   }
 }
 \source{
-This data set was copied from \code{library(faraway)} and the name
+This data was copied from \code{library(faraway)} and the name
 changed to \code{ozone1} to prevent a name clash.
 The data were originally made available by Leo Breiman who was a consultant
 on a project where the data were generated.

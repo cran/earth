@@ -38,7 +38,8 @@ LIBS=C:\a\r\ra\bin\Rdll.lib C:\a\r\ra\bin\Rblas.lib
 OUTDIR=Debug
 CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MLd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo -debug:full
-LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
+# LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
+LIBS=C:\a\r\ra\bin\Rdll.lib C:\a\r\ra\bin\Rblas.lib
 !ENDIF
 
 OBJ=$(OUTDIR)\earth.obj $(OUTDIR)\test.earthc.obj

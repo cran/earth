@@ -5,7 +5,7 @@
 Estimate variable importances in an \code{\link{earth}} object
 }
 \usage{
-evimp(obj, trim=TRUE, sqrt.=FALSE)
+evimp(obj, trim=TRUE, sqrt.=TRUE)
 }
 \arguments{
   \item{obj}{
@@ -16,254 +16,47 @@ evimp(obj, trim=TRUE, sqrt.=FALSE)
     variables that don't appear in any subsets.
   }
   \item{sqrt.}{
-    Default is FALSE.
-    If TRUE, take the \code{\link{sqrt}} of the GCV and RSS importances before
+    Default is TRUE,
+    meaning take the \code{\link{sqrt}} of the GCV and RSS importances before
     normalizing to 0 to 100.
-    This arguably gives a better indication of relative importances
-    because the raw importances are calculated using a sum of squares.
+    Taking the square root gives a better indication of
+    relative importances because the raw importances are calculated using
+    a sum of squares.
+    Use FALSE to not take the square root.
   }
 }
 \value{
-See the example later.
 This function returns a matrix showing the relative importances of the
 variables in the model.  There is a row for each variable.  The row
 name is the variable name, but with \code{-unused} appended if the
 variable does not appear in the final model.
 
-The columns of the matrix are:\cr
-\code{col}: column index of the variable in the \code{x} argument to \code{earth}.\cr
-\code{used}: 1 if the variable is used in the final model, else 0.
-Equivalently, 0 if the row name has a \code{-unused} suffix. \cr
-\code{nsubsets}: variable importance using the "number of subsets" criterion.
-Is the number of subsets that include the variable (see "Three Criteria" below).\cr
-\code{gcv}: variable importance using the GCV criterion (see below).\cr
-\code{rss}: variable importance using the RSS criterion (see below).\cr
-
+The columns of the matrix are (not all of these are printed by \code{print.evimp}):
+\itemize{
+\item \code{col}: Column index of the variable in the \code{x} argument to \code{earth}.
+\item \code{used}: 1 if the variable is used in the final model, else 0.
+Equivalently, 0 if the row name has an \code{-unused} suffix.
+\item \code{nsubsets}: Variable importance using the "number of subsets" criterion.
+Is the number of subsets that include the variable (see "Three Criteria" below).
+\item \code{gcv}: Variable importance using the GCV criterion (see below).
+\item \code{gcv.match}: 1, except is
+0 where the rank using the \code{gcv} criterion differs from
+that using the \code{nsubsets} criterion.
+In other words, there is a 0 for values that increase as you go
+down the \code{gcv} column.
+\item \code{rss}: Variable importance using the RSS criterion (see below).
+\item \code{rss.match}: Like \code{gcv.match} but for the \code{rss}.
+}
 The rows are sorted on the \code{nsubsets} criterion.
 This means that values in the \code{nsubsets} column decrease as you go down the column
 (more accurately, they are non-increasing).
 The values in the \code{gcv} and \code{rss} columns
 are also non-increasing, except where the
-\code{gcv} or \code{rss} ranking differs from the \code{nsubsets} ranking.\cr
-
-For convenience scanning the columns by eye, there are unnamed columns (not listed above)
-after the \code{gcv} column and the \code{rss} column.
-These have a 0 where the ranking using the \code{gcv} or \code{rss} criteria differs from
-that using the \code{nsubsets} criterion.
-In other words, there is a 0 for values that increase as you go
-down the \code{gcv} or \code{rss} column.
+\code{gcv} or \code{rss} rank differs from the \code{nsubsets} ranking.
 }
 \note{
-\bold{Introduction to variable importance}
-
-What exactly is variable importance?
-A working definition is that a variable's importance is a measure
-of the effect that observed changes to the variable have on the observed response
-(or better, the expectation of that effect over the population).
-It is this measure of importance that \code{evimp} tries to estimate.
-
-Variable importance in the \emph{equation that MARS derives from the data}
-is not quite the same thing.
-For example, if two variables are highly correlated,
-MARS will usually drop one when building the model.
-Both variables have the same importance in the data but
-not in the MARS equation (one variable does not even appear in the equation).
-A section below has a few words on how to use \code{\link[plotmo]{plotmo}}
-to estimate variable importance in the MARS equation.
-
-You might say that you can measure a variable's importance
-by changing the variable's value and measuring how the response changes.
-However, except in special situations, there are problems with this because:
-
-(i) it assumes we can change the variable, which is usually not the case.
-For example, in the \code{\link{trees}} data,
-we cannot simply generate a new tree of arbitrary height.
-
-(ii) it assumes that changes to a variable can occur in isolation.
-In practice, a variable is usually tied to other variables,
-and a change to the variable would never occur without simultaneous
-changes to other variables.
-For example, in the \code{\link{trees}} data, a change to the height
-is associated with a change in the girth.
-
-Thus is is better to think in terms of the effect of the variable on
-the response averaged over the entire population.
-That is to say, the \emph{expected} effect.
-In practice, we have to figure out how to use the sample
-as a surrogate for the population, which is not trivial.
-
-[Note: this section was written in response to several emails about \code{evimp}.
-Your comments would be appreciated.]
-
-\bold{Estimating variable importance}
-
-Establishing predictor importance is in general a tricky and even controversial problem.
-There is no completely reliable way to estimate the importance of the variables
-in a standard MARS model,
-unless you make further lengthy tests after the model is built
-(lengthy tests such as cross-validation
-or leave-one-out techniques ---
-see the section below on building many models).
-The \code{evimp} function just makes an educated (and in practice useful)
-guess as described below.
-
-\bold{Three criteria for estimating variable importance}
-
-The \code{evimp} functions uses three criteria for estimating variable importance in a MARS model.
-
-1. The \code{nsubsets} criterion counts the number of model subsets that include the variable.
-Variables that are included in more subsets are considered more important.
-
-By "subsets" we mean the subsets of terms generated by the pruning pass.
-There is one subset for each model size (from 1 to the size of the selected model)
-and the subset is the best set of terms for that model size.
-(These subsets are specified in \code{$prune.terms} in earth's return value.)
-Only subsets that are smaller than or equal in size to the final model are used
-for estimating variable importance.
-
-2. The \code{rss} criterion first calculates the decrease in the RSS
-for each subset relative to the previous subset.
-(For multiple response models, RSS's are calculated over all responses.)
-Then for each variable it sums these decreases over all subsets that include the variable.
-Finally, for ease of interpretation the summed decreases are scaled so the largest summed decrease is 100.
-Variables which cause larger net decreases in the RSS are considered more important.
-
-3. The \code{gcv} criterion is the same, but uses the GCV instead of the RSS.
-Adding a variable can \emph{increase} the GCV,
-i.e., adding the variable has a deleterious effect on the model.
-When this happens, the variable could even have a negative total importance,
-and thus appear less important than unused variables.
-
-Note that using RSq's and GRSq's instead of RSS's and GCV's
-would give identical estimates of variable importance.
-(RSq and GRSq are defined in the Value section of the \code{\link{earth}} help page.)
-
-\bold{Example}
-
-\preformatted{
-a <- earth(O3 ~ ., data=ozone1, degree=2)
-evimp(a, trim=FALSE)
-}
-Yields  the following matrix:
-\preformatted{
-              col used nsubsets    gcv      rss
-    temp        4    1       10 100.00 1 100.00 1
-    humidity    3    1        8  12.65 1  14.77 1
-    ibt         7    1        8  12.65 1  14.77 1
-    doy         9    1        7  11.27 1  12.94 1
-    dpg         6    1        5   6.73 1   7.82 1
-    ibh         5    1        4   9.54 0  10.42 0
-    vis         8    1        4   4.34 1   5.26 1
-    wind        2    1        1   0.75 1   0.99 1
-    vh-unused   1    0        0   0.00 1   0.00 1
-}
-The rows are sorted on \code{nsubsets}.
-We see that \code{temp} is considered the most important variable,
-followed by \code{humidity}, and so on.
-We see that \code{vh} is unused in the final model,
-and thus is given an \code{unused} suffix and a 0 in the \code{used} column.
-
-The \code{col} column gives the column indices of the variables
-in the \code{x} argument to \code{earth}
-(after factors, if any, have been expanded; none in this example).
-
-The \code{nsubsets} column is the number of subsets that included the corresponding variable.
-For example, \code{temp} appears in 10 subsets and \code{humidity} in 8.
-
-The \code{gcv} and \code{rss} columns are scaled so
-the largest net decrease is 100.
-
-The unnamed columns after the \code{gcv} and \code{rss}
-columns have a 0 if the corresponding criterion increases instead of decreasing
-(i.e., the ranking disagrees with the \code{nsubsets} ranking).
-We see that \code{ibh} is considered less important than \code{dpg} using the \code{nsubsets}
-criterion, but not with the \code{gcv} and \code{rss} criteria.
-
-\bold{Estimating variable importance in the MARS equation}
-
-Running \code{\link[plotmo]{plotmo}} with \code{ylim=NULL} (the default)
-gives an idea of which predictors in the MARS equation
-make the largest changes to the predicted value
-(but only with all other predictors at their median values).
-
-Note that there is only a loose relationship between variable importance
-in the MARS equation and variable importance in the data ---
-see the Introduction section above.
-
-% One can question if it is valid
-% to estimate variable importance using model subsets that are not part of the final model.
-% It is even possible for a variable to be rated as important yet not appear in the final model.
-
-\bold{Using drop1 to estimate variable importance}
-
-As an alternative to \code{evimp},
-you can use \code{\link{drop1}} (assuming you are using the formula interface to earth).
-Calling \code{drop1(my.earth.model)} will delete each predictor in turn from your model,
-rebuild the model from scratch each time, and calculate the GCV each time.
-You will get warnings that the earth library function \code{extractAIC.earth} is
-returning GCVs instead of AICs --- but that is what you want so you can
-ignore the warnings.
-(You can turn off just these warnings by passing \code{warn=FALSE} to \code{\link{drop1}}.)
-The column labeled \code{AIC} in the printed response
-from \code{\link{drop1}} will actually be a column of GCVs not AICs.
-The \code{Df} column is not much use in this context.
-
-Remember that this technique only tells you how important
-a variable is with the other variables already in the model.
-It does not tell you the effect of a variable in isolation.
-
-You will get lots of output from \code{\link{drop1}} if you built your original earth
-model with \code{trace>0}.
-You can set \code{trace=0} by updating your model before calling \code{\link{drop1}}.
-Do it like this:\cr
-\code{my.model <- \link{update.earth}(my.model, trace=0)}.
-
-\bold{Estimating variable importance by building many models}
-
-The variance of the variable importances estimated from an
-earth model can be high (meaning that the estimates of variable importance
-in a model built with a different realization of the data would be
-different).
-This variance can be averaged out by building a bagged
-earth model and measuring variable importances in that (by
-taking the mean of the variable importances in the many earth models
-that make up the bagged model).  You can do this easily using
-the functions \code{\link[caret]{bagEarth}} and
-\code{\link[caret]{varImp}} in the \code{caret} package.
-
-Measuring variable importance using Random Forests is another way to go,
-independently of earth.
-See the functions \code{\link[randomForest]{randomForest}} and
-\code{\link[randomForest]{importance}} in the
-\code{\link[randomForest]{randomForest}} package.
-
-\bold{Remarks}
-
-This function is useful in practice but the following issues can make it misleading.
-
-Collinear (or otherwise related) variables can mask each other's importance,
-just as in linear models.
-This means that if two predictors are closely related, the forward pass will
-somewhat arbitrarily choose one over the other.
-The chosen predictor will incorrectly appear more important.
-
-For interaction terms, each variable gets credit for the entire term ---
-thus interaction terms are counted more than once
-and get a total higher weighting than additive terms (questionably).
-Each variable gets equal credit in interaction terms even though
-one variable in that term may be far more important than the other.
-
-MARS models can sometimes have a high variance --- if the data changes
-a little, the set of basis terms created by the forward pass can
-change a lot.  So estimates of predictor importance can be unreliable
-because they can vary with different training data.
-
-For factor predictors, importances are estimated on a per-level basis.
-The \code{evimp} function should probably aggregate these over all levels.
-
-An example of conflicting importances
-(however, the results are fine with the default \code{pmethod}):\cr
-\code{evimp(earth(mpg~., data=mtcars, pmethod="none"))}
+The \code{earth} package vignette \url{../doc/earth-notes.pdf}
+has a chapter on \code{evimp}.
 
 \bold{Acknowledgment}
 
@@ -276,7 +69,7 @@ Thanks to Max Kuhn for the original \code{evimp} code and for helpful discussion
 \examples{
 data(ozone1)
 a <- earth(O3 ~ ., data=ozone1, degree=2)
-ev <- evimp(a, trim=FALSE, sqrt.=TRUE)
+ev <- evimp(a, trim=FALSE)
 plot(ev)
 print(ev)
 }

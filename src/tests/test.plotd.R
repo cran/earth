@@ -7,14 +7,14 @@ printh <- function(caption)
 
 multifigure <- function(caption)
 {
-printh(caption)
-par(mfrow=c(2, 2))
-par(cex = 0.7)
-par(mar = c(4, 3, 1.7, 0.5))    # small margins and text to pack figs in
-par(mgp = c(1.6, 0.6, 0))       # flatten axis elements
-oma <- par("oma") # make space for caption
-oma[3] <- 2.4
-par(oma=oma)
+    printh(caption)
+    par(mfrow=c(2, 2))
+    par(cex = 0.7)
+    par(mar = c(4, 3, 1.7, 0.5))    # small margins and text to pack figs in
+    par(mgp = c(1.6, 0.6, 0))       # flatten axis elements
+    oma <- par("oma") # make space for caption
+    oma[3] <- 2.4
+    par(oma=oma)
 }
 do.caption <- function(caption)
     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
@@ -33,8 +33,8 @@ plotd(a1)
 do.caption("a1")
 
 plotd(a1, main="earth-glm, numeric, kernel=epan adjust=.3", trace=TRUE,
-      kernel="epan", adjust=.3, legend.names=c("mylegend1", "mylegend2"),
-      legend.pos=c(.3,4), legend.cex=1, legend.extra=TRUE,
+      kernel="epan", adjust=.3, legend.names=c("mylegend", "mylegend2"),
+      legend.pos=c(.3,4), cex.legend=1, legend.extra=TRUE,
       col=c(1, "green"), fill="red")
 
 plotd(a1, main="earth-glm, numeric, type=earth, params",
@@ -44,7 +44,7 @@ plotd(a1, main="earth-glm, numeric, type=earth, params",
 
 plotd(a1, main="earth-glm, numeric, type=link, params", type="link", legend=FALSE,
       col=c("red", "blue"), lty=c(1,2),
-      vline.thresh=1, vline.col="grey", vline.lty=2)
+      vline.thresh=1, vline.col="gray", vline.lty=2)
 
 # test with earth.default (as opposed to earth.formula)
 multifigure("a2") # start a new page
@@ -87,9 +87,9 @@ plotd(a5, main="earth-glm, logical, hist", hist=TRUE)
 
 multifigure("a6")
 a6 <- earth(sex ~ ., data=etitanic, glm=list(family=binomial), minspan=-1)
-plotd(a6, main="earth-glm, 2 lev fac", fill="grey70")
+plotd(a6, main="earth-glm, 2 lev fac", fill="gray70")
 do.caption("a6")
-plotd(a6, main="earth-glm, 2 lev fac, type=class", type="class", fill="grey70")
+plotd(a6, main="earth-glm, 2 lev fac, type=class", type="class", fill="gray70")
 plotd(a6, main="earth-glm, 2 lev fac, hist ", hist=TRUE)
 plotd(a6, main="earth-glm, 2 lev fac, hist, type=class", type="class", hist=TRUE, labels=TRUE)
 
@@ -113,11 +113,11 @@ plotd(a7, main="earth-glm, 3 lev fac, hist", hist=TRUE)
 plotd(a7, main="earth-glm, 3 lev fac, hist, params",
       hist=TRUE, col=c("pink", "red", "black"), fill=c("pink"), lty=c(1,2,3),
       xlab="my xlab", ylab="my ylab", xlim=c(-.2, 1.2),
-      vline.thresh=.65, vline.col="grey", vline.lty=1,
+      vline.thresh=.65, vline.col="gray", vline.lty=1,
       breaks=5)
 
 multifigure("a7 part 2")
-plotd(a7, type="class", main="earth-glm, 3 lev fac, type=class", fill="grey70")
+plotd(a7, type="class", main="earth-glm, 3 lev fac, type=class", fill="gray70")
 do.caption("a7 part 2")
 plotd(a7, type="class", main="earth-glm, 3 lev fac, hist, type=class", hist=TRUE, labels=TRUE)
 

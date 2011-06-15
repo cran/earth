@@ -9,7 +9,7 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
         sprintf("%-*s", digits+pad,
                 format(if(abs(x) < 1e-20) 0 else x, digits=digits))
     }
-
+    #--- print.earth starts here
     warn.if.dots.used("print.earth", ...)
     check.classname(x, deparse(substitute(x)), "earth")
     if(is.null(x$glm.list))     # glm.list is a list of glm models, null if none
@@ -49,7 +49,7 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
         rownames(a) <- c(colnames(x$fitted.values), "All")
         colnames. <- c("GCV", "RSS", "GRSq", "RSq")
         if(is.cv)
-            colnames. <- c(colnames., "CV-RSq")
+            colnames. <- c(colnames., "cv.rsq")
         colnames(a) <- colnames.
         for(iresp in 1:nresp) {
             a[iresp,1:4] <- c(x$gcv.per.response[iresp],
@@ -72,12 +72,13 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
     } else {
         if(!is.null(x$glm.list))
             cat("Earth ")   # remind user
+        spacer <- if(is.cv) "  " else "    "
         cat0("GCV ",   format(x$gcv,  digits=digits),
-             "    RSS ",  format(x$rss,  digits=digits),
-             "    GRSq ", format(x$grsq, digits=digits),
-             "    RSq ",  format(x$rsq,  digits=digits))
+             spacer, "RSS ",  format(x$rss,  digits=digits),
+             spacer, "GRSq ", format(x$grsq, digits=digits),
+             spacer, "RSq ",  format(x$rsq,  digits=digits))
         if(is.cv)
-            cat0("    CV-RSq ",
+            cat0(spacer, "cv.rsq ",
                  format(x$cv.rsq.tab[ilast,1], digits=digits))
         cat("\n")
     }
@@ -106,7 +107,6 @@ print.summary.earth <- function(
     response.names <- colnames(x$fitted.values)
 
     # print coefficients
-
     if(!is.glm || details) {
         if(!is.null(x$strings)) {      # old style expression formatting?
             for(iresp in 1:nresp) {

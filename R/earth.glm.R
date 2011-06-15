@@ -85,7 +85,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
 
         g
     }
-    # earth.glm starts here
+    #--- earth.glm starts here ---
     if(trace >= 2)
         cat("\n")
     ncases <- nrow(bx)

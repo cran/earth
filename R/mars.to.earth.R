@@ -98,7 +98,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
 
     rss.per.subset <- rep(NA, length(object$all.terms))
     rss.per.subset[1] <- sum(colSums((y - colMeans(y)) ^ 2)) # null RSS
-    rss.per.subset[nselected] <- sum(residuals^2)            # RSS of selected model
+    rss.per.subset[nselected] <- ss(residuals)               # RSS of selected model
     rss <- rss.per.subset[nselected]                         # RSS of selected model
 
     gcv.per.subset <- get.gcv(rss.per.subset, ntermsVec, penalty, ncases)
@@ -109,10 +109,10 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     gcv.per.response  <- vector(mode="numeric", length=nresp)
     grsq.per.response <- vector(mode="numeric", length=nresp)
     for(iresp in 1:nresp) {
-        rss.per.response[iresp]  <- sum(residuals[,iresp]^2)
-        rss.null                 <- sum((y[,iresp] - mean(y[,iresp]))^2)
-        rsq.per.response[iresp]  <- get.rsq(rss.per.response[iresp], rss.null)
-        gcv.null                 <- get.gcv(rss.null, 1, penalty, ncases)
+        rss.per.response[iresp]  <- ss(residuals[,iresp])
+        tss                      <- ss(y[,iresp] - mean(y[,iresp]))
+        rsq.per.response[iresp]  <- get.rsq(rss.per.response[iresp], tss)
+        gcv.null                 <- get.gcv(tss, 1, penalty, ncases)
         gcv.per.response[iresp]  <- get.gcv(rss.per.response[iresp],
                                             nselected, penalty, ncases)
         grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)

@@ -144,7 +144,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 2.6-0"; // change if you modify this file!
+static const char   *VERSION    = "version 3.1-0"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -1904,17 +1904,20 @@ static void PrintForwardEpilog(
             printf("\n");
         }
         else if (Thresh != 0 && GRSq < MIN_GRSQ)
-            printf("\nReached min GRSq (GRSq %g < %g)\n", GRSq, MIN_GRSQ);
+            printf("\nReached min GRSq (GRSq %g < %g) at %d terms\n",
+                GRSq, MIN_GRSQ, nTerms);
 
         else if (Thresh != 0 && RSqDelta < Thresh)
-            printf("\nReached delta RSq threshold (DeltaRSq %g < %g)\n",
-                RSqDelta, Thresh);
+            printf("\nReached delta RSq threshold (DeltaRSq %g < %g) at %d terms\n",
+                RSqDelta, Thresh, nTerms);
 
         else if (RSq > 1-Thresh)
-            printf("\nReached max RSq (RSq %g > %g)\n", RSq, 1-Thresh);
+            printf("\nReached max RSq (RSq %g > %g) at %d terms\n",
+                RSq, 1-Thresh, nTerms);
 
         else if (iBestCase < 0)
-            printf("\nNo new term increases RSq (reached numerical limits)\n");
+            printf("\nNo new term increases RSq (reached numerical limits) at %d terms\n",
+                nTerms);
 
         else {
             printf("\nReached max number of terms %d", nMaxTerms);
@@ -1966,20 +1969,6 @@ static void CheckVec(const double x[], int nCases, int nCols, const char sVecNam
                      error("%s[%d] is not finite", sVecName, iCase+IOFFSET);
              }
     }
-}
-
-//-----------------------------------------------------------------------------
-static void PrintEstimatedMemoryUse(int nMaxTerms, int nCases, int nPreds, int nResp)
-{
-    double betacache_mem = nMaxTerms * nMaxTerms * nPreds;
-    double other_mem     = nCases * (2 * nMaxTerms + nResp + 2);
-    double xorder_mem    = nCases * nPreds;
-
-    printf("Approximate memory use after expanding x and y matrices: %.1g MBytes\n",
-         (1 / 1e6) *
-            ((sizeof(double) * betacache_mem +
-              sizeof(double) * other_mem +
-              sizeof(int)    * xorder_mem)));
 }
 
 //-----------------------------------------------------------------------------
@@ -2056,8 +2045,6 @@ static void ForwardPass(
 {
     if (nTraceGlobal >= 5)
         printf("earth.c %s\n", VERSION);
-    if (nTraceGlobal >= 4)
-        PrintEstimatedMemoryUse(nMaxTerms, nCases, nPreds, nResp);
 
     // The limits below are somewhat arbitrary and generous.
     // They are intended to catch gross errors on the part of the

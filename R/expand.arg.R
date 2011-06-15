@@ -78,14 +78,13 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
         y
     }
     #--- expand.arg starts here ---
-
     if(is.null(ncol(x)))        # make sure x is a matrix, not a vector
         dim(x) <- c(nrow=length(x), ncol=1)
     if(is.y.arg)
         x <- convert.two.level.to.numeric(x)
-    if(is.double(x)) {          # already double? then no need to convert
+    if(is.double(x)) {          # already double? (x must be a matrix, not data.frame)
         colnames(x) <- generate.colnames(x, is.y.arg, xname)
-        return(x)
+        return(x)               # then no need to convert
     }
     if(is.y.arg) {
         old.contrasts <- getOption("contrasts")

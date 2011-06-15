@@ -115,7 +115,6 @@ First few rows of y are
 [4,]      13        7
 [5,]      18        2
 [6,]      20        0
-Approximate memory use after expanding x and y matrices: 0.02 MBytes
 Forward pass: minspan 3 endspan 8
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -126,7 +125,7 @@ Forward pass: minspan 3 endspan 8
 8      0.7309 0.9978     0.006231    3       ldose1         0.1< 5       
 10     0.9313 0.9987     0.000947    1      sexmale           0< 6       reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Forward pass complete: 9 terms (5 terms used)
 
@@ -224,23 +223,23 @@ GLM null.deviance 125 (11 dof)   deviance 4.96 (7 dof)   iters 4
 
 evimp a1 
 
-        col used nsubsets       gcv           rss  
-ldose     2    1        4 100.00000 1 100.0000000 1
-sexmale   1    1        3 -18.73263 1   7.6848001 1
-ldose1    3    1        2 -31.37693 1   0.9614167 1
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -43.3   27.7
+ldose1         2 -56.0    9.8
 
 evimp a1 trim=FALSE
 
-        col used nsubsets       gcv           rss  
-ldose     2    1        4 100.00000 1 100.0000000 1
-sexmale   1    1        3 -18.73263 1   7.6848001 1
-ldose1    3    1        2 -31.37693 1   0.9614167 1
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -43.3   27.7
+ldose1         2 -56.0    9.8
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a1 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -260,7 +259,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 ldose1=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -272,11 +271,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 2 ldose, 3 ldose1 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]      [,2]      
@@ -489,12 +488,18 @@ persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
 
 -------------------------------------------------------------------------------
 
+> printh(evimp(a1, trim=FALSE, sqrt=FALSE))
+=== evimp(a1, trim = FALSE, sqrt = FALSE)
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -18.7    7.7
+ldose1         2 -31.4    1.0
 > printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
 === evimp(a1, trim = FALSE, sqrt = TRUE)
-        col used nsubsets       gcv          rss  
-ldose     2    1        4 100.00000 1 100.000000 1
-sexmale   1    1        3 -43.28121 1  27.721472 1
-ldose1    3    1        2 -56.01511 1   9.805186 1
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -43.3   27.7
+ldose1         2 -56.0    9.8
 > a1update <- update(a1, trace=0)
 > check.models.equal(a1, a1update, msg="a1update a1")
 check.models.equal not identical: a1update a1 [but within numerical tolerances]
@@ -504,7 +509,7 @@ check.models.equal not identical: a1update a1 [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -515,7 +520,7 @@ check.models.equal not identical: a1 a1a [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -526,7 +531,7 @@ check.models.equal not identical: a1 a1b [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -537,7 +542,7 @@ check.models.equal not identical: a1 a1c [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -553,7 +558,7 @@ check.models.equal not identical: a1 a1d [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -565,7 +570,7 @@ check.models.equal not identical: a1 a1g [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -649,23 +654,23 @@ GLM null.deviance 124.88 (11 dof)   deviance 4.9565 (7 dof)   iters 2 did not co
 
 evimp a1h 
 
-        col used nsubsets       gcv           rss  
-ldose     2    1        4 100.00000 1 100.0000000 1
-sexmale   1    1        3 -18.73263 1   7.6848001 1
-ldose1    3    1        2 -31.37693 1   0.9614167 1
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -43.3   27.7
+ldose1         2 -56.0    9.8
 
 evimp a1h trim=FALSE
 
-        col used nsubsets       gcv           rss  
-ldose     2    1        4 100.00000 1 100.0000000 1
-sexmale   1    1        3 -18.73263 1   7.6848001 1
-ldose1    3    1        2 -31.37693 1   0.9614167 1
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -43.3   27.7
+ldose1         2 -56.0    9.8
 
 glm params: epsilon 1e-08 maxit 2 trace TRUE family binomial link logit 
 
 plotmo a1h 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -685,7 +690,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 ldose1=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -697,11 +702,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 2 ldose, 3 ldose1 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]      [,2]      
@@ -1008,23 +1013,23 @@ GLM null.deviance 125 (11 dof)   deviance 3.83 (7 dof)   iters 5
 
 evimp a1h.update1 
 
-        col used nsubsets       gcv           rss  
-ldose     2    1        4 100.00000 1 100.0000000 1
-sexmale   1    1        3 -18.73263 1   7.6848001 1
-ldose1    3    1        2 -31.37693 1   0.9614167 1
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -43.3   27.7
+ldose1         2 -56.0    9.8
 
 evimp a1h.update1 trim=FALSE
 
-        col used nsubsets       gcv           rss  
-ldose     2    1        4 100.00000 1 100.0000000 1
-sexmale   1    1        3 -18.73263 1   7.6848001 1
-ldose1    3    1        2 -31.37693 1   0.9614167 1
+        nsubsets   gcv    rss
+ldose          4 100.0  100.0
+sexmale        3 -43.3   27.7
+ldose1         2 -56.0    9.8
 
 glm params: epsilon 1e-08 maxit 8 trace FALSE family binomial link probit 
 
 plotmo a1h.update1 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -1044,7 +1049,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 ldose1=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -1056,11 +1061,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 2 ldose, 3 ldose1 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]      [,2]      
@@ -1277,7 +1282,7 @@ persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead, 2=numalive
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 8.50718e-05 < 0.001)
+Reached delta RSq threshold (DeltaRSq 8.50718e-05 < 0.001) at 5 terms
 After forward pass GRSq 0.9073 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 3 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -1388,22 +1393,22 @@ numalive        504.25 11   9.7024  9     2         1
 
 evimp a1h.update2 
 
-        col used nsubsets        gcv       rss  
-ldose     2    1        2 100.000000 1 100.000 1
-sexmale   1    1        1   7.385946 1   6.083 1
+        nsubsets   gcv    rss
+ldose          2 100.0  100.0
+sexmale        1  27.2   24.7
 
 evimp a1h.update2 trim=FALSE
 
-              col used nsubsets        gcv       rss  
-ldose           2    1        2 100.000000 1 100.000 1
-sexmale         1    1        1   7.385946 1   6.083 1
-ldose1-unused   3    0        0   0.000000 1   0.000 1
+              nsubsets   gcv    rss
+ldose                2 100.0  100.0
+sexmale              1  27.2   24.7
+ldose1-unused        0   0.0    0.0
 
 glm params: epsilon 1e-08 maxit 9 trace FALSE family gaussian link identity 
 
 plotmo a1h.update2 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -1423,7 +1428,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 ldose1=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula SF ~ sex + ldose + ldose1
 stripped formula SF~sex+ldose+ldose1
@@ -1435,11 +1440,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 20 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 sex, 2 ldose 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -1527,7 +1532,7 @@ ylim 3.22619 17.79762
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=I(ldose1-3)
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -1566,7 +1571,7 @@ Forward pass: minspan 3 endspan 8
 6      0.9569 0.9911      0.01033    3 sexmale:ldos          -2< 4       
 8      0.8801 0.9911            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
 After forward pass GRSq 0.8801 RSq 0.9911
 Forward pass complete: 7 terms (4 terms used)
 
@@ -1650,23 +1655,23 @@ GLM null.deviance 125 (11 dof)   deviance 4.99 (8 dof)   iters 4
 
 evimp a2 
 
-              col used nsubsets         gcv          rss  
-ldose           2    1        3 100.0000000 1 100.000000 1
-sexmale         1    1        2   7.8086158 1   7.061559 1
-sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
+              nsubsets   gcv    rss
+ldose                3 100.0  100.0
+sexmale              2  27.9   26.6
+sexmale:ldose        1   6.8   10.2
 
 evimp a2 trim=FALSE
 
-              col used nsubsets         gcv          rss  
-ldose           2    1        3 100.0000000 1 100.000000 1
-sexmale         1    1        2   7.8086158 1   7.061559 1
-sexmale:ldose   3    1        1   0.4563772 1   1.041940 1
+              nsubsets   gcv    rss
+ldose                3 100.0  100.0
+sexmale              2  27.9   26.6
+sexmale:ldose        1   6.8   10.2
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a2 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula SF ~ sex * ldose
 stripped formula SF~sex+ldose
@@ -1686,7 +1691,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula SF ~ sex * ldose
 stripped formula SF~sex+ldose
@@ -1698,11 +1703,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 sex, 2 ldose 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -1795,7 +1800,7 @@ Forward pass: minspan 3 endspan 8
 6      0.9569 0.9911      0.01033    3 sexmale:ldos          -2< 4       
 8      0.8801 0.9911            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
 After forward pass GRSq 0.8801 RSq 0.9911
 Forward pass complete: 7 terms (4 terms used)
 
@@ -1865,7 +1870,7 @@ a4: double response glm model with two binomial paired cols
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
 After forward pass GRSq 0.7832 RSq 0.9839
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
 After backward pass GRSq 0.9393 RSq 0.9754 
@@ -1971,22 +1976,22 @@ numdead2        128.03 11   8.5725  9     4         1
 
 evimp a4 
 
-        col used nsubsets        gcv          rss  
-ldose     2    1        2 100.000000 1 100.000000 1
-sexmale   1    1        1   5.432272 1   5.148163 1
+        nsubsets   gcv    rss
+ldose          2 100.0  100.0
+sexmale        1  23.3   22.7
 
 evimp a4 trim=FALSE
 
-                     col used nsubsets        gcv          rss  
-ldose                  2    1        2 100.000000 1 100.000000 1
-sexmale                1    1        1   5.432272 1   5.148163 1
-sexmale:ldose-unused   3    0        0   0.000000 1   0.000000 1
+                     nsubsets   gcv    rss
+ldose                       2 100.0  100.0
+sexmale                     1  23.3   22.7
+sexmale:ldose-unused        0   0.0    0.0
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a4 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula SF.both ~ sex * ldose
 stripped formula SF.both~sex+ldose
@@ -2006,7 +2011,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula SF.both ~ sex * ldose
 stripped formula SF.both~sex+ldose
@@ -2018,11 +2023,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 sex, 2 ldose 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -2158,6 +2163,12 @@ $rss.per.subset
 $gcv.per.subset
 [1] 101.545455  11.347443   6.166181   7.926857
 
+$rss.per.subset
+[1] 1023.91667   76.59524   25.17857   16.51429
+
+$gcv.per.subset
+[1] 101.545455  11.347443   6.166181   7.926857
+
 $coefficients
               numdead   numdead2
 (Intercept) -1.440476 -0.7857143
@@ -2252,7 +2263,7 @@ attr(,"class")
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
 After forward pass GRSq 0.7832 RSq 0.9839
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
 After backward pass GRSq 0.9393 RSq 0.9754 
@@ -2269,7 +2280,7 @@ check.models.equal not identical: a4update a4a [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
 After forward pass GRSq 0.7832 RSq 0.9839
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
 After backward pass GRSq 0.9393 RSq 0.9754 
@@ -2283,7 +2294,7 @@ check.models.equal not identical: a4aa a4a [but within numerical tolerances]
 x is a 12 by 1 matrix: 1=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
 After forward pass GRSq 0.8153 RSq 0.9252
 Prune method "backward" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
 After backward pass GRSq 0.8883 RSq 0.9252 
@@ -2449,27 +2460,27 @@ GLM (family binomial, link logit)
 
 evimp a5 
 
-         col used nsubsets       gcv         rss  
-age        3    1        8 100.00000 1 100.00000 1
-parch      5    1        8 100.00000 1 100.00000 1
-survived   1    1        7  63.44537 1  66.81445 1
-sibsp      4    1        5  16.22113 1  22.99755 1
-sexmale    2    1        4  11.82295 1  17.37608 1
+         nsubsets   gcv    rss
+age             8 100.0  100.0
+parch           8 100.0  100.0
+survived        7  79.7   81.7
+sibsp           5  40.3   48.0
+sexmale         4  34.4   41.7
 
 evimp a5 trim=FALSE
 
-         col used nsubsets       gcv         rss  
-age        3    1        8 100.00000 1 100.00000 1
-parch      5    1        8 100.00000 1 100.00000 1
-survived   1    1        7  63.44537 1  66.81445 1
-sibsp      4    1        5  16.22113 1  22.99755 1
-sexmale    2    1        4  11.82295 1  17.37608 1
+         nsubsets   gcv    rss
+age             8 100.0  100.0
+parch           8 100.0  100.0
+survived        7  79.7   81.7
+sibsp           5  40.3   48.0
+sexmale         4  34.4   41.7
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a5 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula pclass ~ .
 stripped formula pclass~.
@@ -2496,7 +2507,7 @@ factors: sex
 
 nlevels: survived=2 sex=2 age=98 sibsp=7 parch=7 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula pclass ~ .
 stripped formula pclass~.
@@ -2515,11 +2526,11 @@ get.plotmo.y column "1st" returned length 1046 min 0 max 1
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 survived, 2 sex, 4 sibsp, 5 parch 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]     
@@ -3001,6 +3012,16 @@ $gcv.per.subset
  [8] 0.5272225 0.5244105 0.5263582 0.5249065 0.5247609 0.5244530 0.5255400
 [15] 0.5272719 0.5291595 0.5316095
 
+$rss.per.subset
+ [1] 663.8031 618.3144 587.1155 558.2529 550.5473 546.0083 539.0533 532.1400
+ [9] 526.7293 526.1097 522.0963 519.3960 516.5436 515.0676 514.2161 513.5054
+[17] 513.3259
+
+$gcv.per.subset
+ [1] 0.6358261 0.5950986 0.5677911 0.5424834 0.5375831 0.5357360 0.5314825
+ [8] 0.5272225 0.5244105 0.5263582 0.5249065 0.5247609 0.5244530 0.5255400
+[15] 0.5272719 0.5291595 0.5316095
+
 $coefficients
                                1st           2nd          3rd
 (Intercept)            0.139677983  0.1382163301  0.722105687
@@ -3251,27 +3272,27 @@ GLM null.deviance 1223.3 (1045 dof)   deviance 898.87 (1036 dof)   iters 5
 
 evimp a6 
 
-         col used nsubsets        gcv          rss  
-age        3    1        9 100.000000 1 100.000000 1
-survived   1    1        8  40.094537 1  45.122339 1
-parch      5    1        5   5.709859 1  10.906717 1
-sibsp      4    1        4   4.745103 1   8.868582 1
-sexmale    2    1        3   2.662288 1   5.875975 1
+         nsubsets   gcv    rss
+age             9 100.0  100.0
+survived        8  63.3   67.2
+parch           5  23.9   33.0
+sibsp           4  21.8   29.8
+sexmale         3  16.3   24.2
 
 evimp a6 trim=FALSE
 
-         col used nsubsets        gcv          rss  
-age        3    1        9 100.000000 1 100.000000 1
-survived   1    1        8  40.094537 1  45.122339 1
-parch      5    1        5   5.709859 1  10.906717 1
-sibsp      4    1        4   4.745103 1   8.868582 1
-sexmale    2    1        3   2.662288 1   5.875975 1
+         nsubsets   gcv    rss
+age             9 100.0  100.0
+survived        8  63.3   67.2
+parch           5  23.9   33.0
+sibsp           4  21.8   29.8
+sexmale         3  16.3   24.2
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a6 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula pclass1 ~ .
 stripped formula pclass1~.
@@ -3298,7 +3319,7 @@ factors: sex
 
 nlevels: survived=2 sex=2 age=98 sibsp=7 parch=7 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula pclass1 ~ .
 stripped formula pclass1~.
@@ -3317,11 +3338,11 @@ get.plotmo.y returned length 1046 min 0 max 1
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 survived, 3 age, 5 parch 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]     
@@ -3828,6 +3849,16 @@ $gcv.per.subset
  [8] 0.1466636 0.1461597 0.1461088 0.1466308 0.1471559 0.1474121 0.1475703
 [15] 0.1479743 0.1485903 0.1493290
 
+$rss.per.subset
+ [1] 206.8910 173.4973 156.0461 152.9652 152.6767 151.0928 149.8526 148.0316
+ [9] 146.8059 146.0399 145.8457 145.6514 145.1890 144.6297 144.3103 144.1945
+[17] 144.1931
+
+$gcv.per.subset
+ [1] 0.1981713 0.1669830 0.1509100 0.1486443 0.1490815 0.1482502 0.1477480
+ [8] 0.1466636 0.1461597 0.1461088 0.1466308 0.1471559 0.1474121 0.1475703
+[15] 0.1479743 0.1485903 0.1493290
+
 $coefficients
                            pclass1
 (Intercept)            0.130163247
@@ -4033,29 +4064,29 @@ GLM null.deviance 1380 (1045 dof)   deviance 937 (1036 dof)   iters 5
 
 evimp a7 
 
-          col used nsubsets         gcv          rss  
-survived    3    1        9 100.0000000 1 100.000000 1
-pclass3rd   2    1        8  19.4351486 1  24.329924 1
-parch       6    1        6  13.3685900 1  17.002027 1
-age         4    1        5   6.4001465 1   9.798418 1
-sibsp       5    1        4   4.5087239 1   7.258397 1
-pclass2nd   1    1        1   0.5526548 1   1.283877 1
+          nsubsets   gcv    rss
+survived         9 100.0  100.0
+pclass3rd        8  44.1   49.3
+parch            6  36.6   41.2
+age              5  25.3   31.3
+sibsp            4  21.2   26.9
+pclass2nd        1   7.4   11.3
 
 evimp a7 trim=FALSE
 
-          col used nsubsets         gcv          rss  
-survived    3    1        9 100.0000000 1 100.000000 1
-pclass3rd   2    1        8  19.4351486 1  24.329924 1
-parch       6    1        6  13.3685900 1  17.002027 1
-age         4    1        5   6.4001465 1   9.798418 1
-sibsp       5    1        4   4.5087239 1   7.258397 1
-pclass2nd   1    1        1   0.5526548 1   1.283877 1
+          nsubsets   gcv    rss
+survived         9 100.0  100.0
+pclass3rd        8  44.1   49.3
+parch            6  36.6   41.2
+age              5  25.3   31.3
+sibsp            4  21.2   26.9
+pclass2nd        1   7.4   11.3
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a7 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula sex ~ .
 stripped formula sex~.
@@ -4082,7 +4113,7 @@ factors: pclass
 
 nlevels: pclass=3 survived=2 age=98 sibsp=7 parch=7 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula sex ~ .
 stripped formula sex~.
@@ -4101,11 +4132,11 @@ get.plotmo.y column "male" returned length 1046 min 0 max 1
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 pclass, 2 survived 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]        
@@ -4588,6 +4619,15 @@ $gcv.per.subset
  [8] 0.1526087 0.1512452 0.1507864 0.1514990 0.1516897 0.1522266 0.1529450
 [15] 0.1537023
 
+$rss.per.subset
+ [1] 244.0765 173.4300 170.0254 166.5886 159.8632 157.4918 155.7449 154.0322
+ [9] 151.9139 150.7153 150.6879 150.1389 149.9309 149.8973 149.8965
+
+$gcv.per.subset
+ [1] 0.2337895 0.1669182 0.1644292 0.1618828 0.1560988 0.1545288 0.1535575
+ [8] 0.1526087 0.1512452 0.1507864 0.1514990 0.1516897 0.1522266 0.1529450
+[15] 0.1537023
+
 $coefficients
                               male
 (Intercept)            0.806197553
@@ -4810,7 +4850,7 @@ Forward pass: minspan 3 endspan 9
 4     -0.8939 0.5265       0.2424    2     outcome3           0< 3       
 6     -6.5758 0.5265            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -6.576 RSq 0.5265
 Forward pass complete: 5 terms (3 terms used)
 
@@ -4889,23 +4929,23 @@ GLM null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
 
 evimp a8p 
 
-         col used nsubsets        gcv         rss  
-outcome2   1    1        2 -100.00000 1 100.00000 1
-outcome3   2    1        1  -69.49153 0  46.04317 1
+         nsubsets   gcv    rss
+outcome2        2 -100.0  100.0
+outcome3        1 -83.4   67.9
 
 evimp a8p trim=FALSE
 
-                  col used nsubsets        gcv         rss  
-outcome2            1    1        2 -100.00000 1 100.00000 1
-outcome3            2    1        1  -69.49153 0  46.04317 1
-treatment2-unused   3    0        0    0.00000 0   0.00000 1
-treatment3-unused   4    0        0    0.00000 1   0.00000 1
+                  nsubsets   gcv    rss
+outcome2                 2 -100.0  100.0
+outcome3                 1 -83.4   67.9
+treatment2-unused        0   0.0    0.0
+treatment3-unused        0   0.0    0.0
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a8p 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula counts ~ outcome + treatment
 stripped formula counts~outcome+treatment
@@ -4925,7 +4965,7 @@ factors: outcome treatment
 
 nlevels: outcome=3 treatment=3 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula counts ~ outcome + treatment
 stripped formula counts~outcome+treatment
@@ -4937,11 +4977,11 @@ get.plotmo.y returned length 9 min 10 max 25
 
 clip.limits 10 25 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 outcome 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -5037,7 +5077,7 @@ a10: two response poisson model
 x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 2 matrix: 1=counts, 2=counts2
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -6.576 RSq 0.5265
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
 After backward pass GRSq -0.8939 RSq 0.5265 
@@ -5143,23 +5183,23 @@ counts2         105.2  8    50.96  6     4         1
 
 evimp a10 
 
-         col used nsubsets        gcv         rss  
-outcome2   1    1        2 -100.00000 1 100.00000 1
-outcome3   2    1        1  -69.49153 0  46.04317 1
+         nsubsets   gcv    rss
+outcome2        2 -100.0  100.0
+outcome3        1 -83.4   67.9
 
 evimp a10 trim=FALSE
 
-                  col used nsubsets        gcv         rss  
-outcome2            1    1        2 -100.00000 1 100.00000 1
-outcome3            2    1        1  -69.49153 0  46.04317 1
-treatment2-unused   3    0        0    0.00000 0   0.00000 1
-treatment3-unused   4    0        0    0.00000 1   0.00000 1
+                  nsubsets   gcv    rss
+outcome2                 2 -100.0  100.0
+outcome3                 1 -83.4   67.9
+treatment2-unused        0   0.0    0.0
+treatment3-unused        0   0.0    0.0
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a10 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula cbind(counts, counts2) ~ outcome + treatment
 stripped formula cbind(counts,counts2)~outcome+treatment
@@ -5179,7 +5219,7 @@ factors: outcome treatment
 
 nlevels: outcome=3 treatment=3 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula cbind(counts, counts2) ~ outcome + treatment
 stripped formula cbind(counts,counts2)~outcome+treatment
@@ -5191,11 +5231,11 @@ get.plotmo.y column "counts" returned length 9 min 10 max 25
 
 clip.limits 10 25 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 outcome 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -5268,7 +5308,6 @@ First few rows of y are
 [4,]    1
 [5,]    0
 [6,]    1
-Approximate memory use after expanding x and y matrices: 0.4 MBytes
 Forward pass: minspan 6 endspan 9
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -5408,7 +5447,6 @@ First few rows of y are
 [4,]  2  900
 [5,]  1  625
 [6,]  2 2304
-Approximate memory use after expanding x and y matrices: 0.4 MBytes
 Forward pass: minspan 6 endspan 9
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -5562,7 +5600,7 @@ y2  1.022962e+09 1045 7.622385e+08 1038     2         1
 x is a 60 by 2 matrix: 1=my.input.matmy.x1, 2=my.input.matmy.x2
 y is a 60 by 1 matrix: 1=my.response
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.6819 RSq 0.7623
 Prune method "backward" penalty 2 nprune 4: selected 4 of 4 terms, and 2 of 2 predictors
 After backward pass GRSq 0.7055 RSq 0.7623 
@@ -5603,7 +5641,7 @@ GCV 17.52421    RSS 820.425    GRSq 0.7054941    RSq 0.7623478
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.881 RSq 0.9754
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9393 RSq 0.9754 
@@ -5709,21 +5747,21 @@ numdead2        128.03 11   8.5725  9     4         1
 
 evimp aref 
 
-        col used nsubsets        gcv          rss  
-ldose     2    1        2 100.000000 1 100.000000 1
-sexmale   1    1        1   5.432272 1   5.148163 1
+        nsubsets   gcv    rss
+ldose          2 100.0  100.0
+sexmale        1  23.3   22.7
 
 evimp aref trim=FALSE
 
-        col used nsubsets        gcv          rss  
-ldose     2    1        2 100.000000 1 100.000000 1
-sexmale   1    1        1   5.432272 1   5.148163 1
+        nsubsets   gcv    rss
+ldose          2 100.0  100.0
+sexmale        1  23.3   22.7
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo aref 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula SF.both ~ .
 stripped formula SF.both~.
@@ -5747,7 +5785,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula SF.both ~ .
 stripped formula SF.both~.
@@ -5763,11 +5801,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 sex, 2 ldose 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -5852,7 +5890,7 @@ predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.0
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.881 RSq 0.9754
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9393 RSq 0.9754 
@@ -5958,21 +5996,21 @@ numdead2           128 11     8.57  9     4         1
 
 evimp a21 
 
-        col used nsubsets        gcv          rss  
-ldose     2    1        2 100.000000 1 100.000000 1
-sexmale   1    1        1   5.432272 1   5.148163 1
+        nsubsets   gcv    rss
+ldose          2 100.0  100.0
+sexmale        1  23.3   22.7
 
 evimp a21 trim=FALSE
 
-        col used nsubsets        gcv          rss  
-ldose     2    1        2 100.000000 1 100.000000 1
-sexmale   1    1        1   5.432272 1   5.148163 1
+        nsubsets   gcv    rss
+ldose          2 100.0  100.0
+sexmale        1  23.3   22.7
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 got x with colnames from object$call$x
 
@@ -5988,7 +6026,7 @@ factors: sex
 
 nlevels: sex=2 ldose=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 got y from object$call$y
 get.plotmo.y column "numdead" returned length 12 min 0 max 20
@@ -5996,11 +6034,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 sex, 2 ldose 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -6073,7 +6111,7 @@ check.models.equal not identical: aref a21 [but within numerical tolerances]
 x is a 12 by 2 matrix: 1=sex, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.881 RSq 0.9754
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9393 RSq 0.9754 
@@ -6179,21 +6217,21 @@ numdead2        128.03 11   8.5725  9     4         1
 
 evimp a21 
 
-      col used nsubsets        gcv          rss  
-ldose   2    1        2 100.000000 1 100.000000 1
-sex     1    1        1   5.432272 1   5.148163 1
+      nsubsets   gcv    rss
+ldose        2 100.0  100.0
+sex          1  23.3   22.7
 
 evimp a21 trim=FALSE
 
-      col used nsubsets        gcv          rss  
-ldose   2    1        2 100.000000 1 100.000000 1
-sex     1    1        1   5.432272 1   5.148163 1
+      nsubsets   gcv    rss
+ldose        2 100.0  100.0
+sex          1  23.3   22.7
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 got x with colnames from object$call$x
 
@@ -6207,7 +6245,7 @@ x[12,2]:
 
 nlevels: sex=2 ldose=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 got y from object$call$y
 get.plotmo.y column "numdead" returned length 12 min 0 max 20
@@ -6215,11 +6253,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 sex, 2 ldose 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -6289,7 +6327,7 @@ predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.0
 x is a 12 by 2 matrix: 1=sex, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.881 RSq 0.9754
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9393 RSq 0.9754 
@@ -6395,21 +6433,21 @@ numdead2           128 11     8.57  9     4         1
 
 evimp a22 
 
-      col used nsubsets        gcv          rss  
-ldose   2    1        2 100.000000 1 100.000000 1
-sex     1    1        1   5.432272 1   5.148163 1
+      nsubsets   gcv    rss
+ldose        2 100.0  100.0
+sex          1  23.3   22.7
 
 evimp a22 trim=FALSE
 
-      col used nsubsets        gcv          rss  
-ldose   2    1        2 100.000000 1 100.000000 1
-sex     1    1        1   5.432272 1   5.148163 1
+      nsubsets   gcv    rss
+ldose        2 100.0  100.0
+sex          1  23.3   22.7
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a22 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 got x with colnames from object$call$x
 
@@ -6423,7 +6461,7 @@ x[12,2]:
 
 nlevels: sex=2 ldose=6 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 got y from object$call$y
 get.plotmo.y column "numdead" returned length 12 min 0 max 20
@@ -6431,11 +6469,11 @@ get.plotmo.y column "numdead" returned length 12 min 0 max 20
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 1 sex, 2 ldose 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 
@@ -7262,14 +7300,14 @@ predict.earth: returning earth predictions
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
 After forward pass GRSq 0.9313 RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
@@ -8279,7 +8317,7 @@ A-68 input matrix to formula interface trace=1, expect error "could not interpre
 x is a 60 by 2 matrix: 1=my.input.matmy.x1, 2=my.input.matmy.x2
 y is a 60 by 1 matrix: 1=my.response
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.6819 RSq 0.7623
 Prune method "backward" penalty 2 nprune 4: selected 4 of 4 terms, and 2 of 2 predictors
 After backward pass GRSq 0.7055 RSq 0.7623 
@@ -8305,7 +8343,7 @@ Tests with not all predictors used in the model so can pass fewer columns
 x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001) at 3 terms
 After forward pass GRSq 0.7375 RSq 0.9219
 Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 3 predictors
 After backward pass GRSq 0.8679 RSq 0.9211 
@@ -8417,7 +8455,7 @@ A-73m identical
 x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000810716 < 0.001) at 3 terms
 After forward pass GRSq 0.7375 RSq 0.9219
 Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 3 predictors
 After backward pass GRSq 0.8679 RSq 0.9211 
@@ -8558,7 +8596,7 @@ A-73f identical
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001) at 11 terms
 After forward pass GRSq 0.9392 RSq 0.992
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
@@ -8568,7 +8606,7 @@ Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001) at 11 terms
 After forward pass GRSq 0.9392 RSq 0.992
 Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
@@ -9014,14 +9052,14 @@ B-60f identical
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 3 matrix: 1=dead1, 2=dead2, 3=dead3
 Forward pass term 1, 2, 4, 6, 8
-Reached min GRSq (GRSq -26.0319 < -10)
+Reached min GRSq (GRSq -26.0319 < -10) at 7 terms
 After forward pass GRSq -26.03 RSq 0.7766
 Prune method "none" penalty 3 nprune 4: selected 4 of 4 terms, and 3 of 6 predictors
 After backward pass GRSq -1.837 RSq 0.7128 
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 3 matrix: 1=dead1, 2=dead2, 3=dead3
 Forward pass term 1, 2, 4, 6, 8
-Reached min GRSq (GRSq -26.0319 < -10)
+Reached min GRSq (GRSq -26.0319 < -10) at 7 terms
 After forward pass GRSq -26.03 RSq 0.7766
 Prune method "none" penalty 3 nprune 4: selected 4 of 4 terms, and 3 of 6 predictors
 After backward pass GRSq -1.837 RSq 0.7128 
@@ -9726,7 +9764,7 @@ c1a: single response glm model with a binomial pair of y columns, fitted values,
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -9735,7 +9773,7 @@ GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -9769,7 +9807,7 @@ c1b: single response glm model with a binomial pair of y columns
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -9780,7 +9818,7 @@ Warning: No 'data' argument to earth so ignoring keepxy for 'data'
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -9903,7 +9941,7 @@ c2: double response glm model with two y binomial pairs
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -9915,7 +9953,7 @@ Warning: No 'data' argument to earth so ignoring keepxy for 'data'
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead, 2=numdead.1
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -10045,7 +10083,7 @@ c3a: single response glm model with a boolean response, fitted values, keepxy=0
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=mybool
 Forward pass term 1, 2
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Prune method "none" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 2 predictors
 After backward pass GRSq 1 RSq 1 
@@ -10087,7 +10125,7 @@ c3b: single response glm model with a boolean response, fitted values, keepxy=1
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=mybool
 Forward pass term 1, 2
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Prune method "none" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 2 predictors
 After backward pass GRSq 1 RSq 1 
@@ -10130,7 +10168,7 @@ c3c: single response glm model with a boolean response
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=mybool
 Forward pass term 1, 2
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Prune method "none" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 2 predictors
 After backward pass GRSq 1 RSq 1 
@@ -10184,7 +10222,7 @@ Expect "did not converge warnings", it doesn't matter for our purposes here
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 3 matrix: 1=A, 2=B, 3=C
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -1.245 RSq 0.5362
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq -0.1454 RSq 0.5362 
@@ -10229,7 +10267,7 @@ c5: multiple response glm model with two multi level factor responses
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 7 matrix: 1=fac3A, 2=fac3B, 3=fac3C, 4=fac4P, 5=fac4Q, ...
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -1.104 RSq 0.5652
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq -0.07368 RSq 0.5652 
@@ -10245,7 +10283,7 @@ c6: multiple response earth model with mixed responses
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 18 matrix: 1=numdead, 2=numalive, 3=fac3A, 4=fac3B, 5=fac3C, ...
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.8903 RSq 0.9773
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.944 RSq 0.9773 
@@ -10263,7 +10301,7 @@ Expect "did not converge warnings", it doesn't matter for our purposes here
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 18 matrix: 1=numdead (paired with numalive), 2=fac3A, 3=fac3B, 4=fac3C, ...
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.8741 RSq 0.974
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9357 RSq 0.974 
@@ -10802,17 +10840,43 @@ a.intercept.only: intercept only logistic model
 > # cv fold and intercept-only in 2nd cv fold, that way we test both.
 > set.seed(3)
 > df <- data.frame(aaa = round(runif(18)), bbb = runif(18), ccc = rnorm(18))
-> a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial), nfold=2)
-> a.intercept.only <- earth(aaa ~ bbb + ccc, data = df, glm=list(family=binomial), trace=1)
+> a.intercept.only <- earth(aaa ~ bbb + ccc, data = df, glm=list(family=binomial), trace=1, nfold=2)
 x is a 18 by 2 matrix: 1=bbb, 2=ccc
 y is a 18 by 1 matrix: 1=aaa
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -3.895 RSq 0.1701
 Prune method "backward" penalty 2 nprune 5: selected 1 of 5 terms, and 0 of 2 predictors
 After backward pass GRSq 0 RSq 0 
 earth.glm: intercept-only earth model, faking the glm model
 GLM aaa: null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+
+CV fold 1 --------------------------------------------------------------------
+x is a 8 by 2 matrix: 1=bbb, 2=ccc
+y is a 8 by 1 matrix: 1=infold.y
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+After forward pass GRSq -7.312 RSq 0.8304
+Prune method "backward" penalty 2 nprune 3: selected 2 of 3 terms, and 1 of 2 predictors
+After backward pass GRSq 0.5253 RSq 0.7578 
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+GLM infold.y: null.deviance 8.997362 (7 dof)   deviance 4.413181e-10 (6 dof)   iters 25
+CV fold 1  cv.rsq -0.620 n.oof  8 56%  n.infold.nz 6 75%  n.oof.nz 6 60%  
+
+CV fold 2 --------------------------------------------------------------------
+x is a 10 by 2 matrix: 1=bbb, 2=ccc
+y is a 10 by 1 matrix: 1=infold.y
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+After forward pass GRSq -7.486 RSq 0.0571
+Prune method "backward" penalty 2 nprune 3: selected 1 of 3 terms, and 0 of 2 predictors
+After backward pass GRSq 0 RSq 0 
+earth.glm: intercept-only earth model, faking the glm model
+GLM infold.y: null.deviance 13.46023 (9 dof)   deviance 13.46023 (9 dof)   iters 4
+CV fold 2  cv.rsq -0.120 n.oof 10 44%  n.infold.nz 6 60%  n.oof.nz 6 75%  
+
+CV all     cv.rsq -0.370                n.infold.nz 12 67%  
+
 > print.earth.models(a.intercept.only)
 
 Print a.intercept.only 
@@ -10820,14 +10884,14 @@ Print a.intercept.only
 Earth selected 1 of 5 terms, and 0 of 2 predictors 
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  cv.rsq -0.3698347
 
 GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
 
 Summary a.intercept.only 
 
 Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
-      trace=1)
+      trace=1, nfold=2)
 
 GLM coefficients
                   aaa
@@ -10836,14 +10900,23 @@ GLM coefficients
 Earth selected 1 of 5 terms, and 0 of 2 predictors 
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  cv.rsq -0.3698347
 
 GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 1.50 sd 0.71    nvars 0.50 sd 0.71
+
+ cv.rsq   sd ClassRate    sd MaxErr   sd  AUC  sd MeanDev sd CalibInt   sd
+  -0.37 0.35      0.72 0.035     -1 0.28 0.57 0.1      11 14     0.79 0.44
+ CalibSlope sd
+         NA NA
 
 Summary a.intercept.only decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
 Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
-      trace=1)
+      trace=1, nfold=2)
 
 Earth coefficients
                 aaa
@@ -10865,25 +10938,34 @@ Number of cases: 18
 Earth selected 1 of 5 terms, and 0 of 2 predictors 
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.24913    RSS 4    GRSq 0    RSq 0
+Earth GCV 0.24913  RSS 4  GRSq 0  RSq 0  cv.rsq -0.36983
 
 GLM null.deviance 22.915 (17 dof)   deviance 22.915 (17 dof)   iters 4
 
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 1.50 sd 0.71    nvars 0.50 sd 0.71
+
+ cv.rsq   sd ClassRate    sd MaxErr   sd  AUC  sd MeanDev sd CalibInt   sd
+  -0.37 0.35      0.72 0.035     -1 0.28 0.57 0.1      11 14     0.79 0.44
+ CalibSlope sd
+         NA NA
+
 evimp a.intercept.only 
 
-     col used nsubsets gcv  rss 
+    nsubsets   gcv    rss
 
 evimp a.intercept.only trim=FALSE
 
-           col used nsubsets gcv   rss  
-bbb-unused   1    0        0   0 1   0 1
-ccc-unused   2    0        0   0 1   0 1
+           nsubsets   gcv    rss
+bbb-unused        0   0.0    0.0
+ccc-unused        0   0.0    0.0
 
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a.intercept.only 
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula aaa ~ bbb + ccc
 stripped formula aaa~bbb+ccc
@@ -10908,7 +10990,7 @@ x[18,2]:
 
 nlevels: bbb=18 ccc=18 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula aaa ~ bbb + ccc
 stripped formula aaa~bbb+ccc
@@ -10927,12 +11009,12 @@ get.plotmo.y returned length 18 min 0 max 1
 
 clip.limits 0 1 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 Warning: the earth model appears to be an intercept only model
 no singles
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 no pairs
 Warning: plotmo: nothing to plot
@@ -10944,7 +11026,7 @@ summary(a.intercept.only, details=TRUE)
 
 > print(summary(a.intercept.only, details=TRUE))
 Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
-      trace=1)
+      trace=1, nfold=2)
 
 Earth coefficients
                   aaa
@@ -10966,9 +11048,18 @@ Number of cases: 18
 Earth selected 1 of 5 terms, and 0 of 2 predictors 
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  cv.rsq -0.3698347
 
 GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 1.50 sd 0.71    nvars 0.50 sd 0.71
+
+ cv.rsq   sd ClassRate    sd MaxErr   sd  AUC  sd MeanDev sd CalibInt   sd
+  -0.37 0.35      0.72 0.035     -1 0.28 0.57 0.1      11 14     0.79 0.44
+ CalibSlope sd
+         NA NA
 > printh(predict(a.intercept.only))
 === predict(a.intercept.only)
             aaa
@@ -11151,7 +11242,7 @@ predict.earth: returning glm response predictions
 [3,] 0.6666667
 > printh(predict(a.intercept.only, newdata=new.df, type="class"))
 === predict(a.intercept.only, newdata = new.df, type = "class")
-[1] TRUE TRUE TRUE
+[1] 1 1 1
 > # cat("Expect Warning: predict.earth: returning the earth (not glm) terms\n")
 > printh(predict(a.intercept.only, newdata=new.df, type="terms"))
 === predict(a.intercept.only, newdata = new.df, type = "terms")Warning: predict.earth: returning the earth (not glm) terms
@@ -11161,6 +11252,9 @@ predict.earth: returning glm response predictions
 [2,]
 [3,]
 > 
+> set.seed(1235)
+> a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial), nfold=2)
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > plot.earth.models(list(a.intercept.only, a), main="plot.earth.models\nlist(a.intercept.only, a)")
 > plot.earth.models(list(a, a.intercept.only), main="plot.earth.models\nlist(a, a.intercept.only)", legend.pos="topleft", jitter=.01)
 > # nothing will plot for the next call
@@ -11176,7 +11270,7 @@ predict.earth: returning glm response predictions
 x is a 12 by 1 matrix: 1=numdead
 y is a 12 by 3 matrix: 1=sex1, 2=sex2, 3=sex1.1
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
 After forward pass GRSq -1.322 RSq 0.05966
 Prune method "backward" penalty 2 nprune 2: selected 1 of 2 terms, and 0 of 1 predictors
 After backward pass GRSq 0 RSq 0 
@@ -11195,7 +11289,7 @@ All    0.8925620   9  0.000000e+00  0.000000e+00
 x is a 12 by 1 matrix: 1=numdead
 y is a 12 by 4 matrix: 1=sex1, 2=sex2, 3=sex1.1, 4=sex1.2
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
 After forward pass GRSq -1.322 RSq 0.05966
 Prune method "backward" penalty 2 nprune 2: selected 1 of 2 terms, and 0 of 1 predictors
 After backward pass GRSq 0 RSq 0 
@@ -11230,7 +11324,7 @@ All    1.1900826  12  0.000000e+00  0.000000e+00
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=fac3lev2, 5=fac3lev3, ...
 y is a 12 by 7 matrix: 1=sex2, 2=d_dead1, 3=d_dead2, 4=d_dead3, 5=sex, ...
 Forward pass term 1, 2, 4, 6, 8
-Reached min GRSq (GRSq -10.5851 < -10)
+Reached min GRSq (GRSq -10.5851 < -10) at 7 terms
 After forward pass GRSq -10.59 RSq 0.9043
 Prune method "none" penalty 3 nprune 4: selected 4 of 4 terms, and 3 of 6 predictors
 After backward pass GRSq -0.331 RSq 0.8652 
@@ -11252,7 +11346,7 @@ Warning in model.matrix.default(object = attr(mf, "terms"), data = mf) :
 x is a 12 by 1 matrix: 1=sex2
 y is a 12 by 2 matrix: 1=female, 2=male
 Forward pass term 1, 2
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
 After backward pass GRSq 1 RSq 1 
@@ -11271,7 +11365,7 @@ update.earth: using 31 by 2 y argument from original call to earth
 x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -0.1437 RSq 0.385
 Prune method "backward" penalty 2 nprune 4: selected 2 of 4 terms, and 1 of 1 predictors
 After backward pass GRSq 0.2395 RSq 0.3375 
@@ -11290,7 +11384,7 @@ update.earth: using 31 by 2 y argument from original call to earth
 x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -0.1437 RSq 0.385
 Prune method "backward" penalty 2 nprune 4: selected 2 of 4 terms, and 1 of 1 predictors
 After backward pass GRSq 0.2395 RSq 0.3375 

@@ -38,23 +38,22 @@ Opening Rplots.ps
 + }
 > 
 > print(citation("earth"))
-Warning in citation("earth") :
-  no date field in DESCRIPTION file of package 'earth'
 
 To cite package 'earth' in publications use:
 
-  Stephen Milborrow, derived from mda:mars by Trevor Hastie and Rob
-  Tibshirani. (). earth: Multivariate Adaptive Regression Spline
-  Models. R package version 2.6-2.
-  http://www.milbo.users.sonic.net/earth
+  Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
+  Tibshirani. (2011). earth: Multivariate Adaptive Regression Spline
+  Models. R package version 3.1-1.
+  http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
     title = {earth: Multivariate Adaptive Regression Spline Models},
-    author = {Stephen Milborrow and derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
-    note = {R package version 2.6-2},
-    url = {http://www.milbo.users.sonic.net/earth},
+    author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
+    year = {2011},
+    note = {R package version 3.1-1},
+    url = {http://CRAN.R-project.org/package=earth},
   }
 
 ATTENTION: This citation information has been auto-generated from the
@@ -110,7 +109,6 @@ First few rows of y are
 [4,] 21.4
 [5,] 18.7
 [6,] 18.1
-Approximate memory use after expanding x and y matrices: 0.05 MBytes
 Forward pass: minspan 5 endspan 10
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -125,7 +123,7 @@ Forward pass: minspan 5 endspan 10
 16    -0.5893 0.9587     0.009271    7           vs           0< 14      
 18   -32.1650 0.9655     0.006835    1          cyl           6  15  16  reject term
 
-Reached min GRSq (GRSq -32.165 < -10)
+Reached min GRSq (GRSq -32.165 < -10) at 17 terms
 After forward pass GRSq -32.17 RSq 0.9655
 Forward pass complete: 17 terms (14 terms used)
 
@@ -209,7 +207,7 @@ GLM null.deviance 1414.62 (1045 dof)   deviance 879.625 (1037 dof)   iters 5
 x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14
-Reached delta RSq threshold (DeltaRSq 0.00061857 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.00061857 < 0.001) at 13 terms
 After forward pass GRSq 0.163 RSq 0.1947
 Prune method "backward" penalty 2 nprune 10: selected 8 of 10 terms, and 4 of 5 predictors
 After backward pass GRSq 0.167 RSq 0.1891 
@@ -245,7 +243,7 @@ GLM (family binomial, link logit)
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -268,7 +266,7 @@ GLM null.deviance 124.8756 (11 dof)   deviance 5.565963 (9 dof)   iters 4
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.658 RSq 0.9293
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.8255 RSq 0.9293 
@@ -300,7 +298,7 @@ numdead2      91.62481 11 16.067427  9     4         1
 x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 1 matrix: 1=counts
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq -6.576 RSq 0.5265
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
 After backward pass GRSq -0.8939 RSq 0.5265 
@@ -319,7 +317,7 @@ GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.9069 RSq 0.9808
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9525 RSq 0.9808 
@@ -492,6 +490,12 @@ $rss.per.subset
 $gcv.per.subset
 [1] 215.0  43.3  15.7  10.5  13.4
 
+$rss.per.subset
+[1] 4739  796  236  126  125
+
+$gcv.per.subset
+[1] 215.0  43.3  15.7  10.5  13.4
+
 $fitted.values
       Volume
  [1,]  21.82
@@ -633,7 +637,7 @@ y1  0.06445282  7.831017 0.9364037 0.9477932
 y2  0.12559901 15.260280 0.8760701 0.8982648
 All 0.19005183 23.091297 0.9062369 0.9230290
 > if (PLOT) {
-+     plot(a$fit)
++     plot(a$fit, col.residuals=iris$Species)
 +     plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE)
 +     plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE)
 + }
@@ -699,7 +703,7 @@ Forward pass: minspan 6 endspan 9
 12     0.1656 0.1941     0.002356    3          age          56  10      
 14     0.1630 0.1947    0.0006186    3          age          48  11      reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00061857 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.00061857 < 0.001) at 13 terms
 After forward pass GRSq 0.163 RSq 0.1947
 Forward pass complete: 13 terms (10 terms used)
 Prune method "backward" penalty 2 nprune 10: selected 8 of 10 terms, and 4 of 5 predictors
@@ -966,7 +970,7 @@ plt.r.> a2 <- earth(O3 ~ .-wind,     data = ozone1, degree = 2, nk = 31)
 
 plt.r.> a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
 
-plt.r.> plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8))
+plt.r.> plot.earth.models(list(a1,a2,a3), ylim=c(.6,.8))
 > cat("--- plot.earth.Rd ----------------------\n")
 --- plot.earth.Rd ----------------------
 > if (PLOT) {
@@ -1104,21 +1108,21 @@ evimp> data(ozone1)
 
 evimp> a <- earth(O3 ~ ., data=ozone1, degree=2)
 
-evimp> ev <- evimp(a, trim=FALSE, sqrt.=TRUE)
+evimp> ev <- evimp(a, trim=FALSE)
 
 evimp> plot(ev)
 
 evimp> print(ev)
-          col used nsubsets        gcv          rss  
-temp        4    1       10 100.000000 1 100.000000 1
-humidity    3    1        8  35.569904 1  38.426666 1
-ibt         7    1        8  35.569904 1  38.426666 1
-doy         9    1        7  33.577198 1  35.969912 1
-dpg         6    1        5  25.947585 1  27.967941 1
-ibh         5    1        4  30.879132 0  32.279598 0
-vis         8    1        4  20.840331 1  22.937969 1
-wind        2    1        1   8.658101 1   9.925277 1
-vh-unused   1    0        0   0.000000 1   0.000000 1
+          nsubsets   gcv    rss
+temp            10 100.0  100.0
+humidity         8  35.6   38.4
+ibt              8  35.6   38.4
+doy              7  33.6   36.0
+dpg              5  25.9   28.0
+ibh              4  30.9>  32.3>
+vis              4  20.8   22.9
+wind             1   8.7    9.9
+vh-unused        0   0.0    0.0
 > 
 > cat("--- plot.evimp.Rd ------------------------\n")
 --- plot.evimp.Rd ------------------------
@@ -1134,15 +1138,15 @@ plt.vm> ev <- evimp(a)
 plt.vm> plot(ev)
 
 plt.vm> print(ev)
-         col used nsubsets         gcv           rss  
-temp       4    1       10 100.0000000 1 100.0000000 1
-humidity   3    1        8  12.6521804 1  14.7660866 1
-ibt        7    1        8  12.6521804 1  14.7660866 1
-doy        9    1        7  11.2742824 1  12.9383457 1
-dpg        6    1        5   6.7327717 1   7.8220571 1
-ibh        5    1        4   9.5352082 0  10.4197247 0
-vis        8    1        4   4.3431940 1   5.2615043 1
-wind       2    1        1   0.7496272 1   0.9851112 1
+         nsubsets   gcv    rss
+temp           10 100.0  100.0
+humidity        8  35.6   38.4
+ibt             8  35.6   38.4
+doy             7  33.6   36.0
+dpg             5  25.9   28.0
+ibh             4  30.9>  32.3>
+vis             4  20.8   22.9
+wind            1   8.7    9.9
 > 
 > rownames(ev)[4] <- "a_long_variable_name"
 > 
@@ -2449,7 +2453,7 @@ Forward pass: minspan 4 endspan 8
 10     0.9969 0.9977     0.007453    1           x1    -0.32185  8       
 12     0.9988 0.9991     0.001417    1           x1     0.29412  9       
 
-Reached max RSq (RSq 0.99913 > 0.999)
+Reached max RSq (RSq 0.99913 > 0.999) at 13 terms
 After forward pass GRSq 0.9988 RSq 0.9991
 Forward pass complete: 13 terms (9 terms used)
 Exhaustive pruning: number of subsets 381 (bx sing val ratio 0.0096)
@@ -3182,7 +3186,6 @@ First few rows of y are
 [5,]  4
 [6,]  4
 linear predictors 3=humidity 8=vis
-Approximate memory use after expanding x and y matrices: 0.2 MBytes
 Forward pass: minspan 6 endspan 10
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -3706,12 +3709,15 @@ GCV 13.17126    RSS 3276.142    GRSq 0.7953999    RSq 0.8448459
 > 
 > if (PLOT)
 +     plot(a, caption="plot.earth test 1", col.rsq=3, col.loess=4, col.qq="pink",
-+          col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid")
++          col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid",
++          col.grid="linen", col.sel.grid="linen")
+Warning: col.grid is deprecated.  Please use col.cum.grid instead.
 > 
 > set.seed(1)
 > if (PLOT) {
-+     plot(a, caption="plot.earth test 2", which=c(3,4,1), rlim=c(.2,.9),
-+          id.n=5, legend.pos=c(10,.4), pch=20, lty.vline=1)
++     plot(a, caption="plot.earth test 2", which=c(3,4,1), ylim=c(.2,.9),
++          id.n=20, legend.pos=c(10,.4), pch=20, lty.vline=1, cex.legend=1,
++          col.sel.grid="lightgray")
 + 
 +     plot(a, caption="plot.earth test 3", which=c(2), main="test main")
 + }
@@ -3721,13 +3727,13 @@ GCV 13.17126    RSS 3276.142    GRSq 0.7953999    RSq 0.8448459
 > if (PLOT) {
 +     plot(a, caption="plot.earth test 4", id.n=1)
 +     set.seed(1)
-+     plot.earth.models(a, which=1, rlim=c(.4,.8), jitter=.01)
++     plot.earth.models(a, which=1, ylim=c(.4,.8), jitter=.01)
 + 
 +     plot.earth.models(a1)
 + 
 +     plot.earth.models(list(a, a1), col.cum=c(3,4),  col.grsq=c(1,2), col.rsq=c(3,4),
 +          col.npreds=1, col.vline=1, lty.vline=3,
-+          legend.pos=c(5,.4), legend.text=c("a", "b", "c"))
++          legend.pos=c(5,.4), legend.text=c("a", "b", "c"), cex.legend=1.3)
 + }
 > 
 > cat("--- test minspan --------------------------------\n")
@@ -3994,30 +4000,33 @@ All   0.012019676 0.8280355 0.9911645 0.9937896
 
 > x.global <- cbind(                                     x1, x2)
 > data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
-> colnames(data.global) = c("func1", "a.very.long.in.fact.extremely.long.name", "x1", "x2")
+> colnames(data.global) = c("func1", 
++    "a.very.long.in.fact.extremely.long.response.name", 
++    "x1.a.very.long.in.fact.extremely.long.predictor.name", 
++    "x2")
 > itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=3)
 itest 53  multiple responses func1 func7  degree 3  nk 51  
 
 ===fite 
 Selected 9 of 9 terms, and 2 of 2 predictors 
-Importance: x1, x2
+Importance: x1.a.very.long.in.fact.extremely.long.predictor.name, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
 
-                                                GCV       RSS      GRSq
-func1                                   0.002625519 0.1638586 0.9969012
-a.very.long.in.fact.extremely.long.name 0.010642154 0.6641768 0.9792595
-All                                     0.013267673 0.8280355 0.9902471
-                                              RSq
-func1                                   0.9980268
-a.very.long.in.fact.extremely.long.name 0.9867930
-All                                     0.9937896
+                                                         GCV       RSS
+func1                                            0.002625519 0.1638586
+a.very.long.in.fact.extremely.long.response.name 0.010642154 0.6641768
+All                                              0.013267673 0.8280355
+                                                      GRSq       RSq
+func1                                            0.9969012 0.9980268
+a.very.long.in.fact.extremely.long.response.name 0.9792595 0.9867930
+All                                              0.9902471 0.9937896
 
- grid:    x1         x2
- -0.02437858 0.03719751
+ grid:    x1.a.very.long.in.fact.extremely.long.predictor.name         x2
+                                                   -0.02437858 0.03719751
 
 
- grid:    x1         x2
- -0.02437858 0.03719751
+ grid:    x1.a.very.long.in.fact.extremely.long.predictor.name         x2
+                                                   -0.02437858 0.03719751
 
 
 > printh(summary(a))
@@ -4026,29 +4035,55 @@ Call: earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[,
       1:2], trace=trace, degree=degree, nk=nk, pmethod=pmethod, 
       fast.k=-1, minspan=minspan)
 
-                      func1 a.very.long.in.fact.extremely.long.name
-(Intercept)      -1.4298232                              -0.6422906
-h(x1- -0.483966)  1.7380390                              -1.5172222
-h(-0.483966-x1)   1.4824026                               4.0115608
-h(x1- -0.23993)   0.9966967                               5.4675942
-h(x1-0.29412)    -1.0070324                              -5.3210965
-h(x1-0.422242)   -2.1817547                              -3.2389148
-h(x1-0.728679)   -2.2031033                               1.9380614
-h(x2- -0.342445)  0.9898526                              -0.0118126
-h(-0.342445-x2)  -1.0088884                               0.0831623
+                                                                        func1
+(Intercept)                                                        -1.4298232
+h(x1.a.very.long.in.fact.extremely.long.predictor.name- -0.483966)  1.7380390
+h(-0.483966-x1.a.very.long.in.fact.extremely.long.predictor.name)   1.4824026
+h(x1.a.very.long.in.fact.extremely.long.predictor.name- -0.23993)   0.9966967
+h(x1.a.very.long.in.fact.extremely.long.predictor.name-0.29412)    -1.0070324
+h(x1.a.very.long.in.fact.extremely.long.predictor.name-0.422242)   -2.1817547
+h(x1.a.very.long.in.fact.extremely.long.predictor.name-0.728679)   -2.2031033
+h(x2- -0.342445)                                                    0.9898526
+h(-0.342445-x2)                                                    -1.0088884
+                                                                   a.very.long.in.fact.extremely.long.response.name
+(Intercept)                                                                                              -0.6422906
+h(x1.a.very.long.in.fact.extremely.long.predictor.name- -0.483966)                                       -1.5172222
+h(-0.483966-x1.a.very.long.in.fact.extremely.long.predictor.name)                                         4.0115608
+h(x1.a.very.long.in.fact.extremely.long.predictor.name- -0.23993)                                         5.4675942
+h(x1.a.very.long.in.fact.extremely.long.predictor.name-0.29412)                                          -5.3210965
+h(x1.a.very.long.in.fact.extremely.long.predictor.name-0.422242)                                         -3.2389148
+h(x1.a.very.long.in.fact.extremely.long.predictor.name-0.728679)                                          1.9380614
+h(x2- -0.342445)                                                                                         -0.0118126
+h(-0.342445-x2)                                                                                           0.0831623
 
 Selected 9 of 9 terms, and 2 of 2 predictors 
-Importance: x1, x2
+Importance: x1.a.very.long.in.fact.extremely.long.predictor.name, x2
 Number of terms at each degree of interaction: 1 8 (additive model)
 
-                                                GCV       RSS      GRSq
-func1                                   0.002625519 0.1638586 0.9969012
-a.very.long.in.fact.extremely.long.name 0.010642154 0.6641768 0.9792595
-All                                     0.013267673 0.8280355 0.9902471
-                                              RSq
-func1                                   0.9980268
-a.very.long.in.fact.extremely.long.name 0.9867930
-All                                     0.9937896
+                                                         GCV       RSS
+func1                                            0.002625519 0.1638586
+a.very.long.in.fact.extremely.long.response.name 0.010642154 0.6641768
+All                                              0.013267673 0.8280355
+                                                      GRSq       RSq
+func1                                            0.9969012 0.9980268
+a.very.long.in.fact.extremely.long.response.name 0.9792595 0.9867930
+All                                              0.9902471 0.9937896
+> print(evimp(a))
+                                                     nsubsets   gcv    rss
+x1.a.very.long.in.fact.extremely.long.predictor.name        8 100.0  100.0
+x2                                                          6  66.9   63.6
+> print.default(evimp(a))
+                                                     col used nsubsets
+x1.a.very.long.in.fact.extremely.long.predictor.name   1    1        8
+x2                                                     2    1        6
+                                                           gcv gcv.match
+x1.a.very.long.in.fact.extremely.long.predictor.name 100.00000         1
+x2                                                    66.88298         1
+                                                           rss rss.match
+x1.a.very.long.in.fact.extremely.long.predictor.name 100.00000         1
+x2                                                    63.59638         1
+attr(,"class")
+[1] "evimp"
 > 
 > x.global <- cbind(                                           x1, x2, x3, x4, x5)
 > data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
@@ -4074,6 +4109,22 @@ All            1.2380367 77.265873 0.9296481 0.9552019
  -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
 
 
+> print(evimp(a))
+   nsubsets   gcv    rss
+x3       10 100.0  100.0
+x2        9  81.9   80.7
+x4        8  57.4   56.2
+x1        7  45.7   44.4
+x5        6  37.3   36.0
+> print.default(evimp(a))
+   col used nsubsets       gcv gcv.match       rss rss.match
+x3   3    1       10 100.00000         1 100.00000         1
+x2   2    1        9  81.93716         1  80.68965         1
+x4   4    1        8  57.41495         1  56.24481         1
+x1   1    1        7  45.69253         1  44.43055         1
+x5   5    1        6  37.29910         1  36.01828         1
+attr(,"class")
+[1] "evimp"
 > 
 > x.global <- cbind(                                           x1, x2, x3, x4, x5)
 > data.global <- cbind(eqn56=eqn56(x.global), neg.eqn56noise(x.global), x1, x2, x3, x4, x5)
@@ -4589,7 +4640,7 @@ Error : pmethod="exhaustive" cannot be used with "eval.subsets.xtx"
 > m1 <- earth(Volume ~ ., data = trees)
 > m2 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
 > check.models.equal(m1, m2, "Force.xtx.prune test 1", check.subsets=FALSE)
-check.models.equal not identical: Force.xtx.prune test 1 (m1$rsq 0.9756884 != m1$rsq 0.9756884) [but within numerical tolerances]
+check.models.equal not identical: Force.xtx.prune test 1 [but within numerical tolerances]
 > 
 > m1 <- earth(O3 ~ wind+temp, data = ozone1, nk=51)
 > m2 <- earth(O3 ~ wind+temp, data = ozone1, nk=51, Force.xtx.prune=TRUE)
@@ -4730,30 +4781,28 @@ Dimension: 10
 
 Percent Between-Group Variance Explained:
     v1     v2     v3     v4     v5     v6     v7     v8     v9    v10 
- 44.62  75.74  84.36  91.27  95.96  98.38  99.40 100.00 100.00 100.00 
+ 54.22  83.23  89.89  93.80  96.18  98.10  99.06  99.87 100.00 100.00 
 
-Training Misclassification Error: 0.32 ( N = 100 )
+Training Misclassification Error: 0.28 ( N = 100 )
 
-Deviance: 151.375 
+Deviance: 126.543 
 > printh(a)
 ===a 
 Call:
 mda(formula = Type ~ ., data = glass.train, method = earth, keep.fitted = TRUE, 
     keepxy = TRUE, degree = 2)
 
-Dimension: 13 
+Dimension: 11 
 
 Percent Between-Group Variance Explained:
     v1     v2     v3     v4     v5     v6     v7     v8     v9    v10    v11 
  64.06  84.61  91.10  95.24  96.82  97.86  98.74  99.33  99.74  99.88 100.00 
-   v12    v13 
-100.00 100.00 
 
 Training Misclassification Error: 0.24 ( N = 100 )
 
 Deviance: 163.766 
 > cat("mda with mars  ", attr(confusion(am), "error"), "\n")
-mda with mars   0.32 
+mda with mars   0.28 
 > cat("mda with earth ", attr(confusion(a),  "error"), "\n")
 mda with earth  0.24 
 > if (PLOT) {
@@ -4796,7 +4845,7 @@ update.earth: using 31 by 1 subset argument from original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 8.77394e-05 < 0.001)
+Reached delta RSq threshold (DeltaRSq 8.77394e-05 < 0.001) at 11 terms
 After forward pass GRSq 0.71 RSq 0.9369
 Prune method "backward" penalty 2 nprune 8: selected 4 of 8 terms, and 2 of 2 predictors
 After backward pass GRSq 0.883 RSq 0.9251 
@@ -4814,7 +4863,7 @@ update.earth: using 31 by 1 subset argument from original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0.000280038 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000280038 < 0.001) at 7 terms
 After forward pass GRSq 0.9372 RSq 0.9774
 Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
 After backward pass GRSq 0.962 RSq 0.9757 
@@ -4833,7 +4882,7 @@ update.earth: using 31 by 3 data argument from original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0.000205816 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000205816 < 0.001) at 5 terms
 After forward pass GRSq 0.925 RSq 0.9716
 Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
 After backward pass GRSq 0.9474 RSq 0.9689 
@@ -4870,7 +4919,7 @@ update.earth: using 1 by 1 wp saved by keepxy in original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 8.77394e-05 < 0.001)
+Reached delta RSq threshold (DeltaRSq 8.77394e-05 < 0.001) at 11 terms
 After forward pass GRSq 0.71 RSq 0.9369
 Prune method "backward" penalty 2 nprune 8: selected 4 of 8 terms, and 2 of 2 predictors
 After backward pass GRSq 0.883 RSq 0.9251 
@@ -4887,7 +4936,7 @@ update.earth: using 31 by 3 data saved by keepxy in original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0.000280038 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000280038 < 0.001) at 7 terms
 After forward pass GRSq 0.9372 RSq 0.9774
 Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
 After backward pass GRSq 0.962 RSq 0.9757 
@@ -4934,7 +4983,7 @@ update.earth: using 31 by 1 subset argument from original call to earth
 x is a 31 by 2 matrix: 1=Height, 2=Volume
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0.000269988 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000269988 < 0.001) at 3 terms
 After forward pass GRSq 0.9919 RSq 0.9956
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 1 of 2 predictors
 After backward pass GRSq 0.9938 RSq 0.9954 
@@ -4979,14 +5028,13 @@ First few rows of y are
 [4,]   16.4
 [5,]   18.8
 [6,]   19.7
-Approximate memory use after expanding x and y matrices: 0.02 MBytes
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    2       Volume        15.6< 2       
 
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Forward pass complete: 3 terms (2 terms used)
 
@@ -5080,7 +5128,6 @@ First few rows of y are
 [4,]   16.4
 [5,]   18.8
 [6,]   19.7
-Approximate memory use after expanding x and y matrices: 0.02 MBytes
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -5088,7 +5135,7 @@ Forward pass: minspan 4 endspan 8
 2      0.9938 0.9954       0.9954    2       Volume        36.8  2   3   
 4      0.9919 0.9956      0.00027    1       Height          75  4   5   reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000269988 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000269988 < 0.001) at 3 terms
 After forward pass GRSq 0.9919 RSq 0.9956
 Forward pass complete: 3 terms
 
@@ -5198,7 +5245,7 @@ GCV 15.04844    RSS 3941.596    GRSq 0.7662402    RSq 0.8133308
 +     # allow only humidity and temp in terms of degree > 1
 +     # 3 and 4 are the "humidity" and "temp" columns
 +     allowed.set = c(3,4)
-+     if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
++     if (degree > 1 && (all(allowed.set != pred) || any(parents[-allowed.set])))
 +         return(FALSE)
 +     TRUE
 + }
@@ -5241,7 +5288,8 @@ GCV 13.82952    RSS 3746.583    GRSq 0.7851747    RSq 0.8225664
 +     }
 +     # allow only humidity and temp in terms of degree > 1
 +     allowed.set = c(ihumidity, itemp)
-+     if (degree > 1 && (all(pred != allowed.set) || any(parents[-allowed.set])))
++     if (degree > 1 &&
++            (all(allowed.set != pred) || any(parents[-allowed.set])))
 +         return(FALSE)
 +     TRUE
 + }
@@ -5311,34 +5359,225 @@ Error :   The "allowed" function needs the following arguments (but namesx and f
 +       0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
 +       0,1,2,3,4,5,6,7,8,9,0)
 > 
-> a <- earth(x = x, y=y, trace=4)
-Call: earth(x=x, y=y, trace=4)
+> a <- earth(x = x, y=y, trace=5)
+Call: earth(x=x, y=y, trace=5)
 x is a 101 by 1 matrix: 1=x
-First few rows of x are
-     x
-[1,] 0
-[2,] 1
-[3,] 2
-[4,] 3
-[5,] 4
-[6,] 5
+Contents of x are
+       x
+  [1,] 0
+  [2,] 1
+  [3,] 2
+  [4,] 3
+  [5,] 4
+  [6,] 5
+  [7,] 6
+  [8,] 7
+  [9,] 8
+ [10,] 9
+ [11,] 0
+ [12,] 1
+ [13,] 2
+ [14,] 3
+ [15,] 4
+ [16,] 5
+ [17,] 6
+ [18,] 7
+ [19,] 8
+ [20,] 9
+ [21,] 0
+ [22,] 1
+ [23,] 2
+ [24,] 3
+ [25,] 4
+ [26,] 5
+ [27,] 6
+ [28,] 7
+ [29,] 8
+ [30,] 9
+ [31,] 0
+ [32,] 1
+ [33,] 2
+ [34,] 3
+ [35,] 4
+ [36,] 5
+ [37,] 6
+ [38,] 7
+ [39,] 8
+ [40,] 9
+ [41,] 0
+ [42,] 1
+ [43,] 2
+ [44,] 3
+ [45,] 4
+ [46,] 5
+ [47,] 6
+ [48,] 7
+ [49,] 8
+ [50,] 9
+ [51,] 0
+ [52,] 1
+ [53,] 2
+ [54,] 3
+ [55,] 4
+ [56,] 5
+ [57,] 6
+ [58,] 7
+ [59,] 8
+ [60,] 9
+ [61,] 0
+ [62,] 1
+ [63,] 2
+ [64,] 3
+ [65,] 4
+ [66,] 5
+ [67,] 6
+ [68,] 7
+ [69,] 8
+ [70,] 9
+ [71,] 0
+ [72,] 1
+ [73,] 2
+ [74,] 3
+ [75,] 4
+ [76,] 5
+ [77,] 6
+ [78,] 7
+ [79,] 8
+ [80,] 9
+ [81,] 0
+ [82,] 1
+ [83,] 2
+ [84,] 3
+ [85,] 4
+ [86,] 5
+ [87,] 6
+ [88,] 7
+ [89,] 8
+ [90,] 9
+ [91,] 0
+ [92,] 1
+ [93,] 2
+ [94,] 3
+ [95,] 4
+ [96,] 5
+ [97,] 6
+ [98,] 7
+ [99,] 8
+[100,] 9
+[101,] 0
 y is a 101 by 1 matrix: 1=y
-First few rows of y are
-     y
-[1,] 0
-[2,] 1
-[3,] 2
-[4,] 3
-[5,] 4
-[6,] 5
-Approximate memory use after expanding x and y matrices: 0.04 MBytes
+Contents of y are
+       y
+  [1,] 0
+  [2,] 1
+  [3,] 2
+  [4,] 3
+  [5,] 4
+  [6,] 5
+  [7,] 6
+  [8,] 7
+  [9,] 8
+ [10,] 9
+ [11,] 0
+ [12,] 1
+ [13,] 2
+ [14,] 3
+ [15,] 4
+ [16,] 5
+ [17,] 6
+ [18,] 7
+ [19,] 8
+ [20,] 9
+ [21,] 0
+ [22,] 1
+ [23,] 2
+ [24,] 3
+ [25,] 4
+ [26,] 5
+ [27,] 6
+ [28,] 7
+ [29,] 8
+ [30,] 9
+ [31,] 0
+ [32,] 1
+ [33,] 2
+ [34,] 3
+ [35,] 4
+ [36,] 5
+ [37,] 6
+ [38,] 7
+ [39,] 8
+ [40,] 9
+ [41,] 0
+ [42,] 1
+ [43,] 2
+ [44,] 3
+ [45,] 4
+ [46,] 5
+ [47,] 6
+ [48,] 7
+ [49,] 8
+ [50,] 9
+ [51,] 0
+ [52,] 1
+ [53,] 2
+ [54,] 3
+ [55,] 4
+ [56,] 5
+ [57,] 6
+ [58,] 7
+ [59,] 8
+ [60,] 9
+ [61,] 0
+ [62,] 1
+ [63,] 2
+ [64,] 3
+ [65,] 4
+ [66,] 5
+ [67,] 6
+ [68,] 7
+ [69,] 8
+ [70,] 9
+ [71,] 0
+ [72,] 1
+ [73,] 2
+ [74,] 3
+ [75,] 4
+ [76,] 5
+ [77,] 6
+ [78,] 7
+ [79,] 8
+ [80,] 9
+ [81,] 0
+ [82,] 1
+ [83,] 2
+ [84,] 3
+ [85,] 4
+ [86,] 5
+ [87,] 6
+ [88,] 7
+ [89,] 8
+ [90,] 9
+ [91,] 0
+ [92,] 1
+ [93,] 2
+ [94,] 3
+ [95,] 4
+ [96,] 5
+ [97,] 6
+ [98,] 7
+ [99,] 8
+[100,] 9
+[101,] 0
+earth.c version 3.1-0
+BetaCache 0.003 Mb
 Forward pass: minspan 4 endspan 7
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Forward pass complete: 3 terms (2 terms used)
 
@@ -5374,14 +5613,13 @@ First few rows of y are
 [4,] 3
 [5,] 4
 [6,] 5
-Approximate memory use after expanding x and y matrices: 0.04 MBytes
 Forward pass: minspan 4 endspan 7
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Forward pass complete: 3 terms (2 terms used)
 
@@ -5417,14 +5655,13 @@ First few rows of y are
 [4,] 3
 [5,] 4
 [6,] 5
-Approximate memory use after expanding x and y matrices: 0.04 MBytes
 Forward pass: minspan 4 endspan 7
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Forward pass complete: 3 terms (2 terms used)
 
@@ -5464,14 +5701,13 @@ First few rows of y are
 [4,] 3
 [5,] 4
 [6,] 5
-Approximate memory use after expanding x and y matrices: 0.04 MBytes
 Forward pass: minspan 4 endspan 7
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1 > 0.999)
+Reached max RSq (RSq 1 > 0.999) at 3 terms
 After forward pass GRSq 1 RSq 1
 Forward pass complete: 3 terms (2 terms used)
 
@@ -5483,60 +5719,60 @@ Prune method "backward" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 pr
 After backward pass GRSq 1 RSq 1 
 > printh(summary(a))
 ===summary(a) 
-Call: earth(x=x, y=y, trace=4)
+Call: earth(x=x, y=y, trace=5)
 
              coefficients
-(Intercept) -9.894088e-16
+(Intercept) -7.070164e-16
 x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
+GCV 9.44066e-29    RSS 8.97704e-27    GRSq 1    RSq 1
 > printh(summary(a.longx))
 ===summary(a.longx) 
 Call: earth(x="[102, 1]-too-long-to-display", y=y, trace=4)
 
              coefficients
-(Intercept) -9.894088e-16
+(Intercept) -7.070164e-16
 x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
+GCV 9.44066e-29    RSS 8.97704e-27    GRSq 1    RSq 1
 > printh(summary(a.longy))
 ===summary(a.longy) 
 Call: earth(x=x, y="[102, 1]-too-long-to-display", trace=4)
 
              coefficients
-(Intercept) -9.894088e-16
+(Intercept) -7.070164e-16
 x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
+GCV 9.44066e-29    RSS 8.97704e-27    GRSq 1    RSq 1
 > printh(summary(a.longxy))
 ===summary(a.longxy) 
 Call: earth(x="[102, 1]-too-long-to-display", y="[102, 1]-too-long-to-display", 
       trace=4)
 
              coefficients
-(Intercept) -9.894088e-16
+(Intercept) -7.070164e-16
 x            1.000000e+00
 
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
+GCV 9.44066e-29    RSS 8.97704e-27    GRSq 1    RSq 1
 > printh(summary(a.longxy, style="bf"))
 ===summary(a.longxy, style = "bf") 
 Call: earth(x="[102, 1]-too-long-to-display", y="[102, 1]-too-long-to-display", 
       trace=4)
 
 y =
-  -9.894088e-16
+  -7.070164e-16
   + 1 * bf1
 
    bf1  x
@@ -5544,7 +5780,7 @@ y =
 Selected 2 of 2 terms, and 1 of 1 predictors 
 Importance: x
 Number of terms at each degree of interaction: 1 1 (additive model)
-GCV 7.158145e-31    RSS 6.806616e-29    GRSq 1    RSq 1
+GCV 9.44066e-29    RSS 8.97704e-27    GRSq 1    RSq 1
 > 
 > cat("--- factors with x,y interface -------------------------\n")
 --- factors with x,y interface -------------------------
@@ -5562,7 +5798,7 @@ Forward pass: minspan 6 endspan 8
 4      0.0116 0.0210     0.003025    1          2nd           0< 3       
 6      0.0068 0.0210            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.006792 RSq 0.021
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 2 of 3 terms, and 1 of 2 predictors
@@ -5605,7 +5841,7 @@ Forward pass: minspan 5 endspan 7
 2      0.0073 0.0120      0.01202    1          sex           0< 2       
 4      0.0025 0.0120            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
 After forward pass GRSq 0.002501 RSq 0.01202
 Forward pass complete: 3 terms (2 terms used)
 Prune method "backward" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
@@ -5640,7 +5876,7 @@ Forward pass: minspan 6 endspan 8
 4      0.1640 0.1720      0.05838    1          2nd           0< 3       
 6      0.1600 0.1720            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.16 RSq 0.172
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
@@ -5673,7 +5909,7 @@ Forward pass: minspan 5 endspan 7
 8      0.0849 0.1067      0.00116    1          age          44  6       
 10     0.0813 0.1075    0.0008104    1          age          48  7       reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000810417 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000810417 < 0.001) at 9 terms
 After forward pass GRSq 0.08129 RSq 0.1075
 Forward pass complete: 9 terms (6 terms used)
 Prune method "backward" penalty 3 nprune 6: selected 2 of 6 terms, and 1 of 1 predictors
@@ -5714,7 +5950,7 @@ Forward pass: minspan 6 endspan 8
 16     0.1532 0.1971      0.00157    3          age          55  11  12  10  
 18     0.1497 0.1978    0.0006704    3          age          44  13      reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000670385 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000670385 < 0.001) at 17 terms
 After forward pass GRSq 0.1497 RSq 0.1978
 Forward pass complete: 17 terms (12 terms used)
 Prune method "backward" penalty 3 nprune 12: selected 9 of 12 terms, and 3 of 3 predictors
@@ -5855,7 +6091,7 @@ Forward pass: minspan 6 endspan 8
 4      0.0116 0.0210     0.003025    1    pclass2nd           0< 3       
 6      0.0068 0.0210            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.006792 RSq 0.021
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 2 of 3 terms, and 1 of 2 predictors
@@ -5898,7 +6134,7 @@ Forward pass: minspan 5 endspan 7
 2      0.0073 0.0120      0.01202    1      sexmale           0< 2       
 4      0.0025 0.0120            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
 After forward pass GRSq 0.002501 RSq 0.01202
 Forward pass complete: 3 terms (2 terms used)
 Prune method "backward" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
@@ -5933,7 +6169,7 @@ Forward pass: minspan 6 endspan 8
 4      0.1640 0.1720      0.05838    1    pclass2nd           0< 3       
 6      0.1600 0.1720            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.16 RSq 0.172
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
@@ -5966,7 +6202,7 @@ Forward pass: minspan 5 endspan 7
 8      0.0849 0.1067      0.00116    1          age          44  6       
 10     0.0813 0.1075    0.0008104    1          age          48  7       reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000810417 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000810417 < 0.001) at 9 terms
 After forward pass GRSq 0.08129 RSq 0.1075
 Forward pass complete: 9 terms (6 terms used)
 Prune method "backward" penalty 3 nprune 6: selected 2 of 6 terms, and 1 of 1 predictors
@@ -6007,7 +6243,7 @@ Forward pass: minspan 6 endspan 8
 16     0.1532 0.1971      0.00157    3          age          55  11  12  10  
 18     0.1497 0.1978    0.0006704    3          age          44  13      reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000670385 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0.000670385 < 0.001) at 17 terms
 After forward pass GRSq 0.1497 RSq 0.1978
 Forward pass complete: 17 terms (12 terms used)
 Prune method "backward" penalty 3 nprune 12: selected 9 of 12 terms, and 3 of 3 predictors
@@ -6106,7 +6342,7 @@ Forward pass: minspan 3 endspan 7
 4      0.5250 0.7012     0.005454    1           ff          19  4       
 6      0.4302 0.7012            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
 After forward pass GRSq 0.4302 RSq 0.7012
 Forward pass complete: 5 terms (4 terms used)
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 1 of 1 predictors
@@ -6136,7 +6372,7 @@ Forward pass: minspan 3 endspan 7
 2      0.3877 0.4693       0.4693    1       vowels           0< 2       
 4      0.2858 0.4693            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001)
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
 After forward pass GRSq 0.2858 RSq 0.4693
 Forward pass complete: 3 terms (2 terms used)
 Prune method "backward" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
@@ -6428,7 +6664,7 @@ Number of terms at each degree of interaction: 1 3 6
 3rd 0.1992300 199.1360  0.20319295 0.23713582
 All 0.4386221 438.4151  0.26237064 0.29379263
 > if (PLOT)
-+     plot(e7)
++     plot(e7, col.residuals=as.numeric(etitanic$pclass)+1)
 > 
 > cat("--- earth.regress ---------------------------------\n")
 --- earth.regress ---------------------------------
@@ -6681,7 +6917,7 @@ Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > plotmo(a, trace=2, caption="getdata earth test1")
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula O3 ~ .
 stripped formula O3~.
@@ -6706,7 +6942,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 formula O3 ~ .
 stripped formula O3~.
@@ -6725,11 +6961,11 @@ get.plotmo.y returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 4 temp, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]    
@@ -7206,7 +7442,7 @@ Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > plotmo(a, trace=1, caption="getdata earth test2")
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 get.data.for.formula: using x from object$data 
 got x with colnames from object$call$formula
@@ -7221,7 +7457,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 get.data.for.formula: using y from object$data 
 got y from object$call$formula
@@ -7319,7 +7555,7 @@ Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > z <- try(plotmo(a, trace=2, caption="getdata earth test4"))
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 formula O3 ~ .
 stripped formula O3~.
@@ -7354,7 +7590,7 @@ Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > plotmo(a, trace=2, caption="getdata earth test5")
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 got x with colnames from object$call$x
 
@@ -7368,7 +7604,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 got y from object$call$y
 get.plotmo.y returned length 330 min 1 max 38
@@ -7376,11 +7612,11 @@ get.plotmo.y returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 4 temp, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]    
@@ -7785,7 +8021,7 @@ Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > plotmo(a, trace=2, caption="getdata earth test6")
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 got x with colnames from object$x
 
@@ -7799,7 +8035,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 got y from object$y
 get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
@@ -7807,11 +8043,11 @@ get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 4 temp, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]    
@@ -8217,7 +8453,7 @@ Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > plotmo(a, trace=2, caption="getdata earth test7")
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 got x with colnames from object$x
 
@@ -8231,7 +8467,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 got y from object$y
 get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
@@ -8239,11 +8475,11 @@ get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 4 temp, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]    
@@ -8629,7 +8865,7 @@ persp(ibh:dpg) theta 235 ylim 1.37 37.2 cex 0.66
 > se <- NULL
 > z <- try(plotmo(a, trace=2, caption="getdata earth test8"))
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 Looked unsuccessfully for an x in the following places:
 
@@ -8653,7 +8889,7 @@ Error : get.plotmo.x.default cannot get the x matrix
 > se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
 > z <- try(plotmo(a, trace=2, caption="getdata earth test9"))
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 Looked unsuccessfully for an x in the following places:
 
@@ -8696,7 +8932,7 @@ Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > plotmo(a, trace=2, caption="getdata earth test9")
 
---get.plotmo.x
+--get.plotmo.x for earth object
 
 got x with colnames from object$x
 
@@ -8710,7 +8946,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for earth object
 
 got y from object$y
 get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
@@ -8718,11 +8954,11 @@ get.plotmo.y column "se[,1]" returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for earth object
 
 singles: 4 temp, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for earth object
 
 pairs:
      [,1]         [,2]    
@@ -9208,7 +9444,7 @@ F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=2, caption="getdata lm test3")
 
---get.plotmo.x
+--get.plotmo.x for lm object
 
 formula O3 ~ .
 stripped formula O3~.
@@ -9233,7 +9469,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for lm object
 
 got y from object$y
 get.plotmo.y returned length 330 min 1 max 38
@@ -9241,11 +9477,11 @@ get.plotmo.y returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for lm object
 
 singles: 1 vh, 2 wind, 3 humidity, 4 temp, 5 ibh, 6 dpg, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for lm object
 
 get.data.for.formula: using x from "se" passed to lm 
 term.labels: vh wind humidity temp ibh dpg ibt vis doy 
@@ -9400,7 +9636,7 @@ F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=2, caption="getdata lm test3")
 
---get.plotmo.x
+--get.plotmo.x for lm object
 
 got x with colnames from object$x
 
@@ -9414,7 +9650,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for lm object
 
 got y from object$y
 get.plotmo.y returned length 330 min 1 max 38
@@ -9422,11 +9658,11 @@ get.plotmo.y returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for lm object
 
 singles: 1 vh, 2 wind, 3 humidity, 4 temp, 5 ibh, 6 dpg, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for lm object
 
 get.data.for.formula: using x from object$x 
 term.labels: `(Intercept)` vh wind humidity temp ibh dpg ibt vis doy 
@@ -9554,7 +9790,7 @@ ylim 2.408729 21.14607
 > se <- NULL
 > z <- try(plotmo(a, trace=2, caption="getdata lm test4"))
 
---get.plotmo.x
+--get.plotmo.x for lm object
 
 formula O3 ~ .
 stripped formula O3~.
@@ -9596,7 +9832,7 @@ F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=2, caption="getdata lm test5")
 
---get.plotmo.x
+--get.plotmo.x for lm object
 
 got x with colnames from object$x
 
@@ -9610,7 +9846,7 @@ x[330,9]:
 
 nlevels: vh=53 wind=11 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for lm object
 
 got y from object$y
 get.plotmo.y returned length 330 min 1 max 38
@@ -9618,11 +9854,11 @@ get.plotmo.y returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for lm object
 
 singles: 1 vh, 2 wind, 3 humidity, 4 temp, 5 ibh, 6 dpg, 7 ibt, 8 vis, 9 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for lm object
 
 get.data.for.formula: using x from object$x 
 term.labels: `(Intercept)` vh wind humidity temp ibh dpg ibt vis doy 
@@ -9751,7 +9987,7 @@ ylim 2.408729 21.14607
 > se$wind <- NULL
 > z <- try(plotmo(a, trace=2, caption="getdata lm test6"))
 
---get.plotmo.x
+--get.plotmo.x for lm object
 
 formula O3 ~ .
 stripped formula O3~.
@@ -9776,7 +10012,7 @@ x[330,8]:
 
 nlevels: vh=53 humidity=65 temp=63 ibh=196 dpg=128 ibt=193 vis=24 doy=325 
 
---get.plotmo.y
+--get.plotmo.y for lm object
 
 formula O3 ~ .
 stripped formula O3~.
@@ -9795,11 +10031,11 @@ get.plotmo.y returned length 330 min 1 max 38
 
 clip.limits 1 38 
 
---get.plotmo.singles
+--get.plotmo.singles for lm object
 
 singles: 1 vh, 2 humidity, 3 temp, 4 ibh, 5 dpg, 6 ibt, 7 vis, 8 doy 
 
---get.plotmo.pairs
+--get.plotmo.pairs for lm object
 
 get.data.for.formula: using x from "se" passed to lm 
 term.labels: vh humidity temp ibh dpg ibt vis doy 
@@ -9827,6 +10063,50 @@ Error in eval(expr, envir, enclos) : object 'wind' not found
 > if (class(z) != "try-error")
 +     stop("test failed")
 > 
+> cat("test fixed.point warning in print.summary.earth\n")
+test fixed.point warning in print.summary.earth
+> options(digits=3)
+> et <- etitanic
+> et$age <- 1000 * et$age
+> a <- earth(survived~., data=et)
+> print(summary(a))
+Call: earth(formula=survived~., data=et)
+
+             coefficients
+(Intercept)        1.0947
+pclass2nd         -0.2114
+pclass3rd         -0.3413
+sexmale           -0.4851
+h(age-10000)       0.0000
+h(10000-age)       0.0000
+h(sibsp-1)        -0.0970
+h(parch-1)        -0.0627
+h(1-parch)        -0.0902
+
+Selected 9 of 10 terms, and 6 of 6 predictors 
+Importance: sexmale, pclass3rd, age, pclass2nd, sibsp, parch
+Number of terms at each degree of interaction: 1 8 (additive model)
+GCV 0.152    RSS 154    GRSq 0.372    RSq 0.391
+> print(summary(a, fixed.point=FALSE))
+Call: earth(formula=survived~., data=et)
+
+             coefficients
+(Intercept)      1.09e+00
+pclass2nd       -2.11e-01
+pclass3rd       -3.41e-01
+sexmale         -4.85e-01
+h(age-10000)    -4.22e-06
+h(10000-age)     2.57e-05
+h(sibsp-1)      -9.70e-02
+h(parch-1)      -6.27e-02
+h(1-parch)      -9.02e-02
+
+Selected 9 of 10 terms, and 6 of 6 predictors 
+Importance: sexmale, pclass3rd, age, pclass2nd, sibsp, parch
+Number of terms at each degree of interaction: 1 8 (additive model)
+GCV 0.152    RSS 154    GRSq 0.372    RSq 0.391
+> options(digits=7) # back to default
+> 
 > cat("--- ../../tests/test.earth.R -------------------------\n")
 --- ../../tests/test.earth.R -------------------------
 > 
@@ -9851,7 +10131,6 @@ First few rows of y are
 [4,]  6
 [5,]  4
 [6,]  4
-Approximate memory use after expanding x and y matrices: 0.2 MBytes
 Forward pass: minspan 6 endspan 10
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -9919,16 +10198,16 @@ Selected 11 of 21 terms, and 8 of 9 predictors
 Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.5    RSS 3768    GRSq 0.791    RSq 0.822
-          col used nsubsets    gcv       rss  
-temp        4    1       10 100.00 1 100.000 1
-humidity    3    1        8  12.65 1  14.766 1
-ibt         7    1        8  12.65 1  14.766 1
-doy         9    1        7  11.27 1  12.938 1
-dpg         6    1        5   6.73 1   7.822 1
-ibh         5    1        4   9.54 0  10.420 0
-vis         8    1        4   4.34 1   5.262 1
-wind        2    1        1   0.75 1   0.985 1
-vh-unused   1    0        0   0.00 1   0.000 1
+          nsubsets   gcv    rss
+temp            10 100.0  100.0
+humidity         8  35.6   38.4
+ibt              8  35.6   38.4
+doy              7  33.6   36.0
+dpg              5  25.9   28.0
+ibh              4  30.9>  32.3>
+vis              4  20.8   22.9
+wind             1   8.7    9.9
+vh-unused        0   0.0    0.0
 Selected 5 of 21 terms, and 4 of 9 predictors 
 Importance: temp, humidity, ibt, ibh-unused, doy, vh-unused, wind-unused, dpg-unused, vis-unused
 Number of terms at each degree of interaction: 1 3 1

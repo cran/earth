@@ -6,12 +6,15 @@ Compare \code{\link{earth}} models by plotting them.
 }
 \usage{
 plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
-  caption = "", rlim = c(0,1), jitter = 0,
-  col.grsq = discrete.plot.cols(length(x)),
-  col.rsq = 0, col.npreds = 0, col.cum = NULL,
-  col.vline = "grey", lty.vline = 3, col.legend = 1,
-  legend.pos = NULL, legend.text = NULL, do.par = TRUE,
-  main = "Model Comparison", \dots)
+    caption = "", jitter = 0,
+    col.grsq = discrete.plot.cols(length(x)), lty.grsq = 1,
+    col.rsq = 0, lty.rsq = 5,
+    col.vline = col.grsq, lty.vline = 3,
+    col.npreds = 0,  lty.npreds  = 2, col.sel.grid = 0,
+    ylim = c(0,1),
+    col.legend = 1, cex.legend = NULL, legend.pos = NULL, legend.text = NULL,
+    col.cum = NULL, do.par = TRUE, main = "Model Comparison",
+    rlim = NA, \dots)
 }
 \arguments{
   \item{x}{
@@ -30,26 +33,14 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
        \code{""} (default) no caption\cr
        \code{NULL} generate a caption from the \code{$call} component of the \code{earth} objects.
   }
-  \item{rlim}{
-    Two element vector \code{c(min,max)} specifying min and max
-    values on the y axis of the RSq/GRSq plot.
-    Default is \code{c(0,1)}.
-
-    The special value min=\code{-1} means the minimum y axis value
-    is the smallest GRSq or RSq, excluding the intercept.
-
-    The special value max=\code{-1} means the maximum y axis value
-    is the largest GRSq or RSq.
-  }
   \item{jitter}{
     Jitter applied to GRSq and RSq values to minimize over-plotting.
     Default is \code{0}, meaning no jitter.
     A typical useful value is 0.01.
-  }
-  \item{}{
-    \emph{For all the col arguments below, 0 means do not plot the corresponding graph element.
-          You can use vectors of colors for the col arguments.
-    }
+\cr
+\cr
+    \emph{For the col arguments below, 0 means do not plot the corresponding graph element.
+          You can use vectors of colors.}
   }
   \item{col.grsq}{
     Vector of colors for the GRSq plot.
@@ -59,33 +50,52 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     You can examine the colors using\cr
     \code{earth:::discrete.plot.cols()}.
   }
+  \item{lty.grsq}{
+    Line type for the GRSq plot.
+    Default is \code{1}.
+  }
   \item{col.rsq}{
     Vector of colors for the RSq plot.
     Default is \code{0}, meaning no RSq plot.
   }
-  \item{col.npreds}{
-    Vector of colors for the "number of predictors" plot within the model selection plot.
-
-    Default is \code{0}, meaning no "number of predictors" plot.
-
-    The special value \code{NULL} means borrow \code{col.grsq}
-    (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
-  }
-  \item{col.cum}{
-    Vector of colors for the cumulative distribution plot.
-    The special value \code{NULL} (default) means borrow \code{col.grsq}
-    (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
+  \item{lty.rsq}{
+    Line type for the RSq plot.
+    Default is \code{5}.
   }
   \item{col.vline}{
     A vertical line is drawn for each object
     to show which model size was chosen for that object.
     The color of the line is \code{col.vline}.
-    Default is \code{"grey"}.
+    Default is \code{col.grsq}.
   }
   \item{lty.vline}{
     Line type of vertical lines (a vertical line is drawn to show the selected model for each object).
     Can be a vector.
     Default is \code{3}.
+  }
+  \item{col.npreds}{
+    Vector of colors for the "number of predictors" plot within the model selection plot.
+    Default is \code{0}, meaning no "number of predictors" plot.
+    The special value \code{NULL} means borrow \code{col.grsq}
+    (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
+  }
+  \item{lty.npreds}{
+     Line type of the "number of predictors" plot (in the Model Selection plot).
+     Default is \code{2}.
+  }
+  \item{col.sel.grid}{
+    Color of grid lines in the Model Selection graph.
+    Default is \code{0}, no grid.
+    Try something like \code{"lightgray"}, \code{"linen"}, or \code{"seashell"}.
+  }
+  \item{ylim}{
+    Two element vector \code{c(min,max)} specifying min and max
+    values on the y axis of the RSq/GRSq plot.
+    Default is \code{c(0,1)}.\cr
+    The special value min=\code{-1} means the minimum y axis value
+    is the smallest GRSq or RSq, excluding the intercept.\cr
+    The special value max=\code{-1} means the maximum y axis value
+    is the largest GRSq or RSq.
   }
   \item{col.legend}{
     Default is \code{1}, meaning draw a legend.
@@ -94,16 +104,27 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
     if that graph is plotted.
     Else the legend is drawn in the model comparison chart.
   }
+  \item{cex.legend}{
+     Legend cex.
+     Default is NULL, meaning choose automatically.
+  }
   \item{legend.pos}{
-    The special value \code{NULL} (default) means position the legend automatically.
+    Legend position.
+    Default \code{NULL}, meaning position the legend automatically.
     Else specify \code{c(x,y)} in user coordinates,
     or use \code{"topleft"} etc. as explained in \code{\link{legend}}.
   }
   \item{legend.text}{
     Vector of strings to use as legend text.
     The special value \code{NULL} (default) means generate the legend text automatically
-    from \code{call$formula}.\cr
-
+    from \code{call$formula}.
+  }
+  \item{col.cum}{
+    Vector of colors for the cumulative distribution plot.
+    The special value \code{NULL} (default) means borrow \code{col.grsq}
+    (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
+\cr
+\cr
      \emph{The following settings are related to \code{par()} and are included so you can override the defaults.}
   }
   \item{do.par}{
@@ -115,6 +136,9 @@ plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
   \item{main}{
     Title of each plot.
     Default is \code{NULL}, meaning generate figure headings automatically.
+  }
+  \item{rlim}{
+    Deprecated.  Please use \code{ylim} instead.
   }
   \item{\dots}{
     Extra arguments passed to plotting functions.
@@ -135,6 +159,6 @@ data(ozone1)
 a1 <- earth(O3 ~ .,          data = ozone1, degree = 2)
 a2 <- earth(O3 ~ .-wind,     data = ozone1, degree = 2, nk = 31)
 a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
-plot.earth.models(list(a1,a2,a3), rlim=c(.6,.8))
+plot.earth.models(list(a1,a2,a3), ylim=c(.6,.8))
 }
 \keyword{models}

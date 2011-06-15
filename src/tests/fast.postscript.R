@@ -1,8 +1,8 @@
 # fast.postscript.R:
 #
 # Function to open a postscript file that does not use the sRGB handling
-# introduced in R version 2.13-0.  The file will display several times faster
-# than a file that uses the sRGB handling.
+# introduced in R version 2.13-0.  The resulting postscript file will display 
+# several times faster than a file that uses the sRGB handling.
 
 fast.postscript <- function(file= ifelse(onefile, "Rplots.ps", "Rplot%03d.ps"),
                             onefile=TRUE, ...)

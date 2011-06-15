@@ -1,12 +1,8 @@
 # earthlib.R: general purpose routines that are needed by the earth package
 #
-# Comments containing "TODO" mark known issues.
 # Stephen Milborrow Mar 2007 Petaluma
 #
 # TODO the make.space functions should take into account char height and other par settings
-
-#------------------------------------------------------------------------------
-# Miscellaneous utilities
 
 stop0 <- function(...) stop(..., call.=FALSE)
 
@@ -37,13 +33,49 @@ pastef <- function(s, format, ...) # paste the c printf style args to s
 
 strip.white.space <- function(s) gsub("[ \t\n]", "", s)
 
-# is.na.or.zero's main purpose is to see if a plot component should be
+# Note: there is no string line type corresponding to 1, so this
+# converts 1 to "1" which is an illegal lty, so must be specially
+# handled in functions which use the lty string.
+
+lty.as.char <- function(lty)
+{
+    char <- lty
+    if(is.numeric(lty)) {
+        char <- NULL
+        tab <- c("1", "44", "13", "1343", "73", "2262") # from par man page
+        stopifnot(length(lty) > 0)
+        for(i in 1:length(lty)) {
+            stopifnot(lty[i] >= 1 && lty[i] <= length(tab))
+            char <- c(char, tab[lty[i]])
+        }
+    }
+    char
+}
+
+get.rsq <- function(rss, tss) 1 - rss / tss
+
+get.mean.rsq <- function(rss, tss, wp)
+{
+    if(is.null(wp))
+        wp <- rep(1, length(rss))
+    stopifnot(length(rss) == length(tss) && length(wp) == length(tss))
+    total.rsq <- 0
+    for(iresp in 1:length(rss))
+        total.rsq <- total.rsq + wp[iresp] * get.rsq(rss[iresp], tss[iresp])
+    sum(total.rsq) / sum(wp)
+}
+
+weighted.mean <- function(x, w) sum(w * x) / sum(w)
+
+ss <- function(x) sum(as.vector(x^2)) # sum of squares
+
+# is.naz's main purpose is to see if a plot component should be
 # drawn, i.e., to see if the component "has a color"
 # We use identical() and not is.na() below because is.na(x) gives warnings
 # for certain x's, e.g if x is a function, and x == 0 gives warnings if x
 # is a vector or a function etc.
 
-is.na.or.zero <- function(x) identical(x, NA) || identical(x, 0)
+is.naz <- function(x) identical(x, NA) || identical(x, 0) # is NA or zero?
 
 is.try.error <- function(obj) class(obj)[1] == "try-error"
 
@@ -190,7 +222,7 @@ check.index.vec <- function(index.name, indexVec, object,
 
 discrete.plot.cols <- function(ncolors=5)
 {
-    cols <- c(1, "grey60", "brown", "lightblue", "pink", "green")
+    cols <- c(1, "gray60", "brown", "lightblue", "pink", "green")
     if(ncolors > length(cols))   # won't really be distinguishable
         cols <- c(cols, heat.colors(ncolors - length(cols)))
     cols[1:ncolors]
@@ -274,7 +306,7 @@ get.caption.from.call <- function(caption, object)
 
 # Call this only after a plot is on the screen to avoid
 # an error message "plot.new has not been called yet"
-# TODO the trimming code sometimes overtrims
+# TODO the trimming code sometimes over or under trims
 
 show.caption <- function(caption, trim=0, show=TRUE, cex=1)
 {
@@ -283,7 +315,7 @@ show.caption <- function(caption, trim=0, show=TRUE, cex=1)
             if(is.logical(trim))
                 trim <- 1
             # trim caption to fit
-            len <- len.caption * trim / strwidth(caption, "figure")
+            len <- len.caption * trim / strwidth(caption, "figure", cex=cex, font=2)
             caption <- substr(caption, 1, len)
             # append ellipsis if chars deleted
             if(len < len.caption)
@@ -314,6 +346,18 @@ make.space.for.right.axis <- function()
         mar[4] <- 3.5
         par(mar=mar)
     }
+}
+# Like text, but with a white background
+# This assumes adj=.5 and pos=NULL.
+
+text.on.white <- function(x, y, label, cex, ...)
+{
+    stopifnot(length(label) == 1)
+    width  <- strwidth(label, cex=cex)
+    height <- strheight(label, cex=cex)
+    rect(x - width/2, y - 1.5 * height/2, x + width/2, y + 1.2 * height/2,
+         col="white", border=NA)
+    text(x=x, y=y, labels=label, cex=cex, ...)
 }
 
 #------------------------------------------------------------------------------

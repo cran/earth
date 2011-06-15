@@ -19,7 +19,7 @@ plotd <- function(obj,      # obj is a model object
     xlab = "Predicted Value",
     ylab = if(hist) "Count" else "Density",
     lty  = 1,               # linetypes for the plotted lines
-    col  = c("grey70", 1, "lightblue", "brown", "pink", 2, 3, 4), # cols for plotted lines
+    col  = c("gray70", 1, "lightblue", "brown", "pink", 2, 3, 4), # cols for plotted lines
     fill = if(hist) col[1] else 0, # fill color for first hist/density plot
     breaks = "Sturges",     # following passed on to hist, only used if hist=TRUE
     labels = FALSE,
@@ -29,7 +29,7 @@ plotd <- function(obj,      # obj is a model object
     legend = TRUE,          # TRUE to draw a legend
     legend.names = NULL,    # NULL means auto, else specify a vector of strings,
     legend.pos = NULL,      # NULL means auto, else specify c(x,y) in user coords
-    legend.cex = .8,        # cex for legend
+    cex.legend = .8,        # cex for legend
     legend.bg = "white",    # bg for legend
     legend.extra = FALSE,   # print number in each class in legend
     vline.col = 0,          # color of vertical line, use NULL or 0 for no line
@@ -176,12 +176,12 @@ plotd <- function(obj,      # obj is a model object
              main=main, xlab=xlab, ylab=ylab, lty=lty[ifirst],
              border=col[ifirst], xaxt=xaxt, yaxt=yaxt,
              col=if(ifirst==1) fill else 0) # fill color
-        add.labels(densities[[ifirst]], labels, legend.cex)
+        add.labels(densities[[ifirst]], labels, cex.legend)
     } else {   # plot.density
         plot(densities[[ifirst]], xlim=xlim, ylim=c(0, ymax), col=col[ifirst],
              main=main, xlab=xlab, ylab=ylab, lty=lty[ifirst],
              zero.line=zero.line, xaxt=xaxt, yaxt=yaxt)
-        if(ifirst == 1 && !is.na.or.zero(fill))
+        if(ifirst == 1 && !is.naz(fill))
             polygon(densities[[1]], col=fill, border=col[1])
     }
     if(draw.own.axis) {
@@ -204,12 +204,12 @@ plotd <- function(obj,      # obj is a model object
             else {     # lines.histogram
                 lines(densities[[iclass]], col=NULL,
                       border=col[iclass], lty=lty[iclass])
-                add.labels(densities[[iclass]], labels, legend.cex)
+                add.labels(densities[[iclass]], labels, cex.legend)
             }
         }
     # optional vertical line at vline.thresh
 
-    if(!is.null(vline.col) && !is.na.or.zero(vline.col))
+    if(!is.null(vline.col) && !is.naz(vline.col))
         abline(v=vline.thresh, col=vline.col, lty=vline.lty, lwd=vline.lwd)
 
     # Redo optional error region shading if it has borders, because the
@@ -219,11 +219,10 @@ plotd <- function(obj,      # obj is a model object
         add.err.col(densities, err.thresh, err.col, err.border, err.lwd)
 
     # optional legend
-
     if(legend)
         draw.legend(densities, degenerate, yhat.per.class, ymax,
                     hist, xlim, col, fill, lty, legend.names,
-                    legend.pos, legend.cex, legend.bg, legend.extra)
+                    legend.pos, cex.legend, legend.bg, legend.extra)
     invisible(yhat.per.class)
 }
 
@@ -567,7 +566,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
 }
 draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
                     hist, xlim, col, fill, lty, legend.names,
-                    legend.pos, legend.cex, legend.bg, legend.extra)
+                    legend.pos, cex.legend, legend.bg, legend.extra)
 {
     get.legend.pos <- function()
     {
@@ -624,7 +623,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
                                " cases)")
 
     legend(x=legend.pos[1], y=legend.pos[2], legend=legend.names,
-           cex=legend.cex, bg=legend.bg, lty=lty, lwd=lwd, col=col)
+           cex=cex.legend, bg=legend.bg, lty=lty, lwd=lwd, col=col)
 }
 # shade the "error areas" of the density plots
 
@@ -652,7 +651,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
         lwd[2] <- lwd[1]
     if(length(lwd) < 3)
         lwd[3] <- lwd[iden]
-    if(!is.na.or.zero(col[1]) || !is.na.or.zero(border[1])) {
+    if(!is.naz(col[1]) || !is.naz(border[1])) {
         # left side of threshold
         matches <- den2$x < thresh
         if(sum(matches)) {
@@ -665,7 +664,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             polygon(x, y, col=col[1], border=border[1], lwd=lwd[1])
         }
     }
-    if(!is.na.or.zero(col[2]) || !is.na.or.zero(border[2])) {
+    if(!is.naz(col[2]) || !is.naz(border[2])) {
         # right side of threshold
         matches <- den1$x > thresh
         if(sum(matches)) {
@@ -678,7 +677,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             polygon(x, y, col=col[2], border=border[2], lwd=lwd[2])
         }
     }
-    if(!is.na.or.zero(col[3]) || !is.na.or.zero(border[3])) {
+    if(!is.naz(col[3]) || !is.naz(border[3])) {
         if(iden == 1) {
             # reducible error, left side of threshold
             # get indices i1 of den1 and i2 of den2 where den1 crosses den2
