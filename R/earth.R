@@ -359,10 +359,10 @@ earth.fit <- function(
     glm = NULL,             # glm parameter from earth.formula or earth.default
     trace = 0,              # 0 none 1 overview 2 forward 3 pruning
                             # 4 model mats, memory use, more pruning, etc. 5  ...
-    nk      = max(21, 2 * ncol(x) + 1),
+    nk      = min(200, max(20, 2 * ncol(x))) + 1,
                             # max number of model terms including intercept
 
-    degree         = 1,     # max degree of interaction (1=additive model) (Friedman's mi)
+    degree  = 1,            # max degree of interaction (1=additive model) (Friedman's mi)
 
     penalty = if(degree > 1) 3 else 2,
                             # GCV penalty per knot:
@@ -619,7 +619,7 @@ earth.fit <- function(
 effective.nbr.of.params <- function(ntermsVec, nknotsVec, penalty)  # for GCV calculation
 {
     if(penalty < 0) # special case: term and knots are free so GCV == RSS/ncases
-        0
+        rep(0, length(ntermsVec))
     else
         ntermsVec + (penalty * nknotsVec)
 }
@@ -825,7 +825,7 @@ forward.pass <- function(x, y, weights, # must be all double
         as.integer(n.allowedfunc.args), # in: const int *pnAllowedFuncArgs
         env,                            # in: const SEXP Env for Allowed
         as.integer(Use.beta.cache),     # in: const int *pnUseBetaCache
-        as.integer(trace),              # in: const int *pnTrace
+        as.double(trace),               # in: const double *pTrace
         pred.names,                     # in: const char *sPredNames[]
         NAOK = TRUE, # we check for NAs etc. internally in C ForwardPass
         DUP = !is.null(pred.names),     # see above comment
@@ -938,11 +938,14 @@ get.gcv <- function(    # default Get.crit function
     nknotsVec <- get.nknots(ntermsVec)
     nparams <- effective.nbr.of.params(ntermsVec, nknotsVec, penalty)
 
-    if(max(nparams, na.rm=TRUE) >= ncases)
-        warning0("effective number ", max(nparams, na.rm=TRUE),
-                 " of GCV parameters >= number ", ncases, " of cases")
+    # Removed in earth version 3.1-2:
+    #     if(max(nparams, na.rm=TRUE) >= ncases)
+    #         warning0("effective number ", max(nparams, na.rm=TRUE),
+    #                  " of GCV parameters >= number ", ncases, " of cases")
 
-    rss.per.subset / (ncases * (1 - nparams/ncases)^2)
+    ifelse(nparams >= ncases,
+           Inf, # ensure that GCVs are non-decreasing as number of terms increases
+           rss.per.subset / (ncases * (1 - nparams/ncases)^2))
 }
 
 # Return the estimated number of knots
@@ -1170,9 +1173,9 @@ pruning.pass <- function(x, y, subset, weights,
     if(!all(is.finite(rss.per.subset)))
         warning0("earth: non finite RSS in model subsets ",
                  "(see the rss.per.subset returned by earth)")
-    else if(!all(is.finite(gcv.per.subset)))
-        warning0("earth: non finite GCV in model subsets ",
-                 "(see the gcv.per.subset returned by earth)")
+    # else if(!all(is.finite(gcv.per.subset)))
+    #     warning0("earth: non finite GCV in model subsets ",
+    #              "(see the gcv.per.subset returned by earth)")
     selected.terms <- 1:nprune  # all terms
     if(pmethod != "none") {
         # choose the subset which has the lowest GCV in the vector of GCVS

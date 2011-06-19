@@ -112,7 +112,7 @@ vh-unused        0   0.0    0.0
 > a <- update(a, nprune = 5, trace = 0)
 > print(a, digits = 3)
 Selected 5 of 21 terms, and 4 of 9 predictors 
-Importance: temp, humidity, ibt, ibh-unused, doy, vh-unused, wind-unused, dpg-unused, vis-unused
+Importance: temp, humidity, ibt, ibh-unused, doy, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 3 1
 GCV 18.6    RSS 5741    GRSq 0.711    RSq 0.728
 > print(earth:::get.nterms.per.degree(a))

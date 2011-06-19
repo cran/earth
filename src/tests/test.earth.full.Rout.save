@@ -43,7 +43,7 @@ To cite package 'earth' in publications use:
 
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. (2011). earth: Multivariate Adaptive Regression Spline
-  Models. R package version 3.1-1.
+  Models. R package version 3.2-0.
   http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -52,7 +52,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Spline Models},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
     year = {2011},
-    note = {R package version 3.1-1},
+    note = {R package version 3.2-0},
     url = {http://CRAN.R-project.org/package=earth},
   }
 
@@ -636,6 +636,80 @@ Number of terms at each degree of interaction: 1 7 (additive model)
 y1  0.06445282  7.831017 0.9364037 0.9477932
 y2  0.12559901 15.260280 0.8760701 0.8982648
 All 0.19005183 23.091297 0.9062369 0.9230290
+> # expect Warning: summary.earth ignored unrecognized argument "none.such1"
+> printh(summary(a$fit, none.such1="xxx"))
+===summary(a$fit, none.such1 = "xxx") Warning: summary.earth ignored unrecognized argument "none.such1"
+
+Call: earth(x=x, y=Theta, weights=weights, keepxy=TRUE)
+
+                            y1         y2
+(Intercept)         -2.2593563 -0.5770863
+h(Sepal.Length-4.9) -0.1499415 -0.3058077
+h(Petal.Length-3.6)  1.3910265  0.3175657
+h(Petal.Length-4.5) -0.5009526  1.2731238
+h(4.5-Petal.Length)  1.1494121 -0.0231700
+h(Petal.Length-5.4) -0.8462664 -1.4715197
+h(Petal.Width-1.6)   2.2978429  3.9451201
+h(Petal.Width-1.9)  -2.7263266 -4.6922255
+
+Selected 8 of 13 terms, and 3 of 4 predictors 
+Importance: Petal.Length, Petal.Width, Sepal.Length, Sepal.Width-unused
+Number of terms at each degree of interaction: 1 7 (additive model)
+
+           GCV       RSS      GRSq       RSq
+y1  0.06445282  7.831017 0.9364037 0.9477932
+y2  0.12559901 15.260280 0.8760701 0.8982648
+All 0.19005183 23.091297 0.9062369 0.9230290
+> # expect Warning: format.earth ignored unrecognized argument "none.such2"
+> printh(summary(a$fit, style="bf", none.such2="xxx"))
+===summary(a$fit, style = "bf", none.such2 = "xxx") Warning: format.earth ignored unrecognized argument "none.such2"
+
+Call: earth(x=x, y=Theta, weights=weights, keepxy=TRUE)
+
+y1 =
+  -2.259356
+  - 0.1499415 * bf1
+  +  1.391026 * bf2
+  - 0.5009526 * bf3
+  +  1.149412 * bf4
+  - 0.8462664 * bf5
+  +  2.297843 * bf6
+  -  2.726327 * bf7
+
+   bf1  h(Sepal.Length-4.9)
+   bf2  h(Petal.Length-3.6)
+   bf3  h(Petal.Length-4.5)
+   bf4  h(4.5-Petal.Length)
+   bf5  h(Petal.Length-5.4)
+   bf6  h(Petal.Width-1.6)
+   bf7  h(Petal.Width-1.9)
+
+y2 =
+  -0.5770863
+  - 0.3058077 * bf1
+  + 0.3175657 * bf2
+  +  1.273124 * bf3
+  -   0.02317 * bf4
+  -   1.47152 * bf5
+  +   3.94512 * bf6
+  -  4.692226 * bf7
+
+   bf1  h(Sepal.Length-4.9)
+   bf2  h(Petal.Length-3.6)
+   bf3  h(Petal.Length-4.5)
+   bf4  h(4.5-Petal.Length)
+   bf5  h(Petal.Length-5.4)
+   bf6  h(Petal.Width-1.6)
+   bf7  h(Petal.Width-1.9)
+
+Selected 8 of 13 terms, and 3 of 4 predictors 
+Importance: Petal.Length, Petal.Width, Sepal.Length, Sepal.Width-unused
+Number of terms at each degree of interaction: 1 7 (additive model)
+
+           GCV       RSS      GRSq       RSq
+y1  0.06445282  7.831017 0.9364037 0.9477932
+y2  0.12559901 15.260280 0.8760701 0.8982648
+All 0.19005183 23.091297 0.9062369 0.9230290
 > if (PLOT) {
 +     plot(a$fit, col.residuals=iris$Species)
 +     plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE)
@@ -673,7 +747,7 @@ h(Petal.Width-1.2)  1.351182  2.22366217
 h(1.2-Petal.Width)  2.601323  0.03896856
 
 Selected 3 of 3 terms, and 1 of 4 predictors 
-Importance: Petal.Width, Sepal.Length-unused, Sepal.Width-unused, Petal.Length-unused
+Importance: Petal.Width, Sepal.Length-unused, Sepal.Width-unused, ...
 Number of terms at each degree of interaction: 1 2 (additive model)
 
           GCV      RSS      GRSq       RSq
@@ -908,6 +982,7 @@ h(12-Girth)         -2.56
 h(Height-76)         0.72
 
 Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 13    RSS 251    GRSq 0.95    RSq 0.97
 > library(mda)
@@ -925,6 +1000,7 @@ h(12-Girth)         -2.56
 h(Height-76)         0.72
 
 Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 13    RSS 251    GRSq 0.95    RSq 0.97
 > printh(summary(a, digits=2))
@@ -938,6 +1014,7 @@ h(12-Girth)         -2.56
 h(Height-76)         0.72
 
 Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 13    RSS 251    GRSq 0.95    RSq 0.97
 > printh(summary(a, digits=2, style="bf"))
@@ -955,6 +1032,7 @@ y =
    bf3  h(Height-76)
 
 Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 13    RSS 251    GRSq 0.95    RSq 0.97
 > cat("--- plot.earth.models.Rd ----------------------\n")
@@ -1063,7 +1141,7 @@ updt.r> #    GCV 13.1    RSS 3499    GRSq 0.796    RSq 0.834
 updt.r> 
 updt.r> update(a, nprune = 8)              # requires only pruning
 Selected 8 of 21 terms, and 6 of 9 predictors 
-Importance: temp, humidity, ibt, doy, dpg, ibh-unused, vis, vh-unused, wind-unused
+Importance: temp, humidity, ibt, doy, dpg, ibh-unused, vis, vh-unused, ...
 Number of terms at each degree of interaction: 1 5 2
 GCV 15.08166    RSS 4434.568    GRSq 0.7657241    RSq 0.7899842
 
@@ -2387,7 +2465,7 @@ GCV 0.8149112    RSS 79.86945    GRSq 0    RSq 0
 + }
 > x.global <- cbind(                    x1, x2)
 > data.global <- cbind(func1(x.global), x1, x2)
-> itest <- itest+1; test.earth(itest, func1, nk=5,   degree=1)
+> itest <- itest+1; test.earth(itest, func1, nk=5,  degree=1)
 itest 5   func1                            degree 1  nk 5   pmethod backward nTerms 5  of 5   GRSq 0.86
  grid:    x1         x2
  -0.02437858 0.03719751
@@ -2397,8 +2475,50 @@ Selected 5 of 5 terms, and 2 of 2 predictors
 Importance: x1, x2
 Number of terms at each degree of interaction: 1 4 (additive model)
 GCV 0.1220314    RSS 10.10542    GRSq 0.855971    RSq 0.8783079
-> itest <- itest+1; test.earth(itest, func1, nk=5,   degree=2)
-itest 6   func1                            degree 2  nk 5   pmethod backward nTerms 5  of 5   GRSq 0.85
+> itest <- itest+1; test.earth(itest, func1, nk=5,  degree=2, trace=1.5)
+itest 6   func1                            degree 2  nk 5   pmethod backward
+x is a 100 by 2 matrix: 1=x1, 2=x2
+y is a 100 by 1 matrix: 1=data.global[,1]
+malloc      8  B: nUses			*pnPreds 2 sizeof(int)
+malloc     20  B: nFactorsInTerm	nMaxTerms 5 sizeof(int) 4
+calloc      4  B: iDirs			nMaxTerms 5 nPreds 2 sizeof(int) 4
+malloc     20  B: BoolFullSet		nMaxTerms 5 sizeof(bool) 4
+malloc      4 kB: bxOrth		nCases 100 nMaxTerms 5  sizeof(double) 8
+malloc      4 kB: bxOrthCenteredT	nMaxTerms 5 nCases 100  sizeof(double) 8
+malloc     40  B: bxOrthMean		nMaxTerms 5 nResp 1  sizeof(double) 8
+malloc      8  B: yMean			nResp 1 sizeof(double) 8
+malloc    800  B: Weights		nCases 100 sizeof(double) 8
+malloc    800  B: xOrder		nRows 100 nCols 2 sizeof(int) 4
+malloc    400  B: BetaCacheGlobal	nMaxTerms 5 nMaxTerms 5 nPreds 2 sizeof(double) 8
+Forward pass term 1
+malloc    160  B: Q			nMaxTerms 0.000000 sizeof(tQueue) 32
+malloc    160  B: SortedQ		nMaxTerms 0.000000 sizeof(tQueue) 32
+malloc    800  B: xbx			nCases 100 sizeof(double) 8
+malloc     40  B: CovSx			nMaxTerms 5 sizeof(double) 8
+calloc      8  B: CovCol		nMaxTerms 5 sizeof(double) 8
+calloc      8  B: ycbpSum		nMaxTerms 5 nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+Forward pass term 2
+malloc    800  B: xbx			nCases 100 sizeof(double) 8
+malloc     40  B: CovSx			nMaxTerms 5 sizeof(double) 8
+calloc      8  B: CovCol		nMaxTerms 5 sizeof(double) 8
+calloc      8  B: ycbpSum		nMaxTerms 5 nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+Forward pass term 4
+
+Reached max number of terms 5
+After forward pass GRSq 0.8494 RSq 0.8783
+malloc     20  B: iPivots		nTerms 5 sizeof(int) 4
+malloc      4 kB: xUsed			nCases 100 nUsedCols 5 sizeof(double) 8
+malloc     40  B: Betas			nUsedCols 5 nResp 1 sizeof(double) 8
+malloc    800  B: Residuals		nCases 100 nResp 1 sizeof(double) 8
+malloc     40  B: qraux			nUsedCols 5 sizeof(double) 8
+malloc      4 kB: work			nCases 100 nUsedCols 5 sizeof(double) 8
+Prune method "backward" penalty 3 nprune 5: selected 5 of 5 terms, and 2 of 2 predictors
+After backward pass GRSq 0.8494 RSq 0.8783 
+ nTerms 5  of 5   GRSq 0.85
  grid:    x1         x2
  -0.02437858 0.03719751
 
@@ -2690,7 +2810,7 @@ itest 27  eqn56                            degree 1  nk 11  pmethod backward nTe
 
 
 Selected 11 of 11 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 10 (additive model)
 GCV 0.3367594    RSS 21.01716    GRSq 0.9600263    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56, nk=11, degree=2)
@@ -2702,7 +2822,7 @@ itest 28  eqn56                            degree 2  nk 11  pmethod backward nTe
 
 
 Selected 11 of 11 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 10 (additive model)
 GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56, nk=11, degree=10)
@@ -2714,7 +2834,7 @@ itest 29  eqn56                            degree 10 nk 11  pmethod backward nTe
 
 
 Selected 11 of 11 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 10 (additive model)
 GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=1)
@@ -2726,7 +2846,7 @@ itest 30  eqn56                            degree 1  nk 51  pmethod backward nTe
 
 
 Selected 13 of 15 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 12 (additive model)
 GCV 0.02660665    RSS 1.496624    GRSq 0.9968418    RSq 0.9981874
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=2)
@@ -2738,7 +2858,7 @@ itest 31  eqn56                            degree 2  nk 51  pmethod backward nTe
 
 
 Selected 13 of 16 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 11 1
 GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56, nk=51, degree=10)
@@ -2750,7 +2870,7 @@ itest 32  eqn56                            degree 10 nk 51  pmethod backward nTe
 
 
 Selected 13 of 16 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 11 1
 GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=1,  test.rsq=FALSE)
@@ -2762,7 +2882,7 @@ itest 33  eqn56noise                       degree 1  nk 11  pmethod backward nTe
 
 
 Selected 11 of 11 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 10 (additive model)
 GCV 0.3367594    RSS 21.01716    GRSq 0.9600263    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=2,  test.rsq=FALSE)
@@ -2774,7 +2894,7 @@ itest 34  eqn56noise                       degree 2  nk 11  pmethod backward nTe
 
 
 Selected 11 of 11 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 10 (additive model)
 GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=11, degree=10, test.rsq=FALSE)
@@ -2786,7 +2906,7 @@ itest 35  eqn56noise                       degree 10 nk 11  pmethod backward nTe
 
 
 Selected 11 of 11 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 10 (additive model)
 GCV 0.3838049    RSS 21.01716    GRSq 0.954442    RSq 0.9745459
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=1,  test.rsq=FALSE)
@@ -2798,7 +2918,7 @@ itest 36  eqn56noise                       degree 1  nk 51  pmethod backward nTe
 
 
 Selected 13 of 15 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 12 (additive model)
 GCV 0.02660665    RSS 1.496624    GRSq 0.9968418    RSq 0.9981874
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=2,  test.rsq=FALSE)
@@ -2810,7 +2930,7 @@ itest 37  eqn56noise                       degree 2  nk 51  pmethod backward nTe
 
 
 Selected 13 of 16 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 11 1
 GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > itest <- itest+1; test.earth(itest, eqn56noise, nk=51, degree=10, test.rsq=FALSE)
@@ -2822,7 +2942,7 @@ itest 38  eqn56noise                       degree 10 nk 51  pmethod backward nTe
 
 
 Selected 13 of 16 terms, and 5 of 10 predictors 
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 11 1
 GCV 0.02440621    RSS 1.16198    GRSq 0.997103    RSq 0.9985927
 > 
@@ -3281,7 +3401,7 @@ itest 45  eqn56                            degree 2  nk 21  pmethod backward nTe
 
 
 Selected 11 of 14 terms, and 5 of 10 predictors 3 linear predictors
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 9 1
 GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.9985051
 > # check symmetry by using negative of eqn56
@@ -3295,7 +3415,7 @@ itest 46  neg.eqn56                        degree 2  nk 21  pmethod backward nTe
 
 
 Selected 11 of 14 terms, and 5 of 10 predictors 3 linear predictors
-Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, x10-unused
+Importance: x3, x2, x4, x1, x5, x6-unused, x7-unused, x8-unused, x9-unused, ...
 Number of terms at each degree of interaction: 1 9 1
 GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.9985051
 > 
@@ -4301,6 +4421,7 @@ to        earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[,
           1:2], degree=degree, nk=nk)
 ===fitme 
 Selected 14 of 14 terms, and 5 of 5 predictors 
+Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 11 2
 
              GCV      RSS      GRSq       RSq
@@ -4328,6 +4449,7 @@ h(0.434659-l1)                     -0.15076581 -0.0551910
 h(l1-0.434659) * h(theta2-1.51306) -1.82393250 -0.3921191
 
 Selected 14 of 14 terms, and 5 of 5 predictors 
+Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 11 2
 
              GCV      RSS      GRSq       RSq
@@ -4526,7 +4648,7 @@ All 7252.4851 1619990.90 0.3401983 0.5506743
 > printh(a)
 ===a 
 Selected 7 of 21 terms, and 5 of 9 predictors 
-Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, humidity-unused
+Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 5 1
 GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > if (PLOT)
@@ -4540,7 +4662,7 @@ GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > printh(a)
 ===a 
 Selected 7 of 21 terms, and 5 of 9 predictors 
-Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, humidity-unused
+Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 5 1
 GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > if (PLOT)
@@ -4554,7 +4676,7 @@ GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > printh(a)
 ===a 
 Selected 7 of 21 terms, and 5 of 9 predictors 
-Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, humidity-unused
+Importance: temp, ibt, doy, dpg, vis, ibh-unused, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 5 1
 GCV 15.90111    RSS 3704.476    GRSq 0.7514625    RSq 0.7790043
 > if (PLOT)
@@ -4589,33 +4711,33 @@ GCV 17.1834    RSS 3767.904    GRSq 0.733076    RSq 0.8215567
 > a.none <- printh(update(a, nprune=10, pmethod="n"))
 ===update(a, nprune = 10, pmethod = "n") 
 Selected 10 of 31 terms, and 5 of 9 predictors 
-Importance: temp, humidity, ibt-unused, doy, dpg, ibh, vis-unused, vh-unused, wind-unused
+Importance: temp, humidity, ibt-unused, doy, dpg, ibh, vis-unused, ...
 Number of terms at each degree of interaction: 1 6 3
 GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(update(a.none, pmethod="b"))
 ===update(a.none, pmethod = "b") 
 Selected 10 of 31 terms, and 7 of 9 predictors 
-Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
+Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, ...
 Number of terms at each degree of interaction: 1 5 4
 GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(update(a.none, nprune=4, pmethod="e"))
 ===update(a.none, nprune = 4, pmethod = "e") 
 Selected 4 of 31 terms, and 3 of 9 predictors 
-Importance: temp, ibh, humidity, vh-unused, wind-unused, dpg-unused, ibt-unused, vis-unused, doy-unused
+Importance: temp, ibh, humidity, vh-unused, wind-unused, dpg-unused, ...
 Number of terms at each degree of interaction: 1 2 1
 GCV 18.55929    RSS 5813.122    GRSq 0.7117032    RSq 0.7246976
 > a.updated <- update(a.none, nprune=10, pmethod="b")
 > printh(a.updated)
 ===a.updated 
 Selected 10 of 31 terms, and 7 of 9 predictors 
-Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
+Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, ...
 Number of terms at each degree of interaction: 1 5 4
 GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > a.backwards <- update(a, nprune=10, pmethod="b")
 > printh(a.backwards)
 ===a.backwards 
 Selected 10 of 31 terms, and 7 of 9 predictors 
-Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
+Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, ...
 Number of terms at each degree of interaction: 1 5 4
 GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(all.equal(a.updated$bx, a.backwards$bx))
@@ -4624,7 +4746,7 @@ GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(a)
 ===a 
 Selected 10 of 31 terms, and 7 of 9 predictors 
-Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, wind-unused
+Importance: temp, humidity, ibt, doy, dpg, ibh, vis, vh-unused, ...
 Number of terms at each degree of interaction: 1 5 4
 GCV 13.83619    RSS 3938.796    GRSq 0.7850711    RSq 0.8134634
 > printh(all.equal(a$bx, a.backwards$bx))
@@ -5237,7 +5359,7 @@ h(ibh-1069) * h(doy-278)    0.0000133
 h(ibh-1069) * h(278-doy)    0.0000053
 
 Selected 15 of 20 terms, and 7 of 9 predictors 
-Importance: temp, doy, ibh, dpg, vh, vis, wind, humidity-unused, ibt-unused
+Importance: temp, doy, ibh, dpg, vh, vis, wind, humidity-unused, ...
 Number of terms at each degree of interaction: 1 10 4
 GCV 15.04844    RSS 3941.596    GRSq 0.7662402    RSq 0.8133308
 > example3 <- function(degree, pred, parents)
@@ -5569,8 +5691,8 @@ Contents of y are
  [99,] 8
 [100,] 9
 [101,] 0
-earth.c version 3.1-0
-BetaCache 0.003 Mb
+earth.c version 3.2-0
+BetaCache 3.53 kB
 Forward pass: minspan 4 endspan 7
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
@@ -6408,6 +6530,7 @@ to        earth(x=cbind(x1, x2), y=cbind(y1, y2))
 > printh(me1)
 ===me1 
 Selected 7 of 11 terms, and 2 of 2 predictors 
+Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 6 (additive model)
 
              GCV        RSS      GRSq       RSq
@@ -10209,7 +10332,7 @@ vis              4  20.8   22.9
 wind             1   8.7    9.9
 vh-unused        0   0.0    0.0
 Selected 5 of 21 terms, and 4 of 9 predictors 
-Importance: temp, humidity, ibt, ibh-unused, doy, vh-unused, wind-unused, dpg-unused, vis-unused
+Importance: temp, humidity, ibt, ibh-unused, doy, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 3 1
 GCV 18.6    RSS 5741    GRSq 0.711    RSq 0.728
 

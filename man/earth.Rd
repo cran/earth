@@ -12,8 +12,8 @@ Build a regression model
 using the techniques in Friedman's papers "Multivariate Adaptive Regression Splines"
 and "Fast MARS".
 
-See the package vignette "Notes on the \code{earth} package"
-\url{../doc/earth-notes.pdf}.
+See the package vignette 
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
 }
 \usage{
 \method{earth}{formula}(formula = stop("no 'formula' arg"),
@@ -29,7 +29,8 @@ See the package vignette "Notes on the \code{earth} package"
 \method{earth}{fit}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
     weights = NULL, wp = NULL, scale.y = (NCOL(y)==1), subset = NULL,
     na.action = na.fail, glm = NULL, trace = 0,
-    nk = max(21, 2 * ncol(x) + 1), degree = 1,
+    nk = min(200, max(20, 2 * ncol(x))) + 1, 
+    degree = 1,
     penalty = if(degree > 1) 3 else 2, thresh = 0.001,
     minspan = 0, newvar.penalty = 0, fast.k = 20, fast.beta = 1,
     linpreds = FALSE, allowed = NULL,
@@ -44,15 +45,15 @@ To start off, look at the arguments
 \code{data},
 \code{x},
 \code{y},
-\code{nk}, and
-\code{degree}.
+\code{nk},
+\code{degree}, and
+\code{trace}.
 Many users will find that those arguments are all they need,
 plus in some cases
 \code{keepxy},
 \code{nprune},
-\code{penalty},
-\code{minspan}, and
-\code{trace}.
+\code{penalty}, and
+\code{minspan}.
 For GLM models, use the \code{glm} argument.
 For cross validation, use the \code{nfold} argument.
 
@@ -113,7 +114,7 @@ For cross validation, use the \code{nfold} argument.
      See the documentation of \code{\link{glm}} for a description of these arguments
      (but not all \code{glm}'s arguments are supported, \code{earth} will give an error message
      if you use a glm argument it does not support).\cr
-     See also ``Generalized linear models'' in the package vignette.
+     See also \dQuote{\emph{Generalized linear models}} in the package vignette.
      Example:\cr
      \code{earth(y~x, glm=list(family=binomial))}
   }
@@ -137,21 +138,21 @@ For cross validation, use the \code{nfold} argument.
      in the environment at the time \code{\link{update.earth}} is invoked.
      This argument also affects the amount of data kept when
      the \code{nfold} argument is used
-     (see \code{cv.list} in the ``Value'' section below.\cr
+     (see \code{cv.list} in the \dQuote{\emph{Value}} section below.\cr
 
      \bold{The following arguments are for the forward pass.}
   }
   \item{nk}{
      Maximum number of model terms before pruning, i.e., the
      maximum number of terms created by the forward pass.
-     Includes the intercept.
-     Default is \code{max(21,2*NCOL(x)+1)}.\cr
+     Includes the intercept.\cr
+     The actual number of terms created by the forward pass will often be
+     less than \code{nk}. 
+     See \dQuote{\emph{Termination conditions for the forward pass}} in the package vignette.\cr
+     The default is semi-automatically calculated from the number of predictors
+     but may need adjusting.
      Use \code{trace=1} or more to see why the forward pass terminated --- if it
      is "Reached max number of terms" then you could consider increasing \code{nk}.
-     The number of terms created by the forward pass will be
-     less than \code{nk} if a forward stopping condition is reached before \code{nk} terms,
-     or if the forward pass drops one side of a hinge pair to prevent linear dependencies.
-     See also ``The forward pass'' in the package vignette.
   }
   \item{degree}{
      Maximum degree of interaction (Friedman's \eqn{mi}).
@@ -171,7 +172,7 @@ For cross validation, use the \code{nfold} argument.
      Default is 0.001.
      This is one of the arguments used to decide when forward stepping
      should terminate.
-     See also ``The forward pass'' in the package vignette.
+     See also \dQuote{\emph{Termination conditions for the forward pass}} in the package vignette.
   }
   \item{minspan}{
     Minimum distance between knots.
@@ -256,7 +257,7 @@ For cross validation, use the \code{nfold} argument.
      \code{ncross} times (by default, once).\cr
      Further statistics are calculated if \code{keepxy=TRUE} or
      if a binomial or poisson model (the \code{glm} argument).
-     For details, see ``Cross validation'' in the package vignette.
+     For details, see \dQuote{\emph{Cross validation}} in the package vignette.
   }
   \item{stratify}{
      Only applies if \code{nfold>1}.
@@ -269,8 +270,8 @@ For cross validation, use the \code{nfold} argument.
      If the response is a factor, there will be an
      approximately equal number of each factor level in each fold
      (because a multilevel factor response gets expanded to columns of zeros and ones,
-     see ``Factors'' in  the package vignette).
-     We say ``approximately equal'' because the number of occurrences of a factor
+     see \dQuote{\emph{Factors}} in  the package vignette).
+     We say \dQuote{approximately equal} because the number of occurrences of a factor
      level may not be exactly divisible by the number of folds.
 \cr\cr
      \bold{The following arguments are for the pruning pass.}
@@ -304,7 +305,7 @@ For cross validation, use the \code{nfold} argument.
   \item{Get.crit}{
      Criterion function for model selection during pruning.
      By default a function that returns the GCV.
-     See ``The pruning pass'' in the package vignette.
+     See \dQuote{\emph{The pruning pass}} in the package vignette.
   }
   \item{Eval.model.subsets}{
      Function to evaluate model subsets
@@ -324,14 +325,14 @@ For cross validation, use the \code{nfold} argument.
   }
   \item{Use.beta.cache}{
     Default is TRUE.
-    Using the ``beta cache'' takes more memory but is faster
+    Using the \dQuote{beta cache} takes more memory but is faster
     (by 20\% and often much more for large models).
     The beta cache uses \code{nk * nk * ncol(x) * sizeof(double)} bytes.
-    Set \code{Use.beta.cache=FALSE} to save a little memory.
+    Set \code{Use.beta.cache=FALSE} to save memory.
     (The beta cache is an innovation in this implementation of MARS
     and does not appear in Friedman's papers. It is not related to
     the \code{fast.beta} argument.  Certain regression coefficients
-    in the forward pass can be re-used, and are saved, thus
+    in the forward pass can be saved and re-used, thus
     saving recalculation time.)
   }
   \item{Exhaustive.tol}{
@@ -339,7 +340,7 @@ For cross validation, use the \code{nfold} argument.
      Applies only when \code{pmethod="exhaustive"}.
      If the reciprocal of the condition number of \code{bx}
      is less than \code{Exhaustive.tol}, \code{earth} forces \code{pmethod="backward"}.
-     See ``XHAUST returned error code -999'' in the package vignette.
+     See \dQuote{\emph{XHAUST returned error code -999}} in the package vignette.
   }
   \item{\dots}{
      Dots are passed on to \code{earth.fit}.
@@ -371,7 +372,7 @@ For cross validation, use the \code{nfold} argument.
      \code{1-gcv/gcv.null}.
      An estimate of the predictive power of the model (calculated over all responses,
      \code{gcv.null} is the GCV of an intercept-only model).
-     See ``Can \code{GRSq} be negative?'' in the
+     See \dQuote{\emph{Can \code{GRSq} be negative?}} in the
      package vignette for some discussion.
   }
   \item{bx}{
@@ -540,7 +541,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
      List of GLM models. Each element is the value returned by \code{earth}'s
      internal call to \code{\link{glm}} for each response.\cr
      Thus if there is a single response (or a single binomial pair, see
-     ``Binomial pairs'' in the package vignette)
+     \dQuote{\emph{Binomial pairs}} in the package vignette)
      this will be a one element list and you access the GLM model with
      \code{my.earth.model$glm.list[[1]]}.
   }
@@ -557,7 +558,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
        NULL unless there are paired binomial columns.
        A logical vector, derived internally by \code{earth}, or a copy
        the \code{bpairs} specified by the user in the \code{glm} list.
-       See ``Binomial pairs'' in the package vignette.
+       See \dQuote{\emph{Binomial pairs}} in the package vignette.
    \cr\cr
    \bold{The following fields appear only if the \code{nfold} argument is greater than 1.}
    }
@@ -565,7 +566,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
       List of \code{earth} models, one model for each fold (\code{ncross * nfold} models).
       To save memory, lengthy fields
       in the fold models are removed unless you use \code{keepxy=TRUE}.
-      The ``lengthy fields'' are \code{$bx}, \code{$fitted.values}, and \code{$residuals}.
+      The \dQuote{lengthy fields} are \code{$bx}, \code{$fitted.values}, and \code{$residuals}.
       The fold models have two extra fields,
       \code{icross} (the cross-validation index, \code{1:ncross})
       and \code{ifold} (the fold index, \code{1:nfold}).
@@ -594,7 +595,7 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
       the out-of-fold data for each response of the model generated at that row's fold.
       (A \code{cv.rsq} is calculated from predictions on the out-of-fold data
       using the best model built from the in-fold data;
-      where ``best'' means the model was selected using the in-fold GCV.)
+      where \dQuote{best} means the model was selected using the in-fold GCV.)
       The final column holds the row mean (a weighted mean if \code{wp} if specified).
       The final row holds the column means.
       The values in this final row is the mean \code{cv.rsq}
@@ -676,10 +677,10 @@ mean   0.929 0.955 0.952 0.946
    }
 }
 \note{
-Please see the package vignette "Notes on the \code{earth} package"
-\url{../doc/earth-notes.pdf}.\cr
+Please see the package vignette 
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
 The vignette can also be downloaded from
-\url{www.milbo.org/doc/earth-notes.pdf}.
+\url{http://www.milbo.org/doc/earth-notes.pdf}.
 }
 \author{
   Stephen Milborrow, derived from \code{mda::\link[mda]{mars}}
@@ -744,9 +745,10 @@ The vignette can also be downloaded from
   Start with \code{\link{summary.earth}}, \code{\link{plot.earth}},
   \code{\link{evimp}}, and \code{\link[plotmo]{plotmo}}.
 
-  See the package vignette \url{../doc/earth-notes.pdf}.
-  The vignette can also be downloaded from
-  \url{www.milbo.org/doc/earth-notes.pdf}.
+Please see the package vignette 
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
+The vignette can also be downloaded from
+\url{http://www.milbo.org/doc/earth-notes.pdf}.
 }
 \examples{
 a <- earth(Volume ~ ., data = trees)

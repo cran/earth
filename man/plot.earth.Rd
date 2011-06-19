@@ -237,7 +237,8 @@ Does \code{nresponse} refer to the column in the observed or predicted response?
 }
 \note{
 For details on interpreting the graphs,
-please the package vignette \url{../doc/earth-notes.pdf} .
+please see the \code{earth} package vignette
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
 
 Note that cross-validation data will not be displayed unless
 both \code{nfold} and \code{keepxy} were used in the original call to

@@ -69,12 +69,12 @@ h(0.0156478-x03)         6.624
 h(x03-0.512949)          3.687
 
 Selected 12 of 12 terms, and 3 of 100 predictors 
-Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...
+Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, ...
 Number of terms at each degree of interaction: 1 11 (additive model)
 GCV 0.0652    RSS 649    GRSq 0.971    RSq 0.971
 > print(a1)
 Selected 12 of 12 terms, and 3 of 100 predictors 
-Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...
+Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, ...
 Number of terms at each degree of interaction: 1 11 (additive model)
 GCV 0.0652    RSS 649    GRSq 0.971    RSq 0.971
 > plot(a1)
@@ -228,7 +228,7 @@ h(0.761359-x01)       -1.008
 h(0.996147-x02)       -1.000
 
 Selected 4 of 5 terms, and 2 of 100 predictors 
-Importance: x02, x01, x03-unused, x04-unused, x05-unused, x06-unused, x07-unused, x08-unused, x09-unused, x10-unused, ...
+Importance: x02, x01, x03-unused, x04-unused, x05-unused, x06-unused, ...
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 0.11    RSS 1096    GRSq 0.859    RSq 0.859
 > 

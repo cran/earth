@@ -25,7 +25,7 @@ printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a
 
 count <- 0
 
-print.earth.models <- function(a, nresponse=NA)
+show.earth.models <- function(a, nresponse=NA)
 {
     model.name <- deparse(substitute(a))
     cat("\nPrint", model.name, "\n\n")
@@ -89,7 +89,7 @@ SF2 <- cbind(numdead2, numalive2=20 - numdead2)
 # single response glm model but with a binomial pair of y columns
 cat("a1: single response glm model but with a binomial pair of y columns, with ldose1 data degree=2\n\n")
 a1 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=4, pmethod="none", degree=2)
-print.earth.models(a1)
+show.earth.models(a1)
 printh(evimp(a1, trim=FALSE, sqrt=FALSE))
 printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
 a1update <- update(a1, trace=0)
@@ -113,7 +113,7 @@ a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),
 check.models.equal(a1, a1g, msg="a1 a1g")
 # following should cause a "did not converge warning" because maxit=2
 a1h <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8, maxit=2, trace=TRUE)), trace=1, pmethod="none", degree=2)
-print.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
+show.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
 check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
 stopifnot(a1h$glm.list[[1]]$control$maxit == 2)
 # equivalent way of specifying maxit
@@ -124,10 +124,10 @@ stopifnot(a1h2$glm.list[[1]]$control$maxit == 2)
 # check update, also check params are carried forward properly with update
 a1h.update1 <- update(a1h, glm=list(family=binomial(link="probit"), maxit=8))
 stopifnot(a1h.update1$glm.list[[1]]$control$maxit == 8)
-print.earth.models(a1h.update1)
+show.earth.models(a1h.update1)
 a1h.update2 <- update(a1h, glm=list(family=gaussian, maxit=9), degree=1)
 stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
-print.earth.models(a1h.update2, nresponse="numali")
+show.earth.models(a1h.update2, nresponse="numali")
 
 # basic check with an I in formula
 a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod="none", degree=2)
@@ -135,7 +135,7 @@ print(summary(a1i))
 
 cat("a2: single response glm model but with a binomial pair of y columns, degree=1\n\n")
 a2 <-  earth(SF ~ sex*ldose, glm=list(fa="b"), trace=3, pmethod="none")
-print.earth.models(a2)
+show.earth.models(a2)
 # repeat with bpairs arg
 a2a <- earth(SF ~ sex*ldose, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=3, pmethod="none")
 stopifnot(identical(a2$glm.list[[1]]$coefficients, a2a$glm.list[[1]]$coefficients))
@@ -155,7 +155,7 @@ cat("---------------------------------------------------------------------------
 SF.both <- cbind(SF, SF2)
 cat("a4: double response glm model with two binomial paired cols\n\n")
 a4 <-  earth(SF.both ~ sex*ldose, glm=list(family="binomial"), trace=1)
-print.earth.models(a4, nresponse="numdead")
+show.earth.models(a4, nresponse="numdead")
 print.stripped.earth.model(a4, "a4")
 # repeat with bpairs arg
 a4a <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=1)
@@ -175,7 +175,7 @@ check.models.equal(a4update, a4d, msg="a4update a4d no keepxy")
 # titanic data, multiple responses (i.e. 3 level factor)
 cat("a5: titanic data, multiple responses (i.e. 3 level factor)\n\n")
 a5 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
-print.earth.models(a5, nresponse=3)
+show.earth.models(a5, nresponse=3)
 printh(a5$levels)
 print.stripped.earth.model(a5, "a5")
 
@@ -191,14 +191,14 @@ check.models.equal(a5update, a5d, msg="a5update a5d with keepxy")
 cat("a6: titanic data, one logical response\n\n")
 pclass1 = (etitanic[,1] == "1st")
 a6 <- earth(pclass1 ~ ., data=etitanic[,-1], degree=2, glm=list(family="binomial"), trace=1)
-print.earth.models(a6)
+show.earth.models(a6)
 printh(a6$levels) # expect levels to be NULL
 print.stripped.earth.model(a6, "a6")
 
 # titanic data, one response which is a two level factor
 cat("a7: titanic data, one response which is a two level factor\n\n")
 a7 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=1)
-print.earth.models(a7)
+show.earth.models(a7)
 printh(a7$levels)
 print.stripped.earth.model(a7, "a7")
 
@@ -247,7 +247,7 @@ d.AD <- data.frame(treatment, outcome, counts, counts2)
 # one response poisson model
 cat("a8p: one response poisson model\n\n")
 a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
-print.earth.models(a8p)
+show.earth.models(a8p)
 # build a standard GLM model for comparison
 cat("a9: one response poisson model, standard GLM model for comparison\n\n")
 a9 <- glm(counts ~ outcome + treatment, family="poisson")
@@ -258,7 +258,7 @@ plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + 
 # two response poisson model
 cat("a10: two response poisson model\n\n")
 a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), trace=1, pmethod="none")
-print.earth.models(a10, nresponse="counts2")
+show.earth.models(a10, nresponse="counts2")
 
 # compare family=gaussian to standard earth model
 cat("a11: compare family=gaussian to standard earth model\n\n")
@@ -302,20 +302,20 @@ stop.if.not.identical <- function(msg, a, b)
 SF.both <- cbind(SF, SF2)
 df <- data.frame(sex, ldose)
 aref <-  earth(SF.both ~ ., data=df, glm=list(family="binomial"), trace=1)
-print.earth.models(aref, nresponse=1)
+show.earth.models(aref, nresponse=1)
 
 a21 <-  earth(data.frame(sex, ldose), SF.both, glm=list(family="binomial"), trace=1)
-print.earth.models(a21, nresponse="numdead2")
+show.earth.models(a21, nresponse="numdead2")
 check.models.equal(aref, a21, msg="aref a21")
 
 a21 <-  earth(cbind(sex, ldose), SF.both, glm=list(family="binomial"), trace=1)
-print.earth.models(a21, nresponse="numdead")
+show.earth.models(a21, nresponse="numdead")
 # TODO does not match because different conversion of factor with cbind and earth, revisit
 # check.models.equal(aref, a21, msg="aref a21")
 
 df.both <- data.frame(SF, SF2)
 a22 <-  earth(cbind(sex, ldose), df.both, glm=list(family="binomial"), trace=1)
-print.earth.models(a22, nresponse=1)
+show.earth.models(a22, nresponse=1)
 # TODO does not match because different conversion of factor with cbind and earth, revisit
 # check.models.equal(aref, a22, msg="a20 a22")
 check.models.equal(a21, a22, msg="a21 a22")
@@ -1322,7 +1322,7 @@ cat("a.intercept.only: intercept only logistic model\n\n")
 set.seed(3)
 df <- data.frame(aaa = round(runif(18)), bbb = runif(18), ccc = rnorm(18))
 a.intercept.only <- earth(aaa ~ bbb + ccc, data = df, glm=list(family=binomial), trace=1, nfold=2)
-print.earth.models(a.intercept.only)
+show.earth.models(a.intercept.only)
 cat("\nsummary(a.intercept.only, details=TRUE)\n\n", sep="")
 print(summary(a.intercept.only, details=TRUE))
 printh(predict(a.intercept.only))
@@ -1348,6 +1348,10 @@ plot.earth.models(list(a.intercept.only, a), main="plot.earth.models\nlist(a.int
 plot.earth.models(list(a, a.intercept.only), main="plot.earth.models\nlist(a, a.intercept.only)", legend.pos="topleft", jitter=.01)
 # nothing will plot for the next call
 plot.earth.models(list(a.intercept.only, a.intercept.only), main="plot.earth.models\nlist(a.intercept.only, a.intercept.only)")
+
+# test position of legend and "intercep-only model" message when only one term in model
+a.intercept.pruned <- update(a.intercept.only, nprune=1, nfold=1)
+show.earth.models(a.intercept.pruned)
 
 # misc tests
 

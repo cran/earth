@@ -106,8 +106,8 @@ TEST 4: FUNCTION x0 + noise N=1000
 
 =============================================================================
 TEST 5: x0 + x1 N=1000
-earth.c version 3.1-0
-BetaCache 0.002 Mb
+earth.c version 3.2-0
+BetaCache 1.94 kB
 Forward pass: minspan 6 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -269,7 +269,121 @@ TEST 8: FUNCTION x0 + x1 + x0*x1 N=1000
 +1        * max(0, 0.578     -      x[0]) * max(0, 0.973     -      x[1]) // 6
 
 =============================================================================
-TEST 9: cos(x0) + x1 N=1000
+TEST 9: x0 + x1 + x0*x1 N=1000, trace=1.5
+malloc      8  B: nUses			nPreds 2 sizeof(int) 4
+malloc    204  B: nFactorsInTerm	nMaxTerms 51 sizeof(int) 4
+malloc    408 kB: bxOrth		nCases 1000 nMaxTerms 51  sizeof(double) 8
+malloc    408 kB: bxOrthCenteredT	nMaxTerms 51 nCases 1000  sizeof(double) 8
+malloc    408  B: bxOrthMean		nMaxTerms 51 nResp 1  sizeof(double) 8
+malloc      8  B: yMean			nResp 1 sizeof(double) 8
+malloc      8 kB: Weights		nCases 1000 sizeof(double) 8
+malloc      8 kB: xOrder		nRows 1000 nCols 2 sizeof(int) 4
+malloc     42 kB: BetaCacheGlobal	nMaxTerms 51 nMaxTerms 51 nPreds 2 sizeof(double) 8
+Forward pass term 1
+malloc      2 kB: Q			nMaxTerms 0.000000 sizeof(tQueue) 51
+malloc      2 kB: SortedQ		nMaxTerms 0.000000 sizeof(tQueue) 51
+malloc      8 kB: xbx			nCases 1000 sizeof(double) 8
+malloc    408  B: CovSx			nMaxTerms 51 sizeof(double) 8
+calloc      8  B: CovCol		nMaxTerms 51 sizeof(double) 8
+calloc      8  B: ycbpSum		nMaxTerms 51 nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+Forward pass term 2
+malloc      8 kB: xbx			nCases 1000 sizeof(double) 8
+malloc    408  B: CovSx			nMaxTerms 51 sizeof(double) 8
+calloc      8  B: CovCol		nMaxTerms 51 sizeof(double) 8
+calloc      8  B: ycbpSum		nMaxTerms 51 nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+Forward pass term 4
+malloc      8 kB: xbx			nCases 1000 sizeof(double) 8
+malloc    408  B: CovSx			nMaxTerms 51 sizeof(double) 8
+calloc      8  B: CovCol		nMaxTerms 51 sizeof(double) 8
+calloc      8  B: ycbpSum		nMaxTerms 51 nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
+Forward pass term 6
+
+Reached max RSq (RSq 1 > 0.999) at 7 terms
+After forward pass GRSq 1 RSq 1
+malloc    204  B: iPivots		nTerms 51 sizeof(int) 4
+malloc     56 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     56  B: qraux			nUsedCols 7 sizeof(double) 8
+malloc     56 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     56  B: RssVec		nMaxTerms 7 sizeof(double) 8
+malloc     49  B: PruneTerms		nMaxTerms 7 nMaxTerms 7 sizeof(bool) 1
+malloc     56  B: Betas			nMaxTerms 7 nResp 1 sizeof(double) 8
+malloc     56  B: Diags			nMaxTerms 7 sizeof(double) 8
+malloc      7  B: WorkingSet		nMaxTerms 7 sizeof(bool) 1
+malloc     56 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
+malloc     28  B: iPivots		nUsedCols 7 sizeof(int) 4
+malloc     56  B: qraux			nUsedCols 7 sizeof(double) 8
+malloc     56 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc    392  B: R1			nCols 7 nCols 7 sizeof(double) 8
+calloc      8  B: B			nCols 7 nCols 7 sizeof(double) 8
+malloc     48 kB: xUsed			nCases 1000 nUsedCols 6 sizeof(double) 8
+malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
+malloc     24  B: iPivots		nUsedCols 6 sizeof(int) 4
+malloc     48  B: qraux			nUsedCols 6 sizeof(double) 8
+malloc     48 kB: work			nCases 1000 nUsedCols 6 sizeof(double) 8
+malloc    288  B: R1			nCols 6 nCols 6 sizeof(double) 8
+calloc      8  B: B			nCols 6 nCols 6 sizeof(double) 8
+malloc     40 kB: xUsed			nCases 1000 nUsedCols 5 sizeof(double) 8
+malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
+malloc     20  B: iPivots		nUsedCols 5 sizeof(int) 4
+malloc     40  B: qraux			nUsedCols 5 sizeof(double) 8
+malloc     40 kB: work			nCases 1000 nUsedCols 5 sizeof(double) 8
+malloc    200  B: R1			nCols 5 nCols 5 sizeof(double) 8
+calloc      8  B: B			nCols 5 nCols 5 sizeof(double) 8
+malloc     32 kB: xUsed			nCases 1000 nUsedCols 4 sizeof(double) 8
+malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
+malloc     16  B: iPivots		nUsedCols 4 sizeof(int) 4
+malloc     32  B: qraux			nUsedCols 4 sizeof(double) 8
+malloc     32 kB: work			nCases 1000 nUsedCols 4 sizeof(double) 8
+malloc    128  B: R1			nCols 4 nCols 4 sizeof(double) 8
+calloc      8  B: B			nCols 4 nCols 4 sizeof(double) 8
+malloc     24 kB: xUsed			nCases 1000 nUsedCols 3 sizeof(double) 8
+malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
+malloc     12  B: iPivots		nUsedCols 3 sizeof(int) 4
+malloc     24  B: qraux			nUsedCols 3 sizeof(double) 8
+malloc     24 kB: work			nCases 1000 nUsedCols 3 sizeof(double) 8
+malloc     72  B: R1			nCols 3 nCols 3 sizeof(double) 8
+calloc      8  B: B			nCols 3 nCols 3 sizeof(double) 8
+malloc     16 kB: xUsed			nCases 1000 nUsedCols 2 sizeof(double) 8
+malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
+malloc      8  B: iPivots		nUsedCols 2 sizeof(int) 4
+malloc     16  B: qraux			nUsedCols 2 sizeof(double) 8
+malloc     16 kB: work			nCases 1000 nUsedCols 2 sizeof(double) 8
+malloc     32  B: R1			nCols 2 nCols 2 sizeof(double) 8
+calloc      8  B: B			nCols 2 nCols 2 sizeof(double) 8
+malloc      8 kB: xUsed			nCases 1000 nUsedCols 1 sizeof(double) 8
+malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
+malloc      4  B: iPivots		nUsedCols 1 sizeof(int) 4
+malloc      8  B: qraux			nUsedCols 1 sizeof(double) 8
+malloc      8 kB: work			nCases 1000 nUsedCols 1 sizeof(double) 8
+malloc      8  B: R1			nCols 1 nCols 1 sizeof(double) 8
+calloc      8  B: B			nCols 1 nCols 1 sizeof(double) 8
+malloc     28  B: iPivots		nTerms 7 sizeof(int) 4
+malloc     56 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     56  B: qraux			nUsedCols 7 sizeof(double) 8
+malloc     56 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
+RESULT 9: GRSq 1 RSq 1 nTerms 7 of 7 of 51 [99.99 secs]
+
+TEST 9: FUNCTION x0 + x1 + x0*x1 N=1000, trace=1.5
+2.15                                                                      // 0
++1.97     * max(0, x[0]     -      0.599)                                 // 1
+-1.97     * max(0, 0.599     -      x[0])                                 // 2
++1.14     * max(0, x[1]     -      0.973)                                 // 3
+-1.58     * max(0, 0.973     -      x[1])                                 // 4
+-0.999    * max(0, x[0]     -      0.578) * max(0, 0.973     -      x[1]) // 5
++1        * max(0, 0.578     -      x[0]) * max(0, 0.973     -      x[1]) // 6
+
+=============================================================================
+TEST 10: cos(x0) + x1 N=1000
 Forward pass: minspan 6 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -295,9 +409,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 7 terms of 7, GRSq 0.999728 RSq 0.999736
 
-RESULT 9: GRSq 0.999728 RSq 0.999736 nTerms 7 of 7 of 51 [99.99 secs]
+RESULT 10: GRSq 0.999728 RSq 0.999736 nTerms 7 of 7 of 51 [99.99 secs]
 
-TEST 9: FUNCTION cos(x0) + x1 N=1000
+TEST 10: FUNCTION cos(x0) + x1 N=1000
 0.47                                      // 0
 +1        * max(0, x[1]     -     -0.721) // 1
 -0.998    * max(0, -0.721    -      x[1]) // 2
@@ -307,7 +421,7 @@ TEST 9: FUNCTION cos(x0) + x1 N=1000
 -0.37     * max(0, x[0]     -     -0.531) // 6
 
 =============================================================================
-TEST 10: sin(2*x0)+2*x1*.5*x0*x1
+TEST 11: sin(2*x0)+2*x1*.5*x0*x1
 Forward pass: minspan 6 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -336,9 +450,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 9 terms of 9, GRSq 0.999474 RSq 0.999495
 
-RESULT 10: GRSq 0.999474 RSq 0.999495 nTerms 9 of 9 of 51 [99.99 secs]
+RESULT 11: GRSq 0.999474 RSq 0.999495 nTerms 9 of 9 of 51 [99.99 secs]
 
-TEST 10: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
+TEST 11: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 0.604                                                                     // 0
 +2.66     * max(0, x[1]     -      0.973)                                 // 1
 -2.29     * max(0, 0.973     -      x[1])                                 // 2
@@ -350,7 +464,7 @@ TEST 10: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 +0.845    * max(0, x[0]     -     -0.437)                                 // 8
 
 =============================================================================
-TEST 11: sin(2*x0)+2*x1*.5*x0*x1
+TEST 12: sin(2*x0)+2*x1*.5*x0*x1
 Forward pass: minspan 6 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -379,9 +493,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 9 terms of 9, GRSq 0.999406 RSq 0.99943
 
-RESULT 11: GRSq 0.999406 RSq 0.99943 nTerms 9 of 9 of 51 [99.99 secs]
+RESULT 12: GRSq 0.999406 RSq 0.99943 nTerms 9 of 9 of 51 [99.99 secs]
 
-TEST 11: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
+TEST 12: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 0.331                                                                     // 0
 +1.88     * max(0, x[1]     -      0.817)                                 // 1
 -2.31     * max(0, 0.817     -      x[1])                                 // 2
@@ -393,13 +507,13 @@ TEST 11: FUNCTION sin(2*x0)+2*x1*.5*x0*x1
 +0.938    * max(0, x[0]     -      -0.45)                                 // 8
 
 =============================================================================
-TEST 12: 3rd order, mi=2 ni=11
+TEST 13: 3rd order, mi=2 ni=11
 Forward pass term 1, 2, 4, 6, 8, 10
 Reached max number of terms 11
 After forward pass GRSq 0.8838 RSq 0.8896
-RESULT 12: GRSq 0.884651 RSq 0.889223 nTerms 9 of 11 of 11 [99.99 secs]
+RESULT 13: GRSq 0.884651 RSq 0.889223 nTerms 9 of 11 of 11 [99.99 secs]
 
-TEST 12: FUNCTION 3rd order, mi=2 ni=11
+TEST 13: FUNCTION 3rd order, mi=2 ni=11
 1.62                                      // 0
 -1.74     * max(0, 0.807     -      x[5]) // 1
 +1.13     * max(0, x[0]     -      0.158) // 2
@@ -411,7 +525,7 @@ TEST 12: FUNCTION 3rd order, mi=2 ni=11
 -0.622    * max(0, -0.698    -      x[1]) // 8
 
 =============================================================================
-TEST 13: 3rd order, mi=2 ni=51
+TEST 14: 3rd order, mi=2 ni=51
 Forward pass: minspan 6 endspan 9
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -431,9 +545,9 @@ Forward pass: minspan 6 endspan 9
 Reached delta RSq threshold (DeltaRSq 0.000630615 < 0.001) at 21 terms
 After forward pass GRSq 0.9876 RSq 0.9889
 Forward pass complete: 21 terms (20 terms used)
-RESULT 13: GRSq 0.987137 RSq 0.988208 nTerms 18 of 20 of 51 [99.99 secs]
+RESULT 14: GRSq 0.987137 RSq 0.988208 nTerms 18 of 20 of 51 [99.99 secs]
 
-TEST 13: FUNCTION 3rd order, mi=2 ni=51
+TEST 14: FUNCTION 3rd order, mi=2 ni=51
 3.05                                                                      // 0
 +1.79     * max(0, x[5]     -      0.807)                                 // 1
 -3.52     * max(0, 0.807     -      x[5])                                 // 2
@@ -454,7 +568,7 @@ TEST 13: FUNCTION 3rd order, mi=2 ni=51
 -0.658    * max(0, x[2]     -         -1)                                 // 17
 
 =============================================================================
-TEST 14: 3rd order, mi=3
+TEST 15: 3rd order, mi=3
 Forward pass: minspan 6 endspan 9
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -505,9 +619,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 23 terms of 24, GRSq 0.999862 RSq 0.999877
 
-RESULT 14: GRSq 0.999862 RSq 0.999877 nTerms 23 of 24 of 51 [99.99 secs]
+RESULT 15: GRSq 0.999862 RSq 0.999877 nTerms 23 of 24 of 51 [99.99 secs]
 
-TEST 14: FUNCTION 3rd order, mi=3
+TEST 15: FUNCTION 3rd order, mi=3
 3.19                                                                                                      // 0
 +1.59     * max(0, x[5]     -      0.807)                                                                 // 1
 -4.79     * max(0, 0.807     -      x[5])                                                                 // 2
@@ -533,7 +647,7 @@ TEST 14: FUNCTION 3rd order, mi=3
 +0.814    * max(0, 0.974     -      x[3]) * max(0, 0.96      -      x[4])                                 // 22
 
 =============================================================================
-TEST 15: 5 preds + noise
+TEST 16: 5 preds + noise
 Forward pass: minspan 6 endspan 11
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -577,9 +691,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 18 terms of 19, GRSq 0.989445 RSq 0.993472
 
-RESULT 15: GRSq 0.989445 RSq 0.993472 nTerms 18 of 19 of 101 [99.99 secs]
+RESULT 16: GRSq 0.989445 RSq 0.993472 nTerms 18 of 19 of 101 [99.99 secs]
 
-TEST 15: FUNCTION 5 preds + noise
+TEST 16: FUNCTION 5 preds + noise
 0.75                                                                        // 0
 +1.75     * max(0, x[ 4]     -      0.861)                                  // 1
 -1.37     * max(0, 0.861     -      x[ 4])                                  // 2
@@ -600,7 +714,7 @@ TEST 15: FUNCTION 5 preds + noise
 -0.291    * max(0, 0.585     -      x[ 0])                                  // 17
 
 =============================================================================
-TEST 16: 5 preds clean
+TEST 17: 5 preds clean
 Forward pass: minspan 6 endspan 11
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -651,9 +765,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 24 terms of 24, GRSq 1 RSq 1
 
-RESULT 16: GRSq 1 RSq 1 nTerms 24 of 24 of 101 [99.99 secs]
+RESULT 17: GRSq 1 RSq 1 nTerms 24 of 24 of 101 [99.99 secs]
 
-TEST 16: FUNCTION 5 preds clean
+TEST 17: FUNCTION 5 preds clean
 -0.794                                                                      // 0
 +1.76     * max(0, x[ 4]     -     -0.159)                                  // 1
 -1.1      * max(0, -0.159    -      x[ 4])                                  // 2
@@ -680,7 +794,7 @@ TEST 16: FUNCTION 5 preds clean
 -1        * max(0, x[ 2]     -     -0.993) * max(0, -0.255    -      x[ 3]) // 23
 
 =============================================================================
-TEST 17: 10 preds + noise
+TEST 18: 10 preds + noise
 Forward pass: minspan 7 endspan 12
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -743,9 +857,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 30 terms of 32, GRSq 0.99773 RSq 0.999083
 
-RESULT 17: GRSq 0.99773 RSq 0.999083 nTerms 30 of 32 of 101 [99.99 secs]
+RESULT 18: GRSq 0.99773 RSq 0.999083 nTerms 30 of 32 of 101 [99.99 secs]
 
-TEST 17: FUNCTION 10 preds + noise
+TEST 18: FUNCTION 10 preds + noise
 1.68                                                                        // 0
 +1.68     * max(0, x[ 8]     -      0.243)                                  // 1
 -1.75     * max(0, 0.243     -      x[ 8])                                  // 2
@@ -778,7 +892,7 @@ TEST 17: FUNCTION 10 preds + noise
 -0.215    * max(0, -0.116    -      x[ 1])                                  // 29
 
 =============================================================================
-TEST 18: 20 preds + noise, N=100
+TEST 19: 20 preds + noise, N=100
 Forward pass: minspan 6 endspan 12
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -849,9 +963,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 15 terms of 37, GRSq 0.558331 RSq 0.815419
 
-RESULT 18: GRSq 0.558331 RSq 0.815419 nTerms 15 of 37 of 101 [99.99 secs]
+RESULT 19: GRSq 0.558331 RSq 0.815419 nTerms 15 of 37 of 101 [99.99 secs]
 
-TEST 18: FUNCTION 20 preds + noise, N=100
+TEST 19: FUNCTION 20 preds + noise, N=100
 -2.25                                                                       // 0
 +2.14     * max(0, x[ 2]     -     -0.593)                                  // 1
 +8.22     * max(0, -0.593    -      x[ 2])                                  // 2
@@ -869,7 +983,7 @@ TEST 18: FUNCTION 20 preds + noise, N=100
 +1.18     * max(0, x[ 9]     -     0.0664)                                  // 14
 
 =============================================================================
-TEST 19: 20 preds + noise, N=400
+TEST 20: 20 preds + noise, N=400
 Forward pass: minspan 7 endspan 12
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -964,9 +1078,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 46 terms of 53, GRSq 0.994797 RSq 0.997318
 
-RESULT 19: GRSq 0.994797 RSq 0.997318 nTerms 46 of 53 of 101 [99.99 secs]
+RESULT 20: GRSq 0.994797 RSq 0.997318 nTerms 46 of 53 of 101 [99.99 secs]
 
-TEST 19: FUNCTION 20 preds + noise, N=400
+TEST 20: FUNCTION 20 preds + noise, N=400
 1.09                                                                        // 0
 +0.902    * max(0, x[13]     -      0.688)                                  // 1
 -0.994    * max(0, 0.688     -      x[13])                                  // 2
@@ -1015,7 +1129,7 @@ TEST 19: FUNCTION 20 preds + noise, N=400
 -0.237    * max(0, 0.847     -      x[ 8])                                  // 45
 
 =============================================================================
-TEST 20: 3rd order, mi=3, +noise
+TEST 21: 3rd order, mi=3, +noise
 Forward pass: minspan 7 endspan 10
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1067,9 +1181,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 22 terms of 24, GRSq 0.987865 RSq 0.989107
 
-RESULT 20: GRSq 0.987865 RSq 0.989107 nTerms 22 of 24 of 51 [99.99 secs]
+RESULT 21: GRSq 0.987865 RSq 0.989107 nTerms 22 of 24 of 51 [99.99 secs]
 
-TEST 20: FUNCTION 3rd order, mi=3, +noise
+TEST 21: FUNCTION 3rd order, mi=3, +noise
 -0.229                                                                    // 0
 +4.65     * max(0, x[5]     -      0.952)                                 // 1
 -3.23     * max(0, 0.952     -      x[5])                                 // 2
@@ -1094,7 +1208,7 @@ TEST 20: FUNCTION 3rd order, mi=3, +noise
 +1.17     * max(0, 0.945     -      x[4]) * max(0, 0.952     -      x[5]) // 21
 
 =============================================================================
-TEST 21: eqn56 mi=1 N=100
+TEST 22: eqn56 mi=1 N=100
 Forward pass: minspan 5 endspan 10
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1181,9 +1295,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 5 terms of 41, GRSq 0.220816 RSq 0.341657
 
-RESULT 21: GRSq 0.220816 RSq 0.341657 nTerms 5 of 41 of 101 [99.99 secs]
+RESULT 22: GRSq 0.220816 RSq 0.341657 nTerms 5 of 41 of 101 [99.99 secs]
 
-TEST 21: FUNCTION eqn56 mi=1 N=100
+TEST 22: FUNCTION eqn56 mi=1 N=100
 -0.227                                    // 0
 +4.91     * max(0, x[0]     -       0.13) // 1
 -3.06     * max(0, x[1]     -      0.275) // 2
@@ -1191,7 +1305,7 @@ TEST 21: FUNCTION eqn56 mi=1 N=100
 -11.9     * max(0, x[3]     -      0.251) // 4
 
 =============================================================================
-TEST 22: eqn56 mi=2 N=100
+TEST 23: eqn56 mi=2 N=100
 Forward pass: minspan 5 endspan 10
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1254,9 +1368,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 27 terms of 30, GRSq 0.986443 RSq 0.998401
 
-RESULT 22: GRSq 0.986443 RSq 0.998401 nTerms 27 of 30 of 51 [99.99 secs]
+RESULT 23: GRSq 0.986443 RSq 0.998401 nTerms 27 of 30 of 51 [99.99 secs]
 
-TEST 22: FUNCTION eqn56 mi=2 N=100
+TEST 23: FUNCTION eqn56 mi=2 N=100
 0.0534                                                                    // 0
 +1.83     * max(0, x[0]     -       0.13)                                 // 1
 +444      * max(0, x[0]     -       0.13) * max(0, x[1]     -      0.682) // 2
@@ -1286,7 +1400,7 @@ TEST 22: FUNCTION eqn56 mi=2 N=100
 +33.5     * max(0, x[1]     -      0.709)                                 // 26
 
 =============================================================================
-TEST 23: eqn56 mi=10 N=100
+TEST 24: eqn56 mi=10 N=100
 Forward pass: minspan 5 endspan 10
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1338,9 +1452,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 20 terms of 24, GRSq 0.988557 RSq 0.996903
 
-RESULT 23: GRSq 0.988557 RSq 0.996903 nTerms 20 of 24 of 51 [99.99 secs]
+RESULT 24: GRSq 0.988557 RSq 0.996903 nTerms 20 of 24 of 51 [99.99 secs]
 
-TEST 23: FUNCTION eqn56 mi=10 N=100
+TEST 24: FUNCTION eqn56 mi=10 N=100
 0.183                                                                                                                                     // 0
 -0.178    * max(0, 0.13      -      x[0])                                                                                                 // 1
 +11       * max(0, x[0]     -       0.13) * max(0, x[1]     -      0.682)                                                                 // 2
@@ -1363,9 +1477,9 @@ TEST 23: FUNCTION eqn56 mi=10 N=100
 -75       * max(0, x[1]     -      0.386) * max(0, x[3]     -       0.46) * max(0, -0.0436   -      x[9])                                 // 19
 
 =============================================================================
-TEST 24: x0 + x1 + x0*x1 N=30
-earth.c version 3.1-0
-BetaCache 0.040 Mb
+TEST 25: x0 + x1 + x0*x1 N=30
+earth.c version 3.2-0
+BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1464,9 +1578,9 @@ Backward pass complete: selected 8 terms of 8, GRSq 1 RSq 1
 06   2            1 | -1 -1 |  0.0203    0.222 
 07   2            1 |  1  1 |  -0.968    0.222 
 
-RESULT 24: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
+RESULT 25: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
 
-TEST 24: FUNCTION x0 + x1 + x0*x1 N=30
+TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 0.188                                                                     // 0
 +0.0319   * max(0, x[1]     -      0.222)                                 // 1
 -1.02     * max(0, 0.222     -      x[1])                                 // 2
@@ -1477,112 +1591,9 @@ TEST 24: FUNCTION x0 + x1 + x0*x1 N=30
 +1        * max(0, x[0]     -     -0.968) * max(0, x[1]     -      0.222) // 7
 
 =============================================================================
-TEST 25: x0 + x1 + x0*x1 N=30
-earth.c version 3.1-0
-BetaCache 0.040 Mb
-Forward pass: minspan 4 endspan 8
-
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
-1      0.0000 0.0000                               1
-
-|Searching for new term 2                      RssDelta 0
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaForTermSoFar 8.77768 (lin pred) 
-|                  Case   21 Cut      -0.0282  RssDelta 9.8016       BestRssDeltaForTermSoFar
-|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaForTermSoFar 0.224148 (lin pred) 
-|                  Case   21 Cut       0.2223  RssDelta 10.62        BestRssDeltaForTermSoFar
-
-2      0.3736 0.5710        0.571    2     0.2223  2   3   
-
-|Searching for new term 4                      RssDelta 0
-|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 4.6338       BestRssDeltaForTermSoFar 4.6338 (lin pred) 
-|                  Case   19 Cut      -0.1493  RssDelta 4.6735       BestRssDeltaForTermSoFar
-|Parent 2  Pred 2                                                    skip (pred is in parent)
-|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.24654      
-|Parent 3  Pred 2                                                    skip (pred is in parent)
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 5.0716       BestRssDeltaForTermSoFar 0.398142 (lin pred) 
-|                  Case   21 Cut      -0.0282  RssDelta 5.2504       BestRssDeltaForTermSoFar
-|Parent 1  Pred 2  
-
-4      0.6582 0.8533       0.2823    1    -0.0282  4   5   
-
-|Searching for new term 6                      RssDelta 0
-|Parent 4  Pred 1                                                    skip (pred is in parent)
-|Parent 4  Pred 2  Case    1 Cut       -0.963< RssDelta 2.0346       BestRssDeltaForTermSoFar 2.03462 (lin pred) 
-|                  Case   10 Cut      -0.4591  RssDelta 2.0388       BestRssDeltaForTermSoFar
-|Parent 5  Pred 1                                                    skip (pred is in parent)
-|Parent 5  Pred 2  Case    1 Cut       -0.963< RssDelta 2.1843       BestRssDeltaForTermSoFar 0.145571 (lin pred) 
-|                  Case   16 Cut      -0.1126  RssDelta 2.1894       BestRssDeltaForTermSoFar
-|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
-|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
-|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 1.589        
-|Parent 2  Pred 2                                                    skip (pred is in parent)
-
-6      0.8756 0.9710       0.1177    2    -0.1126  6   7   5   
-
-|Searching for new term 8                      RssDelta 0
-|Parent 6                                                            skip (nFactorsInTerm 2)
-|Parent 7                                                            skip (nFactorsInTerm 2)
-|Parent 5  Pred 1                                                    skip (pred is in parent)
-|Parent 5  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
-|Parent 4  Pred 1                                                    skip (pred is in parent)
-|Parent 4  Pred 2  Case    1 Cut       -0.963< RssDelta 0.53917      BestRssDeltaForTermSoFar 0.539175 (lin pred) 
-
-8      1.0000 1.0000      0.02899    2     -0.963< 8       4   
-
-Reached max RSq (RSq 1 > 0.999) at 9 terms
-After forward pass GRSq 1 RSq 1
-Forward pass complete: 9 terms (8 terms used)
-
-   nFacs       Beta
-00   0        0.188 |  .  . |    .        .    
-01   1        0.972 |  .  1 |    .       0.222 
-02   1       -0.972 |  . -1 |    .       0.222 
-03   1        0.037 |  1  . | -0.0282     .    
-04   1       -0.887 | -1  . | -0.0282     .    
-05   2           -1 | -1  1 | -0.0282   -0.113 
-06   2            1 | -1 -1 | -0.0282   -0.113 
-07   2            1 |  1  1 | -0.0282   -0.963 
-08  --           -- |  1 -1 | -0.0282   -0.963 
-
-Backward pass:
-SubsetSize         GRSq          RSq
-         1       0.0000       0.0000
-         2       0.5889       0.6567
-         3       0.6801       0.7809
-         4       0.7686       0.8728
-         5       0.8970       0.9558
-         6       0.9682       0.9897
-         7       0.9998       1.0000
-         8       1.0000       1.0000
-
-Backward pass complete: selected 8 terms of 8, GRSq 1 RSq 1
-
-   nFacs       Beta
-00   0        0.188 |  .  . |    .        .    
-01   1        0.972 |  .  1 |    .       0.222 
-02   1       -0.972 |  . -1 |    .       0.222 
-03   1        0.037 |  1  . | -0.0282     .    
-04   1       -0.887 | -1  . | -0.0282     .    
-05   2           -1 | -1  1 | -0.0282   -0.113 
-06   2            1 | -1 -1 | -0.0282   -0.113 
-07   2            1 |  1  1 | -0.0282   -0.963 
-
-RESULT 25: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
-
-TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
-0.188                                                                     // 0
-+0.972    * max(0, x[1]     -      0.222)                                 // 1
--0.972    * max(0, 0.222     -      x[1])                                 // 2
-+0.037    * max(0, x[0]     -    -0.0282)                                 // 3
--0.887    * max(0, -0.0282   -      x[0])                                 // 4
--1        * max(0, -0.0282   -      x[0]) * max(0, x[1]     -     -0.113) // 5
-+1        * max(0, -0.0282   -      x[0]) * max(0, -0.113    -      x[1]) // 6
-+1        * max(0, x[0]     -    -0.0282) * max(0, x[1]     -     -0.963) // 7
-
-=============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
-earth.c version 3.1-0
-BetaCache 0.040 Mb
+earth.c version 3.2-0
+BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1683,7 +1694,110 @@ TEST 26: FUNCTION x0 + x1 + x0*x1 N=30
 +1        * max(0, x[0]     -    -0.0282) * max(0, x[1]     -     -0.963) // 7
 
 =============================================================================
-TEST 27: x0|x+x1+noise N=30
+TEST 27: x0 + x1 + x0*x1 N=30
+earth.c version 3.2-0
+BetaCache 41.6 kB
+Forward pass: minspan 4 endspan 8
+
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
+1      0.0000 0.0000                               1
+
+|Searching for new term 2                      RssDelta 0
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 8.7777       BestRssDeltaForTermSoFar 8.77768 (lin pred) 
+|                  Case   21 Cut      -0.0282  RssDelta 9.8016       BestRssDeltaForTermSoFar
+|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 10.026       BestRssDeltaForTermSoFar 0.224148 (lin pred) 
+|                  Case   21 Cut       0.2223  RssDelta 10.62        BestRssDeltaForTermSoFar
+
+2      0.3736 0.5710        0.571    2     0.2223  2   3   
+
+|Searching for new term 4                      RssDelta 0
+|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 4.6338       BestRssDeltaForTermSoFar 4.6338 (lin pred) 
+|                  Case   19 Cut      -0.1493  RssDelta 4.6735       BestRssDeltaForTermSoFar
+|Parent 2  Pred 2                                                    skip (pred is in parent)
+|Parent 3  Pred 1  Case    1 Cut      -0.9681< RssDelta 0.24654      
+|Parent 3  Pred 2                                                    skip (pred is in parent)
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 5.0716       BestRssDeltaForTermSoFar 0.398142 (lin pred) 
+|                  Case   21 Cut      -0.0282  RssDelta 5.2504       BestRssDeltaForTermSoFar
+|Parent 1  Pred 2  
+
+4      0.6582 0.8533       0.2823    1    -0.0282  4   5   
+
+|Searching for new term 6                      RssDelta 0
+|Parent 4  Pred 1                                                    skip (pred is in parent)
+|Parent 4  Pred 2  Case    1 Cut       -0.963< RssDelta 2.0346       BestRssDeltaForTermSoFar 2.03462 (lin pred) 
+|                  Case   10 Cut      -0.4591  RssDelta 2.0388       BestRssDeltaForTermSoFar
+|Parent 5  Pred 1                                                    skip (pred is in parent)
+|Parent 5  Pred 2  Case    1 Cut       -0.963< RssDelta 2.1843       BestRssDeltaForTermSoFar 0.145571 (lin pred) 
+|                  Case   16 Cut      -0.1126  RssDelta 2.1894       BestRssDeltaForTermSoFar
+|Parent 1  Pred 1  Case    1 Cut      -0.9681< RssDelta 0            
+|Parent 1  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
+|Parent 2  Pred 1  Case    1 Cut      -0.9681< RssDelta 1.589        
+|Parent 2  Pred 2                                                    skip (pred is in parent)
+
+6      0.8756 0.9710       0.1177    2    -0.1126  6   7   5   
+
+|Searching for new term 8                      RssDelta 0
+|Parent 6                                                            skip (nFactorsInTerm 2)
+|Parent 7                                                            skip (nFactorsInTerm 2)
+|Parent 5  Pred 1                                                    skip (pred is in parent)
+|Parent 5  Pred 2  Case    1 Cut       -0.963< RssDelta 0            
+|Parent 4  Pred 1                                                    skip (pred is in parent)
+|Parent 4  Pred 2  Case    1 Cut       -0.963< RssDelta 0.53917      BestRssDeltaForTermSoFar 0.539175 (lin pred) 
+
+8      1.0000 1.0000      0.02899    2     -0.963< 8       4   
+
+Reached max RSq (RSq 1 > 0.999) at 9 terms
+After forward pass GRSq 1 RSq 1
+Forward pass complete: 9 terms (8 terms used)
+
+   nFacs       Beta
+00   0        0.188 |  .  . |    .        .    
+01   1        0.972 |  .  1 |    .       0.222 
+02   1       -0.972 |  . -1 |    .       0.222 
+03   1        0.037 |  1  . | -0.0282     .    
+04   1       -0.887 | -1  . | -0.0282     .    
+05   2           -1 | -1  1 | -0.0282   -0.113 
+06   2            1 | -1 -1 | -0.0282   -0.113 
+07   2            1 |  1  1 | -0.0282   -0.963 
+08  --           -- |  1 -1 | -0.0282   -0.963 
+
+Backward pass:
+SubsetSize         GRSq          RSq
+         1       0.0000       0.0000
+         2       0.5889       0.6567
+         3       0.6801       0.7809
+         4       0.7686       0.8728
+         5       0.8970       0.9558
+         6       0.9682       0.9897
+         7       0.9998       1.0000
+         8       1.0000       1.0000
+
+Backward pass complete: selected 8 terms of 8, GRSq 1 RSq 1
+
+   nFacs       Beta
+00   0        0.188 |  .  . |    .        .    
+01   1        0.972 |  .  1 |    .       0.222 
+02   1       -0.972 |  . -1 |    .       0.222 
+03   1        0.037 |  1  . | -0.0282     .    
+04   1       -0.887 | -1  . | -0.0282     .    
+05   2           -1 | -1  1 | -0.0282   -0.113 
+06   2            1 | -1 -1 | -0.0282   -0.113 
+07   2            1 |  1  1 | -0.0282   -0.963 
+
+RESULT 27: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
+
+TEST 27: FUNCTION x0 + x1 + x0*x1 N=30
+0.188                                                                     // 0
++0.972    * max(0, x[1]     -      0.222)                                 // 1
+-0.972    * max(0, 0.222     -      x[1])                                 // 2
++0.037    * max(0, x[0]     -    -0.0282)                                 // 3
+-0.887    * max(0, -0.0282   -      x[0])                                 // 4
+-1        * max(0, -0.0282   -      x[0]) * max(0, x[1]     -     -0.113) // 5
++1        * max(0, -0.0282   -      x[0]) * max(0, -0.113    -      x[1]) // 6
++1        * max(0, x[0]     -    -0.0282) * max(0, x[1]     -     -0.963) // 7
+
+=============================================================================
+TEST 28: x0|x+x1+noise N=30
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1706,10 +1820,10 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 5 terms of 5, GRSq 0.989068 RSq 0.990764
 
-RESULT 27 Response 1: GRSq 1 RSq 1 nTerms 5 of 5 of 51 [99.99 secs]
-RESULT 27 Response 2: GRSq 0.984659 RSq 0.987039 nTerms 5 of 5 of 51
+RESULT 28 Response 1: GRSq 1 RSq 1 nTerms 5 of 5 of 51 [99.99 secs]
+RESULT 28 Response 2: GRSq 0.984659 RSq 0.987039 nTerms 5 of 5 of 51
 
-TEST 27: FUNCTION x0|x+x1+noise N=30
+TEST 28: FUNCTION x0|x+x1+noise N=30
 Response 1:
 0.437                                     // 0
 +1        * max(0, x[0]     -      0.437) // 1
@@ -1722,7 +1836,7 @@ Response 2:
 -0.977    * max(0, 0.0313    -      x[1]) // 4
 
 =============================================================================
-TEST 28: x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
+TEST 29: x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1753,10 +1867,10 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 4 terms of 9, GRSq 0.822197 RSq 0.843095
 
-RESULT 28 Response 1: GRSq 0.822197 RSq 0.843095 nTerms 4 of 9 of 51 [99.99 secs]
-RESULT 28 Response 2: GRSq -9.84663 RSq -8.57172 nTerms 4 of 9 of 51
+RESULT 29 Response 1: GRSq 0.822197 RSq 0.843095 nTerms 4 of 9 of 51 [99.99 secs]
+RESULT 29 Response 2: GRSq -9.84663 RSq -8.57172 nTerms 4 of 9 of 51
 
-TEST 28: FUNCTION x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
+TEST 29: FUNCTION x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100
 Response 1:
 0.857                                     // 0
 -0.971    * max(0, 0.599     -      x[0]) // 1
@@ -1769,9 +1883,9 @@ Response 2:
 +3.59     * max(0, 0.385     -      x[1]) // 3
 
 =============================================================================
-TEST 29: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
-earth.c version 3.1-0
-BetaCache 0.040 Mb
+TEST 30: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
+earth.c version 3.2-0
+BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1869,10 +1983,10 @@ Backward pass complete: selected 8 terms of 8, GRSq 1 RSq 1
 06   2            1         1 | -1 -1 |   0.599    0.385 
 07   2            1         1 |  1  1 |   0.599    -0.98 
 
-RESULT 29 Response 1: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
-RESULT 29 Response 2: GRSq 1 RSq 1 nTerms 8 of 8 of 51
+RESULT 30 Response 1: GRSq 1 RSq 1 nTerms 8 of 8 of 51 [99.99 secs]
+RESULT 30 Response 2: GRSq 1 RSq 1 nTerms 8 of 8 of 51
 
-TEST 29: FUNCTION x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
+TEST 30: FUNCTION x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
 Response 1:
 1.21                                                                      // 0
 +0.0199   * max(0, x[0]     -      0.599)                                 // 1
@@ -1893,7 +2007,7 @@ Response 2:
 +1        * max(0, x[0]     -      0.599) * max(0, x[1]     -      -0.98) // 7
 
 =============================================================================
-TEST 30: x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
+TEST 31: x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
 Forward pass: minspan 5 endspan 10
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -1921,10 +2035,10 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 8 terms of 8, GRSq 0.995587 RSq 0.998176
 
-RESULT 30 Response 1: GRSq 1 RSq 1 nTerms 8 of 8 of 101 [99.99 secs]
-RESULT 30 Response 2: GRSq 0.99491 RSq 0.997897 nTerms 8 of 8 of 101
+RESULT 31 Response 1: GRSq 1 RSq 1 nTerms 8 of 8 of 101 [99.99 secs]
+RESULT 31 Response 2: GRSq 0.99491 RSq 0.997897 nTerms 8 of 8 of 101
 
-TEST 30: FUNCTION x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
+TEST 31: FUNCTION x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50
 Response 1:
 -0.577                                                                    // 0
 +1        * max(0, x[0]     -     -0.577)                                 // 3
@@ -1940,70 +2054,7 @@ Response 2:
 -0.712    * max(0, x[0]     -      0.206)                                 // 7
 
 =============================================================================
-TEST 31: x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
-Forward pass: minspan 5 endspan 10
-
-         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
-1      0.0000 0.0000                               1
-2      0.2873 0.4253       0.4253    2    -0.5499  2   3   
-4      0.9077 0.9415       0.5162    1    -0.6363  4   5   
-6      0.9886 0.9945      0.05302    1     0.2404  6   7   2   
-8      0.9932 0.9972     0.002666    1     0.2404  8       
-10     0.9946 0.9984     0.001226    1    -0.1314  9   10  3   
-12     0.9963 0.9991    0.0006918    1    -0.1126  11      reject term
-
-Reached delta RSq threshold (DeltaRSq 0.000691819 < 0.001) at 11 terms
-After forward pass GRSq 0.9963 RSq 0.9991
-Forward pass complete: 11 terms (10 terms used)
-
-Backward pass:
-SubsetSize         GRSq          RSq
-         1       0.0000       0.0000
-         2       0.3509       0.4155
-         3       0.8772       0.9010
-         4       0.9548       0.9676
-         5       0.9759       0.9847
-         6       0.9827       0.9904
-         7       0.9886       0.9945
-         8       0.9932       0.9972
-         9       0.9944       0.9980
-        10       0.9946       0.9984
-
-Backward pass complete: selected 10 terms of 10, GRSq 0.994608 RSq 0.998423
-
-RESULT 31 Response 1: GRSq 1 RSq 1 nTerms 10 of 10 of 101 [99.99 secs]
-RESULT 31 Response 2: GRSq 1 RSq 1 nTerms 10 of 10 of 101
-RESULT 31 Response 3: GRSq 0.990915 RSq 0.997343 nTerms 10 of 10 of 101
-
-TEST 31: FUNCTION x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
-Response 1:
--0.636                                                                      // 0
-+1        * max(0, x[ 0]     -     -0.636)                                  // 3
--1        * max(0, -0.636    -      x[ 0])                                  // 4
-Response 2:
--0.836                                                                      // 0
-+1.24     * max(0, x[ 1]     -      -0.55)                                  // 1
--0.869    * max(0, -0.55     -      x[ 1])                                  // 2
-+0.45     * max(0, x[ 0]     -     -0.636)                                  // 3
--0.45     * max(0, -0.636    -      x[ 0])                                  // 4
-+1        * max(0, x[ 0]     -       0.24) * max(0, x[ 1]     -      -0.55) // 5
--1        * max(0, 0.24      -      x[ 0]) * max(0, x[ 1]     -      -0.55) // 6
--1        * max(0, x[ 0]     -     -0.131) * max(0, -0.55     -      x[ 1]) // 8
-+1        * max(0, -0.131    -      x[ 0]) * max(0, -0.55     -      x[ 1]) // 9
-Response 3:
--1.97                                                                       // 0
-+2.06     * max(0, x[ 1]     -      -0.55)                                  // 1
--2.5      * max(0, -0.55     -      x[ 1])                                  // 2
-+1.49     * max(0, x[ 0]     -     -0.636)                                  // 3
-+0.585    * max(0, -0.636    -      x[ 0])                                  // 4
-+0.849    * max(0, x[ 0]     -       0.24) * max(0, x[ 1]     -      -0.55) // 5
--0.433    * max(0, 0.24      -      x[ 0]) * max(0, x[ 1]     -      -0.55) // 6
--1.16     * max(0, x[ 0]     -       0.24)                                  // 7
-+1.09     * max(0, x[ 0]     -     -0.131) * max(0, -0.55     -      x[ 1]) // 8
-+1.22     * max(0, -0.131    -      x[ 0]) * max(0, -0.55     -      x[ 1]) // 9
-
-=============================================================================
-TEST 32: |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
+TEST 32: x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
 Forward pass: minspan 5 endspan 10
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -2035,11 +2086,15 @@ SubsetSize         GRSq          RSq
 Backward pass complete: selected 10 terms of 10, GRSq 0.994608 RSq 0.998423
 
 RESULT 32 Response 1: GRSq 1 RSq 1 nTerms 10 of 10 of 101 [99.99 secs]
-RESULT 32 Response 2: GRSq 0.990915 RSq 0.997343 nTerms 10 of 10 of 101
-RESULT 32 Response 3: GRSq 1 RSq 1 nTerms 10 of 10 of 101
+RESULT 32 Response 2: GRSq 1 RSq 1 nTerms 10 of 10 of 101
+RESULT 32 Response 3: GRSq 0.990915 RSq 0.997343 nTerms 10 of 10 of 101
 
-TEST 32: FUNCTION |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
+TEST 32: FUNCTION x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=50
 Response 1:
+-0.636                                                                      // 0
++1        * max(0, x[ 0]     -     -0.636)                                  // 3
+-1        * max(0, -0.636    -      x[ 0])                                  // 4
+Response 2:
 -0.836                                                                      // 0
 +1.24     * max(0, x[ 1]     -      -0.55)                                  // 1
 -0.869    * max(0, -0.55     -      x[ 1])                                  // 2
@@ -2049,7 +2104,7 @@ Response 1:
 -1        * max(0, 0.24      -      x[ 0]) * max(0, x[ 1]     -      -0.55) // 6
 -1        * max(0, x[ 0]     -     -0.131) * max(0, -0.55     -      x[ 1]) // 8
 +1        * max(0, -0.131    -      x[ 0]) * max(0, -0.55     -      x[ 1]) // 9
-Response 2:
+Response 3:
 -1.97                                                                       // 0
 +2.06     * max(0, x[ 1]     -      -0.55)                                  // 1
 -2.5      * max(0, -0.55     -      x[ 1])                                  // 2
@@ -2060,13 +2115,9 @@ Response 2:
 -1.16     * max(0, x[ 0]     -       0.24)                                  // 7
 +1.09     * max(0, x[ 0]     -     -0.131) * max(0, -0.55     -      x[ 1]) // 8
 +1.22     * max(0, -0.131    -      x[ 0]) * max(0, -0.55     -      x[ 1]) // 9
-Response 3:
--0.636                                                                      // 0
-+1        * max(0, x[ 0]     -     -0.636)                                  // 3
--1        * max(0, -0.636    -      x[ 0])                                  // 4
 
 =============================================================================
-TEST 33: sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
+TEST 33: |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
 Forward pass: minspan 5 endspan 10
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -2097,11 +2148,74 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 10 terms of 10, GRSq 0.994608 RSq 0.998423
 
-RESULT 33 Response 1: GRSq 0.990915 RSq 0.997343 nTerms 10 of 10 of 101 [99.99 secs]
-RESULT 33 Response 2: GRSq 1 RSq 1 nTerms 10 of 10 of 101
+RESULT 33 Response 1: GRSq 1 RSq 1 nTerms 10 of 10 of 101 [99.99 secs]
+RESULT 33 Response 2: GRSq 0.990915 RSq 0.997343 nTerms 10 of 10 of 101
 RESULT 33 Response 3: GRSq 1 RSq 1 nTerms 10 of 10 of 101
 
-TEST 33: FUNCTION sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
+TEST 33: FUNCTION |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=50
+Response 1:
+-0.836                                                                      // 0
++1.24     * max(0, x[ 1]     -      -0.55)                                  // 1
+-0.869    * max(0, -0.55     -      x[ 1])                                  // 2
++0.45     * max(0, x[ 0]     -     -0.636)                                  // 3
+-0.45     * max(0, -0.636    -      x[ 0])                                  // 4
++1        * max(0, x[ 0]     -       0.24) * max(0, x[ 1]     -      -0.55) // 5
+-1        * max(0, 0.24      -      x[ 0]) * max(0, x[ 1]     -      -0.55) // 6
+-1        * max(0, x[ 0]     -     -0.131) * max(0, -0.55     -      x[ 1]) // 8
++1        * max(0, -0.131    -      x[ 0]) * max(0, -0.55     -      x[ 1]) // 9
+Response 2:
+-1.97                                                                       // 0
++2.06     * max(0, x[ 1]     -      -0.55)                                  // 1
+-2.5      * max(0, -0.55     -      x[ 1])                                  // 2
++1.49     * max(0, x[ 0]     -     -0.636)                                  // 3
++0.585    * max(0, -0.636    -      x[ 0])                                  // 4
++0.849    * max(0, x[ 0]     -       0.24) * max(0, x[ 1]     -      -0.55) // 5
+-0.433    * max(0, 0.24      -      x[ 0]) * max(0, x[ 1]     -      -0.55) // 6
+-1.16     * max(0, x[ 0]     -       0.24)                                  // 7
++1.09     * max(0, x[ 0]     -     -0.131) * max(0, -0.55     -      x[ 1]) // 8
++1.22     * max(0, -0.131    -      x[ 0]) * max(0, -0.55     -      x[ 1]) // 9
+Response 3:
+-0.636                                                                      // 0
++1        * max(0, x[ 0]     -     -0.636)                                  // 3
+-1        * max(0, -0.636    -      x[ 0])                                  // 4
+
+=============================================================================
+TEST 34: sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
+Forward pass: minspan 5 endspan 10
+
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
+1      0.0000 0.0000                               1
+2      0.2873 0.4253       0.4253    2    -0.5499  2   3   
+4      0.9077 0.9415       0.5162    1    -0.6363  4   5   
+6      0.9886 0.9945      0.05302    1     0.2404  6   7   2   
+8      0.9932 0.9972     0.002666    1     0.2404  8       
+10     0.9946 0.9984     0.001226    1    -0.1314  9   10  3   
+12     0.9963 0.9991    0.0006918    1    -0.1126  11      reject term
+
+Reached delta RSq threshold (DeltaRSq 0.000691819 < 0.001) at 11 terms
+After forward pass GRSq 0.9963 RSq 0.9991
+Forward pass complete: 11 terms (10 terms used)
+
+Backward pass:
+SubsetSize         GRSq          RSq
+         1       0.0000       0.0000
+         2       0.3509       0.4155
+         3       0.8772       0.9010
+         4       0.9548       0.9676
+         5       0.9759       0.9847
+         6       0.9827       0.9904
+         7       0.9886       0.9945
+         8       0.9932       0.9972
+         9       0.9944       0.9980
+        10       0.9946       0.9984
+
+Backward pass complete: selected 10 terms of 10, GRSq 0.994608 RSq 0.998423
+
+RESULT 34 Response 1: GRSq 0.990915 RSq 0.997343 nTerms 10 of 10 of 101 [99.99 secs]
+RESULT 34 Response 2: GRSq 1 RSq 1 nTerms 10 of 10 of 101
+RESULT 34 Response 3: GRSq 1 RSq 1 nTerms 10 of 10 of 101
+
+TEST 34: FUNCTION sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=50
 Response 1:
 -1.97                                                                       // 0
 +2.06     * max(0, x[ 1]     -      -0.55)                                  // 1
@@ -2129,7 +2243,7 @@ Response 3:
 -1        * max(0, -0.636    -      x[ 0])                                  // 4
 
 =============================================================================
-TEST 34: sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
+TEST 35: sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
 Forward pass: minspan 6 endspan 9
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -2173,10 +2287,10 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 14 terms of 19, GRSq 0.995781 RSq 0.996051
 
-RESULT 34 Response 1: GRSq 0.997016 RSq 0.997207 nTerms 14 of 19 of 101 [99.99 secs]
-RESULT 34 Response 2: GRSq -0.972097 RSq -0.845869 nTerms 14 of 19 of 101
+RESULT 35 Response 1: GRSq 0.997016 RSq 0.997207 nTerms 14 of 19 of 101 [99.99 secs]
+RESULT 35 Response 2: GRSq -0.972097 RSq -0.845869 nTerms 14 of 19 of 101
 
-TEST 34: FUNCTION sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
+TEST 35: FUNCTION sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50
 Response 1:
 0.564                                                                     // 0
 -2.18     * max(0, 0.969     -      x[1])                                 // 1
@@ -2209,7 +2323,7 @@ Response 2:
 -0.933    * max(0, 0.972     -      x[4]) * max(0, 0.979     -      x[5]) // 13
 
 =============================================================================
-TEST 35: cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0
+TEST 36: cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -2233,9 +2347,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 5 terms of 5, GRSq 0.918009 RSq 0.930725
 
-RESULT 35: GRSq 0.918009 RSq 0.930725 nTerms 5 of 5 of 51 [99.99 secs]
+RESULT 36: GRSq 0.918009 RSq 0.930725 nTerms 5 of 5 of 51 [99.99 secs]
 
-TEST 35: FUNCTION cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0
+TEST 36: FUNCTION cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0
 2.55                                      // 0
 +0.556    * max(0, x[0]     -    -0.0609) // 1
 -1.66     * max(0, -0.0609   -      x[0]) // 2
@@ -2243,7 +2357,7 @@ TEST 35: FUNCTION cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0
 -0.955    * max(0, x[1]     -      0.448) // 4
 
 =============================================================================
-TEST 36: cos(x1) + cos(x), x1 and x2 xcollinear, NewVarPenalty=0.05
+TEST 37: cos(x1) + cos(x), x1 and x2 xcollinear, NewVarPenalty=0.05
 Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
@@ -2267,9 +2381,9 @@ SubsetSize         GRSq          RSq
 
 Backward pass complete: selected 5 terms of 5, GRSq 0.918009 RSq 0.930725
 
-RESULT 36: GRSq 0.918009 RSq 0.930725 nTerms 5 of 5 of 51 [99.99 secs]
+RESULT 37: GRSq 0.918009 RSq 0.930725 nTerms 5 of 5 of 51 [99.99 secs]
 
-TEST 36: FUNCTION cos(x1) + cos(x), x1 and x2 xcollinear, NewVarPenalty=0.05
+TEST 37: FUNCTION cos(x1) + cos(x), x1 and x2 xcollinear, NewVarPenalty=0.05
 2.55                                      // 0
 +0.556    * max(0, x[0]     -    -0.0609) // 1
 -1.66     * max(0, -0.0609   -      x[0]) // 2

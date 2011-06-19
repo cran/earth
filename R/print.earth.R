@@ -181,11 +181,11 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
     ...)                      # extra args passed on to format.earth
 {
     rval <- object
-    switch(match.arg1(style),
-        NULL,                                                                              # "h"
-        rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style), # "pmax"
-        rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style), # "max"
-        rval$strings <- format.earth(x=object, digits=digits, decomp=decomp, style=style)) # "bf"
+    rval$strings <- switch(match.arg1(style),
+        { warn.if.dots.used("summary.earth", ...); NULL },                      # "h"
+        format.earth(x=object, digits=digits, decomp=decomp, style=style, ...), # "pmax"
+        format.earth(x=object, digits=digits, decomp=decomp, style=style, ...), # "max"
+        format.earth(x=object, digits=digits, decomp=decomp, style=style, ...)) # "bf"
     rval$details     <- details  # ditto
     rval$decomp      <- decomp
     rval$digits      <- digits   # allows us to pass digits arg on to print.summary.earth

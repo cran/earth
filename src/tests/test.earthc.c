@@ -104,7 +104,7 @@ static double func56(const double x[], const int iResponse) {    // Friedman MAR
 
 // functions for testing multiple responses
 
-static double func0_1(const double x[], const int iResponse) 
+static double func0_1(const double x[], const int iResponse)
 {
     if (iResponse == 0)
         return func0(x, iResponse);
@@ -115,7 +115,7 @@ static double func0_1(const double x[], const int iResponse)
     return 0;
 }
 
-static double func2_2(const double x[], const int iResponse) 
+static double func2_2(const double x[], const int iResponse)
 {
     if (iResponse == 0)
         return func2(x, iResponse);
@@ -126,7 +126,7 @@ static double func2_2(const double x[], const int iResponse)
     return 0;
 }
 
-static double func0_4(const double x[], const int iResponse) 
+static double func0_4(const double x[], const int iResponse)
 {
     if (iResponse == 0)
         return func0(x, iResponse);
@@ -137,7 +137,7 @@ static double func0_4(const double x[], const int iResponse)
     return 0;
 }
 
-static double func0_2_4(const double x[], const int iResponse) 
+static double func0_2_4(const double x[], const int iResponse)
 {
     if (iResponse == 0)
         return func0(x, iResponse);
@@ -150,7 +150,7 @@ static double func0_2_4(const double x[], const int iResponse)
     return 0;
 }
 
-static double func2_4_0(const double x[], const int iResponse) 
+static double func2_4_0(const double x[], const int iResponse)
 {
     if (iResponse == 0)
         return func2(x, iResponse);
@@ -163,7 +163,7 @@ static double func2_4_0(const double x[], const int iResponse)
     return 0;
 }
 
-static double func4_2_0(const double x[], const int iResponse) 
+static double func4_2_0(const double x[], const int iResponse)
 {
     if (iResponse == 0)
         return func4(x, iResponse);
@@ -176,7 +176,7 @@ static double func4_2_0(const double x[], const int iResponse)
     return 0;
 }
 
-static double func4_6(const double x[], const int iResponse) 
+static double func4_6(const double x[], const int iResponse)
 {
     if (iResponse == 0)
         return func4(x, iResponse);
@@ -189,10 +189,10 @@ static double func4_6(const double x[], const int iResponse)
 
 // functions for testing NewVarPenalty
 
-static double func1collinear(const double x[], const int iResponse) 
+static double func1collinear(const double x[], const int iResponse)
     { return x[0] + x[1] + .1 * RandGauss(); }
 
-static double func2collinear(const double x[], const int iResponse) 
+static double func2collinear(const double x[], const int iResponse)
     { return cos(x[0]) + cos(x[1]) + .1 * RandGauss(); }
 
 //-----------------------------------------------------------------------------
@@ -200,10 +200,10 @@ static void TestEarth(char sTestName[],
                 double (__cdecl *func)(const double xVec[], const int iResponse),
                 const int nCases, const int nresponses, const int nPreds,
                 const int nMaxDegree, const int nMaxTerms,
-                const int nTrace, const bool Format,
+                const double Trace, const bool Format,
                 const double ForwardStepThresh,
                 const int K, const double FastBeta, const double NewVarPenalty,
-                const int seed, 
+                const int seed,
                 const double Collinear = 0)
 {
     #define y_(iCase,iResponse) y[(iCase) + (iResponse)*(nCases)]
@@ -258,7 +258,7 @@ static void TestEarth(char sTestName[],
         nCases, nresponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0,      // MinSpan
         true,   // Prune
-        K, FastBeta, NewVarPenalty, LinPreds, true, nTrace, NULL);
+        K, FastBeta, NewVarPenalty, LinPreds, true, Trace, NULL);
 
     // calc nUsedTerms
 
@@ -302,13 +302,13 @@ static void TestEarth(char sTestName[],
             if (iResponse == 0)
                 printf(" [%.2f secs]", TimeDelta);
             printf("\n");
-            
+
         }
         else
-            printf("RESULT %d: GRSq %g RSq %g nTerms %d of %d of %d [%.2f secs]\n", 
+            printf("RESULT %d: GRSq %g RSq %g nTerms %d of %d of %d [%.2f secs]\n",
                 nTest, GRSq, RSq, nUsedTerms, nTerms, nMaxTerms, TimeDelta);
     }
-    if (Format && nTrace) {
+    if (Format && Trace != 0) {
         printf("\nTEST %d: FUNCTION %s\n", nTest, sTestName);
         FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nresponses, nTerms, nMaxTerms, 3, 1e-6);
         printf("\n");
@@ -326,7 +326,7 @@ static void TestEarth(char sTestName[],
 
 //-----------------------------------------------------------------------------
 int main(void)
-{                                        // func    nCases     nResp nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B N s
+{                                        // func    nCases     nResp nPreds  nMaxDegree nMaxTerms  Trace Form Thresh  K B N s
   TestEarth("noise N=1000",            funcNoise,     1000,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 N=10",                     func0,       10,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 N=1000",                   func0,     1000,        1,     1,          2,       51,     3,true,0.001,20,0,0,99);
@@ -335,6 +335,7 @@ int main(void)
   TestEarth("x0 + x1 + noise N=1000",      func1,     1000,        1,   2+8,          2,       51,     0,true,0.001,20,0,0,99);
   TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("x0 + x1 + x0*x1 N=1000",      func2,     1000,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
+  TestEarth("x0 + x1 + x0*x1 N=1000, trace=1.5", func2, 1000,      1,     2,          2,       51,   1.5,true,0.001,20,0,0,99);
   TestEarth("cos(x0) + x1 N=1000",         func3,     1000,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,        1,     2,          2,       51,     3,true,0.001,20,0,0,99);
   TestEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,        1,     3,          2,       51,     3,true,0.001,20,0,0,99);
@@ -357,14 +358,14 @@ int main(void)
   TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     7,true,0.001, 4,0,0,99);
   TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     7,true,0.001, 4,1,0,99);
 
-  // test multiple responses                func    nCases     nResp nPreds  nMaxDegree nMaxTerms nTrace Format   Thresh  K B N s
+  // test multiple responses                func    nCases     nResp nPreds  nMaxDegree nMaxTerms  Trace Format   Thresh  K B N s
 
   TestEarth("x0|x+x1+noise N=30",        func0_1,      100,        2,     2,          1,       51,     4, true,0.001,20,0,0,99);
 
-  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100",        
+  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100",
                                          func2_2,      100,        2,     2,          1,       51,     4, true,0.001,20,0,0,99);
 
-  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100",        
+  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100",
                                          func2_2,      100,        2,     2,          2,       51,     7, true,0.001,20,0,0,99);
 
   TestEarth("x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=50",
@@ -383,7 +384,7 @@ int main(void)
   TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=50",
                                          func4_6,     1000,         2,     6,         2,      101,     3, true,0.001,20,0,0,99);
 
-  // test NewVarPenalty                     func    nCases     nResp nPreds  nMaxDegree nMaxTerms nTrace Form Thresh  K B  NP  s Colin
+  // test NewVarPenalty                     func    nCases     nResp nPreds  nMaxDegree nMaxTerms   Trace Form Thresh  K B  NP  s Colin
 
   TestEarth("cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0",
                                    func2collinear,      100,        1,     2,          1,       51,     3,true, 0.001,20,0, 0.0,99,.005);

@@ -55,8 +55,8 @@ are also non-increasing, except where the
 \code{gcv} or \code{rss} rank differs from the \code{nsubsets} ranking.
 }
 \note{
-The \code{earth} package vignette \url{../doc/earth-notes.pdf}
-has a chapter on \code{evimp}.
+There is a chapter on \code{evimp} in the earth package vignette
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
 
 \bold{Acknowledgment}
 
