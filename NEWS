@@ -1,10 +1,26 @@
 Changes to Earth Package
 ------------------------
 
+3.2-0  Jun 19, 2011
+   The PDF file is now a standard vignette (but with no executable code).
+   The "Importances" printed by print.earth are now a maximum of option("width") wide.
+   We no longer warn "effective number of GCV parameters >= number of cases"
+       but instead set such GCVs to Inf, so GCVs are now always
+       non-decreasing with the number of terms.  Documented as FAQ 12.11.
+   The earth C routines now print memory allocations if trace=1.5.
+   The pnTrace arg to ForwardPassR is now a double and called pTrace (allowing trace=1.5).
+   The default nk is now clipped at 200.  This limits the amount of memory
+       needed in the forward pass for large x matrices.  Numerical limits
+       will probably kick in before 200 are reached anyway.
+   We now force Use.beta.cache=FALSE with a message if the beta cache would
+       be more than 3 GB.
+   summary.earth now warns if illegal arguments are passed.
+   Documentation touched up.
+
 3.1-1  Jun 15, 2011
    Documentation emendations.
    We now issue a warning if user uses a CV arg to plot.earth but no CV data to plot.
-   The CV summary print no longer prints response name for single response models.
+   The CV summary print no longer prints the response name for single response models.
 
 3.1-0  Jun 14, 2011
    print.evimp now formats the results a little differently (more clearly).

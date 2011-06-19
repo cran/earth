@@ -78,6 +78,10 @@
 
 #if _MSC_VER            // microsoft
     #define _C_ "C"
+    #if _DEBUG          // debugging enabled?
+        // disable warning: too many actual params for macro (for malloc1 and calloc1)
+        #pragma warning(disable: 4002)
+    #endif
 #else
     #define _C_
     #ifndef bool
@@ -144,7 +148,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 3.1-0"; // change if you modify this file!
+static const char   *VERSION    = "version 3.2-0"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -178,10 +182,11 @@ static const int    MAX_DEGREE  = 100;
 #define Betas_(iTerm,iResp)             Betas          [(iTerm) + (iResp)*(nUsedCols)]
 
 // Global copies of some input parameters.  These stay constant for the entire MARS fit.
-static int nTraceGlobal;        // copy of nTrace parameter
+static double TraceGlobal;      // copy of Trace parameter
 static int nMinSpanGlobal;      // copy of nMinSpan parameter
 
 static void FreeBetaCache(void);
+static char *sFormatMemSize(const unsigned MemSize, const bool Align);
 
 //-----------------------------------------------------------------------------
 // malloc and its friends are redefined (a) so under Microsoft C using
@@ -194,25 +199,50 @@ static void FreeBetaCache(void);
 #define free1(p) { if (p) free(p); p = NULL; }
 
 #if _MSC_VER && _DEBUG  // microsoft C and debugging enabled?
+
 #define malloc1(size) _malloc_dbg((size), _NORMAL_BLOCK, __FILE__, __LINE__)
 #define calloc1(num, size) \
                       _calloc_dbg((num), (size), _NORMAL_BLOCK, __FILE__, __LINE__)
 #else
-static void *malloc1(size_t size)
+static void *malloc1(size_t size, const char *args, ...)
 {
     void *p = malloc(size);
+    if (!p || TraceGlobal == 1.5) {
+        if (args == NULL)
+            printf("malloc %s\n", sFormatMemSize(size, true));
+        else {
+            char s[100];
+            va_list p;
+            va_start(p, args);
+            vsprintf(s, args, p);
+            va_end(p);
+            printf("malloc %s: %s\n", sFormatMemSize(size, true), s);
+        }
+        fflush(stdout);
+    }
     if (!p)
-        error("Out of memory (could not allocate %g MBytes)",
-            ((double)size) / sq(1024.0));
+        error("Out of memory (could not allocate %s)", sFormatMemSize(size, false));
     return p;
 }
 
-static void *calloc1(size_t num, size_t size)
+static void *calloc1(size_t num, size_t size, const char *args, ...)
 {
     void *p = calloc(num, size);
+    if (!p || TraceGlobal == 1.5) {
+        if (args == NULL)
+            printf("calloc %s\n", sFormatMemSize(size, true));
+        else {
+            char s[100];
+            va_list p;
+            va_start(p, args);
+            vsprintf(s, args, p);
+            va_end(p);
+            printf("calloc %s: %s\n", sFormatMemSize(size, true), s);
+        }
+        fflush(stdout);
+    }
     if (!p)
-        error("Out of memory (could not allocate %g MBytes)",
-            ((double)size) / sq(1024.0));
+        error("Out of memory (could not allocate %s)", sFormatMemSize(size, false));
     return p;
 }
 #endif
@@ -288,6 +318,22 @@ void FreeR(void)                // for use by R
 #endif
 
 //-----------------------------------------------------------------------------
+static char *sFormatMemSize(const unsigned MemSize, const bool Align)
+{
+    static char s[100];
+    double Size = (double)MemSize;
+    if(Size >= 1e9)
+        sprintf(s, Align? "%6.3f GB": "%.3g GB", Size / 1e9);
+    else if(Size >= 1e6)
+        sprintf(s, Align? "%6.0f MB": "%.3g MB", Size / 1e6);
+    else if(Size >= 1e3)
+        sprintf(s, Align? "%6.0f kB": "%.3g kB", Size / 1e3);
+    else
+        sprintf(s, Align? "%6.0f  B": "%g B", Size);
+    return s;
+}
+
+//-----------------------------------------------------------------------------
 // Gets called periodically to service the R framework.
 // Will not return if the user interrupts.
 
@@ -319,8 +365,12 @@ static void InitQ(const int nMaxTerms)
 {
     int i;
     nQMax = 0;
-    Q       = (tQueue *)malloc1(nMaxTerms * sizeof(tQueue));
-    SortedQ = (tQueue *)malloc1(nMaxTerms * sizeof(tQueue));
+    Q       = (tQueue *)malloc1(nMaxTerms * sizeof(tQueue),
+                            "Q\t\t\tnMaxTerms %f sizeof(tQueue) %d",
+                            nMaxTerms, sizeof(tQueue));
+    SortedQ = (tQueue *)malloc1(nMaxTerms * sizeof(tQueue),
+                            "SortedQ\t\tnMaxTerms %f sizeof(tQueue) %d",
+                            nMaxTerms, sizeof(tQueue));
     for (i = 0; i < nMaxTerms; i++) {
         Q[i].iParent = i;
         Q[i].nTermsForRssDelta = -99;   // not strictly needed, nice for debugging
@@ -444,7 +494,7 @@ static int GetNextParent(   // returns -1 if no more parents
     static int iQ;          // index into sorted queue
     int iParent = -1;
     if (InitFlag) {
-        if (nTraceGlobal == 6)
+        if (TraceGlobal == 6)
             printf("\n|Considering parents ");
         iQ = 0;
     } else {
@@ -452,7 +502,7 @@ static int GetNextParent(   // returns -1 if no more parents
             iParent = SortedQ[iQ].iParent;
             iQ++;
         }
-        if (nTraceGlobal == 6 && iParent >= 0)
+        if (TraceGlobal == 6 && iParent >= 0)
             printf("%d [%g] ", iParent+IOFFSET, SortedQ[iQ].RssDelta);
     }
     return iParent;
@@ -503,7 +553,9 @@ static void Order(int sorted[],                     // out: vector with nx eleme
 
 static int *OrderArray(const double x[], const int nRows, const int nCols)
 {
-    int *xOrder = (int *)malloc1(nRows * nCols * sizeof(int));
+    int *xOrder = (int *)malloc1(nRows * nCols * sizeof(int),
+                            "xOrder\t\tnRows %d nCols %d sizeof(int) %d",
+                            nRows, nCols, sizeof(int));
 
     for (int iCol = 0; iCol < nCols; iCol++) {
         Order(xOrder + iCol*nRows, x + iCol*nRows, nRows);
@@ -540,7 +592,10 @@ static int CopyUsedCols(double **pxUsed,                // out
                     const bool UsedCols[])              // in
 {
     int nUsedCols = GetNbrUsedCols(UsedCols, nCols);
-    double *xUsed = (double *)malloc1(nCases * nUsedCols * sizeof(double));
+    double *xUsed = (double *)malloc1(nCases * nUsedCols * sizeof(double),
+                        "xUsed\t\t\tnCases %d nUsedCols %d sizeof(double) %d",
+                        nCases, nUsedCols, sizeof(double));
+
     int iUsed = 0;
     for (int iCol = 0; iCol < nCols; iCol++)
         if (UsedCols[iCol]) {
@@ -626,8 +681,13 @@ static void CalcDiags(
     #define R1_(i,j)    R1[(i) + (j) * nCols]
     #define B_(i,j)     B [(i) + (j) * nCols]
 
-    double *R1 = (double *)malloc1(nCols * nCols * sizeof(double)); // nCols rows of R
-    double *B =  (double *)calloc1(nCols * nCols, sizeof(double));  // rhs of R1 * x = B
+    double *R1 = (double *)malloc1(nCols * nCols * sizeof(double),  // nCols rows of R
+                            "R1\t\t\tnCols %d nCols %d sizeof(double) %d",
+                            nCols, nCols, sizeof(double));
+
+    double *B =  (double *)calloc1(nCols * nCols, sizeof(double),   // rhs of R1 * x = B
+                            "B\t\t\tnCols %d nCols %d sizeof(double) %d",
+                            nCols, nCols, sizeof(double));
     int i, j;
     for (i = 0; i < nCols; i++) {   // copy nCols rows of R into R1
         for (j =  0; j < nCols; j++)
@@ -695,17 +755,23 @@ static void Regress(
 
     bool MustFreeBetas = false;
     if (Betas == NULL) {
-        Betas = (double *)malloc1(nUsedCols * nResp * sizeof(double));
+        Betas = (double *)malloc1(nUsedCols * nResp * sizeof(double),
+                            "Betas\t\t\tnUsedCols %d nResp %d sizeof(double) %d",
+                            nUsedCols, nResp, sizeof(double));
         MustFreeBetas = true;
     }
     bool MustFreeResiduals = false;
     if (Residuals == NULL) {
-        Residuals = (double *)malloc1(nCases * nResp * sizeof(double));
+        Residuals = (double *)malloc1(nCases * nResp * sizeof(double),
+                                "Residuals\t\tnCases %d nResp %d sizeof(double) %d",
+                                nCases, nResp, sizeof(double));
         MustFreeResiduals = true;
     }
     bool MustFreePivots = false;
     if (iPivots == NULL) {
-        iPivots = (int *)malloc1(nUsedCols * sizeof(int));
+        iPivots = (int *)malloc1(nUsedCols * sizeof(int),
+                            "iPivots\t\tnUsedCols %d sizeof(int) %d",
+                            nUsedCols, sizeof(int));
         MustFreePivots = true;
     }
     int iCol;
@@ -722,12 +788,20 @@ static void Regress(
         // the corresponding element of Weights.  Ditto for wy.
 
         int iCase;
-        Weightss = (double *)malloc1(nCases * sizeof(double));
+        Weightss = (double *)malloc1(nCases * sizeof(double),
+                                "Weightss\t\t\tnCases %d sizeof(double) %d",
+                                nCases, sizeof(double));
+
         for (iCase = 0; iCase < nCases; iCase++)
             Weightss[iCase] = sqrt(Weights[iCase]);
 
-        wx = (double *)malloc(nCases * nUsedCols * sizeof(double));
-        wy = (double *)malloc(nCases * nResp * sizeof(double));
+        wx = (double *)malloc1(nCases * nUsedCols * sizeof(double),
+                        "wx\t\t\tnCases %d nUsedCols %d sizeof(double) %d",
+                        nCases, nUsedCols, sizeof(double));
+
+        wy = (double *)malloc1(nCases * nResp * sizeof(double),
+                        "wy\t\t\tnCases %d nResp %d sizeof(double) %d",
+                        nCases, nResp, sizeof(double));
 
         for (iCase = 0; iCase < nCases; iCase++)
             for (int iCol = 0; iCol < nUsedCols; iCol++)
@@ -741,8 +815,13 @@ static void Regress(
     }
     // compute Betas and yHat (use Residuals as a temporary buffer to store yHat)
 
-    double *qraux = (double *)malloc1(nUsedCols * sizeof(double));
-    double *work = (double *)malloc1(nCases * nUsedCols * sizeof(double));
+    double *qraux = (double *)malloc1(nUsedCols * sizeof(double),
+                                "qraux\t\t\tnUsedCols %d sizeof(double) %d",
+                                nUsedCols, sizeof(double));
+
+    double *work = (double *)malloc1(nCases * nUsedCols * sizeof(double),
+                                "work\t\t\tnCases %d nUsedCols %d sizeof(double) %d",
+                                nCases, nUsedCols, sizeof(double));
 
     dqrdc2_(                // R function, QR decomp based on LINPACK dqrdc
         wx,                 // io:  x, on return upper tri of x is R of QR
@@ -796,7 +875,9 @@ static void Regress(
     if (*pnRank != nUsedCols) {
         // adjust iPivots for missing cols in UsedCols and for 1 offset
 
-        int *PivotOffset = (int *)malloc1(nCols * sizeof(int));
+        int *PivotOffset = (int *)malloc1(nCols * sizeof(int),
+                                    "PivotOffset\t\t\tnCols %d sizeof(int) %d",
+                                    nCols, sizeof(int));
         int nOffset = 0, iOld = 0;
         for (iCol = 0; iCol < nCols; iCol++) {
             if (!UsedCols[iCol])
@@ -874,7 +955,9 @@ static void RegressAndFix(
     const int nTerms)       // in: number of cols in bx, some may not be used
 {
     int nRank;
-    int *iPivots = (int *)malloc1(nTerms * sizeof(int));
+    int *iPivots = (int *)malloc1(nTerms * sizeof(int),
+                            "iPivots\t\tnTerms %d sizeof(int) %d",
+                            nTerms, sizeof(int));
     Regress(Betas, Residuals, NULL, Diags, &nRank, iPivots,
         bx, y, Weights, nCases, nResp, nTerms, UsedCols);
     int nUsedCols = GetNbrUsedCols(UsedCols, nTerms);
@@ -892,7 +975,7 @@ static void RegressAndFix(
         if (nRank != nUsedCols)
             warning("Could not fix rank deficient bx: nUsedCols %d nRank %d",
                 nUsedCols,  nRank);
-        else if (nTraceGlobal >= 1)
+        else if (TraceGlobal >= 1)
             printf("Fixed rank deficient bx by removing %d term%s, %d term%s remain%s\n",
                 nDeficient, ((nDeficient==1)? "": "s"),
                 nUsedCols,  ((nUsedCols==1)? "": "s"), ((nUsedCols==1)? "s": ""));
@@ -929,9 +1012,10 @@ static INLINE double GetGcv(const int nTerms, // nbr basis terms including inter
         cost = 0;
     else {
         const double nKnots = ((double)nTerms-1) / 2;
-        cost = nTerms + Penalty * nKnots;
+        cost = (nTerms + Penalty * nKnots) / nCases;
     }
-    return Rss / (nCases * sq(1 - cost/nCases));
+    // test against cost ensures that GCVs are non-decreasing as nbr of terms increases
+    return cost >= 1? POS_INF : Rss / (nCases * sq(1 - cost));
 }
 
 //-----------------------------------------------------------------------------
@@ -1030,17 +1114,27 @@ static double *BetaCacheGlobal; // [iOrthCol,iParent,iPred]
 static void InitBetaCache(const bool UseBetaCache,
                           const int nMaxTerms, const int nPreds)
 {
-    if (!UseBetaCache)
+    int nCache =  nMaxTerms * nMaxTerms * nPreds;
+    if (!UseBetaCache) {
         BetaCacheGlobal = NULL;
-    else {
-        int nCacheSize =  nMaxTerms * nMaxTerms * nPreds;
+    // 3e9 below is somewhat arbitrary but seems about right (in 2011)
+    } else if (nCache * sizeof(double) > 3e9) {
+            printf(
+"\nNote: earth's beta cache would require %s, so forcing Use.beta.cache=FALSE.\n"
+"      Invoke earth with Use.beta.cache=FALSE to make this message go away.\n\n",
+                sFormatMemSize(nCache * sizeof(double), false));
+            fflush(stdout);
+            BetaCacheGlobal = NULL;
+    } else {
+       if (TraceGlobal >= 5)    // print cache size
+            printf("BetaCache %s\n",
+                sFormatMemSize(nCache * sizeof(double), false));
 
-        if (nTraceGlobal >= 5)                  // print cache size in megabytes
-            printf("BetaCache %.3f Mb\n", (nCacheSize * sizeof(double))/sq(1024.0));
+        BetaCacheGlobal = (double *)malloc1(nCache * sizeof(double),
+            "BetaCacheGlobal\tnMaxTerms %d nMaxTerms %d nPreds %d sizeof(double) %d",
+            nMaxTerms, nMaxTerms, nPreds, sizeof(double));
 
-        BetaCacheGlobal = (double *)malloc1(nCacheSize * sizeof(double));
-
-        for (int i = 0; i < nCacheSize; i++)    // mark all entries as uninited
+        for (int i = 0; i < nCache; i++)    // mark all entries as uninited
             BetaCacheGlobal[i] = POS_INF;
     }
 }
@@ -1221,7 +1315,7 @@ static void AddTermPair(
         Cuts_(nTerms, iPred) =
         Cuts_(nTerms1,iPred) = Cuts_(iBestParent,iPred);
 
-        if (nTraceGlobal >= 2 && !PrintedParent && Dirs_(iBestParent,iPred)) {
+        if (TraceGlobal >= 2 && !PrintedParent && Dirs_(iBestParent,iPred)) {
             // print parent term (this appends to prints by PrintForwardStep)
             printf("%-3d ", iBestParent+IOFFSET);
             PrintedParent = true;
@@ -1510,7 +1604,7 @@ static INLINE void AddCandidateLinearTerm(
             yboSum += y_(iCase,iResp) * bxOrth_(iCase,nTerms);
         *pRssDeltaLin += sq(yboSum) / NewVarAdjust;
     }
-    if (nTraceGlobal >= 7)
+    if (TraceGlobal >= 7)
         printf("Case %4d Cut % 12.4g< RssDelta %-12.5g ",
             0+IOFFSET, GetCut(0, iPred, nCases, x, xOrder), *pRssDeltaLin);
 }
@@ -1576,7 +1670,9 @@ static INLINE void FindPred(
 #if USING_R
     const int nServiceR = 1000000 / nCases;
 #endif
-    double *ybxSum = (double *)malloc1(nResp * sizeof(double)); // working var for FindKnot
+    double *ybxSum = (double *)malloc1(nResp * sizeof(double),  // working var for FindKnot
+                        "ybxSum\t\tnResp %d sizeof(double) %d",
+                        nResp, sizeof(double));
     bool UpdatedBestRssDelta = false;
     int iFirstPred = 0;
     int iLastPred = nPreds - 1;
@@ -1587,14 +1683,14 @@ static INLINE void FindPred(
     }
     for (int iPred = iFirstPred; iPred <= iLastPred; iPred++) {
         if (Dirs_(iParent,iPred) != 0) {    // predictor is in parent term?
-            if (nTraceGlobal >= 7)
+            if (TraceGlobal >= 7)
                 printf("|Parent %-2d Pred %-2d"
                     "                                   "
                     "                skip (pred is in parent)\n",
                     iParent+IOFFSET, iPred+IOFFSET);
 #if USING_R
         } else if (!IsAllowed(iPred, iParent, Dirs, nPreds, nMaxTerms)) {
-            if (nTraceGlobal >= 7)
+            if (TraceGlobal >= 7)
                 printf("|Parent %-2d Pred %-2d"
                     "                                   "
                     "                skip (not allowed by \"allowed\" func)\n",
@@ -1608,7 +1704,7 @@ static INLINE void FindPred(
                 iServiceR = 0;
             }
 #endif
-            if (nTraceGlobal >= 7)
+            if (TraceGlobal >= 7)
                 printf("|Parent %-2d Pred %-2d ", iParent+IOFFSET, iPred+IOFFSET);
             const double NewVarAdjust = 1 + (nUses[iPred] == 0? NewVarPenalty: 0);
             double RssDeltaLin = 0;    // change in RSS for iPred entering linearly
@@ -1632,7 +1728,7 @@ static INLINE void FindPred(
                     // The new term (with predictor entering linearly) beats other
                     // candidate terms so far.
 
-                    if (nTraceGlobal >= 7)
+                    if (TraceGlobal >= 7)
                         printf("BestRssDeltaForTermSoFar %g (lin pred) ",
                             RssDeltaLin - *pBestRssDeltaForTerm);
 
@@ -1645,7 +1741,7 @@ static INLINE void FindPred(
                 }
             }
             double RssDeltaForParentPredPair = RssDeltaLin;
-            if (nTraceGlobal >= 7)
+            if (TraceGlobal >= 7)
                 printf("\n");
             if (!LinPreds[iPred]) {
                 const int nMinSpan = GetMinSpan(nCases, nPreds, bx, iParent);
@@ -1670,7 +1766,7 @@ static INLINE void FindPred(
                     *piBestPred    = iPred;
                     *piBestParent  = iParent;
                     *pIsNewForm    = IsNewForm;
-                    if (nTraceGlobal >= 7)
+                    if (TraceGlobal >= 7)
                         printf("|                  "
                             "Case %4d Cut % 12.4g  "
                             "RssDelta %-12.5g BestRssDeltaForTermSoFar\n",
@@ -1741,7 +1837,7 @@ static void FindTerm(
     int Dummy = nFastK;             // prevent compiler warning: unused parameter
     Dummy = 0;
 #endif
-    if (nTraceGlobal >= 7)
+    if (TraceGlobal >= 7)
         printf("\n|Searching for new term %-3d                    "
                "RssDelta 0\n",
                nTerms+IOFFSET);
@@ -1752,10 +1848,18 @@ static void FindTerm(
     *pIsNewForm = false;
     int iCase;
 
-    xbx = (double *)malloc1(nCases * sizeof(double));
-    CovSx  = (double *)malloc1(nMaxTerms * sizeof(double));
-    CovCol = (double *)calloc1(nMaxTerms, sizeof(double));
-    ycboSum  = (double *)calloc1(nMaxTerms * nResp, sizeof(double));
+    xbx = (double *)malloc1(nCases * sizeof(double),
+                "xbx\t\t\tnCases %d sizeof(double) %d",
+                nCases, sizeof(double));
+    CovSx  = (double *)malloc1(nMaxTerms * sizeof(double),
+                "CovSx\t\t\tnMaxTerms %d sizeof(double) %d",
+                nMaxTerms, sizeof(double));
+    CovCol = (double *)calloc1(nMaxTerms, sizeof(double),
+                "CovCol\t\tnMaxTerms %d sizeof(double) %d",
+                nMaxTerms, sizeof(double));
+    ycboSum  = (double *)calloc1(nMaxTerms * nResp, sizeof(double),
+                "ycbpSum\t\tnMaxTerms %d nResp %d sizeof(double) %d",
+                nMaxTerms, nResp, sizeof(double));
 
     for (int iResp = 0; iResp < nResp; iResp++)
         for (int iTerm = 0; iTerm < nTerms; iTerm++)
@@ -1777,7 +1881,7 @@ static void FindTerm(
         double BestRssDeltaForParent = -1;    // used only by FAST_MARS
 
         if (nFactorsInTerm[iParent] >= nMaxDegree) {
-            if (nTraceGlobal >= 7)
+            if (TraceGlobal >= 7)
                 printf("|Parent %-2d"
                     "                                                      "
                     "     skip (nFactorsInTerm %d)\n",
@@ -1795,7 +1899,7 @@ static void FindTerm(
         UpdateRssDeltaInQ(iParent, nTerms, BestRssDeltaForParent);
 #endif
     } // iParent
-    if (nTraceGlobal >= 7)
+    if (TraceGlobal >= 7)
         printf("\n");
     free1(ycboSum);
     free1(CovCol);
@@ -1807,9 +1911,11 @@ static void FindTerm(
 static void PrintForwardProlog(const int nCases, const int nPreds,
         const char *sPredNames[])   // in: predictor names, can be NULL
 {
-    if (nTraceGlobal == 1)
+    if (TraceGlobal == 1)
         printf("Forward pass term 1");
-    else if (nTraceGlobal >= 2) {
+    else if(TraceGlobal == 1.5)
+        printf("Forward pass term 1\n");
+    else if (TraceGlobal >= 2) {
         char *sMinSpan = (nMinSpanGlobal < 0)? " (old minspan calculation)": "";
         printf("Forward pass: minspan %d endspan %d%s\n\n",
             GetMinSpan(nCases, nPreds, NULL, 0),
@@ -1842,14 +1948,16 @@ static void PrintForwardStep(
         const bool IsNewForm,
         const char *sPredNames[])   // in: predictor names, can be NULL
 {
-    if (nTraceGlobal == 6)
+    if (TraceGlobal == 6)
         printf("\n\n");
-    if (nTraceGlobal == 1) {
+    if (TraceGlobal == 1) {
         printf(", ");
         if (nTerms % 30 == 29)
             printf("\n     ");
         printf("%d", nTerms+1);
-    } else if (nTraceGlobal >= 2) {
+    } else if (TraceGlobal == 1.5)
+        printf("Forward pass term %d\n", nTerms+1);
+    else if (TraceGlobal >= 2) {
         printf("%-4d%9.4f %6.4f %12.4g  ",
             nTerms+IOFFSET, 1-Gcv/GcvNull, RSq, RSqDelta);
         if (iBestPred < 0)
@@ -1875,7 +1983,7 @@ static void PrintForwardStep(
             // AddTermPair will print the parents shortly, if any
         }
     }
-    if (nTraceGlobal)
+    if (TraceGlobal != 0)
         fflush(stdout);
 }
 
@@ -1888,7 +1996,7 @@ static void PrintForwardEpilog(
             const int iBestCase,
             const bool FullSet[])
 {
-    if (nTraceGlobal >= 1) {
+    if (TraceGlobal >= 1) {
         double GRSq = 1-Gcv/GcvNull;
 
         // print reason why we stopped adding terms
@@ -1897,16 +2005,16 @@ static void PrintForwardEpilog(
         // treat very low nMaxTerms as a special case
         // because RSDelta etc. not yet completely initialized
 
-        if (nMaxTerms < 3) {
+        if (nMaxTerms < 3)
             printf("\nReached max number of terms %d", nMaxTerms);
-            if (nTerms < nMaxTerms)
-                printf(" (no room for another term pair)");
-            printf("\n");
-        }
-        else if (Thresh != 0 && GRSq < MIN_GRSQ)
-            printf("\nReached min GRSq (GRSq %g < %g) at %d terms\n",
-                GRSq, MIN_GRSQ, nTerms);
 
+        else if (Thresh != 0 && GRSq < MIN_GRSQ) {
+            if(GRSq < -1000)
+                printf("\nReached GRSq = -Inf at %d terms\n", nTerms);
+            else
+                printf("\nReached min GRSq (GRSq %g < %g) at %d terms\n",
+                    GRSq, MIN_GRSQ, nTerms);
+        }
         else if (Thresh != 0 && RSqDelta < Thresh)
             printf("\nReached delta RSq threshold (DeltaRSq %g < %g) at %d terms\n",
                 RSqDelta, Thresh, nTerms);
@@ -1927,14 +2035,14 @@ static void PrintForwardEpilog(
         }
         printf("After forward pass GRSq %.4g RSq %.4g\n", GRSq, RSq);
     }
-    if (nTraceGlobal >= 2) {
+    if (TraceGlobal >= 2) {
         printf("Forward pass complete: %d terms", nTerms);
         int nUsed = GetNbrUsedCols(FullSet, nMaxTerms);
         if (nUsed != nTerms)
             printf(" (%d terms used)", nUsed);
         printf("\n");
     }
-    if (nTraceGlobal >= 3)
+    if (TraceGlobal >= 3)
         printf("\n");
 }
 
@@ -1987,7 +2095,9 @@ static void CheckRssNull(double RssNull, const double y[], int iResp, int nCases
 //-----------------------------------------------------------------------------
 static double *pInitWeights(const double WeightsArg[], int nCases)
 {
-    Weights = (double *)malloc1(nCases * sizeof(double));
+    Weights = (double *)malloc1(nCases * sizeof(double),
+                    "Weights\t\tnCases %d sizeof(double) %d",
+                    nCases, sizeof(double));
     if (!WeightsArg)
         for (int iCase = 0; iCase < nCases; iCase++)
             Weights[iCase] = 1;
@@ -2043,7 +2153,7 @@ static void ForwardPass(
     const bool UseBetaCache,    // in: true to use the beta cache, for speed
     const char *sPredNames[])   // in: predictor names, can be NULL
 {
-    if (nTraceGlobal >= 5)
+    if (TraceGlobal >= 5)
         printf("earth.c %s\n", VERSION);
 
     // The limits below are somewhat arbitrary and generous.
@@ -2098,10 +2208,10 @@ static void ForwardPass(
         error("fast.beta %g < 0", FastBeta);
     if (FastBeta > 1000)
         error("fast.beta %g > 1000", FastBeta);
-    if (nTraceGlobal < 0)
-        warning("trace.earth %d < 0", nTraceGlobal);
-    if (nTraceGlobal > 10)
-        warning("trace.earth %d > 10", nTraceGlobal);
+    if (TraceGlobal < 0)
+        warning("trace %g < 0", TraceGlobal);
+    if (TraceGlobal > 10)
+        warning("trace %g > 10", TraceGlobal);
     if (NewVarPenalty < 0)
         warning("newvar.penalty %g < 0", NewVarPenalty);
     if (NewVarPenalty > 10)
@@ -2112,10 +2222,21 @@ static void ForwardPass(
     CheckVec(x, nCases, nPreds, "x");
     CheckVec(y, nCases, nResp,  "y");
 
-    bxOrth          = (double *)malloc1(nCases * nMaxTerms * sizeof(double));
-    bxOrthCenteredT = (double *)malloc1(nMaxTerms * nCases * sizeof(double));
-    bxOrthMean      = (double *)malloc1(nMaxTerms * nResp * sizeof(double));
-    yMean           = (double *)malloc1(nResp * sizeof(double));
+    bxOrth          = (double *)malloc1(nCases * nMaxTerms * sizeof(double),
+                        "bxOrth\t\tnCases %d nMaxTerms %d  sizeof(double) %d",
+                        nCases, nMaxTerms, sizeof(double));
+
+    bxOrthCenteredT = (double *)malloc1(nMaxTerms * nCases * sizeof(double),
+                        "bxOrthCenteredT\tnMaxTerms %d nCases %d  sizeof(double) %d",
+                        nMaxTerms, nCases, sizeof(double));
+
+    bxOrthMean      = (double *)malloc1(nMaxTerms * nResp * sizeof(double),
+                        "bxOrthMean\t\tnMaxTerms %d nResp %d  sizeof(double) %d",
+                        nMaxTerms, nResp, sizeof(double));
+
+    yMean           = (double *)malloc1(nResp * sizeof(double),
+                        "yMean\t\t\tnResp %d sizeof(double) %d",
+                        nResp, sizeof(double));
 
     memset(FullSet,        0, nMaxTerms * sizeof(bool));
     memset(Dirs,           0, nMaxTerms * nPreds * sizeof(int));
@@ -2188,7 +2309,7 @@ static void ForwardPass(
 
         if (iBestCase < 0 ||
                 (Thresh != 0 && ((1-Gcv/GcvNull) < MIN_GRSQ || RSqDelta < Thresh))) {
-            if (nTraceGlobal >= 2)
+            if (TraceGlobal >= 2)
                 printf("reject term\n");
             break;                      // NOTE break
         }
@@ -2203,10 +2324,10 @@ static void ForwardPass(
             AddTermToQ(nTerms+1, nTerms, POS_INF, true,  nMaxTerms, FastBeta);
         } else
             AddTermToQ(nTerms,   nTerms, POS_INF, true,  nMaxTerms, FastBeta);
-        if (nTraceGlobal == 6)
+        if (TraceGlobal == 6)
             PrintSortedQ(nFastK);
 #endif
-        if (nTraceGlobal >= 2)
+        if (TraceGlobal >= 2)
             printf("\n");
     }
     PrintForwardEpilog(nTerms, nMaxTerms, Thresh, RSq, RSqDelta,
@@ -2253,10 +2374,10 @@ void ForwardPassR(              // for use by R
     const int *pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
-    const int *pnTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    const double *pTrace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[])     // in: predictor names in trace printfs, can be R_NilValue
 {
-    nTraceGlobal = *pnTrace;
+    TraceGlobal = *pTrace;
     nMinSpanGlobal = *pnMinSpan;
 
     const int nCases = *pnCases;
@@ -2265,15 +2386,24 @@ void ForwardPassR(              // for use by R
     const int nMaxTerms = *pnMaxTerms;
 
     // nUses is the number of time each predictor is used in the model
-    nUses = (int *)malloc1(*pnPreds * sizeof(int));
+    nUses = (int *)malloc1(*pnPreds * sizeof(int),
+                    "nUses\t\t\t*pnPreds %d sizeof(int)",
+                    *pnPreds, sizeof(int));
 
     // nFactorsInTerm is number of hockey stick functions in basis term
-    nFactorsInTerm = (int *)malloc1(nMaxTerms * sizeof(int));
+    nFactorsInTerm = (int *)malloc1(nMaxTerms * sizeof(int),
+                        "nFactorsInTerm\tnMaxTerms %d sizeof(int) %d",
+                        nMaxTerms, sizeof(int));
 
-    iDirs = (int *)calloc1(nMaxTerms * nPreds, sizeof(int));
+    iDirs = (int *)calloc1(nMaxTerms * nPreds, sizeof(int),
+                        "iDirs\t\t\tnMaxTerms %d nPreds %d sizeof(int) %d",
+                        nMaxTerms, nPreds, sizeof(int));
 
     // convert int to bool (may be redundant, depending on compiler)
-    BoolFullSet = (int *)malloc1(nMaxTerms * sizeof(bool));
+    BoolFullSet = (int *)malloc1(nMaxTerms * sizeof(bool),
+                        "BoolFullSet\t\tnMaxTerms %d sizeof(bool) %d",
+                        nMaxTerms, sizeof(bool));
+
     int iTerm;
     for (iTerm = 0; iTerm < nMaxTerms; iTerm++)
         BoolFullSet[iTerm] = FullSet[iTerm];
@@ -2342,11 +2472,21 @@ static void EvalSubsetsUsingXtx(
     const double y[],       // in: nCases * nResp
     const double WeightsArg[]) // in: nCases x 1, can be NULL
 {
-    double *Betas = (double *)malloc1(nMaxTerms * nResp * sizeof(double));
-    double *Diags = (double *)malloc1(nMaxTerms * sizeof(double));
+    double *Betas = (double *)malloc1(nMaxTerms * nResp * sizeof(double),
+                        "Betas\t\t\tnMaxTerms %d nResp %d sizeof(double) %d",
+                        nMaxTerms, nResp, sizeof(double));
+
+    double *Diags = (double *)malloc1(nMaxTerms * sizeof(double),
+                        "Diags\t\t\tnMaxTerms %d sizeof(double) %d",
+                        nMaxTerms, sizeof(double));
+
     if (WeightsArg)
         Weights = pInitWeights(WeightsArg, nCases);
-    WorkingSet = (bool *)malloc1(nMaxTerms * sizeof(bool));
+
+    WorkingSet = (bool *)malloc1(nMaxTerms * sizeof(bool),
+                        "WorkingSet\t\tnMaxTerms %d sizeof(bool) %d",
+                        nMaxTerms, sizeof(bool));
+
     for (int i = 0; i < nMaxTerms; i++)
         WorkingSet[i] = true;
     for (int nUsedCols = nMaxTerms; nUsedCols > 0; nUsedCols--) {
@@ -2411,7 +2551,9 @@ void EvalSubsetsUsingXtxR(      // for use by R
     const double WeightsArg[])  // in: nCases x 1, can be R_NilValue
 {
     const int nMaxTerms = *pnMaxTerms;
-    bool *BoolPruneTerms = (int *)malloc1(nMaxTerms * nMaxTerms * sizeof(bool));
+    bool *BoolPruneTerms = (int *)malloc1(nMaxTerms * nMaxTerms * sizeof(bool),
+                                "BoolPruneTerms\tMaxTerms %d nMaxTerms %d sizeof(bool) %d",
+                                nMaxTerms, nMaxTerms, sizeof(bool));
 
     if ((void *)WeightsArg == (void *)R_NilValue)
         WeightsArg = NULL;
@@ -2446,14 +2588,20 @@ static void BackwardPass(
     const int nMaxTerms,    // in: number of cols in bx
     const double Penalty)   // in: GCV penalty per knot
 {
-    double *RssVec = (double *)malloc1(nMaxTerms * sizeof(double));
-    bool *PruneTerms = (bool *)malloc1(nMaxTerms * nMaxTerms * sizeof(bool));
+    double *RssVec = (double *)malloc1(nMaxTerms * sizeof(double),
+                        "RssVec\t\tnMaxTerms %d sizeof(double) %d",
+                        nMaxTerms, sizeof(double));
+
+    bool *PruneTerms = (bool *)malloc1(nMaxTerms * nMaxTerms * sizeof(bool),
+                        "PruneTerms\t\tnMaxTerms %d nMaxTerms %d sizeof(bool) %d",
+                        nMaxTerms, nMaxTerms, sizeof(bool));
+
     EvalSubsetsUsingXtx(PruneTerms, RssVec, nCases, nResp,
                         nMaxTerms, bx, y, WeightsArg);
 
     // now we have the RSS for each model, so find the iModel which has the best GCV
 
-    if (nTraceGlobal >= 3)
+    if (TraceGlobal >= 3)
         printf("Backward pass:\nSubsetSize         GRSq          RSq\n");
     int iBestModel = -1;
     double GcvNull = GetGcv(1, nCases, RssVec[0], Penalty);
@@ -2464,11 +2612,11 @@ static void BackwardPass(
             iBestModel = iModel;
             BestGcv = Gcv;
         }
-        if (nTraceGlobal >= 3)
+        if (TraceGlobal >= 3)
             printf("%10d %12.4f %12.4f\n", iModel+IOFFSET,
                 1 - BestGcv/GcvNull, 1 - RssVec[iModel]/RssVec[0]);
     }
-    if (nTraceGlobal >= 3)
+    if (TraceGlobal >= 3)
         printf("\nBackward pass complete: selected %d terms of %d, GRSq %g RSq %g\n\n",
             iBestModel+IOFFSET, nMaxTerms,
             1 - BestGcv/GcvNull, 1 - RssVec[iBestModel]/RssVec[0]);
@@ -2547,20 +2695,24 @@ void Earth(
     const double NewVarPenalty, // in: penalty for adding a new variable
     const int LinPreds[],       // in: nPreds x 1, 1 if predictor must enter linearly
     const bool UseBetaCache,    // in: 1 to use the beta cache, for speed
-    const int nTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    const double Trace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[])   // in: predictor names in trace printfs, can be NULL
 {
 #if _MSC_VER && _DEBUG
     InitMallocTracking();
 #endif
-    nTraceGlobal = nTrace;
+    TraceGlobal = Trace;
     nMinSpanGlobal = nMinSpan;
 
     // nUses is the number of time each predictor is used in the model
-    nUses = (int *)malloc1(nPreds * sizeof(int));
+    nUses = (int *)malloc1(nPreds * sizeof(int),
+                        "nUses\t\t\tnPreds %d sizeof(int) %d",
+                        nPreds, sizeof(int));
 
     // nFactorsInTerm is number of hockey stick functions in basis term
-    nFactorsInTerm = (int *)malloc1(nMaxTerms * sizeof(int));
+    nFactorsInTerm = (int *)malloc1(nMaxTerms * sizeof(int),
+                            "nFactorsInTerm\tnMaxTerms %d sizeof(int) %d",
+                            nMaxTerms, sizeof(int));
 
     int nTerms;
     ForwardPass(&nTerms, BestSet, bx, Dirs, Cuts, nFactorsInTerm, nUses,
@@ -2573,7 +2725,7 @@ void Earth(
     RegressAndFix(Betas, Residuals, NULL, BestSet,
         bx, y, WeightsArg, nCases, nResp, nMaxTerms);
 
-    if (nTraceGlobal >= 6)
+    if (TraceGlobal >= 6)
         PrintSummary(nMaxTerms, nTerms, nPreds, nResp,
             BestSet, Dirs, Cuts, Betas, nFactorsInTerm);
 
@@ -2583,7 +2735,7 @@ void Earth(
         BackwardPass(pBestGcv, BestSet, Residuals, Betas,
             bx, y, WeightsArg, nCases, nResp, nMaxTerms1, Penalty);
 
-    if (nTraceGlobal >= 6)
+    if (TraceGlobal >= 6)
         PrintSummary(nMaxTerms, nMaxTerms1, nPreds, nResp,
             BestSet, Dirs, Cuts, Betas, nFactorsInTerm);
 
@@ -2808,22 +2960,22 @@ int main(void)
     const int    nFastK = 20;
     const double FastBeta = 0;
     const double NewVarPenalty = 0;
-    int          *LinPreds = (int *)calloc1(nPreds, sizeof(int));
+    int          *LinPreds = (int *)calloc1(nPreds, sizeof(int), NULL);
     const bool   UseBetaCache = true;
-    const int    nTrace = 3;
+    const double Trace = 3;
     const char   **sPredNames = NULL;
 
     double BestGcv;
     int    nTerms;
-    bool   *BestSet   = (bool *)  malloc1(nMaxTerms * sizeof(bool));
-    double *bx        = (double *)malloc1(nCases    * nMaxTerms * sizeof(double));
-    int    *Dirs      = (int *)   malloc1(nMaxTerms * nPreds    * sizeof(int));
-    double *Cuts      = (double *)malloc1(nMaxTerms * nPreds    * sizeof(double));
-    double *Residuals = (double *)malloc1(nCases    * nResp     * sizeof(double));
-    double *Betas     = (double *)malloc1(nMaxTerms * nResp     * sizeof(double));
+    bool   *BestSet   = (bool *)  malloc1(nMaxTerms * sizeof(bool), NULL);
+    double *bx        = (double *)malloc1(nCases    * nMaxTerms * sizeof(double), NULL);
+    int    *Dirs      = (int *)   malloc1(nMaxTerms * nPreds    * sizeof(int),    NULL);
+    double *Cuts      = (double *)malloc1(nMaxTerms * nPreds    * sizeof(double), NULL);
+    double *Residuals = (double *)malloc1(nCases    * nResp     * sizeof(double), NULL);
+    double *Betas     = (double *)malloc1(nMaxTerms * nResp     * sizeof(double), NULL);
 
-    double *x = (double *)malloc1(nCases * nPreds   * sizeof(double));
-    double *y = (double *)malloc1(nCases * nResp * sizeof(double));
+    double *x = (double *)malloc1(nCases * nPreds   * sizeof(double), NULL);
+    double *y = (double *)malloc1(nCases * nResp * sizeof(double),    NULL);
     const double *Weights = NULL;
 
     ASSERT(nResp == 1);    // code below only works for nResp == 1
@@ -2836,7 +2988,7 @@ int main(void)
     Earth(&BestGcv, &nTerms, BestSet, bx, Dirs, Cuts, Residuals, Betas,
         x, y, Weights, nCases, nResp, nPreds,
         nMaxDegree, nMaxTerms, Penalty, Thresh, nMinSpan, Prune,
-        nFastK, FastBeta, NewVarPenalty, LinPreds, UseBetaCache, nTrace, sPredNames);
+        nFastK, FastBeta, NewVarPenalty, LinPreds, UseBetaCache, Trace, sPredNames);
 
     printf("Expression:\n");
     FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResp, nTerms, nMaxTerms, 3, 0);

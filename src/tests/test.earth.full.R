@@ -129,6 +129,10 @@ library(mda)
 if (PLOT)
     plot(a)
 printh(summary(a$fit))
+# expect Warning: summary.earth ignored unrecognized argument "none.such1"
+printh(summary(a$fit, none.such1="xxx"))
+# expect Warning: format.earth ignored unrecognized argument "none.such2"
+printh(summary(a$fit, style="bf", none.such2="xxx"))
 if (PLOT) {
     plot(a$fit, col.residuals=iris$Species)
     plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE)
@@ -532,8 +536,8 @@ func1 <- function(x)
 }
 x.global <- cbind(                    x1, x2)
 data.global <- cbind(func1(x.global), x1, x2)
-itest <- itest+1; test.earth(itest, func1, nk=5,   degree=1)
-itest <- itest+1; test.earth(itest, func1, nk=5,   degree=2)
+itest <- itest+1; test.earth(itest, func1, nk=5,  degree=1)
+itest <- itest+1; test.earth(itest, func1, nk=5,  degree=2, trace=1.5)
 itest <- itest+1; test.earth(itest, func1, nk=51, degree=1)
 itest <- itest+1; test.earth(itest, func1, nk=51, degree=2)
 # test pmethod="exhaustive" with and without tracing

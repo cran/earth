@@ -9,22 +9,34 @@ get.used.preds <- function(obj)   # obj is an earth object
 }
 
 # Print predictors in order of decreasing estimated importance.
-# A one line summary --- print up to 10 predictors.
-# Called by print.summary.earth.
+# A one line summary.  Called by print.summary.earth.
 
 print.one.line.evimp <- function(obj) # obj is an "earth" obj
 {
-    if(is.null(obj$prune.terms)) # this occurs on mars.to.earth objects
+    if(is.null(obj$prune.terms)) {
+        if(is.null(obj$ifold)) { # not a fold model?
+            # must have been created by mars.to.earth
+            cat("Importance: object has no prune.terms, call update() on the model to fix that\n")
+        }
         return()
+    }
     evimp <- row.names(evimp(obj, trim=FALSE))
-    cat("Importance: ")
-    nprint <- min(10, length(evimp))
-    if(nprint == 0)
-        cat("no predictors")
+    if(length(evimp) == 0)
+        cat("Importance: no predictors")
+    else if(length(evimp) == 1)
+        cat0("Importance: ", evimp[1])
     else {
-        cat(paste.with.comma(evimp[1:nprint]))
-        if(nprint < length(evimp))
-            cat(", ...")
+        width <- max(getOption("width")-5, 20) # -5 for ", ..."
+        s <- paste0("Importance: ", evimp[1])
+        for(ipred in 2:length(evimp)) {
+            temp <- paste0(s, ", ", evimp[ipred])
+            if(nchar(temp) >= width) {
+                s <- paste0(s, ", ...")
+                break
+            }
+            s <- temp
+        }
+        cat(s)
     }
     cat("\n")
 }

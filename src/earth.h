@@ -44,7 +44,7 @@ void ForwardPassR(              // for use by R
     const int *pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
-    const int *pnTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    const double *pTrace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[]);    // in: predictor names in trace printfs, can be R_NilValue
 
 void EvalSubsetsUsingXtxR(     // for use by R
@@ -102,7 +102,7 @@ void Earth(
     const double NewVarPenalty, // in: penalty for adding a new variable
     const int LinPreds[],       // in: 1 x nPreds, 1 if predictor must enter linearly
     const bool UseBetaCache,    // in: 1 to use the beta cache, for speed
-    const int nTrace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    const double Trace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[]);  // in: predictor names in trace printfs, can be NULL
 
 void FormatEarth(

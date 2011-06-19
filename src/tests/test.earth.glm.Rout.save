@@ -29,7 +29,7 @@ Opening Rplots.ps
 > 
 > count <- 0
 > 
-> print.earth.models <- function(a, nresponse=NA)
+> show.earth.models <- function(a, nresponse=NA)
 + {
 +     model.name <- deparse(substitute(a))
 +     cat("\nPrint", model.name, "\n\n")
@@ -123,10 +123,10 @@ Forward pass: minspan 3 endspan 8
 4      0.9603 0.9882      0.06708    1      sexmale           0< 3       2   
 6      0.9165 0.9915     0.003362    3       ldose1         0.1< 4       2   
 8      0.7309 0.9978     0.006231    3       ldose1         0.1< 5       
-10     0.9313 0.9987     0.000947    1      sexmale           0< 6       reject term
+10       -inf 0.9987     0.000947    1      sexmale           0< 6       reject term
 
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Forward pass complete: 9 terms (5 terms used)
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
@@ -149,7 +149,7 @@ First few rows of y arg to glm() are
 [5,]      18        2
 [6,]      20        0
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
-> print.earth.models(a1)
+> show.earth.models(a1)
 
 Print a1 
 
@@ -509,8 +509,8 @@ check.models.equal not identical: a1update a1 [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
@@ -520,8 +520,8 @@ check.models.equal not identical: a1 a1a [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
@@ -531,8 +531,8 @@ check.models.equal not identical: a1 a1b [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
@@ -542,8 +542,8 @@ check.models.equal not identical: a1 a1c [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
@@ -558,8 +558,8 @@ check.models.equal not identical: a1 a1d [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
@@ -570,15 +570,15 @@ check.models.equal not identical: a1 a1g [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 Deviance = 4.982452 Iterations - 1 
 Deviance = 4.956514 Iterations - 2 
 Warning: glm.fit: algorithm did not converge
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956514 (7 dof)   iters 2 did not converge
-> print.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
+> show.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
 
 Print a1h 
 
@@ -939,7 +939,7 @@ Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predic
 After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 3.830772 (7 dof)   iters 5
 > stopifnot(a1h.update1$glm.list[[1]]$control$maxit == 8)
-> print.earth.models(a1h.update1)
+> show.earth.models(a1h.update1)
 
 Print a1h.update1 
 
@@ -1289,7 +1289,7 @@ After backward pass GRSq 0.9525 RSq 0.9808
 GLM numdead: null.deviance 504.25 (11 dof)   deviance 9.702381 (9 dof)   iters 2
 GLM numalive: null.deviance 504.25 (11 dof)   deviance 9.702381 (9 dof)   iters 2
 > stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
-> print.earth.models(a1h.update2, nresponse="numali")
+> show.earth.models(a1h.update2, nresponse="numali")
 
 Print a1h.update2 
 
@@ -1532,8 +1532,8 @@ ylim 3.22619 17.79762
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=I(ldose1-3)
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.956501 (7 dof)   iters 4
@@ -1585,7 +1585,7 @@ Prune method "none" penalty 2 nprune 4: selected 4 of 4 terms, and 3 of 3 predic
 After backward pass GRSq 0.9569 RSq 0.9911 
 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.993727 (8 dof)   iters 4
-> print.earth.models(a2)
+> show.earth.models(a2)
 
 Print a2 
 
@@ -1876,7 +1876,7 @@ Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a4, nresponse="numdead")
+> show.earth.models(a4, nresponse="numdead")
 
 Print a4 
 
@@ -2308,7 +2308,7 @@ check.models.equal not identical: a4update a4d no keepxy [but within numerical t
 a5: titanic data, multiple responses (i.e. 3 level factor)
 
 > a5 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
-> print.earth.models(a5, nresponse=3)
+> show.earth.models(a5, nresponse=3)
 
 Print a5 
 
@@ -3178,7 +3178,7 @@ After forward pass GRSq 0.2465 RSq 0.303
 Prune method "backward" penalty 3 nprune 17: selected 10 of 17 terms, and 5 of 5 predictors
 After backward pass GRSq 0.2627 RSq 0.2941 
 GLM pclass1: null.deviance 1223.308 (1045 dof)   deviance 898.8677 (1036 dof)   iters 5
-> print.earth.models(a6)
+> show.earth.models(a6)
 
 Print a6 
 
@@ -3970,7 +3970,7 @@ After forward pass GRSq 0.3426 RSq 0.3859
 Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
 After backward pass GRSq 0.355 RSq 0.3825 
 GLM male: null.deviance 1379.574 (1045 dof)   deviance 937.0176 (1036 dof)   iters 5
-> print.earth.models(a7)
+> show.earth.models(a7)
 
 Print a7 
 
@@ -4863,7 +4863,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.8939 RSq 0.5265 
 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
-> print.earth.models(a8p)
+> show.earth.models(a8p)
 
 Print a8p 
 
@@ -5083,7 +5083,7 @@ Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predic
 After backward pass GRSq -0.8939 RSq 0.5265 
 GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 GLM counts2: null.deviance 105.166 (8 dof)   deviance 50.96448 (6 dof)   iters 4
-> print.earth.models(a10, nresponse="counts2")
+> show.earth.models(a10, nresponse="counts2")
 
 Print a10 
 
@@ -5647,7 +5647,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(aref, nresponse=1)
+> show.earth.models(aref, nresponse=1)
 
 Print aref 
 
@@ -5896,7 +5896,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21, nresponse="numdead2")
+> show.earth.models(a21, nresponse="numdead2")
 
 Print a21 
 
@@ -6117,7 +6117,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a21, nresponse="numdead")
+> show.earth.models(a21, nresponse="numdead")
 
 Print a21 
 
@@ -6333,7 +6333,7 @@ Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 pr
 After backward pass GRSq 0.9393 RSq 0.9754 
 GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
 GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
-> print.earth.models(a22, nresponse=1)
+> show.earth.models(a22, nresponse=1)
 
 Print a22 
 
@@ -7300,15 +7300,15 @@ predict.earth: returning earth predictions
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0.000947013 < 0.001) at 9 terms
-After forward pass GRSq 0.9313 RSq 0.9987
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9987
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.7309 RSq 0.9978 
 check.models.equal not identical: predict with single level factors and a single response [but within numerical tolerances]
@@ -8595,43 +8595,37 @@ A-73f identical
 
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
-Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001) at 11 terms
-After forward pass GRSq 0.9392 RSq 0.992
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
-After backward pass GRSq 0.5201 RSq 0.9911 
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9911
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 6 predictors
+After backward pass GRSq -0.2105 RSq 0.99 
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
-Forward pass term 1, 2, 4, 6, 8, 10, 12
-Reached delta RSq threshold (DeltaRSq 0.000878487 < 0.001) at 11 terms
-After forward pass GRSq 0.9392 RSq 0.992
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Prune method "none" penalty 3 nprune 6: selected 6 of 6 terms, and 4 of 6 predictors
-After backward pass GRSq 0.5201 RSq 0.9911 
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
+Forward pass term 1, 2, 4, 6, 8, 10
+Reached GRSq = -Inf at 9 terms
+After forward pass GRSq -inf RSq 0.9911
+Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 6 predictors
+After backward pass GRSq -0.2105 RSq 0.99 
 check.models.equal not identical: B predict with multiple level factors and a multiple real response [but within numerical tolerances]
 20m head(predict(am, trace=1)
 predict.earth: returning earth fitted.values 
        numdead  numdead2
-[1,]  1.184457  1.773767
-[2,]  4.008754  3.868530
-[3,]  9.051451  9.525572
-[4,] 12.984949 13.401474
-[5,] 16.918446 17.277377
-[6,] 20.851943 21.153279
+[1,]  1.186615  1.777349
+[2,]  4.004762  3.861905
+[3,]  9.052638  9.527542
+[4,] 12.985650 13.402638
+[5,] 16.918662 17.277735
+[6,] 20.851673 21.152831
 B-21f head(predict(af, trace=1)
 predict.earth: returning earth fitted.values 
        numdead  numdead2
-[1,]  1.184457  1.773767
-[2,]  4.008754  3.868530
-[3,]  9.051451  9.525572
-[4,] 12.984949 13.401474
-[5,] 16.918446 17.277377
-[6,] 20.851943 21.153279
+[1,]  1.186615  1.777349
+[2,]  4.004762  3.861905
+[3,]  9.052638  9.527542
+[4,] 12.985650 13.402638
+[5,] 16.918662 17.277735
+[6,] 20.851673 21.152831
 B-20 identical
 B-31m predict(am, xdata.frame, trace=1) data frame with factors and wrong col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
@@ -8641,16 +8635,14 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
 B-31 identical
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-31f predict(af, xdata.frame, trace=1) data frame with factors and wrong col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.1. X.2 X0.1 fac3.1.
@@ -8663,30 +8655,26 @@ get.earth.x from model.matrix.earth from predict.earth: data after call to model
 Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-31 identical
 B-31bm predict(am, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-31 identical
 B-31bf predict(af, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -8697,30 +8685,26 @@ get.earth.x from model.matrix.earth from predict.earth: data after call to model
 Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-31b identical
 B-32m predict(am, xdata.frame, trace=1) # data frame with names
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-32 identical
 B-32 identical
 B-32f predict(af, xdata.frame, trace=1) # data frame with names
@@ -8732,15 +8716,13 @@ get.earth.x from model.matrix.earth from predict.earth: data after call to model
 Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-32 identical
 B-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
 Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
@@ -8754,15 +8736,13 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-54 identical
 B-54f predict(af, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
@@ -8776,15 +8756,13 @@ get.earth.x from model.matrix.earth from predict.earth: data after call to model
 Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-54 identical
 B-55m predict(am, xdata.frame, trace=1) data frame without col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
@@ -8795,18 +8773,15 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           1                    0                    0        0
-     sex3female
-[1,]          0
-[2,]          1
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 3.100445 3.912609
+[1,] 1.186615 1.777349
+[2,] 3.110103 3.928636
 B-55m again, but with same x data for both reponses
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.c.1..1.. c..2...2. c.0.1..0.1. fac3.c.1..1..
@@ -8816,18 +8791,15 @@ Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 2 male    -2    0.1 lev2
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
-[2,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 1.184457 1.773767
+[1,] 1.186615 1.777349
+[2,] 1.186615 1.777349
 B-55f predict(af, xdata.frame, trace=1) data frame without col names
 get.earth.x from model.matrix.earth from predict.earth: unexpected x column names, renaming columns
     Old names: sex3.c.1..1.. c..2...2. c.0.1..0.1. fac3.c.1..1..
@@ -8842,18 +8814,15 @@ Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
 2 male    -2    0.1 lev2
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
-[2,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 1.184457 1.773767
+[1,] 1.186615 1.777349
+[2,] 1.186615 1.777349
 B-55 identical
 B2-55bm predict(am, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -8861,18 +8830,15 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           1                    0                    0        0
-     sex3female
-[1,]          0
-[2,]          1
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 3.100445 3.912609
+[1,] 1.186615 1.777349
+[2,] 3.110103 3.928636
 B2-55 identical
 B2-55bf predict(af, xdata.frame, trace=1) data frame col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -8885,18 +8851,15 @@ Contents of data after call to model.frame are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           1                    0                    0        0
-     sex3female
-[1,]          0
-[2,]          1
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 3.100445 3.912609
+[1,] 1.186615 1.777349
+[2,] 3.110103 3.928636
 B2-55b identical
 B-56m predict(am, xdata.frame, trace=1) # data frame with col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -8904,18 +8867,15 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           1                    0                    0        0
-     sex3female
-[1,]          0
-[2,]          1
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 3.100445 3.912609
+[1,] 1.186615 1.777349
+[2,] 3.110103 3.928636
 B-56 identical
 B-56f predict(af, xdata.frame, trace=1) # data frame with col names
 get.earth.x from model.matrix.earth from predict.earth: x is a 2 by 4 matrix: 1=sex3 (factor), 2=ldose, 3=ldose1, 4=fac3 (factor)
@@ -8928,18 +8888,15 @@ Contents of data after call to model.frame are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           1                    0                    0        0
-     sex3female
-[1,]          0
-[2,]          1
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 3.100445 3.912609
+[1,] 1.186615 1.777349
+[2,] 3.110103 3.928636
 B-56 identical
 B-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
 Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns, expected 4 to match: sex3 ldose ldose1 fac3
@@ -8955,18 +8912,15 @@ Contents of x are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           1                    0                    0        0
-     sex3female
-[1,]          0
-[2,]          1
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 3.100445 3.912609
+[1,] 1.186615 1.777349
+[2,] 3.110103 3.928636
 B-58 identical
 B-58f predict(af, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
@@ -8982,18 +8936,15 @@ Contents of data after call to model.frame are
     sex3 ldose ldose1 fac3
 1   male    -2    0.1 lev2
 2 female    -1    0.1 lev1
-predict.earth: bx is a 2 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 2 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
 [2,]           1           1                    0                    0        0
-     sex3female
-[1,]          0
-[2,]          1
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 3.100445 3.912609
+[1,] 1.186615 1.777349
+[2,] 3.110103 3.928636
 B-58 identical
 B-50m data frame without column names, trace=1
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
@@ -9001,15 +8952,13 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-34 identical
 B-60f data frame without column names, trace=1
 get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: sex3 ldose ldose1 fac3
@@ -9017,15 +8966,13 @@ get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 4 matrix: 1=
 Contents of x are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-60 identical
 B-60f data frame without extra columns, trace=1
 get.earth.x from model.matrix.earth from predict.earth: x is a 1 by 7 matrix: 1=sex3 (factor), 2=extra1, 3=ldose, 4=extra2, 5=ldose1, 6=fac3 (factor), 7=extra3 (factor)
@@ -9036,15 +8983,13 @@ get.earth.x from model.matrix.earth from predict.earth: data after call to model
 Contents of data after call to model.frame are
   sex3 ldose ldose1 fac3
 1 male    -2    0.1 lev2
-predict.earth: bx is a 1 by 6 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male, 6=sex3female
+predict.earth: bx is a 1 by 5 matrix: 1=(Intercept), 2=h(ldose--2), 3=sex3male*h(ldose--2), 4=h(ldose--2)*fac3lev2, 5=sex3male
 Contents of bx are
      (Intercept) h(ldose--2) sex3male*h(ldose--2) h(ldose--2)*fac3lev2 sex3male
 [1,]           1           0                    0                    0        1
-     sex3female
-[1,]          0
 predict.earth: returning earth predictions 
       numdead numdead2
-[1,] 1.184457 1.773767
+[1,] 1.186615 1.777349
 B-60f identical
 
 --- C predict with multiple level factors and a 3 level factor response, trace=1 ---
@@ -9634,12 +9579,6 @@ A-73f identical
 
 --- B predict with multiple level factors and a multiple real response, trace=0 ---
 
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
-Warning: effective number 13.5 of GCV parameters >= number 12 of cases
 check.models.equal not identical: B predict with multiple level factors and a multiple real response [but within numerical tolerances]
 20m head(predict(am, trace=0)
 B-21f head(predict(af, trace=0)
@@ -9668,8 +9607,8 @@ B-54 identical
 B-55m predict(am, xdata.frame, trace=0) data frame without col names
 B-55m again, but with same x data for both reponses
       numdead numdead2
-[1,] 1.184457 1.773767
-[2,] 1.184457 1.773767
+[1,] 1.186615 1.777349
+[2,] 1.186615 1.777349
 B-55f predict(af, xdata.frame, trace=0) data frame without col names
 B-55 identical
 B2-55bm predict(am, xdata.frame, trace=0) data frame col names
@@ -10877,7 +10816,7 @@ CV fold 2  cv.rsq -0.120 n.oof 10 44%  n.infold.nz 6 60%  n.oof.nz 6 75%
 
 CV all     cv.rsq -0.370                n.infold.nz 12 67%  
 
-> print.earth.models(a.intercept.only)
+> show.earth.models(a.intercept.only)
 
 Print a.intercept.only 
 
@@ -11259,6 +11198,144 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > plot.earth.models(list(a, a.intercept.only), main="plot.earth.models\nlist(a, a.intercept.only)", legend.pos="topleft", jitter=.01)
 > # nothing will plot for the next call
 > plot.earth.models(list(a.intercept.only, a.intercept.only), main="plot.earth.models\nlist(a.intercept.only, a.intercept.only)")
+> 
+> # test position of legend and "intercep-only model" message when only one term in model
+> a.intercept.pruned <- update(a.intercept.only, nprune=1, nfold=1)
+update.earth: using 18 by 3 data argument from original call to earth
+x is a 18 by 2 matrix: 1=bbb, 2=ccc
+y is a 18 by 1 matrix: 1=aaa
+Forward pass term 1, 2, 4, 6
+Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+After forward pass GRSq -3.895 RSq 0.1701
+Prune method "backward" penalty 2 nprune 1: selected 1 of 5 terms, and 0 of 2 predictors
+After backward pass GRSq 0 RSq 0 
+earth.glm: intercept-only earth model, faking the glm model
+GLM aaa: null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+> show.earth.models(a.intercept.pruned)
+
+Print a.intercept.pruned 
+
+Earth selected 1 of 5 terms, and 0 of 2 predictors 
+Importance: bbb-unused, ccc-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+
+GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+
+Summary a.intercept.pruned 
+
+Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
+      trace=1, nfold=1, nprune=1)
+
+GLM coefficients
+                  aaa
+(Intercept) 0.6931472
+
+Earth selected 1 of 5 terms, and 0 of 2 predictors 
+Importance: bbb-unused, ccc-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
+
+GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+
+Summary a.intercept.pruned digits=3, details=TRUE
+
+Call: earth(formula=aaa~bbb+ccc, data=df, glm=list(family=binomial), 
+      trace=1, nfold=1, nprune=1)
+
+Earth coefficients
+              aaa
+(Intercept) 0.667
+
+GLM coefficients
+              aaa
+(Intercept) 0.693
+
+GLM deviance residuals:
+   Min      1Q  Median      3Q     Max  
+-1.482  -1.482   0.901   0.901   0.901  
+
+GLM coefficients (family binomial, link logit)
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)    0.693      0.500    1.39     0.17
+
+Number of cases: 18
+Earth selected 1 of 5 terms, and 0 of 2 predictors 
+Importance: bbb-unused, ccc-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+Earth GCV 0.249    RSS 4    GRSq 0    RSq 0
+
+GLM null.deviance 22.9 (17 dof)   deviance 22.9 (17 dof)   iters 4
+
+evimp a.intercept.pruned 
+
+    nsubsets   gcv    rss
+
+evimp a.intercept.pruned trim=FALSE
+
+           nsubsets   gcv    rss
+bbb-unused        0   0.0    0.0
+ccc-unused        0   0.0    0.0
+
+glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
+
+plotmo a.intercept.pruned 
+
+--get.plotmo.x for earth object
+
+formula aaa ~ bbb + ccc
+stripped formula aaa~bbb+ccc
+get.data.for.formula: using x from "df" passed to earth 
+about to eval model.frame(formula=aaa~bbb+ccc, data=structure(list(
+    aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
+    1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
+    0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
+    0.236885007470846, 0.791147409472615, 0.599731565685943, 
+    0.910147710936144, 0.560424553928897, 0.755704769166186, 
+    0.379171891137958, 0.373280976898968, 0.170290642883629, 
+    0.453307323623449, 0.258413960458711, 0.336265952326357), ...
+got x with colnames from object$call$formula
+
+x[18,2]:
+           bbb        ccc
+1   0.89748826  1.2243136
+2   0.27973255  0.1998116
+3   0.22820188 -0.5784837
+... 0.01532989 -0.9423007
+18  0.33626595  0.7055155
+
+nlevels: bbb=18 ccc=18 
+
+--get.plotmo.y for earth object
+
+formula aaa ~ bbb + ccc
+stripped formula aaa~bbb+ccc
+get.data.for.formula: using y from "df" passed to earth 
+about to eval model.frame(formula=aaa~bbb+ccc, data=structure(list(
+    aaa=c(0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 
+    1), bbb=c(0.897488264366984, 0.279732553754002, 0.228201881283894, 
+    0.0153298925142735, 0.128981558606029, 0.0933819285128266, 
+    0.236885007470846, 0.791147409472615, 0.599731565685943, 
+    0.910147710936144, 0.560424553928897, 0.755704769166186, 
+    0.379171891137958, 0.373280976898968, 0.170290642883629, 
+    0.453307323623449, 0.258413960458711, 0.336265952326357), ...
+got y from object$call$formula
+get.plotmo.y returned length 18 min 0 max 1
+             value 0 1 0 0 1 1 0 0 1 1 ...
+
+clip.limits 0 1 
+
+--get.plotmo.singles for earth object
+
+Warning: the earth model appears to be an intercept only model
+no singles
+
+--get.plotmo.pairs for earth object
+
+no pairs
+Warning: plotmo: nothing to plot
+-------------------------------------------------------------------------------
+
 > 
 > # misc tests
 > 

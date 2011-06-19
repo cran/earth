@@ -296,6 +296,8 @@ plot.model.selection <- function(
             elegend(x=xpos, bg="white", legend=legend.text, col=legend.col,
                     inset=c(.02, .04), # y offset allows vertical lines to be visible below legend
                     lty=legend.lty, cex=cex.legend, lwd=legend.lwd, xpd=NA, vert=legend.vert)
+            if(max.nterms == 1)
+                text(.5, .4, "intercept-only model")
         } else { # user specified legend position
             xpos <- legend.pos[1]
             ypos <- if(length(legend.pos) > 1) legend.pos[2] else NULL
@@ -306,7 +308,7 @@ plot.model.selection <- function(
     }
     #--- plot.model.selection starts here ---
     plot.earth.prolog(object, substr(deparse(substitute(x)), 1, 40))
-    warn.if.dots.used("plot.model.selection", ...)
+    warn.if.dots.used("plot.model.selection", ..., stop=TRUE)
     if(is.null(object$prune.terms)) {       # no prune data?
         if(!add)
             plot(c(0,1), col=0, xlab="", ylab="", main="Model Selection")
