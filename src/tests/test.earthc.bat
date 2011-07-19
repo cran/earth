@@ -8,12 +8,12 @@
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
 @echo === test.earthc ==================================================
-@cp "C:/a/r/ra/bin/R.dll" .
-@cp "C:/a/r/ra/bin/Rblas.dll" .
-@cp "C:/a/r/ra/bin/iconv.dll" .
-@cp "C:/a/r/ra/bin/Riconv.dll" .
-@cp "C:/a/r/ra/bin/Rgraphapp.dll" .
-@cp "C:/a/r/ra/bin/Rzlib.dll" .
+@cp "C:/a/r/ra.old/bin/R.dll" .
+@cp "C:/a/r/ra.old/bin/Rblas.dll" .
+@cp "C:/a/r/ra.old/bin/iconv.dll" .
+@cp "C:/a/r/ra.old/bin/Riconv.dll" .
+@cp "C:/a/r/ra.old/bin/Rgraphapp.dll" .
+@cp "C:/a/r/ra.old/bin/Rzlib.dll" .
 @md Debug
 @md Release
 
