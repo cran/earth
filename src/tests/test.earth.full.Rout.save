@@ -43,7 +43,7 @@ To cite package 'earth' in publications use:
 
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. (2011). earth: Multivariate Adaptive Regression Spline
-  Models. R package version 3.2-0.
+  Models. R package version 3.2-1.
   http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -52,7 +52,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Spline Models},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
     year = {2011},
-    note = {R package version 3.2-0},
+    note = {R package version 3.2-1},
     url = {http://CRAN.R-project.org/package=earth},
   }
 
@@ -5691,7 +5691,7 @@ Contents of y are
  [99,] 8
 [100,] 9
 [101,] 0
-earth.c version 3.2-0
+earth.c version 3.2-1
 BetaCache 3.53 kB
 Forward pass: minspan 4 endspan 7
 

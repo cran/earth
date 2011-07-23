@@ -106,7 +106,7 @@ TEST 4: FUNCTION x0 + noise N=1000
 
 =============================================================================
 TEST 5: x0 + x1 N=1000
-earth.c version 3.2-0
+earth.c version 3.2-1
 BetaCache 1.94 kB
 Forward pass: minspan 6 endspan 8
 
@@ -1478,7 +1478,7 @@ TEST 24: FUNCTION eqn56 mi=10 N=100
 
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 N=30
-earth.c version 3.2-0
+earth.c version 3.2-1
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
@@ -1592,7 +1592,7 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
-earth.c version 3.2-0
+earth.c version 3.2-1
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
@@ -1695,7 +1695,7 @@ TEST 26: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 27: x0 + x1 + x0*x1 N=30
-earth.c version 3.2-0
+earth.c version 3.2-1
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
@@ -1884,7 +1884,7 @@ Response 2:
 
 =============================================================================
 TEST 30: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
-earth.c version 3.2-0
+earth.c version 3.2-1
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 

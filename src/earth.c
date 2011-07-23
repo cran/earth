@@ -148,7 +148,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 3.2-0"; // change if you modify this file!
+static const char   *VERSION    = "version 3.2-1"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -2029,8 +2029,9 @@ static void PrintForwardEpilog(
 
         else {
             printf("\nReached max number of terms %d", nMaxTerms);
-            if (nTerms < nMaxTerms)
-                printf(" (no room for another term pair)");
+            // Removed following because is unncessary noise (earth version 3.2-1):
+            // if (nTerms < nMaxTerms)
+            //    printf(" (no room for another term pair)");
             printf("\n");
         }
         printf("After forward pass GRSq %.4g RSq %.4g\n", GRSq, RSq);

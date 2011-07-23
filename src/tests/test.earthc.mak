@@ -24,7 +24,7 @@ CFLAGS=-nologo -DSTANDALONE $(RELEASE_BUILD_CFLAGS) -TP -O2 -W3 -ML $(INCL) -Fp$
 LFLAGS=-nologo $(RELEASE_BUILD_LFLAGS) $(PROF_FLAGS)
 # To build Rdll.libs see instructions in gnuwin32\README.packages
 # LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
-LIBS=C:\a\r\ra\bin\Rdll.lib C:\a\r\ra\bin\Rblas.lib
+LIBS=C:\a\r\ra.old\bin\Rdll.lib C:\a\r\ra.old\bin\Rblas.lib
 !ENDIF
 
 !IF  "$(CFG)" == "Debug"
@@ -39,7 +39,7 @@ OUTDIR=Debug
 CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MLd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo -debug:full
 # LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
-LIBS=C:\a\r\ra\bin\Rdll.lib C:\a\r\ra\bin\Rblas.lib
+LIBS=C:\a\r\ra.old\bin\Rdll.lib C:\a\r\ra.old\bin\Rblas.lib
 !ENDIF
 
 OBJ=$(OUTDIR)\earth.obj $(OUTDIR)\test.earthc.obj
