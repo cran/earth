@@ -61,10 +61,9 @@ earth.regress <- function(
         rss = double(1),        # double       *pRss       out: RSS, summed over all nResp
         diags = double(ncols),  # double       Diags[]     out:
         rank = integer(1),      # int          *pnRank     out: nbr of indep cols in x
-        pivots = integer(ncols),# int          iPivots[]   out: nCols, can be NULL
+        pivots = integer(ncols),# int          iPivots[]   out: nCols
         as.double(x),           # const double x[]         in: nCases x nCols
         as.double(y),           # const double y[]         in: nCases x nResp
-        as.double(weights),     # const double weights[]   in: nCases x 1, normalized weights
         as.integer(ncases),     # const int    *pnCases    in: number of rows in x and in y
         as.integer(nresp),      # const int    *pnResp     in: number of cols in y
         as.integer(ncols),      # int          *pnCols     in: number of columns in x

@@ -1,7 +1,7 @@
 # fast.postscript.R:
 #
 # Function to open a postscript file that does not use the sRGB handling
-# introduced in R version 2.13-0.  The resulting postscript file will display 
+# introduced in R version 2.13-0.  The resulting postscript file will display
 # several times faster than a file that uses the sRGB handling.
 
 fast.postscript <- function(file= ifelse(onefile, "Rplots.ps", "Rplot%03d.ps"),
@@ -56,7 +56,10 @@ fast.postscript <- function(file= ifelse(onefile, "Rplots.ps", "Rplot%03d.ps"),
 
     "/s   { scalefont setfont } def")
 
-    assignInNamespace(".ps.prolog", prolog, "grDevices")
+	# TODO this no longer works
+    # unlockBinding(".ps.prolog", asNamespace("grDevices"))
+    # assignInNamespace(".ps.prolog", prolog, "grDevices")
+    # lockBinding(".ps.prolog", asNamespace("grDevices"))
     cat("Opening", file, "\n")
     postscript(file, onefile, ...)
 }

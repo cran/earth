@@ -12,7 +12,7 @@ Build a regression model
 using the techniques in Friedman's papers "Multivariate Adaptive Regression Splines"
 and "Fast MARS".
 
-See the package vignette 
+See the package vignette
 \dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
 }
 \usage{
@@ -29,7 +29,7 @@ See the package vignette
 \method{earth}{fit}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
     weights = NULL, wp = NULL, scale.y = (NCOL(y)==1), subset = NULL,
     na.action = na.fail, glm = NULL, trace = 0,
-    nk = min(200, max(20, 2 * ncol(x))) + 1, 
+    nk = min(200, max(20, 2 * ncol(x))) + 1,
     degree = 1,
     penalty = if(degree > 1) 3 else 2, thresh = 0.001,
     minspan = 0, newvar.penalty = 0, fast.k = 20, fast.beta = 1,
@@ -147,7 +147,7 @@ For cross validation, use the \code{nfold} argument.
      maximum number of terms created by the forward pass.
      Includes the intercept.\cr
      The actual number of terms created by the forward pass will often be
-     less than \code{nk}. 
+     less than \code{nk}.
      See \dQuote{\emph{Termination conditions for the forward pass}} in the package vignette.\cr
      The default is semi-automatically calculated from the number of predictors
      but may need adjusting.
@@ -677,7 +677,7 @@ mean   0.929 0.955 0.952 0.946
    }
 }
 \note{
-Please see the package vignette 
+Please see the package vignette
 \dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
 The vignette can also be downloaded from
 \url{http://www.milbo.org/doc/earth-notes.pdf}.
@@ -745,7 +745,7 @@ The vignette can also be downloaded from
   Start with \code{\link{summary.earth}}, \code{\link{plot.earth}},
   \code{\link{evimp}}, and \code{\link[plotmo]{plotmo}}.
 
-Please see the package vignette 
+Please see the package vignette
 \dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
 The vignette can also be downloaded from
 \url{http://www.milbo.org/doc/earth-notes.pdf}.

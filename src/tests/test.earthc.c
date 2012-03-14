@@ -15,6 +15,11 @@
 
 #define sq(x)   ((x) * (x))
 
+#if _MSC_VER            // microsoft
+    // disable warning: 'vsprintf': This function or variable may be unsafe
+    #pragma warning(disable: 4996)
+#endif
+
 //-----------------------------------------------------------------------------
 void error(const char *args, ...)
 {

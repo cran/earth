@@ -186,7 +186,7 @@ plot(a.help, which=1, main="col.infold.rsq=lightblue",
 
 # expect Warning: cannot plot cross-validation data because keepxy not set in original call to earth
 a0 <- earth(Volume ~ ., data = trees, nfold=2)
-plot(a0, col.oof.rsq="pink", which=1, do.par=F) 
+plot(a0, col.oof.rsq="pink", which=1, do.par=F)
 
 par(old.par)
 

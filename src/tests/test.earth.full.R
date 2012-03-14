@@ -859,9 +859,9 @@ if (PLOT) {
 }
 x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
-colnames(data.global) = c("func1", 
-   "a.very.long.in.fact.extremely.long.response.name", 
-   "x1.a.very.long.in.fact.extremely.long.predictor.name", 
+colnames(data.global) = c("func1",
+   "a.very.long.in.fact.extremely.long.response.name",
+   "x1.a.very.long.in.fact.extremely.long.predictor.name",
    "x2")
 itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=3)
 printh(summary(a))
@@ -1450,108 +1450,108 @@ check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [",
 check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
 
-msg = "earth.regress with ozone1 data, multiple responses with case weights"
-cat("Test:", msg, "\n")
+# msg = "earth.regress with ozone1 data, multiple responses with case weights"
+# cat("Test:", msg, "\n")
+# 
+# # options(digits=10)
+# weights. <- rep(.5, nrow(x))
+# weights.[1] <- 1
+# weights.[2] <- 2
+# weights.[3] <- 3
+# weights.[4] <- 4
+# weights.[5] <- 5
+# a.lm <- lm(y ~ x, weights=weights.)
+# # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+# a.lm.rss <- sum(a.lm$residuals^2)
+# a <- earth:::earth.regress(x, y, weights=weights.)
+# rownames(a.lm$coefficients) <- rownames(a$coefficients)
+# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
 
-# options(digits=10)
-weights. <- rep(.5, nrow(x))
-weights.[1] <- 1
-weights.[2] <- 2
-weights.[3] <- 3
-weights.[4] <- 4
-weights.[5] <- 5
-a.lm <- lm(y ~ x, weights=weights.)
+# msg = "earth.regress case weights with zero weights 1"
+# cat("Test:", msg, "\n")
+# 
+# weights. <- rep(1, nrow(x))
+# weights.[2] <- 0
+# weights.[4] <- 0
+# a.lm <- lm(y ~ x, weights=weights.)
+# # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+# a.lm.rss <- sum(a.lm$residuals^2)
+# a <- earth:::earth.regress(x, y, weights=weights.)
+# rownames(a.lm$coefficients) <- rownames(a$coefficients)
+# # options(digits=10)
+# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# 
+# msg = "earth.regress case weights with zero weights 2"
+# cat("Test:", msg, "\n")
+# weights. <- rep(1, nrow(x))
+# weights.[5] <- 0
+# weights.[6] <- 0
+# weights.[7] <- 0
+# weights.[21] <- 0
+# weights.[22] <- 0
+# weights.[23] <- 0
+# weights.[24] <- 0
+# weights.[25] <- 0
+# weights.[26] <- 0
+# weights.[27] <- 0
+# a.lm <- lm(y ~ x, weights=weights.)
+# # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+# a.lm.rss <- sum(a.lm$residuals^2)
+# a <- earth:::earth.regress(x, y, weights=weights.)
+# rownames(a.lm$coefficients) <- rownames(a$coefficients)
+# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# 
+# msg = "earth.regress case weights with zero weights and missing columns 1"
+# cat("Test:", msg, "\n")
+# x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
+# weights. <- rep(1, nrow(x))
+# weights.[5] <- 0
+# weights.[6] <- 0
+# weights.[7] <- 0
+# weights.[21] <- 0
+# weights.[22] <- 0
+# weights.[23] <- 0
+# weights.[24] <- 0
+# weights.[25] <- 0
+# weights.[26] <- 0
+# weights.[27] <- 0
+# colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
+# used.cols = as.logical(c(1,0,1,0,1,1))
+# x.missing <- x[,used.cols]
+# a.lm <- lm(y ~ x.missing, weights=weights.)
 # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-a.lm.rss <- sum(a.lm$residuals^2)
-a <- earth:::earth.regress(x, y, weights=weights.)
-rownames(a.lm$coefficients) <- rownames(a$coefficients)
-check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
-
-msg = "earth.regress case weights with zero weights 1"
-cat("Test:", msg, "\n")
-
-weights. <- rep(1, nrow(x))
-weights.[2] <- 0
-weights.[4] <- 0
-a.lm <- lm(y ~ x, weights=weights.)
+# a.lm.rss <- sum(a.lm$residuals^2)
+# a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
+# rownames(a.lm$coefficients) <- rownames(a$coefficients)
+# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# 
+# msg = "earth.regress case weights with zero weights and missing columns 2"
+# cat("Test:", msg, "\n")
+# x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
+# weights. <- rep(1, nrow(x))
+# weights.[5] <- .1
+# weights.[6] <- .2
+# weights.[7] <- 1.9
+# weights.[21] <- .59
+# colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
+# used.cols = as.logical(c(0,1,0,0,1,0))
+# x.missing <- x[,used.cols]
+# a.lm <- lm(y ~ x.missing, weights=weights.)
 # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-a.lm.rss <- sum(a.lm$residuals^2)
-a <- earth:::earth.regress(x, y, weights=weights.)
-rownames(a.lm$coefficients) <- rownames(a$coefficients)
-# options(digits=10)
-check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-
-msg = "earth.regress case weights with zero weights 2"
-cat("Test:", msg, "\n")
-weights. <- rep(1, nrow(x))
-weights.[5] <- 0
-weights.[6] <- 0
-weights.[7] <- 0
-weights.[21] <- 0
-weights.[22] <- 0
-weights.[23] <- 0
-weights.[24] <- 0
-weights.[25] <- 0
-weights.[26] <- 0
-weights.[27] <- 0
-a.lm <- lm(y ~ x, weights=weights.)
-# a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-a.lm.rss <- sum(a.lm$residuals^2)
-a <- earth:::earth.regress(x, y, weights=weights.)
-rownames(a.lm$coefficients) <- rownames(a$coefficients)
-check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-
-msg = "earth.regress case weights with zero weights and missing columns 1"
-cat("Test:", msg, "\n")
-x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
-weights. <- rep(1, nrow(x))
-weights.[5] <- 0
-weights.[6] <- 0
-weights.[7] <- 0
-weights.[21] <- 0
-weights.[22] <- 0
-weights.[23] <- 0
-weights.[24] <- 0
-weights.[25] <- 0
-weights.[26] <- 0
-weights.[27] <- 0
-colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
-used.cols = as.logical(c(1,0,1,0,1,1))
-x.missing <- x[,used.cols]
-a.lm <- lm(y ~ x.missing, weights=weights.)
-a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-a.lm.rss <- sum(a.lm$residuals^2)
-a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
-rownames(a.lm$coefficients) <- rownames(a$coefficients)
-check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-
-msg = "earth.regress case weights with zero weights and missing columns 2"
-cat("Test:", msg, "\n")
-x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
-weights. <- rep(1, nrow(x))
-weights.[5] <- .1
-weights.[6] <- .2
-weights.[7] <- 1.9
-weights.[21] <- .59
-colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
-used.cols = as.logical(c(0,1,0,0,1,0))
-x.missing <- x[,used.cols]
-a.lm <- lm(y ~ x.missing, weights=weights.)
-a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-a.lm.rss <- sum(a.lm$residuals^2)
-a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
-rownames(a.lm$coefficients) <- rownames(a$coefficients)
-check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# a.lm.rss <- sum(a.lm$residuals^2)
+# a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
+# rownames(a.lm$coefficients) <- rownames(a$coefficients)
+# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
 
 cat("---standard method functions ------------------------\n")
 

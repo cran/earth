@@ -2,12 +2,12 @@
 
 all: test.earthc.out
 
-R_DIR="%ProgramFiles%\r\R-2.13.0"
+R_DIR="%ProgramFiles%\r\R-2.15.0alpha"
 
 INCL=-I$(R_DIR)\src\include -I.
 
 # Use PROF_FLAGS  if you want to do profiling using profile, prep and plist
-# Note: Don't use -Zi and debug:full flags below if you want to do profiling
+# Note: Don't use -Zi and -debug flags below if you want to do profiling
 # PROF_FLAGS=-map -mapinfo:exports -mapinfo:fixups -mapinfo:lines -fixed:no
 PROF_FLAGS=
 
@@ -20,11 +20,10 @@ CFG=Debug
 # Fast version (note: I tried -Ox but it appears no faster than -O2 for this code)
 # -02 is for fast code
 OUTDIR=Release
-CFLAGS=-nologo -DSTANDALONE $(RELEASE_BUILD_CFLAGS) -TP -O2 -W3 -ML $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
+CFLAGS=-nologo -DSTANDALONE $(RELEASE_BUILD_CFLAGS) -TP -O2 -W3 -MT $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo $(RELEASE_BUILD_LFLAGS) $(PROF_FLAGS)
 # To build Rdll.libs see instructions in gnuwin32\README.packages
-# LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
-LIBS=C:\a\r\ra.old\bin\Rdll.lib C:\a\r\ra.old\bin\Rblas.lib
+LIBS=Rdll.lib Rblas.lib
 !ENDIF
 
 !IF  "$(CFG)" == "Debug"
@@ -32,14 +31,14 @@ LIBS=C:\a\r\ra.old\bin\Rdll.lib C:\a\r\ra.old\bin\Rblas.lib
 # -Tp says treat the file as a C++ file (needed for C99 source files)
 # -Zi is for a debugging build
 # -W3 is warning level 3
-# -MLd is for the single threaded static debugging runtime library
+# -MTd is for the multi threaded static debugging runtime library
 # -Gr is for fast function calling (can't use because conflicts with GSL lib)
-# No need to define _DEBUG, compiler does it for us if -MLd flag is used
+# No need to define _DEBUG, compiler does it for us if -MTd flag is used
 OUTDIR=Debug
-CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MLd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
-LFLAGS=-nologo -debug:full
-# LIBS=$(R_DIR)\bin\Rdll.lib $(R_DIR)\bin\Rblas.lib
-LIBS=C:\a\r\ra.old\bin\Rdll.lib C:\a\r\ra.old\bin\Rblas.lib
+CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MTd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
+LFLAGS=-nologo -debug
+# To build Rdll.libs see instructions in gnuwin32\README.packages
+LIBS=Rdll.lib Rblas.lib
 !ENDIF
 
 OBJ=$(OUTDIR)\earth.obj $(OUTDIR)\test.earthc.obj

@@ -42,11 +42,13 @@ static bool First;
 //       "first" is optional and is 1 the first time "allowed"
 //               is invoked for the current model
 
-void InitAllowedFunc(SEXP Allowed, int nAllowedFuncArgs, SEXP Env,
-                     const char *sPredNames[], int nPreds)
+void InitAllowedFunc(
+        SEXP Allowed, // can be NULL
+        int nAllowedFuncArgs, SEXP Env,
+        const char *sPredNames[], int nPreds)
 {
-    if (isNull(Allowed))
-        AllowedFunc = R_NilValue;
+    if (Allowed == NULL)
+        AllowedFunc = NULL;
     else {
         if (nAllowedFuncArgs < 3 || nAllowedFuncArgs > 5)
             error("Bad nAllowedFuncArgs %d", nAllowedFuncArgs);
@@ -91,12 +93,15 @@ void InitAllowedFunc(SEXP Allowed, int nAllowedFuncArgs, SEXP Env,
 
 void FreeAllowedFunc(void)
 {
-     if (!isNull(AllowedFunc))
+     if (AllowedFunc != NULL)
          UNPROTECT(1);          // matches PROTECT in InitAllowedFunc
 }
 
 static bool EvalAllowedFunc(void)
 {
+    if (AllowedFunc == NULL)
+        error("EvalAllowedFunc: AllowedFunc == NULL");
+
     SEXP s = eval(AllowedFunc, AllowedEnv);
 
     bool allowed;
@@ -136,7 +141,7 @@ bool IsAllowed(
     const int nPreds,       // in:
     const int nMaxTerms)    // in:
 {
-    if (isNull(AllowedFunc))
+    if (AllowedFunc == NULL)
        return TRUE;
 
     SEXP s = AllowedFunc;           // 1st element is the function

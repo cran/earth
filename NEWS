@@ -1,7 +1,12 @@
 Changes to Earth Package
 ------------------------
 
-3.2-0  Jul 19, 2011
+3.2-2  Mar 14, 2012
+  We no longer pass R_NilValue from the R code to the C code.
+  Incorporated Olaf Mersmann's patch for POS_INF with the INTEL_COMPILER.
+  Code touchups for Microsoft Visual Studio 2010.
+
+3.2-1  Jul 19, 2011
   Documentation touchups.
 
 3.2-0  Jun 19, 2011

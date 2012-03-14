@@ -8,12 +8,15 @@
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
 @echo === test.earthc ==================================================
-@cp "C:/a/r/ra.old/bin/R.dll" .
-@cp "C:/a/r/ra.old/bin/Rblas.dll" .
-@cp "C:/a/r/ra.old/bin/iconv.dll" .
-@cp "C:/a/r/ra.old/bin/Riconv.dll" .
-@cp "C:/a/r/ra.old/bin/Rgraphapp.dll" .
-@cp "C:/a/r/ra.old/bin/Rzlib.dll" .
+@cp "C:/a/r/ra/bin/i386/R.dll" .
+@cp "C:/a/r/ra/bin/i386/Rblas.dll" .
+@cp "C:/a/r/ra/src/gnuwin32/unicode/iconv.dll" .
+@cp "C:/a/r/ra/bin/i386/Riconv.dll" .
+@cp "C:/a/r/ra/bin/i386/Rgraphapp.dll" .
+@cp "C:/a/r/ra/bin/i386/Rzlib.dll" .
+@rem you may have to create Rdll.lib and Rblas.lib beforehand
+@cp "../../.#/Rdll.lib" .
+@cp "../../.#/Rblas.lib" .
 @md Debug
 @md Release
 
