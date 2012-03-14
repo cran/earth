@@ -1,7 +1,7 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.13.0 (2011-04-13)"
+[1] "R version 2.15.0 alpha (2012-03-11 r58689)"
 > 
 > library(earth)
 Loading required package: leaps
@@ -43,7 +43,7 @@ To cite package 'earth' in publications use:
 
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. (2011). earth: Multivariate Adaptive Regression Spline
-  Models. R package version 3.2-1.
+  Models. R package version 3.2-2.
   http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -52,7 +52,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Spline Models},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
     year = {2011},
-    note = {R package version 3.2-1},
+    note = {R package version 3.2-2},
     url = {http://CRAN.R-project.org/package=earth},
   }
 
@@ -2491,8 +2491,8 @@ malloc    800  B: Weights		nCases 100 sizeof(double) 8
 malloc    800  B: xOrder		nRows 100 nCols 2 sizeof(int) 4
 malloc    400  B: BetaCacheGlobal	nMaxTerms 5 nMaxTerms 5 nPreds 2 sizeof(double) 8
 Forward pass term 1
-malloc    160  B: Q			nMaxTerms 0.000000 sizeof(tQueue) 32
-malloc    160  B: SortedQ		nMaxTerms 0.000000 sizeof(tQueue) 32
+malloc    160  B: Q			nMaxTerms 5 sizeof(tQueue) 32
+malloc    160  B: SortedQ		nMaxTerms 5 sizeof(tQueue) 32
 malloc    800  B: xbx			nCases 100 sizeof(double) 8
 malloc     40  B: CovSx			nMaxTerms 5 sizeof(double) 8
 calloc      8  B: CovCol		nMaxTerms 5 sizeof(double) 8
@@ -4120,9 +4120,9 @@ All   0.012019676 0.8280355 0.9911645 0.9937896
 
 > x.global <- cbind(                                     x1, x2)
 > data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
-> colnames(data.global) = c("func1", 
-+    "a.very.long.in.fact.extremely.long.response.name", 
-+    "x1.a.very.long.in.fact.extremely.long.predictor.name", 
+> colnames(data.global) = c("func1",
++    "a.very.long.in.fact.extremely.long.response.name",
++    "x1.a.very.long.in.fact.extremely.long.predictor.name",
 +    "x2")
 > itest <- itest+1; a <- test.earth.two.responses(itest, func1, func7, nk=51, degree=3)
 itest 53  multiple responses func1 func7  degree 3  nk 51  
@@ -4899,11 +4899,11 @@ Call:
 mda(formula = Type ~ ., data = glass.train, method = mars, keepxy = TRUE, 
     degree = 2)
 
-Dimension: 10 
+Dimension: 11 
 
 Percent Between-Group Variance Explained:
-    v1     v2     v3     v4     v5     v6     v7     v8     v9    v10 
- 54.22  83.23  89.89  93.80  96.18  98.10  99.06  99.87 100.00 100.00 
+    v1     v2     v3     v4     v5     v6     v7     v8     v9    v10    v11 
+ 54.22  83.23  89.89  93.80  96.18  98.10  99.06  99.87 100.00 100.00 100.00 
 
 Training Misclassification Error: 0.28 ( N = 100 )
 
@@ -4914,11 +4914,13 @@ Call:
 mda(formula = Type ~ ., data = glass.train, method = earth, keep.fitted = TRUE, 
     keepxy = TRUE, degree = 2)
 
-Dimension: 11 
+Dimension: 14 
 
 Percent Between-Group Variance Explained:
     v1     v2     v3     v4     v5     v6     v7     v8     v9    v10    v11 
  64.06  84.61  91.10  95.24  96.82  97.86  98.74  99.33  99.74  99.88 100.00 
+   v12    v13    v14 
+100.00 100.00 100.00 
 
 Training Misclassification Error: 0.24 ( N = 100 )
 
@@ -5691,7 +5693,7 @@ Contents of y are
  [99,] 8
 [100,] 9
 [101,] 0
-earth.c version 3.2-1
+earth.c version 3.2-2
 BetaCache 3.53 kB
 Forward pass: minspan 4 endspan 7
 
@@ -6829,113 +6831,108 @@ Test: earth.regress with ozone1 data, multiple responses, no weights
 > check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 > check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
 > 
-> msg = "earth.regress with ozone1 data, multiple responses with case weights"
-> cat("Test:", msg, "\n")
-Test: earth.regress with ozone1 data, multiple responses with case weights 
+> # msg = "earth.regress with ozone1 data, multiple responses with case weights"
+> # cat("Test:", msg, "\n")
+> # 
+> # # options(digits=10)
+> # weights. <- rep(.5, nrow(x))
+> # weights.[1] <- 1
+> # weights.[2] <- 2
+> # weights.[3] <- 3
+> # weights.[4] <- 4
+> # weights.[5] <- 5
+> # a.lm <- lm(y ~ x, weights=weights.)
+> # # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+> # a.lm.rss <- sum(a.lm$residuals^2)
+> # a <- earth:::earth.regress(x, y, weights=weights.)
+> # rownames(a.lm$coefficients) <- rownames(a$coefficients)
+> # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
 > 
-> # options(digits=10)
-> weights. <- rep(.5, nrow(x))
-> weights.[1] <- 1
-> weights.[2] <- 2
-> weights.[3] <- 3
-> weights.[4] <- 4
-> weights.[5] <- 5
-> a.lm <- lm(y ~ x, weights=weights.)
+> # msg = "earth.regress case weights with zero weights 1"
+> # cat("Test:", msg, "\n")
+> # 
+> # weights. <- rep(1, nrow(x))
+> # weights.[2] <- 0
+> # weights.[4] <- 0
+> # a.lm <- lm(y ~ x, weights=weights.)
+> # # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+> # a.lm.rss <- sum(a.lm$residuals^2)
+> # a <- earth:::earth.regress(x, y, weights=weights.)
+> # rownames(a.lm$coefficients) <- rownames(a$coefficients)
+> # # options(digits=10)
+> # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+> # 
+> # msg = "earth.regress case weights with zero weights 2"
+> # cat("Test:", msg, "\n")
+> # weights. <- rep(1, nrow(x))
+> # weights.[5] <- 0
+> # weights.[6] <- 0
+> # weights.[7] <- 0
+> # weights.[21] <- 0
+> # weights.[22] <- 0
+> # weights.[23] <- 0
+> # weights.[24] <- 0
+> # weights.[25] <- 0
+> # weights.[26] <- 0
+> # weights.[27] <- 0
+> # a.lm <- lm(y ~ x, weights=weights.)
+> # # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
+> # a.lm.rss <- sum(a.lm$residuals^2)
+> # a <- earth:::earth.regress(x, y, weights=weights.)
+> # rownames(a.lm$coefficients) <- rownames(a$coefficients)
+> # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+> # 
+> # msg = "earth.regress case weights with zero weights and missing columns 1"
+> # cat("Test:", msg, "\n")
+> # x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
+> # weights. <- rep(1, nrow(x))
+> # weights.[5] <- 0
+> # weights.[6] <- 0
+> # weights.[7] <- 0
+> # weights.[21] <- 0
+> # weights.[22] <- 0
+> # weights.[23] <- 0
+> # weights.[24] <- 0
+> # weights.[25] <- 0
+> # weights.[26] <- 0
+> # weights.[27] <- 0
+> # colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
+> # used.cols = as.logical(c(1,0,1,0,1,1))
+> # x.missing <- x[,used.cols]
+> # a.lm <- lm(y ~ x.missing, weights=weights.)
 > # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-> a.lm.rss <- sum(a.lm$residuals^2)
-> a <- earth:::earth.regress(x, y, weights=weights.)
-> rownames(a.lm$coefficients) <- rownames(a$coefficients)
-> check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
-> 
-> msg = "earth.regress case weights with zero weights 1"
-> cat("Test:", msg, "\n")
-Test: earth.regress case weights with zero weights 1 
-> 
-> weights. <- rep(1, nrow(x))
-> weights.[2] <- 0
-> weights.[4] <- 0
-> a.lm <- lm(y ~ x, weights=weights.)
+> # a.lm.rss <- sum(a.lm$residuals^2)
+> # a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
+> # rownames(a.lm$coefficients) <- rownames(a$coefficients)
+> # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+> # 
+> # msg = "earth.regress case weights with zero weights and missing columns 2"
+> # cat("Test:", msg, "\n")
+> # x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
+> # weights. <- rep(1, nrow(x))
+> # weights.[5] <- .1
+> # weights.[6] <- .2
+> # weights.[7] <- 1.9
+> # weights.[21] <- .59
+> # colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
+> # used.cols = as.logical(c(0,1,0,0,1,0))
+> # x.missing <- x[,used.cols]
+> # a.lm <- lm(y ~ x.missing, weights=weights.)
 > # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-> a.lm.rss <- sum(a.lm$residuals^2)
-> a <- earth:::earth.regress(x, y, weights=weights.)
-> rownames(a.lm$coefficients) <- rownames(a$coefficients)
-> # options(digits=10)
-> check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-> 
-> msg = "earth.regress case weights with zero weights 2"
-> cat("Test:", msg, "\n")
-Test: earth.regress case weights with zero weights 2 
-> weights. <- rep(1, nrow(x))
-> weights.[5] <- 0
-> weights.[6] <- 0
-> weights.[7] <- 0
-> weights.[21] <- 0
-> weights.[22] <- 0
-> weights.[23] <- 0
-> weights.[24] <- 0
-> weights.[25] <- 0
-> weights.[26] <- 0
-> weights.[27] <- 0
-> a.lm <- lm(y ~ x, weights=weights.)
-> # a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-> a.lm.rss <- sum(a.lm$residuals^2)
-> a <- earth:::earth.regress(x, y, weights=weights.)
-> rownames(a.lm$coefficients) <- rownames(a$coefficients)
-> check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-> 
-> msg = "earth.regress case weights with zero weights and missing columns 1"
-> cat("Test:", msg, "\n")
-Test: earth.regress case weights with zero weights and missing columns 1 
-> x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
-> weights. <- rep(1, nrow(x))
-> weights.[5] <- 0
-> weights.[6] <- 0
-> weights.[7] <- 0
-> weights.[21] <- 0
-> weights.[22] <- 0
-> weights.[23] <- 0
-> weights.[24] <- 0
-> weights.[25] <- 0
-> weights.[26] <- 0
-> weights.[27] <- 0
-> colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
-> used.cols = as.logical(c(1,0,1,0,1,1))
-> x.missing <- x[,used.cols]
-> a.lm <- lm(y ~ x.missing, weights=weights.)
-> a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-> a.lm.rss <- sum(a.lm$residuals^2)
-> a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
-> rownames(a.lm$coefficients) <- rownames(a$coefficients)
-> check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-> 
-> msg = "earth.regress case weights with zero weights and missing columns 2"
-> cat("Test:", msg, "\n")
-Test: earth.regress case weights with zero weights and missing columns 2 
-> x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
-> weights. <- rep(1, nrow(x))
-> weights.[5] <- .1
-> weights.[6] <- .2
-> weights.[7] <- 1.9
-> weights.[21] <- .59
-> colnames(x) <- c("wind", "humidity", "temp", "wind2", "humidity2", "temp2")
-> used.cols = as.logical(c(0,1,0,0,1,0))
-> x.missing <- x[,used.cols]
-> a.lm <- lm(y ~ x.missing, weights=weights.)
-> a.lm.rss <- sum((a.lm$fitted.values - y)^2) # line below is equivalent
-> a.lm.rss <- sum(a.lm$residuals^2)
-> a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
-> rownames(a.lm$coefficients) <- rownames(a$coefficients)
-> check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-> check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+> # a.lm.rss <- sum(a.lm$residuals^2)
+> # a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
+> # rownames(a.lm$coefficients) <- rownames(a$coefficients)
+> # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+> # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
 > 
 > cat("---standard method functions ------------------------\n")
 ---standard method functions ------------------------

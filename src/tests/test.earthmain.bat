@@ -5,17 +5,20 @@
 @echo === test.earthmain ===============================================
 
 @set CYGWIN=nodosfilewarning
-@cp "C:/a/r/ra.old/bin/R.dll" .
-@cp "C:/a/r/ra.old/bin/Rblas.dll" .
-@cp "C:/a/r/ra.old/bin/iconv.dll" .
-@cp "C:/a/r/ra.old/bin/Riconv.dll" .
-@cp "C:/a/r/ra.old/bin/Rgraphapp.dll" .
-@cp "C:/a/r/ra.old/bin/Rzlib.dll" .
+@cp "C:/a/r/ra/bin/i386/R.dll" .
+@cp "C:/a/r/ra/bin/i386/Rblas.dll" .
+@cp "C:/a/r/ra/src/gnuwin32/unicode/iconv.dll" .
+@cp "C:/a/r/ra/bin/i386/Riconv.dll" .
+@cp "C:/a/r/ra/bin/i386/Rgraphapp.dll" .
+@cp "C:/a/r/ra/bin/i386/Rzlib.dll" .
+@rem you may have to create Rdll.lib and Rblas.lib beforehand
+@cp "../../.#/Rdll.lib" .
+@cp "../../.#/Rblas.lib" .
 @md Debug
 
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MLd -I"C:/a/r/ra.old/include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\earth.c
+cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -I"C:/a/r/ra/include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\earth.c
 @if %errorlevel% neq 0 goto error:
-link -nologo -debug:full -out:earthmain.exe Debug\earth.obj "C:\a\r\ra.old\bin\Rdll.lib" "C:\a\r\ra.old\bin\Rblas.lib"
+link -nologo -debug -out:earthmain.exe Debug\earth.obj Rdll.lib Rblas.lib
 @if %errorlevel% neq 0 goto error:
 earthmain.exe > Debug\test.earthmain.out
 @if %errorlevel% neq 0 goto error:

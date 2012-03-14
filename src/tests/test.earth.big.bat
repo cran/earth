@@ -3,7 +3,7 @@
 @rem Stephen Milborrow Mar 2008 Durban
 
 @echo === test.earth.big ===============================================
-@"\PROGRA~1\R\R-2.13.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.earth.big.R
+@"\PROGRA~1\R\R-2.15.0alpha\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.earth.big.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.big.Rout:
 @echo.

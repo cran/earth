@@ -27,7 +27,6 @@ void ForwardPassR(              // for use by R
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
     const double x[],           // in: nCases x nPreds
     const double y[],           // in: nCases x nResp
-    const double WeightsArg[],  // in: nCases x 1, can be R_NilValue, currently ignored
     const int *pnCases,         // in: number of rows in x and elements in y
     const int *pnResp,          // in: number of cols in y
     const int *pnPreds,         // in: number of cols in x
@@ -40,12 +39,13 @@ void ForwardPassR(              // for use by R
     const double *pFastBeta,    // in: Fast MARS ageing coef
     const double *pNewVarPenalty, // in: penalty for adding a new variable (default is 0)
     const int  LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
-    const SEXP Allowed,           // in: constraints function
+    const SEXP Allowed,           // in: constraints function, can be MyNull
     const int *pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const double *pTrace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char *sPredNames[]);    // in: predictor names in trace printfs, can be R_NilValue
+    const char *sPredNames[],     // in: predictor names in trace printfs, can be MyNull
+    const SEXP MyNull);          // in: trick to avoid R check warnings on passing R_NilValue
 
 void EvalSubsetsUsingXtxR(     // for use by R
     double       PruneTerms[], // out: specifies which cols in bx are in best set
@@ -54,8 +54,7 @@ void EvalSubsetsUsingXtxR(     // for use by R
     const int    *pnResp,      // in: number of cols in y
     const int    *pnMaxTerms,  // in
     const double bx[],         // in: MARS basis matrix, all cols must be independent
-    const double y[],          // in: nCases * nResp
-    const double Weights[]);   // in: nCases x 1, can be R_NilValue
+    const double y[]);         // in: nCases * nResp
 
 void RegressR(          // for testing earth routine Regress from R
     double       Betas[],       // out: nUsedCols * nResp
@@ -63,10 +62,9 @@ void RegressR(          // for testing earth routine Regress from R
     double       Rss[],         // out: RSS, summed over all nResp
     double       Diags[],       // out: diags of inv(transpose(bx) * bx)
     int          *pnRank,       // out: nbr of indep cols in x
-    int          iPivots[],     // out: nCols, can be NULL
+    int          iPivots[],     // out: nCols
     const double x[],           // in: nCases x nCols
     const double y[],           // in: nCases x nResp
-    const double Weightss[],    // in: nCases x 1, sqrt of Weights
     const int    *pnCases,      // in: number of rows in x and in y
     const int    *pnResp,       // in: number of cols in y
     int          *pnCols,       // in: number of columns in x, some may not be used

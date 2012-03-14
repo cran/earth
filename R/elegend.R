@@ -1,4 +1,4 @@
-# elegend.R: same as graphics::legend (R 2.13.0) but
+# elegend.R: same as graphics::legend (R 2.13.1) but
 #              i)  has a vert argument to specify which lines are vertical
 #              ii) allows col to be a character vector with "1" meaning 1
 

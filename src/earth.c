@@ -78,6 +78,8 @@
 
 #if _MSC_VER            // microsoft
     #define _C_ "C"
+    // disable warning: 'vsprintf': This function or variable may be unsafe
+    #pragma warning(disable: 4996)
     #if _DEBUG          // debugging enabled?
         // disable warning: too many actual params for macro (for malloc1 and calloc1)
         #pragma warning(disable: 4002)
@@ -148,15 +150,16 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 3.2-1"; // change if you modify this file!
+static const char   *VERSION    = "version 3.2-2"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
 static const double ALMOST_ZERO = 1e-10;
 static const int    ONE         = 1;        // parameter for BLAS routines
-#if _MSC_VER                                // microsoft compiler
-static const double ZERO        = 0;
-static const double POS_INF     = (1.0 / ZERO);
+#ifdef __INTEL_COMPILER
+static const double POS_INF     = __builtin_inff();
+#elif _MSC_VER                             // microsoft compiler
+static const double POS_INF     = _HUGE;
 #else
 static const double POS_INF     = (1.0 / 0.0);
 #endif
@@ -366,10 +369,10 @@ static void InitQ(const int nMaxTerms)
     int i;
     nQMax = 0;
     Q       = (tQueue *)malloc1(nMaxTerms * sizeof(tQueue),
-                            "Q\t\t\tnMaxTerms %f sizeof(tQueue) %d",
+                            "Q\t\t\tnMaxTerms %d sizeof(tQueue) %d",
                             nMaxTerms, sizeof(tQueue));
     SortedQ = (tQueue *)malloc1(nMaxTerms * sizeof(tQueue),
-                            "SortedQ\t\tnMaxTerms %f sizeof(tQueue) %d",
+                            "SortedQ\t\tnMaxTerms %d sizeof(tQueue) %d",
                             nMaxTerms, sizeof(tQueue));
     for (i = 0; i < nMaxTerms; i++) {
         Q[i].iParent = i;
@@ -920,20 +923,16 @@ void RegressR(
     double       Rss[],         // out: RSS, summed over all nResp
     double       Diags[],       // out: diags of inv(transpose(x) * x)
     int          *pnRank,       // out: nbr of indep cols in x
-    int          iPivots[],     // out: nCols, can be R_NilValue
+    int          iPivots[],     // out: nCols
     const double x[],           // in: nCases x nCols
     const double y[],           // in: nCases x nResp
-    const double Weights[],     // in: nCases x 1, can be R_NilValue
     const int    *pnCases,      // in: number of rows in x and in y
     const int    *pnResp,       // in: number of cols in y
     int          *pnCols,       // in: number of columns in x, some may not be used
     const bool   UsedCols[])    // in: specifies used columns in x
 {
-    if ((void *)Weights == (void *)R_NilValue)
-        Weights = NULL;
-
     Regress(Betas, Residuals, Rss, Diags, pnRank, iPivots,
-        x, y, Weights, *pnCases, *pnResp, *pnCols, UsedCols);
+        x, y, NULL, *pnCases, *pnResp, *pnCols, UsedCols);
 }
 #endif
 
@@ -1237,7 +1236,7 @@ static INLINE void InitBxOrthCol(
     Weights = Weights; // prevent compiler warning: unused parameter 'Weights'
 
     if (nTerms == 0) {          // column 0, the intercept
-        double len = 1 / sqrt(nCases);
+        double len = 1 / sqrt((double)nCases);
         bxOrthMean[0] = len;
         for (iCase = 0; iCase < nCases; iCase++)
             bxOrth_(iCase,0) = len;
@@ -1440,7 +1439,9 @@ static INLINE void FindKnot(
     ASSERT(MaxAllowedRssDelta > 0);
 #if USE_BLAS
     double Dummy = bxOrth[0];   // prevent compiler warning: unused parameter
-    Dummy = bxOrthMean[0];
+    double Dummy1 = bxOrthMean[0];
+    Dummy = Dummy1;
+    Dummy1 = Dummy;
 #else
     double Dummy = bxOrthCenteredT[0];
     Dummy = nMaxTerms;
@@ -2358,7 +2359,6 @@ void ForwardPassR(              // for use by R
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
     const double x[],           // in: nCases x nPreds
     const double y[],           // in: nCases x nResp
-    const double WeightsArg[],  // in: nCases x 1, can be R_NilValue, currently ignored
     const int *pnCases,         // in: number of rows in x and elements in y
     const int *pnResp,          // in: number of cols in y
     const int *pnPreds,         // in: number of cols in x
@@ -2371,12 +2371,13 @@ void ForwardPassR(              // for use by R
     const double *pFastBeta,    // in: Fast MARS ageing coef
     const double *pNewVarPenalty, // in: penalty for adding a new variable (default is 0)
     const int  LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
-    const SEXP Allowed,           // in: constraints function
+    const SEXP Allowed,           // in: constraints function, can be MyNull
     const int *pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const double *pTrace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char *sPredNames[])     // in: predictor names in trace printfs, can be R_NilValue
+    const char *sPredNames[],     // in: predictor names in trace printfs, can be MyNull
+    const SEXP MyNull)           // in: trick to avoid R check warnings on passing R_NilValue
 {
     TraceGlobal = *pTrace;
     nMinSpanGlobal = *pnMinSpan;
@@ -2409,17 +2410,16 @@ void ForwardPassR(              // for use by R
     for (iTerm = 0; iTerm < nMaxTerms; iTerm++)
         BoolFullSet[iTerm] = FullSet[iTerm];
 
-    // convert R NULL to C NULL
-    if ((void *)sPredNames == (void *)R_NilValue)
+    // convert R my.null to C NULL
+    if (*(int *)sPredNames == *(int *)MyNull)
         sPredNames = NULL;
-    if ((void *)WeightsArg == (void *)R_NilValue)
-        WeightsArg = NULL;
 
-    InitAllowedFunc(Allowed, *pnAllowedFuncArgs, Env, sPredNames, nPreds);
+    InitAllowedFunc(*(int *)Allowed == *(int *)MyNull? NULL: Allowed,
+                    *pnAllowedFuncArgs, Env, sPredNames, nPreds);
 
     int nTerms;
     ForwardPass(&nTerms, BoolFullSet, bx, iDirs, Cuts, nFactorsInTerm, nUses,
-            x, y, WeightsArg, nCases, nResp, nPreds, *pnMaxDegree, nMaxTerms,
+            x, y, NULL, nCases, nResp, nPreds, *pnMaxDegree, nMaxTerms,
             *pPenalty, *pThresh, *pnFastK, *pFastBeta, *pNewVarPenalty,
             LinPreds, (bool)(*pnUseBetaCache), sPredNames);
 
@@ -2428,7 +2428,7 @@ void ForwardPassR(              // for use by R
     // remove linearly independent columns if necessary -- this updates BoolFullSet
 
     RegressAndFix(NULL, NULL, NULL, BoolFullSet,
-        bx, y, WeightsArg, nCases, nResp, nMaxTerms);
+        bx, y, NULL, nCases, nResp, nMaxTerms);
 
     for (iTerm = 0; iTerm < nMaxTerms; iTerm++)     // convert int to double
         for (int iPred = 0; iPred < nPreds; iPred++)
@@ -2548,19 +2548,15 @@ void EvalSubsetsUsingXtxR(      // for use by R
     const int    *pnResp,       // in: number of cols in y
     const int    *pnMaxTerms,   // in
     const double bx[],          // in: MARS basis matrix, all cols must be indep
-    const double y[],           // in: nCases * nResp
-    const double WeightsArg[])  // in: nCases x 1, can be R_NilValue
+    const double y[])           // in: nCases * nResp
 {
     const int nMaxTerms = *pnMaxTerms;
     bool *BoolPruneTerms = (int *)malloc1(nMaxTerms * nMaxTerms * sizeof(bool),
                                 "BoolPruneTerms\tMaxTerms %d nMaxTerms %d sizeof(bool) %d",
                                 nMaxTerms, nMaxTerms, sizeof(bool));
 
-    if ((void *)WeightsArg == (void *)R_NilValue)
-        WeightsArg = NULL;
-
     EvalSubsetsUsingXtx(BoolPruneTerms, RssVec, *pnCases, *pnResp,
-                        nMaxTerms, bx, y, WeightsArg);
+                        nMaxTerms, bx, y, NULL);
 
     // convert BoolPruneTerms to upper triangular matrix PruneTerms
 

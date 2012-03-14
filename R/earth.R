@@ -740,7 +740,6 @@ eval.subsets.xtx <- function(
             as.integer(nterms),     # const int *pnMaxTerms
             bx,                     # const double bx[]
             y,                      # const double y[]
-            weights.,               # const double weights[]
             DUP = FALSE,
             PACKAGE="earth")
 
@@ -792,14 +791,23 @@ forward.pass <- function(x, y, weights, # must be all double
     if(nbytes > 1e7)  # need more than 10 MBytes to build model?
         gc()
 
-    # We want DUP=FALSE in the .C call below to reduce memory useage.  But
+    # Mar 2012: R cmd check now complains if you pass R NULL via .C, so
+    # we gyp this by passing a special value in my.null.
+    # TODO is this reliable and safe?
+
+    my.null = 999999L
+
+    if(is.null(allowed))
+        allowed <- my.null
+
+    # We want DUP=FALSE in the .C call below to reduce memory usage.  But
     # this isn't permitted if you pass a string array to .C, so we set
-    # pred.names=NULL unless tracing or unless we need pred.names for the
+    # pred.names=my.null unless tracing or unless we need pred.names for the
     # "allowed" function.
 
-    pred.names <- if(trace >= 2 || n.allowedfunc.args >= 4) colnames(x) else NULL
+    pred.names <- if(trace >= 2 || n.allowedfunc.args >= 4) colnames(x) else my.null
 
-    on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interupts
+    on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interrupts
 
     rval <- .C("ForwardPassR",
         fullset = as.integer(fullset),  # out: int FullSet[]
@@ -808,7 +816,6 @@ forward.pass <- function(x, y, weights, # must be all double
         cuts = matrix(0, nrow=nk, ncol=npreds), # out: double Cuts[]
         x,                              # in: const double x[]
         y.scaled,                       # in: const double y[]
-        weights,                        # in: const double WeightsArg[]
         as.integer(nrow(x)),            # in: const int *pnCases
         as.integer(ncol(y)),            # in: const int *pnResp
         as.integer(npreds),             # in: const int *pnPreds
@@ -826,9 +833,10 @@ forward.pass <- function(x, y, weights, # must be all double
         env,                            # in: const SEXP Env for Allowed
         as.integer(Use.beta.cache),     # in: const int *pnUseBetaCache
         as.double(trace),               # in: const double *pTrace
-        pred.names,                     # in: const char *sPredNames[]
+        pred.names,                     # in: const char *sPredNames[], can be MyNull
+        my.null,                        # in: const SEXP MyNull
         NAOK = TRUE, # we check for NAs etc. internally in C ForwardPass
-        DUP = !is.null(pred.names),     # see above comment
+        DUP = pred.names != my.null,    # see above comment
         PACKAGE="earth")
 
     fullset <- as.logical(rval$fullset)

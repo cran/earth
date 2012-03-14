@@ -106,7 +106,7 @@ TEST 4: FUNCTION x0 + noise N=1000
 
 =============================================================================
 TEST 5: x0 + x1 N=1000
-earth.c version 3.2-1
+earth.c version 3.2-2
 BetaCache 1.94 kB
 Forward pass: minspan 6 endspan 8
 
@@ -135,11 +135,12 @@ Forward pass: minspan 6 endspan 8
 4      0.9848 0.9851       0.5017    1     0.7026  4   5   
 
 |Searching for new term 6                      RssDelta 0
-|Parent 5  Pred 1                                                    skip (pred is in parent)
-|Parent 5  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0079372    BestRssDeltaForTermSoFar 0.00793717 (lin pred) 
-|                  Case  991 Cut       0.9642  RssDelta 0.016559     BestRssDeltaForTermSoFar
 |Parent 4  Pred 1                                                    skip (pred is in parent)
-|Parent 4  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0018727    
+|Parent 4  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0018727    BestRssDeltaForTermSoFar 0.00187273 (lin pred) 
+|                  Case  905 Cut       0.7126  RssDelta 0.0050697    BestRssDeltaForTermSoFar
+|Parent 5  Pred 1                                                    skip (pred is in parent)
+|Parent 5  Pred 2  Case    1 Cut      -0.9987< RssDelta 0.0079372    BestRssDeltaForTermSoFar 0.00286747 (lin pred) 
+|                  Case  991 Cut       0.9642  RssDelta 0.016559     BestRssDeltaForTermSoFar
 |Parent 1  Pred 1  Case    1 Cut      -0.9987< RssDelta 0            
 |                  Case  991 Cut       0.9621  RssDelta 0.017004     BestRssDeltaForTermSoFar
 |Parent 1  Pred 2  Case    1 Cut      -0.9987< RssDelta 0            
@@ -280,8 +281,8 @@ malloc      8 kB: Weights		nCases 1000 sizeof(double) 8
 malloc      8 kB: xOrder		nRows 1000 nCols 2 sizeof(int) 4
 malloc     42 kB: BetaCacheGlobal	nMaxTerms 51 nMaxTerms 51 nPreds 2 sizeof(double) 8
 Forward pass term 1
-malloc      2 kB: Q			nMaxTerms 0.000000 sizeof(tQueue) 51
-malloc      2 kB: SortedQ		nMaxTerms 0.000000 sizeof(tQueue) 51
+malloc      2 kB: Q			nMaxTerms 51 sizeof(tQueue) 32
+malloc      2 kB: SortedQ		nMaxTerms 51 sizeof(tQueue) 32
 malloc      8 kB: xbx			nCases 1000 sizeof(double) 8
 malloc    408  B: CovSx			nMaxTerms 51 sizeof(double) 8
 calloc      8  B: CovCol		nMaxTerms 51 sizeof(double) 8
@@ -1326,7 +1327,7 @@ Forward pass: minspan 5 endspan 10
 28     0.7126 0.9661      0.04153    9     0.3008  26  27  6   
 30     0.8190 0.9817      0.01558    5     0.6089  28      6   
 32     0.9069 0.9920      0.01033    1     0.6557  29      
-34     0.9810 0.9986      0.00663    2     0.7087  30      
+34     0.9810 0.9986      0.00663    2     0.6347  30      
 36     0.9785 0.9990    0.0003487    2     0.2233  31  32  reject term
 
 Reached delta RSq threshold (DeltaRSq 0.000348728 < 0.001) at 35 terms
@@ -1359,8 +1360,8 @@ SubsetSize         GRSq          RSq
         22       0.8529       0.9676
         23       0.8969       0.9796
         24       0.9248       0.9868
-        25       0.9583       0.9935
-        26       0.9826       0.9976
+        25       0.9532       0.9927
+        26       0.9766       0.9968
         27       0.9864       0.9984
         28       0.9864       0.9985
         29       0.9864       0.9986
@@ -1373,31 +1374,31 @@ RESULT 23: GRSq 0.986443 RSq 0.998401 nTerms 27 of 30 of 51 [99.99 secs]
 TEST 23: FUNCTION eqn56 mi=2 N=100
 0.0534                                                                    // 0
 +1.83     * max(0, x[0]     -       0.13)                                 // 1
-+444      * max(0, x[0]     -       0.13) * max(0, x[1]     -      0.682) // 2
-+72.2     * max(0, x[1]     -      0.386)                                 // 3
--934      * max(0, x[1]     -      0.386) * max(0, x[3]     -       0.46) // 4
-+404      * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) // 5
-+88.4     * max(0, x[1]     -      0.386) * max(0, x[4]     -    -0.0137) // 6
--148      * max(0, x[1]     -      0.386) * max(0, -0.0137   -      x[4]) // 7
--282      * max(0, x[1]     -      0.386) * max(0, x[2]     -      0.699) // 8
--132      * max(0, x[1]     -      0.386) * max(0, 0.699     -      x[2]) // 9
-+36.3     * max(0, x[1]     -      0.386) * max(0, x[7]     -      0.344) // 10
-+20.1     * max(0, x[1]     -      0.386) * max(0, 0.344     -      x[7]) // 11
--216      * max(0, x[1]     -      0.386) * max(0, x[5]     -     -0.168) // 12
--90.7     * max(0, x[1]     -      0.386) * max(0, -0.168    -      x[5]) // 13
--197      * max(0, x[1]     -      0.386) * max(0, x[2]     -     -0.587) // 14
--6.62e+03 * max(0, x[0]     -      0.652) * max(0, x[1]     -      0.386) // 15
--61.1     * max(0, 0.652     -      x[0]) * max(0, x[1]     -      0.386) // 16
-+10.5     * max(0, x[1]     -      0.386) * max(0, x[9]     -      0.208) // 17
--103      * max(0, x[1]     -      0.386) * max(0, 0.208     -      x[9]) // 18
-+585      * max(0, x[1]     -      0.386) * max(0, x[3]     -      -0.18) // 19
-+9.59     * max(0, x[1]     -      0.386) * max(0, x[6]     -     -0.253) // 20
--250      * max(0, x[1]     -      0.386) * max(0, -0.253    -      x[6]) // 21
-+70.1     * max(0, x[1]     -      0.386) * max(0, x[8]     -      0.301) // 22
-+76.1     * max(0, x[1]     -      0.386) * max(0, 0.301     -      x[8]) // 23
-+159      * max(0, x[1]     -      0.386) * max(0, x[4]     -      0.609) // 24
++473      * max(0, x[0]     -       0.13) * max(0, x[1]     -      0.682) // 2
++58.2     * max(0, x[1]     -      0.386)                                 // 3
+-969      * max(0, x[1]     -      0.386) * max(0, x[3]     -       0.46) // 4
++428      * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) // 5
++92.9     * max(0, x[1]     -      0.386) * max(0, x[4]     -    -0.0137) // 6
+-166      * max(0, x[1]     -      0.386) * max(0, -0.0137   -      x[4]) // 7
+-334      * max(0, x[1]     -      0.386) * max(0, x[2]     -      0.699) // 8
+-128      * max(0, x[1]     -      0.386) * max(0, 0.699     -      x[2]) // 9
++36.2     * max(0, x[1]     -      0.386) * max(0, x[7]     -      0.344) // 10
++16.3     * max(0, x[1]     -      0.386) * max(0, 0.344     -      x[7]) // 11
+-230      * max(0, x[1]     -      0.386) * max(0, x[5]     -     -0.168) // 12
+-96.5     * max(0, x[1]     -      0.386) * max(0, -0.168    -      x[5]) // 13
+-190      * max(0, x[1]     -      0.386) * max(0, x[2]     -     -0.587) // 14
+-6.92e+03 * max(0, x[0]     -      0.652) * max(0, x[1]     -      0.386) // 15
+-60.9     * max(0, 0.652     -      x[0]) * max(0, x[1]     -      0.386) // 16
++8.52     * max(0, x[1]     -      0.386) * max(0, x[9]     -      0.208) // 17
+-117      * max(0, x[1]     -      0.386) * max(0, 0.208     -      x[9]) // 18
++623      * max(0, x[1]     -      0.386) * max(0, x[3]     -     -0.179) // 19
++16       * max(0, x[1]     -      0.386) * max(0, x[6]     -     -0.253) // 20
+-263      * max(0, x[1]     -      0.386) * max(0, -0.253    -      x[6]) // 21
++73.7     * max(0, x[1]     -      0.386) * max(0, x[8]     -      0.301) // 22
++86.2     * max(0, x[1]     -      0.386) * max(0, 0.301     -      x[8]) // 23
++154      * max(0, x[1]     -      0.386) * max(0, x[4]     -      0.609) // 24
 +9.39     * max(0, x[0]     -      0.656)                                 // 25
-+33.5     * max(0, x[1]     -      0.709)                                 // 26
++23.6     * max(0, x[1]     -      0.635)                                 // 26
 
 =============================================================================
 TEST 24: eqn56 mi=10 N=100
@@ -1469,8 +1470,8 @@ TEST 24: FUNCTION eqn56 mi=10 N=100
 +4.1      * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, x[5]     -      0.124)                                 // 11
 -38       * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, 0.124     -      x[5])                                 // 12
 +10.6     * max(0, x[0]     -      0.656)                                                                                                 // 13
-+32.2     * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, 0.124     -      x[5]) * max(0, x[7]     -      0.176) // 14
-+31.3     * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, 0.124     -      x[5]) * max(0, 0.176     -      x[7]) // 15
++32.2     * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, 0.124     -      x[5]) * max(0, x[7]     -      0.175) // 14
++31.3     * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, 0.124     -      x[5]) * max(0, 0.175     -      x[7]) // 15
 +13.7     * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, x[8]     -      0.301)                                 // 16
 -4.4      * max(0, x[1]     -      0.386) * max(0, 0.46      -      x[3]) * max(0, 0.301     -      x[8])                                 // 17
 -87.8     * max(0, x[1]     -      0.386) * max(0, x[3]     -       0.46) * max(0, x[9]     -    -0.0436)                                 // 18
@@ -1478,7 +1479,7 @@ TEST 24: FUNCTION eqn56 mi=10 N=100
 
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 N=30
-earth.c version 3.2-1
+earth.c version 3.2-2
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
@@ -1592,7 +1593,7 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 N=30
-earth.c version 3.2-1
+earth.c version 3.2-2
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
@@ -1695,7 +1696,7 @@ TEST 26: FUNCTION x0 + x1 + x0*x1 N=30
 
 =============================================================================
 TEST 27: x0 + x1 + x0*x1 N=30
-earth.c version 3.2-1
+earth.c version 3.2-2
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 
@@ -1884,7 +1885,7 @@ Response 2:
 
 =============================================================================
 TEST 30: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100
-earth.c version 3.2-1
+earth.c version 3.2-2
 BetaCache 41.6 kB
 Forward pass: minspan 4 endspan 8
 

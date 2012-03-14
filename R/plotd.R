@@ -537,7 +537,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
 #                 names(yhat.per.class) <-  paste0(type, "[,", 1:ncol(yhat), "]")
         } else if(is.numeric(y) && NCOL(y) == NCOL(yhat)) {
             th <- get.thresh(y, "response")
-            trace.response.type("multicolum numeric",
+            trace.response.type("multicolumn numeric",
                 "multicolumn numeric with same number of columns as observed response",
                 th$text.gt, "for each column of observed response")
             for(iclass in 1:ncol(yhat)) {

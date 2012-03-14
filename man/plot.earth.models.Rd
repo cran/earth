@@ -5,7 +5,7 @@
 Compare \code{\link{earth}} models by plotting them.
 }
 \usage{
-plot.earth.models(x = stop("no 'x' arg"), which = c(1:2),
+\method{plot}{earth.models}(x = stop("no 'x' arg"), which = c(1:2),
     caption = "", jitter = 0,
     col.grsq = discrete.plot.cols(length(x)), lty.grsq = 1,
     col.rsq = 0, lty.rsq = 5,
