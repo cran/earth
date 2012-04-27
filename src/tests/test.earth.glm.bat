@@ -1,7 +1,7 @@
 @rem test.earth.glm.bat
 
 @echo === test.earth.glm ===============================================
-@"\PROGRA~1\R\R-2.15.0alpha\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.earth.glm.R
+@"\PROGRA~1\R\R-2.15.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.earth.glm.R
 @if %errorlevel% equ 0 goto good1:
 @echo error: R returned errorlevel %errorlevel%, see test.earth.glm.Rout:
 @echo.

@@ -1452,7 +1452,7 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 
 # msg = "earth.regress with ozone1 data, multiple responses with case weights"
 # cat("Test:", msg, "\n")
-# 
+#
 # # options(digits=10)
 # weights. <- rep(.5, nrow(x))
 # weights.[1] <- 1
@@ -1471,7 +1471,7 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 
 # msg = "earth.regress case weights with zero weights 1"
 # cat("Test:", msg, "\n")
-# 
+#
 # weights. <- rep(1, nrow(x))
 # weights.[2] <- 0
 # weights.[4] <- 0
@@ -1484,7 +1484,7 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
 # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-# 
+#
 # msg = "earth.regress case weights with zero weights 2"
 # cat("Test:", msg, "\n")
 # weights. <- rep(1, nrow(x))
@@ -1506,7 +1506,7 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
 # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-# 
+#
 # msg = "earth.regress case weights with zero weights and missing columns 1"
 # cat("Test:", msg, "\n")
 # x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
@@ -1532,7 +1532,7 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
 # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-# 
+#
 # msg = "earth.regress case weights with zero weights and missing columns 2"
 # cat("Test:", msg, "\n")
 # x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)

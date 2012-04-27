@@ -5,12 +5,12 @@
 @echo === test.earthmain ===============================================
 
 @set CYGWIN=nodosfilewarning
-@cp "C:/a/r/ra/bin/i386/R.dll" .
-@cp "C:/a/r/ra/bin/i386/Rblas.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/R.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rblas.dll" .
 @cp "C:/a/r/ra/src/gnuwin32/unicode/iconv.dll" .
-@cp "C:/a/r/ra/bin/i386/Riconv.dll" .
-@cp "C:/a/r/ra/bin/i386/Rgraphapp.dll" .
-@cp "C:/a/r/ra/bin/i386/Rzlib.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Riconv.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rgraphapp.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rzlib.dll" .
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @cp "../../.#/Rdll.lib" .
 @cp "../../.#/Rblas.lib" .
@@ -27,7 +27,7 @@ earthmain.exe > Debug\test.earthmain.out
 diff -w Debug\test.earthmain.out test.earthmain.out.save
 @if %errorlevel% neq 0 goto error:
 
-@rm -f R.dll Rblas.dll iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll earthmain.exe *.map *.ilk *.pdb
+@rm -f R.dll Rblas.dll Rdll.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll earthmain.exe *.map *.ilk *.pdb
 @rm -rf Debug
 @exit /B 0
 

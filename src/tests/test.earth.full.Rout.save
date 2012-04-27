@@ -1,7 +1,7 @@
 > # test.earth.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 2.15.0 alpha (2012-03-11 r58689)"
+[1] "R version 2.15.0 (2012-03-30)"
 > 
 > library(earth)
 Loading required package: leaps
@@ -43,7 +43,7 @@ To cite package 'earth' in publications use:
 
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. (2011). earth: Multivariate Adaptive Regression Spline
-  Models. R package version 3.2-2.
+  Models. R package version 3.2-3.
   http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -52,7 +52,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Spline Models},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani.},
     year = {2011},
-    note = {R package version 3.2-2},
+    note = {R package version 3.2-3},
     url = {http://CRAN.R-project.org/package=earth},
   }
 
@@ -972,6 +972,7 @@ mrs.t.+     #   Number of terms at each degree of interaction: 1 3 (additive mod
 mrs.t.+     #   GCV 13    RSS 251    GRSq 0.95    RSq 0.97
 mrs.t.+ }
 Converted mars(x=trees[, -3], y=trees[, 3])
+
 to        earth(x=trees[, -3], y=trees[, 3])
 Call: earth(x=trees[, -3], y=trees[, 3])
 
@@ -989,6 +990,7 @@ GCV 13    RSS 251    GRSq 0.95    RSq 0.97
 > a <- mars(trees[,-3], trees[,3])
 > a <- mars.to.earth(a)
 Converted mars(x=trees[, -3], y=trees[, 3])
+
 to        earth(x=trees[, -3], y=trees[, 3])
 > summary(a, digits = 2)
 Call: earth(x=trees[, -3], y=trees[, 3])
@@ -3429,6 +3431,7 @@ GCV 0.02254096    RSS 1.234343    GRSq 0.9973244    RSq 0.9985051
 > y <- doy
 > itest <- itest+1; ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=1, nk=21)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 itest 47  doy ~ wind+humidity+temp+vis     degree 1  nk 21  nTerms 6  of 15  GRSq 0.18 GRSq ratio 1.363416 
 ===summary(fite) 
@@ -3468,6 +3471,7 @@ Importance: wind, temp, humidity, vis-unused
 Number of terms at each degree of interaction: 1 5 (additive model)
 GCV 8930.508    RSS 2753871    GRSq 0.1827523    RSq 0.231678
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 
  grid:    wind humidity temp vis
@@ -3486,6 +3490,7 @@ GCV 8930.508    RSS 2753871    GRSq 0.1827523    RSq 0.231678
 > y <- doy
 > itest <- itest+1; a91 <- ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.global, y, degree=2, nk=21)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 itest 48  doy ~ wind+humidity+temp+vis     degree 2  nk 21  nTerms 8  of 20  GRSq 0.21 GRSq ratio 1.710692 
 ===summary(fite) 
@@ -3533,6 +3538,7 @@ Importance: wind, humidity, temp, vis-unused
 Number of terms at each degree of interaction: 1 2 5
 GCV 8636.803    RSS 2539541    GRSq 0.2096298    RSq 0.2914755
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 
  grid:    wind humidity temp vis
@@ -3553,6 +3559,7 @@ to        earth(x=x, y=y, degree=degree, nk=nk)
 > itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, col.loess=0)
 Warning in storage.mode(tagx) <- "integer" : NAs introduced by coercion
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 itest 49  doy ~ wind+exp(humidity)         degree 1  nk 21  nTerms 3  of 7   GRSq  0.1 GRSq ratio 1.640727 
 ===summary(fite) 
@@ -3583,6 +3590,7 @@ Importance: wind, x2-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV 9821.564    RSS 3143644    GRSq 0.1012101    RSq 0.1229323
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 
  grid:    wind           V2
@@ -3601,6 +3609,7 @@ GCV 9821.564    RSS 3143644    GRSq 0.1012101    RSq 0.1229323
 > y <- O3
 > itest <- itest+1; ozone.test(itest, "O3~.", x.global, y, degree=2, nk=21)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 itest 50  O3~.                             degree 2  nk 21  nTerms 11 of 21  GRSq 0.79 GRSq ratio 1.010102 
 ===summary(fite) 
@@ -3656,6 +3665,7 @@ Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
 Number of terms at each degree of interaction: 1 5 5
 GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -3674,6 +3684,7 @@ GCV 13.45447    RSS 3767.904    GRSq 0.7910006    RSq 0.8215567
 > y <- O3
 > itest <- itest+1; ozone.test(itest, "O3~., nk=51", x.global, y, degree=2, nk=51)
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 itest 51  O3~., nk=51                      degree 2  nk 51  nTerms 27 of 48  GRSq 0.81 GRSq ratio 1.010625 
 ===summary(fite) 
@@ -3778,6 +3789,7 @@ Importance: temp, ibt, doy, vis, dpg, ibh, humidity, wind, vh
 Number of terms at each degree of interaction: 1 6 20
 GCV 12.45516    RSS 2630.53    GRSq 0.8065237    RSq 0.8754213
 Converted mars(x=x, y=y, degree=degree, nk=nk)
+
 to        earth(x=x, y=y, degree=degree, nk=nk)
 
  grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
@@ -4417,6 +4429,7 @@ All   0.11874403 6.502423 0.9975293 0.9986196
 Testing mars.to.earth with a multiple response model
 Converted mars(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[, 
           1:2], degree=degree, nk=nk, trace.mars=(trace!=0))
+
 to        earth(x=data.global[, c(-1, -2), drop=FALSE], y=data.global[, 
           1:2], degree=degree, nk=nk)
 ===fitme 
@@ -5693,7 +5706,7 @@ Contents of y are
  [99,] 8
 [100,] 9
 [101,] 0
-earth.c version 3.2-2
+earth.c version 3.2-3
 BetaCache 3.53 kB
 Forward pass: minspan 4 endspan 7
 
@@ -6528,6 +6541,7 @@ GCV 34.2622    RSS 832.5714    GRSq 0.38772    RSq 0.4692603
 > m <- mars(cbind(x1,x2), cbind(y1, y2))
 > me1 <- mars.to.earth(m)
 Converted mars(x=cbind(x1, x2), y=cbind(y1, y2))
+
 to        earth(x=cbind(x1, x2), y=cbind(y1, y2))
 > printh(me1)
 ===me1 
@@ -6833,7 +6847,7 @@ Test: earth.regress with ozone1 data, multiple responses, no weights
 > 
 > # msg = "earth.regress with ozone1 data, multiple responses with case weights"
 > # cat("Test:", msg, "\n")
-> # 
+> #
 > # # options(digits=10)
 > # weights. <- rep(.5, nrow(x))
 > # weights.[1] <- 1
@@ -6852,7 +6866,7 @@ Test: earth.regress with ozone1 data, multiple responses, no weights
 > 
 > # msg = "earth.regress case weights with zero weights 1"
 > # cat("Test:", msg, "\n")
-> # 
+> #
 > # weights. <- rep(1, nrow(x))
 > # weights.[2] <- 0
 > # weights.[4] <- 0
@@ -6865,7 +6879,7 @@ Test: earth.regress with ozone1 data, multiple responses, no weights
 > # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
 > # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 > # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-> # 
+> #
 > # msg = "earth.regress case weights with zero weights 2"
 > # cat("Test:", msg, "\n")
 > # weights. <- rep(1, nrow(x))
@@ -6887,7 +6901,7 @@ Test: earth.regress with ozone1 data, multiple responses, no weights
 > # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
 > # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 > # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-> # 
+> #
 > # msg = "earth.regress case weights with zero weights and missing columns 1"
 > # cat("Test:", msg, "\n")
 > # x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
@@ -6913,7 +6927,7 @@ Test: earth.regress with ozone1 data, multiple responses, no weights
 > # check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
 > # check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
 > # check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
-> # 
+> #
 > # msg = "earth.regress case weights with zero weights and missing columns 2"
 > # cat("Test:", msg, "\n")
 > # x <- cbind(ozone1$wind, ozone1$humidity, ozone1$temp, ozone1$wind^2, ozone1$humidity^2, ozone1$temp^2)
@@ -10232,141 +10246,97 @@ GCV 0.152    RSS 154    GRSq 0.372    RSq 0.391
 > 
 > options(options.old)
 > source("../../tests/test.earth.R")
-Call: earth(formula=O3~., data=ozone1, trace=4, degree=2)
-x is a 330 by 9 matrix: 1=vh, 2=wind, 3=humidity, 4=temp, 5=ibh, 6=dpg, 7=ibt, 8=vis, 9=doy
+Call: earth(formula=Volume~., data=trees, trace=4, degree=2)
+x is a 31 by 2 matrix: 1=Girth, 2=Height
 First few rows of x are
-       vh wind humidity temp  ibh dpg ibt vis doy
-[1,] 5710    4       28   40 2693 -25  87 250  33
-[2,] 5700    3       37   45  590 -24 128 100  34
-[3,] 5760    3       51   54 1450  25 139  60  35
-[4,] 5720    4       69   35 1568  15 121  60  36
-[5,] 5790    6       19   45 2631 -33 123 100  37
-[6,] 5790    3       25   55  554 -28 182 250  38
-y is a 330 by 1 matrix: 1=O3
+     Girth Height
+[1,]   8.3     70
+[2,]   8.6     65
+[3,]   8.8     63
+[4,]  10.5     72
+[5,]  10.7     81
+[6,]  10.8     83
+y is a 31 by 1 matrix: 1=Volume
 First few rows of y are
-     O3
-[1,]  3
-[2,]  5
-[3,]  5
-[4,]  6
-[5,]  4
-[6,]  4
-Forward pass: minspan 6 endspan 10
+     Volume
+[1,]   10.3
+[2,]   10.3
+[3,]   10.2
+[4,]   16.4
+[5,]   18.8
+[6,]   19.7
+Forward pass: minspan 4 endspan 8
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                                             1
-2      0.6493 0.6599       0.6599    4         temp          58  2   3   
-4      0.6908 0.7094      0.04948    5          ibh        1069  4   5   
-6      0.7110 0.7368      0.02744    9          doy          89  6   7   
-8      0.7300 0.7618        0.025    3     humidity          56  8   9   2   
-10     0.7546 0.7904      0.02865    6          dpg          54  10  11  2   
-12     0.7597 0.8015       0.0111    8          vis         200  12  13  
-14     0.7633 0.8110     0.009428    2         wind           7  14  15  13  
-16     0.7637 0.8177     0.006729    6          dpg          44  16  17  5   
-18     0.7678 0.8270     0.009305    7          ibt         233  18  19  
-20     0.7659 0.8317     0.004672    9          doy         159  20  21  2   
+2      0.9443 0.9613       0.9613    1        Girth          14  2   3   
+4      0.9456 0.9758       0.0145    2       Height          72  4   5   
+6      0.9126 0.9781     0.002297    1        Girth        14.2  6   7   4   
+8      0.8118 0.9791    0.0009535    2       Height          74  8   9   reject term
 
-Reached max number of terms 21
-After forward pass GRSq 0.7659 RSq 0.8317
-Forward pass complete: 21 terms
+Reached delta RSq threshold (DeltaRSq 0.000953536 < 0.001) at 7 terms
+After forward pass GRSq 0.8118 RSq 0.9791
+Forward pass complete: 7 terms
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
-          2      0.6408  0.6462     0.6408      1  1 2
-          3      0.6909  0.7002     0.0501      2  1 2 4
-          4      0.7018  0.7153     0.0109      3  1 2 9 19
-          5      0.7108  0.7281     0.0090      4  1 2 6 9 19
-          6      0.7377  0.7573     0.0269      4  1 2 6 7 9 19
-          7      0.7566  0.7783     0.0189      5  1 2 6 7 9 11 19
-          8      0.7657  0.7900     0.0091      6  1 2 6 7 9 11 13 19
-          9      0.7768  0.8031     0.0111      7  1 2 6 7 9 11 13 17 19
-         10      0.7851  0.8135     0.0082      7  1 2 6 7 9 10 11 13 17 19
-chosen   11      0.7910  0.8216     0.0059      8  1 2 6 7 9 10 11 13 14 17 19
-         12      0.7897  0.8234    -0.0013      8  1 2 6 7 9 10 11 13 14 17 19 20
-         13      0.7895  0.8261    -0.0002      8  1 2 6 7 9 10 11 13 14 17 19 20 21
-         14      0.7872  0.8272    -0.0023      8  1 2 5 6 7 9 10 11 13 14 17 19 20 21
-         15      0.7854  0.8286    -0.0018      8  1 2 5 6 7 9 10 11 13 14 16 17 19 20 21
-         16      0.7833  0.8298    -0.0021      8  1 2 5 6 7 9 10 11 13 14 15 16 17 19 20 21
-         17      0.7804  0.8306    -0.0028      8  1 2 5 6 7 8 9 10 11 13 14 15 16 17 19 20 21
-         18      0.7772  0.8310    -0.0032      8  1 2 4 5 6 7 8 9 10 11 13 14 15 16 17 19 20 21
-         19      0.7738  0.8314    -0.0034      8  1 2 3 4 5 6 7 8 9 10 11 13 14 15 16 17 19 20 21
-         20      0.7700  0.8316    -0.0038      8  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 19 20 21
-         21      0.7659  0.8317    -0.0040      8  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
+          2      0.8315  0.8584     0.8315      1  1 2
+          3      0.9443  0.9613     0.1128      1  1 2 3
+chosen    4      0.9568  0.9757     0.0125      2  1 2 3 4
+          5      0.9477  0.9768    -0.0090      2  1 2 3 4 6
+          6      0.9336  0.9774    -0.0141      2  1 2 3 4 6 7
+          7      0.9126  0.9781    -0.0211      2  1 2 3 4 5 6 7
 
-Prune method "backward" penalty 3 nprune 21: selected 11 of 21 terms, and 8 of 9 predictors
-After backward pass GRSq 0.791 RSq 0.8216 
-Selected 11 of 21 terms, and 8 of 9 predictors 
-Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
-Number of terms at each degree of interaction: 1 5 5
-GCV 13.5    RSS 3768    GRSq 0.791    RSq 0.822
-Call: earth(formula=O3~., data=ozone1, trace=4, degree=2)
+Prune method "backward" penalty 3 nprune 7: selected 4 of 7 terms, and 2 of 2 predictors
+After backward pass GRSq 0.9568 RSq 0.9757 
+Selected 4 of 7 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 12.1    RSS 197    GRSq 0.957    RSq 0.976
+Call: earth(formula=Volume~., data=trees, trace=4, degree=2)
 
-                            coefficients
-(Intercept)                       14.889
-h(temp-58)                         0.321
-h(233-ibt)                        -0.046
-h(200-vis)                         0.022
-h(doy-89)                         -0.023
-h(89-doy)                         -0.144
-h(wind-7) * h(200-vis)            -0.019
-h(56-humidity) * h(temp-58)       -0.021
-h(temp-58) * h(dpg-54)            -0.019
-h(temp-58) * h(54-dpg)             0.004
-h(1069-ibh) * h(44-dpg)            0.000
+             coefficients
+(Intercept)        27.246
+h(Girth-14)         6.177
+h(14-Girth)        -3.266
+h(Height-72)        0.491
 
-Selected 11 of 21 terms, and 8 of 9 predictors 
-Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
-Number of terms at each degree of interaction: 1 5 5
-GCV 13.5    RSS 3768    GRSq 0.791    RSq 0.822
-          nsubsets   gcv    rss
-temp            10 100.0  100.0
-humidity         8  35.6   38.4
-ibt              8  35.6   38.4
-doy              7  33.6   36.0
-dpg              5  25.9   28.0
-ibh              4  30.9>  32.3>
-vis              4  20.8   22.9
-wind             1   8.7    9.9
-vh-unused        0   0.0    0.0
-Selected 5 of 21 terms, and 4 of 9 predictors 
-Importance: temp, humidity, ibt, ibh-unused, doy, vh-unused, wind-unused, ...
-Number of terms at each degree of interaction: 1 3 1
-GCV 18.6    RSS 5741    GRSq 0.711    RSq 0.728
+Selected 4 of 7 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 12.1    RSS 197    GRSq 0.957    RSq 0.976
+       nsubsets   gcv    rss
+Girth         3 100.0  100.0
+Height        1  11.4   12.1
+Selected 3 of 7 terms, and 1 of 2 predictors 
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 15.5    RSS 313    GRSq 0.944    RSq 0.961
 
-0 1 2 
-1 3 1 
-[1] 0 1 1 1 1 1 1 2 2
-[1] "vh"       "wind"     "humidity"
-[1] 5741
-[1] 1 2 5 3 4
-       O3
-[1,] 6.63
-Selected 14 of 19 terms, and 8 of 9 predictors 
-Importance: temp, ibh, doy, dpg, humidity, vh, vis, wind, ibt-unused
-Number of terms at each degree of interaction: 1 13 (additive model)
-GCV 14.8126    RSS 4121    GRSq 0.769904    RSq 0.804834
-Call: earth(formula=O3~., data=ozone1, degree=1, minspan=1)
+0 1 
+1 3 
+[1] 0 1
+[1] "Girth"  "Height"
+[1] 197
+[1] 1 2 3 4
+     Volume
+[1,]    373
+Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 10.67    RSS 198.2    GRSq 0.9618    RSq 0.9755
+Call: earth(formula=Volume~., data=trees, degree=1, minspan=1)
 
-O3 =
-  8.56555
-  +   0.0153584 * pmax(0,       vh -     5740) 
-  -   0.0135079 * pmax(0,     5740 -       vh) 
-  +    0.303387 * pmax(0,        9 -     wind) 
-  +     0.24189 * pmax(0, humidity -       39) 
-  -    0.227282 * pmax(0, humidity -       54) 
-  +    0.378576 * pmax(0,     temp -       58) 
-  - 0.000600086 * pmax(0,      ibh -     1023) 
-  -  0.00313283 * pmax(0,     1023 -      ibh) 
-  -    0.107166 * pmax(0,      dpg -       12) 
-  +   0.0456812 * pmax(0,       80 -      vis) 
-  +   0.0469864 * pmax(0,      doy -       89) 
-  -    0.124658 * pmax(0,       89 -      doy) 
-  -   0.0911118 * pmax(0,      doy -      159) 
+Volume =
+  27.1
+  + 6.08 * pmax(0,  Girth -   13.8) 
+  - 3.25 * pmax(0,   13.8 -  Girth) 
+  +  0.6 * pmax(0, Height -     75) 
 
-Selected 14 of 19 terms, and 8 of 9 predictors 
-Importance: temp, ibh, doy, dpg, humidity, vh, vis, wind, ibt-unused
-Number of terms at each degree of interaction: 1 13 (additive model)
-GCV 14.8126    RSS 4121    GRSq 0.769904    RSq 0.804834
+Selected 4 of 5 terms, and 2 of 2 predictors 
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 10.7    RSS 198    GRSq 0.962    RSq 0.976
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

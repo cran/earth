@@ -170,6 +170,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
                  "but the GCV recalculated for earth is ", rval$gcv, "\n")
 
     my.print.call("Converted ", oldcall)
+    cat("\n")
     my.print.call("to        ", newcall)
 
     rval

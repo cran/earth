@@ -91,12 +91,12 @@ predict.earth <- function(
         var.names <- variable.names(object, use.names=TRUE)[additive.preds]
         termMat <- matrix(0, nrow=nrow(bx), ncol=ncol(dirs))
         colnames(termMat) <- var.names
-        if(ncol(bx) > 1)
+        if(ncol(bx) >= 1)
             for(ipred in 1:ncol(dirs))
                 for(iterm in 1:ncol(bx))
                     if(dirs[iterm, ipred])
-                        termMat[, ipred] = termMat[, ipred] + coefs[iterm] * bx[, iterm]
-
+                        termMat[, ipred] =
+                            termMat[, ipred] + coefs[iterm] * bx[, iterm]
         termMat
     }
     #--- predict.earth starts here ---

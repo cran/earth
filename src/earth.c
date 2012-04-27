@@ -150,7 +150,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 3.2-2"; // change if you modify this file!
+static const char   *VERSION    = "version 3.2-3"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -221,7 +221,6 @@ static void *malloc1(size_t size, const char *args, ...)
             va_end(p);
             printf("malloc %s: %s\n", sFormatMemSize(size, true), s);
         }
-        fflush(stdout);
     }
     if (!p)
         error("Out of memory (could not allocate %s)", sFormatMemSize(size, false));
@@ -242,7 +241,6 @@ static void *calloc1(size_t num, size_t size, const char *args, ...)
             va_end(p);
             printf("calloc %s: %s\n", sFormatMemSize(size, true), s);
         }
-        fflush(stdout);
     }
     if (!p)
         error("Out of memory (could not allocate %s)", sFormatMemSize(size, false));
@@ -1122,7 +1120,6 @@ static void InitBetaCache(const bool UseBetaCache,
 "\nNote: earth's beta cache would require %s, so forcing Use.beta.cache=FALSE.\n"
 "      Invoke earth with Use.beta.cache=FALSE to make this message go away.\n\n",
                 sFormatMemSize(nCache * sizeof(double), false));
-            fflush(stdout);
             BetaCacheGlobal = NULL;
     } else {
        if (TraceGlobal >= 5)    // print cache size
@@ -1984,8 +1981,10 @@ static void PrintForwardStep(
             // AddTermPair will print the parents shortly, if any
         }
     }
+#if !USING_R // no flush needed when using R_printf
     if (TraceGlobal != 0)
         fflush(stdout);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2377,7 +2376,7 @@ void ForwardPassR(              // for use by R
     const int *pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const double *pTrace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char *sPredNames[],     // in: predictor names in trace printfs, can be MyNull
-    const SEXP MyNull)           // in: trick to avoid R check warnings on passing R_NilValue
+    const SEXP MyNull)            // in: trick to avoid R check warnings on passing R_NilValue
 {
     TraceGlobal = *pTrace;
     nMinSpanGlobal = *pnMinSpan;
