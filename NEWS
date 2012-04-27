@@ -1,6 +1,14 @@
 Changes to Earth Package
 ------------------------
 
+3.2-3  Apr 27, 2012
+  Incorporated Glen Luckjiff's patch to fix predict.earth(type="terms")
+      failure when bx had just two columns.
+  We no longer call fflush when in an R environment.
+  The tests/test.earth.R code now uses the tree rather than the ozone1 data,
+      in an effort to get test consistency across different architectures.
+  Added .Rinstignore to drop inst/docs/figs files (prevents note in CRAN build).
+
 3.2-2  Mar 14, 2012
   We no longer pass R_NilValue from the R code to the C code.
   Incorporated Olaf Mersmann's patch for POS_INF with the INTEL_COMPILER.

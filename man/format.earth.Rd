@@ -57,8 +57,7 @@ The FAQ section in the package vignette has some comments on the \code{"anova"} 
 Using \code{format.earth}, perhaps after hand editing the returned string,
 you can create an alternative to \code{predict.earth}.
 For example:
-\preformatted{
-as.func <- function(object, digits = 8, use.names = FALSE, ...)
+\preformatted{as.func <- function(object, digits = 8, use.names = FALSE, ...)
   eval(parse(text=paste(
     "function(x){\n",
     "if(is.vector(x))\n",
@@ -79,6 +78,9 @@ Thus the expression is consistent with the way \code{predict}
 functions usually work in R --- we can give \code{predict} multiple
 cases (i.e., multiple rows in the input matrix) and it will return a
 vector of predicted values.
+
+\preformatted{ % trick to force a paragraph break TODO why is this needed?
+}
 
 The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr

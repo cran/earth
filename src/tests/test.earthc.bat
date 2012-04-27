@@ -8,12 +8,12 @@
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
 @echo === test.earthc ==================================================
-@cp "C:/a/r/ra/bin/i386/R.dll" .
-@cp "C:/a/r/ra/bin/i386/Rblas.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/R.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rblas.dll" .
 @cp "C:/a/r/ra/src/gnuwin32/unicode/iconv.dll" .
-@cp "C:/a/r/ra/bin/i386/Riconv.dll" .
-@cp "C:/a/r/ra/bin/i386/Rgraphapp.dll" .
-@cp "C:/a/r/ra/bin/i386/Rzlib.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Riconv.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rgraphapp.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rzlib.dll" .
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @cp "../../.#/Rdll.lib" .
 @cp "../../.#/Rblas.lib" .
@@ -28,9 +28,9 @@
 @rem nmake -nologo CFG=Debug -f test.earthc.mak %1 %2 %3
 
 @if %errorlevel% equ 0 goto good:
-@echo error: nmake returned errorlevel %errorlevel%
+@echo error: errorlevel %errorlevel%
 @exit /B %errorlevel%
 :good
-@rm -f R.dll Rblas.dll iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
+@rm -f R.dll Rblas.dll Rdll.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
 @rm -rf Debug
 @rm -rf Release

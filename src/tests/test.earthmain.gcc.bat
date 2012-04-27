@@ -3,12 +3,12 @@
 @rem Stephen Milborrow Jan 2008 Durban
 
 @echo === test.earthmain.gcc ===========================================
-@cp "C:/a/r/ra/bin/i386/R.dll" .
-@cp "C:/a/r/ra/bin/i386/Rblas.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/R.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rblas.dll" .
 @cp "C:/a/r/ra/src/gnuwin32/unicode/iconv.dll" .
-@cp "C:/a/r/ra/bin/i386/Riconv.dll" .
-@cp "C:/a/r/ra/bin/i386/Rgraphapp.dll" .
-@cp "C:/a/r/ra/bin/i386/Rzlib.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Riconv.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rgraphapp.dll" .
+@cp "C:/Program Files/R/R-2.15.0/bin/i386/Rzlib.dll" .
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @cp "../../.#/Rdll.lib" .
 @cp "../../.#/Rblas.lib" .
@@ -32,5 +32,5 @@ diff -w test.earthmain-gcc.out test.earthmain.out.save
 @exit /B 0
 
 :error
-@echo error: nmake returned errorlevel %errorlevel%
+@echo error: errorlevel %errorlevel%
 @exit /B %errorlevel%

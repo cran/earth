@@ -209,7 +209,7 @@ earth.default <- function(
          rval$cv.groups          <- cv$groups
          rval$cv.rsq.tab         <- cv$rsq.tab
          rval$cv.oof.rsq.tab     <- cv$oof.rsq.tab
-         rval$cv.infold.rsq.tab    <- cv$infold.rsq.tab
+         rval$cv.infold.rsq.tab  <- cv$infold.rsq.tab
          rval$cv.class.rate.tab  <- cv$class.rate.tab
          rval$cv.maxerr.tab      <- cv$maxerr.tab
          rval$cv.auc.tab         <- cv$auc.tab
@@ -333,7 +333,7 @@ earth.formula <- function(
          rval$cv.groups          <- cv$groups
          rval$cv.rsq.tab         <- cv$rsq.tab
          rval$cv.oof.rsq.tab     <- cv$oof.rsq.tab
-         rval$cv.infold.rsq.tab    <- cv$infold.rsq.tab
+         rval$cv.infold.rsq.tab  <- cv$infold.rsq.tab
          rval$cv.class.rate.tab  <- cv$class.rate.tab
          rval$cv.maxerr.tab      <- cv$maxerr.tab
          rval$cv.auc.tab         <- cv$auc.tab

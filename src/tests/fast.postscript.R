@@ -56,7 +56,7 @@ fast.postscript <- function(file= ifelse(onefile, "Rplots.ps", "Rplot%03d.ps"),
 
     "/s   { scalefont setfont } def")
 
-	# TODO this no longer works
+    # TODO this no longer works
     # unlockBinding(".ps.prolog", asNamespace("grDevices"))
     # assignInNamespace(".ps.prolog", prolog, "grDevices")
     # lockBinding(".ps.prolog", asNamespace("grDevices"))
