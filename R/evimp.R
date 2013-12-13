@@ -218,6 +218,7 @@ plot.evimp <- function(
     axis(side=4,
          at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets),
          labels=c(0,20,40,60,80,100))
+    # TODO: change rh label if sqrt. was used in original call to evimp
     text(x=nrow(x) + 1.8, y=max.subsets/2, "normalized gcv or rss",
          xpd=NA, # no clip to plot region
          srt=90) # rotate text

@@ -37,14 +37,16 @@ The columns of the matrix are (not all of these are printed by \code{print.evimp
 \item \code{used}: 1 if the variable is used in the final model, else 0.
 Equivalently, 0 if the row name has an \code{-unused} suffix.
 \item \code{nsubsets}: Variable importance using the "number of subsets" criterion.
-Is the number of subsets that include the variable (see "Three Criteria" below).
-\item \code{gcv}: Variable importance using the GCV criterion (see below).
+Is the number of subsets that include the variable (see "Three Criteria" in the chapter
+on \code{evimp} in the \code{earth} vignette
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}).
+\item \code{gcv}: Variable importance using the GCV criterion (see "Three Criteria").
 \item \code{gcv.match}: 1, except is
 0 where the rank using the \code{gcv} criterion differs from
 that using the \code{nsubsets} criterion.
 In other words, there is a 0 for values that increase as you go
 down the \code{gcv} column.
-\item \code{rss}: Variable importance using the RSS criterion (see below).
+\item \code{rss}: Variable importance using the RSS criterion (see "Three Criteria").
 \item \code{rss.match}: Like \code{gcv.match} but for the \code{rss}.
 }
 The rows are sorted on the \code{nsubsets} criterion.

@@ -130,7 +130,7 @@ out the book's errata.)
 Friedman and Silverman~\cite{FriedmanSilverman} is recommended
 background reading for the MARS paper.
 
-Earth's pruning pass uses the \texttt{leaps}~\cite{leaps} package
+Earth's pruning pass uses code from \texttt{leaps}~\cite{leaps} package
 which is based on techniques in Miller~\cite{Miller}.
 
 \subsection{Other implementations}
@@ -517,6 +517,7 @@ Jane Elith and John Leathwick
 (\hspace{-.2mm}\cite{Leathwick} is a representative paper).
 
 \subsection{GLM examples}
+\label{glmexamples}
 
 The examples below show how to specify earth-glm models.
 The examples are only to illustrate the syntax and not necessarily useful models.
@@ -546,7 +547,7 @@ This example is for a factor with more than two levels.
 The factor \texttt{pclass} is expanded to three indicator columns
 (whereas in a direct call to \texttt{glm}, \texttt{pclass} would be treated
 as logical: the first level versus all other levels).
-Because of the masking problem, we mention you might consider FDA for
+Because of the ``masking problem'', we mention that you might consider FDA for
 factor responses with more than two levels
 (Chapter~\ref{sec-using-earth-with-fda-and-mda}).
 \vspace{-4mm}
@@ -831,7 +832,7 @@ Note: In the current implementation, the GCV penalty for predictors
 that enter linearly is the same as that for predictors with knots.
 That is not quite correct; linear terms should be penalized less.
 
-% TODO \texttt{earth} should have an argument to force variables into the model.
+% TODO Earth should have an argument to force variables into the model.
 
 \clearpage
 \section{The \texttt{allowed} argument}
@@ -1783,8 +1784,6 @@ See the functions \texttt{randomForest} and
 \texttt{importance} in the
 \texttt{randomForest} package.
 
-TODO Enhance \texttt{evimp} to use cross-validation statistics when available.
-
 \subsection{Remarks on \texttt{evimp}}
 
 The \texttt{evimp} function is useful in practice but the following
@@ -1812,6 +1811,8 @@ For factor predictors, importances are estimated on a per-level basis
 essentially treating each level as a separate variable).  The
 \texttt{evimp} function should have an option to aggregate the
 importances over all levels, but that has not yet been implemented.
+
+TODO Enhance \texttt{evimp} to use cross-validation statistics when available.
 
 \clearpage
 \section{Cross-validating \texttt{earth} models}
@@ -1879,6 +1880,7 @@ out-of-fold test sets are so small that variance becomes too large.
 training set, Section~\ref{sec-cv-bias}.)
 We can average out the variance with \texttt{ncross=10} (say) but even
 that is unstable if the out-of-fold sets are too small.
+(Section~\ref{sec-ncross} discusses \texttt{ncross}.)
 
 % Our inability to quantify the trade-offs makes it impossible to
 % formulate clear rules for choosing \texttt{nfold}.
@@ -1923,25 +1925,95 @@ that is unstable if the out-of-fold sets are too small.
 % \texttt{nfold} low means low variance but high bias.  But reality is
 % often not as clear cut as that.
 
-\begin{SCfigure}[][b]
+\subsection{Using cross-validation to select the number of terms}
+\label{using-cv-to-select}
+
+Earth displays cross-validation statistics but currently does
+not have facilities to automatically select
+a model using the cross-validation results.
+The following example shows how to do that with a bit of R code.
+
+First we run the cross validation.  Then we rebuild the model with the
+optimum number of terms determined by the cross validation.
+
+\small
+\vspace{-2mm}
+\begin{verbatim}
+library(earth)
+library(bootstrap) # just for the "scor" data
+set.seed(2) # for fold reproducibility, not strictly necessary
+data(scor)
+data <- data.frame(y=scor[,3], # didactic canonical data frame
+                   x1=scor[,1], x2=scor[,2], x3=scor[,4], x4=scor[,5])
+
+# Build an earth model with cross validation.
+# Note that keepxy=TRUE to create detailed out-of-fold data.
+
+mod <- earth(y~., data=data, nfold=5, keepxy=TRUE)
+plot(mod, which=1, col.rsq=0, caption="Cross Validated Models")
+
+# Select the number of terms that gives the maximum mean out-of-fold
+# R-Squared.  This the number of terms shown by the vertical dotted red
+# line in the graph, and criterion (ii) in the next section.  (There are
+# other approaches for choosing the cross-validated number of terms.)
+
+print(mod$cv.oof.rsq.tab, digits=2) # out-of-fold R-Squareds for every model size
+
+mean.oof.rsq.per.subset <- mod$cv.oof.rsq.tab[nrow(mod$cv.oof.rsq.tab),]
+
+nterms.selected.by.cv <- which.max(mean.oof.rsq.per.subset)
+
+cat("\nnterms selected by GCV (standard earth model):", length(mod$selected.terms),
+    "\nnterms selected by CV:                        ", nterms.selected.by.cv, "\n")
+
+# Rebuild the earth model with the desired number of terms (and using
+# all the data).  The penalty=-1 tells earth's backward pass to ignore
+# the GCV.  This overrides the usual selection-by-min-GCV, which could
+# return a smaller model than the given nprune.
+
+mod.cv <- earth(y~., data=data, nprune=nterms.selected.by.cv, penalty=-1)
+
+\end{verbatim}
+\vspace{-10mm}
+\normalsize
+
+\subsection{Two ways of collecting R-Squared}
+\label{sec-two-kinds}
+
+Earth uses two ways of collecting the R-Squareds generated during cross-validation
+(Figure~\ref{figs/cv-detailed}).
+The names we use for these, \texttt{cv.rsq} and \texttt{oof.rsq}, are
+somewhat arbitrary, but used consistently in \texttt{earth}'s code and
+documentation.
+\vspace{-3mm}
+\begin{enumerate}[(i)]
+\item
+A folds's \texttt{cv.rsq} is calculated from predictions made on the
+out-of-fold observations using the model built from the in-fold data.
+Earth builds the fold model as usual, using the best
+GCV of the training (in-fold) data.
+The mean of these per-fold \texttt{cv.rsq}'s is the \texttt{cv.rsq}
+printed by \texttt{summary.earth}.
+\item
+The \texttt{oof.rsq}'s are primarily for model selection,
+i.e., for selecting the best number of terms.
+They aren't printed by \texttt{summary.earth}, but by default are plotted
+by \texttt{plot.earth} (Figure~\ref{figs/cv}).
+
+\begin{SCfigure}
   \begin{centering}
-  % \includegraphics[width=.55\textwidth, clip, trim=0mm 90mm 87mm 0mm, keepaspectratio]{figs/cv-detailed.pdf} % trim l b r t
   \includegraphics[width=.55\textwidth, clip, trim=0mm 134mm 132mm 0mm, keepaspectratio]{figs/cv-detailed.pdf} % trim l b r t
   \caption{\textit{Five-fold cross-validation of an} \texttt{earth} model.
 \newline
 \newline
- \textit{The pink lines are the} \texttt{oof.rsq}'s \textit{for each fold.
+ \textit{The pink lines are the} out-of-fold R-Squareds (\texttt{oof.rsq}) \textit{for each fold.
 The thick red line is the mean of the pink lines.
 \newline
 \newline
-% The black dots are the out-of-fold R-Squareds for the
-% models at each fold, selected as usual by the GCV of the training (in-fold) data
-% i.e.,
-The black dots show the} \texttt{cv.rsq}'s \textit{for each fold.
-The} \texttt{cv.rsq} \textit{printed by} \texttt{summary.earth}
-\textit{is the mean of the vertical position of these dots.
-\newline
-\newline
+A black dot shows the} \texttt{cv.rsq} \textit{for a fold.
+It is the out-of-fold R-Squared for the selected model
+at the fold. The} \texttt{cv.rsq} \textit{printed by} \texttt{summary.earth}
+\textit{is the mean vertical position of these dots.
 \newline
 \newline
   }
@@ -1950,41 +2022,33 @@ The} \texttt{cv.rsq} \textit{printed by} \texttt{summary.earth}
   \end{centering}
 \end{SCfigure}
 
-\subsection{Two ways of collecting R-Squared}
-\label{sec-two-kinds}
+\begin{SCfigure}
+  \begin{centering}
+  \includegraphics[width=.56\textwidth, clip, trim=0mm 90mm 87mm 0mm, keepaspectratio]{figs/cv.pdf} % trim l b r t
+  \caption{\textit{Default plot of five-fold cross-validation of an \texttt{earth} model.
+\newline
+\newline
+ \textit{Same model as the figure above, but displaying slightly different information.}
+  }
+\newline
+\newline
+\newline
+\newline
+\newline
+\newline
+}
+  \label{figs/cv}
+  \end{centering}
+\end{SCfigure}
 
-Earth uses two ways of collecting the R-Squareds generated during cross-validation
-(Figure~\ref{figs/cv-detailed}).
-The names used for these, \texttt{cv.rsq} and \texttt{oof.rsq}, are
-somewhat arbitrary, but used consistently in \texttt{earth}'s code and
-documentation.
-\vspace{-3mm}
-\begin{enumerate}[(i)]
-
-\item The \texttt{cv.rsq} is primarily for model assessment,
-i.e., estimating generalization ability.
-The \texttt{cv.rsq} is printed by \texttt{summary.earth},
-but by default not plotted by \texttt{plot.earth}.
-
-A \texttt{cv.rsq} is first calculated for each fold.
-A folds's \texttt{cv.rsq} is calculated from predictions made on the
-out-of-fold observations using the model built from the in-fold data.
-The model is selected as usual using the GCV of the training (in-fold)
-data.  The \texttt{cv.rsq} printed by \texttt{summary.earth}
-is the mean of these per-fold \texttt{cv.rsq}'s.
-
-\item The \texttt{oof.rsq}'s are primarily for model selection,
-i.e., for selecting the best number of terms.
-They aren't printed by \texttt{summary.earth}, but by default are plotted
-by \texttt{plot.earth} (Figure~\ref{figs/cv} on page~\pageref{figs/cv}).
-
-The \texttt{oof.rsq} is calculated for every model size in each fold.
+A \texttt{oof.rsq} is calculated for every model size in each fold.
 (The model size is the number of terms in the model.)
 For each fold, it is calculated from predictions made on the
 out-of-fold observations using a model built with the in-fold data,
 after the model is pruned to the desired size.
-(At each fold the \texttt{oof.rsq} of the model with the highest GCV
-on the training data is that fold's \texttt{cv.rsq}.)
+
+% (At each fold the \texttt{oof.rsq} of the model with the highest GCV
+% on the training data is that fold's \texttt{cv.rsq}.)
 
 % In detail, the procedure is as follows.
 % For each fold, a model is first built on the in-fold training data.
@@ -1992,14 +2056,7 @@ on the training data is that fold's \texttt{cv.rsq}.)
 % The pruned model i sused to make predictions on the out-of-fold data,
 % yielding an \texttt{oof.rsq}.
 
-Note 1: Earth does not actually use cross-validation for automatic
-model selection (unlike, say, \texttt{rpart}).
-Earth's backward pass with GCVs is always used for that (in the
-current implementation at least; there is not yet a \texttt{pmethod="cv"} option).
-You can however use \texttt{plot.earth} to see the number of
-terms that would be estimated by cross-validation.
-
-Note 2: The \texttt{oof.rsq}'s are calculated only when \texttt{keepxy=TRUE},
+Note: The \texttt{oof.rsq}'s are calculated only when \texttt{keepxy=TRUE},
 because calculating them is slow --- \texttt{earth} has to call
 \texttt{update.earth} and \texttt{predict} for every model size in every fold.
 \end{enumerate}
@@ -2011,13 +2068,13 @@ The previous section described the R-Squareds collected during cross-validation.
 This section describes various
 additional cross-validation statistics.
 
-Each of these is measured on the test (out-of-fold) set for each fold, and
+Each of these is measured on the out-of-fold set for each fold, and
 summarized by averaging across all folds (except that \texttt{MaxErr}
 is ``summarized'' by taking the worst error across all folds).
 Use \texttt{summary.earth} to see the summary statistics and their standard
 deviation across folds.\footnote[1]{We emphasize
 that \texttt{summary.earth} prints the deviation \emph{across folds},
-not the unknown deviation across samples.
+not the unknown deviation across hypothetical samples.
 See Section~\ref{sec-cv-variance} ``Variance of cross-validation estimates''.
 It is easy to confuse the two.}
 See the \texttt{Value} section of the \texttt{earth} page for more
@@ -2045,6 +2102,7 @@ The ``summary'' \texttt{MaxErr} is the worst \texttt{MaxErr} across folds.
 
 \item{\texttt{ClassRate}}{ (discrete responses only) Fraction of out-of-fold
 observations correctly classified.
+For binary responses a decision threshold is \texttt{0.5} is used.
 }
 \end{itemize}
 \vspace{-3mm}
@@ -2081,6 +2139,10 @@ the statistics are calculated, based on code kindly made available by Jane
 Elith and John Leathwick.
 \vspace{3mm}
 
+TODO Allow the user to select the model size which gives the best mean
+out-of-fold classification rate (need a \texttt{cv.oof.classrate.tab}
+table like \texttt{cv.oof.rsq.tab}).
+
 \subsection{Tracing cross-validation}
 
 With \texttt{trace=.5} or higher,
@@ -2105,29 +2167,14 @@ With the \texttt{stratify} argument (which is enabled by default), \texttt{earth
 attempts to keep the numbers of occurrences of any given level in the
 response constant across folds.
 
-\begin{SCfigure}[][b]
-  \begin{centering}
-  \includegraphics[width=.6\textwidth, clip, trim=0mm 90mm 87mm 0mm, keepaspectratio]{figs/cv.pdf} % trim l b r t
-  \caption{\textit{Five-fold cross-validation of an \texttt{earth} model.
-  }
-\newline
-\newline
-\newline
-\newline
-\newline
-\newline
-}
-  \label{figs/cv}
-  \end{centering}
-\end{SCfigure}
-
 \subsection{Plotting cross-validation results}
 \label{sec-plot-cv}
 
 If you want \texttt{plot.earth} to show cross-validation statistics,
 use \texttt{keepxy=TRUE} so \texttt{earth} calculates the
 \texttt{oof.rsq} for every model size in every fold.  Example
-(Figure~\ref{figs/cv}, further discussion in Section~\ref{sec-cv-and-plot}):
+(Figure~\ref{figs/cv} on page~\pageref{figs/cv}),
+further discussion in Section~\ref{sec-cv-and-plot}:
 \vspace{-4mm}
 \begin{verbatim}
     fit <- earth(survived ~ ., data=etitanic, degree=2,
@@ -2140,10 +2187,10 @@ This is because the maximum number of terms for those models happens to be
 less than the 16 terms in the full model.
 % For more details, see Chapter~\ref{sec-cross-validating} ``Cross-validation''.
 
-\begin{SCfigure}
+\begin{SCfigure}[][b]
   \begin{centering}
   \includegraphics[width=.5\textwidth, clip, trim=0mm 120mm 110mm 0mm, keepaspectratio]{figs/cv-folds.pdf} % trim l b r t
-  \caption{\textit{Comparing the models at three cross-validation folds.
+  \caption{\textit{Comparing the GCV curves of models at three cross-validation folds.
   }
 \newline
 \newline
@@ -2155,27 +2202,9 @@ less than the 16 terms in the full model.
   \end{centering}
 \end{SCfigure}
 
-\begin{SCfigure}[][b]
-  \begin{centering}
-  \includegraphics[width=.5\textwidth, clip, trim=0mm 90mm 80mm 0mm, keepaspectratio]{figs/ncross.pdf} % trim l b r t
-  \caption{\textit{Cross-validating with} \texttt{ncross=3, nfold=5}.\newline
-There are 15 folds in all.
-\newline
-\newline
-\newline
-\newline
-\newline
-\newline
-\newline
-\newline
-\newline
-  }
-  \label{figs/ncross}
-  \end{centering}
-\end{SCfigure}
-
-For the curious, \texttt{plot.earth.models} can be used
-to compare the models built at each fold. Example (Figure~\ref{figs/cv-folds}):
+For the curious, \texttt{plot.earth.models} can be used to compare the
+GCV curve of models built at each fold. Example
+(Figure~\ref{figs/cv-folds}):
 \vspace{-4mm}
 \begin{verbatim}
     fit <- earth(survived ~ ., data=etitanic, degree=2,
@@ -2190,6 +2219,7 @@ to compare the models built at each fold. Example (Figure~\ref{figs/cv-folds}):
 % (or weighted mean if the \texttt{wp} argument is used).
 
 \subsection{The \texttt{ncross} argument}
+\label{sec-ncross}
 
 If we run \texttt{earth} twice with the same \texttt{nfold} argument
 we will get different cross-validation results,
@@ -2208,7 +2238,48 @@ Example (Figure~\ref{figs/ncross}):
 
 TODO What are the statistical properties of \texttt{ncross}?
 
-\begin{SCfigure}[][b]
+\begin{SCfigure}
+  \begin{centering}
+  \includegraphics[width=.5\textwidth, clip, trim=0mm 90mm 80mm 0mm, keepaspectratio]{figs/ncross.pdf} % trim l b r t
+  \caption{\textit{Cross-validating with} \texttt{ncross=3, nfold=5}.\newline
+There are 15 folds in all.
+\newline
+\newline
+\newline
+\newline
+\newline
+\newline
+\newline
+\newline
+\newline
+  }
+  \label{figs/ncross}
+  \end{centering}
+\end{SCfigure}
+
+\subsection{An example: training versus generalization error}
+\label{cv-example}
+
+Figure~\ref{figs/esl-fig71} on the next page is reproduced from Figure~7.1 in Hastie
+et al.~\cite{ESL}.
+The figure was created from models built with 100 training sets
+generated synthetically.
+
+Figure~\ref{figs/cv-example} is an example
+illustrating some of the same principles.
+Instead of using new data, we use cross-validation.
+(Also, we use \texttt{earth} and the \texttt{mtcars} data.)
+The figure was created with the following code:
+\vspace{-4mm}
+\begin{verbatim}
+    fit <- earth(mpg~., data=mtcars, ncross=10, nfold=2, keepxy=TRUE)
+    plot(fit, which=1,
+         col.mean.infold.rsq="blue", col.infold.rsq="lightblue",
+         col.grsq=0, col.rsq=0, col.vline=0, col.oof.vline=0)
+\end{verbatim}
+\vspace{-3mm}
+
+\begin{SCfigure}
   \begin{centering}
   \includegraphics[width=.6\textwidth, clip, trim=0mm 0mm 0mm 0mm, keepaspectratio]{figs/esl-fig71-lores.jpg} % trim l b r t
   \caption{\textit{Reproduced from Figure~7.1 of
@@ -2228,7 +2299,7 @@ The thick lines show the expected error for the corresponding set of pale lines.
   \end{centering}
 \end{SCfigure}
 
-\begin{SCfigure}[][b]
+\begin{SCfigure}
   \begin{centering}
   \includegraphics[width=.6\textwidth, clip, trim=0mm 94mm 88mm 6mm, keepaspectratio]{figs/cv-example.pdf} % trim l b r t
   \caption{\textit{Cross-validation of an \texttt{earth} model on the
@@ -2249,36 +2320,6 @@ Note the negative R-Squareds in the pink curves at the far left of the graph
   \end{centering}
 \end{SCfigure}
 
-\subsection{An example: training versus generalization error}
-\label{cv-example}
-
-Figure~\ref{figs/esl-fig71} is reproduced from Figure~7.1 in Hastie
-et al.~\cite{ESL}.
-The figure was created from models built with 100 training sets
-generated synthetically.
-
-Figure~\ref{figs/cv-example} is an example along the same lines.
-Instead of using new data, we use cross-validation.
-(Also, we use \texttt{earth} and the \texttt{mtcars} data.)
-The figure was created with the following code:
-\vspace{-4mm}
-\begin{verbatim}
-    fit <- earth(mpg~., data=mtcars, ncross=10, nfold=2, keepxy=TRUE)
-    plot(fit, which=1,
-         col.mean.infold.rsq="blue", col.infold.rsq="lightblue",
-         col.grsq=0, col.rsq=0, col.vline=0, col.oof.vline=0)
-\end{verbatim}
-\vspace{-3mm}
-
-Most of the pale lines are truncated because the maximum number of
-terms generated by \texttt{earth} for those fold models is less than
-the 9 terms in the full model.
-We mention also that many of the
-arguments in the call to \texttt{plot.earth} above simply remove
-display elements.  The defaults for these arguments are inappropriate
-for this somewhat unusual plot (we are not usually interested in the
-in-fold R-Squareds).
-
 Figure~\ref{figs/cv-example} is ``upside down'' with respect to
 Figure~\ref{figs/esl-fig71} because it plots model performance, not
 lack-of-performance.  But we still see the same basic structure: the
@@ -2288,7 +2329,18 @@ decreases.
 % The more the model overfits the training data the more it
 % ``underfits'' the test data.
 
-Much of the variation of the pink curves is due to the
+Many of the pale lines in Figure~\ref{figs/cv-example} are truncated
+because the maximum number of
+terms generated by \texttt{earth} for those fold models is less than
+the 9 terms in the full model.
+We mention also that several of the
+arguments in the call to \texttt{plot.earth} above simply remove
+display elements.  The defaults for these arguments are inappropriate
+for this somewhat unusual plot (we are not usually interested in the
+in-fold R-Squareds).
+
+Much of the variation of the pink curves in Figure~\ref{figs/cv-example}
+is due to the
 relatively small size of the out-of-fold data sets.  If we measured
 R-Squared on a very large test set (instead of the out-of-fold data)
 we would still see variation, but much less.
@@ -2324,7 +2376,7 @@ equal to 2, which is actually more appropriate for the \texttt{mtcars} data.
 
 This chapter tries to clarify some aspects of cross-validation.
 It was written in response to email about
-cross-validating \texttt{earth} models, and your feedback would be appreciated.
+cross-validating \texttt{earth} models.
 The chapter is mostly a general discussion, not limited to \texttt{earth} models.
 The exposition takes a frequentist approach, using arguments based on
 hypothetical situations where we have access to extra data.
@@ -2411,8 +2463,9 @@ residual sum-of-squares measured on the training data and on
 independent test data is inconsequential, provided certain assumptions
 are met.
 So we don't need a separate test set.
-Things change with more flexible models (for example, if we are doing
+Things change with more a flexible modeling procedure (for example, if we are doing
 automatic variable selection for a linear model).
+With a more flexible model overfitting becomes more likely.
 The difference between the residual
 sum-of-squares on the training data and on independent test data
 becomes consequential, and formulas to estimate prediction error get
@@ -2543,7 +2596,7 @@ face of a smaller sample is an adequate indication of that behavior
 for the full model's R-Squared (measured on independent data).
 Figure~\ref{figs/learning-curve} gives an example,
 produced by the following R code.
-(You can ignore the code for now and just look at the figure.)
+(You can ignore the code and just look at the figure.)
 \vspace{-4mm}\small\begin{verbatim}
     learning.curve <- function(data, func, field="grsq", ncurves=30)
     {
@@ -2740,13 +2793,11 @@ al..~\cite{ESL} Section 7.10.2.
 \vspace{2mm}
 {\bf Conflating the validation and test data}
 
-If the cross-validation R-Squared is used to select a
-model,\footnote[2]{However the \texttt{earth} package does not provide
-facilities to do that (Section~\ref{sec-two-kinds} Part 2).} then the
+If the cross-validation R-Squared is used to select a model then the
 test R-Squared quoted for the selected model must be
-\emph{recalculated} for that model using independent data.
-The cross-validation R-Squared used to select a model cannot be
-quoted as the R-Squared of that model --- that would be conflating the
+\emph{recalculated} for that model using independent data.  The
+cross-validation R-Squared used to select a model cannot be quoted as
+the R-Squared of that model --- that would be conflating the
 validation and test data.
 
 % \clearpage
@@ -2928,6 +2979,8 @@ existing model (a linear, MARS, or basically any model) and
 \texttt{earth} would build a MARS model that fills in the remaining
 residuals.
 
+Proper support of NAs would be good too.
+
 \subsection{How do I cite the \texttt{earth} package?}
 \label{faq19}
 
@@ -3004,6 +3057,47 @@ which will list the terms remaining after pruning,
 in the order they were added by the forward pass.
 But it should be remarked that the order in which terms or predictors are added is
 not necessarily indicative of their importance.
+
+\subsection{Can I use \texttt{earth} with a binary response?}
+\label{faq04a}
+
+Yes.  Typically you want to predict a probability.
+Usually the best way to proceed is:
+
+1) Convert your binary response to a \texttt{logical}, if
+it is not that already.  To do the conversion, you can use code like this:
+\vspace{-5mm}
+\begin{verbatim}
+    df$response <- df$response == "survived"
+\end{verbatim}
+\vspace{-4mm}
+Actually, you don't really have to do that.  Although a response of
+type \texttt{logical} is canonical in this situation,
+if you prefer you could also use a two-level factor or a 1s-and-0s response.
+Earth doesn't mind.
+
+2) Include \texttt{glm=list(family=binomial))} in your call to \texttt{earth}.
+For an example, see Section~\ref{glmexamples}(i).
+This builds a model that estimates the probability of a ``true'' response.
+
+See Chapter~\ref{sec-glm} for examples and details.
+
+\subsection{Can I use \texttt{earth} with a categorical response?}
+\label{faq04b}
+
+Yes.  If your response has only two categories (it's binary)
+please see the above FAQ.
+
+If your response has more than two levels, make sure your response is
+an unordered R \texttt{factor}.
+For an example, see Section~\ref{glmexamples}(ii),
+and the rest of that chapter for details.
+
+Before handing it to its internal engine,
+\texttt{earth} will expand your reponse to multiple columns
+(an indicator columm for each factor level) and
+build a multiple-response model.
+This is described in Chapter~\ref{sec-factors}.
 
 \subsection{How can I train on one set of data and test on another?}
 \label{faq04}
@@ -3120,11 +3214,14 @@ This is the definition used in the \texttt{earth} code.
 % is quite possible for \texttt{rss} to be greater than \texttt{tss}.
 % In that situation \texttt{rsq = 1 - rss / tss} will be negative.
 
-The simplest example is an intercept-only model.  This will give a
-negative \texttt{rsq} on test data, unless the training data and test
-data happen to have the same mean.
-When we calculate \texttt{rsq} on the test data, the intercept-only model
-predicts the mean of the \emph{training} data.
+The simplest example is an intercept-only model.
+An intercept-only model always predicts a constant value, the mean of
+the training data.
+An intercept-only model will give a negative \texttt{rsq} on test
+data, unless the training data and test data happen to have the same
+mean. Why is this?
+On the test data, the intercept-only model predicts, as always, the
+mean of the \emph{training} data.
 Thus on the test data the residuals will be greater on the whole than
 if we predicted the mean of the test data.\footnote[1]{Recall
 that $\sum_i(x_i - \mu)^2$ is minimimized
@@ -3132,10 +3229,9 @@ when $\mu$ is the mean of the $x_i$'s.}
 That is another way of saying that on the test data
 the residual sum-of-squares
 will be greater than the total sum-of-squares,
-and \newline
-\texttt{rsq = 1 - rss / tss} will be negative.
-Examples can be seen in the left of Figure~\ref{figs/cv-example}.
-
+and \texttt{rsq = 1 - rss / tss} will be negative.
+Examples can be seen in the left of Figure~\ref{figs/cv-example}
+on page~\pageref{figs/cv-example}.
 
 There is actually more than way of defining \texttt{rsq}.
 You may be more familiar with the definition
@@ -3155,29 +3251,10 @@ The ``squared'' in R-Squared is misleading.  Perhaps we should use the
 alternative term ``coefficient of determination'', but ``R-Squared''
 is common.
 
-\begin{SCfigure}[][b]
-  \begin{centering}
-  \includegraphics[width=.6\textwidth, clip, trim=0mm 90mm 80mm 12mm, keepaspectratio]{figs/negative-grsq.pdf} % trim l b r t
-  \caption{\textit{Negative GRSq's.
-\newline
-\newline
-After term 3, adding a term reduces the estimated predictive
-power of the model, apart from term 7.
-By term 14 the GRSq is negative.
-\newline
-\newline
-The R-Squared on the training data always increases as \texttt{earth} adds terms.
-\newline
-\newline
-  }
-}
-  \label{figs/negative-grsq}
-  \end{centering}
-\end{SCfigure}
-
 \subsection{Can GRSq be negative?}
 \label{faq05a}
 
+Yes.
 The statistic \texttt{GRSq} is \texttt{earth}'s estimate of the generalization performance
 of the model.
 It is defined, analogously to R-Squared (FAQ~\ref{faq05}), as
@@ -3211,6 +3288,26 @@ example~(Figure~\ref{figs/negative-grsq}):
 In severe cases, GRSq might even be set to \texttt{-Inf}, which brings
 us to the following FAQ.
 
+\begin{SCfigure}
+  \begin{centering}
+  \includegraphics[width=.6\textwidth, clip, trim=0mm 90mm 80mm 12mm, keepaspectratio]{figs/negative-grsq.pdf} % trim l b r t
+  \caption{\textit{Negative GRSq's.
+\newline
+\newline
+After term 3, adding a term reduces the estimated predictive
+power of the model, apart from term 7.
+By term 14 the GRSq is negative.
+\newline
+\newline
+The R-Squared on the training data always increases as \texttt{earth} adds terms.
+\newline
+\newline
+  }
+}
+  \label{figs/negative-grsq}
+  \end{centering}
+\end{SCfigure}
+
 \subsection{Why am I seeing a GRSq of \texttt{-Inf} (with \texttt{trace} enabled)?}
 \label{faq05b}
 
@@ -3239,8 +3336,8 @@ To see this, consider the formula for the GCV
     GCV = RSS / (nobs * (1 - nparams / nobs)^2)).
 \end{verbatim}
 \vspace{-3mm}
-From the formula we see that the GCV increases and then decreases if 
-\texttt{nparams / nobs} 
+From the formula we see that the GCV increases and then decreases if
+\texttt{nparams / nobs}
 approaches and then exceeds~1 as terms are added to the model.
 To prevent this undesirable behavior, if \texttt{nparams / nobs >= 1} then
 \texttt{earth} does not use the formula but instead directly sets the
@@ -3289,7 +3386,7 @@ long before we reach 200 terms.
 (The termination conditions are described in
 Section~\ref{sec-termination} ``Termination conditions for the forward pass''.)
 
-\subsection{Why do I get fewer terms than \texttt{nk}, even\newline
+\subsection{Why do I get fewer terms than my specified \texttt{nk}, even\newline
 with \texttt{pmethod="none"}?}
 \label{faq10}
 
@@ -3304,7 +3401,7 @@ By disabling \texttt{thresh} we are allowing \texttt{earth} to
 continue processing even if numerical issues can cause instability.
 This opens up the possibility of nonsensical RSq's and GRSq's.
 
-\subsection{Why do I get fewer terms than \texttt{nprune}?}
+\subsection{Why do I get fewer terms than my specified \texttt{nprune}?}
 \label{faq11}
 
 The pruning pass selects a model with the lowest GCV
@@ -3312,17 +3409,18 @@ that has \texttt{nprune} or fewer terms.
 Thus the \texttt{nprune} argument specifies the \emph{maximum}
 number of permissible terms in the final pruned model.
 
-You can work around this because you will get exactly \texttt{nprune} if
-you specify \texttt{penalty=-1}.
-This special value of \texttt{penalty} causes \texttt{earth} to set the
-GCV to \texttt{RSS/nrow(x)}.
-Since the RSS on the training set always decreases with more terms,
-the pruning pass will choose the maximum allowable number of terms.
+You can work around this to get exactly \texttt{nprune} terms
+by specifying \texttt{penalty=-1}.
 An example:
 \vspace{-4mm}
 \begin{verbatim}
     earth(Volume ~ ., data=trees, trace=3, nprune=3, penalty=-1)
 \end{verbatim}
+\vspace{-4mm}
+(This special value of \texttt{penalty} causes \texttt{earth} to set the
+GCV to \texttt{RSS/nrow(x)}.
+Since the RSS on the training set always decreases with more terms,
+the pruning pass will choose the maximum allowable number of terms.)
 
 \subsection{Is it best to hold down model size with \texttt{nk} or \texttt{nprune}?}
 \label{faq12}

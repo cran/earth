@@ -256,37 +256,38 @@ plot.earth.models <- function(
     {
         lty <- NULL
         col <- NULL
-        legend <- rep(legend.text, length.out=length(objects)) # may be NULL
-        if(is.null(legend)) {
+        if(is.null(legend.text)) {
             if(is.null(names(objects))) {
                 args <- get.arg.strings(objects, maxchars=20)
-                legend <- character(length=length(objects))
+                legend.text <- character(length=length(objects))
                 for(imodel in seq_along(objects))
-                    legend[imodel] <- paste(imodel, args[[imodel]])
+                    legend.text[imodel] <- paste(imodel, args[[imodel]])
             } else
-                legend <- names(objects)
-        }
+                legend.text <- names(objects)
+        } else
+            legend.text <- rep(legend.text, length.out=length(objects))
+
         if(col.rsq[1] != 0) {       # RSq plotted?
             col <- c(col, col.rsq)
             lty <- c(lty, rep(lty.rsq, length.out=length(col)))
             if(col.grsq[1] != 0)
-                legend1 <- paste("RSq", legend)
+                legend1 <- paste("RSq", legend.text)
         }
         if(col.grsq[1] != 0) {      # GRSq plotted?
             col <- c(col, col.grsq)
             lty <- c(lty, rep(1, length.out=length(col)))
             if(col.rsq[1] != 0)
-                legend <- c(legend1, paste("GRSq", legend))
+                legend.text <- c(legend1, paste("GRSq", legend.text))
         }
         if(is.null(cex.legend))
-            cex.legend <- get.cex.legend(legend, min.width=min.width)
+            cex.legend <- get.cex.legend(legend.text, min.width=min.width)
         if(is.null(legend.pos))
             xpos <- "bottomright"
         else { # user specified legend position
             xpos <- legend.pos[1]
             ypos <- if(length(legend.pos) > 1) legend.pos[2] else NULL
         }
-        elegend(x=xpos, y=ypos, bg="white", legend=legend, col=col, lty=lty, cex=cex.legend,
+        elegend(x=xpos, y=ypos, bg="white", legend=legend.text, col=col, lty=lty, cex=cex.legend,
                 inset=c(.02, .04)) # y offset allows vertical lines to be visible below legend
     }
     #--- plot.earth.models starts here ---

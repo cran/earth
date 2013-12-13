@@ -11,57 +11,14 @@ Loading required package: plotmo
 Loading required package: plotrix
 > options(digits=3)
 > data(trees)
-> fit1 <- earth(Volume ~ ., data = trees, degree = 2, trace = 4)
-Call: earth(formula=Volume~., data=trees, trace=4, degree=2)
-x is a 31 by 2 matrix: 1=Girth, 2=Height
-First few rows of x are
-     Girth Height
-[1,]   8.3     70
-[2,]   8.6     65
-[3,]   8.8     63
-[4,]  10.5     72
-[5,]  10.7     81
-[6,]  10.8     83
-y is a 31 by 1 matrix: 1=Volume
-First few rows of y are
-     Volume
-[1,]   10.3
-[2,]   10.3
-[3,]   10.2
-[4,]   16.4
-[5,]   18.8
-[6,]   19.7
-Forward pass: minspan 4 endspan 8
-
-         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
-1      0.0000 0.0000                                             1
-2      0.9443 0.9613       0.9613    1        Girth          14  2   3   
-4      0.9456 0.9758       0.0145    2       Height          72  4   5   
-6      0.9126 0.9781     0.002297    1        Girth        14.2  6   7   4   
-8      0.8118 0.9791    0.0009535    2       Height          74  8   9   reject term
-
-Reached delta RSq threshold (DeltaRSq 0.000953536 < 0.001) at 7 terms
-After forward pass GRSq 0.8118 RSq 0.9791
-Forward pass complete: 7 terms
-
-Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
-          1      0.0000  0.0000     0.0000      0  1
-          2      0.8315  0.8584     0.8315      1  1 2
-          3      0.9443  0.9613     0.1128      1  1 2 3
-chosen    4      0.9568  0.9757     0.0125      2  1 2 3 4
-          5      0.9477  0.9768    -0.0090      2  1 2 3 4 6
-          6      0.9336  0.9774    -0.0141      2  1 2 3 4 6 7
-          7      0.9126  0.9781    -0.0211      2  1 2 3 4 5 6 7
-
-Prune method "backward" penalty 3 nprune 7: selected 4 of 7 terms, and 2 of 2 predictors
-After backward pass GRSq 0.9568 RSq 0.9757 
+> fit1 <- earth(Volume ~ ., data = trees, degree = 2, trace = 0)
 > print(fit1, digits = 3)
 Selected 4 of 7 terms, and 2 of 2 predictors 
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 12.1    RSS 197    GRSq 0.957    RSq 0.976
 > print(summary(fit1, digits = 3))
-Call: earth(formula=Volume~., data=trees, trace=4, degree=2)
+Call: earth(formula=Volume~., data=trees, trace=0, degree=2)
 
              coefficients
 (Intercept)        27.246

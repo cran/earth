@@ -7,12 +7,12 @@ Summary method for \code{\link{earth}} objects.
 }
 \usage{
 \method{summary}{earth}(object = stop("no 'object' arg"),
-        details = FALSE, decomp = "anova",
-        style = c("h", "pmax", "max", "bf"),
-        digits = getOption("digits"), fixed.point=TRUE, \dots)
+        details = FALSE,  style = c("h", "pmax", "max", "C", "bf"),
+        decomp = "anova", digits = getOption("digits"),
+        fixed.point=TRUE, \dots)
 
 \method{print}{summary.earth}(x = stop("no 'x' arg"),
-        details = x$details, decomp = x$decomp,
+        details = x$details,  decomp = x$decomp,
         digits = x$digits, fixed.point = x$fixed.point, \dots)
 }
 \arguments{
@@ -32,18 +32,18 @@ Summary method for \code{\link{earth}} objects.
     are meaningless because of the amount of preprocessing
     by earth to select the regression terms.
   }
-  \item{decomp}{
-    Specify how terms are ordered.
-    Default is \code{"anova"}.
-    Use \code{"none"} to order the terms as created by the forward.pass.
-    See \code{\link{format.earth}} for a full description.
-  }
   \item{style}{
     Formatting style. One of\cr
 \code{"h"} (default) more compact\cr
 \code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
 \code{"max"} is the same as \code{"pmax"} but prints \code{max} rather than \code{pmax}\cr
 \code{"bf"} basis function format.
+  }
+  \item{decomp}{
+    Specify how terms are ordered.
+    Default is \code{"anova"}.
+    Use \code{"none"} to order the terms as created by the forward.pass.
+    See \code{\link{format.earth}} for a full description.
   }
   \item{digits}{
     The number of significant digits.\cr

@@ -341,7 +341,7 @@ plotd(earth.model, vline.col=1, err.col=c(2,3,4))
                                  # nresponse=1 selects first linear discr.
     }
     The \code{dichot=TRUE} argument is also useful for \code{lda}
-    responses with more than two factor levels.
+    responses with more than two factor levels.\cr
 
   \bold{TODO}
 

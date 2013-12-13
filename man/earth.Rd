@@ -90,7 +90,7 @@ For cross validation, use the \code{nfold} argument.
      Vector of response weights.
      Default is NULL, meaning no response weights.
      If specified, \code{wp} must have an element for each column of
-     \code{y} (after \code{\link[=factor]{factors}}, if any, have been expanded).\cr
+     \code{y} (after \code{\link[=factor]{factors}} in \code{y}, if any, have been expanded).\cr
 %      Earth uses \code{wp} as follows:
 %      It normalizes \code{wp} as follows \code{wp <- sqrt(wp / mean(wp))}
 %      It multiplies each column of \code{y} by the corresponding
@@ -138,7 +138,7 @@ For cross validation, use the \code{nfold} argument.
      in the environment at the time \code{\link{update.earth}} is invoked.
      This argument also affects the amount of data kept when
      the \code{nfold} argument is used
-     (see \code{cv.list} in the \dQuote{\emph{Value}} section below.\cr
+     (see \code{cv.list} in the \dQuote{\emph{Value}} section below).\cr
 
      \bold{The following arguments are for the forward pass.}
   }
@@ -171,7 +171,8 @@ For cross validation, use the \code{nfold} argument.
      Forward stepping threshold.
      Default is 0.001.
      This is one of the arguments used to decide when forward stepping
-     should terminate.
+     should terminate:
+     the forward pass terminates if adding a term changes RSq by less than \code{thresh}.
      See also \dQuote{\emph{Termination conditions for the forward pass}} in the package vignette.
   }
   \item{minspan}{
@@ -197,25 +198,32 @@ For cross validation, use the \code{nfold} argument.
      Penalty for adding a new variable in the forward pass
      (Friedman's \eqn{gamma}, equation 74 in the MARS paper).
      Default is 0, meaning no penalty for adding a new variable.
-     Useful non-zero values range from about 0.01 to 0.2 --- you will
-     need to experiment.
-     This argument can mitigate the effects of collinearity or concurvity
-     in the input data, but anecdotal evidence is that it does not work very well.
-     If you know two variables are strongly correlated then you
-     would do better to delete one of them before calling \code{earth}.
+     Useful non-zero values typically range from about 0.01 to 0.2 ---
+     you will need to experiment.\cr
+     With the default \code{newvar.penalty=0},
+     if two variables have nearly the same effect (e.g. they are
+     collinear), at any step in the forward pass \code{earth} may
+     arbitrarily select one or the other.  Both variables can appear in the
+     final model, complicating model interpretation.  On the other hand
+     with a non-zero \code{newvar.penalty}, the forward pass will be
+     reluctant to add a new variable --- it will rather try to use a
+     variable already in the model, if that does not affect RSq too much.
+     The resulting final model may be easier to interpret, if you are lucky.
+     There will often be a small performance hit (a worse GCV).
   }
   \item{fast.k}{
      Maximum number of parent terms considered at each step of the forward pass.
      Friedman invented this parameter to speed up the forward pass
      (see the Fast MARS paper section 3.0).
      Default is 20.
-     Values of 0 or less are treated specially
+     Values of 0 is treated specially
      (as being equivalent to infinity), meaning no Fast MARS.
      Typical values, apart from 0, are 20, 10, or 5.
      In general, with a lower \code{fast.k} (say 5), \code{earth} is faster;
      with a higher \code{fast.k}, or with \code{fast.k} disabled (set to 0),
      \code{earth} builds a better model.
-     However it is not unusual to get a slightly better model with a lower \code{fast.k}.
+     However it is not unusual because of random variation
+     to get a slightly better model with a lower \code{fast.k}.
   }
   \item{fast.beta}{
      Fast MARS aging coefficient, as described in the
@@ -224,7 +232,9 @@ For cross validation, use the \code{nfold} argument.
      A value of 0 sometimes gives better results.
   }
   \item{linpreds}{
-     Index vector specifying which predictors should enter linearly, as in \code{\link{lm}}.\cr
+     Index vector specifying which predictors should enter linearly, as in \code{\link{lm}}.
+     This does not say that a predictor \emph{must} enter the model;
+     only that if it enters, it enters linearly.\cr
      The default is FALSE, meaning all predictors enter
      in the standard MARS fashion, i.e., in hinge functions.\cr
      A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
@@ -693,6 +703,10 @@ The vignette can also be downloaded from
   The \code{\link{evimp}} function uses ideas from Max Kuhn's \code{caret} package
   \url{http://cran.r-project.org/web/packages/caret/index.html}.
 
+  Parts of Thomas Lumley's \code{\link[leaps]{leaps}} package has been
+  incorporated into \code{earth}, so \code{earth} can directly access
+  Alan Miller's Fortran functions.
+
   Users are encouraged to send feedback --- use
   milbo AT sonic PERIOD net \url{http://www.milbo.users.sonic.net}.
 }
@@ -706,8 +720,8 @@ The vignette can also be downloaded from
   (If you use Faraway's examples with \code{earth} instead of \code{mars}, use \code{$bx}
   instead of \code{$x}, and check out the book's errata.)
   Friedman and Silverman is recommended background reading for the MARS paper.
-  Earth's pruning pass uses the \code{\link[leaps]{leaps}} package which is based on
-  techniques in Miller.
+  Earth's pruning pass uses code from the \code{\link[leaps]{leaps}} package
+  which is based on techniques in Miller.
 
   Faraway (2005) \emph{Extending the Linear Model with R}
   \url{http://www.maths.bath.ac.uk/~jjf23}

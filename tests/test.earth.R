@@ -6,7 +6,7 @@
 library(earth)
 options(digits=3)
 data(trees)
-fit1 <- earth(Volume ~ ., data = trees, degree = 2, trace = 4)
+fit1 <- earth(Volume ~ ., data = trees, degree = 2, trace = 0)
 print(fit1, digits = 3)
 print(summary(fit1, digits = 3))
 print(evimp(fit1, trim=FALSE))

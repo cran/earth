@@ -26,7 +26,7 @@ Update an \code{\link{earth}} model.
      Mostly for compatibility with the generic \code{\link{update}}.
   }
 }
-\note{
+\details{
 If only the following arguments are used, a forward pass
 is unnecessary, and \code{update.earth} will perform only the pruning pass.
 This is usually much faster for large models.
@@ -45,16 +45,35 @@ This is usually much faster for large models.
 This automatic determination to do a forward pass can be overridden
 with the \code{ponly} argument.
 If \code{ponly=TRUE} the forward pass will be skipped and only the pruning pass will be executed.
-This is useful for doing a pruning pass with new data, typically with \code{penalty=0}.
-A similar use of \code{ponly=TRUE} is to do subset
-selection with a different \code{penalty} from that used to build the original model.
-With \code{trace=1}, \code{update.earth} will tell you if earth's forward pass was skipped.
-
+\cr
+\cr
+This is useful for doing a pruning pass with new data.
+(Use earth's \code{data} argument to specify the new data.)
+Typically in this scenario you would also specify \code{penalty=-1}.
+This is because with sufficient new data, independent of the original
+training data, the RSS not the GCV should be used for evaluating model
+subsets
+(The GCV approximates what the RSS would be on new data --- but here
+we actually have new data, so why bother approximating.
+This "use new data for pruning" approach is useful in situations where
+you don't trust the GCV approximation for your data.)
+By making \code{penalty=-1}, earth will calculate the RSS, not the GCV.
+See also the description of \code{penalty} on the
+\code{\link{earth}} help page.
+\cr
+\cr
+Another (somewhat esoteric) use of \code{ponly=TRUE} is to do subset
+selection with a different \code{penalty} from that used to build the
+original model.
+With \code{trace=1}, \code{update.earth} will tell you if earth's
+forward pass was skipped.
+\cr
+\cr
 If you used \code{keepxy=TRUE} in your original call to \code{earth}, then
 \code{update.earth} will use the saved values of \code{x}, \code{y}, etc.,
 unless you specify otherwise by arguments to \code{update.earth}.
-It can be helpful to set \code{trace=1} to see which \code{x}, etc.
-\code{update.earth} uses.
+It can be helpful to set \code{trace=1} to see which \code{x} and \code{y}.
+\code{update.earth} is using.
 }
 \value{
    The value is the same as that returned by \code{\link{earth}}.
@@ -66,36 +85,13 @@ It can be helpful to set \code{trace=1} to see which \code{x}, etc.
 }
 \examples{
 data(ozone1)
-(a <- earth(O3 ~ ., data = ozone1, degree = 2))
 
-# yields:
-#    Selected 11 of 21 terms, and 8 of 9 predictors
-#    Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
-#    Number of terms at each degree of interaction: 1 5 5
-#    GCV 13.5    RSS 3768    GRSq 0.791    RSq 0.822
+(a <- earth(O3 ~ ., data = ozone1, degree = 2))
 
 update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
 
-# yields:
-#    Selected 14 of 21 terms, and 8 of 8 predictors
-#    Importance: ibt, humidity, doy, vh, ibh, dpg, wind, vis
-#    Number of terms at each degree of interaction: 1 5 8
-#    GCV 13.1    RSS 3499    GRSq 0.796    RSq 0.834
-
 update(a, nprune = 8)              # requires only pruning
 
-# yields:
-#    Selected 8 of 21 terms, and 6 of 9 predictors
-#    Importance: temp, humidity, ibt, doy, dpg, ibh-unused, vis, vh-unused, wind-unused
-#    Number of terms at each degree of interaction: 1 5 2
-#    GCV 15.1    RSS 4435    GRSq 0.766    RSq 0.79
-
 update(a, penalty=1, ponly=TRUE)   # pruning pass only with a new penalty
-
-# yields:
-#    Selected 13 of 21 terms, and 8 of 9 predictors
-#    Importance: temp, humidity, ibt, doy, dpg, ibh, vis, wind, vh-unused
-#    Number of terms at each degree of interaction: 1 5 7
-#    GCV 12.5    RSS 3671    GRSq 0.805    RSq 0.826
 }
 \keyword{models}

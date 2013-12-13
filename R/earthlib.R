@@ -420,7 +420,6 @@ first.non.matching.arg <- function(s1, s2)
 }
 
 # summarize a matrix
-# TODO don't print all colnames if too many
 
 print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
                               details=TRUE, all.rows=FALSE, all.names=FALSE,
@@ -440,6 +439,8 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
         n.names <- length(colnames)
         if(!all.names && !details)
             n.names <- min(5, n.names)
+        else # never print more than 20 columns
+            n.names <- min(20, n.names)
         for(i in 1:n.names) {
             if(bpairs[i]) {
                 icol <- icol+1
@@ -469,6 +470,11 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
     }
     if(details) {
         rownames(x) <- NULL
+        ncol.save <- 0
+        if(NCOL(x) > 20) { # never print more than 20 columns
+            ncol.save <- ncol(x)
+            x <- x[, 1:20]
+        }
         if(all.rows || NROW(x) <= 6) { # head prints 6 rows
             cat0("Contents of ", xname, " are\n")
             print(x)
@@ -480,5 +486,7 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
             cat0("First few ", rowstring, " of ", xname, " are\n")
             print(head(x))
         }
+        if(ncol.save)
+            printf("Not all %d columns were printed\n", ncol.save);
     }
 }

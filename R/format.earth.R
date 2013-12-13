@@ -24,6 +24,12 @@
 #
 # Style="max" is the same as "pmax" but prints "max" rather than "pmax".
 #
+# Style="C" looks like this:
+#         23.208244
+#         +  5.7459616 * max(0  x[0] - 12.9)
+#         -  2.8664516 * max(0  12.9 - x[0])
+#         + 0.71833643 * max(0, x[1] - 76)
+#
 # For style="bf" the result looks like this:
 #
 #         bf1: h(Girth-12.9)
@@ -43,10 +49,10 @@
 
 format.earth <- function(
     x           = stop("no 'x' arg"),   # "earth" object
-    digits      = getOption("digits"),
-    use.names   = TRUE,     # use predictor names, else "x[,1]" etc
-    decomp      = "anova",  # see reorder.earth for legal decomp values
     style       = "h",      # see get.term.strings
+    decomp      = "anova",  # see reorder.earth for legal decomp values
+    digits      = getOption("digits"),
+    use.names   = TRUE,
     colon.char  = ":",      # convert colons in expression to this char
     ...)                    # unused, for consistency with generic
 {
@@ -54,6 +60,12 @@ format.earth <- function(
     warn.if.dots.used("format.earth", ...)
     nresp <- NCOL(x$coefficients)
     s <- vector(mode = "character", length=nresp)
+    if(style[1] == "C") {
+        if(digits < 5)
+            digits <- 5
+        use.names <- -1 # tell variable.names.earth to use zero based indexing
+        colon.char = "*"
+    }
     for(iresp in 1:nresp)
         s[iresp] <- format.one.response(iresp, x, digits, use.names,
                                         decomp, style=style,
@@ -72,7 +84,7 @@ format.one.response <- function( # called by format.earth
     iresp,          # response index i.e. column in y matrix
     obj,            # "earth" obj
     digits,
-    use.names,      # use predictor names, else "x[,1]" etc
+    use.names,
     decomp,         # see reorder.earth for legal decomp values
     style,          # see get.term.strings
     colon.char=":", # convert colons in output to this char
@@ -89,8 +101,8 @@ format.one.response <- function( # called by format.earth
     # convert colons to colon.char
     term.names <- make.unique(gsub(":", colon.char, term.names), sep="_")
     coef.width <- get.coef.width(coefs[-1], digits)
-    s <- ""         # result goes into this string
-    s <- pastef(s, "  %.*g\n", digits=digits, coefs[1])
+    s <- if(style[1] == "C") "" else "  "  # result goes into this string
+    s <- pastef(s, "%.*g\n", digits=digits, coefs[1])
     iterm <- 2
     while(iterm <= length(which.terms)) {
         coef <- coefs[iterm]
@@ -122,16 +134,19 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coefs
 #   "h"    gives "h(survived-0) * h(16-age)"
 #   "pmax" gives "pmax(0, survived - 0) * pmax(0, 16 - age)"
 #   "max"  gives "max(0, survived - 0) * max(0, 16 - age)"
+#   "C"    gives "max(0, x[0]) * max(0, 16 - x[1])"
 #   "bf"   gives basis functions e.g. "bf1" or "bf1 * bf3"
 
 get.term.strings <- function(obj, digits, use.names,
-                             style = c("h", "pmax", "max", "bf"), neworder)
+                             style = c("h", "pmax", "max", "C", "bf"),
+                             neworder)
 {
     switch(match.arg1(style),
         get.term.strings.h(obj, digits, use.names, neworder),            # "h"
         get.term.strings.pmax(obj, digits, use.names, neworder, "pmax"), # "pmax"
         get.term.strings.pmax(obj, digits, use.names, neworder, "max"),  # "max"
-        get.term.strings.bf(obj, digits, use.names, neworder))           # "bf"
+        get.term.strings.pmax(obj, digits, use.names, neworder, "max"),  # "C"
+        get.term.strings.bf(obj,   digits, use.names, neworder))         # "bf"
 }
 
 get.term.strings.h <- function(obj, digits, use.names, new.order)
@@ -174,6 +189,7 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
     s <- character(nterms)
     s[1] = "(Intercept)"
     iterm <- 2
+    funcname <- if(funcname=="h") "h(" else paste0(funcname, "(0, ")
     while(iterm <= nterms) {
         isel.term <- which.terms[iterm]
         dir <- dirs[isel.term, , drop=FALSE]
@@ -187,15 +203,15 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
                                     prefix, width=width,
                                     var.names[ipred], width=width, "")
                 else if(dir[ipred] == -1)
-                    s[iterm] <- pastef(s[iterm], "%s%s(0, %s - %*s) ",
-                                     prefix, funcname, format(cut[ipred],
-                                     width=width, digits=digits),
-                                     width, var.names[ipred])
+                    s[iterm] <- pastef(s[iterm], "%s%s%s - %*s) ",
+                                    prefix, funcname,
+                                    format(cut[ipred], width=width, digits=digits),
+                                    width, var.names[ipred])
                 else if(dir[ipred] == 1)
-                    s[iterm] <- pastef(s[iterm], "%s%s(0, %*s - %s) ",
-                                     prefix, funcname, width=width, var.names[ipred],
-                                     format(cut[ipred], width=width,
-                                     digits=digits))
+                    s[iterm] <- pastef(s[iterm], "%s%s%*s - %s) ",
+                                 prefix, funcname,
+                                 width=width, var.names[ipred],
+                                 format(cut[ipred], width=width, digits=digits))
                 else
                     stop0("illegal direction ", dir[ipred], " in 'dirs'")
 
@@ -284,7 +300,7 @@ format.lm <- function(
     get.name <- function(ipred)
     {                               # return "name" if possible, else "x[,i]"
         pred.name <- pred.names[ipred]
-        if(is.null(pred.name) || is.na(pred.name) || !use.names)
+        if(is.null(pred.name) || is.na(pred.name) || !use.names[1])
             pred.name <- paste0("x[,", ipred, "]")
         # convert colons to colon.char
         make.unique(gsub(":", colon.char, pred.name), sep="_")
