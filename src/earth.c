@@ -5,33 +5,10 @@
 // Comments containing "TODO" mark known issues
 //
 // See the R earth documentation for descriptions of the principal data structures.
-// See also www.milbo.users.sonic.net.
+// See also www.milbo.users.sonic.net.  This code uses a subset of C99.
 //
 // Stephen Milborrow Feb 2007 Petaluma
 //
-//-----------------------------------------------------------------------------
-// This code uses a subset of C99.  To build the earth R library under gcc:
-//   gcc -Wall -pedantic -Wextra -O3 -std=gnu99 -Ic:/a1/r/work/include -c earth.c -o earth.o
-//
-// For a standalone program with a main() routine under gcc (you will have to
-// build Rdll.lib and Rblas.lib first):
-//   gcc -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -O3 -std=gnu99
-//      -Ic:/a1/r/work/include -I../src/tests ../src/earth.c
-//      /a1/r/work/src/gnuwin32/Rdll.lib /a1/r/work/bin/Rblas.lib -o main.exe
-//   main.exe
-//
-// For a standalone program with a main() routine under VisualC 6.0,
-// treat earth.c as a C++ file because VisualC has no direct support for C99.
-// I have not tried building using other versions of VisualC.
-//   md Debug
-//   cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MLd
-//       -I/a1/r/work/src/include -I../src/tests -Fp./Debug/vc60.PCH -Fo"./Debug/"
-//       -c ../src/earth.c
-//   link -nologo -debug:full -out:main.exe ./Debug/earth.obj
-//       \a1\r\work\src\gnuwin32\Rdll.lib \a1\r\work\bin\Rblas.lib
-//   main.exe
-//
-//-----------------------------------------------------------------------------
 // References:
 //
 // HastieTibs: Trevor Hastie and Robert Tibshirani
@@ -118,12 +95,12 @@ extern _C_ int dqrdc2_(double *x, int *ldx, int *n, int *p,
                         double *tol, int *rank,
                         double *qraux, int *pivot, double *work);
 
+extern _C_ void dtrsl_(double *t, int *ldt, int *n, double *b, int *job, int *info);
+
 extern _C_ int dqrsl_(double *x, int *ldx, int *n, int *k,
                         double *qraux, double *y,
                         double *qy, double *qty, double *b,
                         double *rsd, double *xb, int *job, int *info);
-
-extern _C_ void dtrsl_(double *t, int *ldt, int *n, double *b, int *job, int *info);
 
 extern _C_ void daxpy_(const int *n, const double *alpha,
                         const double *dx, const int *incx,
@@ -150,7 +127,7 @@ extern _C_ double ddot_(const int *n,
 #define IOFFSET     1     // printfs only: 1 to convert 0-based indices to 1-based in printfs
                           // use 0 for C style indices in messages to the user
 
-static const char   *VERSION    = "version 3.2-3"; // change if you modify this file!
+static const char   *VERSION    = "version 3.2-5"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 0.01;
 static const double MIN_GRSQ    = -10.0;
@@ -160,7 +137,7 @@ static const int    ONE         = 1;        // parameter for BLAS routines
 static const double POS_INF     = __builtin_inff();
 #elif _MSC_VER                             // microsoft compiler
 static const double POS_INF     = _HUGE;
-#else
+#else                                      // assume gcc
 static const double POS_INF     = (1.0 / 0.0);
 #endif
 static const int    MAX_DEGREE  = 100;
@@ -915,7 +892,7 @@ static void Regress(
 // This routine is for testing Regress from R, to compare results to R's lm().
 
 #if USING_R
-void RegressR(
+void RegressR(                  // for testing earth routine Regress from R
     double       Betas[],       // out: (nUsedCols+1) * nResp, +1 is for intercept
     double       Residuals[],   // out: nCases * nResp
     double       Rss[],         // out: RSS, summed over all nResp
@@ -1727,7 +1704,7 @@ static INLINE void FindPred(
                     // candidate terms so far.
 
                     if (TraceGlobal >= 7)
-                        printf("BestRssDeltaForTermSoFar %g (lin pred) ",
+                        printf("BestRssDeltaForTermSoFar %3g (lin pred) ",
                             RssDeltaLin - *pBestRssDeltaForTerm);
 
                     UpdatedBestRssDelta = true;
@@ -1924,7 +1901,7 @@ static void PrintForwardProlog(const int nCases, const int nPreds,
             printf("    PredName  ");
         printf("       Cut  Terms   ParentTerm\n");
 
-        printf("1      0.0000 0.0000                               %s%d\n",
+        printf("1       0.000  0.000                               %s%d\n",
             (sPredNames? "              ":""), IOFFSET);
     }
 }
@@ -1956,7 +1933,7 @@ static void PrintForwardStep(
     } else if (TraceGlobal == 1.5)
         printf("Forward pass term %d\n", nTerms+1);
     else if (TraceGlobal >= 2) {
-        printf("%-4d%9.4f %6.4f %12.4g  ",
+        printf("%-4d%9.4f %6.4f %12.3g  ",
             nTerms+IOFFSET, 1-Gcv/GcvNull, RSq, RSqDelta);
         if (iBestPred < 0)
             printf("  -                                ");
@@ -2012,15 +1989,15 @@ static void PrintForwardEpilog(
             if(GRSq < -1000)
                 printf("\nReached GRSq = -Inf at %d terms\n", nTerms);
             else
-                printf("\nReached min GRSq (GRSq %g < %g) at %d terms\n",
+                printf("\nReached min GRSq (GRSq %2g < %2g) at %d terms\n",
                     GRSq, MIN_GRSQ, nTerms);
         }
         else if (Thresh != 0 && RSqDelta < Thresh)
-            printf("\nReached delta RSq threshold (DeltaRSq %g < %g) at %d terms\n",
+            printf("\nReached delta RSq threshold (DeltaRSq %.2g < %.2g) at %d terms\n",
                 RSqDelta, Thresh, nTerms);
 
         else if (RSq > 1-Thresh)
-            printf("\nReached max RSq (RSq %g > %g) at %d terms\n",
+            printf("\nReached max RSq (RSq %.4f > %.4f) at %d terms\n",
                 RSq, 1-Thresh, nTerms);
 
         else if (iBestCase < 0)
@@ -2034,7 +2011,7 @@ static void PrintForwardEpilog(
             //    printf(" (no room for another term pair)");
             printf("\n");
         }
-        printf("After forward pass GRSq %.4g RSq %.4g\n", GRSq, RSq);
+        printf("After forward pass GRSq %.3f RSq %.3f\n", GRSq, RSq);
     }
     if (TraceGlobal >= 2) {
         printf("Forward pass complete: %d terms", nTerms);
@@ -2215,8 +2192,8 @@ static void ForwardPass(
         warning("trace %g > 10", TraceGlobal);
     if (NewVarPenalty < 0)
         warning("newvar.penalty %g < 0", NewVarPenalty);
-    if (NewVarPenalty > 10)
-        warning("newvar.penalty %g > 10", NewVarPenalty);
+    if (NewVarPenalty > 100)
+        warning("newvar.penalty %g > 100", NewVarPenalty);
     if (UseBetaCache != 0 && UseBetaCache != 1)
         warning("Use.Beta.Cache is neither TRUE nor FALSE");
 
@@ -2457,7 +2434,7 @@ void ForwardPassR(              // for use by R
 // For multiple responses we sum the above DeltaRss over all responses.
 //
 // This method is fast and simple but accuracy can be poor if inv(X'X) is
-// ill conditioned.  The Miller code in the R package "leaps" uses a more
+// ill conditioned.  The Alan Miller code in the R package "leaps" uses a more
 // stable method, but does not support multiple responses.
 //
 // The "Xtx" in the name refers to the X'X matrix.
@@ -2536,7 +2513,7 @@ static void EvalSubsetsUsingXtx(
 
 //-----------------------------------------------------------------------------
 // This is invoked from R if y has multiple columns i.e. a multiple response model.
-// It is needed because the alternative (the leaps package) supports
+// It is needed because the alternative (Alan Miller's Fortran code) supports
 // only one response.
 
 #if USING_R
@@ -2613,7 +2590,7 @@ static void BackwardPass(
                 1 - BestGcv/GcvNull, 1 - RssVec[iModel]/RssVec[0]);
     }
     if (TraceGlobal >= 3)
-        printf("\nBackward pass complete: selected %d terms of %d, GRSq %g RSq %g\n\n",
+        printf("\nBackward pass complete: selected %d terms of %d, GRSq %.3f RSq %.3f\n\n",
             iBestModel+IOFFSET, nMaxTerms,
             1 - BestGcv/GcvNull, 1 - RssVec[iBestModel]/RssVec[0]);
 
@@ -2782,7 +2759,7 @@ static void FormatOneResponse(
     const int    nTerms,
     const int    nMaxTerms,
     const int    nDigits,   // number of significant digits to print
-    const double MinBeta)   // terms with fabs(betas) less than this are not printed, 0 for all
+    const double MinBeta)   // terms with fabs(beta) less than this are not printed, 0 for all
 {
     int iBestTerm = 0;
     int nKnotsMax = GetMaxKnotsPerTerm(UsedCols, Dirs, nPreds, nTerms, nMaxTerms);

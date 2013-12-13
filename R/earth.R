@@ -415,7 +415,7 @@ earth.fit <- function(
     env <- parent.frame()
     y.org <- y
     pmethods <- c("backward", "none", "exhaustive", "forward", "seqrep")
-    pmethod <- pmethods[match.arg1(pmethod)] # check pmethod is illegal, and expand
+    pmethod <- pmethods[match.arg1(pmethod)] # check pmethod is legal, and expand
 
     # For binomial glms we have to drop paired y cols before passing y to
     # to the C earth routines.  The logical vector glm.bpairs keeps track
@@ -426,10 +426,16 @@ earth.fit <- function(
         glm.bpairs <- get.glm.bpairs(y, glm) # returns NULL if all cols used
     }
     if(trace >= 1) {
+        if(trace >= 4)
+            cat("\n");
         print.matrix.info("x", x, NULL, NULL,       details=(trace >= 4),
                           all.names=(trace >= 2), all.rows=(trace >= 5))
+        if(trace >= 4)
+            cat("\n");
         print.matrix.info("y", y, NULL, glm.bpairs, details=(trace >= 4),
                           all.names=(trace >= 2), all.rows=(trace >= 5))
+        if(trace >= 3)
+            cat("\n");
     }
     # we do basic parameter checking here but much more in ForwardPass in earth.c
     if(nk < 1)
@@ -674,7 +680,6 @@ eval.model.subsets.with.leaps <- function(
         t(prune.terms)
     }
     #--- eval.model.subsets.with.leaps starts here ---
-
     # Make warnings in the leaps routines behave as errors.
     # We have seen the leaps routines return bad data (?) after issuing
     # the warning "XHAUST returned error code -999",
@@ -683,28 +688,28 @@ eval.model.subsets.with.leaps <- function(
     on.exit(options(warn=old.warn))
     options(warn=2)
     if(is.null(weights))
-        rprune <- leaps:::leaps.setup(x=bx, y=y,
+        rprune <- leaps.setup(x=bx, y=y,
             force.in=1,        # make sure intercept is in model
             force.out=NULL,
             intercept=FALSE,   # we have an intercept so leaps.setup must not add one
             nvmax=nprune, nbest=1, warn.dep=TRUE)
     else
-        rprune <- leaps:::leaps.setup(x=bx, y=y, wt=weights,
+        rprune <- leaps.setup(x=bx, y=y, wt=weights,
             force.in=1,
             force.out=NULL,
             intercept=FALSE,
             nvmax=nprune, nbest=1, warn.dep=TRUE)
 
     rprune <- switch(pmethod,
-        backward   = leaps:::leaps.backward(rprune),
-        none       = leaps:::leaps.backward(rprune), # for stats, won't actually prune
-        exhaustive = leaps:::leaps.exhaustive(rprune, really.big=TRUE),
-        forward    = leaps:::leaps.forward(rprune),
-        seqrep     = leaps:::leaps.seqrep(rprune))
+        backward   = leaps.backward(rprune),
+        none       = leaps.backward(rprune), # for stats, won't actually prune
+        exhaustive = leaps.exhaustive(rprune, really.big=TRUE),
+        forward    = leaps.forward(rprune),
+        seqrep     = leaps.seqrep(rprune))
 
     rss.per.subset <- as.vector(rprune$ress) # convert from n x 1 mat to vector
 
-    list(rss.per.subset = rss.per.subset,    # vector of RSSs for each model (index on subset size)
+    list(rss.per.subset = rss.per.subset, # vec of RSSs for each model (index on subset size)
          prune.terms = convert.lopt(rprune$lopt, nprune)) # each row is a vec of term indices
 }
 
@@ -1079,9 +1084,9 @@ print.pruning.pass <- function(trace, pmethod, penalty, nprune, selected.terms,
             get.nused.preds.per.subset(dirs, selected),
             "of", ncol(dirs), "predictors\n")
         cat("After backward pass GRSq",
-            format(get.rsq(gcv.per.subset[nselected], gcv.per.subset[1]), digits=4),
+            format(get.rsq(gcv.per.subset[nselected], gcv.per.subset[1]), digits=3),
             "RSq",
-            format(get.rsq(rss.per.subset[nselected], rss.per.subset[1]), digits=4),
+            format(get.rsq(rss.per.subset[nselected], rss.per.subset[1]), digits=3),
             "\n")
     }
 }
@@ -1173,9 +1178,12 @@ pruning.pass <- function(x, y, subset, weights,
       prune.terms    <- rval$prune.terms    # each row is a vec of term indices
 
     # sanity checks here because Eval.model.subsets may be user written
-    stopifnot(length(rss.per.subset) == nprune)
+    # rss.per.subset will be less than nprune if lin dep discovered by leaps
+    stopifnot(length(rss.per.subset) <= nprune)
+    nprune <- length(rss.per.subset)
     stopifnot(NROW(prune.terms) == nprune)
     stopifnot(NCOL(prune.terms) == nprune)
+    prune.terms <- prune.terms[1:nprune, 1:nprune, drop=FALSE]
     stopif(any(prune.terms[,1] != 1))   # check intercept column
     gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, penalty, nrow(bx.prune))
     if(!all(is.finite(rss.per.subset)))
@@ -1402,22 +1410,32 @@ anova.earth <- function(object, warn=TRUE, ...)
     NULL
 }
 
-# variable.names.earth returns "name" if possible, else return "x[,i]"
+# use.names can have the following values:
+#   TRUE:  return name if possible, else return x[,i] or x[i-1].
+#   FALSE: return x[,i]
+#   -1:    return x[i] with 0 based indexing (treat x as a C array)
 
 variable.names.earth <- function(object, ..., use.names=TRUE)
 {
     warn.if.dots.used("variable.names.earth", ...)
     ipred <- 1:ncol(object$dirs)
-    var.name <- NULL
-    if(use.names)
+    if(length(use.names) != 1)
+        stop0("illegal value for use.names")
+    if(use.names == TRUE) {
         var.name <- colnames(object$dirs)[ipred]
-    if(!use.names || is.null(var.name) || is.na(var.name))
+        if(!is.null(var.name) && !is.na(var.name))
+            var.name
+        else
+            paste0("x[,", ipred, "]")
+    } else if(use.names == FALSE)
         paste0("x[,", ipred, "]")
+    else if(use.names == -1)
+        paste0("x[", ipred-1, "]")
     else
-        var.name
+        stop0("illegal value for use.names \"", use.names, "\"")
 }
 
-case.names.earth <- function(object, ..., use.names=TRUE)
+case.names.earth <- function(object, ...)
 {
     if(is.null(row.names(object$residuals)))
         paste(1:nrow(object$residuals))

@@ -62,8 +62,8 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     }
     if(!is.null(object$call[["w"]]) && !is.null(eval.parent(object$call[["w"]]))) {
 
-        warning("the \"w\" argument was used in the original call to mda::mars\n",
-                "although mda::mars actually ignores the \"w\" argument")
+        warning0("the \"w\" argument was used in the original call to mda::mars\n",
+                 "although mda::mars actually ignores the \"w\" argument")
         newcall$weights <- object$call$w
         weights.used <- TRUE
     }

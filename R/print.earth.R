@@ -173,8 +173,8 @@ spaceout <- function(rownames.)
 summary.earth <- function(   # returns a superset, not a summary in the strict sense
     object  = stop("no 'object' arg"),
     details = FALSE,
+    style   = c("h", "pmax", "max", "C", "bf"),
     decomp  = "anova",        # see reorder.earth for legal decomp values
-    style   = c("h", "pmax", "max", "bf"),
                               # use "pmax" for old earth style earth expression formatting
     digits  = getOption("digits"),
     fixed.point = TRUE,       # see help page
@@ -183,9 +183,10 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
     rval <- object
     rval$strings <- switch(match.arg1(style),
         { warn.if.dots.used("summary.earth", ...); NULL },                      # "h"
-        format.earth(x=object, digits=digits, decomp=decomp, style=style, ...), # "pmax"
-        format.earth(x=object, digits=digits, decomp=decomp, style=style, ...), # "max"
-        format.earth(x=object, digits=digits, decomp=decomp, style=style, ...)) # "bf"
+        format.earth(x=object, style=style, decomp=decomp, digits=digits, ...), # "pmax"
+        format.earth(x=object, style=style, decomp=decomp, digits=digits, ...), # "max"
+        format.earth(x=object, style=style, decomp=decomp, digits=digits, ...), # "C"
+        format.earth(x=object, style=style, decomp=decomp, digits=digits, ...)) # "bf"
     rval$details     <- details  # ditto
     rval$decomp      <- decomp
     rval$digits      <- digits   # allows us to pass digits arg on to print.summary.earth

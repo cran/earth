@@ -6,36 +6,38 @@ Return a string representing an \code{\link{earth}} expression.
 }
 \usage{
 \method{format}{earth}(x = stop("no 'x' arg"),
-       digits = getOption("digits"), use.names = TRUE,
-       decomp = "anova",  style = "h", colon.char = ":", \dots)
+       style = "h", decomp = "anova", digits = getOption("digits"),
+       use.names = TRUE, colon.char = ":", \dots)
 }
 \arguments{
   \item{x}{
     An \code{\link{earth}} object.
     This is the only required argument.
   }
-  \item{digits}{
-    Number of significant digits.
-    The default is \code{getOption(digits)}.
-  }
-  \item{use.names}{
-    If \code{TRUE} (default), use variable names.  Else use names of the form \code{x[,1]}.
+  \item{style}{
+    Formatting style. One of\cr
+\code{"h"} (default) more compact\cr
+\code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
+\code{"max"} is the same as \code{"pmax"} but prints \code{max} rather than \code{pmax}\cr
+\code{"C"} C style expression with zero based indexing\cr
+\code{"bf"} basis function format
   }
   \item{decomp}{One of\cr
 \code{"anova"}  (default) order the terms using the "anova decomposition",
 i.e., in increasing order of interaction\cr
 \code{"none"}   order the terms as created during the earth forward pass.\cr
   }
-  \item{style}{
-    Formatting style. One of\cr
-\code{"h"} (default) more compact\cr
-\code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
-\code{"max"} is the same as \code{"pmax"} but prints \code{max} rather than \code{pmax}\cr
-\code{"bf"} basis function format.
+  \item{digits}{
+    Number of significant digits.
+    The default is \code{getOption(digits)}.
+  }
+  \item{use.names}{One of\cr
+    \code{TRUE} (default), use variable names if available.\cr
+    \code{FALSE} use names of the form \code{x[,1]}.
   }
   \item{colon.char}{
     Change colons in the returned string to colon.char.
-    Default is ":", i.e., no change.
+    Default is ":" (no change).
     Specifying \code{colon.char="*"} can be useful in some contexts to change
     names of the form \code{x1:x2} to \code{x1*x2}.
   }
@@ -78,10 +80,8 @@ Thus the expression is consistent with the way \code{predict}
 functions usually work in R --- we can give \code{predict} multiple
 cases (i.e., multiple rows in the input matrix) and it will return a
 vector of predicted values.
-
 \preformatted{ % trick to force a paragraph break TODO why is this needed?
 }
-
 The  earth package also provides a function \code{format.lm}.
 It has arguments as follows\cr
 \code{format.lm(x, digits=getOption("digits"), use.names=TRUE, colon.char=":")}\cr
@@ -118,6 +118,14 @@ cat(format(a, style="pmax")) # default formatting style prior to earth version 1
 #    +  6.18 * pmax(0,  Girth -     14)
 #    -  3.27 * pmax(0,     14 -  Girth)
 #    + 0.491 * pmax(0, Height -     72)
+
+cat(format(a, style="C"))
+
+# yields:
+#  27.246
+#  +  6.1767 * max(0, x[0] -   14)
+#  -  3.2662 * max(0,   14 - x[0])
+#  + 0.49121 * max(0, x[1] -   72)
 
 cat(format(a, style="bf"))
 

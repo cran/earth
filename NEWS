@@ -1,6 +1,25 @@
 Changes to Earth Package
 ------------------------
 
+3.2-6  Apr 15, 2013
+  Added format.earth style="C".
+  Included the leaps package files into the earth package, to prevent
+      warnings from CRAN check about earth's use of internal leaps code.
+      Removed "Depends: leaps" from earth's DESCRIPTION file.
+  Lin deps discovered by leaps are now slightly better handled.
+  Small changes to earth.c and earth.h for stand-alone builds.
+  Added sections to the FAQ on using earth for
+      binary and categorical responses.
+  Added a section to the vignette on building a model
+      based on cross validation results.
+  Removed trace=4 from test.earth.R so a non-problem is no longer
+      reported due to minor numerical differences across architectures.
+  Reduced the number of digits printed in some of earth's trace messages.
+      This makes trace results more consistent across different architectures
+      (the ls digits are often in the numerical noise floor).
+  We now print a max of 20 columns of a matrix when tracing.
+  The legend.text arg of plot.earth.models now works correctly.
+
 3.2-3  Apr 27, 2012
   Incorporated Glen Luckjiff's patch to fix predict.earth(type="terms")
       failure when bx had just two columns.
