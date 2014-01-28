@@ -37,6 +37,7 @@ Summary method for \code{\link{earth}} objects.
 \code{"h"} (default) more compact\cr
 \code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
 \code{"max"} is the same as \code{"pmax"} but prints \code{max} rather than \code{pmax}\cr
+\code{"C"} C style expression with zero based indexing\cr
 \code{"bf"} basis function format.
   }
   \item{decomp}{

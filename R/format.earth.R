@@ -297,14 +297,6 @@ format.lm <- function(
     colon.char  = ":",                  # convert colons in expression to this char
     ...)                                # unused, for consistency with generic
 {
-    get.name <- function(ipred)
-    {                               # return "name" if possible, else "x[,i]"
-        pred.name <- pred.names[ipred]
-        if(is.null(pred.name) || is.na(pred.name) || !use.names[1])
-            pred.name <- paste0("x[,", ipred, "]")
-        # convert colons to colon.char
-        make.unique(gsub(":", colon.char, pred.name), sep="_")
-    }
     format1 <- function(coef)
     {
         format(coef, justify="left", w=coef.width, digits=digits, format="%g")
@@ -313,17 +305,31 @@ format.lm <- function(
     dataClasses <- attr(x$terms, "dataClasses")
     # TODO extend this function to handle factors
     if(any((dataClasses == "factor") | (dataClasses == "ordered")))
-        stop("a predictor has class 'factor' and format.lm cannot handle that")
+        stop0("a predictor has class 'factor' and format.lm cannot handle that")
     coefs <- coef(x)
+    stopifnot(length(coefs) > 0)
     if(!is.vector(coefs) || NCOL(coefs) > 1)
         stop("format.lm can only handle single response models")
+    pred.names <- names(coefs)
+    if(is.null(pred.names) || !use.names) {
+        pred.names <- paste("x[,", 0:length(coefs), "]", sep="")
+        pred.names[1] <- "(Intercept)"
+    }
+    pred.names <- make.unique(gsub(":", colon.char, pred.names), sep="_")
+    # if any coef is NA then issue warning and change the coef to 0
+    if(any(is.na(coefs))) {
+        which <- which(is.na(coefs))
+        warning0(sprintf("coefficient for %s%s is NA, printing it as 0",
+                         pred.names[which[1]],
+                         if(length(which) > 1) " and others" else ""))
+        coefs[which] <- 0
+    }
     intercept <- 0;
-    pred.names <- variable.names(x)
     intercept.index <- match("(Intercept)", names(coefs), nomatch=0)
     if(intercept.index) {
         stopifnot(intercept.index == 1)
         intercept <- coefs[1]
-        pred.names <- variable.names(x)[-1] # drop intercept
+        pred.names <- pred.names[-1] # drop intercept
         coefs <- coefs[-1]
     }
     s <- sprintf("  %.*g\n", digits=digits, intercept)
@@ -334,7 +340,7 @@ format.lm <- function(
             s <- pastef(s, "  - %s ", format1(-coef))
         else
             s <- pastef(s, "  + %s ", format1(coef))
-        s <- pastef(s, "* %s", get.name(ipred))
+        s <- pastef(s, "* %s", pred.names[ipred])
         s <- pastef(s, "\n")
     }
     s
