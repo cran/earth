@@ -82,11 +82,20 @@
 #else
     #define warning printf
     void error(const char *args, ...);
+#if _MSC_VER // microsoft
     #define ISNAN(x)  _isnan(x)
     #define FINITE(x) _finite(x)
+#else
+    #define ISNAN(x)  isnan(x)
+    #define FINITE(x) finite(x)
+#endif
     #define ASSERT(x)   \
         if (!(x)) error("internal assertion failed in file %s line %d: %s\n", \
                         __FILE__, __LINE__, #x)
+#endif
+
+#ifdef MATLAB
+#include "mex.h" // for printf
 #endif
 
 #include "earth.h"
@@ -166,7 +175,7 @@ static double TraceGlobal;      // copy of Trace parameter
 static int nMinSpanGlobal;      // copy of nMinSpan parameter
 
 static void FreeBetaCache(void);
-static char *sFormatMemSize(const unsigned MemSize, const bool Align);
+static char *sFormatMemSize(const size_t MemSize, const bool Align);
 
 //-----------------------------------------------------------------------------
 // malloc and its friends are redefined (a) so under Microsoft C using
@@ -296,7 +305,7 @@ void FreeR(void)                // for use by R
 #endif
 
 //-----------------------------------------------------------------------------
-static char *sFormatMemSize(const unsigned MemSize, const bool Align)
+static char *sFormatMemSize(const size_t MemSize, const bool Align)
 {
     static char s[100];
     double Size = (double)MemSize;
@@ -1933,12 +1942,12 @@ static void PrintForwardStep(
     } else if (TraceGlobal == 1.5)
         printf("Forward pass term %d\n", nTerms+1);
     else if (TraceGlobal >= 2) {
-        printf("%-4d%9.4f %6.4f %12.3g  ",
+        printf("%-4d%9.4f %6.4f %12.3g ",
             nTerms+IOFFSET, 1-Gcv/GcvNull, RSq, RSqDelta);
         if (iBestPred < 0)
-            printf("  -                                ");
+            printf("   -                                ");
         else {
-            printf("%3d", iBestPred+IOFFSET);
+            printf("%4d", iBestPred+IOFFSET);
             if (sPredNames) {
                 if (sPredNames[iBestPred] && sPredNames[iBestPred][0])
                     printf(" %12.12s ", sPredNames[iBestPred]);

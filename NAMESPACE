@@ -2,6 +2,8 @@ useDynLib("earth")
 
 import(stats)
 
+importFrom(plotrix, thigmophobe.labels)
+
 export(earth)
 export(mars.to.earth)
 export(plot.earth.models)

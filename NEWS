@@ -1,6 +1,12 @@
 Changes to Earth Package
 ------------------------
 
+3.2-7  Jan 28, 2014
+  Tweaks to standalone version of earth for clean compiles with certain 64 GCC builds.
+  plot.evimp now works with intercept-only models. 
+  Other minor tweaks to plot.evimp.
+  Clerical changes to satisfy recent CRAN checks.
+
 3.2-6  Apr 15, 2013
   Added format.earth style="C".
   Included the leaps package files into the earth package, to prevent

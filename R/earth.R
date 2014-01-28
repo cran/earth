@@ -221,6 +221,8 @@ earth.default <- function(
     rval
 }
 
+# TODO disallow * and : in the formula, see Graham Wilkes's email
+
 earth.formula <- function(
     formula = stop("no 'formula' arg"), # intercept will be ignored
     data    = NULL,

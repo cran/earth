@@ -43,6 +43,9 @@ print.one.line.evimp <- function(obj) # obj is an "earth" obj
 
 evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
 {
+    stopifnot(length(sqrt.) == 1)
+    sqrt. <- sqrt. != 0 # convert to logical if necessary
+
     # convert col numbers in predtab to col numbers in importances
     as.icriti <- function(icrit) c(3,4,6)[icrit]
 
@@ -132,6 +135,7 @@ evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
         importances <- importances[in.at.least.one.subset, , drop=FALSE]
     }
     class(importances) <- "evimp"   # allows use of plot.evimp
+    attr(importances, "sqrt") <- sqrt.
     importances
 }
 
@@ -181,15 +185,21 @@ plot.evimp <- function(
     y.legend = x[1,"nsubsets"], # y position of legend
 
     main = "Variable importance", # main title
+    rh.col = 1,                 # color of right hand label
     do.par = TRUE,              # call par() as appropriate
     ...)                        # extra args passed to plotting and method funcs
 {
     # make sure that all evimp columns are present (extra columns are ok)
     if(any(pmatch(c("col", "used", "nsubsets", "gcv"), colnames(x), nomatch=0) == 0))
         stop("x is not an evimp matrix")
-
-    max.subsets <- x[1, "nsubsets"]
-    varlabs <- paste(rownames(x), sprintf("%3d", x[,"col"]))
+    if(nrow(x) == 0) { # intercept-only model
+        max.subsets <- 0
+        varlabs <- "intercept"
+    } else {
+        max.subsets <- x[1, "nsubsets"]
+        varlabs <- paste(rownames(x), sprintf("%3d", x[,"col"]))
+    }
+    sqrt. <- if(attr(x, "sqrt", exact=TRUE)) TRUE else FALSE
     par <- par("mar", "cex")
     on.exit(par(par))
     cex.var <- par$cex * cex.var    # cex.var is relative to current cex
@@ -201,30 +211,51 @@ plot.evimp <- function(
         mar[4] <- mar[4] + 3                                # right margin
         par(mar=mar) # big bottom and right margins
     }
-    plot(x[, "nsubsets"], ylim=c(0, max.subsets), type=type.nsubsets,
-         xlab="", xaxt="n", ylab="nsubsets",
-         main=main, lty=lty.nsubsets, col=col.nsubsets)
-    lines(max.subsets * x[,"rss"] / 100, type=type.rss, lty=lty.rss, col=col.rss)
-    # plot gcv second so it goes on top of rss (gcv arguably more important than rss)
-    lines(max.subsets * x[,"gcv"] / 100, type=type.gcv, lty=lty.gcv, col=col.gcv)
-    if(!is.null(x.legend) && !is.naz(x.legend))
-        legend(x=x.legend, y = y.legend, xjust=1,   # top right corner by default
-               legend=c("nsubsets", "gcv", "rss"),
+    if(max.subsets == 0) {
+        plot(1, ylim=c(0, 1), type=type.nsubsets, # intercept-only model, dummy plot
+             xlab="", xaxt="n", ylab="nsubsets",
+             main=main, lty=lty.nsubsets, col=col.nsubsets)
+    } else {
+        plot(x[, "nsubsets"], ylim=c(0, max.subsets), type=type.nsubsets,
+             xlab="", xaxt="n", ylab="nsubsets",
+             main=main, lty=lty.nsubsets, col=col.nsubsets)
+        lines(max.subsets * x[,"rss"] / 100, type=type.rss, lty=lty.rss, col=col.rss)
+        # plot gcv second so it goes on top of rss (gcv arguably more important than rss)
+        lines(max.subsets * x[,"gcv"] / 100, type=type.gcv, lty=lty.gcv, col=col.gcv)
+    }
+    zero.or.one.var <- nrow(x) <= 1
+    if(!is.null(x.legend) && !is.naz(x.legend)) {
+        if(sqrt.)
+            legend <- c("nsubsets", "sqrt gcv", "sqrt rss")
+        else
+            legend <- c("nsubsets", "gcv", "rss")
+        legend(x=if(zero.or.one.var) "topright" else x.legend,
+               y = y.legend, xjust=1,
+               legend=legend,
                col=c(col.nsubsets, col.gcv, col.rss),
                lty=c(lty.nsubsets, lty.gcv, lty.rss),
                bg="white", cex=cex.legend)
+    }
     # right hand axis: normalized rss/gcv values, always 0...100
     # TODO how to get the x position in the call to text correct for all window sizes?
     axis(side=4,
          at=c(0,.2*max.subsets,.4*max.subsets,.6*max.subsets,.8*max.subsets,max.subsets),
          labels=c(0,20,40,60,80,100))
-    # TODO: change rh label if sqrt. was used in original call to evimp
-    text(x=nrow(x) + 1.8, y=max.subsets/2, "normalized gcv or rss",
-         xpd=NA, # no clip to plot region
-         srt=90) # rotate text
+    if(sqrt.)
+        label <- "normalized sqrt gcv or rss"
+    else
+        label <- "normalized gcv or rss"
+    if(!zero.or.one.var)
+        text(x=nrow(x) + 1.8, y=max.subsets/2, label,
+             col=rh.col,
+             xpd=NA, # no clip to plot region
+             srt=90) # rotate text
     # bottom axis: variable names
     # axis() ignores the cex parameter (a bug?), so set cex globally, on.exit will restore it
     par(cex=cex.var)
-    axis(side=1, at=seq(1, nrow(x), by=1), labels=varlabs, las=3)
+    if(max.subsets == 0)
+        axis(side=1, at=1, labels="intercept-only model")
+    else
+        axis(side=1, at=seq(1, nrow(x), by=1), labels=varlabs, las=3)
     invisible()
 }

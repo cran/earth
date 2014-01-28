@@ -64,17 +64,17 @@ if (require(mda)) {
 
     # yields (note the reconstructed call):
     #    Call: earth(x=trees[, -3], y=trees[, 3])
-    #
-    #                    y
-    #   (Intercept)  19.76
-    #   h(Girth-12)   5.40
-    #   h(12-Girth)  -2.56
-    #   h(Height-76)  0.72
-    #
-    #   Selected 4 of 5 terms, and 2 of 2 predictors
-    #   Importance: Girth, Height
-    #   Number of terms at each degree of interaction: 1 3 (additive model)
-    #   GCV 13    RSS 251    GRSq 0.95    RSq 0.97
+    #    
+    #                  coefficients
+    #    (Intercept)           26.3
+    #    h(Girth-13.8)          6.1
+    #    h(13.8-Girth)         -3.2
+    #    h(11.4-Girth)          0.5
+    #    
+    #    Selected 4 of 8 terms, and 2 of 2 predictors 
+    #    Importance: object has no prune.terms, call update() on the model to fix that
+    #    Number of terms at each degree of interaction: 1 3 (additive model)
+    #    GCV 10    RSS 190    GRSq 0.96    RSq 0.98
 }
 }
 \keyword{models}

@@ -16,7 +16,7 @@ Predict with an \code{\link{earth}} model.
   }
   \item{newdata}{
     Make predictions using \code{newdata}, which
-    can be a data frame, a matrix, or a vector with length equal to a multiple of the column length
+    can be a data frame, a matrix, or a vector with length equal to a multiple of the number of columns
     of the original input matrix \code{x}.
     Note that this is more flexible than the predict methods for most R models.
     NAs are allowed (and the predicted value will be NA unless the NAs are in variables
