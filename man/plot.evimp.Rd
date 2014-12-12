@@ -64,7 +64,8 @@
   }
   \item{do.par}{
     Call \code{par()} for global settings as appropriate.
-    Default is \code{TRUE}, which sets \code{oma=c(bottom.margin,0,0,3), cex=cex.var}.
+    Default is \code{TRUE}, which sets\cr
+    \code{oma=c(bottom.margin,0,0,3), cex=cex.var}.\cr
     Set to \code{FALSE} if you want to append figures to an existing plot.
   }
   \item{\dots}{
@@ -79,8 +80,8 @@
 }
 \examples{
 data(ozone1)
-a <- earth(O3 ~ ., data=ozone1, degree=2)
-ev <- evimp(a)
+earth.mod <- earth(O3 ~ ., data=ozone1, degree=2)
+ev <- evimp(earth.mod)
 plot(ev)
 print(ev)
 }

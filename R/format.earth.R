@@ -58,6 +58,7 @@ format.earth <- function(
 {
     check.classname(x, deparse(substitute(a)), "earth")
     warn.if.dots.used("format.earth", ...)
+    use.names <- check.boolean(use.names)
     nresp <- NCOL(x$coefficients)
     s <- vector(mode = "character", length=nresp)
     if(style[1] == "C") {
@@ -79,7 +80,6 @@ format.earth <- function(
                                         coefs=x$glm.list[[iresp]]$coefficients)
     s
 }
-
 format.one.response <- function( # called by format.earth
     iresp,          # response index i.e. column in y matrix
     obj,            # "earth" obj
@@ -121,7 +121,6 @@ format.one.response <- function( # called by format.earth
         s <- paste0(s, "\n", get.table.of.basis.functions(obj, new.order))
     s
 }
-
 get.coef.width <- function(coefs, digits)   # get print width for earth coefs
 {
     if(length(coefs) > 0)
@@ -129,7 +128,6 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coefs
     else
         10 # arbitrary width if no coefs
 }
-
 # style argument:
 #   "h"    gives "h(survived-0) * h(16-age)"
 #   "pmax" gives "pmax(0, survived - 0) * pmax(0, 16 - age)"
@@ -142,13 +140,12 @@ get.term.strings <- function(obj, digits, use.names,
                              neworder)
 {
     switch(match.arg1(style),
-        get.term.strings.h(obj, digits, use.names, neworder),            # "h"
-        get.term.strings.pmax(obj, digits, use.names, neworder, "pmax"), # "pmax"
-        get.term.strings.pmax(obj, digits, use.names, neworder, "max"),  # "max"
-        get.term.strings.pmax(obj, digits, use.names, neworder, "max"),  # "C"
-        get.term.strings.bf(obj,   digits, use.names, neworder))         # "bf"
+        "h"    = get.term.strings.h(obj, digits, use.names, neworder),
+        "pmax" = get.term.strings.pmax(obj, digits, use.names, neworder, "pmax"),
+        "max"  = get.term.strings.pmax(obj, digits, use.names, neworder, "max"),
+        "C"    = get.term.strings.pmax(obj, digits, use.names, neworder, "max"),
+        "bf"   = get.term.strings.bf(obj,   digits, use.names, neworder))
 }
-
 get.term.strings.h <- function(obj, digits, use.names, new.order)
 {
     # digits is unused
@@ -158,7 +155,6 @@ get.term.strings.h <- function(obj, digits, use.names, new.order)
 
     s <- colnames(obj$bx)[new.order]
 }
-
 # TODO need to add factor simplification to this routine
 # TODO need to add get.ndigits functionality (in get.earth.term.name) to this routine
 
@@ -213,7 +209,7 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
                                  width=width, var.names[ipred],
                                  format(cut[ipred], width=width, digits=digits))
                 else
-                    stop0("illegal direction ", dir[ipred], " in 'dirs'")
+                    stop0("illegal direction ", dir[ipred], " in \"dirs\"")
 
                 prefix <- "* "
             }
@@ -222,8 +218,8 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
     }
     s
 }
-
 # return a data.frame, each row has 2 elements: the original and new basis function names
+
 get.bfs <- function(names)
 {                                           # Example: start of with names:
                                             # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", ...
@@ -243,7 +239,6 @@ get.bfs <- function(names)
 
     data.frame(original, new)
 }
-
 get.term.strings.bf <- function(obj, digits, use.names, new.order)
 {
     # digits is unused
@@ -261,7 +256,6 @@ get.term.strings.bf <- function(obj, digits, use.names, new.order)
     }
     gsub("*", " * ", names, fixed=TRUE)     # put space around *
 }
-
 # Return a string like this:
 #   bf1  h(temp-58)
 #   bf2  h(234-ibt)
@@ -277,7 +271,6 @@ get.table.of.basis.functions <- function(obj, new.order)
         s <- paste0(s, sprintf("%6s  %s\n", bfs[i,2], bfs[i,1]))
     s
 }
-
 # Return a string representing the linear model.
 # Example: a <- lm(Volume ~ ., data = trees); cat(format(a))
 # which yields:
@@ -302,10 +295,11 @@ format.lm <- function(
         format(coef, justify="left", w=coef.width, digits=digits, format="%g")
     }
     check.classname(x, deparse(substitute(x)), "lm")
+    use.names <- check.boolean(use.names)
     dataClasses <- attr(x$terms, "dataClasses")
     # TODO extend this function to handle factors
     if(any((dataClasses == "factor") | (dataClasses == "ordered")))
-        stop0("a predictor has class 'factor' and format.lm cannot handle that")
+        stop0("a predictor has class \"factor\" and format.lm cannot handle that")
     coefs <- coef(x)
     stopifnot(length(coefs) > 0)
     if(!is.vector(coefs) || NCOL(coefs) > 1)
@@ -324,7 +318,7 @@ format.lm <- function(
                          if(length(which) > 1) " and others" else ""))
         coefs[which] <- 0
     }
-    intercept <- 0;
+    intercept <- 0
     intercept.index <- match("(Intercept)", names(coefs), nomatch=0)
     if(intercept.index) {
         stopifnot(intercept.index == 1)

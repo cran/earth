@@ -46,6 +46,15 @@ plotd <- function(obj,      # obj is a model object
     sd.thresh = 0.01,
     ...)                    # passed on to predict
 {
+    hist         <- check.boolean(hist)
+    # dicho      <- check.boolean(dichot) # can't use because we use missing(dichot) below
+    trace        <- check.boolean(trace)
+    jitter       <- check.boolean(jitter)
+    labels       <- check.boolean(labels)
+    zero.line    <- check.boolean(zero.line)
+    legend       <- check.boolean(legend)
+    legend.extra <- check.boolean(legend.extra)
+
     # add histogram labels --- lifted from plot.histogram and
     # tweaked to (i) use cex and (ii) not draw zero counts
     add.labels <- function(x, labels, cex)
@@ -62,8 +71,8 @@ plotd <- function(obj,      # obj is a model object
     #--- plotd starts here ---
 
     if(typeof(obj) != "list")
-        stop0("'", deparse(substitute(obj)), "' is not a model obj")
-    type <- plotmo:::get.plotmo.type(obj, type, "plotd")
+        stop0("\"", deparse(substitute(obj)), "\" is not a model obj")
+    type <- plotmo::get.plotmo.type.wrapper(obj, parent.frame(), type, "plotd")
     env <- parent.frame() # the environment from which plotd was called
     yhat.per.class <- get.yhat.per.class(obj, type, nresponse, dichot, trace, env, ...)
     nclasses <- length(yhat.per.class)
@@ -139,22 +148,19 @@ plotd <- function(obj,      # obj is a model object
     # expand lty and other arguments if necessary
 
     if(length(lty) < nclasses)
-        lty <- rep(lty, nclasses)
+        lty <- repl(lty, nclasses)
     if(length(col) < nclasses)
-        col <- rep(col, nclasses)
+        col <- repl(col, nclasses)
 
-    # main title
-
-    main.org <- main
-    if(is.null(main))
+    if(is.null(main)) { # auto generate main?
         main <- paste0(deparse(substitute(obj)), " ", paste(type, collapse=" "),
                       if(missing(nresponse)) ""
                       else paste0(" nresp=", paste(nresponse, collapse=",")),
                       if(missing(dichot)) ""
                       else paste0(" dichot=", dichot))
 
-    main <- show.caption(main, if(is.null(main.org)) trim=.5 else trim=0, show=FALSE)
-
+        main <- show.caption(main, show=FALSE) # trim caption
+    }
     # we draw our own x axis for type="class"
     # xlims are wrong for histograms if a density is degenerate hence the test
     # TODO weird behaviour in hist? hist gives a 0 lower x val if density degenerate
@@ -181,7 +187,7 @@ plotd <- function(obj,      # obj is a model object
         plot(densities[[ifirst]], xlim=xlim, ylim=c(0, ymax), col=col[ifirst],
              main=main, xlab=xlab, ylab=ylab, lty=lty[ifirst],
              zero.line=zero.line, xaxt=xaxt, yaxt=yaxt)
-        if(ifirst == 1 && !is.naz(fill))
+        if(ifirst == 1 && is.specified(fill))
             polygon(densities[[1]], col=fill, border=col[1])
     }
     if(draw.own.axis) {
@@ -209,7 +215,7 @@ plotd <- function(obj,      # obj is a model object
         }
     # optional vertical line at vline.thresh
 
-    if(!is.null(vline.col) && !is.naz(vline.col))
+    if(!is.null(vline.col) && is.specified(vline.col))
         abline(v=vline.thresh, col=vline.col, lty=vline.lty, lwd=vline.lwd)
 
     # Redo optional error region shading if it has borders, because the
@@ -225,7 +231,6 @@ plotd <- function(obj,      # obj is a model object
                     legend.pos, cex.legend, legend.bg, legend.extra)
     invisible(yhat.per.class)
 }
-
 is.numlog <- function(x)
     is.numeric(x) || is.logical(x)
 
@@ -239,18 +244,18 @@ is.lda.or.qda <- function(obj) # allows hacks for lda and qda specific code
 get.lda.yhat <- function(object, yhat, type, trace)
 {
     yhat1 <- switch(match.choices(type,
-                         c("response", "ld", "class", "posterior"), "type"),
-           yhat$x,              # response (default)
-           yhat$x,              # ld
-           yhat$class,          # class
-           yhat$posterior)      # posterior
+                        c("response", "ld", "class", "posterior")),
+           response  = yhat$x, # default
+           ld        = yhat$x,
+           class     = yhat$class,
+           posterior = yhat$posterior)
 
     if(is.null(yhat1)) {
         msg <- paste0(
             if(!is.null(yhat$x)) "type=\"response\" " else "",
             if(!is.null(yhat$class)) "type=\"class\" " else "",
             if(!is.null(yhat$posterior)) "type=\"posterior\" " else "")
-        stop0("type=\"", type, "\" is illegal for predict.", class(object)[1], ".  ",
+        stop0("type=\"", type, "\" is not allowed for predict.", class(object)[1], ".  ",
               if(nchar(msg)) paste("Use one of:", msg) else "",
               "\n")
     }
@@ -388,7 +393,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
                   "")
 
     trace.response.type <- function(observed, predicted, ...) {
-        if(trace)
+        if(trace > 0)
             cat0("\nObserved response: ", observed, "\n",
                  "Predicted response type=\"", type, "\": ", predicted, "\n",
                  "Grouping criterion: ", ..., "\n\n")
@@ -396,7 +401,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
     #--- get.yhat.per.class starts here ---
     # nomeclature: y is the observed response, yhat is the predicted response
     y <- get.observed.response(obj, env)
-    if(trace)
+    if(trace > 0)
         print.matrix.info("y", y, "\nObserved response",
                           details=TRUE, all.rows=trace>=2, all.names=trace>=2)
     if(!is.character(type))
@@ -405,11 +410,11 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
         stop0("type=\"terms\" is not allowed by plotd")
     yhat <- predict(obj, type=type, ...)
     if(is.lda.or.qda(obj)) {
-        if(trace)
+        if(trace > 0)
             cat("\nSpecial handling of \"type\" argument for lda or qda object\n")
         yhat <- get.lda.yhat(obj, yhat, type, trace)
     }
-    if(trace)
+    if(trace > 0)
         print.matrix.info("yhat", yhat, "\nPredicted response",
                           details=TRUE, all.rows=trace>1, all.names=trace>=2)
     if(!is.null(nresponse)) {
@@ -417,18 +422,18 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
             stop0("illegal nresponse argument, ",
                   "allowed range for this model and type is 1 to ", NCOL(yhat))
         if(NCOL(yhat) > 1) {
-            row.names(yhat) = NULL  # needed for fda type="hier" because dup rownames
+            row.names(yhat) <- NULL  # needed for fda type="hier" because dup rownames
             yhat <- yhat[, nresponse, drop=FALSE] # drop=FALSE to retain column name
             if(is.data.frame(yhat)) # TODO needed for fda type="hier", why?
                 yhat <- as.matrix(yhat)
-            if(trace)
+            if(trace > 0)
                 print.matrix.info("yhat", yhat,
                     paste("Predicted response after selecting nresponse", nresponse),
                     details=TRUE, all.rows=trace>=2, all.names=trace>=2)
         }
     }
     yhat.per.class <- list() # will put per-class predicted vals in here
-    ylevs <- levels(y) # will be NULL if y is not a factor
+    ylevs <- levels(y) # null if y is not a factor
     nlevs <- 0
     if(NCOL(yhat) == 1) {
         #---single column yhat--------------------------------------------------
@@ -440,7 +445,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
             if(!is.na(pmatch(type, "class")))
                 dichot <- FALSE # no dichot for type="class"
             if(length(ylevs) == 2 || dichot) {
-                ylev1 = ylevs[1]
+                ylev1 <- ylevs[1]
                 if(length(ylevs) == 2) {
                     other.level.name <- paste(ylevs[2])
                     observed.string <- "two-level factor"
@@ -461,7 +466,7 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
                 trace.response.type("multi-level factor", "numeric or logical vector",
                                 "predicted[observed == level] for ",
                                 length(ylevs), " levels")
-                for(iclass in 1:length(ylevs)) {
+                for(iclass in seq_along(ylevs)) {
                     lev <- ylevs[iclass]
                     yhat.per.class[[iclass]] <- yhat[y == lev]
                     check.min(yhat.per.class[[iclass]], lev)
@@ -549,18 +554,18 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
             }
             names(yhat.per.class) <- get.class.names(y, yhat, obj$fitted.values)
         } else
-            cannot.plot("Remedy: use the \"nresponse\" arg to select ",
+            cannot.plot("Remedy: use the \"nresponse\" argument to select ",
                 "just one column of the predicted response\n")
     }
     nchar <- max(nchar(names(yhat.per.class)))
 
-    for(iclass in 1:length(yhat.per.class)) {
+    for(iclass in seq_along(yhat.per.class)) {
         # density needs numeric
         yhat.per.class[[iclass]] <- as.numeric(yhat.per.class[[iclass]])
-        if(trace)
+        if(trace > 0)
             trace.yhat.per.class(yhat.per.class, iclass, nchar)
     }
-    if(trace)
+    if(trace > 0)
         cat("\n")
     yhat.per.class
 }
@@ -608,12 +613,12 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
     if(length(legend.names) < nclasses) {
         warning0("length ", length(legend.names), " of legend.names ",
                  "is less than the number ", nclasses, " of classes")
-        legend.names <- rep(legend.names, nclasses)
+        legend.names <- repl(legend.names, nclasses)
     }
     else for(iclass in 1:nclasses)
         if(degenerate[iclass])
             legend.names[iclass] <- paste(legend.names[iclass], "(not plotted)")
-    lwd <- rep(1, nclasses)
+    lwd <- repl(1, nclasses)
     # if the first histogram is filled in, then make its legend lwd bigger
     if(fill[1]==col[1] && fill[1] != "white" && fill[1] != 0)
         lwd[1] <- 4
@@ -651,7 +656,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
         lwd[2] <- lwd[1]
     if(length(lwd) < 3)
         lwd[3] <- lwd[iden]
-    if(!is.naz(col[1]) || !is.naz(border[1])) {
+    if(is.specified(col[1]) || is.specified(border[1])) {
         # left side of threshold
         matches <- den2$x < thresh
         if(sum(matches)) {
@@ -664,7 +669,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             polygon(x, y, col=col[1], border=border[1], lwd=lwd[1])
         }
     }
-    if(!is.naz(col[2]) || !is.naz(border[2])) {
+    if(is.specified(col[2]) || is.specified(border[2])) {
         # right side of threshold
         matches <- den1$x > thresh
         if(sum(matches)) {
@@ -677,11 +682,11 @@ add.err.col <- function(densities, thresh, col, border, lwd)
             polygon(x, y, col=col[2], border=border[2], lwd=lwd[2])
         }
     }
-    if(!is.naz(col[3]) || !is.naz(border[3])) {
+    if(is.specified(col[3]) || is.specified(border[3])) {
         if(iden == 1) {
             # reducible error, left side of threshold
             # get indices i1 of den1 and i2 of den2 where den1 crosses den2
-            i2 = length(den2$x)
+            i2 <- length(den2$x)
             for(i1 in length(den1$x):1) {
                 while(i2 > 1 && den2$x[i2] > den1$x[i1])
                     i2 <- i2 - 1
@@ -694,8 +699,8 @@ add.err.col <- function(densities, thresh, col, border, lwd)
                 # reverse i1 so polygon ends where it starts
                 i1 <- rev(((1:length(den1$x))[i1]))
                 # close tiny x gap to left of threshhold line
-                den1$x[i1][1] = thresh
-                den2$x[i2][sum(i2)] = thresh
+                den1$x[i1][1] <- thresh
+                den2$x[i2][sum(i2)] <- thresh
                 polygon(x = c(den1$x[i1], den2$x[i2]),
                         y = c(den1$y[i1], den2$y[i2]),
                         col=col[3], border=border[3], lwd=lwd[3])
@@ -703,8 +708,8 @@ add.err.col <- function(densities, thresh, col, border, lwd)
         } else {
             # reducible error, right side of threshold
             # get indices i1 of den1 and i2 of den2 where den1 crosses den2
-            i2 = 1
-            for(i1 in 1:length(den1$x)) {
+            i2 <- 1
+            for(i1 in seq_along(den1$x)) {
                 while(i2 < length(den2$x) && den2$x[i2] < den1$x[i1])
                     i2 <- i2 + 1
                 if(den1$x[i1] >= thresh && den2$y[i2] >= den1$y[i1])

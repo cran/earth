@@ -7,7 +7,6 @@ get.used.preds <- function(obj)   # obj is an earth object
 {
     which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any1))
 }
-
 # Print predictors in order of decreasing estimated importance.
 # A one line summary.  Called by print.summary.earth.
 
@@ -40,7 +39,6 @@ print.one.line.evimp <- function(obj) # obj is an "earth" obj
     }
     cat("\n")
 }
-
 evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
 {
     stopifnot(length(sqrt.) == 1)
@@ -138,7 +136,6 @@ evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
     attr(importances, "sqrt") <- sqrt.
     importances
 }
-
 print.evimp <- function(x = stop("no 'x' arg"), ...) # x is an "evimp" obj
 {
     stopifnot(NCOL(x) == 7)
@@ -161,7 +158,6 @@ print.evimp <- function(x = stop("no 'x' arg"), ...) # x is an "evimp" obj
             x[i, 4], if(x[i, 7]) " " else ">",
             x[i, 6], if(x[i, 7]) "" else ">")
 }
-
 # TODO this would be better if rotated clockwise 90 degrees so could easily read var names
 
 plot.evimp <- function(
@@ -189,6 +185,7 @@ plot.evimp <- function(
     do.par = TRUE,              # call par() as appropriate
     ...)                        # extra args passed to plotting and method funcs
 {
+    check.classname(x, deparse(substitute(x)), "evimp")
     # make sure that all evimp columns are present (extra columns are ok)
     if(any(pmatch(c("col", "used", "nsubsets", "gcv"), colnames(x), nomatch=0) == 0))
         stop("x is not an evimp matrix")
@@ -203,6 +200,7 @@ plot.evimp <- function(
     par <- par("mar", "cex")
     on.exit(par(par))
     cex.var <- par$cex * cex.var    # cex.var is relative to current cex
+    do.par <- check.boolean(do.par)
     if(do.par) {
         # TODO what is the best way of doing the bottom.margin calculation?
         # The .5 is a hack to convert nchars to line heights, as required by mar
@@ -224,7 +222,7 @@ plot.evimp <- function(
         lines(max.subsets * x[,"gcv"] / 100, type=type.gcv, lty=lty.gcv, col=col.gcv)
     }
     zero.or.one.var <- nrow(x) <= 1
-    if(!is.null(x.legend) && !is.naz(x.legend)) {
+    if(is.specified(x.legend)) {
         if(sqrt.)
             legend <- c("nsubsets", "sqrt gcv", "sqrt rss")
         else

@@ -1,0 +1,2610 @@
+> # test.varmod.R
+> 
+> library(earth)
+Loading required package: plotmo
+Loading required package: plotrix
+> options(warn=2)
+> expect.err <- function(obj) # test that we got an error as expected from a try() call
++ {
++     if(class(obj)[1] == "try-error")
++         cat("Got error as expected\n")
++     else
++         stop("did not get expected try error")
++ }
+> printh <- function(caption)
++     cat("===", caption, "\n", sep="")
+> 
+> CAPTION <- NULL
+> 
+> multifigure <- function(caption, nrow=3, ncol=3)
++ {
++     CAPTION <<- caption
++     printh(caption)
++     par(mfrow=c(nrow, ncol))
++     par(cex = 0.8)
++     par(mar = c(3, 3, 5, 0.5)) # small margins but space for right hand axis
++     par(mgp = c(1.6, 0.6, 0))  # flatten axis elements
++     oma <- par("oma") # make space for caption
++     oma[3] <- 2
++     par(oma=oma)
++ }
+> do.caption <- function() # must be called _after_ first plot on new page
++     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
+> if(!interactive())
++     postscript(paper="letter")
+> old.par <- par(no.readonly=TRUE)
+> 
+> multifigure("test predict.earth with pints", 2, 2)
+===test predict.earth with pints
+> 
+> set.seed(2)
+> earth.trees <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth")
+> 
+> printh("print.default(earth.trees$varmod)")
+===print.default(earth.trees$varmod)
+> print.default(earth.trees$varmod)
+$call
+varmod(parent = parent, method = method, exponent = exponent, 
+    conv = conv, clamp = clamp, minspan = minspan, trace = trace, 
+    parent.x = x, parent.y = y, meanfit = meanfit, model.var = model.var, 
+    degree = ..1)
+
+$parent
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598    RSS 310.8724    GRSq 0.9489416    RSq 0.9616495
+
+$method
+[1] "earth"
+
+$exponent
+[1] 1
+
+$lambda
+[1] 1
+
+$residmod
+Selected 2 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: FITTED
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 4.141719    RSS 104.7454    GRSq 0.1704556    RSq 0.2773747
+
+$min.sd
+[1] 0.3879187
+
+$model.var
+              [,1]
+ [1,] 0.3118091596
+ [2,] 0.0564385067
+ [3,] 0.1587032346
+ [4,] 0.0189059404
+ [5,] 0.1964398490
+ [6,] 0.5517065350
+ [7,] 0.2844554612
+ [8,] 0.0774511749
+ [9,] 0.5392974552
+[10,] 0.3084209425
+[11,] 0.3897157982
+[12,] 0.0038083518
+[13,] 0.3368107406
+[14,] 0.0005072598
+[15,] 0.1212740900
+[16,] 0.0333781059
+[17,] 0.5006891566
+[18,] 0.4992460273
+[19,] 0.3538120863
+[20,] 0.9406698980
+[21,] 0.3305195972
+[22,] 0.0047824334
+[23,] 0.2071492887
+[24,] 0.1197839116
+[25,] 0.0894211344
+[26,] 0.3404218567
+[27,] 1.2393763763
+[28,] 0.7935530757
+[29,] 1.9220806817
+[30,] 0.1521347427
+[31,] 4.9882006164
+
+$meanfit
+           [,1]
+ [1,]  9.397134
+ [2,] 11.208411
+ [3,] 11.764632
+ [4,] 17.424437
+ [5,] 18.322031
+ [6,] 18.195304
+ [7,] 19.352255
+ [8,] 19.182655
+ [9,] 19.009650
+[10,] 20.108934
+[11,] 19.490701
+[12,] 20.816180
+[13,] 20.819513
+[14,] 21.909615
+[15,] 23.174623
+[16,] 26.065490
+[17,] 25.572349
+[18,] 27.484920
+[19,] 29.114006
+[20,] 29.867892
+[21,] 30.197003
+[22,] 31.524126
+[23,] 33.228801
+[24,] 43.398062
+[25,] 45.496113
+[26,] 51.871413
+[27,] 52.026676
+[28,] 54.291688
+[29,] 55.163627
+[30,] 57.059613
+[31,] 70.982811
+
+$abs.resids
+         Volume
+ [1,] 1.1019598
+ [2,] 0.9849180
+ [3,] 1.6938328
+ [4,] 1.0866559
+ [5,] 0.6703516
+ [6,] 1.7488278
+ [7,] 3.9840157
+ [8,] 1.0707573
+ [9,] 3.8485123
+[10,] 0.5972869
+[11,] 4.9943338
+[12,] 0.2030236
+[13,] 0.8425431
+[14,] 0.6418369
+[15,] 4.3014732
+[16,] 4.0714024
+[17,] 8.6860742
+[18,] 0.7122009
+[19,] 3.6411604
+[20,] 5.3164741
+[21,] 4.5640050
+[22,] 0.1975557
+[23,] 3.2634355
+[24,] 5.3753777
+[25,] 3.0619521
+[26,] 3.7583738
+[27,] 4.0222381
+[28,] 4.3106306
+[29,] 4.0966249
+[30,] 6.3878956
+[31,] 6.7137199
+
+$parent.x
+      Girth
+ [1,]   8.3
+ [2,]   8.6
+ [3,]   8.8
+ [4,]  10.5
+ [5,]  10.7
+ [6,]  10.8
+ [7,]  11.0
+ [8,]  11.0
+ [9,]  11.1
+[10,]  11.2
+[11,]  11.3
+[12,]  11.4
+[13,]  11.4
+[14,]  11.7
+[15,]  12.0
+[16,]  12.9
+[17,]  12.9
+[18,]  13.3
+[19,]  13.7
+[20,]  13.8
+[21,]  14.0
+[22,]  14.2
+[23,]  14.5
+[24,]  16.0
+[25,]  16.3
+[26,]  17.3
+[27,]  17.5
+[28,]  17.9
+[29,]  18.0
+[30,]  18.0
+[31,]  20.6
+
+$parent.y
+      Volume
+ [1,]   10.3
+ [2,]   10.3
+ [3,]   10.2
+ [4,]   16.4
+ [5,]   18.8
+ [6,]   19.7
+ [7,]   15.6
+ [8,]   18.2
+ [9,]   22.6
+[10,]   19.9
+[11,]   24.2
+[12,]   21.0
+[13,]   21.4
+[14,]   21.3
+[15,]   19.1
+[16,]   22.2
+[17,]   33.8
+[18,]   27.4
+[19,]   25.7
+[20,]   24.9
+[21,]   34.5
+[22,]   31.7
+[23,]   36.3
+[24,]   38.3
+[25,]   42.6
+[26,]   55.4
+[27,]   55.7
+[28,]   58.3
+[29,]   51.5
+[30,]   51.0
+[31,]   77.0
+
+$iter.rsq
+[1] 0.2773747
+
+$iter.stderr
+                (Intercept) residmod$bxh(26.933-FITTED) 
+                 0.45107250                  0.06661901 
+
+attr(,"class")
+[1] "varmod"
+> 
+> printh("summary(earth.trees)")
+===summary(earth.trees)
+> print(summary(earth.trees))
+Call: earth(formula=Volume~Girth, data=trees, ncross=3, nfold=3, 
+      varmod.method="earth")
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9473638
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq   sd     MaxErr  sd
+      0.95 0.02          9 6.9
+
+varmod: method "earth"    min.sd 0.388    iter.rsq 0.277
+
+stddev of predictions:
+                   coefficients iter.stderr iter.stderr%
+(Intercept)           5.1122306    0.565336           11
+h(26.933-Volume)     -0.2785697   0.0834946           30
+h(26.933-Volume).1   -0.2785697   0.0834946           30
+
+                              mean   smallest    largest      ratio
+95% prediction interval   15.20613   1.541219   20.03958   13.00242
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   77%    94%    94%    100% 
+> 
+> printh("predict(earth.trees, interval=\"se\")")
+===predict(earth.trees, interval="se")
+> stderrs <- predict(earth.trees, interval="se")
+> print(stderrs)
+ [1] 0.3931753 0.6763186 0.8650808 2.4695596 2.6583219 2.7527030 2.9414652
+ [8] 2.9414652 3.0358463 3.1302274 3.2246085 3.3189896 3.3189896 3.6021329
+[15] 3.8852763 4.7347062 4.7347062 5.1122306 5.1122306 5.1122306 5.1122306
+[22] 5.1122306 5.1122306 5.1122306 5.1122306 5.1122306 5.1122306 5.1122306
+[29] 5.1122306 5.1122306 5.1122306
+> 
+> printh("predict(earth.trees, interval=\"abs.residual\")")
+===predict(earth.trees, interval="abs.residual")
+> stderrs <- predict(earth.trees, interval="abs.residual")
+> print(stderrs)
+ [1] 0.3137085 0.5396242 0.6902346 1.9704235 2.1210340 2.1963392 2.3469497
+ [8] 2.3469497 2.4222549 2.4975601 2.5728653 2.6481706 2.6481706 2.8740863
+[15] 3.1000019 3.7777490 3.7777490 4.0789699 4.0789699 4.0789699 4.0789699
+[22] 4.0789699 4.0789699 4.0789699 4.0789699 4.0789699 4.0789699 4.0789699
+[29] 4.0789699 4.0789699 4.0789699
+> 
+> expect.err(try(predict(earth.trees, newdata=trees, interval="training.cint")))
+Error : predict.varmod: newdata is not allowed with interval="training.cint"
+Got error as expected
+> 
+> printh("predict(earth.trees, interval=\"training.cint\")")
+===predict(earth.trees, interval="training.cint")
+> cints <- predict(earth.trees, interval="training.cint")
+> print(cints)
+         fit       lwr      upr
+1   9.992661  8.302693 10.49158
+2  11.009079 10.742786 11.67404
+3  11.686691 10.983830 12.54543
+4  17.446394 17.154944 17.69393
+5  18.124006 17.453345 19.19072
+6  18.462812 16.739503 19.65111
+7  19.140424 18.306921 20.39759
+8  19.140424 18.637196 19.72811
+9  19.479230 17.570314 20.44899
+10 19.818036 19.020455 21.19741
+11 20.156842 18.267150 20.71425
+12 20.495649 20.695227 20.93713
+13 20.495649 19.682040 21.95699
+14 21.512067 21.865471 21.95376
+15 22.528485 22.492077 23.85717
+16 25.577739 25.707410 26.42357
+17 25.577739 24.185490 26.95921
+18 26.932964 26.100062 28.86978
+19 28.288188 27.948179 30.27983
+20 28.940938 27.966959 31.76882
+21 30.246437 29.070203 31.32380
+22 31.551937 31.388584 31.65967
+23 33.510186 32.336750 34.12085
+24 43.301432 42.719722 44.07640
+25 45.259681 44.910018 46.08221
+26 51.787179 50.727859 53.01497
+27 53.092678 49.844701 54.20865
+28 55.703677 52.545721 56.03766
+29 56.356427 52.446350 57.88090
+30 56.356427 56.295139 57.82409
+31 73.327921 66.605373 75.36025
+> 
+> printh("predict(earth.trees, interval=\"pint\", level=.80)")
+===predict(earth.trees, interval="pint", level=.80)
+> news <- predict(earth.trees, interval="pint", level=.80)
+> print(news)
+         fit       lwr      upr
+1   9.992661  9.488786 10.49653
+2  11.009079 10.142342 11.87582
+3  11.686691 10.578045 12.79534
+4  17.446394 14.281526 20.61126
+5  18.124006 14.717230 21.53078
+6  18.462812 14.935081 21.99054
+7  19.140424 15.370785 22.91006
+8  19.140424 15.370785 22.91006
+9  19.479230 15.588637 23.36982
+10 19.818036 15.806489 23.82958
+11 20.156842 16.024340 24.28934
+12 20.495649 16.242192 24.74910
+13 20.495649 16.242192 24.74910
+14 21.512067 16.895748 26.12839
+15 22.528485 17.549303 27.50767
+16 25.577739 19.509969 31.64551
+17 25.577739 19.509969 31.64551
+18 26.932964 20.381377 33.48455
+19 28.288188 21.736601 34.83978
+20 28.940938 22.389351 35.49252
+21 30.246437 23.694850 36.79802
+22 31.551937 25.000350 38.10352
+23 33.510186 26.958599 40.06177
+24 43.301432 36.749845 49.85302
+25 45.259681 38.708094 51.81127
+26 51.787179 45.235592 58.33877
+27 53.092678 46.541091 59.64427
+28 55.703677 49.152090 62.25526
+29 56.356427 49.804840 62.90801
+30 56.356427 49.804840 62.90801
+31 73.327921 66.776333 79.87951
+> 
+> printh("predict(earth.trees, interval=\"training.pint\", level=.90)")
+===predict(earth.trees, interval="training.pint", level=.90)
+> pints <- predict(earth.trees, interval="training.pint", level=.90)
+> print(pints)
+         fit       lwr      upr
+1   9.992661  8.750418 10.04385
+2  11.009079 10.095965 12.32086
+3  11.686691 10.341700 13.18756
+4  17.446394 13.362373 21.48650
+5  18.124006 13.949481 22.69458
+6  18.462812 13.667511 22.72310
+7  19.140424 14.513975 24.19053
+8  19.140424 14.344376 24.02094
+9  19.479230 14.016127 24.00317
+10 19.818036 14.960168 25.25770
+11 20.156842 14.186692 24.79471
+12 20.495649 15.356928 26.27543
+13 20.495649 15.360261 26.27877
+14 21.512067 15.984633 27.83460
+15 22.528485 16.783912 29.56533
+16 25.577739 18.277591 33.85339
+17 25.577739 17.784450 33.36025
+18 26.932964 19.076049 35.89379
+19 28.288188 20.705135 37.52288
+20 28.940938 21.459020 38.27676
+21 30.246437 21.788131 38.60587
+22 31.551937 23.115255 39.93300
+23 33.510186 24.819930 41.63767
+24 43.301432 34.989191 51.80693
+25 45.259681 37.087242 53.90498
+26 51.787179 43.462542 60.28028
+27 53.092678 43.617805 60.43555
+28 55.703677 45.882817 62.70056
+29 56.356427 46.754756 63.57250
+30 56.356427 48.650742 65.46848
+31 73.327921 62.573940 79.39168
+> 
+> printh("print.default(earth.trees$varmod$residmod)")
+===print.default(earth.trees$varmod$residmod)
+> # have to modify earth.trees because terms field stores the environment
+> # as a hex address which messes up the diffs
+> earth.trees$varmod$residmod$terms <- NULL
+> print.default(earth.trees$varmod$residmod)
+$bx
+      (Intercept) h(26.933-FITTED)
+ [1,]           1        16.940303
+ [2,]           1        15.923885
+ [3,]           1        15.246273
+ [4,]           1         9.486570
+ [5,]           1         8.808958
+ [6,]           1         8.470152
+ [7,]           1         7.792539
+ [8,]           1         7.792539
+ [9,]           1         7.453733
+[10,]           1         7.114927
+[11,]           1         6.776121
+[12,]           1         6.437315
+[13,]           1         6.437315
+[14,]           1         5.420897
+[15,]           1         4.404479
+[16,]           1         1.355224
+[17,]           1         1.355224
+[18,]           1         0.000000
+[19,]           1         0.000000
+[20,]           1         0.000000
+[21,]           1         0.000000
+[22,]           1         0.000000
+[23,]           1         0.000000
+[24,]           1         0.000000
+[25,]           1         0.000000
+[26,]           1         0.000000
+[27,]           1         0.000000
+[28,]           1         0.000000
+[29,]           1         0.000000
+[30,]           1         0.000000
+[31,]           1         0.000000
+
+$dirs
+                  FITTED
+(Intercept)            0
+h(FITTED-26.933)       1
+h(26.933-FITTED)      -1
+h(FITTED-43.3014)      1
+
+$cuts
+                    FITTED
+(Intercept)        0.00000
+h(FITTED-26.933)  26.93296
+h(26.933-FITTED)  26.93296
+h(FITTED-43.3014) 43.30143
+
+$selected.terms
+[1] 1 3
+
+$prune.terms
+     [,1] [,2] [,3] [,4]
+[1,]    1    0    0    0
+[2,]    1    3    0    0
+[3,]    1    3    4    0
+[4,]    1    2    3    4
+
+$rss
+[1] 104.7454
+
+$rsq
+[1] 0.2773747
+
+$gcv
+[1] 4.141719
+
+$grsq
+[1] 0.1704556
+
+$rss.per.response
+[1] 104.7454
+
+$rsq.per.response
+[1] 0.2773747
+
+$gcv.per.response
+[1] 4.141719
+
+$grsq.per.response
+[1] 0.1704556
+
+$rss.per.subset
+[1] 144.95120 104.74541  94.54243  94.51327
+
+$gcv.per.subset
+[1] 4.992764 4.141719 4.335526 5.086652
+
+$rss.per.subset
+[1] 144.95120 104.74541  94.54243  94.51327
+
+$gcv.per.subset
+[1] 4.992764 4.141719 4.335526 5.086652
+
+$fitted.values
+      abs.resids
+ [1,]  0.3137085
+ [2,]  0.5396242
+ [3,]  0.6902346
+ [4,]  1.9704235
+ [5,]  2.1210340
+ [6,]  2.1963392
+ [7,]  2.3469497
+ [8,]  2.3469497
+ [9,]  2.4222549
+[10,]  2.4975601
+[11,]  2.5728653
+[12,]  2.6481706
+[13,]  2.6481706
+[14,]  2.8740863
+[15,]  3.1000019
+[16,]  3.7777490
+[17,]  3.7777490
+[18,]  4.0789699
+[19,]  4.0789699
+[20,]  4.0789699
+[21,]  4.0789699
+[22,]  4.0789699
+[23,]  4.0789699
+[24,]  4.0789699
+[25,]  4.0789699
+[26,]  4.0789699
+[27,]  4.0789699
+[28,]  4.0789699
+[29,]  4.0789699
+[30,]  4.0789699
+[31,]  4.0789699
+
+$residuals
+       abs.resids
+ [1,]  0.78825135
+ [2,]  0.44529384
+ [3,]  1.00359815
+ [4,] -0.88376766
+ [5,] -1.45068235
+ [6,] -0.44751142
+ [7,]  1.63706604
+ [8,] -1.27619237
+ [9,]  1.42625746
+[10,] -1.90027322
+[11,]  2.42146850
+[12,] -2.44514701
+[13,] -1.80562744
+[14,] -2.23224934
+[15,]  1.20147121
+[16,]  0.29365337
+[17,]  4.90832517
+[18,] -3.36676899
+[19,] -0.43780951
+[20,]  1.23750422
+[21,]  0.48503506
+[22,] -3.88141420
+[23,] -0.81553444
+[24,]  1.29640781
+[25,] -1.01701779
+[26,] -0.32059606
+[27,] -0.05673178
+[28,]  0.23166071
+[29,]  0.01765499
+[30,]  2.30892567
+[31,]  2.63475004
+
+$coefficients
+                 abs.resids
+(Intercept)       4.0789699
+h(26.933-FITTED) -0.2222665
+
+$penalty
+[1] 2
+
+$nk
+[1] 21
+
+$thresh
+[1] 0.001
+
+$reason
+[1] 4
+
+$weights
+ [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+
+$namesx.org
+[1] "FITTED"
+
+$namesx
+[1] "FITTED"
+
+$call
+earth(formula = abs.resids ~ ., data = data, weights = weights, 
+    keepxy = TRUE, trace = trace, minspan = minspan, degree = ..1)
+
+$data
+   abs.resids    FITTED
+1   1.1019598  9.992661
+2   0.9849180 11.009079
+3   1.6938328 11.686691
+4   1.0866559 17.446394
+5   0.6703516 18.124006
+6   1.7488278 18.462812
+7   3.9840157 19.140424
+8   1.0707573 19.140424
+9   3.8485123 19.479230
+10  0.5972869 19.818036
+11  4.9943338 20.156842
+12  0.2030236 20.495649
+13  0.8425431 20.495649
+14  0.6418369 21.512067
+15  4.3014732 22.528485
+16  4.0714024 25.577739
+17  8.6860742 25.577739
+18  0.7122009 26.932964
+19  3.6411604 28.288188
+20  5.3164741 28.940938
+21  4.5640050 30.246437
+22  0.1975557 31.551937
+23  3.2634355 33.510186
+24  5.3753777 43.301432
+25  3.0619521 45.259681
+26  3.7583738 51.787179
+27  4.0222381 53.092678
+28  4.3106306 55.703677
+29  4.0966249 56.356427
+30  6.3878956 56.356427
+31  6.7137199 73.327921
+
+$y
+      abs.resids
+ [1,]  1.1019598
+ [2,]  0.9849180
+ [3,]  1.6938328
+ [4,]  1.0866559
+ [5,]  0.6703516
+ [6,]  1.7488278
+ [7,]  3.9840157
+ [8,]  1.0707573
+ [9,]  3.8485123
+[10,]  0.5972869
+[11,]  4.9943338
+[12,]  0.2030236
+[13,]  0.8425431
+[14,]  0.6418369
+[15,]  4.3014732
+[16,]  4.0714024
+[17,]  8.6860742
+[18,]  0.7122009
+[19,]  3.6411604
+[20,]  5.3164741
+[21,]  4.5640050
+[22,]  0.1975557
+[23,]  3.2634355
+[24,]  5.3753777
+[25,]  3.0619521
+[26,]  3.7583738
+[27,]  4.0222381
+[28,]  4.3106306
+[29,]  4.0966249
+[30,]  6.3878956
+[31,]  6.7137199
+
+attr(,"class")
+[1] "earth"
+> # prevent mistakes later where we try to use a modified earth.trees
+> remove(earth.trees)
+> 
+> multifigure("test example for varmod help page", 2, 2)
+===test example for varmod help page
+> 
+> data(ozone1)
+> set.seed(1) # optional, for cross validation reproducibility
+> 
+> a <- earth(O3~temp, data=ozone1, nfold=10, ncross=3, varmod.method="earth")
+> 
+> print(summary(a)) # note additional info on the variance model
+Call: earth(formula=O3~temp, data=ozone1, ncross=3, nfold=10, 
+      varmod.method="earth")
+
+            coefficients
+(Intercept)    7.5768304
+h(58-temp)    -0.1572930
+h(temp-58)     0.6090229
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: temp
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 22.43818  RSS 7181.917  GRSq 0.6514492  RSq 0.6598731  CVRSq 0.6214632
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.10 sd 0.31    nvars 1.00 sd 0.00
+
+     CVRSq  sd     MaxErr sd
+      0.62 0.1         17 11
+
+varmod: method "earth"    min.sd 0.464    iter.rsq 0.155
+
+stddev of predictions:
+                coefficients iter.stderr iter.stderr%
+(Intercept)        4.1852174    0.335488            8
+h(7.41954-O3)     -0.6787244    0.215876           32
+h(O3-7.41954)      0.1733381   0.0374229           22
+h(7.41954-O3).1   -0.6787244    0.215876           32
+
+                              mean   smallest    largest      ratio
+95% prediction interval   18.17024   3.014198   30.99614   10.28338
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   71%    83%    92%    97% 
+> 
+> old.mfrow <- par(mfrow=c(2,2))
+> 
+> # the variance model assumes residuals are symmetric, which is not
+> # quite true in this example, so the lower band is a bit too big
+> plotmo(a, do.par=FALSE, col.response=1, level=.95, main="earth model: O3~temp")
+> 
+> plot(a, which=1)            # model selection plot, same as ever
+> plot(a, which=3, level=.95) # residual plot: note 95% pred and darker conf intervals
+> plot(a, which=3, level=.95, pearson=TRUE) # standardized resids are approx homoscedastic
+> 
+> par(par=old.mfrow)
+> 
+> plot(a$varmod)              # plot the embedded variance model (this calls plot.varmod)
+> 
+> multifigure("test example for plot.varmod help page", 2, 2)
+===test example for plot.varmod help page
+> 
+> # multivariate example (for univariate, see the example on the varmod help page)
+> 
+> data(ozone1)
+> set.seed(1) # optional, for cross validation reproducibility
+> 
+> mod.temp.vh.doy <- earth(O3~temp+vh+vis+doy, data=ozone1, nfold=5, ncross=3, varmod.method="x.earth")
+> 
+> print(summary(mod.temp.vh.doy))  # note additional info on the variance model
+Call: earth(formula=O3~temp+vh+vis+doy, data=ozone1, ncross=3, 
+      nfold=5, varmod.method="x.earth")
+
+            coefficients
+(Intercept)    5.3871857
+h(temp-58)     0.4157326
+h(vh-5550)     0.0212686
+h(200-vis)     0.0284925
+h(108-doy)    -0.1044246
+h(doy-108)    -0.0261142
+
+Selected 6 of 15 terms, and 4 of 4 predictors 
+Termination condition: Reached nk 21
+Importance: temp, vis, doy, vh
+Number of terms at each degree of interaction: 1 5 (additive model)
+GCV 17.82169  RSS 5495.614  GRSq 0.723161  RSq 0.7397344  CVRSq 0.6865325
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 7.07 sd 0.80    nvars 4.00 sd 0.00
+
+     CVRSq    sd     MaxErr sd
+      0.69 0.041         15 14
+
+varmod: method "x.earth"    min.sd 0.436    iter.rsq 0.233
+
+stddev of predictions:
+             coefficients iter.stderr iter.stderr%
+(Intercept)    2.01067823    0.333277           17
+h(temp-57)     0.08085973   0.0284181           35
+h(vh-5680)     0.00893390  0.00384007           43
+h(200-vis)     0.01004666   0.0030961           31
+h(vh-5680).1   0.00893390  0.00384007           43
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.08407   7.881714   35.44944   4.497681
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   75%    85%    95%    97% 
+> 
+> plot(mod.temp.vh.doy, level=.95) # note 95% pred and darker conf intervals in resids plot
+> 
+> plot(mod.temp.vh.doy$varmod)     # plot the variance model (this calls plot.varmod)
+> 
+> plot(mod.temp.vh.doy, versus="", level=.9, caption="plot.earth versus=\"\"")
+> 
+> plot(mod.temp.vh.doy, versus="v", level=.9, caption="plot.earth versus=\"v\" and versus=\"temp\"", do.par=2)
+> plot(mod.temp.vh.doy, versus="temp", level=.9, caption="", main="temp on same page")
+> 
+> # plot.earth will silently not plots it cannot plot below, so 1:8 becomes c(3,5)
+> plot(mod.temp.vh.doy, which=1:8, versus="v", info=T, caption='which=c(3,5) versus="v" info=T')
+> 
+> plot(mod.temp.vh.doy, versus="*", level=.9, caption="plot.earth versus=\"*\"")
+> 
+> plot(mod.temp.vh.doy, versus="*doy", level=.9, caption="plot.earth versus=\"*doy\"")
+> 
+> multifigure("test example in (very old) earth vignette", 2, 2)
+===test example in (very old) earth vignette
+> 
+> data(ozone1)
+> x <- ozone1$temp
+> y <- ozone1$O3
+> 
+> set.seed(1) # optional, for cross validation reproducibility
+> earth.mod <- earth(y~x, nfold=10, ncross=3, varmod.method="earth", trace=.1)
+> predict <- predict(earth.mod, interval="training.pint")
+> 
+> order <- order(x)
+> x <- x[order]
+> y <- y[order]
+> predict <- predict[order,]
+> 
+> inconf <- y >= predict$lwr & y <= predict$upr
+> 
+> plot(x, y, pch=20, col=ifelse(inconf, 1, 2), main=sprintf(
++     "Prediction intervals\n%.0f%% of the points are in the estimated band",
++     100 * sum(inconf) / length(y)))
+> do.caption()
+> 
+> lines(x, predict$fit)
+> lines(x, predict$lwr, lty=2)
+> lines(x, predict$upr, lty=2)
+> 
+> # Plot the Residuals vs Fitted graph
+> plot(earth.mod, which=3, level=.95)
+> 
+> # Plot the embedded residual model
+> plot(earth.mod$varmod, do.par=F, which=1:2)
+> 
+> cat('head(residuals(earth.mod))\n')
+head(residuals(earth.mod))
+> print(head(residuals(earth.mod)))
+           y
+1 -1.7455563
+2 -0.5320213
+3 -1.9476584
+4  2.0409087
+5 -1.5320213
+6 -3.1049514
+> cat('head(residuals(earth.mod, type="pearson"))\n')
+head(residuals(earth.mod, type="pearson"))
+> print(head(residuals(earth.mod, type="pearson")))
+           y
+1 -0.7364219
+2 -0.1831957
+3 -0.5039296
+4  1.1112864
+5 -0.5275348
+6 -0.7817688
+> 
+> multifigure("plot.earth varmod options", 2, 2)
+===plot.earth varmod options
+> 
+> plot(earth.mod, which=3, level=.95, shade.pints=0, main="plot.earth varmod options")
+> do.caption()
+> plot(earth.mod, which=3, shade.pints="orange", shade.cints="darkgray", level=.99)
+> plot(earth.mod, which=3, level=.95, shade.pints=0, shade.cints="mistyrose4")
+> 
+> multifigure("plot.earth delever and pearson", 2, 2)
+===plot.earth delever and pearson
+> 
+> set.seed(4)
+> earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.1)
+> plot(earth.mod1, which=3, ylim=c(-16,20), info=TRUE, level=.95)
+> do.caption()
+> plot(earth.mod1, which=3, ylim=c(-16,20), delever=TRUE, level=.95)
+> plot(earth.mod1, which=3, pearson=TRUE, info=TRUE,    level=.95)
+> plot(earth.mod1, which=3, pearson=TRUE, delever=TRUE, level=.95)
+> 
+> multifigure("plot.earth which=5 and which=6", 2, 3)
+===plot.earth which=5 and which=6
+> plot(earth.mod1, which=5, info=T,            main="which=5, info=T")
+> plot(earth.mod1, which=5, pearson=T, info=T, main="which=5, pearson=T, info=T")
+> plot(earth.mod1, which=5, pearson=T,         main="which=5, pearson=T")
+> do.caption()
+> plot(earth.mod1, which=6, info=T,            main="which=6, info=T")
+> plot(earth.mod1, which=6, pearson=T, info=T, main="which=6, pearson=T, info=T")
+> plot(earth.mod1, which=6, pearson=T,         main="which=6, pearson=T")
+> 
+> multifigure("plot.earth which=7 and which=8", 2, 3)
+===plot.earth which=7 and which=8
+> plot(earth.mod1, which=7, info=T,            main="which=7, info=T")
+> plot(earth.mod1, which=7, pearson=T, info=T, main="which=7, pearson=T, info=T")
+> plot(earth.mod1, which=7, pearson=T,         main="which=7, pearson=T")
+> do.caption()
+> plot(earth.mod1, which=8, info=T,            main="which=8, info=T")
+> plot(earth.mod1, which=8, pearson=T, info=T, main="which=8, pearson=T, info=T")
+> plot(earth.mod1, which=8, pearson=T,         main="which=8, pearson=T")
+> 
+> cat("summary(earth.mod1, newdata=ozone1)\n")
+summary(earth.mod1, newdata=ozone1)
+> print(summary(earth.mod1, newdata=ozone1))
+
+RSq 0.660 on newdata (330 cases)
+
+                                 68%    80%    90%    95% 
+newdata in prediction interval   71%    83%    93%    97% 
+> 
+> cat("summary(earth.mod1, newdata=ozone1[1:100,]:)\n")
+summary(earth.mod1, newdata=ozone1[1:100,]:)
+> print(summary(earth.mod1, newdata=ozone1[1:100,]))
+
+RSq 0.199 on newdata (100 cases)
+
+                                 68%    80%    90%    95% 
+newdata in prediction interval   78%    85%    92%    95% 
+> 
+> # TODO the following give err msg as expected, but do not give a try error
+> # expect.err(try(summary(earth.mod1, newdata=c(1,2,3))))
+> # expect.err(try(summary(earth.mod1, newdata=ozone1[1:100,1:3])))
+> 
+> multifigure("plot(earth.mod1)", 2, 2)
+===plot(earth.mod1)
+> set.seed(5)
+> earth.mod2 <- earth(y~x, nfold=10, ncross=5, varmod.method="earth")
+> plot(earth.mod2, caption="plot(earth.mod2)", level=.95)
+> do.caption()
+> 
+> multifigure("plot(earth.mod2) with pearson=TRUE", 2, 2)
+===plot(earth.mod2) with pearson=TRUE
+> plot(earth.mod2, pearson=TRUE, level=.95,
++      caption="plot(earth.mod2, pearson=TRUE, level=.95)")
+> do.caption()
+> 
+> multifigure("plot.varmod by calling plot(earth.mod2$varmod)", 2, 2)
+===plot.varmod by calling plot(earth.mod2$varmod)
+> plot(earth.mod2$varmod)
+> 
+> multifigure("embedded earth model by calling plot(earth.mod2$varmod$residmod)", 2, 2)
+===embedded earth model by calling plot(earth.mod2$varmod$residmod)
+> plot(earth.mod2$varmod$residmod, caption="embedded earth model")
+> do.caption()
+> 
+> # test varmod.* args like varmod.conv
+> 
+> # cat("test varmod.exponent=.5\n")
+> # set.seed(1)
+> # (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.exponent=.5))
+> 
+> # cat("test varmod.lambda=2/3\n")
+> # set.seed(1)
+> # (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.lambda=2/3))
+> 
+> cat("test varmod.conv=50%\n")
+test varmod.conv=50%
+> set.seed(1)
+> (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.conv=50))
+
+varmod method="lm" exponent=1 lambda=1 conv=50 clamp=0.1 minspan=-5:
+     iter weight.ratio coefchange% (Intercept) Volume
+        1          6.5           0         1.6  0.053
+        2         11.3          30         1.2  0.069
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9411285
+> 
+> cat("test varmod.conv=-5\n")
+test varmod.conv=-5
+> set.seed(1)
+> (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.conv=-5))
+
+varmod method="lm" exponent=1 lambda=1 conv=-5 clamp=0.1 minspan=-5:
+     iter weight.ratio coefchange% (Intercept) Volume
+        1          6.5        0.00        1.64  0.053
+        2         11.3       29.90        1.17  0.069
+        3         13.4        9.42        1.03  0.075
+        4         14.0        2.87        1.00  0.076
+        5         14.2        0.84        0.98  0.077
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9411285
+> 
+> cat("test varmod.clamp\n")
+test varmod.clamp
+> set.seed(1)
+> a.noclamp <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm")
+> plot(a.noclamp$varmod, which=1:2, caption="a.noclamp and a.clamp", do.par=FALSE)
+> set.seed(1)
+> a.clamp <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", varmod.clamp=.6)
+> plot(a.clamp$varmod, which=1:2, caption="", do.par=FALSE)
+> 
+> cat("test varmod.minspan=-5\n")
+test varmod.minspan=-5
+> set.seed(1)
+> a.varmod.minspan.minus5 <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth", trace=.3, varmod.minspan=-5)
+
+varmod method="earth" exponent=1 lambda=1 conv=1 clamp=0.1 minspan=-5:
+     iter weight.ratio coefchange% (Intercept) h(26.933-Volume)
+        1           28           0         4.1             -0.2
+
+> print(coef(a.varmod.minspan.minus5$varmod))
+     (Intercept) h(26.933-Volume) 
+       5.1461537       -0.2464386 
+> cat("test varmod.minspan=1\n")
+test varmod.minspan=1
+> set.seed(1)
+> a.varmod.minspan1 <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth", trace=.3, varmod.minspan=1)
+
+varmod method="earth" exponent=1 lambda=1 conv=1 clamp=0.1 minspan=1:
+     iter weight.ratio coefchange% (Intercept) h(25.5777-Volume)
+        1           25           0         4.1             -0.22
+
+> print(coef(a.varmod.minspan1$varmod))
+      (Intercept) h(25.5777-Volume) 
+        5.0797626        -0.2781395 
+> 
+> # gam and y.gam are repeated below and on the repeat we will use the mgcv not gam package
+> use.mgcv.package <- FALSE
+> 
+> for(varmod.method in earth:::VARMOD.METHODS) {
++ 
++     multifigure(sprintf("varmod.method=\"%s\"", varmod.method), 2, 3)
++     par(mar = c(3, 3, 2, 3)) # space for right margin axis
++ 
++     set.seed(6)
++     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
++                        varmod.method=varmod.method,
++                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
++     printh(sprintf("varmod.method %s: summary(earth.mod)", varmod.method))
++     printh("summary(earth.mod)")
++     print(summary(earth.mod))
++ 
++     if(use.mgcv.package && (varmod.method == "x.gam" || varmod.method == "gam")) {
++         # summary(mgcv) prints environment as hex address which messes up the diffs
++         printh("skipping summary(mgcv::gam) etc.\n")
++     } else {
++         printh("earth.mod$varmod")
++         print(earth.mod$varmod, style="unit")
++ 
++         printh("summary(earth.mod$varmod)")
++         print(summary(earth.mod$varmod))
++ 
++         printh("summary(earth.mod$varmod$residmod)")
++         print(summary(earth.mod$varmod$residmod))
++     }
++     printh(sprintf("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
++     pints <- predict(earth.mod, interval="pint")
++     print(pints)
++ 
++     plotmo(earth.mod$varmod, do.par=FALSE, col.response=2,
++            main="plotmo residual model",
++            xlab="x", ylab="varmod residuals")
++ 
++     plotmo(earth.mod, level=.90, do.par=FALSE, col.response=1,
++            main="main model plotmo Girth")
++     do.caption()
++ 
++     plot(earth.mod, which=3, do.par=FALSE, level=.95)
++ 
++     # plot.varmod
++     plot(earth.mod$varmod, do.par=FALSE, which=1:3, info=(varmod.method=="earth"))
++ 
++     # on second use of gam and y.gam we want to use the mgcv package
++     if(varmod.method == "y.gam" && !use.mgcv.package) {
++         use.mgcv.package <- TRUE
++         detach("package:gam", unload=TRUE)
++         library("mgcv")
++     }
++ }
+===varmod.method="const"
+
+varmod method="const" exponent=1 lambda=1 conv=1 clamp=0.1 minspan=-5:
+     iter weight.ratio coefchange% (Intercept)
+        1            1           0         3.6
+
+===varmod.method const: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "const"    min.sd 0.451
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)     4.508827    0.585629           13
+
+                              mean   smallest    largest   ratio
+95% prediction interval   17.67428   17.67428   17.67428       1
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    97%    97%    100% 
+===earth.mod$varmod
+method "const"    min.sd 0.451
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)          1.0        0.13           13
+unit                 4.5                         
+clamp                0.1                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18         18        18       1
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    97%    97%    100% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "const"    min.sd 0.451
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)          4.5       0.586           13
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18         18        18       1
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    97%    97%    100% 
+
+Regression submodel (Abs Residuals):
+
+Call:
+lm(formula = abs.resids ~ 1, data = data, weights = weights, 
+    y = TRUE)
+
+Coefficients:
+(Intercept)  
+        3.6  
+
+===summary(earth.mod$varmod$residmod)
+
+Call:
+lm(formula = abs.resids ~ 1, data = data, weights = weights, 
+    y = TRUE)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.8534 -2.3397 -0.3537  1.7546  6.8072 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   3.5975     0.4673   7.699 1.37e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.602 on 30 degrees of freedom
+
+===varmod.method const: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  1.155522 18.82980
+2  11.009079  2.171940 19.84622
+3  11.686691  2.849552 20.52383
+4  17.446394  8.609255 26.28353
+5  18.124006  9.286867 26.96115
+6  18.462812  9.625673 27.29995
+7  19.140424 10.303285 27.97756
+8  19.140424 10.303285 27.97756
+9  19.479230 10.642091 28.31637
+10 19.818036 10.980897 28.65518
+11 20.156842 11.319703 28.99398
+12 20.495649 11.658510 29.33279
+13 20.495649 11.658510 29.33279
+14 21.512067 12.674928 30.34921
+15 22.528485 13.691346 31.36562
+16 25.577739 16.740601 34.41488
+17 25.577739 16.740601 34.41488
+18 26.932964 18.095825 35.77010
+19 28.288188 19.451049 37.12533
+20 28.940938 20.103799 37.77808
+21 30.246437 21.409298 39.08358
+22 31.551937 22.714798 40.38908
+23 33.510186 24.673047 42.34732
+24 43.301432 34.464293 52.13857
+25 45.259681 36.422542 54.09682
+26 51.787179 42.950040 60.62432
+27 53.092678 44.255539 61.92982
+28 55.703677 46.866538 64.54082
+29 56.356427 47.519288 65.19357
+30 56.356427 47.519288 65.19357
+31 73.327921 64.490782 82.16506
+===varmod.method="power"
+
+varmod method="power" exponent=1 lambda=1 conv=1 clamp=0.1 minspan=-5:
+
+     start: (Intercept)=0.29    coef=0.11    exponent=1
+
+     iter weight.ratio coefchange% (Intercept) coef exponent
+        1           37        0.00        0.18 0.13     0.97
+        2           62      484.07       -1.89 0.71     0.61
+        3           57       23.37       -1.34 0.50     0.68
+        4           58        4.01       -1.41 0.53     0.67
+        5           58        0.61       -1.40 0.52     0.67
+
+===varmod.method power: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "power"    min.sd 0.451
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)   -1.7554453     5.67433          323
+coef           0.6529012     2.21847          340
+exponent       0.6721163     0.73142          109
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.68518   5.142187   39.01781   7.587784
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   87%    97%    97%    97% 
+===earth.mod$varmod
+method "power"    min.sd 0.451
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -2.69         8.7          323
+coef                1.00         3.4          340
+exponent            0.67         0.7          109
+unit                0.65                         
+clamp               0.69                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        5.1        39     7.6
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   87%    97%    97%    97% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "power"    min.sd 0.451
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -1.75        5.67          323
+coef                0.65        2.22          340
+exponent            0.67        0.73          109
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        5.1        39     7.6
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   87%    97%    97%    97% 
+
+Regression submodel (Abs Residuals):
+
+Nonlinear regression model
+  model: abs.resids ~ `(Intercept)` + coef * FITTED^exponent
+   data: data
+(Intercept)        coef    exponent 
+      -1.40        0.52        0.67 
+ weighted residual sum-of-squares: 69
+
+Algorithm "port", convergence message: relative convergence (4)
+===summary(earth.mod$varmod$residmod)
+
+Formula: abs.resids ~ `(Intercept)` + coef * FITTED^exponent
+
+Parameters:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  -1.4006     4.5275  -0.309    0.759
+coef          0.5209     1.7701   0.294    0.771
+exponent      0.6721     0.7314   0.919    0.366
+
+Residual standard error: 1.572 on 28 degrees of freedom
+
+Algorithm "port", convergence message: relative convergence (4)
+
+===varmod.method power: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  7.421567 12.56375
+2  11.009079  8.033555 13.98460
+3  11.686691  8.448347 14.92504
+4  17.446394 12.143889 22.74890
+5  18.124006 12.594693 23.65332
+6  18.462812 12.821140 24.10448
+7  19.140424 13.276040 25.00481
+8  19.140424 13.276040 25.00481
+9  19.479230 13.504462 25.45400
+10 19.818036 13.733511 25.90256
+11 20.156842 13.963174 26.35051
+12 20.495649 14.193437 26.79786
+13 20.495649 14.193437 26.79786
+14 21.512067 14.887696 28.13644
+15 22.528485 15.586910 29.47006
+16 25.577739 17.711473 33.44401
+17 25.577739 17.711473 33.44401
+18 26.932964 18.667457 35.19847
+19 28.288188 19.629978 36.94640
+20 28.940938 20.095789 37.78609
+21 30.246437 21.031503 39.46137
+22 31.551937 21.972415 41.13146
+23 33.510186 23.392917 43.62746
+24 43.301432 30.635015 55.96785
+25 45.259681 32.107241 58.41212
+26 51.787179 37.062083 66.51227
+27 53.092678 38.061053 68.12430
+28 55.703677 40.066300 71.34105
+29 56.356427 40.569078 72.14378
+30 56.356427 40.569078 72.14378
+31 73.327921 53.819017 92.83682
+===varmod.method="power0"
+===varmod.method power0: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "power0"    min.sd 0.454
+
+stddev of predictions:
+         coefficients iter.stderr iter.stderr%
+coef        0.1596130    0.121815           76
+exponent    0.9835147    0.230028           23
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.80936   6.019321   42.74313   7.100988
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    94%    97%    97% 
+===earth.mod$varmod
+method "power0"    min.sd 0.454
+
+stddev of predictions (scaled by unit):
+         coefficients iter.stderr iter.stderr%
+coef             0.16       0.124           76
+exponent         0.98        0.23           23
+unit             0.98                         
+clamp            0.46                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18          6        43     7.1
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    94%    97%    97% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "power0"    min.sd 0.454
+
+stddev of predictions:
+         coefficients iter.stderr iter.stderr%
+coef             0.16      0.1218           76
+exponent         0.98        0.23           23
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18          6        43     7.1
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    94%    97%    97% 
+
+Regression submodel (Abs Residuals):
+
+Nonlinear regression model
+  model: abs.resids ~ coef * FITTED^exponent
+   data: data
+    coef exponent 
+    0.13     0.98 
+ weighted residual sum-of-squares: 79
+
+Algorithm "port", convergence message: relative convergence (4)
+===summary(earth.mod$varmod$residmod)
+
+Formula: abs.resids ~ coef * FITTED^exponent
+
+Parameters:
+         Estimate Std. Error t value Pr(>|t|)    
+coef      0.12735    0.09719   1.310 0.200383    
+exponent  0.98351    0.23003   4.276 0.000188 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.65 on 29 degrees of freedom
+
+Algorithm "port", convergence message: relative convergence (4)
+
+===varmod.method power0: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  6.983000 13.00232
+2  11.009079  7.698577 14.31958
+3  11.686691  8.175885 15.19750
+4  17.446394 12.239818 22.65297
+5  18.124006 12.718605 23.52941
+6  18.462812 12.958044 23.96758
+7  19.140424 13.437013 24.84384
+8  19.140424 13.437013 24.84384
+9  19.479230 13.676542 25.28192
+10 19.818036 13.916098 25.71997
+11 20.156842 14.155683 26.15800
+12 20.495649 14.395295 26.59600
+13 20.495649 14.395295 26.59600
+14 21.512067 15.114292 27.90984
+15 22.528485 15.833521 29.22345
+16 25.577739 17.992495 33.16298
+17 25.577739 17.992495 33.16298
+18 26.932964 18.952614 34.91331
+19 28.288188 19.913060 36.66332
+20 28.940938 20.375776 37.50610
+21 30.246437 21.301417 39.19146
+22 31.551937 22.227329 40.87654
+23 33.510186 23.616678 43.40369
+24 43.301432 30.571078 56.03179
+25 45.259681 31.963312 58.55605
+26 51.787179 36.606917 66.96744
+27 53.092678 37.536125 68.64923
+28 55.703677 39.394993 72.01236
+29 56.356427 39.859802 72.85305
+30 56.356427 39.859802 72.85305
+31 73.327921 51.956356 94.69949
+===varmod.method="lm"
+
+varmod method="lm" exponent=1 lambda=1 conv=1 clamp=0.1 minspan=-5:
+     iter weight.ratio coefchange% (Intercept) Volume
+        1           36        0.00       0.291   0.11
+        2           56       51.66      -0.022   0.12
+        3           59       87.44      -0.061   0.12
+        4           59        3.59      -0.065   0.12
+        5           59        0.37      -0.066   0.12
+
+===varmod.method lm: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "lm"    min.sd 0.459    iter.rsq 0.345
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)  -0.08230552    0.826464          big
+Volume        0.15471815   0.0396039           26
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.97558   5.737757   44.14958   7.694571
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    94%    97%    97% 
+===earth.mod$varmod
+method "lm"    min.sd 0.459    iter.rsq 0.345
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -0.53         5.3          big
+Volume              1.00         0.3           26
+unit                0.15                         
+clamp               2.96                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        5.7        44     7.7
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    94%    97%    97% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "lm"    min.sd 0.459    iter.rsq 0.345
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)       -0.082       0.826          big
+Volume             0.155        0.04           26
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        5.7        44     7.7
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    94%    97%    97% 
+
+Regression submodel (Abs Residuals):
+
+Call:
+lm(formula = abs.resids ~ ., data = data, weights = weights, 
+    y = TRUE)
+
+Coefficients:
+(Intercept)       FITTED  
+     -0.066        0.123  
+
+===summary(earth.mod$varmod$residmod)
+
+Call:
+lm(formula = abs.resids ~ ., data = data, weights = weights, 
+    y = TRUE)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.0283 -1.0534 -0.3734  0.4207  5.9543 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -0.06567    0.65942  -0.100 0.921357    
+FITTED       0.12345    0.03160   3.907 0.000515 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.622 on 29 degrees of freedom
+Multiple R-squared:  0.3448,	Adjusted R-squared:  0.3222 
+F-statistic: 15.26 on 1 and 29 DF,  p-value: 0.0005152
+
+===varmod.method lm: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  7.123782 12.86154
+2  11.009079  7.831980 14.18618
+3  11.686691  8.304111 15.06927
+4  17.446394 12.317230 22.57556
+5  18.124006 12.789362 23.45865
+6  18.462812 13.025428 23.90020
+7  19.140424 13.497560 24.78329
+8  19.140424 13.497560 24.78329
+9  19.479230 13.733626 25.22484
+10 19.818036 13.969691 25.66638
+11 20.156842 14.205757 26.10793
+12 20.495649 14.441823 26.54947
+13 20.495649 14.441823 26.54947
+14 21.512067 15.150021 27.87411
+15 22.528485 15.858218 29.19875
+16 25.577739 17.982811 33.17267
+17 25.577739 17.982811 33.17267
+18 26.932964 18.927074 34.93885
+19 28.288188 19.871337 36.70504
+20 28.940938 20.326146 37.55573
+21 30.246437 21.235763 39.25711
+22 31.551937 22.145380 40.95849
+23 33.510186 23.509806 43.51057
+24 43.301432 30.331935 56.27093
+25 45.259681 31.696361 58.82300
+26 51.787179 36.244447 67.32991
+27 53.092678 37.154065 69.03129
+28 55.703677 38.973299 72.43406
+29 56.356427 39.428108 73.28475
+30 56.356427 39.428108 73.28475
+31 73.327921 51.253131 95.40271
+===varmod.method="rlm"
+===varmod.method rlm: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "rlm"    min.sd 0.401    iter.rsq 0.279
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)  -0.07495396    0.633309          845
+Volume        0.13536738   0.0303643           22
+
+                              mean   smallest    largest      ratio
+95% prediction interval   15.71582   5.008595   38.61621   7.709988
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   74%    90%    97%    97% 
+===earth.mod$varmod
+method "rlm"    min.sd 0.401    iter.rsq 0.279
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -0.55         4.7          845
+Volume              1.00         0.2           22
+unit                0.14                         
+clamp               2.96                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     16          5        39     7.7
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   74%    90%    97%    97% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "rlm"    min.sd 0.401    iter.rsq 0.279
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)       -0.075       0.633          845
+Volume             0.135        0.03           22
+
+                          mean   smallest   largest   ratio
+95% prediction interval     16          5        39     7.7
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   74%    90%    97%    97% 
+
+Regression submodel (Abs Residuals):
+
+Call:
+rlm(formula = abs.resids ~ ., data = data, weights = weights, 
+    method = "MM")
+Converged in 7 iterations
+
+Coefficients:
+(Intercept)      FITTED 
+      -0.06        0.11 
+
+Degrees of freedom: 31 total; 29 residual
+Scale estimate: 1.03 
+===summary(earth.mod$varmod$residmod)
+
+Call: rlm(formula = abs.resids ~ ., data = data, weights = weights, 
+    method = "MM")
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.71043 -0.73622 -0.05762  0.73729  6.26702 
+
+Coefficients:
+            Value   Std. Error t value
+(Intercept) -0.0598  0.5053    -0.1184
+FITTED       0.1080  0.0242     4.4581
+
+Residual standard error: 1.026 on 29 degrees of freedom
+===varmod.method rlm: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  7.488363 12.49696
+2  11.009079  8.235110 13.78305
+3  11.686691  8.732941 14.64044
+4  17.446394 12.964508 21.92828
+5  18.124006 13.462339 22.78567
+6  18.462812 13.711255 23.21437
+7  19.140424 14.209086 24.07176
+8  19.140424 14.209086 24.07176
+9  19.479230 14.458002 24.50046
+10 19.818036 14.706917 24.92916
+11 20.156842 14.955833 25.35785
+12 20.495649 15.204749 25.78655
+13 20.495649 15.204749 25.78655
+14 21.512067 15.951496 27.07264
+15 22.528485 16.698243 28.35873
+16 25.577739 18.938484 32.21700
+17 25.577739 18.938484 32.21700
+18 26.932964 19.934146 33.93178
+19 28.288188 20.929809 35.64657
+20 28.940938 21.409374 36.47250
+21 30.246437 22.368505 38.12437
+22 31.551937 23.327636 39.77624
+23 33.510186 24.766332 42.25404
+24 43.301432 31.959811 54.64305
+25 45.259681 33.398507 57.12086
+26 51.787179 38.194161 65.38020
+27 53.092678 39.153291 67.03207
+28 55.703677 41.071553 70.33580
+29 56.356427 41.551118 71.16174
+30 56.356427 41.551118 71.16174
+31 73.327921 54.019816 92.63602
+===varmod.method="earth"
+===varmod.method earth: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "earth"    min.sd 0.451    iter.rsq 0.414
+
+stddev of predictions:
+                    coefficients iter.stderr iter.stderr%
+(Intercept)            8.2854187    0.951593           11
+h(56.3564-Volume)     -0.1412712   0.0312402           22
+h(56.3564-Volume).1   -0.1412712   0.0312402           22
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.67428   6.803254   32.47824   4.773928
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   87%    97%    97%    97% 
+===earth.mod$varmod
+method "earth"    min.sd 0.451    iter.rsq 0.414
+
+stddev of predictions (scaled by unit):
+                  coefficients iter.stderr iter.stderr%
+(Intercept)               58.6         6.7           11
+h(56.3564-Volume)         -1.0         0.2           22
+clamp                      3.2                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        6.8        32     4.8
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   87%    97%    97%    97% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "earth"    min.sd 0.451    iter.rsq 0.414
+
+stddev of predictions:
+                    coefficients iter.stderr iter.stderr%
+(Intercept)                 8.29       0.952           11
+h(56.3564-Volume)          -0.14       0.031           22
+h(56.3564-Volume).1        -0.14       0.031           22
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        6.8        32     4.8
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   87%    97%    97%    97% 
+
+Regression submodel (Abs Residuals):
+
+Selected 2 of 5 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 5 terms
+Importance: FITTED
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 4.7    RSS 119    GRSq 0.33    RSq 0.41
+===summary(earth.mod$varmod$residmod)
+Call: earth(formula=abs.resids~., data=data, weights=weights, 
+      keepxy=TRUE, trace=trace, minspan=minspan, degree=..1)
+
+                  coefficients
+(Intercept)          6.6108076
+h(56.3564-FITTED)   -0.1127181
+
+Selected 2 of 5 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 5 terms
+Importance: FITTED
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 4.708597    RSS 119.0819    GRSq 0.3267697    RSq 0.4135416
+===varmod.method earth: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  6.591034 13.39429
+2  11.009079  7.326019 14.69214
+3  11.686691  7.816010 15.55737
+4  17.446394 11.980930 22.91186
+5  18.124006 12.470920 23.77709
+6  18.462812 12.715916 24.20971
+7  19.140424 13.205906 25.07494
+8  19.140424 13.205906 25.07494
+9  19.479230 13.450901 25.50756
+10 19.818036 13.695897 25.94018
+11 20.156842 13.940892 26.37279
+12 20.495649 14.185887 26.80541
+13 20.495649 14.185887 26.80541
+14 21.512067 14.920873 28.10326
+15 22.528485 15.655859 29.40111
+16 25.577739 17.860817 33.29466
+17 25.577739 17.860817 33.29466
+18 26.932964 18.840798 35.02513
+19 28.288188 19.820779 36.75560
+20 28.940938 20.292791 37.58908
+21 30.246437 21.236815 39.25606
+22 31.551937 22.180840 40.92303
+23 33.510186 23.596877 43.42350
+24 43.301432 30.677060 55.92580
+25 45.259681 32.093097 58.42627
+26 51.787179 36.813219 66.76114
+27 53.092678 37.757244 68.42811
+28 55.703677 39.645293 71.76206
+29 56.356427 40.117305 72.59555
+30 56.356427 40.117305 72.59555
+31 73.327921 57.088798 89.56704
+===varmod.method="gam"
+Loading required package: splines
+Loaded gam 1.09.1
+
+===varmod.method gam: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "gam"    min.sd 0.441    iter.rsq 0.412
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)  -0.01636672     0.72555          big
+s(Volume)     0.14480983   0.0347877           24
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.29161   5.671488   45.72118   8.061584
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    90%    97%    100% 
+===earth.mod$varmod
+method "gam"    min.sd 0.441    iter.rsq 0.412
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -0.11           5          big
+s(Volume)           1.00         0.2           24
+unit                0.14                         
+clamp               3.05                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     17        5.7        46     8.1
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    90%    97%    100% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "gam"    min.sd 0.441    iter.rsq 0.412
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)       -0.016       0.726          big
+s(Volume)          0.145       0.035           24
+
+                          mean   smallest   largest   ratio
+95% prediction interval     17        5.7        46     8.1
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    90%    97%    100% 
+
+Regression submodel (Abs Residuals):
+
+Call:
+gam::gam(formula = abs.resids ~ s(FITTED), data = data, weights = weights, 
+    x = TRUE, y = TRUE)
+
+Degrees of Freedom: 30 total; 26 Residual
+Residual Deviance: 56.06 
+===summary(earth.mod$varmod$residmod)
+
+Call: gam::gam(formula = abs.resids ~ s(FITTED), data = data, weights = weights, 
+    x = TRUE, y = TRUE)
+Deviance Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.96516 -0.94857 -0.04418  0.38866  4.49642 
+
+(Dispersion Parameter for gaussian family taken to be 2.1562)
+
+    Null Deviance: 99.7758 on 30 degrees of freedom
+Residual Deviance: 56.0604 on 25.9999 degrees of freedom
+AIC: 134.0106 
+
+Number of Local Scoring Iterations: 2 
+
+Anova for Parametric Effects
+          Df Sum Sq Mean Sq F value    Pr(>F)    
+s(FITTED)  1 37.362  37.362  17.328 0.0003055 ***
+Residuals 26 56.060   2.156                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Anova for Nonparametric Effects
+            Npar Df Npar F  Pr(F)
+(Intercept)                      
+s(FITTED)         3 0.9822 0.4164
+===varmod.method gam: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  7.156916 12.82840
+2  11.009079  8.020284 13.99787
+3  11.686691  8.597085 14.77630
+4  17.446394 13.100320 21.79247
+5  18.124006 13.477412 22.77060
+6  18.462812 13.648352 23.27727
+7  19.140424 13.960489 24.32036
+8  19.140424 13.960489 24.32036
+9  19.479230 14.105086 24.85337
+10 19.818036 14.243667 25.39241
+11 20.156842 14.377059 25.93663
+12 20.495649 14.506398 26.48490
+13 20.495649 14.506398 26.48490
+14 21.512067 14.874716 28.14942
+15 22.528485 15.236545 29.82043
+16 25.577739 16.655368 34.50011
+17 25.577739 16.655368 34.50011
+18 26.932964 17.574648 36.29128
+19 28.288188 18.654312 37.92206
+20 28.940938 19.221132 38.66074
+21 30.246437 20.424696 40.06818
+22 31.551937 21.676631 41.42724
+23 33.510186 23.549339 43.47103
+24 43.301432 32.236369 54.36650
+25 45.259681 33.841947 56.67742
+26 51.787179 38.658308 64.91605
+27 53.092678 39.530279 66.65508
+28 55.703677 41.189004 70.21835
+29 56.356427 41.587012 71.12584
+30 56.356427 41.587012 71.12584
+31 73.327921 50.467331 96.18851
+===varmod.method="x.lm"
+===varmod.method x.lm: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "x.lm"    min.sd 0.446    iter.rsq 0.419
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)   -4.1203331     1.52068           37
+Girth          0.6474924     0.14168           22
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.47464   4.915017   36.13394   7.351742
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    97%    97%    100% 
+===earth.mod$varmod
+method "x.lm"    min.sd 0.446    iter.rsq 0.419
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -6.36        2.35           37
+Girth               1.00        0.22           22
+unit                0.65                         
+clamp               0.69                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     17        4.9        36     7.4
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    97%    97%    100% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "x.lm"    min.sd 0.446    iter.rsq 0.419
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -4.12       1.521           37
+Girth               0.65       0.142           22
+
+                          mean   smallest   largest   ratio
+95% prediction interval     17        4.9        36     7.4
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    97%    97%    100% 
+
+Regression submodel (Abs Residuals):
+
+Call:
+lm(formula = abs.resids ~ ., data = data, weights = weights, 
+    y = TRUE)
+
+Coefficients:
+(Intercept)        Girth  
+      -3.29         0.52  
+
+===summary(earth.mod$varmod$residmod)
+
+Call:
+lm(formula = abs.resids ~ ., data = data, weights = weights, 
+    y = TRUE)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.9902 -1.0537 -0.0652  0.3819  5.0772 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  -3.2876     1.2133   -2.71   0.0112 *  
+Girth         0.5166     0.1130    4.57 8.36e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.461 on 29 degrees of freedom
+Multiple R-squared:  0.4187,	Adjusted R-squared:  0.3986 
+F-statistic: 20.89 on 1 and 29 DF,  p-value: 8.364e-05
+
+===varmod.method x.lm: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  7.535152 12.45017
+2  11.009079  8.170852 13.84731
+3  11.686691  8.594651 14.77873
+4  17.446394 12.196949 22.69584
+5  18.124006 12.620749 23.62726
+6  18.462812 12.832649 24.09298
+7  19.140424 13.256449 25.02440
+8  19.140424 13.256449 25.02440
+9  19.479230 13.468349 25.49011
+10 19.818036 13.680248 25.95582
+11 20.156842 13.892148 26.42154
+12 20.495649 14.104048 26.88725
+13 20.495649 14.104048 26.88725
+14 21.512067 14.739748 28.28439
+15 22.528485 15.375448 29.68152
+16 25.577739 17.282546 33.87293
+17 25.577739 17.282546 33.87293
+18 26.932964 18.130146 35.73578
+19 28.288188 18.977746 37.59863
+20 28.940938 19.503589 38.37829
+21 30.246437 20.555276 39.93760
+22 31.551937 21.606963 41.49691
+23 33.510186 23.184494 43.83588
+24 43.301432 31.072148 55.53072
+25 45.259681 32.649678 57.86968
+26 51.787179 37.908114 65.66624
+27 53.092678 38.959801 67.22556
+28 55.703677 41.063175 70.34418
+29 56.356427 41.589019 71.12384
+30 56.356427 41.589019 71.12384
+31 73.327921 55.260952 91.39489
+===varmod.method="x.rlm"
+===varmod.method x.rlm: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "x.rlm"    min.sd 0.402    iter.rsq 0.355
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)   -3.6280803     1.32679           37
+Girth          0.5773645    0.122743           21
+
+                             mean   smallest    largest      ratio
+95% prediction interval   15.7623   4.562974   32.40067   7.100779
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   81%    90%    97%    97% 
+===earth.mod$varmod
+method "x.rlm"    min.sd 0.402    iter.rsq 0.355
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -6.28         2.3           37
+Girth               1.00        0.21           21
+unit                0.58                         
+clamp               0.70                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     16        4.6        32     7.1
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   81%    90%    97%    97% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "x.rlm"    min.sd 0.402    iter.rsq 0.355
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -3.63       1.327           37
+Girth               0.58       0.123           21
+
+                          mean   smallest   largest   ratio
+95% prediction interval     16        4.6        32     7.1
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   81%    90%    97%    97% 
+
+Regression submodel (Abs Residuals):
+
+Call:
+rlm(formula = abs.resids ~ ., data = data, weights = weights, 
+    method = "MM", y.ret = TRUE)
+Converged in 8 iterations
+
+Coefficients:
+(Intercept)       Girth 
+      -2.89        0.46 
+
+Degrees of freedom: 31 total; 29 residual
+Scale estimate: 0.982 
+===summary(earth.mod$varmod$residmod)
+
+Call: rlm(formula = abs.resids ~ ., data = data, weights = weights, 
+    method = "MM", y.ret = TRUE)
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.7880 -0.8355  0.1888  0.6162  5.4190 
+
+Coefficients:
+            Value   Std. Error t value
+(Intercept) -2.8948  1.0586    -2.7345
+Girth        0.4607  0.0979     4.7039
+
+Residual standard error: 0.9824 on 29 degrees of freedom
+===varmod.method x.rlm: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  7.711174 12.27415
+2  11.009079  8.388108 13.63005
+3  11.686691  8.839397 14.53398
+4  17.446394 12.675357 22.21743
+5  18.124006 13.126646 23.12137
+6  18.462812 13.352291 23.57333
+7  19.140424 13.803580 24.47727
+8  19.140424 13.803580 24.47727
+9  19.479230 14.029225 24.92924
+10 19.818036 14.254870 25.38120
+11 20.156842 14.480514 25.83317
+12 20.495649 14.706159 26.28514
+13 20.495649 14.706159 26.28514
+14 21.512067 15.383093 27.64104
+15 22.528485 16.060027 28.99694
+16 25.577739 18.090829 33.06465
+17 25.577739 18.090829 33.06465
+18 26.932964 18.993408 34.87252
+19 28.288188 19.895987 36.68039
+20 28.940938 20.435575 37.44630
+21 30.246437 21.514752 38.97812
+22 31.551937 22.593929 40.50994
+23 33.510186 24.212694 42.80768
+24 43.301432 32.306520 54.29634
+25 45.259681 33.925285 56.59408
+26 51.787179 39.321169 64.25319
+27 53.092678 40.400345 65.78501
+28 55.703677 42.558699 68.84866
+29 56.356427 43.098287 69.61457
+30 56.356427 43.098287 69.61457
+31 73.327921 57.127585 89.52826
+===varmod.method="x.earth"
+===varmod.method x.earth: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "x.earth"    min.sd 0.451    iter.rsq 0.464
+
+stddev of predictions:
+                coefficients iter.stderr iter.stderr%
+(Intercept)         2.424138    0.603161           25
+h(Girth-10.8)       0.778619    0.155555           20
+h(Girth-10.8).1     0.778619    0.155555           20
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.67428   9.502445   39.41332   4.147704
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    90%    97%    97% 
+===earth.mod$varmod
+method "x.earth"    min.sd 0.451    iter.rsq 0.464
+
+stddev of predictions (scaled by unit):
+              coefficients iter.stderr iter.stderr%
+(Intercept)           3.11        0.77           25
+h(Girth-10.8)         1.00         0.2           20
+clamp                 0.58                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        9.5        39     4.1
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    90%    97%    97% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "x.earth"    min.sd 0.451    iter.rsq 0.464
+
+stddev of predictions:
+                coefficients iter.stderr iter.stderr%
+(Intercept)             2.42       0.603           25
+h(Girth-10.8)           0.78       0.156           20
+h(Girth-10.8).1         0.78       0.156           20
+
+                          mean   smallest   largest   ratio
+95% prediction interval     18        9.5        39     4.1
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   84%    90%    97%    97% 
+
+Regression submodel (Abs Residuals):
+
+Selected 2 of 6 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 6 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 4.3    RSS 109    GRSq 0.38    RSq 0.46
+===summary(earth.mod$varmod$residmod)
+Call: earth(formula=abs.resids~., data=data, weights=weights, 
+      keepxy=TRUE, trace=trace, minspan=minspan, degree=..1)
+
+              coefficients
+(Intercept)      1.9341819
+h(Girth-10.8)    0.6212481
+
+Selected 2 of 6 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 6 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 4.307471    RSS 108.9373    GRSq 0.3841223    RSq 0.4635021
+===varmod.method x.earth: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  5.241438 14.74388
+2  11.009079  6.257856 15.76030
+3  11.686691  6.935469 16.43791
+4  17.446394 12.695172 22.19762
+5  18.124006 13.372784 22.87523
+6  18.462812 13.711590 23.21403
+7  19.140424 14.083989 24.19686
+8  19.140424 14.083989 24.19686
+9  19.479230 14.270188 24.68827
+10 19.818036 14.456388 25.17968
+11 20.156842 14.642588 25.67110
+12 20.495649 14.828787 26.16251
+13 20.495649 14.828787 26.16251
+14 21.512067 15.387386 27.63675
+15 22.528485 15.945984 29.11099
+16 25.577739 17.621780 33.53370
+17 25.577739 17.621780 33.53370
+18 26.932964 18.366578 35.49935
+19 28.288188 19.111376 37.46500
+20 28.940938 19.611520 38.27036
+21 30.246437 20.611806 39.88107
+22 31.551937 21.612093 41.49178
+23 33.510186 23.112522 43.90785
+24 43.301432 30.614671 55.98819
+25 45.259681 32.115100 58.40426
+26 51.787179 37.116532 66.45783
+27 53.092678 38.116819 68.06854
+28 55.703677 40.117392 71.28996
+29 56.356427 40.617535 72.09532
+30 56.356427 40.617535 72.09532
+31 73.327921 53.621259 93.03458
+===varmod.method="x.gam"
+===varmod.method x.gam: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+      c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+      varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "x.gam"    min.sd 0.44    iter.rsq 0.431
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)   -4.0229513     1.58435           39
+s(RHS)         0.6231456    0.145533           23
+
+                              mean   smallest   largest      ratio
+95% prediction interval   17.26064    5.93187   43.3281   7.304289
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    90%    97%    100% 
+===earth.mod$varmod
+method "x.gam"    min.sd 0.44    iter.rsq 0.431
+
+stddev of predictions (scaled by unit):
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -6.46        2.54           39
+s(RHS)              1.00        0.23           23
+unit                0.62                         
+clamp               0.71                         
+
+                          mean   smallest   largest   ratio
+95% prediction interval     17        5.9        43     7.3
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    90%    97%    100% 
+===summary(earth.mod$varmod)
+Parent model: earth(formula=Volume~Girth, data=trees, trace=if(varmod.method%in%
+              c("const", "lm", "power"))0.3else0, ncross=3, nfold=3, 
+              varmod.method=varmod.method)
+
+method "x.gam"    min.sd 0.44    iter.rsq 0.431
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)        -4.02       1.584           39
+s(RHS)              0.62       0.146           23
+
+                          mean   smallest   largest   ratio
+95% prediction interval     17        5.9        43     7.3
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   87%    90%    97%    100% 
+
+Regression submodel (Abs Residuals):
+
+Call:
+gam::gam(formula = abs.resids ~ s(RHS), data = data, weights = weights, 
+    x = TRUE, y = TRUE)
+
+Degrees of Freedom: 30 total; 26 Residual
+Residual Deviance: 51.36 
+===summary(earth.mod$varmod$residmod)
+
+Call: gam::gam(formula = abs.resids ~ s(RHS), data = data, weights = weights, 
+    x = TRUE, y = TRUE)
+Deviance Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.9440 -0.9142 -0.1098  0.4901  4.0244 
+
+(Dispersion Parameter for gaussian family taken to be 1.9753)
+
+    Null Deviance: 94.791 on 30 degrees of freedom
+Residual Deviance: 51.3567 on 25.9999 degrees of freedom
+AIC: 131.869 
+
+Number of Local Scoring Iterations: 2 
+
+Anova for Parametric Effects
+          Df Sum Sq Mean Sq F value    Pr(>F)    
+s(RHS)     1 36.214  36.214  18.334 0.0002235 ***
+Residuals 26 51.357   1.975                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Anova for Nonparametric Effects
+            Npar Df Npar F  Pr(F)
+(Intercept)                      
+s(RHS)            3 1.2184 0.3229
+===varmod.method x.gam: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.992661  7.026725 12.95860
+2  11.009079  7.963647 14.05451
+3  11.686691  8.596869 14.77651
+4  17.446394 13.599843 21.29294
+5  18.124006 13.916603 22.33141
+6  18.462812 14.042573 22.88305
+7  19.140424 14.245392 24.03546
+8  19.140424 14.245392 24.03546
+9  19.479230 14.331325 24.62714
+10 19.818036 14.410542 25.22553
+11 20.156842 14.484161 25.82952
+12 20.495649 14.554052 26.43725
+13 20.495649 14.554052 26.43725
+14 21.512067 14.739825 28.28431
+15 22.528485 14.921690 30.13528
+16 25.577739 16.093867 35.06161
+17 25.577739 16.093867 35.06161
+18 26.932964 17.111324 36.75460
+19 28.288188 18.338292 38.23808
+20 28.940938 18.978776 38.90310
+21 30.246437 20.272208 40.22067
+22 31.551937 21.565336 41.53854
+23 33.510186 23.468846 43.55153
+24 43.301432 32.154983 54.44788
+25 45.259681 33.736756 56.78261
+26 51.787179 38.592531 64.98183
+27 53.092678 39.494656 66.69070
+28 55.703677 41.237949 70.16941
+29 56.356427 41.662061 71.05079
+30 56.356427 41.662061 71.05079
+31 73.327921 51.663872 94.99197
+> # test varmod.exponent
+> set.seed(6)
+> earth.exponent <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
++                         varmod.method="lm", varmod.exponent=.5)
+> printh("summary(earth.exponent)")
+===summary(earth.exponent)
+> print(summary(earth.exponent))
+Call: earth(formula=Volume~Girth, data=trees, ncross=3, nfold=3, 
+      varmod.method="lm", varmod.exponent=0.5)
+
+              coefficients
+(Intercept)      28.288188
+h(13.7-Girth)    -3.388061
+h(Girth-13.7)     6.527497
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.25598  RSS 310.8724  GRSq 0.9489416  RSq 0.9616495  CVRSq 0.9151058
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.047         14 8.5
+
+varmod: method "lm"  exponent 0.500  min.sd 0.448  iter.rsq 0.401
+
+stddev of predictions:
+             coefficients iter.stderr iter.stderr%
+(Intercept)     -3.472663     1.44459           42
+sqrt(Volume)     1.494235    0.339392           23
+
+                              mean   smallest    largest      ratio
+95% prediction interval   17.54681   4.903005   36.54444   7.453477
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   87%    97%    97%    97% 
+> 
+> par(old.par)
+> 
+> if(!interactive()) {
++     dev.off()         # finish postscript plot
++     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
++ }

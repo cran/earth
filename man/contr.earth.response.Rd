@@ -1,8 +1,8 @@
 \name{contr.earth.response}
 \alias{contr.earth.response}
-\title{Contrasts for the "earth" response}
+\title{Contrasts for the earth response}
 \description{
-Contrasts function for factors in the "earth" response.
+Contrasts function for factors in the \code{\link{earth}} response.
 For internal use by earth.
 }
 \usage{

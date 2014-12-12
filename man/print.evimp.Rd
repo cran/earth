@@ -22,7 +22,7 @@
 }
 \examples{
 data(ozone1)
-a <- earth(O3 ~ ., data=ozone1, degree=2)
-evimp(a) # implicitly calls print.evimp
+earth.mod <- earth(O3 ~ ., data=ozone1, degree=2)
+evimp(earth.mod) # implicitly calls print.evimp
 }
 \keyword{models}

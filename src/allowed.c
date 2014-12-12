@@ -47,10 +47,10 @@ void InitAllowedFunc(
         int nAllowedFuncArgs, SEXP Env,
         const char *sPredNames[], int nPreds)
 {
-    if (Allowed == NULL)
+    if(Allowed == NULL)
         AllowedFunc = NULL;
     else {
-        if (nAllowedFuncArgs < 3 || nAllowedFuncArgs > 5)
+        if(nAllowedFuncArgs < 3 || nAllowedFuncArgs > 5)
             error("Bad nAllowedFuncArgs %d", nAllowedFuncArgs);
 
         AllowedEnv = Env;
@@ -72,18 +72,18 @@ void InitAllowedFunc(
         s = CDR(s);             // 4th element is "parents"
         SETCAR(s, allocVector(INTSXP, nPreds));
 
-        if (nAllowedFuncArgs >= 4) {
+        if(nAllowedFuncArgs >= 4) {
             SEXP namesx;
             s = CDR(s);        // 5th element is "namesx"
             SETCAR(s, namesx = allocVector(STRSXP, nPreds));
             PROTECT(namesx);
-            if (sPredNames == NULL)
+            if(sPredNames == NULL)
                 error("Bad sPredNames");
-            for (int i = 0; i < nPreds; i++)
+            for(int i = 0; i < nPreds; i++)
                 SET_STRING_ELT(namesx, i, mkChar(sPredNames[i]));
             UNPROTECT(1);
         }
-        if (nAllowedFuncArgs >= 5) {
+        if(nAllowedFuncArgs >= 5) {
             s = CDR(s);        // 6th element is "first"
             SETCAR(s, allocVector(LGLSXP, 1));
         }
@@ -93,13 +93,13 @@ void InitAllowedFunc(
 
 void FreeAllowedFunc(void)
 {
-     if (AllowedFunc != NULL)
+     if(AllowedFunc != NULL)
          UNPROTECT(1);          // matches PROTECT in InitAllowedFunc
 }
 
 static bool EvalAllowedFunc(void)
 {
-    if (AllowedFunc == NULL)
+    if(AllowedFunc == NULL)
         error("EvalAllowedFunc: AllowedFunc == NULL");
 
     SEXP s = eval(AllowedFunc, AllowedEnv);
@@ -121,7 +121,7 @@ static bool EvalAllowedFunc(void)
             allowed = FALSE; // -Wall
             break;
     }
-    if (LENGTH(s) != 1)
+    if(LENGTH(s) != 1)
         error("the \"allowed\" function did not return a logical of length 1");
 
     return allowed;
@@ -141,24 +141,24 @@ bool IsAllowed(
     const int nPreds,       // in:
     const int nMaxTerms)    // in:
 {
-    if (AllowedFunc == NULL)
+    if(AllowedFunc == NULL)
        return TRUE;
 
     SEXP s = AllowedFunc;           // 1st element is the function
     s = CDR(s);                     // 2nd element is "degree"
     INTEGER(CADR(s))[0] = iPred+1;  // 3rd element is "pred"
-    int *p = INTEGER(CADDR(s));     // 4th element is "parents"
+    int* p = INTEGER(CADDR(s));     // 4th element is "parents"
     int i, nDegree = 1;
-    for (i = 0; i < nPreds; i++) {
+    for(i = 0; i < nPreds; i++) {
         p[i] = Dirs_(iParent, i);
-        if (p[i])
+        if(p[i])
             nDegree++;
     }
     INTEGER(CAR(s))[0] = nDegree;
 
     // optional 5th element already initialized to predictor names
 
-    if (nArgs >= 5)                 // optional 6th element is "first"
+    if(nArgs >= 5)                  // optional 6th element is "first"
         *(LOGICAL(CAD4R(s))) = First;
     First = false;
 

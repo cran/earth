@@ -1,0 +1,28 @@
+Forward pass: minspan 4 endspan 7
+
+         GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
+0      0.0000 0.0000                              0
+1      0.9789 0.9805       0.9805    0       0.41  1   2   
+3      0.9876 0.9890     0.008496    0       0.61  3       
+5      0.9872 0.9891    0.0001188    0       0.93  4       reject term
+
+Reached delta RSq threshold (DeltaRSq 0.00012 < 0.001) at 5 terms
+After forward pass GRSq 0.987 RSq 0.989
+Forward pass complete: 5 terms (4 terms used)
+
+Backward pass:
+SubsetSize         GRSq          RSq
+         0       0.0000       0.0000
+         1       0.6810       0.6938
+         2       0.9789       0.9805
+         3       0.9876       0.9890
+
+Backward pass complete: selected 3 terms of 4, GRSq 0.988 RSq 0.989
+
+Expression:
+1.13                                      // 0
+-2.39     * max(0, x[0]     -       0.41) // 1
+-2.41     * max(0, 0.41      -      x[0]) // 2
+-1.35     * max(0, x[0]     -       0.61) // 3
+
+f(0.1234) = 0.44212

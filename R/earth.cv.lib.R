@@ -10,13 +10,11 @@ get.binomial.deviance <- function(yhat, y) # yhat is predicted, y is observed
     deviance.contribs <- y * log(yhat) + (1 - y) * log(1 - yhat)
     mean(-2 * sum(deviance.contribs)) / length(y) # TODO length(y) ok, should use dof?
 }
-
 get.poisson.deviance <- function(yhat, y)
 {
     deviance.contribs <- ifelse(y == 0, 0, y * log(y/yhat)) - (y - yhat)
     2 * sum(deviance.contribs) / length(y)
 }
-
 get.auc <- function(yhat, y) # area under ROC curve
 {
     nx <- length(y[y == 0])
@@ -25,19 +23,16 @@ get.auc <- function(yhat, y) # area under ROC curve
     wilc <- nx * ny   +    (nx * (nx + 1)) / 2   -   sum(rank(xy)[1:nx])
     wilc / (nx * ny)
 }
-
 get.binomial.calib <- function(yhat, y) # returns c(intercept, slope)
 {
     yhat <- yhat + 1e-005 # TODO to prevent log(0)? (from Elith Leathwick code)
     yhat[yhat >= 1] <- 0.99999
     glm(y ~ log(yhat / (1 - yhat)), family = binomial)$coefficients
 }
-
 get.poisson.calib <- function(yhat, y) # returns c(intercept, slope)
 {
     glm(y ~ log(yhat), family = poisson)$coefficients
 }
-
 get.maxerr <- function(errs) # get signed max absolute err; if matrix then of each col
 {
     if(NCOL(errs) == 1)
@@ -45,7 +40,6 @@ get.maxerr <- function(errs) # get signed max absolute err; if matrix then of ea
     else
         apply(errs, 2, function(col)  col[which.max(abs(col))])
 }
-
 # get fraction correctly classified (one row of class.rate.tab)
 
 get.class.rate <- function(yhat, y, ylevels)
@@ -59,8 +53,8 @@ get.class.rate <- function(yhat, y, ylevels)
         # y and yhat are indicator columns, convert back to levels
         y    <- ylevels[apply(y,    1, which.max)]
         yhat <- ylevels[apply(yhat, 1, which.max)]
-        per.class.correct <- rep(0, length(ylevels))
-        for(i in 1:length(ylevels)) {
+        per.class.correct <- repl(0, length(ylevels))
+        for(i in seq_along(ylevels)) {
             level <- ylevels[i]
             per.class.correct[i] <- sum(y == level & yhat == level) +
                                     sum(y != level & yhat != level)

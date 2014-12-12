@@ -3,8 +3,6 @@
 
 get.plotmo.singles.earth <- function(object, env, x, trace, all1)
 {
-    if(length(coef(object)) == 1)
-        warning0("the earth model appears to be an intercept only model")
     singles <- NULL
     max.degree <- 1
     if(all1) # user wants all used predictors, not just those in degree1 terms?
@@ -12,6 +10,7 @@ get.plotmo.singles.earth <- function(object, env, x, trace, all1)
     selected <- object$selected.terms[
                     reorder.earth(object, degree=max.degree, min.degree=1)]
     if(length(selected) > 0) {
+        prednames <- object$namesx.org
         degree1.dirs <- object$dirs[selected, , drop=FALSE]
         # column numbers of dirs that have predictors in degree1 terms
         icol <- which(degree1.dirs != 0, arr.ind=TRUE)[,2]
@@ -19,7 +18,6 @@ get.plotmo.singles.earth <- function(object, env, x, trace, all1)
             singles <- icol
         else {                          # factors in x
             colnames <- colnames(object$dirs)[icol]
-            prednames <- object$namesx.org
             for(ipred in seq_along(prednames)) {
                 if(is.factor(x[,ipred])) {
                     # This knows how to deal with expanded factor names because
@@ -32,6 +30,11 @@ get.plotmo.singles.earth <- function(object, env, x, trace, all1)
                     singles <- c(singles, ipred)
             }
         }
+        if(any(singles > length(prednames)))
+            stop0("get.plotmo.singles.earth returned an index ",
+                  "greater than the number of predictors\n",
+                  "       singles=", paste(singles, collapse=","),
+                  " prednames=", paste(prednames, collapse=","))
     }
     singles
 }
@@ -68,7 +71,7 @@ get.plotmo.pairs.earth <- function(object, env, x, trace, ...)
 }
 get.plotmo.y.earth <- function(object, env, y.column, expected.len, trace)
 {
-    y <- plotmo:::get.plotmo.y.default(object, env, y.column, expected.len, trace)
+    y <- plotmo::get.plotmo.y.default(object, env, y.column, expected.len, trace)
 
     # do the same processing on y as earth does, e.g. if y is a two
     # level factor, convert it to an indicator column of 0s and 1s
@@ -85,7 +88,7 @@ get.plotmo.y.earth <- function(object, env, y.column, expected.len, trace)
 get.plotmo.pairs.bagEarth <- function(object, env, x, trace, ...)
 {
     pairs <- matrix(0, nrow=0, ncol=2)
-    for(i in 1:length(object$fit))
+    for(i in seq_along(object$fit))
         pairs <- rbind(pairs,
                        get.plotmo.pairs.earth(object$fit[[i]], env, x, trace))
     pairs[order(pairs[,1], pairs[,2]),]

@@ -1,0 +1,182 @@
+> # test.big: test earth with a biggish model
+> 
+> library(earth)
+Loading required package: plotmo
+Loading required package: plotrix
+> if(!interactive())
++     postscript(paper="letter")
+> options(warn=1) # print warnings as they occur
+> options(digits = 3)
+> set.seed(777)
+> N <- 1e4
+> 
+> ran <- function() runif(N, min=-1, max=1)
+> 
+> x <- cbind(
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
++     ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran())
+> 
+> colnames(x) <- c(
++     "x01", "x02", "x03", "x04", "x05", "x06", "x07", "x08", "x09", "x10",
++     "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18", "x19", "x20",
++     "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", "x29", "x30",
++     "x31", "x32", "x33", "x34", "x35", "x36", "x37", "x38", "x39", "x40",
++     "x41", "x42", "x43", "x44", "x45", "x46", "x47", "x48", "x49", "x50",
++     "x51", "x52", "x53", "x54", "x55", "x56", "x57", "x58", "x59", "x60",
++     "x61", "x62", "x63", "x64", "x65", "x66", "x67", "x68", "x69", "x70",
++     "x71", "x72", "x73", "x74", "x75", "x76", "x77", "x78", "x79", "x80",
++     "x81", "x82", "x83", "x84", "x85", "x86", "x87", "x88", "x89", "x90",
++     "x91", "x92", "x93", "x94", "x95", "x96", "x97", "x98", "x99", "x100")
+> 
+> func1 <- function(x)
++ {
++      sin(6 * x[,1]) + x[,2] + 4 * x[,3]^2
++ }
+> y <- func1(x)
+> degree=1
+> trace=0
+> cat("test 1: nrow(x)", nrow(x), "ncol(x)", ncol(x), "degree", degree, "trace", trace, "\n")
+test 1: nrow(x) 10000 ncol(x) 100 degree 1 trace 0 
+> a1 <- earth(x, y, degree=degree, minspan=0, trace=trace)
+> print(summary(a1))
+Call: earth(x=x, y=y, trace=trace, degree=degree, minspan=0)
+
+                  coefficients
+(Intercept)             -2.462
+h(-0.39483-x01)          2.795
+h(x01- -0.39483)        -1.482
+h(x01- -0.135719)        6.680
+h(x01-0.273862)        -10.273
+h(x01-0.757351)          8.278
+h(0.81036-x02)          -1.000
+h(x02-0.81036)           0.947
+h(x03- -0.587569)        4.296
+h(0.0152946-x03)         6.627
+h(x03-0.0152946)        -1.999
+h(x03-0.512525)          3.687
+
+Selected 12 of 12 terms, and 3 of 100 predictors 
+Termination condition: RSq changed by less than 0.001 at 12 terms
+Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, ...
+Number of terms at each degree of interaction: 1 11 (additive model)
+GCV 0.0653    RSS 650    GRSq 0.971    RSq 0.971
+> print(a1)
+Selected 12 of 12 terms, and 3 of 100 predictors 
+Termination condition: RSq changed by less than 0.001 at 12 terms
+Importance: x03, x02, x01, x04-unused, x05-unused, x06-unused, x07-unused, ...
+Number of terms at each degree of interaction: 1 11 (additive model)
+GCV 0.0653    RSS 650    GRSq 0.971    RSq 0.971
+> plot(a1)
+> plotmo(a1)
+
+ grid:    x01      x02      x03      x04     x05    x06     x07     x08     x09
+     -0.00358 -0.00702 -0.00386 -0.00925 0.00666 0.0153 0.00884 -0.0103 0.00119
+      x10     x11     x12     x13    x14    x15    x16    x17      x18    x19
+ -0.00157 0.00723 0.00135 -0.0107 0.0106 0.0131 0.0088 0.0168 -0.00038 0.0122
+     x20     x21     x22      x23     x24      x25      x26     x27     x28
+ -0.0036 0.00636 0.00531 0.000542 0.00647 -0.00491 -0.00257 0.00799 -0.0126
+      x29    x30       x31     x32      x33     x34   x35     x36      x37
+ -0.00653 0.0071 -2.64e-05 0.00126 -0.00537 -0.0045 0.015 0.00496 -0.00988
+     x38    x39    x40      x41     x42      x43      x44      x45    x46
+ -0.0062 -0.011 0.0111 0.000431 -0.0151 -0.00633 0.000193 -0.00347 0.0133
+     x47      x48    x49   x50     x51     x52     x53      x54      x55  x56
+ -0.0149 0.000321 0.0108 0.017 0.00526 0.00177 0.00664 0.000308 -0.00817 0.02
+      x57      x58     x59     x60      x61     x62      x63     x64     x65
+ -0.00184 0.000796 0.00459 -0.0145 -0.00811 -0.0077 -0.00113 0.00649 -0.0131
+      x66     x67      x68    x69      x70     x71    x72    x73      x74
+ -0.00251 0.00113 -0.00057 0.0132 -0.00248 0.00126 0.0226 0.0114 -0.00133
+     x75     x76     x77       x78    x79      x80      x81    x82      x83
+ 0.00446 -0.0076 -0.0102 -0.000355 0.0221 -0.00503 -0.00424 -0.015 -0.00651
+     x84     x85     x86      x87     x88     x89      x90     x91     x92
+ -0.0063 -0.0132 0.00255 0.000623 0.00786 0.00661 0.000138 -0.0156 0.00465
+     x93      x94      x95     x96     x97     x98     x99    x100
+ 0.00531 -0.00447 -0.00818 -0.0037 0.00271 0.00536 0.00109 -0.0051
+
+> 
+> func2 <- function(x)
++ {
++      x[,1] + x[,2] + x[,3] * x[,4]
++ }
+> cat("test 2: nrow(x)", nrow(x), "ncol(x)", ncol(x), "degree", degree, "trace", trace, "\n")
+test 2: nrow(x) 10000 ncol(x) 100 degree 1 trace 0 
+> y <- func2(x)
+> trace=4
+> a2 <- earth(x, y, degree=degree, minspan=0, trace=trace)
+Call: earth(x=x, y=y, trace=trace, degree=degree, minspan=0)
+
+x is a 10000 by 100 matrix: 1=x01, 2=x02, 3=x03, 4=x04, 5=x05, 6=x06, 7=x07, 8=x08, 9=x09, 10=x10, 11=x11, 12=x12, 13=x13, 14=x14, 15=x15, 16=x16, 17=x17, 18=x18, 19=x19, 20=x20, ...
+First few rows of x are
+         x01    x02     x03    x04     x05     x06    x07    x08    x09    x10
+[1,]  0.3757 -0.593 -0.9298 -0.346  0.4485  0.1227 -0.579  0.433  0.741 -0.116
+[2,] -0.0156  0.131  0.2874 -0.539  0.3421 -0.0321 -0.698 -0.627  0.529 -0.427
+[3,] -0.3098 -0.448 -0.0346 -0.625 -0.1843 -0.4007 -0.322 -0.458 -0.816 -0.728
+[4,]  0.9901 -0.052  0.2611  0.584 -0.0027  0.6180 -0.631 -0.350 -0.396 -0.974
+[5,]  0.3905  0.410  0.9872  0.393  0.7713  0.4219 -0.860 -0.792 -0.643 -0.784
+[6,] -0.9786  0.756 -0.8258 -0.754  0.3615 -0.8083  0.477  0.850  0.825 -0.437
+         x11    x12    x13    x14    x15    x16    x17     x18     x19     x20
+[1,]  0.5225  0.643  0.164  0.465  0.146  0.868  0.564 -0.7875  0.9657  0.4690
+[2,]  0.8110 -0.916  0.312  0.993  0.341 -0.229  0.722 -0.4800  0.0191 -0.6608
+[3,] -0.7853  0.363  0.692  0.324 -0.859 -0.455 -0.669  0.7618  0.0536  0.8859
+[4,] -0.2899 -0.608 -0.687  0.849 -0.436  0.417 -0.462 -0.0108  0.4085  0.6810
+[5,]  0.9196 -0.625 -0.937  0.557  0.370 -0.882  0.478  0.5118 -0.3812  0.8295
+[6,] -0.0971  0.495  0.421 -0.336  0.617 -0.892  0.547  0.9397 -0.6423 -0.0539
+Not all 100 columns were printed
+
+y is a 10000 by 1 matrix: 1=y
+First few rows of y are
+           y
+[1,]  0.1044
+[2,] -0.0391
+[3,] -0.7367
+[4,]  1.0904
+[5,]  1.1888
+[6,]  0.4007
+
+Forward pass: minspan 9 endspan 13
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
+1      0.0000 0.0000                    (Intercept)
+2      0.4293 0.4298       0.4298    2          x02     0.99547  2   3   
+4      0.8588 0.8590       0.4292    1          x01     0.76228  4   5   
+6      0.8589 0.8592    0.0002225   81          x81     0.62727  6   7   reject term
+
+Reached delta RSq threshold (DeltaRSq 0.00022 < 0.001) at 5 terms
+After forward pass GRSq 0.859 RSq 0.859
+Forward pass complete: 5 terms
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
+          1      0.0000  0.0000     0.0000      0  1
+          2      0.4295  0.4297     0.4295      1  1 3
+          3      0.8570  0.8571     0.4275      2  1 3 5
+chosen    4      0.8588  0.8590     0.0018      2  1 3 4 5
+          5      0.8588  0.8590    -0.0000      2  1 2 3 4 5
+
+Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 100 predictors
+After backward pass GRSq 0.859 RSq 0.859 
+> print(summary(a2))
+Call: earth(x=x, y=y, trace=trace, degree=degree, minspan=0)
+
+                coefficients
+(Intercept)            1.766
+h(0.762285-x01)       -1.008
+h(x01-0.762285)        0.922
+h(0.995471-x02)       -1.000
+
+Selected 4 of 5 terms, and 2 of 100 predictors 
+Termination condition: RSq changed by less than 0.001 at 5 terms
+Importance: x02, x01, x03-unused, x04-unused, x05-unused, x06-unused, ...
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 0.11    RSS 1096    GRSq 0.859    RSq 0.859
+> 
+> if(!interactive()) {
++     dev.off()         # finish postscript plot
++     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
++ }

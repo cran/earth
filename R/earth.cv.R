@@ -1,46 +1,48 @@
 # earth.cv.R: Functions for cross validation of earth models.
 #             Note that earth.cv returns null unless nfold > 1.
 
-earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
-                     glm, trace, keepxy, ncross, nfold, stratify, env, ...)
+earth.cv <- function(obj, x, y,
+                     subset, weights, na.action, keepxy, trace, glm,
+                     ncross, nfold, stratify,
+                     varmod.method=c("none", VARMOD.METHODS),
+                     varmod.exponent, varmod.conv, varmod.clamp, varmod.minspan,
+                     Scale.y, env, degree=1, ...)
 {
-    get.fold.rsq.per.subset <- function(fit, oof.y, max.nterms, trace, must.print.dots)
+    get.fold.rsq.per.subset <- function(foldmod, oof.y, max.nterms, trace, must.print.dots)
     {
         wp.expanded <- wp.expanded / sum(wp.expanded)
-        oof.rsq.per.subset <- infold.rsq.per.subset <- rep(0, max.nterms)
-        # nrow(fit$dirs) is the number of terms in this fold's fit before pruning
-        for(nterms in 1:min(max.nterms, nrow(fit$dirs))) {
+        oof.rsq.per.subset <- infold.rsq.per.subset <- repl(0, max.nterms)
+        # nrow(foldmod$dirs) is the number of terms in this fold's model before pruning
+        for(nterms in 1:min(max.nterms, nrow(foldmod$dirs))) {
             trace.get.fold1(trace, must.print.dots, nterms)
             # penalty=-1 to enforce strict nprune
             # glm=NULL for speed, ok because we don't need the glm submodel
             # TODO 70% of cv time is spent in update.earth
-            pruned.fit <- update(fit, nprune=nterms, penalty=-1, ponly=TRUE,
-                                 glm=NULL, trace=max(0, trace-1))
-            yhat <- predict(pruned.fit, newdata=x, type="earth")
-            oof.yhat  <- yhat[oof.subset,  , drop=FALSE]
-            infold.yhat <- yhat[infold.subset, , drop=FALSE]
-            for(i in 1:NCOL(yhat)) { # for each response
+            pruned.foldmod <- update(foldmod, nprune=nterms, penalty=-1, ponly=TRUE,
+                                     glm=NULL, trace=max(0, trace-1))
+            fit <- predict(pruned.foldmod, newdata=x, type="earth")
+            oof.fit    <- fit[oof.subset,  , drop=FALSE]
+            infold.fit <- fit[infold.subset, , drop=FALSE]
+            for(i in 1:NCOL(fit)) { # for each response
                 oof.rsq.per.subset[nterms] <- oof.rsq.per.subset[nterms] +
-                    wp.expanded[i] * get.rsq(ss(oof.y[,i] - oof.yhat[,i]),
+                    wp.expanded[i] * get.rsq(ss(oof.y[,i] - oof.fit[,i]),
                                              ss(oof.y[,i] - mean(oof.y[,i])))
                 infold.rsq.per.subset[nterms] <- infold.rsq.per.subset[nterms] +
-                    wp.expanded[i] * get.rsq(ss(infold.y[,i] - infold.yhat[,i]),
+                    wp.expanded[i] * get.rsq(ss(infold.y[,i] - infold.fit[,i]),
                                              ss(infold.y[,i] - mean(infold.y[,i])))
             }
-            if(nrow(fit$dirs) < max.nterms)
-                for(nterms in (nrow(fit$dirs)+1): max.nterms)
+            if(nrow(foldmod$dirs) < max.nterms)
+                for(nterms in (nrow(foldmod$dirs)+1): max.nterms)
                     oof.rsq.per.subset[nterms] <- infold.rsq.per.subset[nterms] <- NA
         }
         trace.get.fold2(trace, must.print.dots, nterms)
-        list(oof.rsq.per.subset=oof.rsq.per.subset, infold.rsq.per.subset=infold.rsq.per.subset)
-    }
-    get.this.group <- function(icross, ifold)
-    {
-        start <- ((icross-1) * ncases) + 1
-        groups[start:(start+ncases-1), 2]
+        list(oof.rsq.per.subset=oof.rsq.per.subset,
+             infold.rsq.per.subset=infold.rsq.per.subset)
     }
     #--- earth.cv starts here ---
-    check.ncross.and.nfold(ncross, nfold, x)
+    stratify <- check.boolean(stratify)
+    varmod.method <- match.arg1(varmod.method) # check varmod.method is legal and expand
+    check.cv.args(ncross, nfold, varmod.method)
     if(ncross < 1 || nfold <= 1)
         return (NULL)
     if(nfold > nrow(x))
@@ -50,10 +52,10 @@ earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
     max.nterms <- nrow(obj$dirs)
     wp <- wp.expanded <- obj$wp
     if(is.null(wp))
-        wp.expanded <- rep(1, ncol(y))   # all ones vector
-    list. <- list()             # returned list of cross validated models
+        wp.expanded <- repl(1, ncol(y)) # all ones vector
+    list. <- list()                     # returned list of cross validated models
     ncases <- nrow(x)
-    nresp <- ncol(y)            # number of responses
+    nresp <- ncol(y)                    # number of responses
     # ndigits aligns trace prints without too much white space
     ndigits <- ceiling(log10(ncases - ncases/nfold + .1))
     # print pacifier dots if get.fold.rss.per.subset will be slow
@@ -77,7 +79,8 @@ earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
     must.get.class.rate <- !is.null(obj$levels)
     # the final summary row of the tables is "mean", "all" or "max", depending on the statistic.
     if(ncross > 1)
-        fold.names <- paste0(rep(paste0("fold", 1:ncross, "."), each=nfold), rep(1:nfold, ncross))
+        fold.names <- paste0(rep(paste0("fold", 1:ncross, "."), each=nfold),
+                             rep(1:nfold, times=ncross))
     else
         fold.names <- sprintf("fold%d", 1:nfold)
     fold.names.plus.mean <- c(fold.names, "mean")
@@ -114,14 +117,18 @@ earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
         colnames(class.rate.tab) <- resp.names.plus.mean
         rownames(maxerr.tab) <- fold.names.plus.all
     }
-    oof.rsq.tab <- infold.rsq.tab <- NULL
+    oof.rsq.tab <- infold.rsq.tab <- oof.fit.tab <- NULL
     if(keepxy) {
         oof.rsq.tab <- infold.rsq.tab <- matrix(0, nrow=ncross.fold+1, ncol=max.nterms)
         colnames(oof.rsq.tab) <- colnames(infold.rsq.tab) <- paste0("nterms", 1:max.nterms)
         rownames(oof.rsq.tab) <- rownames(infold.rsq.tab) <- fold.names.plus.all
     }
+    if(varmod.method != "none") {
+        oof.fit.tab <- matrix(0, nrow=nrow(x), ncol=ncross) # preds on oof data
+        colnames(oof.fit.tab) <- paste0("icross", 1:ncross)
+    }
     for(icross in 1:ncross) {
-        this.group <- get.this.group(icross, ifold)
+        this.group <- get.this.group(icross, ifold, ncases, groups)
         for(ifold in 1:nfold) {
             icross.fold <- ((icross-1) * nfold) + ifold
             oof.subset <- (1:ncases)[which(this.group == ifold)]
@@ -130,60 +137,64 @@ earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
             infold.x <- x[infold.subset,,drop=FALSE]
             infold.y <- y[infold.subset,,drop=FALSE]
             infold.weights <- weights[infold.subset]
-            fit <- earth.default(x=infold.x, y=infold.y, weights=infold.weights,
-                                 wp=wp, scale.y=scale.y, subset=subset,
-                                 glm=glm, trace=trace, ...)
-            fit$icross <- icross
-            fit$ifold <- ifold
+            foldmod <- earth.default(x=infold.x, y=infold.y, weights=infold.weights,
+                                     wp=wp, Scale.y=Scale.y, subset=subset,
+                                     glm=glm, trace=trace, degree=degree, ...)
+            foldmod$icross <- icross
+            foldmod$ifold <- ifold
             oof.x <- x[oof.subset,,drop=FALSE]
             oof.y <- y[oof.subset,,drop=FALSE]
-            yhat <- predict(fit, newdata=oof.x, type="earth")
-            yhat.resp <- NULL
+            oof.fit <- predict(foldmod, newdata=oof.x, type="earth")
+            # fill in subset of entries in this icross column of oof.fit.tab
+            # note that we use only the first response when there are multiple responses
+            if(!is.null(oof.fit.tab))
+                oof.fit.tab[oof.subset, icross] <- oof.fit[,1]
+            oof.fit.resp <- NULL
             if(is.binomial || is.poisson)
-                yhat.resp <- predict(fit, newdata=oof.x, type="response")
+                oof.fit.resp <- predict(foldmod, newdata=oof.x, type="response")
             else if(must.get.class.rate) # not glm but has binary response?
-                yhat.resp <- yhat
+                oof.fit.resp <- oof.fit
 
             # fill in this fold's row in summary tabs
 
             for(iresp in 1:nresp) {
                 rsq.tab[icross.fold, iresp] <-
-                    get.rsq(sum((yhat[,iresp] - oof.y[,iresp])^2),
+                    get.rsq(sum((oof.fit[,iresp] - oof.y[,iresp])^2),
                             sum((oof.y[,iresp] - mean(oof.y[,iresp]))^2))
                 if(is.binomial) {
                     deviance.tab[icross.fold, iresp] <-
-                        get.binomial.deviance(yhat.resp[,iresp], oof.y[,iresp])
-                    calib <- get.binomial.calib(yhat.resp[,iresp], oof.y[,iresp])
+                        get.binomial.deviance(oof.fit.resp[,iresp], oof.y[,iresp])
+                    calib <- get.binomial.calib(oof.fit.resp[,iresp], oof.y[,iresp])
                     calib.int.tab[icross.fold, iresp]   <- calib[1]
                     calib.slope.tab[icross.fold, iresp] <- calib[2]
                     maxerr.tab[icross.fold, iresp] <-
-                        get.maxerr(oof.y[,iresp] - yhat.resp[,iresp])
+                        get.maxerr(oof.y[,iresp] - oof.fit.resp[,iresp])
                     test.tab[icross.fold, iresp] <-
-                        get.auc(yhat.resp[,iresp], oof.y[,iresp])
+                        get.auc(oof.fit.resp[,iresp], oof.y[,iresp])
                 }
                 else if(is.poisson) {
                     deviance.tab[icross.fold, iresp] <-
-                        get.poisson.deviance(yhat.resp[,iresp], oof.y[,iresp])
-                    calib <- get.poisson.calib(yhat.resp[,iresp], oof.y[,iresp])
+                        get.poisson.deviance(oof.fit.resp[,iresp], oof.y[,iresp])
+                    calib <- get.poisson.calib(oof.fit.resp[,iresp], oof.y[,iresp])
                     calib.int.tab[icross.fold, iresp]   <- calib[1]
                     calib.slope.tab[icross.fold, iresp] <- calib[2]
                     maxerr.tab[icross.fold, iresp] <-
-                        get.maxerr(oof.y[,iresp] - yhat.resp[,iresp])
+                        get.maxerr(oof.y[,iresp] - oof.fit.resp[,iresp])
                     test.tab[icross.fold, iresp] <-
-                        cor(yhat.resp[,iresp], oof.y[,iresp])
+                        cor(oof.fit.resp[,iresp], oof.y[,iresp])
                 }
                 else
                     maxerr.tab[icross.fold, iresp] <-
-                        get.maxerr(oof.y[,iresp] - yhat[,iresp])
+                        get.maxerr(oof.y[,iresp] - oof.fit[,iresp])
             } # end for iresp
 
-            nvars[icross.fold] <- get.nused.preds.per.subset(fit$dirs, fit$selected.terms)
-            nterms[icross.fold] <- length(fit$selected.terms)
+            nvars[icross.fold] <- get.nused.preds.per.subset(foldmod$dirs, foldmod$selected.terms)
+            nterms[icross.fold] <- length(foldmod$selected.terms)
             if(must.get.class.rate)
-                class.rate.tab[icross.fold, ] <- get.class.rate(yhat.resp, oof.y, obj$levels)
+                class.rate.tab[icross.fold, ] <- get.class.rate(oof.fit.resp, oof.y, obj$levels)
             if(keepxy) {
                 temp <-
-                    get.fold.rsq.per.subset(fit, oof.y, max.nterms, trace, must.print.dots)
+                    get.fold.rsq.per.subset(foldmod, oof.y, max.nterms, trace, must.print.dots)
                 oof.rsq.tab[icross.fold,]  <- temp$oof.rsq
                 infold.rsq.tab[icross.fold,] <- temp$infold.rsq
             }
@@ -198,10 +209,10 @@ earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
                 test.tab[icross.fold, ilast.col]        <- weighted.mean(test.tab       [icross.fold, -ilast.col], wp.expanded)
             }
             if(!keepxy) # reduce memory by getting rid of big fields
-                fit$bx <- fit$residuals <- fit$prune.terms <- NULL
+                foldmod$bx <- foldmod$residuals <- foldmod$prune.terms <- NULL
             trace.fold(icross, ifold, trace, y, infold.subset, oof.subset, ncross, ndigits,
                        rsq.tab[icross.fold,], n.oof.digits, must.print.dots)
-            list.[[icross.fold]] <- fit
+            list.[[icross.fold]] <- foldmod
         } # end for ifold
     } # end for icross
 
@@ -224,8 +235,19 @@ earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
     if(keepxy) {
         # there will be NAs in oof.rsq.tab if max terms in a fold is
         # less than max terms in full model
-        oof.rsq.tab[ilast,]  <- colMeans(oof.rsq.tab[-ilast,],  na.rm=TRUE)
+        oof.rsq.tab[ilast,]  <- colMeans(oof.rsq.tab[-ilast,], na.rm=TRUE)
         infold.rsq.tab[ilast,] <- colMeans(infold.rsq.tab[-ilast,], na.rm=TRUE)
+    }
+    varmod <- NULL
+    if(varmod.method != "none") {
+        meanfit   <- apply(oof.fit.tab,  1, mean) # mean of each row of oof.fit.tab
+        meanfit   <- matrix(meanfit, ncol=1)      # convert to a n x 1 mat, for consistency
+        model.var <- apply(oof.fit.tab,  1, var)  # var  of each row of oof.fit.tab
+        model.var <- matrix(model.var, ncol=1)
+        varmod <- varmod(obj,
+                         varmod.method, varmod.exponent,
+                         varmod.conv, varmod.clamp, varmod.minspan,
+                         trace, x, y, meanfit, model.var, degree=degree)
     }
     if(trace >= 1)
         cat("\n")
@@ -240,16 +262,18 @@ earth.cv <- function(obj, x, y, weights, scale.y, subset, na.action,
          groups          = groups, # groups used for cross validation
          rsq.tab         = rsq.tab,
          oof.rsq.tab     = oof.rsq.tab,
-         infold.rsq.tab    = infold.rsq.tab,
+         infold.rsq.tab  = infold.rsq.tab,
          class.rate.tab  = class.rate.tab,
          maxerr.tab      = maxerr.tab,
          auc.tab         = if(is.binomial) test.tab else NULL,
          cor.tab         = if(is.poisson) test.tab else NULL,
          deviance.tab    = deviance.tab,
          calib.int.tab   = calib.int.tab,
-         calib.slope.tab = calib.slope.tab)
+         calib.slope.tab = calib.slope.tab,
+         varmod          = varmod,      # null unless varmod specified
+         oof.fit.tab     = oof.fit.tab) # null unless varmod specified
 }
-check.ncross.and.nfold <- function(ncross, nfold, x)
+check.cv.args <- function(ncross, nfold, varmod.method)
 {
     if(!is.numeric(ncross))
         stop0("ncross must be numeric")
@@ -277,23 +301,37 @@ check.ncross.and.nfold <- function(ncross, nfold, x)
         stop0("ncross=", ncross, " yet nfold=", nfold)
     if(ncross < 1 && nfold > 1)
         stop0("ncross=", ncross, " yet nfold=", nfold)
+
+    if(varmod.method != "none") {
+        if(nfold <= 1)
+            stop0("varmod.method=\"", varmod.method, "\" requires nfold greater than 1")
+        if(ncross < 3)
+            stop0("ncross=", ncross,
+                  "\nWhen varmod.method is used, ncross should be larger\n",
+                  "(suggest 100, 30 for a quick look, 3 for debugging code)")
+    }
 }
 get.groups <- function(y, nfold, stratify)
 {
-    groups <- sample(rep(1:nfold, length=nrow(y)))
+    groups <- sample(repl(1:nfold, nrow(y)))
     if(stratify) {
         # Get (roughly) equal number of folds for each non-zero entry in each y column
         # If y was originally a factor before expansion to multiple columns, this is
         # equivalent to having the same numbers of each factor level in each fold.
         for(iresp in 1:ncol(y)) {
             yset <- y[,iresp] != 0
-            groups[yset] <- sample(rep(1:nfold, length=sum(yset)))
+            groups[yset] <- sample(repl(1:nfold, sum(yset)))
         }
     }
     if(any(table(groups) == 0))
         stop0("Not enough data to do ", nfold,
               " fold cross validation (an out-of-fold set is empty)")
     groups
+}
+get.this.group <- function(icross, ifold, ncases, groups)
+{
+    start <- ((icross-1) * ncases) + 1
+    groups[start:(start+ncases-1), 2]
 }
 trace.cv.header <- function(obj, nresp, trace, must.print.dots)
 {
@@ -305,7 +343,7 @@ trace.cv.header <- function(obj, nresp, trace, must.print.dots)
 }
 trace.fold.header <- function(trace, ncross, icross, ifold)
 {
-    if(trace && trace < 1) {
+    if(trace >= .5 && trace < 1) {
         if(ncross > 1)
             printf("CV fold %2d.%-2d ", icross, ifold)
         else
@@ -324,7 +362,7 @@ trace.fold.header <- function(trace, ncross, icross, ifold)
 trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncross, ndigits,
                        rsq.row, n.oof.digits, must.print.dots)
 {
-    if(!trace)
+    if(trace < .5)
         return()
     if(ifold < 0) {
         icross <- if(ncross > 1) "   " else ""
@@ -336,10 +374,10 @@ trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncros
             icross <- ""
         printf("CV fold %s%-2d ", icross, ifold)
     }
-    printf("cv.rsq %-6.3f ", rsq.row[length(rsq.row)])
+    printf("CVRSq %-6.3f ", rsq.row[length(rsq.row)])
     nresp <- length(rsq.row) - 1 # -1 for "all"
     if(nresp > 1) {
-        cat("Per response cv.rsq ")
+        cat("Per response CVRSq ")
         for(iresp in 1:nresp)
             printf("%-6.3f ", rsq.row[iresp])
     }
@@ -414,8 +452,8 @@ print.cv <- function(x) # called from print.earth for cross validated models
     wide.spacing <- is.null(x$cv.deviance.tab) # if printing little then use wide spacing
 
     # create a data.frame and print that
-    tab <- if(wide.spacing) data.frame("    cv.rsq"=get.field("cv.rsq.tab"), check.names = FALSE)
-           else             data.frame("cv.rsq"  =get.field("cv.rsq.tab"))
+    tab <- if(wide.spacing) data.frame("    CVRSq"=get.field("cv.rsq.tab"), check.names = FALSE)
+           else             data.frame("CVRSq"  =get.field("cv.rsq.tab"))
 
     tab$sd.1=get.sd("cv.rsq.tab")
 

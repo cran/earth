@@ -1,6 +1,6 @@
 \name{evimp}
 \alias{evimp}
-\title{Estimate variable importances in an "earth" object}
+\title{Estimate variable importances in an earth object}
 \description{
 Estimate variable importances in an \code{\link{earth}} object
 }
@@ -12,17 +12,17 @@ evimp(obj, trim=TRUE, sqrt.=TRUE)
     An \code{\link{earth}} object.
   }
   \item{trim}{
-    If TRUE (default), delete rows in the returned matrix for
+    If \code{TRUE} (default), delete rows in the returned matrix for
     variables that don't appear in any subsets.
   }
   \item{sqrt.}{
-    Default is TRUE,
+    Default is \code{TRUE},
     meaning take the \code{\link{sqrt}} of the GCV and RSS importances before
     normalizing to 0 to 100.
     Taking the square root gives a better indication of
     relative importances because the raw importances are calculated using
     a sum of squares.
-    Use FALSE to not take the square root.
+    Use \code{FALSE} to not take the square root.
   }
 }
 \value{
@@ -39,7 +39,7 @@ Equivalently, 0 if the row name has an \code{-unused} suffix.
 \item \code{nsubsets}: Variable importance using the "number of subsets" criterion.
 Is the number of subsets that include the variable (see "Three Criteria" in the chapter
 on \code{evimp} in the \code{earth} vignette
-\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}).
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the earth package}}).
 \item \code{gcv}: Variable importance using the GCV criterion (see "Three Criteria").
 \item \code{gcv.match}: 1, except is
 0 where the rank using the \code{gcv} criterion differs from
@@ -58,7 +58,7 @@ are also non-increasing, except where the
 }
 \note{
 There is a chapter on \code{evimp} in the earth package vignette
-\dQuote{\href{../doc/earth-notes.pdf}{Notes on the \code{earth} package}}.
+\dQuote{\href{../doc/earth-notes.pdf}{Notes on the earth package}}.
 
 \bold{Acknowledgment}
 
@@ -70,8 +70,8 @@ Thanks to Max Kuhn for the original \code{evimp} code and for helpful discussion
 }
 \examples{
 data(ozone1)
-a <- earth(O3 ~ ., data=ozone1, degree=2)
-ev <- evimp(a, trim=FALSE)
+earth.mod <- earth(O3 ~ ., data=ozone1, degree=2)
+ev <- evimp(earth.mod, trim=FALSE)
 plot(ev)
 print(ev)
 }

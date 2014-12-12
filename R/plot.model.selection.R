@@ -4,35 +4,41 @@
 
 plot.model.selection <- function(
     object,
-    col.grsq,
-    lty.grsq,
-    col.rsq,
-    lty.rsq,
-    col.mean.oof.rsq,
-    col.oof.rsq,
-    col.oof.vline,
-    col.oof.labs,
-    col.sel.grid,
-    col.pch.max.oof.rsq,
-    col.pch.cv.rsq,
-    col.mean.infold.rsq,
-    col.infold.rsq,
-    col.npreds,
-    lty.npreds,
-    col.vline,
-    lty.vline,
-    col.vseg,
-    col.legend,
-    cex.legend,
-    legend.pos,     # NULL means auto, else c(x,y)
-    rlim,
-    add,
+
     do.par,
+    xlim,
+    ylim,
+    main,
+
+    col.line            = "lightblue",
+
+    legend.pos          = NULL, # NULL means auto, NA means no legend
+    cex.legend          = NULL,
+
+    col.grsq            = 1,
+    col.infold.rsq      = 0,
+    col.mean.infold.rsq = 0,
+    col.mean.oof.rsq    = "palevioletred",
+    col.npreds          = if(is.null(object$cv.oof.rsq.tab)) 1 else 0,
+    col.oof.labs        = 0,
+    col.oof.rsq         = "mistyrose2",
+    col.oof.vline       = col.mean.oof.rsq,
+    col.pch.cv.rsq      = 0,
+    col.pch.max.oof.rsq = 0,
+    col.sel.grid        = 0,
+    col.vline           = col.grsq,
+    col.vseg            = 0,
+    lty.grsq            = 1,
+    lty.npreds          = 2,
+    lty.rsq             = 5,
+    lty.vline           = 3,
+
+    add,
+    nresp,   # ncol(y)
     max.nterms,
     max.npreds,
     jitter,         # allows overlaid plots to be visible
-    nresp,          # ncol(y)
-    main,           # par() settings
+
     ...)
 {
     possibly.issue.cv.warning <- function()
@@ -48,7 +54,8 @@ plot.model.selection <- function(
             if(is.null(object$cv.list))
                 warning0("no cross-validation data because nfold not used in original call to earth")
             else if(is.null(object$cv.oof.rsq.tab))
-                warning0("cannot plot cross-validation data because keepxy not set in original call to earth")
+                warning0("cannot plot cross-validation data because ",
+                         "the earth model was not built with keepxy=TRUE")
         }
     }
     scale1 <- function(x, Min, Max)
@@ -57,14 +64,14 @@ plot.model.selection <- function(
     }
     left.axis <- function()
     {
-        pretty <- pretty(c(rlim[1], rlim[2]))
-        axis(side=2, at=scale1(pretty, rlim[1], rlim[2]), labels=pretty, srt=90)
+        pretty <- pretty(c(ylim[1], ylim[2]))
+        axis(side=2, at=scale1(pretty, ylim[1], ylim[2]), labels=pretty, srt=90)
         text <- ""
-        if(!is.naz(col.grsq))
+        if(is.specified(col.grsq))
             text <- "GRSq"
-        if(!is.naz(col.rsq) ||
-                !is.naz(col.oof.rsq) || !is.naz(col.mean.oof.rsq) ||
-                !is.naz(col.infold.rsq) || !is.naz(col.mean.infold.rsq))
+        if(is.specified(col.line) ||
+                is.specified(col.oof.rsq) || is.specified(col.mean.oof.rsq) ||
+                is.specified(col.infold.rsq) || is.specified(col.mean.infold.rsq))
             text <- paste0(text, "   RSq")
         # TODO mtext needs cex=par("cex"), not sure why
         mtext(text, side=2, line=2, cex=par("cex"))
@@ -77,59 +84,59 @@ plot.model.selection <- function(
     }
     plot.sel.grid <- function() # plot the grid
     {
-        if(is.naz(col.sel.grid))
+        if(!is.specified(col.sel.grid))
             return()
         col <- col.sel.grid[1]
         abline(v=0:nterms.on.horiz.axis, col=col)
-        for(v in seq(-1,1,by=if(abs(rlim[2]-rlim[1]) <= .5) .05 else .1))
-            abline(h=scale1(v, rlim[1], rlim[2]), col=col)
+        for(v in seq(-1,1,by=if(abs(ylim[2]-ylim[1]) <= .5) .05 else .1))
+            abline(h=scale1(v, ylim[1], ylim[2]), col=col)
     }
     plot.infold.rsqs <- function() # plot rsq's measured on the in-fold data
     {
-        if(is.naz(col.infold.rsq))
+        if(!is.specified(col.infold.rsq))
             return()
         # recycle col.infold.rsq so can use different colors for different folds
-        col.infold.rsq <- rep(col.infold.rsq, length.out=length(object$cv.list))
-        for(ifold in 1:length(object$cv.list)) {
+        col.infold.rsq <- repl(col.infold.rsq, length(object$cv.list))
+        for(ifold in seq_along(object$cv.list)) {
             infold.rsq <- object$cv.infold.rsq.tab[ifold,]
             if(jitter > 0)
                 infold.rsq  <- jitter(infold.rsq, amount=jitter)
-            scaled.rsq <- scale1(infold.rsq,  rlim[1], rlim[2])
+            scaled.rsq <- scale1(infold.rsq,  ylim[1], ylim[2])
             lines(scaled.rsq, col=col.infold.rsq[ifold], lty=1)
         }
     }
     plot.oof.rsqs <- function() # plot rsq's measured on the out-of-fold data
     {
-        if(is.naz(col.oof.rsq))
+        if(!is.specified(col.oof.rsq))
             return()
         # recycle col.oof.rsq so can use different colors for different folds
-        col.oof.rsq <- rep(col.oof.rsq, length.out=length(object$cv.list))
-        if(!is.naz(col.oof.labs))
-            col.oof.labs <- rep(col.oof.labs, length.out=length(object$cv.list))
-        for(ifold in 1:length(object$cv.list)) {
+        col.oof.rsq <- repl(col.oof.rsq, length(object$cv.list))
+        if(is.specified(col.oof.labs))
+            col.oof.labs <- repl(col.oof.labs, length(object$cv.list))
+        for(ifold in seq_along(object$cv.list)) {
             oof.rsq <- object$cv.oof.rsq.tab[ifold,]
             if(jitter > 0)
                 oof.rsq  <- jitter(oof.rsq, amount=jitter)
-            scaled.rsq <- scale1(oof.rsq,  rlim[1], rlim[2])
+            scaled.rsq <- scale1(oof.rsq,  ylim[1], ylim[2])
             lines(scaled.rsq, col=col.oof.rsq[ifold], lty=1)
-            if(!is.naz(col.oof.labs)) {
+            if(is.specified(col.oof.labs)) {
                 oof.rsq <- oof.rsq[!is.na(oof.rsq)] # truncate NAs
                 text(length(oof.rsq)+.2, scaled.rsq[length(oof.rsq)],
                      substr(names(object$cv.list)[ifold], 5, 15),
                      cex=.6, col=col.oof.labs[ifold], xpd=NA)
             }
         }
-        if(!is.naz(col.pch.max.oof.rsq) || !is.naz(col.pch.cv.rsq)) {
-            for(ifold in 1:length(object$cv.list)) {
+        if(is.specified(col.pch.max.oof.rsq) || is.specified(col.pch.cv.rsq)) {
+            for(ifold in seq_along(object$cv.list)) {
                 oof.rsq <- object$cv.oof.rsq.tab[ifold,]
-                scaled.rsq <- scale1(oof.rsq,  rlim[1], rlim[2])
+                scaled.rsq <- scale1(oof.rsq,  ylim[1], ylim[2])
                 # show the max oof.rsq for this fold
                 nterms <- which.max(oof.rsq)
-                points(nterms, scale1(oof.rsq,  rlim[1], rlim[2])[nterms],
+                points(nterms, scale1(oof.rsq,  ylim[1], ylim[2])[nterms],
                        pch=1, col=col.pch.max.oof.rsq)
                 # show the position of the cv.rsq's
                 nterms <- length(object$cv.list[[ifold]]$selected.terms)
-                points(nterms, scale1(oof.rsq,  rlim[1], rlim[2])[nterms],
+                points(nterms, scale1(oof.rsq,  ylim[1], ylim[2])[nterms],
                        pch=20, col=col.pch.cv.rsq, cex=.5)
             }
         }
@@ -149,14 +156,14 @@ plot.model.selection <- function(
     }
     plot.vertical.line.at.best.mean.oof.rsq <- function()
     {
-        if(is.naz(col.mean.oof.rsq) || is.naz(col.oof.vline))
+        if(!is.specified(col.mean.oof.rsq) || !is.specified(col.oof.vline))
             return()
         v <- which.max(mean.oof.rsq.per.subset)
         # possibly nudge right to prevent overplot of grsq.line
         if(v == length(object$selected.terms))
             v <- v + nterms.on.horiz.axis / 150
         # possibly nudge to prevent overplot of grid
-        if(!is.naz(col.sel.grid))
+        if(is.specified(col.sel.grid))
             v <- v + nterms.on.horiz.axis / 150
         # lty="23" with palevioletred subjectively looks about same
         # as lty=3 with black used for grsq line
@@ -164,41 +171,41 @@ plot.model.selection <- function(
     }
     plot.mean.infold.rsq <- function()
     {
-        if(is.naz(col.mean.infold.rsq))
+        if(!is.specified(col.mean.infold.rsq))
             return()
-        lines(scale1(mean.infold.rsq.per.subset, rlim[1], rlim[2]),
+        lines(scale1(mean.infold.rsq.per.subset, ylim[1], ylim[2]),
               col=col.mean.infold.rsq, lwd=lwd)
     }
     plot.mean.oof.rsq <- function()
     {
-        if(is.naz(col.mean.oof.rsq))
+        if(!is.specified(col.mean.oof.rsq))
             return()
-        lines(scale1(mean.oof.rsq.per.subset, rlim[1], rlim[2]),
+        lines(scale1(mean.oof.rsq.per.subset, ylim[1], ylim[2]),
               col=col.mean.oof.rsq, lwd=lwd)
     }
     plot.rsq <- function()
     {
         if(jitter > 0)
             rsq.vec  <- jitter(rsq.vec, amount=jitter)
-        lines(scale1(rsq.vec,  rlim[1], rlim[2]), col=col.rsq, lty=lty.rsq)
+        lines(scale1(rsq.vec,  ylim[1], ylim[2]), col=col.line, lty=lty.rsq)
     }
     plot.grsq <- function()
     {
         if(jitter > 0)
             grsq.vec <- jitter(grsq.vec, amount=jitter)
-        lines(scale1(grsq.vec, rlim[1], rlim[2]), col=col.grsq, lwd=lwd)
+        lines(scale1(grsq.vec, ylim[1], ylim[2]), col=col.grsq, lwd=lwd)
     }
     plot.vertical.line.at.best.grsq <- function()
     {
-        if(is.naz(col.vline))
+        if(!is.specified(col.vline))
             return()
         v <- length(object$selected.terms)
         # possibly nudge to prevent overplot of grid
-        if(!is.naz(col.sel.grid))
+        if(is.specified(col.sel.grid))
             v <- v + nterms.on.horiz.axis / 150
         abline(v=v, col=col.vline, lty=lty.vline)
         # possibly plot a colored marker at the top of the above line
-        if(!is.naz(col.vseg))
+        if(is.specified(col.vseg))
             points(x=v, y=1.02, col=col.vseg, pch=6)
     }
     plot.legend <- function()
@@ -209,9 +216,9 @@ plot.model.selection <- function(
             len <- min(length(under), length(over))
             under <- under[1:len]
             over  <- over[1:len]
-            i <- under >= rlim[1] & under <= rlim[2]
+            i <- under >= ylim[1] & under <= ylim[2]
             i[is.na(under) | is.na(over)] <- FALSE # ignore NAs
-            nobscured <- sum(abs(under[i] - over[i]) < (rlim[2] - rlim[1]) / 100)
+            nobscured <- sum(abs(under[i] - over[i]) < (ylim[2] - ylim[1]) / 100)
             nobscured > .8 * sum(i)
         }
         update.legend <- function(text, col=1, lty=1, lwd=1, vert=FALSE)
@@ -219,7 +226,7 @@ plot.model.selection <- function(
             if(is.null(legend.text)) { # first time?
                 if(text == "")         # spacer between entries?
                     return()           # ignore space when first entry
-                legend.text <<- text
+                legend.text <<- text   # note <<- not <-
                 legend.col  <<- col
                 legend.lty  <<- lty.as.char(lty)
                 legend.lwd  <<- lwd
@@ -235,63 +242,63 @@ plot.model.selection <- function(
         #--- plot.legend starts here
         # The is.obscured code assumes that plot order is rsq, mean.oof.rsq, grsq.
         # Obscuring of or by infold.rsq is not yet handled.
-        if(is.naz(col.legend))
+        if(!is.null(legend.pos) && all(is.na(legend.pos)))
             return()
         legend.text <- legend.col <- legend.lty <- legend.lwd <- legend.vert <- NULL
         full.model <- if(show.cv.data) " (full model)" else ""
-        if(!is.naz(col.grsq))
+        if(is.specified(col.grsq))
             update.legend(paste0("GRSq", full.model), lwd=lwd)
-        if(!is.naz(col.vline))
+        if(is.specified(col.vline))
             update.legend("selected model", col.vline, lty.vline, vert=TRUE)
-        if(!is.naz(col.rsq)) {
+        if(is.specified(col.line)) {
             RSq.string <- if(show.cv.data) "RSq (full model)" else "RSq"
-            if(!is.naz(col.grsq) && is.obscured(rsq.vec, grsq.vec))
+            if(is.specified(col.grsq) && is.obscured(rsq.vec, grsq.vec))
                 text <- paste0(RSq.string, full.model, " (obscured)")
-            else if(!is.naz(col.mean.oof.rsq) &&
+            else if(is.specified(col.mean.oof.rsq) &&
                     is.obscured(rsq.vec, mean.oof.rsq.per.subset))
                 text <- paste0(RSq.string, " (obscured)")
             else
                 text <- RSq.string
-            update.legend(text, col.rsq, lty.rsq)
+            update.legend(text, col.line, lty.rsq)
         }
         added.space <- FALSE
         # We draw the infold legend above the oof legend because the infold
         # curves are usually above the oof curves.
-        if(!is.naz(col.mean.infold.rsq)) {
+        if(is.specified(col.mean.infold.rsq)) {
             text <- "mean in-fold RSq"
             update.legend("", 0) # dummy entry to leave a vertical space
             added.space <- TRUE
             update.legend(text, col.mean.infold.rsq, lwd=lwd)
         }
-        if(!is.naz(col.infold.rsq)) {
+        if(is.specified(col.infold.rsq)) {
             if(!added.space)
                 update.legend("", 0) # dummy entry to leave a vertical space
             update.legend("in-fold RSq", col.infold.rsq[1])
         }
-        if(!is.naz(col.mean.oof.rsq)) {
-            if(!is.naz(col.grsq) && is.obscured(mean.oof.rsq.per.subset, grsq.vec))
+        if(is.specified(col.mean.oof.rsq)) {
+            if(is.specified(col.grsq) && is.obscured(mean.oof.rsq.per.subset, grsq.vec))
                 text <- "mean out-of-fold RSq (obscured)"
             else
                 text <- "mean out-of-fold RSq"
             update.legend("", 0) # dummy entry to leave a vertical space
             added.space <- TRUE
             update.legend(text, col.mean.oof.rsq, lwd=lwd)
-            if(!is.naz(col.oof.vline))
+            if(is.specified(col.oof.vline))
                 update.legend("max mean out-of-fold RSq", col.oof.vline, "23", vert=TRUE)
         }
-        if(!is.naz(col.oof.rsq)) {
+        if(is.specified(col.oof.rsq)) {
             if(!added.space)
                 update.legend("", 0) # dummy entry to leave a vertical space
             update.legend("out-of-fold RSq", col.oof.rsq[1])
         }
-        if(!is.naz(col.npreds)) {
+        if(is.specified(col.npreds)) {
             if(added.space)
                 update.legend("", 0) # dummy entry to leave a vertical space
             update.legend(paste0("nbr preds", full.model), col.npreds, lty.npreds)
         }
         if(is.null(cex.legend))
-            cex.legend <- get.cex.legend(legend.text)
-        if(is.null(legend.pos)) {
+            cex.legend <- get.earth.legend.cex(legend.text)
+        if(is.null(legend.pos)) { # auto?
             xpos <- if(max.nterms <= 2) "topleft" else "bottomright"
             elegend(x=xpos, bg="white", legend=legend.text, col=legend.col,
                     inset=c(.02, .04), # y offset allows vertical lines to be visible below legend
@@ -308,7 +315,7 @@ plot.model.selection <- function(
     }
     #--- plot.model.selection starts here ---
     plot.earth.prolog(object, substr(deparse(substitute(x)), 1, 40))
-    warn.if.dots.used("plot.model.selection", ..., stop=TRUE)
+    stop.if.dots.used("plot.model.selection", ...)
     if(is.null(object$prune.terms)) {       # no prune data?
         if(!add)
             plot(c(0,1), col=0, xlab="", ylab="", main="Model Selection")
@@ -323,28 +330,29 @@ plot.model.selection <- function(
             main <- "Model Selection"
     }
     if(jitter > 0.05)
-        stop0("'jitter' ", jitter , " is too big, try something like jitter=0.01")
-    if(is.naz(lty.grsq))
+        stop0("\"jitter\" ", jitter , " is too big, try something like jitter=0.01")
+    if(!is.specified(lty.grsq))
         col.grsq <- 0
-    if(is.naz(lty.rsq))
-        col.rsq <- 0
-    if(is.naz(lty.npreds))
+    if(!is.specified(lty.rsq))
+        col.line <- 0
+    if(!is.specified(lty.npreds))
         col.npreds <- 0
-    if(is.naz(lty.vline))
+    if(!is.specified(lty.vline))
         col.vline <- 0
     possibly.issue.cv.warning()
     if(is.null(object$cv.oof.rsq.tab)) # if no cv data available, force no display of cv data
         col.mean.oof.rsq <- col.oof.rsq <- col.mean.infold.rsq <- col.infold.rsq <- 0
-    show.cv.data <- !is.naz(col.mean.oof.rsq)  || !is.naz(col.oof.rsq) ||
-                    !is.naz(col.mean.infold.rsq) || !is.naz(col.infold.rsq)
-    show.non.cv.data <- !is.naz(col.grsq) || !is.naz(col.rsq) || !is.naz(col.npreds)
+    show.cv.data <- is.specified(col.mean.oof.rsq)  || is.specified(col.oof.rsq) ||
+                    is.specified(col.mean.infold.rsq) || is.specified(col.infold.rsq)
+    show.non.cv.data <- is.specified(col.grsq) || is.specified(col.line) || is.specified(col.npreds)
     if(is.null(col.npreds)) # by default, show npreds if not show cv data
         col.npreds <- if(show.cv.data) 0 else 1
     rsq.vec  <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
     grsq.vec <- get.rsq(object$gcv.per.subset, object$gcv.per.subset[1])
-    if(!is.naz(col.mean.oof.rsq))
+    mean.oof.rsq.per.subset <- NULL
+    if(is.specified(col.mean.oof.rsq))
         mean.oof.rsq.per.subset <- object$cv.oof.rsq.tab[nrow(object$cv.oof.rsq.tab),]
-    if(!is.naz(col.mean.infold.rsq))
+    if(is.specified(col.mean.infold.rsq))
         mean.infold.rsq.per.subset <- object$cv.infold.rsq.tab[nrow(object$cv.infold.rsq.tab),]
     lwd <- if(show.cv.data) 2 else 1 # want fat non-cv lines if plotting cv data
     nterms.on.horiz.axis <- max.nterms
@@ -352,13 +360,23 @@ plot.model.selection <- function(
         nterms.on.horiz.axis <-
             min(nterms.on.horiz.axis, get.max.terms.of.fold.models(object))
     if(!add) {
-        if(do.par && !is.naz(col.npreds))
-            make.space.for.right.axis()
+        if(is.specified(col.npreds)) {
+            # make space for right axis
+            old.mar <- par("mar")
+            if(old.mar[4] < 3.5) {
+                mar <- old.mar
+                mar[4] <- 3.5
+                on.exit(par(mar=old.mar))
+                par(mar=mar)
+            }
+        }
+        xlim <- get.model.selection.xlim(object, xlim,
+                        mean.oof.rsq.per.subset, col.mean.oof.rsq, col.oof.vline)
         # set up so vertical scale is 0..1, horizontal is 0..nterms.on.horiz.axis
         plot(0:nterms.on.horiz.axis, (0:nterms.on.horiz.axis)/nterms.on.horiz.axis,
-            type="n", main=main, xlab="Number of terms", ylab="", yaxt="n")
+            type="n", main=main, xlab="Number of terms", ylab="", yaxt="n", xlim=xlim)
         left.axis()
-        if(!is.naz(col.npreds))
+        if(is.specified(col.npreds))
             right.axis()
         plot.sel.grid()
     }
@@ -374,10 +392,105 @@ plot.model.selection <- function(
     plot.grsq()
     plot.legend()
 }
+plot.model.selection.wrapper <- function(
+    object,
 
-# check ylim specified by user, and convert special values in rlim to actual vals
+    do.par,
+    xlim,
+    ylim,
+    main,
 
-get.model.selection.ylim <- function(object, ylim, col.grsq, col.rsq,
+    col.line            = "lightblue",
+
+    legend.pos          = NULL, # NULL means auto, NA means no legend
+    cex.legend          = NULL, # NULL means auto
+
+    col.grsq            = 1,
+    col.infold.rsq      = 0,
+    col.mean.infold.rsq = 0,
+    col.mean.oof.rsq    = "palevioletred",
+    col.npreds          = if(is.null(object$cv.oof.rsq.tab)) 1 else 0,
+    col.oof.labs        = 0,
+    col.oof.rsq         = "mistyrose2",
+    col.oof.vline       = col.mean.oof.rsq,
+    col.pch.cv.rsq      = 0,
+    col.pch.max.oof.rsq = 0,
+    col.sel.grid        = 0,
+    col.vline           = col.grsq,
+    col.vseg            = 0,
+    lty.grsq            = 1,
+    lty.npreds          = 2,
+    lty.rsq             = 5,
+    lty.vline           = 3,
+
+    col.legend          = NA) # deprecated, use legend.pos=NA for no legend
+{
+    if(!all(is.na(col.legend))) {
+        warning0("col.legend is deprecated.  Please use legend.pos=NA for no legend.")
+        legend.pos = NA
+    }
+    ylim <- get.model.selection.ylim(object, ylim, 1, col.line,
+                col.mean.oof.rsq, col.oof.rsq, col.mean.infold.rsq, col.infold.rsq)
+
+    plot.model.selection(
+        object,
+
+        do.par,
+        xlim,
+        ylim,
+        main,
+
+        col.line,
+
+        legend.pos,
+        cex.legend,
+
+        col.grsq,
+        col.infold.rsq,
+        col.mean.infold.rsq,
+        col.mean.oof.rsq,
+        col.npreds,
+        col.oof.labs,
+        col.oof.rsq,
+        col.oof.vline,
+        col.pch.cv.rsq,
+        col.pch.max.oof.rsq,
+        col.sel.grid,
+        col.vline,
+        col.vseg,
+        lty.grsq,
+        lty.npreds,
+        lty.rsq,
+        lty.vline,
+
+        add        = FALSE,
+        nresp      = NCOL(object$residuals),
+        max.nterms = length(object$rss.per.subset),
+        max.npreds = max(1,
+                     get.nused.preds.per.subset(object$dirs, object$prune.terms)),
+        jitter     = 0)
+}
+get.model.selection.xlim <- function(object, xlim,
+    mean.oof.rsq.per.subset, col.mean.oof.rsq, col.oof.vline)
+{
+    if(is.null(xlim)) { # not specified by the user?
+        # length(object$selected.terms) is nbr selected terms
+        # nrow(object$prune.terms) is nk
+        # which.max(mean.oof.rsq.per.subset) is max mean out-of-fold RSq
+        xmax <- 2 * length(object$selected.terms)
+        # if cross-validation vert line is plotted, include that too
+        # following "if" matches that in plot.vertical.line.at.best.mean.oof.rsq
+        if(!is.null(mean.oof.rsq.per.subset) &&
+           is.specified(col.mean.oof.rsq) && is.specified(col.oof.vline)) {
+            xmax <- max(xmax, which.max(mean.oof.rsq.per.subset))
+        }
+        xlim <- c(0, min(xmax + 3, nrow(object$prune.terms)))
+    }
+    xlim
+}
+# check ylim specified by user, and convert special values in ylim to actual vals
+
+get.model.selection.ylim <- function(object, ylim, col.grsq, col.line,
                                      col.mean.oof.rsq=0, col.oof.rsq=0,
                                      col.mean.infold.rsq=0, col.infold.rsq=0)
 {
@@ -386,7 +499,7 @@ get.model.selection.ylim <- function(object, ylim, col.grsq, col.rsq,
         min <- Inf
         max <- -Inf
         if(!is.null(object$cv.oof.rsq.tab) &&
-                (!is.naz(col.mean.oof.rsq) || !is.naz(col.oof.rsq))) {
+                (is.specified(col.mean.oof.rsq) || is.specified(col.oof.rsq))) {
             # will be plotting oof.rsq, so must adjust axis limits for that
             min <- min(object$cv.oof.rsq.tab[,-1], na.rm=TRUE) # -1 to ignore intercept-only model
             max <- max(object$cv.oof.rsq.tab[,-1], na.rm=TRUE)
@@ -395,7 +508,7 @@ get.model.selection.ylim <- function(object, ylim, col.grsq, col.rsq,
             min <- max(min, -3)             # -3 is arb
         }
         if(!is.null(object$cv.infold.rsq.tab) &&
-                (!is.naz(col.mean.infold.rsq) || !is.naz(col.infold.rsq))) {
+                (is.specified(col.mean.infold.rsq) || is.specified(col.infold.rsq))) {
             min <- min(min, object$cv.infold.rsq.tab[,-1], na.rm=TRUE)
             max <- max(max, object$cv.infold.rsq.tab[,-1], na.rm=TRUE)
             max <- min(max, 2 * max(rsq))
@@ -404,24 +517,25 @@ get.model.selection.ylim <- function(object, ylim, col.grsq, col.rsq,
         list(min=min, max=max)
     }
     #--- get.model.selection.ylim starts here ---
+    if(is.null(ylim))
+        ylim <- c(-1, -1)
     if(length(ylim) != 2)
         stop0("length(ylim) != 2")
     if(ylim[2] <= ylim[1] && ylim[2] != -1)
         stop0("ylim[2] <= ylim[1]")
     if(ylim[1] < -1 || ylim[1] >  1 || ylim[2] < -1 || ylim[2] >  1)
         stop0(paste0(
-              "illegal 'ylim' c(", ylim[1], ",", ylim[2], ")\n",
+              "illegal \"ylim\" c(", ylim[1], ",", ylim[2], ")\n",
               "Legal settings are from -1 to 1, with special values:\n",
               "  ylim[1]=-1 means use min(RSq) or min(GRSq) excluding intercept)\n",
               "  ylim[2]=-1 means use max(RSq) or max(GRSq)\n"))
-
     if(ylim[1] == -1 || ylim[2] == -1) {
         grsq <- NULL
-        if(!is.naz(col.grsq))
+        if(is.specified(col.grsq))
             grsq <- get.rsq(object$gcv.per.subset, object$gcv.per.subset[1])
         rsq <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
         temp <- get.fold.min.max()
-        if(is.naz(col.rsq))
+        if(!is.specified(col.line))
             rsq <- NULL
         if(ylim[1] == -1) {
             ylim[1] <- min(grsq[-1], rsq[-1], temp$min, na.rm=TRUE)
@@ -433,12 +547,11 @@ get.model.selection.ylim <- function(object, ylim, col.grsq, col.rsq,
         if(ylim[2] == -1)
             ylim[2] <- max(grsq, rsq, temp$max, na.rm=TRUE)
     }
-    # TODO revisit following code, it is to prevent issues with intercept-only model
-    if(ylim[1] == ylim[2])
+    # following code gives a decent y axis even with an intercept-only model
+    if(abs(ylim[1] - ylim[2]) < 1e-6)
         ylim[2] <- ylim[1] + 1
     ylim
 }
-
 get.max.terms.of.fold.models <- function(object)
 {
     tab <- object$cv.oof.rsq.tab

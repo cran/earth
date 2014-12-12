@@ -36,9 +36,10 @@
 #      equal to the number of cols in y (so an all 1s wp argument is
 #      equivalent to no wp argument).
 
-mars.to.earth <- function(object=stop("no 'object' arg"))
+mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
 {
     check.classname(object, deparse(substitute(object)), "mars")
+    trace <- check.trace.arg(trace)
     oldcall <- object$call
     newcall <- object$call
     newcall[[1]] <- as.name("earth")
@@ -80,7 +81,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     # Renumber selected.terms.  Needed because earth drops terms from cuts and
     # dirs that are not in all.terms (whereas mars does not).
 
-    selected <- rep(NA, nrow(object$factor))
+    selected <- repl(NA, nrow(object$factor))
     selected[object$all.terms] <- FALSE
     selected[object$selected.terms] <- TRUE
     selected <- selected[!is.na(selected)]
@@ -92,11 +93,11 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
     # We don't call update.earth() now because minor differences between pruning
     # pass implementations could conceivably change selected.terms.
 
-    ntermsVec <- rep(NA, length(object$all.terms))
+    ntermsVec <- repl(NA, length(object$all.terms))
     ntermsVec[1] <- 1                                # intercept
     ntermsVec[nselected] <- nselected                # nterms of selected model
 
-    rss.per.subset <- rep(NA, length(object$all.terms))
+    rss.per.subset <- repl(NA, length(object$all.terms))
     rss.per.subset[1] <- sum(colSums((y - colMeans(y)) ^ 2)) # null RSS
     rss.per.subset[nselected] <- ss(residuals)               # RSS of selected model
     rss <- rss.per.subset[nselected]                         # RSS of selected model
@@ -151,6 +152,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
         coefficients      = object$coefficients,
         penalty           = object$penalty,
         namesx            = colnames(dirs),
+        namesx.org        = colnames(dirs),
         call              = newcall),
     class = "earth")
 
@@ -169,9 +171,11 @@ mars.to.earth <- function(object=stop("no 'object' arg"))
                  "\n         ",
                  "but the GCV recalculated for earth is ", rval$gcv, "\n")
 
-    my.print.call("Converted ", oldcall)
-    cat("\n")
-    my.print.call("to        ", newcall)
-
+    if(trace > 0) {
+        my.print.call("Converted ", oldcall)
+        cat("\n")
+        my.print.call("to        ", newcall)
+        cat("\n")
+    }
     rval
 }

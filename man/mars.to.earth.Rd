@@ -5,11 +5,14 @@
 Convert a \code{\link[mda]{mars}} object from the \code{mda} package to an \code{\link{earth}} object
 }
 \usage{
-mars.to.earth(object)
+mars.to.earth(object, trace=TRUE)
 }
 \arguments{
   \item{object}{
     A \code{mars} object, created using \code{\link[mda]{mars}} in the \code{mda} package.
+  }
+  \item{trace}{
+    If \code{TRUE} (default) print a summary of the conversion.
   }
 }
 \value{
@@ -30,8 +33,8 @@ mars.to.earth(object)
   whereas \code{earth} returns "\code{bx}" with only the selected terms.
   Also, \code{earth} returns "\code{dirs}" rather than "\code{factors}",
   and in \code{earth} this matrix can have entries of value 2 for linear predictors.
-  The calculation of \code{minspan} in \code{earth} follows Friedman's paper more closely
-  and is slightly different from \code{mars}.
+  % The calculation of \code{minspan} in \code{earth} follows Friedman's paper more closely
+  % and is slightly different from \code{mars}.
 
   For details of other differences between \code{mars} and \code{earth} objects,
   see the comments in the source code of \code{mars.to.earth}.
@@ -39,13 +42,13 @@ mars.to.earth(object)
 \bold{Weights}
 
   Note that the \code{w} argument is is actually ignored by \code{mars}.
-  The equivalent \code{earth} argument \code{weights} is also not yet supported,
-  and you will get a warning.
+  % The equivalent \code{earth} argument \code{weights} is also not yet supported,
+  % and you will get a warning.
 
   \code{mars} normalizes \code{wp} to (euclidean) length 1;
   \code{earth} normalizes
   \code{wp} to length equal to the number of responses, i.e., the number
-  of columns in \code{y}.  This change was made so an all 1s \code{wp}
+  of columns in \code{y}.  This change was made so an all ones \code{wp}
   (or in fact any all constant \code{wp}) is equivalent to using no \code{wp}.
 
   If the original call to \code{mars} used the \code{wp} argument,
@@ -57,21 +60,22 @@ mars.to.earth(object)
   \code{\link[mda]{mars}}
 }
 \examples{
-if (require(mda)) {
-    a <- mars(trees[,-3], trees[,3])
-    a <- mars.to.earth(a)
-    summary(a, digits = 2) # the standard earth functions can now be used
+if(require(mda)) {
+    mars.mod <- mars(trees[,-3], trees[,3])
+    earth.mod <- mars.to.earth(mars.mod)
+    summary(earth.mod, digits = 2) # the standard earth functions can now be used
 
     # yields (note the reconstructed call):
     #    Call: earth(x=trees[, -3], y=trees[, 3])
-    #    
+    #
     #                  coefficients
     #    (Intercept)           26.3
-    #    h(Girth-13.8)          6.1
     #    h(13.8-Girth)         -3.2
+    #    h(Girth-13.8)          6.1
     #    h(11.4-Girth)          0.5
-    #    
-    #    Selected 4 of 8 terms, and 2 of 2 predictors 
+    #
+    #    Selected 4 of 8 terms, and 2 of 2 predictors
+    #    Termination condition: Unknown
     #    Importance: object has no prune.terms, call update() on the model to fix that
     #    Number of terms at each degree of interaction: 1 3 (additive model)
     #    GCV 10    RSS 190    GRSq 0.96    RSq 0.98

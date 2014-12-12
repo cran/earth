@@ -1,9 +1,94 @@
 Changes to Earth Package
 ------------------------
 
+4.0.0  Dec 12, 2014
+
+  Earth now supports prediction intervals.  See earth's new var.method
+  argument, and the new vignette.  The predict.earth function now has
+  "interval" and "level" arguments.  The residual plot of plot.earth now
+  shows prediction intervals if available.  The new version of plotmo
+  will also show earth prediction intervals.
+
+  Case weights are now supported but are not yet comprehensively tested.
+  The current implementation of case weights is slow.
+
+  The ordering of terms in summary.earth was changed slightly: within
+  term pairs, the term for "predictor less than hinge" is now placed
+  before the term for "predictor greater than hinge" (so for example,
+  \texttt{h(16-Girth)} is before \texttt{h(Girth-16)}).  This was done
+  to make model interpretation slightly easier.
+
+  Predictors that are discovered to best enter linearly (no knot) are
+  now printed without a knot by summary.earth, to make model
+  interpretation a little easier.  Also, their entry in the dirs matrix
+  is now 2, the same as predictors that are forced to enter linearly
+  by earth's linpred arg.
+
+  The minspan argument can now take negative values, to specify the
+  max number of knots per predictor (as opposed to the spacing between
+  the knots).
+
+  Earth now has an endspan argument.  The default endspan=0 gives
+  the previous behaviour.
+
+  The linpreds argument now accepts variables specified by name.
+
+  Earth now accepts nk=1 to force an intercept-only model (in previous
+  versions, nk had to be at least 3).
+
+  DUP is now always TRUE in internal calls to C function, to satisfy
+  CRAN checks.  Sadly, this means that the earth forward pass uses
+  more memory (because all the argument data is duplicated when
+  handing over to C).
+
+  The comprehensive (but slow) earth tests are now in inst/slowtests.
+  As always, the tests in earth/tests just do a basic test of
+  portability problems.
+
+  "cv.rsq" is now consistently "CVRSq".
+
+  In the earth C code, QR_TOL is now 1e-7 (was .01) to match
+  lm's use of tol=1e-7 for dqrdc2.
+
+  The GLM types for residuals.earth are now prefixed by "glm.",
+  and type="pearson" now returns the pearsonized residuals.
+
+  Various other minor tweaks, improvements to error messages, etc.
+
+  Changes to plot.earth:
+
+      plot.earth has some new arguments, including info,
+      delever, pearson, level, annd versus.
+
+      The which argument now has extra values 5:8, to plot
+      residuals vs log fitted values etc.
+
+      The residuals plot now has a symmetrical y axis to make asymmetry
+      in the point cloud more obvious (see the center argument).
+
+      Graphics arguments to plot.earth are moved down so the more
+      important arguments are earlier.
+
+      plot.earth now has an xlim argument, and the ylim argument can
+      now be used on any plot (not just the Model Selection plot),
+      providing it is the only plot (length(which == 1).
+
+      Some args are deprecated or changed (you will get an
+      informative message if you use them).  The changes were
+      made for consistency with similar arguments elsewhere.
+          --Old--        --New--
+          col.rsq        col.line
+          col.residuals  col.points
+          nresiduals     npoints
+          col.legend     use legend.pos=NA for no legend
+
+      If 1 is in the "which" arg to plot.earth, then ylim is used
+      for the Model Selection plot, else it is used for the
+      Residuals vs Fitted plot.
+
 3.2-7  Jan 28, 2014
   Tweaks to standalone version of earth for clean compiles with certain 64 GCC builds.
-  plot.evimp now works with intercept-only models. 
+  plot.evimp now works with intercept-only models.
   Other minor tweaks to plot.evimp.
   Clerical changes to satisfy recent CRAN checks.
 

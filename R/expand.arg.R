@@ -16,7 +16,6 @@ contr.earth.response <- function(x, base, contrasts)
      diag(contr) <- 1
      contr
 }
-
 # Return x but with factors expanded into dummy variables.
 # and with all values converted to double.
 # Always returns a matrix (never a vector) and always with column names.
@@ -59,11 +58,11 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
                 if(is.factor(ycol) && nlevels(ycol) <= 2) {
                     convert.from.two.levels <- TRUE
                     colnames.[icol] <- format(levels(ycol)[2])
-                    break;
+                    break
                 }
                 else if(is.logical(ycol)) {
                     convert.from.logical <- TRUE
-                    break;
+                    break
                 }
             }
             if(convert.from.two.levels) {

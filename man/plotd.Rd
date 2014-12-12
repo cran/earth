@@ -38,9 +38,9 @@ plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
   }
   \item{type}{
     Type parameter passed to \code{\link{predict}}.
-    Default is \code{NULL}, meaning use a value suitable for the object
-    (actually \code{"response"} for all objects except \code{rpart} models, where \code{"vector"}
-    is used --- these choices will often be inappropriate).
+    Default is \code{NULL}, meaning automatically choose a value for the given object.
+    (This is \code{"response"} for all objects except \code{rpart} models, where \code{"vector"}
+    is used --- these choices will often be inappropriate.)
     See the predict method for your object for legal values;
     for example see \code{\link[earth]{predict.earth}} or \code{\link{predict.glm}}.
     Typically you would set \code{hist=TRUE} when \code{type="class"}.
@@ -190,8 +190,8 @@ plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
     If there are more than two classes, \code{err.col} uses only the first two.
     This argument is best explained by running an example:\preformatted{
 data(etitanic)
-earth.model <- earth(survived ~ ., data=etitanic)
-plotd(earth.model, vline.col=1, err.col=c(2,3,4))
+earth.mod <- earth(survived ~ ., data=etitanic)
+plotd(earth.mod, vline.col=1, err.col=c(2,3,4))
       }
     The three areas are (i) the error area to the left of the threshold,
     (ii) the error area to the right of the threshold, and,

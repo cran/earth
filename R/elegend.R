@@ -14,6 +14,9 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
          seg.len = 2,
          vert = FALSE) # logical, which lines are vertical, will be recycled
 {
+    trace <- check.boolean(trace)
+    plot  <- check.boolean(plot)
+
     ## the 2nd arg may really be `legend'
     if(missing(legend) && !missing(y) &&
        (is.character(y) || is.expression(y))) {
@@ -58,7 +61,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
         x2 <- x1 + dx; if(xlog) { x1 <- 10^x1; x2 <- 10^x2 }
         y2 <- y1 + dy; if(ylog) { y1 <- 10^y1; y2 <- 10^y2 }
         # explicit loop allows use of char lty's with "1" meaning 1
-        for(i in 1:length(x1)) {
+        for(i in seq_along(x1)) {
             lt <- lty[i]
             if(lt == "1")
                 lt <- 1
@@ -76,7 +79,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
         if(ylog) y <- 10^y
         text(x, y, ...)
     }
-    if(trace)
+    if(trace > 0)
         catn <- function(...)
             do.call("cat", c(lapply(list(...),formatC), list("\n")))
 
@@ -99,7 +102,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
     ## watch out for reversed axis here: heights can be negative
     ymax   <- yc * max(1, strheight(legend, units="user", cex=cex)/yc)
     ychar <- yextra + ymax
-    if(trace) catn("  xchar=", xchar, "; (yextra,ychar)=", c(yextra,ychar))
+    if(trace > 0) catn("  xchar=", xchar, "; (yextra,ychar)=", c(yextra,ychar))
 
     if(mfill) {
         ##= sizes of filled boxes.
@@ -122,6 +125,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
         } else ceiling(n.leg / ncol)
 
     has.pch <- !missing(pch) && length(pch) > 0 # -> default 'merge' is available
+    merge <- check.boolean(merge)
     if(do.lines) {
         x.off <- if(merge) -0.7 else 0
     } else if(merge)
@@ -195,7 +199,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
     }
 
     if (plot && bty != "n") { ## The legend box :
-        if(trace)
+        if(trace > 0)
             catn("  rect2(",left,",",top,", w=",w,", h=",h,", ...)",sep="")
         rect2(left, top, dx = w, dy = h, col = bg, density = NULL,
               lwd = box.lwd, lty = box.lty, border = box.col)
@@ -226,7 +230,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
         lty <- rep(lty, length.out = n.leg)
         lwd <- rep(lwd, length.out = n.leg)
         ok.l <- !is.na(lty) & (is.character(lty) | lty > 0)
-        if(trace)
+        if(trace > 0)
             catn("  segments2(",xt[ok.l] + x.off*xchar, ",", yt[ok.l],
                  ", dx=", seg.len*xchar, ", dy=0, ...)")
         if(plot) {
@@ -239,7 +243,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
             dy <- as.numeric(vert) * 1.6 * strheight
             # stagger consecutive vertical lines
             shifted <- FALSE
-            for(i in 1:length(vert)) {
+            for(i in seq_along(vert)) {
                 if(vert[i]) {
                     if(shifted) {
                         shifted <- FALSE
@@ -265,7 +269,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
         ok <- !is.na(pch) & (is.character(pch) | pch >= 0)
         x1 <- (if(merge && do.lines) xt-(seg.len/2)*xchar else xt)[ok]
         y1 <- yt[ok]
-        if(trace)
+        if(trace > 0)
             catn("  points2(", x1,",", y1,", pch=", pch[ok],", ...)")
         if(plot)
             points2(x1, y1, pch = pch[ok], col = col[ok],

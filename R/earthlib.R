@@ -44,79 +44,118 @@ lty.as.char <- function(lty)
         char <- NULL
         tab <- c("1", "44", "13", "1343", "73", "2262") # from par man page
         stopifnot(length(lty) > 0)
-        for(i in 1:length(lty)) {
+        for(i in seq_along(lty)) {
             stopifnot(lty[i] >= 1 && lty[i] <= length(tab))
             char <- c(char, tab[lty[i]])
         }
     }
     char
 }
-
 get.rsq <- function(rss, tss) 1 - rss / tss
 
 get.mean.rsq <- function(rss, tss, wp)
 {
     if(is.null(wp))
-        wp <- rep(1, length(rss))
+        wp <- repl(1, length(rss))
     stopifnot(length(rss) == length(tss) && length(wp) == length(tss))
     total.rsq <- 0
-    for(iresp in 1:length(rss))
+    for(iresp in seq_along(rss))
         total.rsq <- total.rsq + wp[iresp] * get.rsq(rss[iresp], tss[iresp])
     sum(total.rsq) / sum(wp)
 }
-
 weighted.mean <- function(x, w) sum(w * x) / sum(w)
 
 ss <- function(x) sum(as.vector(x^2)) # sum of squares
 
-# is.naz's main purpose is to see if a plot component should be
+# is.specified's main purpose is to see if a plot component should be
 # drawn, i.e., to see if the component "has a color"
 # We use identical() and not is.na() below because is.na(x) gives warnings
 # for certain x's, e.g if x is a function, and x == 0 gives warnings if x
 # is a vector or a function etc.
 
-is.naz <- function(x) identical(x, NA) || identical(x, 0) # is NA or zero?
+is.specified <- function(x) !identical(x, NA) && !identical(x, 0) && !is.null(x)
 
 is.try.error <- function(obj) class(obj)[1] == "try-error"
 
-warn.if.dots.used <- function(func.name, ..., stop=FALSE)
+warn.if.dots.used <- function(func.name, ...)
 {
-    dots <- match.call(expand.dots = FALSE)$...
-    if(length(dots)) {
-        if(stop)
-            stop0(func.name, ": unrecognized argument \"", names(dots)[1], "\"")
-        else
-            warning0(func.name, " ignored unrecognized argument \"", names(dots)[1], "\"")
-    }
+    dots <- match.call(expand.dots=FALSE)$...
+    if(length(dots))
+        warning0(func.name, " ignored unrecognized argument \"", names(dots)[1], "\"")
 }
 stop.if.dots.used <- function(func.name, ...)
 {
-    warn.if.dots.used(func.name, ..., stop=TRUE)
+    dots <- match.call(expand.dots=FALSE)$...
+    if(length(dots))
+        stop0(func.name, ": unrecognized argument \"", names(dots)[1], "\"")
 }
-
 check.classname <- function(object, object.name, class.names)
 {
-    if(!inherits(object, class.names))
-        stop0("the class of \"", object.name, "\" is not \"",
+    if(is.null(object))
+        stop0("object \"", substr(object.name, 1, 30), "\" is NULL\n",
+              "Expected an object of class \"",
               paste(class.names, collapse="\" or \""), "\"")
+    if(!inherits(object, class.names)) {
+        stop0("object \"", substr(object.name, 1, 30),
+              "\" has an unexpected class\n",
+              "Expected an object of class \"",
+              paste(class.names, collapse="\" or \""),
+              "\"\nbut got an object of class \"",
+              paste(class(object), collapse="\", \""), "\"")
+    }
 }
-
 to.logical <- function(x, len)
 {
-    xlogical <- rep(FALSE, len)
+    xlogical <- repl(FALSE, len)
     xlogical[x] <- TRUE
     xlogical
 }
-
+repl <- function(x, length.out)
+{
+    rep(x, length.out=length.out)
+}
+check.boolean <- function(b) # b==0 or b==1 is also ok
+{
+    if(length(b) != 1)
+        stop0("the ", deparse(substitute(b)),
+              " argument is not FALSE or TRUE or 0 or 1")
+    if(!(is.logical(b) || is.numeric(b)) || is.na(b) || !(b == 0 || b == 1))
+        stop0("the ", deparse(substitute(b)),
+            " argument is not FALSE or TRUE or 0 or 1")
+    b != 0 # convert to logical
+}
+check.numeric.scalar <- function(x, null.ok=FALSE, na.ok=FALSE, xname=NULL)
+{
+    if(is.null(xname))
+        xname <- deparse(substitute(x))
+    if(is.null(x)) {
+        if(!null.ok)
+            stop0(xname, "=NULL is not allowed")
+    } else if(any(is.na(x))) {
+        if(!na.ok)
+            stop0(xname, "=NA is not allowed")
+    } else if(!is.numeric(x))
+        stop0("the ", xname, " argument must be numeric")
+    else if(length(x) != 1)
+        stop0("the ", xname, " argument must be scalar")
+}
+check.integer.scalar <- function(x, min=NULL, null.ok=FALSE, na.ok=FALSE, xname=NULL)
+{
+    if(is.null(xname))
+        xname <- deparse(substitute(x))
+    check.numeric.scalar(x, null.ok, na.ok, xname)
+    if(!is.null(min) && x < min)
+        stop0("the ", xname, " argument must be at least ", min,
+              " (you have ", xname, " = ", x, ")")
+}
 check.trace.arg <- function(trace) # make sure trace is a one element vector
 {
     if(!is.vector(trace))
-        warning0("bad \"trace\" argument")
+        warning0("illegal \"trace\" argument")
     if(length(trace) != 1)
         warning0("\"trace\" argument has more than one element")
     as.numeric(trace[1])
 }
-
 # Modify call to refer to the generic e.g. "foo.default" becomes "foo".
 # This means that functions like update() call foo() and not foo.default().
 # An advantage is that we don't have to export foo.default().
@@ -126,96 +165,12 @@ make.call.generic <- function(Call, func.name)
     Call[[1]] <- as.name(func.name)
     Call
 }
-
 my.fixed.point <- function(x, digits)
 {
     if(NROW(x) > 2) # if only intercept term and one other then don't use fixed point
         x <- apply(x, 2, zapsmall, digits+1)
     x
 }
-
-# Check that an index vector specified by the user is ok to index an object.
-# We want to preclude confusing R messages or behaviour later.
-# An example is when max(indexVec) > len(object) which quietly returns NA
-# and can cause confusing downstream behaviour.
-
-check.index.vec <- function(index.name, indexVec, object,
-                        check.empty = FALSE, use.as.col.index=FALSE,
-                        allow.negative.indices = TRUE,
-                        allow.duplicates = FALSE,
-                        allow.zeroes = FALSE, treat.NA.as.one=FALSE)
-{
-    if(is.null(indexVec)) {
-        if(check.empty)
-            stop0("\"", index.name, "\" is NULL and cannot be used as an index vector")
-        return(NULL)
-    }
-    if(any(is.na(indexVec)))
-        stop0("NA in \"", index.name, "\"")
-    if(treat.NA.as.one && (is.na(indexVec)[1] && length(indexVec) == 1))
-        indexVec <- 1
-    if(!(NROW(indexVec) == 1 || NCOL(indexVec) == 1))
-        stop0("\"", index.name, "\" must be a vector not a matrix ",
-              "(\"", index.name, "\" has dimensions ",
-              NROW(indexVec), " x ", NCOL(indexVec), ")")
-
-    if(use.as.col.index)
-        len <- NCOL(object)         # index is for cols of object
-    else if(is.vector(object))
-        len <- length(object)
-    else
-        len <- NROW(object)         # index is for rows of object
-
-    if(is.logical(indexVec)) {
-        if(check.empty) {
-            if(length(indexVec) == 0)
-                stop0("length(", index.name, ") == 0")
-            if(length(indexVec[indexVec == TRUE]) == 0)
-                stop0("\"", index.name, "\" is all FALSE")
-        }
-        # note that a single FALSE or TRUE is ok regardless of length(object)
-        if(length(indexVec) > len && length(indexVec) != 1) {
-            stop0("logical index vector \"", index.name, "\" is too long\n",
-                  "       Its length is ", length(indexVec),
-                  " and the max allowed length is ", len)
-        }
-    } else if(is.numeric(indexVec)) {
-        if(check.empty) {
-            if(length(indexVec) == 0)
-                stop0("length(", index.name, ") == 0")
-            else if(all(indexVec == 0))
-                if(length(indexVec) == 1)
-                    stop0("\"", index.name, "\" is 0")
-                else
-                    stop0("\"", index.name, "\" is all zeroes")
-        }
-        if(any(floor(indexVec) != indexVec))
-            stop0(index.name, " is not an integer")
-        if(any(indexVec < 0) && any(indexVec > 0))
-            stop0("mixed negative and positive values in \"", index.name, "\"")
-        if(!allow.zeroes && any(indexVec == 0) && length(indexVec) != 1)
-            warning0("zero in \"", index.name, "\"")
-        if(!allow.duplicates && any(duplicated(indexVec)))
-            warning0("duplicates in \"", index.name, "\"")
-        if(!allow.negative.indices && any(indexVec < 0))
-            stop0("negative value in \"", index.name, "\"")
-        if(any(abs(indexVec) > len)) {
-            if(len != 1)
-                stop0("out of range value in \"", index.name,
-                      "\" (allowed index range is 1:",  len, ")")
-            else if(treat.NA.as.one)
-                stop0("out of range value in \"", index.name,
-                      "\" (the only legal value is NA or 1)")
-            else
-                stop0("out of range value in \"", index.name,
-                      "\" (the only legal value is 1)")
-        }
-    } else
-        warning0("index vector \"", index.name,
-                 "\" has an unusual class \"", class(indexVec)[1], "\"")
-    indexVec
-}
-
 # Return a vector of n clearly distinguishable colors.  Here distinguishability
 # comes before aesthetics and "matching colors" or "ordered" sequences.
 # The first three are also distinguishable on (my) monochrome printer.
@@ -227,7 +182,6 @@ discrete.plot.cols <- function(ncolors=5)
         cols <- c(cols, heat.colors(ncolors - length(cols)))
     cols[1:ncolors]
 }
-
 # Example of my.print.call:
 #
 # Call: earth(formula=O3~., data=ozone1, trace=4, linpreds=c(3,
@@ -266,86 +220,81 @@ my.print.call <- function(msg, Call)
     s <- paste(s, collapse=paste("\n", spaces., sep=""), sep="")
     cat0(msg, s, "\n")
 }
-
-#------------------------------------------------------------------------------
-match.arg1 <- function(arg)     # match.arg1 returns an integer
-{
-    formal.args <- formals(sys.function(sys.parent()))
-    arg.name=deparse(substitute(arg))
-    match.choices(arg[1], choices=eval(formal.args[[arg.name]]), arg.name=arg.name)
-}
-
-match.choices <- function(arg, choices, arg.name) # choices is a vector of strings
+match.choices1 <- function(arg, arg.name, choices) # returns the expanded arg
 {
     if(!is.character(arg) || length(arg) != 1)
-         stop0("bad \"", arg.name, "\" argument.\n",
+         stop0("illegal \"", arg.name, "\" argument.\n",
                "Choose one of: ", paste.quoted.names(choices))
     imatch <- pmatch(arg, choices)
     if(any(is.na(imatch))) {
         imatch <- NULL
-        for(i in 1:length(choices))
+        for(i in seq_along(choices))
             if(pmatch(arg, choices[i], nomatch=0))
                 imatch <- c(i, imatch)
         if(length(imatch) == 0)
-            stop0(arg.name, "=\"", arg, "\" is illegal.\n",
+            stop0(arg.name, "=\"", arg, "\" is not allowed.\n",
                   "Choose one of: ", paste.quoted.names(choices))
         if(length(imatch) > 1)
             stop0(paste0(arg.name, "=\"", arg, "\" is ambiguous.\n",
                          "Choose one of: ", paste.quoted.names(choices)))
     }
-    imatch
+    choices[imatch]
+}
+match.choices <- function(arg, choices) # choices is a vector of strings
+{
+    arg.name <- deparse(substitute(arg))
+    match.choices1(arg, arg.name, choices)
 }
 
-#------------------------------------------------------------------------------
+match.arg1 <- function(arg) # returns the expanded arg
+{
+    formal.args <- formals(sys.function(sys.parent()))
+    arg.name <- deparse(substitute(arg))
+    match.choices1(arg[1], arg.name, eval(formal.args[[arg.name]]))
+}
 get.caption.from.call <- function(caption, object)
 {
-    if(is.null(caption))
+    if(is.null(caption) && !is.null(object$call))
         caption <- strip.white.space(paste0(deparse(object$call), collapse=""))
     caption
 }
-
-# Call this only after a plot is on the screen to avoid
-# an error message "plot.new has not been called yet"
-# TODO the trimming code sometimes over or under trims
-
-show.caption <- function(caption, trim=0, show=TRUE, cex=1)
-{
-    if(!is.null(caption) && (len.caption <- nchar(caption))) {
-        if(trim) {
-            if(is.logical(trim))
-                trim <- 1
-            # trim caption to fit
-            len <- len.caption * trim / strwidth(caption, "figure", cex=cex, font=2)
-            caption <- substr(caption, 1, len)
-            # append ellipsis if chars deleted
-            if(len < len.caption)
-                caption <- paste0(caption, "...")
-        }
-        if(show)
-            mtext(caption, outer=TRUE, font=2, line=1.5, cex=cex)
-    }
-    caption
-}
-
 # the make.space functions should only be called if do.par is TRUE
 # (otherwise par is not restored correctly)
 
-make.space.for.caption <- function(caption)
+make.space.for.caption <- function(caption="CAPTION")
 {
     oma <- par("oma")
-    if(nchar(caption) > 0 && oma[3] < 3) {
-        oma[3] <- 3
+    needed <- 3
+    # adjust for newlines in caption
+    newlines <- grep("\n", caption)
+    if(length(newlines))
+        needed <- needed + .5 * newlines # .5 seems enough although 1 in theory
+    if(!is.null(caption) && any(nchar(caption)) && oma[3] <= needed) {
+        oma[3] <- needed
         par(oma=oma)
     }
 }
+# Call this only after a plot is on the screen to avoid
+# an error message "plot.new has not been called yet"
 
-make.space.for.right.axis <- function()
+show.caption <- function(caption, trim=TRUE, show=TRUE, cex=1)
 {
-    mar <- par("mar")
-    if(mar[4] < 3.5) {
-        mar[4] <- 3.5
-        par(mar=mar)
+    if(!is.null(caption) && any(nchar(caption))) {
+        if(trim) {
+            # trim each line of caption to fit
+            caption <- strsplit(caption, "\n")[[1]]
+            for(i in seq_along(caption)) {
+                nchar.org <- nchar(caption[i])
+                caption[i] <- substr(caption[i], 1, 60)
+                if(nchar(caption[i]) < nchar.org) # append ellipsis if chars deleted
+                    caption[i] <- paste0(caption[i], " ...")
+            }
+            caption <- paste(caption, collapse="\n")
+        }
+        if(show)
+            mtext(caption, outer=TRUE, font=2, line=1, cex=cex)
     }
+    caption
 }
 # Like text, but with a white background
 # This assumes adj=.5 and pos=NULL.
@@ -359,8 +308,6 @@ text.on.white <- function(x, y, label, cex, ...)
          col="white", border=NA)
     text(x=x, y=y, labels=label, cex=cex, ...)
 }
-
-#------------------------------------------------------------------------------
 # Given a list of objects, return a vector of strings.  Each string shows where
 # the $call argument of the object differs from the call of the first object.
 # (Thus the first object is used as a reference).
@@ -391,7 +338,6 @@ get.arg.strings <- function(
         }
     rval
 }
-
 # Return the position of the first non matching arg between two function call strings.
 #
 # More precisely, find the first non matching characters in s1 and s2.
@@ -418,7 +364,6 @@ first.non.matching.arg <- function(s1, s2)
         i <- i - 1  # move backwards to character following comma or "("
     return(i+1)
 }
-
 # summarize a matrix
 
 print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
@@ -430,10 +375,10 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
             cat0(Callers.name, ": ")
         cat0(xname, " is a ", NROW(x), " by ", NCOL(x), " matrix: ")
         if(is.null(bpairs))
-            bpairs <- rep(TRUE, NCOL(x))
+            bpairs <- repl(TRUE, NCOL(x))
         colnames <- colnames(x)
         if(is.null(colnames))
-            colnames <- rep("", NCOL(x))
+            colnames <- repl("", NCOL(x))
         stopifnot(length(bpairs) == length(colnames))
         icol <- 0
         n.names <- length(colnames)
@@ -487,6 +432,109 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
             print(head(x))
         }
         if(ncol.save)
-            printf("Not all %d columns were printed\n", ncol.save);
+            printf("Not all %d columns were printed\n", ncol.save)
     }
+}
+# If xlim[1] == xlim[2], then plot() issues a message.  We don't want that,
+# so use this function to make sure xlim[2] is different than xlim[1].
+# We also use this function for ylim.
+
+fix.lim <- function(xlim)
+{
+    if(!is.null(xlim)) {
+        # constants below are arbitrary
+        min <- -.001
+        max <- if(is.null(xlim)) .001 else xlim[2]
+        small <- max(1e-6, .001 * abs(xlim[1]), .001 * abs(xlim[2]))
+        if(abs(xlim[2] - xlim[1]) < small) # illegal xlim?
+            xlim <- c(xlim[1] - small, xlim[2] + small)
+    }
+    xlim
+}
+# We allow 20% of x to be nonpositive, useful if the response is essentially
+# positive, but the predicted response has a few nonpositive values at the extremes.
+# Needed for example if we will later take log(x) or sqrt(x).
+
+check.that.most.are.positive <- function(x, xname, user.arg, non.positive.msg, frac.allowed=.2)
+{
+    check.numeric.scalar(frac.allowed)
+    stopifnot(frac.allowed >= 0 && frac.allowed <= 1)
+    nonpos <- x <= 0
+    if(sum(nonpos) > frac.allowed * length(x)) { # more than frac.allowed nonpos?
+        ifirst <- which(nonpos)[1]
+        stop0(sprintf(
+                "%s is not allowed because too many %ss are %s\n",
+                user.arg, xname, non.positive.msg),
+              sprintf(
+                "       %.2g%% are %s (%g%% is allowed)\n",
+                100 * sum(nonpos) / length(x), non.positive.msg, 100 * frac.allowed),
+               sprintf("       e.g. %s[%d] is %g", xname, ifirst, x[ifirst]))
+    }
+}
+get.cex.points <- function(npoints, len)
+{
+    n <- if(npoints <= 0) len else min(npoints, len)
+
+    cex.points <-
+        if     (n >= 5000) .2
+        else if(n >= 3000) .4
+        else if(n >= 1000) .6
+        else if(n >= 300)  .8
+        else               1
+
+    cex.points / par("cex")
+}
+check.deprecated <-function(new, new.is.missing, old)
+{
+    if(length(old) != 1 || !is.na(old)) {
+        new.name <- deparse(substitute(new))
+        old.name <- deparse(substitute(old))
+        warning0(sprintf(
+            "%s is deprecated.  Please use %s instead.",
+            old.name, new.name))
+        if(!new.is.missing)
+            warning0(sprintf(
+                "%s and %s both specified.  Please use just %s.",
+                old.name, new.name, new.name))
+        new <- old
+    }
+    new
+}
+check <- function(x, xname, check.name, check.func)
+{
+    if(any(check.func(x))) {
+        which <- which(check.func(x))
+        stopifnot(length(which) > 0)
+        stop0(sprintf("%s in %s\n       %s[%d] is %g",
+              check.name, xname, xname, which[1], x[which[1]]))
+    }
+}
+check.vec <- function(x, xname, expected.len=NA, allow.logical=TRUE)
+{
+    if(!(NROW(x) == 1 || NCOL(x) == 1))
+        stop0(xname, " is not a vector\n       ",
+              xname, " has dimensions ", NROW(x), " by ", NCOL(x))
+    if(!((allow.logical && is.logical(x)) || is.numeric(x)))
+        stop0(xname, " is not numeric")
+    if(!is.na(expected.len) && length(x) != expected.len)
+        stop0(xname, " has the wrong length ",
+              length(x), ", expected ", expected.len)
+    check(x, xname, "NA", is.na)
+    check(x, xname, "non-finite value", function(x) {!is.finite(x)})
+}
+par.for.plot <- function(do.par, nfigs, cex.main, caption="CAPTION", right.axis=FALSE)
+{
+    stopifnot(length(do.par) == 1 &&
+              (do.par == 0 || do.par == 1 || do.par == 2))
+    stopifnot(nfigs > 0)
+    old.par <- par(no.readonly=TRUE)
+    if(do.par) {
+        nrows <- ceiling(sqrt(nfigs))
+        par(mfrow=c(nrows, nrows))
+        par(mar=c(4, 4, 2, if(right.axis) 3 else 1)) # small margins to pack figs in
+        par(mgp=c(1.6, 0.6, 0))                      # flatten axis elements
+        par(cex.main=cex.main)
+        make.space.for.caption(caption)
+    }
+    old.par
 }

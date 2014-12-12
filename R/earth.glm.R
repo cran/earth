@@ -11,13 +11,11 @@ check.glm.model <- function(g, response.name) # g is a model created by calling 
         stop0("earth glm response \"", response.name, "\": ", nsingular,
               " coefficients not defined because of singularities")
 
-    if(length(coef(g)) == 0)
-        stop0("earth glm response \"", response.name, "\": no glm coefficients");
-
-    if(any(is.na(coef(g))))
-        stop0("earth glm response \"", response.name, "\": NA in glm coefficients")
+    glm.coef <- coef(g)
+    if(length(glm.coef) == 0)
+        stop0("earth glm response \"", response.name, "\": no glm coefficients")
+    check.vec(glm.coef, "glm coef")
 }
-
 # Check for a common user error: specifying a family argument
 # to earth that is not wrapped in glm=list(family=...))
 
@@ -27,11 +25,10 @@ check.no.family.arg.to.earth <- function(...)
     if(!is.null(dots$fa)) # partial match
         stop0("illegal \"family\" argument to earth\n", try.something.like)
 }
-
 # This duplicates some tests in binomial in family.R for
 # better error reporting in the earth context
 
-check.yarg.for.binomial.glm <- function(yarg, weights, mustart, more.y.columns)
+check.yarg.for.binomial.glm <- function(yarg, mustart, more.y.columns)
 {
     if(ncol(yarg) == 1 && any(yarg < 0 | yarg > 1)) {
         cat("Error: binomial glm model with a vector y:",
@@ -44,7 +41,6 @@ check.yarg.for.binomial.glm <- function(yarg, weights, mustart, more.y.columns)
         stop0("glm with earth failed, see above messages")
     }
 }
-
 # Note that on entry get.glm.arg has already checked the glm argument
 # Most args are direct copies of args to earth.fit.
 
@@ -110,8 +106,6 @@ earth.glm <- function(bx, y, weights, na.action, glm,
     # Convert args to form expected by glm().
     # We need to convert glm() args whose default is not NULL.
 
-    if(is.null(weights))
-       weights <- rep(1, ncases)
     control <- glm$control
     if(is.null(control))
        control <- glm.control()
@@ -124,6 +118,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
        control$trace <- glm$trace
     family <- get.glm.family(glm$family, env=env)
     is.binomial <- is.binomial(family)
+    stopifnot(is.null(glm$weights))
 
     # Fit a glm model for each y column.  Except that if there are
     # paired y columns then fit a single glm for each pair.
@@ -155,7 +150,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
 
         }
         if(is.binomial)
-            check.yarg.for.binomial.glm(yarg, weights, glm$mustart, iycol < ncol(y))
+            check.yarg.for.binomial.glm(yarg, glm$mustart, iycol < ncol(y))
         iycol <- iycol + 1
         stopif(is.null(colnames(yarg)))
         if(trace >= 4)
@@ -166,7 +161,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
         # (get.glm.arg has already checked if such args were supplied by the user).
 
         g <- glm(yarg ~ ., family=family, data=bx.data.frame,
-                weights=glm$weights, na.action=na.action,
+                weights=weights, na.action=na.action,
                 control=control, model=TRUE, trace=(trace>=2),
                 method="glm.fit", x=TRUE, y=TRUE, contrasts=NULL)
 
@@ -186,7 +181,6 @@ earth.glm <- function(bx, y, weights, na.action, glm,
     }
     glm.list
 }
-
 # process family here instead of in glm() so can give relevant error message
 
 get.glm.family <- function(family, env)
@@ -202,7 +196,6 @@ get.glm.family <- function(family, env)
               try.something.like)
     family
 }
-
 # This returns the glm argument but with abbreviated names
 # expanded to their full name.  It also checks that the glm argument is
 # valid. Called before calling glm().  We want to make sure that the
@@ -222,7 +215,7 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
             "na.action", "control", "model", "method", "x", "y",
             "contrasts", "epsilon", "maxit", "trace", "bpairs")
 
-        for(i in 1:length(glm)) {
+        for(i in seq_along(glm)) {
             j <- pmatch(names(glm)[[i]], glm.args, nomatch=0)
             if(j == 0)
                 stop0("earth: \"",
@@ -267,11 +260,7 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
               "\" in \"glm\" argument\n",
               "These are always effectively TRUE")
 
-    # FIXED Oct 2008: removed "weights" from list below to
-    # allow weights for glm list. Needed for example in
-    # library(segmented); data(down); fit.e<-earth(cases/births~age,data=down,glm=list(family="binomial", weights=down$births))
-    # If no weights, get warning: non-integer #successes in a binomial glm
-    earths.args <- c("formula", "subset")
+    earths.args <- c("formula", "subset", "weights")
     imatch <- pmatch(earths.args, arg.names)
     imatch <- imatch[!is.na(imatch)]
     if(any(imatch)) {
@@ -281,7 +270,6 @@ get.glm.arg <- function(glm)    # glm arg is earth's glm arg
     }
     glm
 }
-
 # get.glm.coefs returns a ncoeffs * nresponses matrix
 
 get.glm.coefs <- function(glm.list, nresp, selected.terms, term.names, response.names)
@@ -296,7 +284,6 @@ get.glm.coefs <- function(glm.list, nresp, selected.terms, term.names, response.
     rownames(coefs) <- term.names[selected.terms]
     coefs
 }
-
 # Return a boolean vector saying which cols in y must be passed
 # on to the C earth routine.
 # If the user explicitly specified bpairs then we use that bpairs.
@@ -309,15 +296,14 @@ get.glm.bpairs <- function(y, glm)
     bpairs <- glm$bpairs
     if(!is.null(bpairs)) {              # bpairs provided by user?
         if(ncol(y) == 1)
-            stop0("\"bpairs\" argument is illegal because y has only one column")
+            stop0("\"bpairs\" argument is not allowed because y has only one column")
         if(!is.binomial(glm$family))
-            stop0("\"bpairs\" argument is illegal because the family ",
+            stop0("\"bpairs\" argument is not allowed because the family ",
                   "is not binomial or quasibinomial")
-        check.index.vec("bpairs", bpairs, y,
-                        check.empty=TRUE, use.as.col.index=TRUE)
+        bpairs <- plotmo::check.index(bpairs, "bpairs", y, is.col.index=TRUE)
         bpairs <- to.logical(bpairs, NCOL(y))
     } else {
-        bpairs <- rep(TRUE,ncol(y))
+        bpairs <- repl(TRUE, ncol(y))
         if(is.binomial(glm$family)) {
             # If two adjacent columns both have values <0 or >1 then
             # assume that the columns are paired
@@ -327,7 +313,7 @@ get.glm.bpairs <- function(y, glm)
             i <- 1           # column number
             repeat {
                if(i + 1 > ncol(y))
-                   break;
+                   break
                if(any(y[,i] < 0 | y[,i] > 1) && any(y[,i+1] < 0 | y[,i+1] > 1)) {
                    bpairs[i+1] <- FALSE # columns are paired, so discard 2nd column
                    i <- i + 1
@@ -341,7 +327,6 @@ get.glm.bpairs <- function(y, glm)
     else
         bpairs
 }
-
 is.binomial <- function(family) # return true if family is binom or quasibinom
 {
     (
@@ -358,7 +343,6 @@ is.binomial <- function(family) # return true if family is binom or quasibinom
              family$family == "quasibinomial"))
     )
 }
-
 is.poisson <- function(family) # return true if family is poisson or quasipoisson
 {
     (
@@ -375,7 +359,6 @@ is.poisson <- function(family) # return true if family is poisson or quasipoisso
              family$family == "quasipoisson"))
     )
 }
-
 # called from print.summary.earth
 
 print.earth.glm <- function(obj, digits, fixed.point)    # obj is an earth object
@@ -404,7 +387,6 @@ print.earth.glm <- function(obj, digits, fixed.point)    # obj is an earth objec
         print(a, digits=digits)
     }
 }
-
 # Called from print.summary.earth
 # g is a glm object
 # Most of the following was lifted from print.summary.glm
@@ -442,7 +424,6 @@ print.glm.details <- function(g, nresp, digits, fixed.point, response.name)
     cat("\n")
     NULL
 }
-
 print.one.earth.glm <- function(g, digits)
 {
     cat0("null.deviance ",  format(g$null.deviance, digits=digits),

@@ -1,7 +1,7 @@
 \name{residuals.earth}
 \alias{residuals.earth}
 \alias{resid.earth}
-\title{Residuals for an "earth" model}
+\title{Residuals for an earth model}
 \description{
 Residuals for an \code{\link{earth}} model.
 }
@@ -20,16 +20,17 @@ Residuals for an \code{\link{earth}} model.
   \item{type}{
      One of\cr
         \code{"earth"} (default) return earth residuals (from the \code{\link{lm}} fit on \code{bx})\cr
+        \code{"pearson"} earth residuals divided by their stderrs (requires \code{\link{varmod}})\cr
         \code{"deviance"}
             Return the earth \code{\link{lm}} residuals unless the object has a \code{\link{glm}} component,
             in which case return the \code{\link{glm}} deviance residuals.\cr
-        \code{"pearson"}\cr
-        \code{"working"}\cr
-        \code{"response"}\cr
-        \code{"partial"}
+        \code{"glm.pearson"}\cr
+        \code{"glm.working"}\cr
+        \code{"glm.response"}\cr
+        \code{"glm.partial"}
             Return the corresponding \code{\link{glm}} residuals
-           (from the \code{\link{glm}} fit on \code{bx}).
-            Can only be used if the earth model has a \code{\link{glm}} component.
+            (from the \code{\link{glm}} fit on \code{bx}).
+            Can be used only if the earth model has a \code{\link{glm}} component.
   }
   \item{warn}{
         This function gives warnings when the results are not what you may expect.
@@ -49,9 +50,9 @@ The residual values (will be a matrix for multiple response models).
 }
 \examples{
 data(etitanic)
-a <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial))
-head(resid(a, warn=FALSE))      # earth residuals, a column for each response
-head(resid(a, type="earth"))    # same
-head(resid(a, type="deviance")) # GLM deviance residuals, a column for each response
+earth.mod <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial))
+head(resid(earth.mod, warn=FALSE))      # earth residuals, a column for each response
+head(resid(earth.mod, type="earth"))    # same
+head(resid(earth.mod, type="deviance")) # GLM deviance residuals, a column for each response
 }
 \keyword{models}

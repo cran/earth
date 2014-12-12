@@ -27,7 +27,10 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
     if(actual.nrows != expected.nrows) {
         if(actual.nrows == fitted.nrows)
             stop0("model.frame.default could not interpret the data passed to ",
-                  Callers.name)
+                  Callers.name,
+                  "\n        (actual.nrows=", actual.nrows,
+                  " expected.nrows=", expected.nrows,
+                  " fitted.nrows=", fitted.nrows, ")")
         else  # can probably never get here
             warning0(Callers.name, " returned a number ", actual.nrows,
                      " of rows that was different from the number ",
@@ -35,7 +38,6 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
                      " of rows in the data")
     }
 }
-
 good.colname <- function(name)
 {
     # The nchar check prevents super long names
@@ -45,7 +47,6 @@ good.colname <- function(name)
 
     !is.null(name) && nchar(name) <= 60 && length(grep(",.*,.*,", name)) == 0
 }
-
 good.colnames <- function(x)
 {
     colnames <- colnames(x)
@@ -56,7 +57,6 @@ good.colnames <- function(x)
             return(FALSE)
     return(TRUE)
 }
-
 # Generate a column name for each column in x.
 # x could be a vector.
 # if xname is specified and x is a vector then use xname
@@ -64,7 +64,7 @@ good.colnames <- function(x)
 
 generate.colnames <- function(x, is.y.arg=FALSE, xname=NULL)
 {
-    names. <- rep("", length=NCOL(x))
+    names. <- repl("", NCOL(x))
 
     if(NCOL(x) == 1 && good.colname(xname[1]))
         names. <- xname
@@ -88,7 +88,6 @@ generate.colnames <- function(x, is.y.arg=FALSE, xname=NULL)
 
     make.unique(strip.white.space(names.))
 }
-
 # Called from earth.fit just before doing the pruning pass
 # Also called by model.matrix.earth (which returns bx)
 # The x arg must be already expanded
@@ -117,7 +116,6 @@ get.bx <- function(x, which.terms, dirs, cuts)
     colnames(bx) <- rownames(dirs[which.terms,,drop=FALSE])
     bx
 }
-
 # Called only by model.matrix.earth
 
 get.earth.x <- function(    # returns x expanded for factors
@@ -190,7 +188,7 @@ get.earth.x <- function(    # returns x expanded for factors
             } else {
                  # replace indices for non-found predictor names with their value
                  # i.e. assume columns with unknown names are in their right position
-                 for(i in 1:length(imatch))
+                 for(i in seq_along(imatch))
                      if(imatch[i] == 0)
                          imatch[i] = i
 
@@ -287,13 +285,13 @@ get.earth.x <- function(    # returns x expanded for factors
             print.matrix.info("data after call to model.frame", data, Callers.name, all.names=(trace >= 2))
         classes <- attr(Terms, "dataClasses")
         if(!is.null(classes)) {
-             # use "try" to be lenient, allow numeric to be used for factors etc.
-             z <- try(.checkMFClasses(classes, data), silent=FALSE)
-             if(is.try.error(z)) {
-                 # error msg already printed by .checkMFClasses
-                 cat("Forging on regardless, first few rows of x are\n")
-                 print(head(data))
-             }
+            # use "try" to be lenient, allow numeric to be used for factors etc.
+            z <- try(.checkMFClasses(classes, data), silent=FALSE)
+            if(is.try.error(z)) {
+                # error msg already printed by .checkMFClasses
+                cat("Forging on regardless, first few rows of x are\n")
+                print(head(data))
+            }
         }
         x <- model.matrix(Terms, data)
         check.nrows(expected.nrows, nrow(x), nrow(object$fitted.values), Callers.name)
@@ -309,7 +307,6 @@ get.earth.x <- function(    # returns x expanded for factors
     check.expanded.ncols(x, object)
     x
 }
-
 # Called by update.earth and get.earth.x
 #
 # Which x should we use? The precedence is [1] the x parameter, if any,
@@ -352,7 +349,6 @@ get.update.arg <- function(arg, argname, object,
     }
     arg
 }
-
 # Called by predict.earth and can also be called by users directly.
 # Called object$bx if all x, subset, which.terms equal NULL.
 
@@ -378,8 +374,8 @@ model.matrix.earth <- function(     # returns bx
     if(is.null(which.terms))
         which.terms <- object$selected.terms
     if(!is.null(subset)) {
-        check.index.vec("subset", subset, x,
-                        check.empty=TRUE, allow.duplicates=TRUE, allow.zeroes=TRUE)
+        # duplicates are allowed in subsets so user can specify a bootstrap sample
+        plotmo::check.index("subset", subset, x, allow.dups=TRUE, allow.zeroes=TRUE)
         x <- x[subset, , drop=FALSE]
     }
     get.bx(x, which.terms, object$dirs, object$cuts)

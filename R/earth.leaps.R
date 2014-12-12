@@ -61,7 +61,7 @@ leaps.setup<-function(x,y,wt=rep(1,length(y)),force.in=NULL,
                     wt=as.double(wt),tx=t(xx),y=as.double(y),d=numeric(np),
                     rbar=numeric(nrbar),
                     thetab=numeric(np),sserr=numeric(1),ier=as.integer(0),
-                    PACKAGE="earth",DUP=FALSE)
+                    PACKAGE="earth")
   if (qrleaps$ier!=0)
       warning(paste("MAKEQR returned error code",qrleaps$ier))
   qrleaps$tx<-NULL

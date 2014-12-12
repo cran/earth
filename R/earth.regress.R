@@ -26,7 +26,7 @@ earth.regress <- function(
 
     # add intercept to x
     colnames. <- colnames(x)
-    x <- cbind(rep(1,nrow(x)), x)
+    x <- cbind(repl(1, nrow(x)), x)
     colnames(x) <- c("(Intercept)", colnames.)
 
     nresp <- ncol(y)
@@ -34,20 +34,17 @@ earth.regress <- function(
     ncases <- nrow(x)
 
     if(is.null(weights))
-        weights <- rep(1, ncases)
-    else {
-        meanw <- check.weights(weights, nrow(x), "weights")
-        weights <- standardize.weights(weights, meanw)
-    }
+        weights <- repl(1, ncases)
+    weights <- check.weights(weights, "weights", nrow(x))
     if(is.null(used.cols)) {
-        used.cols <- rep(TRUE, ncols)
+        used.cols <- repl(TRUE, ncols)
         coefficients <- matrix(1.0, nrow=ncol(x), ncol=nresp)
     } else {
         if(!is.logical(used.cols))
             stop("used.cols is not logical")
         if(length(used.cols) != ncol(x)-1)     # -1 for intercept added above
             stop("length(used.cols) != ncol(x)")
-        check.index.vec("used.cols", used.cols, x, check.empty=TRUE, use.as.col.index=FALSE)
+        plotmo::check.index(used.cols, "used.cols", x, is.col.index=TRUE)
         used.cols <- c(TRUE, used.cols)         # add intercept
         coefficients <- matrix(1.0, nrow=ncol(x) - sum(!used.cols), ncol=nresp)
     }

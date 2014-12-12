@@ -1,6 +1,6 @@
 \name{update.earth}
 \alias{update.earth}
-\title{Update an "earth" model}
+\title{Update an earth model}
 \description{
 Update an \code{\link{earth}} model.
 }
@@ -15,14 +15,15 @@ Update an \code{\link{earth}} model.
   }
   \item{ponly}{
      Force pruning only, no forward pass.
-     Default is FALSE, meaning \code{update.earth} decides automatically if a forward pass is needed.
+     Default is \code{FALSE},
+     meaning \code{update.earth} decides automatically if a forward pass is needed.
      See note below.
   }
   \item{\dots}{
      Arguments passed on to \code{\link{earth}}.
   }
   \item{evaluate}{
-     If TRUE (default) evaluate the new call, else return the call.
+     If \code{TRUE} (default) evaluate the new call, else return the call.
      Mostly for compatibility with the generic \code{\link{update}}.
   }
 }
@@ -72,7 +73,7 @@ forward pass was skipped.
 If you used \code{keepxy=TRUE} in your original call to \code{earth}, then
 \code{update.earth} will use the saved values of \code{x}, \code{y}, etc.,
 unless you specify otherwise by arguments to \code{update.earth}.
-It can be helpful to set \code{trace=1} to see which \code{x} and \code{y}.
+It can be helpful to set \code{trace=1} to see which \code{x} and \code{y}
 \code{update.earth} is using.
 }
 \value{
@@ -86,12 +87,12 @@ It can be helpful to set \code{trace=1} to see which \code{x} and \code{y}.
 \examples{
 data(ozone1)
 
-(a <- earth(O3 ~ ., data = ozone1, degree = 2))
+(earth.mod <- earth(O3 ~ ., data = ozone1, degree = 2))
 
-update(a, formula = O3 ~ . - temp) # requires forward pass and pruning
+update(earth.mod, formula = O3 ~ . - temp) # requires forward pass and pruning
 
-update(a, nprune = 8)              # requires only pruning
+update(earth.mod, nprune = 8)              # requires only pruning
 
-update(a, penalty=1, ponly=TRUE)   # pruning pass only with a new penalty
+update(earth.mod, penalty=1, ponly=TRUE)   # pruning pass only with a new penalty
 }
 \keyword{models}

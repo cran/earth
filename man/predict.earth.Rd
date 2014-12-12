@@ -1,12 +1,13 @@
 \name{predict.earth}
 \alias{predict.earth}
-\title{Predict with an "earth" model}
+\title{Predict with an earth model}
 \description{
 Predict with an \code{\link{earth}} model.
 }
 \usage{
 \method{predict}{earth}(object = stop("no 'object' arg"), newdata = NULL,
         type = c("link", "response", "earth", "class", "terms"),
+        interval = "none", level = .95,
         thresh = .5, trace = FALSE, \dots)
 }
 \arguments{
@@ -18,15 +19,31 @@ Predict with an \code{\link{earth}} model.
     Make predictions using \code{newdata}, which
     can be a data frame, a matrix, or a vector with length equal to a multiple of the number of columns
     of the original input matrix \code{x}.
-    Note that this is more flexible than the predict methods for most R models.
+    Note that this is more flexible than the predict methods for most R models.\cr
     NAs are allowed (and the predicted value will be NA unless the NAs are in variables
-    that are unused in the earth model).
+    that are unused in the earth model).\cr
     Default is NULL, meaning return values predicted from the training set.
   }
   \item{type}{
      Type of prediction.
      One of \code{"link"} (default), \code{"response"}, \code{"earth"}, \code{"class"}, or \code{"terms"}.
      See the \bold{Note} below.
+  }
+  \item{interval}{
+    Return prediction or confidence levels.
+    Default is \code{"none"}.
+    Use \code{interval="pint"} to get prediction intervals on new data.
+\cr
+    Requires that the earth model was built with \code{varmod.method}.
+\cr
+    This argument gets passed on as the \code{type} argument to \code{\link{predict.varmod}}.
+    See its help page for details.
+  }
+  \item{level}{
+    Confidence level for the \code{interval} argument.
+    Default is \code{.95}, meaning construct 95\% confidence bands
+    (assume the residual variance is symmetrical and
+    calculate 2.5\% and 97.5\% levels).
   }
   \item{thresh}{
     Threshold, a value between 0 and 1 when predicting a probability.
@@ -35,7 +52,7 @@ Predict with an \code{\link{earth}} model.
     See the \bold{Note} below.
   }
   \item{trace}{
-     Default FALSE. Set to TRUE to see which data, subset, etc.  \code{predict.earth} is using.
+     Default \code{FALSE}. Set to \code{TRUE} to see which data, subset, etc.  \code{predict.earth} is using.
   }
   \item{\dots}{
      Unused, but provided for generic/method consistency.
@@ -43,7 +60,16 @@ Predict with an \code{\link{earth}} model.
 }
 \value{
 The predicted values (a matrix for multiple response models).
-Except if \code{type="terms"}, then a matrix with each column showing the contribution of a predictor.
+
+If \code{type="terms"}, a matrix with each column showing the contribution of a predictor.
+
+If \code{interval="pint"}, \code{"training.cint"}, or
+\code{"training.pint"}, a matrix with three columns:\cr
+\code{fit}: the predicted values\cr
+\code{lwr}: the lower confidence or prediction limit\cr
+\code{upr}: the upper confidence or prediction limit
+
+If \code{interval="se"}, the standard errors.
 }
 \note{
 \bold{Predicting with standard earth models}
@@ -75,10 +101,10 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
     With option \code{"class"}, this function first makes predictions with
     \code{type="response"} and then assigns the predicted values to classes as follows:
 
-    (i) When \code{y} is a \emph{logical}, predict TRUE if
+    (i) When \code{y} is a \emph{logical}, predict \code{TRUE} if
     the predicted probability is greater than \code{thresh}.
 
-    (ii) When \code{y} is a \emph{numeric}, predict TRUE if
+    (ii) When \code{y} is a \emph{numeric}, predict \code{TRUE} if
     the predicted value is greater than \code{thresh}.
     Actually, this is identical to the above case,
     although \code{thresh} here may legitimately be a value
@@ -104,8 +130,8 @@ Except if \code{type="terms"}, then a matrix with each column showing the contri
 }
 \examples{
 data(trees)
-a <- earth(Volume ~ ., data = trees)
-predict(a)           # same as a$fitted.values
-predict(a, c(10,80)) # yields 18.11
+earth.mod <- earth(Volume ~ ., data = trees)
+predict(earth.mod)           # same as earth.mod$fitted.values
+predict(earth.mod, c(10,80)) # yields 16.8
 }
 \keyword{models}

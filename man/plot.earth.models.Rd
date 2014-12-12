@@ -1,6 +1,6 @@
 \name{plot.earth.models}
 \alias{plot.earth.models}
-\title{Compare "earth" models by plotting them.}
+\title{Compare earth models by plotting them.}
 \description{
 Compare \code{\link{earth}} models by plotting them.
 }
@@ -8,13 +8,13 @@ Compare \code{\link{earth}} models by plotting them.
 \method{plot}{earth.models}(x = stop("no 'x' arg"), which = c(1:2),
     caption = "", jitter = 0,
     col.grsq = discrete.plot.cols(length(x)), lty.grsq = 1,
-    col.rsq = 0, lty.rsq = 5,
+    col.line = 0, lty.rsq = 5,
     col.vline = col.grsq, lty.vline = 3,
     col.npreds = 0,  lty.npreds  = 2, col.sel.grid = 0,
     ylim = c(0,1),
     col.legend = 1, cex.legend = NULL, legend.pos = NULL, legend.text = NULL,
-    col.cum = NULL, do.par = TRUE, main = "Model Comparison",
-    rlim = NA, \dots)
+    col.cum = NULL, do.par = TRUE,
+    main = "Model Comparison", cex.main = 1.2, \dots)
 }
 \arguments{
   \item{x}{
@@ -54,7 +54,7 @@ Compare \code{\link{earth}} models by plotting them.
     Line type for the GRSq plot.
     Default is \code{1}.
   }
-  \item{col.rsq}{
+  \item{col.line}{
     Vector of colors for the RSq plot.
     Default is \code{0}, meaning no RSq plot.
   }
@@ -77,7 +77,7 @@ Compare \code{\link{earth}} models by plotting them.
     Vector of colors for the "number of predictors" plot within the model selection plot.
     Default is \code{0}, meaning no "number of predictors" plot.
     The special value \code{NULL} means borrow \code{col.grsq}
-    (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
+    (or \code{col.line} if \code{col.grsq} is \code{NULL}).
   }
   \item{lty.npreds}{
      Line type of the "number of predictors" plot (in the Model Selection plot).
@@ -98,11 +98,7 @@ Compare \code{\link{earth}} models by plotting them.
     is the largest GRSq or RSq.
   }
   \item{col.legend}{
-    Default is \code{1}, meaning draw a legend.
-    Use \code{0} for no legend.
-    The legend is drawn in the cumulative distribution graph,
-    if that graph is plotted.
-    Else the legend is drawn in the model comparison chart.
+    Deprecated.   Use \code{legend.pos=NA} for no legend.
   }
   \item{cex.legend}{
      Legend cex.
@@ -111,7 +107,8 @@ Compare \code{\link{earth}} models by plotting them.
   \item{legend.pos}{
     Legend position.
     Default \code{NULL}, meaning position the legend automatically.
-    Else specify \code{c(x,y)} in user coordinates,
+    Use NA for no legend.
+    Specify \code{c(x,y)} in user coordinates,
     or use \code{"topleft"} etc. as explained in \code{\link{legend}}.
   }
   \item{legend.text}{
@@ -122,7 +119,7 @@ Compare \code{\link{earth}} models by plotting them.
   \item{col.cum}{
     Vector of colors for the cumulative distribution plot.
     The special value \code{NULL} (default) means borrow \code{col.grsq}
-    (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
+    (or \code{col.line} if \code{col.grsq} is \code{NULL}).
 \cr
 \cr
      \emph{The following settings are related to \code{par()} and are included so you can override the defaults.}
@@ -137,11 +134,12 @@ Compare \code{\link{earth}} models by plotting them.
     Title of each plot.
     Default is \code{NULL}, meaning generate figure headings automatically.
   }
-  \item{rlim}{
-    Deprecated.  Please use \code{ylim} instead.
+  \item{cex.main}{
+    Size of plot titles.  Default is \code{1.2}.
+    Used only if \code{do.par} is \code{TRUE} (default).
   }
   \item{\dots}{
-    Extra arguments passed to plotting functions.
+    Unused, but provided for generic/method consistency.
   }
 }
 \note{
@@ -157,8 +155,8 @@ Compare \code{\link{earth}} models by plotting them.
 \examples{
 data(ozone1)
 a1 <- earth(O3 ~ .,          data = ozone1, degree = 2)
-a2 <- earth(O3 ~ .-wind,     data = ozone1, degree = 2, nk = 31)
-a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2, nk = 31)
-plot.earth.models(list(a1,a2,a3), ylim=c(.6,.8))
+a2 <- earth(O3 ~ .-wind,     data = ozone1, degree = 2)
+a3 <- earth(O3 ~ .-humidity, data = ozone1, degree = 2)
+plot.earth.models(list(a1,a2,a3), ylim=c(.65,.85))
 }
 \keyword{models}
