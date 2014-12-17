@@ -636,10 +636,13 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
     column of \code{y} on \code{bx}.
     The first row holds the intercept coefficient(s).
 }
-\item{\code{penalty,nk,thresh,weights}}{
-     Copy of corresponding argument to \code{earth}.
+\item{\code{penalty,nk,thresh}}{
+     Copies of corresponding arguments to \code{earth}.
 }
-\item{\code{reason}}{
+\item{\code{weights,wp}}{
+     Copies of corresponding arguments to \code{earth}.
+}
+\item{\code{termcond}}{
      Reason the forward pass terminated (an integer).
 }
 \item{\code{call}}{
@@ -661,17 +664,13 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
      Levels of \code{y} if \code{y} is a \code{\link{factor}}\cr
      \code{c(FALSE,TRUE)} if \code{y} is \code{\link{logical}}\cr
      Else NULL
-}
-\item{\code{wp}}{
-     Copy of the \code{wp} argument to \code{earth}.
   \cr\cr
   \bold{The following fields appear only if \code{earth}'s argument \code{keepxy} is \code{TRUE}.}
 }
 \item{\code{x}}{}
 \item{\code{y}}{}
 \item{\code{data}}{}
-\item{\code{subset}}{}
-\item{\code{weights}}{
+\item{\code{subset}}{}{
      Copies of the corresponding arguments to \code{earth}.
      Only exist if \code{keepxy=TRUE}.
   \cr\cr

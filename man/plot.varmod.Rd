@@ -17,7 +17,7 @@ embedded in an \code{earth} model.
   \item{x}{
     A \code{varmod} object.
     Typically this is embedded in a parent \code{earth} object,
-    and so this function is usually invoked as \code{plot(earth.mod$varmod)}.
+    and so you invoke this function with \code{plot(earth.mod$varmod)}.
     The \code{varmod.method} argument must have been specified
     when building the \code{earth} model.
   }

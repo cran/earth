@@ -32,7 +32,7 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
 
     cat("\n")
 
-    print.forward.termination.reason(x)
+    print.termcond(x)       # print reason we terminated the forward pass
 
     print.one.line.evimp(x) # print estimated var importances on a single line
 
@@ -93,38 +93,38 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
 
     invisible(x)
 }
-print.forward.termination.reason <- function(object)
+print.termcond <- function(object) # print reason we terminated the forward pass
 {
     printf("Termination condition: ")
-    if(is.null(object$reason)) {
+    if(is.null(object$termcond)) {
         printf("Unknown\n") # model was created by mars.to.earth
         return()
     }
-    reason <- object$reason
-    check.numeric.scalar(reason)
+    termcond <- object$termcond
+    check.numeric.scalar(termcond)
     nk <- object$nk
     check.numeric.scalar(nk)
     nterms.before.pruning <- nrow(object$dirs)
     check.numeric.scalar(nterms.before.pruning)
     thresh <- object$thresh
     check.numeric.scalar(thresh)
-    if(reason == 1)
+    if(termcond == 1)
         printf("Reached nk %d\n", nk)
-    else if(reason == 2)
+    else if(termcond == 2)
         printf("GRSq -Inf at %d terms\n", nterms.before.pruning)
-    else if(reason == 3)
-        printf("Reached minimum GRSq -10 at %d terms\n", nterms.before.pruning)
-    else if(reason == 4)
+    else if(termcond == 3)
+        printf("GRSq -10 at %d terms\n", nterms.before.pruning)
+    else if(termcond == 4)
         printf("RSq changed by less than %g at %d terms\n",
             thresh, nterms.before.pruning)
-    else if(reason == 5)
+    else if(termcond == 5)
         printf("Reached maximum RSq %.4f at %d terms\n", 1-thresh, nterms.before.pruning)
-    else if(reason == 6)
+    else if(termcond == 6)
         printf("No new term increases RSq at %d terms\n", nterms.before.pruning)
-    else if(reason == 7)
+    else if(termcond == 7)
         printf("Reached nk %d\n", nk)
     else
-        printf("Unknown (reason %d)\n", reason) # should never happen
+        printf("Unknown (termcond %d)\n", termcond) # should never happen
 }
 get.model.response <- function(object, newdata) # extract response from newdata
 {

@@ -25,7 +25,7 @@ void ForwardPassR(              // for use by R
     double bx[],                // out: MARS basis matrix, nCases x nMaxTerms
     double Dirs[],              // out: nMaxTerms x nPreds, elements are -1,0,1,2
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
-    int*   piReason,            // out: reason we terminated the forward pass
+    int*   piTermCond,          // out: reason we terminated the forward pass
     const double x[],           // in: nCases x nPreds, unweighted x
     const double y[],           // in: nCases x nResp, unweighted but scaled y
     const double yw[],          // in: nCases x nResp, weighted and scaled y
@@ -81,7 +81,7 @@ void RegressR(                  // for testing earth routine Regress from R
 void Earth(
     double* pBestGcv,           // out: GCV of the best model i.e. BestSet columns of bx
     int*    pnTerms,            // out: max term nbr in final model, after removing lin dep terms
-    int*    piReason,           // out: reason we terminated the foward pass
+    int*    piTermCond,         // out: reason we terminated the foward pass
     bool    BestSet[],          // out: nMaxTerms x 1, indices of best set of cols of bx
     double  bx[],               // out: nCases x nMaxTerms
     int     Dirs[],             // out: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred

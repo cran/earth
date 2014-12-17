@@ -88,7 +88,7 @@ Forward pass: minspan 1 endspan 1
 6      0.9630 0.9630      0.04927    1            x           7  5       
 8      1.0000 1.0000      0.03695    1            x           6  6       
 
-Reached max RSq (RSq 1.0000 >= 1.0000) at 9 terms
+Reached maximum RSq 1.0000 at 9 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 9 terms (6 terms used)
 
@@ -121,7 +121,7 @@ Forward pass: minspan 1 endspan 1
 1      0.0000 0.0000                    (Intercept)
 2      1.0000 1.0000            1    1            x           5  2   3   
 
-Reached max RSq (RSq 1.0000 >= 1.0000) at 3 terms
+Reached maximum RSq 1.0000 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms
 
@@ -152,7 +152,7 @@ Forward pass: minspan 1 endspan 1
 4      0.9259 0.9259      0.02022    1            x           6  4       
 6      1.0000 1.0000      0.07415    1            x           4  5       
 
-Reached max RSq (RSq 1.0000 >= 1.0000) at 7 terms
+Reached maximum RSq 1.0000 at 7 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 7 terms (5 terms used)
 
@@ -185,7 +185,7 @@ Forward pass: minspan 1 endspan 1
 4      0.9259 0.9259      0.02022    1          xxx           6  4       
 6      1.0000 1.0000      0.07415    1          xxx           4  5       
 
-Reached max RSq (RSq 1.0000 >= 1.0000) at 7 terms
+Reached maximum RSq 1.0000 at 7 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 7 terms (5 terms used)
 
@@ -202,27 +202,47 @@ Warning message:
 support of weights is provisional in this version of earth 
 > check.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
 > 
-> cat("=== a7.glm ===\n")
-=== a7.glm ===
+> cat("=== a8 ===\n")
+=== a8 ===
 > par(mfrow = c(2, 2)) # new page
 > par(mar = c(3, 3, 3, 1))
 > par(mgp = c(1.5, 0.5, 0))
 > data$y <- c(0, 0, 0, 1, 0, 1, 1, 1, 1) != 0
 > 
-> a7.glm <- earth(y~., data=data,
-+                 minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-> 
-> plotmo(a7.glm, type="response",
-+        col.response=2, do.par=F, main="a7.glm no weights",
+> # glm models first without weights
+> a8 <- earth(y~., data=data,
++             linpreds=TRUE, glm=list(family=binomial),
++             minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+> plotmo(a8,
++        col.response=2, do.par=F, main="a8 glm no weights\ntype=\"response\"",
 +        grid="gray", ylim=c(-.2, 1.2))
-> 
-> a7.glm.weights <- earth(y~., data=data,
-+                         weights=c(1,1,1,0,1,1,1,1,1),
-+                         minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-> 
-> plotmo(a7.glm.weights,  type="response",
-+        col.response=2, do.par=F, main="a7.glm weights=c(1,1,1,0,1,1,1,1,1)",
+> plotmo(a8, type="earth",
++        col.response=2, do.par=F, main="a8 glm no weights\ntype=\"earth\"",
 +        grid="gray", ylim=c(-.2, 1.2))
+> glm <- glm(y~., data=data, family=binomial)
+> stopifnot(coefficients(a8$glm.list[[1]]) == coefficients(glm))
+> 
+> cat("=== a8.weights ===\n")
+=== a8.weights ===
+> # now glm models with weights
+> glm.weights <- c(.8,1,1,.5,1,1,1,1,1)
+> a8.weights <- earth(y~., data=data,
++                     linpreds=TRUE, glm=list(family=binomial),
++                     weights=glm.weights,
++                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+Warning message:
+In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
+> plotmo(a8.weights, type="response",
++        col.response=2, do.par=F, main="a8.weights glm\ntype=\"response\"",
++        grid="gray", ylim=c(-.2, 1.2))
+> plotmo(a8.weights, type="earth",
++        col.response=2, do.par=F, main="a8.weights glm\ntype=\"earth\"",
++        grid="gray", ylim=c(-.2, 1.2))
+> glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
+Warning message:
+In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
+> # TODO this fails if a weight is 0 in glm.weights
+> stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm))
 > 
 > # multivariate models
 > 
@@ -232,18 +252,18 @@ support of weights is provisional in this version of earth
 > colnames(data) <- c("x1", "x2", "y")
 > 
 > weights <- c(3, 2, 1, 1, 2, 3, 1, 2, 3)
-> lm8 <- lm(y~., data=data, weights=weights)
-> a8  <- earth(y~., data=data, linpreds=TRUE, weights=weights,
-+              minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-> check.models.equal(lm8, a8)
+> lm20 <- lm(y~., data=data, weights=weights)
+> a20  <- earth(y~., data=data, linpreds=TRUE, weights=weights,
++               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+> check.models.equal(lm20, a20)
 > 
-> a9.noweights <- earth(y~., data=data, # no weights for comparison
-+             minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-> plotmo(a9.noweights, col.resp=2, trace=-1, caption="a9.noweights")
+> a21.noweights <- earth(y~., data=data, # no weights for comparison
++                        minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+> plotmo(a21.noweights, col.resp=2, trace=-1, caption="a21.noweights")
 > 
 > weights <- c(1, 1, 1, 1, .5, 1, 1, 1, 1)
 > a10  <- earth(y~., data=data, weights=weights,
-+              minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
++               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 > plotmo(a10, col.resp=2, trace=-1, caption="a10")
 > 
 > if(!interactive()) {

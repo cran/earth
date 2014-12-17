@@ -512,19 +512,19 @@ earth.fit <- function(
                              minspan, endspan, newvar.penalty, fast.k, fast.beta,
                              linpreds, allowed, Use.beta.cache, Scale.y, Force.weights,
                              n.allowedfunc.args, env)
-          bx     <- rval$bx
-          dirs   <- rval$dirs
-          cuts   <- rval$cuts
-          reason <- rval$reason
+          bx       <- rval$bx
+          dirs     <- rval$dirs
+          cuts     <- rval$cuts
+          termcond <- rval$termcond
     } else {
         # no forward pass: get here if update() called me with no forward pass params
         if(trace >= 1)
             cat("Skipped forward pass\n")
         check.classname(Object, deparse(substitute(Object)), "earth")
-        bx      <- NULL
-        dirs    <- Object$dirs
-        cuts    <- Object$cuts
-        reason  <- Object$reason
+        bx       <- NULL
+        dirs     <- Object$dirs
+        cuts     <- Object$cuts
+        termcond <- Object$termcond
     }
     rval <- pruning.pass(if(is.null(yw)) x else sqrt(weights) * x,
                          if(is.null(yw)) y else yw,
@@ -638,7 +638,7 @@ earth.fit <- function(
         penalty        = penalty,          # copy of penalty argument
         nk             = nk,               # copy of nk argument
         thresh         = thresh,           # copy of thresh argument
-        reason         = reason,           # reason we terminated the forward pass
+        termcond       = termcond,         # reason we terminated the forward pass
         weights        = weights.or.null), # copy of weights argument, may be NULL
     class = "earth")
 
@@ -838,7 +838,7 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
 
     pred.names <- if(trace >= 2 || n.allowedfunc.args >= 4) colnames(x) else my.null
 
-    reason <- integer(length=1) # reason we terminated the forward pass
+    termcond <- integer(length=1) # reason we terminated the forward pass
 
     on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interrupts
 
@@ -847,7 +847,7 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
         bx   = matrix(0, nrow=nrow(x), ncol=nk), # out: double bx[]
         dirs = matrix(0, nrow=nk, ncol=npreds),  # out: double Dirs[]
         cuts = matrix(0, nrow=nk, ncol=npreds),  # out: double Cuts[]
-        reason = reason,                         # out: int*
+        termcond = termcond,                     # out: int*
         x,                                       # in: const double x[]
         y.scaled,                                # in: const double y[]
         if(is.null(yw)) my.null else yw.scaled,  # in: const double yw[]
@@ -878,10 +878,10 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
 
     fullset <- as.logical(rval$fullset)
 
-    list(reason = rval$reason,
-         bx     = rval$bx[, fullset, drop=FALSE],
-         dirs   = rval$dirs[fullset, , drop=FALSE],
-         cuts   = rval$cuts[fullset, , drop=FALSE])
+    list(termcond = rval$termcond,
+         bx       = rval$bx[, fullset, drop=FALSE],
+         dirs     = rval$dirs[fullset, , drop=FALSE],
+         cuts     = rval$cuts[fullset, , drop=FALSE])
 }
 # Return a vec which specifies the degree of each term in dirs.
 # Each row of dirs specifies one term so we work row-wise in dirs.

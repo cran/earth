@@ -610,7 +610,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 4
 
 $weights

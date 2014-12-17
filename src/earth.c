@@ -143,7 +143,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char   *VERSION    = "version 4.0.0"; // change if you modify this file!
+static const char   *VERSION    = "version 4.1.0"; // change if you modify this file!
 static const double BX_TOL      = 0.01;
 static const double QR_TOL      = 1e-8;     // same as R lm
 static const double MIN_GRSQ    = -10.0;
@@ -209,11 +209,11 @@ static void *malloc1(size_t size, const char *args, ...)
         if(args == NULL)
             printf("malloc %s\n", sFormatMemSize(size, true));
         else {
-            char s[100];
-            va_list p;
-            va_start(p, args);
-            vsprintf(s, args, p);
-            va_end(p);
+            char s[1000];
+            va_list va;
+            va_start(va, args);
+            vsprintf(s, args, va);
+            va_end(va);
             printf("malloc %s: %s\n", sFormatMemSize(size, true), s);
         }
     }
@@ -229,11 +229,11 @@ static void *calloc1(size_t num, size_t size, const char *args, ...)
         if(args == NULL)
             printf("calloc %s\n", sFormatMemSize(size, true));
         else {
-            char s[100];
-            va_list p;
-            va_start(p, args);
-            vsprintf(s, args, p);
-            va_end(p);
+            char s[1000];
+            va_list va;
+            va_start(va, args);
+            vsprintf(s, args, va);
+            va_end(va);
             printf("calloc %s: %s\n", sFormatMemSize(size, true), s);
         }
     }
@@ -463,7 +463,7 @@ static void AddTermToQ(
     if(Sort) {
         memcpy(SortedQ, Q, nQMax * sizeof(tQueue));
         qsort(SortedQ, nQMax, sizeof(tQueue), CompareQ);         // sort on RssDelta
-        if(FastBeta != 0) {
+        if(FastBeta > 0) {
             for(int iRank = 0; iRank < nQMax; iRank++)
                 SortedQ[iRank].AgedRank =
                     iRank + FastBeta * (nTerms - SortedQ[iRank].nTermsForRssDelta);
@@ -1517,8 +1517,8 @@ static INLINE void AddCandidateLinearTerm(
     const double bx[],          // in: MARS basis matrix
     const bool FullSet[])       // in
 {
-    double Dummy = y[0];   // prevent compiler warning: unused parameter
-    Dummy = Dummy;
+    // $$ double Dummy = y[0];   // prevent compiler warning: unused parameter
+    // Dummy = Dummy;
 
     // set xbx to x[,iPred] * bx[,iParent]
     // note: when iParent==1, bx_[,iParent] is all ones, therefore xbx is x
@@ -1962,7 +1962,7 @@ static INLINE void FindWeightedPredGivenParent(
             // TODO we don't release UsedCols here if user interrupts
             ServiceR();
 #endif
-            const double NewVarAdjust = 1 + (nUses[iPred] == 0? NewVarPenalty: 0);
+            // const double NewVarAdjust = 1 + (nUses[iPred] == 0? NewVarPenalty: 0);
             bool IsNewForm = GetNewFormFlag(iPred, iParent, Dirs,
                                 FullSet, nTerms, nPreds, nMaxTerms);
             ASSERT(nTerms+1 < nMaxTerms);
@@ -1988,7 +1988,7 @@ static INLINE void FindWeightedPredGivenParent(
 #if 1 // TODO remove this check
                 Regress(NULL, NULL, &RssBeforeCallingFindKnot, NULL, NULL, NULL,
                     bx, yw, nCases, nResp, nMaxTerms, UsedCols);
-                ASSERT(abs(RssBeforeCallingFindKnot - RssBeforeNewTerm) < ALMOST_ZERO);
+                ASSERT(fabs(RssBeforeCallingFindKnot - RssBeforeNewTerm) < ALMOST_ZERO);
 #endif
             }
             double RssBestKnot = RssBeforeCallingFindKnot;
@@ -1998,7 +1998,7 @@ static INLINE void FindWeightedPredGivenParent(
                 double RssTemp;
                 Regress(NULL, NULL, &RssTemp, NULL, NULL, NULL,
                     bx, yw, nCases, nResp, nMaxTerms, UsedCols);
-                ASSERT(abs(RssTemp - RssBeforeCallingFindKnot) < ALMOST_ZERO);
+                ASSERT(fabs(RssTemp - RssBeforeCallingFindKnot) < ALMOST_ZERO);
 #endif
                 const int iNewCol = IsNewForm? nTerms+1: nTerms;
                 ASSERT(iNewCol > 0 && iNewCol < nMaxTerms);
@@ -2009,8 +2009,7 @@ static INLINE void FindWeightedPredGivenParent(
                         iParent, iPred, nCases, nResp,
                         bx, x, yw, xOrder, nMinSpan, nEndSpan);
             }
-            double Dummy2 = NewVarAdjust; // TODO
-            Dummy2 = Dummy2;
+            // TODO must use NewVarAdjust here?
             const bool LinPredIsBest = RssBeforeCallingFindKnot <= RssBestKnot;
             const double Rss = (LinPredIsBest? RssBeforeCallingFindKnot: RssBestKnot);
             double RssDeltaForTerm = RssBeforeNewTerm - Rss;
@@ -2274,7 +2273,7 @@ static void PrintForwardStep(
 }
 
 //-----------------------------------------------------------------------------
-static int ForwardEpilog( // returns reason why we stopped adding terms
+static int ForwardEpilog( // returns reason we stopped adding terms
     const int nTerms, const int nMaxTerms,
     const double Thresh,
     const double RSq, const double RSqDelta,
@@ -2287,50 +2286,50 @@ static int ForwardEpilog( // returns reason why we stopped adding terms
 
     const double GRSq = 1 - Gcv / GcvNull;
 
-    int iReason = 0;
+    int iTermCond = 0;
 
     // NOTE 1: this code must match the loop termination conditions in ForwardPass
-    // NOTE 2: if you update this, also update print.forward.termination.reason in the R code
+    // NOTE 2: if you update this, also update print.termcond in the R code
 
     // treat very low nMaxTerms as a special case
     // because RSDelta etc. not yet completely initialized
     if(nMaxTerms < 3) {
-        iReason = 1;
+        iTermCond = 1;
         if(TraceGlobal >= 1)
-            printf("\nReached max number of terms %d", nMaxTerms);
+            printf("\nReached maximum number of terms %d\n", nMaxTerms);
     } else if(Thresh != 0 && GRSq < MIN_GRSQ) {
         if(GRSq < -1000) {
-            iReason = 2;
+            iTermCond = 2;
             if(TraceGlobal >= 1)
-                printf("\nReached GRSq = -Inf at %d terms\n", nTerms);
+                printf("\nGRSq -Inf at %d terms\n", nTerms);
         } else {
-            iReason = 3;
+            iTermCond = 3;
             if(TraceGlobal >= 1)
-                printf("\nReached min GRSq (GRSq %2g < %2g) at %d terms\n",
-                    GRSq, MIN_GRSQ, nTerms);
+                printf("\nReached minimum GRSq %g at %d terms (GRSq %.2g)\n",
+                    MIN_GRSQ, nTerms, GRSq);
         }
     } else if(Thresh != 0 && RSqDelta < Thresh) {
-        iReason = 4;
+        iTermCond = 4;
         if(TraceGlobal >= 1)
-            printf("\nReached delta RSq threshold (DeltaRSq %.2g < %.2g) at %d terms\n",
-                RSqDelta, Thresh, nTerms);
+            printf("\nRSq changed by less than %g at %d terms (DeltaRSq %.2g)\n",
+                Thresh, nTerms, RSqDelta);
     } else if(RSq >= 1-Thresh) {
-        iReason = 5;
+        iTermCond = 5;
         if(TraceGlobal >= 1)
-            printf("\nReached max RSq (RSq %.4f >= %.4f) at %d terms\n",
-                RSq, 1-Thresh, nTerms);
-    } else if(iBestCase < 0) { // TODO seems fishy, happens with linpreds so should give appropriate msg? {
-        iReason = 6;
+            printf("\nReached maximum RSq %.4f at %d terms (RSq %.4f)\n",
+                1-Thresh, nTerms, RSq);
+    } else if(iBestCase < 0) { // TODO seems fishy, happens with linpreds so should give appropriate msg?
+        iTermCond = 6;
         if(TraceGlobal >= 1)
             printf("\nNo new term increases RSq (perhaps reached numerical limits) at %d terms\n",
                 nTerms);
     } else {
-        iReason = 7;
+        iTermCond = 7;
         if(TraceGlobal >= 1) {
 #if USING_R
-            printf("\nReached max number of terms %d (consider increasing nk?)\n", nMaxTerms);
+            printf("\nReached nk %d\n", nMaxTerms);
 #else
-            printf("\nReached max number of terms %d (consider increasing nMaxTerms?)\n", nMaxTerms);
+            printf("\nReached maximum number of terms %d\n", nMaxTerms);
 #endif
         }
     }
@@ -2347,7 +2346,7 @@ static int ForwardEpilog( // returns reason why we stopped adding terms
     if(TraceGlobal >= 3)
         printf("\n");
 
-    return iReason;
+    return iTermCond;
 }
 
 //-----------------------------------------------------------------------------
@@ -2519,7 +2518,7 @@ static void CheckForwardPassArgs(
 
 static void ForwardPass(
     int*   pnTerms,             // out: highest used term number in full model
-    int*   piReason,            // out: reason we terminated the forward pass
+    int*   piTermCond,          // out: reason we terminated the forward pass
     bool   FullSet[],           // out: 1 * nMaxTerms, indices of lin indep cols of bx
     double bx[],                // out: MARS basis matrix, nCases * nMaxTerms
     int    Dirs[],              // out: nMaxTerms * nPreds, -1,0,1,2 for iTerm, iPred
@@ -2684,8 +2683,8 @@ static void ForwardPass(
         if(TraceGlobal >= 2)
             printf("\n");
     }
-    *piReason = ForwardEpilog(nTerms, nMaxTerms, Thresh, RSq, RSqDelta,
-                              Gcv, GcvNull, iBestCase, FullSet);
+    *piTermCond = ForwardEpilog(nTerms, nMaxTerms, Thresh, RSq, RSqDelta,
+                                Gcv, GcvNull, iBestCase, FullSet);
     *pnTerms = nTerms;
     FreeBetaCache();
 #if FAST_MARS
@@ -2708,7 +2707,7 @@ void ForwardPassR(              // for use by R
     double bx[],                // out: MARS basis matrix, nCases x nMaxTerms
     double Dirs[],              // out: nMaxTerms x nPreds, elements are -1,0,1,2
     double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
-    int    piReason[],          // out: reason we terminated the forward pass
+    int*   piTermCond,          // out: reason we terminated the forward pass
     const double x[],           // in: nCases x nPreds, unweighted x
     const double y[],           // in: nCases x nResp, unweighted but scaled y
     const double yw[],          // in: nCases x nResp, weighted and scaled y, can be MyNull
@@ -2781,7 +2780,7 @@ void ForwardPassR(              // for use by R
                     *pnAllowedFuncArgs, Env, sPredNames, nPreds);
 
     int nTerms;
-    ForwardPass(&nTerms, piReason,
+    ForwardPass(&nTerms, piTermCond,
             BoolFullSet, bx, iDirs, Cuts, nFactorsInTerm, nUses,
             x, y, yw, WeightsArg, nCases, nResp, nPreds, *pnMaxDegree, nMaxTerms,
             *pPenalty, *pThresh, *pnFastK, *pFastBeta, *pNewVarPenalty,
@@ -3047,7 +3046,7 @@ static int DiscardUnusedTerms(
 void Earth(
     double* pBestGcv,           // out: GCV of the best model i.e. BestSet columns of bx
     int*    pnTerms,            // out: max term nbr in final model, after removing lin dep terms
-    int*    piReason,           // out: reason we terminated the foward pass
+    int*    piTermCond,         // out: reason we terminated the foward pass
     bool    BestSet[],          // out: nMaxTerms x 1, indices of best set of cols of bx
     double  bx[],               // out: nCases x nMaxTerms
     int     Dirs[],             // out: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
@@ -3109,8 +3108,8 @@ void Earth(
     ASSERT(WeightsArg == NULL); // weights are not currently supported
 #endif
 
-    int nTerms = 0, iReason = 0;
-    ForwardPass(&nTerms, &iReason,
+    int nTerms = 0, iTermCond = 0;
+    ForwardPass(&nTerms, &iTermCond,
         BestSet, bx, Dirs, Cuts, nFactorsInTerm, nUses,
         x, y, yw, WeightsArg,
         nCases, nResp, nPreds, nMaxDegree, nMaxTerms,
@@ -3142,7 +3141,7 @@ void Earth(
             BestSet, Dirs, Cuts, Betas, nFactorsInTerm);
 
     *pnTerms = nMaxTerms1;
-    *piReason = iReason;
+    *piTermCond = iTermCond;
     if(yw)
         free1(yw);
     free1(nFactorsInTerm);
@@ -3212,7 +3211,7 @@ static void FormatOneResponse(
     const int nUsedCols = nTerms;       // nUsedCols is needed for the Betas_ macro
     printf(sFormat, Betas_(0, iResp));  // intercept
     while(nKnots++ < nKnotsMax)
-        printf(sPad);
+        printf("%s", sPad);
     printf(" // 0\n");
 
     for(int iTerm = 1; iTerm < nTerms; iTerm++)
@@ -3249,7 +3248,7 @@ static void FormatOneResponse(
                     }
                 }
                 while(nKnots++ < nKnotsMax)
-                    printf(sPad);
+                    printf("%s", sPad);
                 printf(" // %d\n", iBestTerm);
             }
         }
@@ -3336,13 +3335,16 @@ void PredictEarth(
 void error(const char *args, ...)       // params like printf
 {
     char s[1000];
-    va_list p;
-    va_start(p, args);
-    vsprintf(s, args, p);
-    va_end(p);
+    va_list va;
+    va_start(va, args);
+    vsprintf(s, args, va);
+    va_end(va);
     printf("\nError: %s\n", s);
     exit(-1);
 }
+
+// extern here prevents clang -Wmissing-prototypes warning
+extern void xerbla_(char *srname, int* info);
 
 void xerbla_(char *srname, int* info)   // needed by BLAS and LAPACK routines
 {
@@ -3374,7 +3376,7 @@ int main(void)
 
     double  BestGcv;
     int     nTerms;
-    int     iReason;
+    int     iTermCond;
     bool*   BestSet   = (bool*)  malloc1(nMaxTerms * sizeof(bool), NULL);
     double* bx        = (double*)malloc1(nCases    * nMaxTerms * sizeof(double), NULL);
     int*    Dirs      = (int*)   malloc1(nMaxTerms * nPreds    * sizeof(int),    NULL);
@@ -3392,7 +3394,7 @@ int main(void)
         x[i] = xi;
         y[i] = sin(4 * xi);     // target function, change this to whatever you want
     }
-    Earth(&BestGcv, &nTerms, &iReason, BestSet, bx, Dirs, Cuts, Residuals, Betas,
+    Earth(&BestGcv, &nTerms, &iTermCond, BestSet, bx, Dirs, Cuts, Residuals, Betas,
         x, y, NULL /*WeightsArg*/, nCases, nResp, nPreds,
         nMaxDegree, nMaxTerms, Penalty, Thresh, nMinSpan, nEndSpan, Prune,
         nFastK, FastBeta, NewVarPenalty, LinPreds, UseBetaCache, Trace, sPredNames);

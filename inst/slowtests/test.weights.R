@@ -90,26 +90,41 @@ a7.xy.asmallweight  <- earth(xxx, yyy, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
                           minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
 check.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
 
-cat("=== a7.glm ===\n")
+cat("=== a8 ===\n")
 par(mfrow = c(2, 2)) # new page
 par(mar = c(3, 3, 3, 1))
 par(mgp = c(1.5, 0.5, 0))
 data$y <- c(0, 0, 0, 1, 0, 1, 1, 1, 1) != 0
 
-a7.glm <- earth(y~., data=data,
-                minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-
-plotmo(a7.glm, type="response",
-       col.response=2, do.par=F, main="a7.glm no weights",
+# glm models first without weights
+a8 <- earth(y~., data=data,
+            linpreds=TRUE, glm=list(family=binomial),
+            minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+plotmo(a8,
+       col.response=2, do.par=F, main="a8 glm no weights\ntype=\"response\"",
        grid="gray", ylim=c(-.2, 1.2))
-
-a7.glm.weights <- earth(y~., data=data,
-                        weights=c(1,1,1,0,1,1,1,1,1),
-                        minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-
-plotmo(a7.glm.weights,  type="response",
-       col.response=2, do.par=F, main="a7.glm weights=c(1,1,1,0,1,1,1,1,1)",
+plotmo(a8, type="earth",
+       col.response=2, do.par=F, main="a8 glm no weights\ntype=\"earth\"",
        grid="gray", ylim=c(-.2, 1.2))
+glm <- glm(y~., data=data, family=binomial)
+stopifnot(coefficients(a8$glm.list[[1]]) == coefficients(glm))
+
+cat("=== a8.weights ===\n")
+# now glm models with weights
+glm.weights <- c(.8,1,1,.5,1,1,1,1,1)
+a8.weights <- earth(y~., data=data,
+                    linpreds=TRUE, glm=list(family=binomial),
+                    weights=glm.weights,
+                    minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+plotmo(a8.weights, type="response",
+       col.response=2, do.par=F, main="a8.weights glm\ntype=\"response\"",
+       grid="gray", ylim=c(-.2, 1.2))
+plotmo(a8.weights, type="earth",
+       col.response=2, do.par=F, main="a8.weights glm\ntype=\"earth\"",
+       grid="gray", ylim=c(-.2, 1.2))
+glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
+# TODO this fails if a weight is 0 in glm.weights
+stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm))
 
 # multivariate models
 
@@ -119,18 +134,18 @@ data[5,] <- c(5, 5, 6)
 colnames(data) <- c("x1", "x2", "y")
 
 weights <- c(3, 2, 1, 1, 2, 3, 1, 2, 3)
-lm8 <- lm(y~., data=data, weights=weights)
-a8  <- earth(y~., data=data, linpreds=TRUE, weights=weights,
-             minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-check.models.equal(lm8, a8)
+lm20 <- lm(y~., data=data, weights=weights)
+a20  <- earth(y~., data=data, linpreds=TRUE, weights=weights,
+              minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+check.models.equal(lm20, a20)
 
-a9.noweights <- earth(y~., data=data, # no weights for comparison
-            minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-plotmo(a9.noweights, col.resp=2, trace=-1, caption="a9.noweights")
+a21.noweights <- earth(y~., data=data, # no weights for comparison
+                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+plotmo(a21.noweights, col.resp=2, trace=-1, caption="a21.noweights")
 
 weights <- c(1, 1, 1, 1, .5, 1, 1, 1, 1)
 a10  <- earth(y~., data=data, weights=weights,
-             minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+              minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 plotmo(a10, col.resp=2, trace=-1, caption="a10")
 
 if(!interactive()) {

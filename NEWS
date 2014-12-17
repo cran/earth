@@ -1,6 +1,13 @@
 Changes to Earth Package
 ------------------------
 
+4.1.0  Dec 17, 2014
+
+  Added clang to the slowtests suite, and cleaned up minor warnings issued by clang.
+  Forward pass termination messages are now similar in R and C code.
+  The internal variable "reason" is now named "termcond".
+  Documentation improvements.
+
 4.0.0  Dec 12, 2014
 
   Earth now supports prediction intervals.  See earth's new var.method
@@ -12,11 +19,14 @@ Changes to Earth Package
   Case weights are now supported but are not yet comprehensively tested.
   The current implementation of case weights is slow.
 
+  The print.earth and print.summary.earth function now print the reason
+  the forward pass terminated.
+
   The ordering of terms in summary.earth was changed slightly: within
   term pairs, the term for "predictor less than hinge" is now placed
   before the term for "predictor greater than hinge" (so for example,
-  \texttt{h(16-Girth)} is before \texttt{h(Girth-16)}).  This was done
-  to make model interpretation slightly easier.
+  h(16-Girth) is before h(Girth-16)}.  This was done to make model
+  interpretation slightly easier.
 
   Predictors that are discovered to best enter linearly (no knot) are
   now printed without a knot by summary.earth, to make model

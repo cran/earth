@@ -1,10 +1,8 @@
-@rem test.earthmain.bat: test the standalone earth.c with main()
+@rem test.earthmain.clang.bat: test the standalone earth.c with main()
 @rem
-@rem Stephen Milborrow Apr 2007 Petaluma
+@rem Stephen Milborrow Dec 2014 Shrewsbury
 
-@echo === test.earthmain ===============================================
-
-@set CYGWIN=nodosfilewarning
+@echo === test.earthmain.clang ===========================================
 @cp "C:/Program Files/R/R-3.1.2/bin/i386/R.dll" .
                                 @if %errorlevel% neq 0 goto error
 @cp "C:/Program Files/R/R-3.1.2/bin/i386/Rblas.dll" .
@@ -24,21 +22,27 @@
 @cp "../../.#/Rdll.lib" .
                                 @if %errorlevel% neq 0 goto error
 
-@md Debug
+@rem modify the path to include clang, if needed
+@set | egrep "path=[^;]*LLVM" >NUL && goto donesetpath
+@echo Modifying path for clang
+@set path=C:\Program Files (x86)\LLVM\bin;%PATH%
+:donesetpath
 
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -I"/a/r/ra/include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
+@rem flags same as gcc, except 2nd and 3rd lines (starting with -Weverything) are new here
+clang -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -Weverything -O3 -std=gnu99^
+ -Wno-missing-noreturn -Wno-float-equal -Wno-format-nonliteral^
+ -Wno-padded -Wno-shadow -Wno-sign-conversion -Wno-undef^
+ -I"/a/r/ra/include" -I../../inst/slowtests ../../src/earth.c^
+ Rdll.lib Rblas.lib -o earthmain-clang.exe
                                 @if %errorlevel% neq 0 goto error
-link -nologo -debug -out:earthmain.exe Debug\earth.obj Rdll.lib Rblas.lib
-                                @if %errorlevel% neq 0 goto error
-earthmain.exe > Debug\test.earthmain.out
+@earthmain-clang.exe > test.earthmain-clang.out
                                 @if %errorlevel% neq 0 goto error
 
 @rem we use -w on mks.diff so it treats \r\n the same as \n
-mks.diff -w Debug\test.earthmain.out test.earthmain.out.save
+mks.diff -w test.earthmain-clang.out test.earthmain.out.save
                                 @if %errorlevel% neq 0 goto error
 
-@rm -f R.dll Rblas.dll Rdll.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll earthmain.exe *.map *.ilk *.pdb
-@rm -rf Debug
+@rm -f R.dll Rblas.dll Riconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll Rdll.lib Rblas.lib earthmain-clang.* test.earthmain-clang.* *.o
 @exit /B 0
 
 :error

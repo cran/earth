@@ -2,11 +2,13 @@
 
 time /T
 @echo.
+@call test.earthmain.vc.bat
+                        @if %errorlevel% NEQ 0 goto error
+@echo.
 @call test.earthmain.gcc.bat
                         @if %errorlevel% NEQ 0 goto error
 @echo.
-@echo.
-@call test.earthmain.bat
+@call test.earthmain.clang.bat
                         @if %errorlevel% NEQ 0 goto error
 @echo.
 @call test.earthc.bat

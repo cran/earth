@@ -50,7 +50,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 4.0.0.
+  Splines. R package version 4.1.0.
   http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -59,7 +59,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 4.0.0},
+    note = {R package version 4.1.0},
     url = {http://CRAN.R-project.org/package=earth},
   }
 
@@ -134,7 +134,7 @@ Forward pass: minspan 5 endspan 10
 16    -4.6491 0.9471     0.005364    1          cyl           6  14  15  
 18   -42.8692 0.9544     0.007256    6         qsec        17.3  16      reject term
 
-Reached min GRSq (GRSq -42.8692 < -10) at 17 terms
+Reached minimum GRSq -10 at 17 terms (GRSq -43)
 After forward pass GRSq -42.869 RSq 0.954
 Forward pass complete: 17 terms (15 terms used)
 
@@ -181,7 +181,7 @@ After backward pass GRSq -4.65 RSq 0.947
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.408 RSq 0.449
 Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 6 predictors
 After backward pass GRSq 0.42 RSq 0.44 
@@ -202,7 +202,7 @@ GLM null.deviance 1414.62 (1045 dof)   deviance 892.8612 (1038 dof)   iters 5
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=etitanic[,2]
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.408 RSq 0.449
 Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 6 predictors
 After backward pass GRSq 0.42 RSq 0.44 
@@ -221,7 +221,7 @@ GLM null.deviance 1414.62 (1045 dof)   deviance 892.8612 (1038 dof)   iters 5
 x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14
-Reached delta RSq threshold (DeltaRSq 0.00062 < 0.001) at 13 terms
+RSq changed by less than 0.001 at 13 terms (DeltaRSq 0.00062)
 After forward pass GRSq 0.163 RSq 0.195
 Prune method "backward" penalty 2 nprune 10: selected 8 of 10 terms, and 4 of 5 predictors
 After backward pass GRSq 0.167 RSq 0.189 
@@ -258,7 +258,7 @@ GLM (family binomial, link logit)
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -282,7 +282,7 @@ GLM null.deviance 124.8756 (11 dof)   deviance 5.565963 (9 dof)   iters 4
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.658 RSq 0.929
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.826 RSq 0.929 
@@ -315,7 +315,7 @@ numdead2      91.62481 11 16.067427  9     4         1
 x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 1 matrix: 1=counts
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -6.576 RSq 0.527
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
 After backward pass GRSq -0.894 RSq 0.527 
@@ -335,7 +335,7 @@ GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -590,7 +590,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 4
 
 $weights
@@ -795,7 +795,7 @@ Forward pass: minspan 6 endspan 9
 12     0.1656 0.1941     0.002356    3          age          56  10      
 14     0.1630 0.1947    0.0006186    3          age          48  11      reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00062 < 0.001) at 13 terms
+RSq changed by less than 0.001 at 13 terms (DeltaRSq 0.00062)
 After forward pass GRSq 0.163 RSq 0.195
 Forward pass complete: 13 terms (10 terms used)
 Prune method "backward" penalty 2 nprune 10: selected 8 of 10 terms, and 4 of 5 predictors
@@ -2537,7 +2537,7 @@ malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
 malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
 Forward pass term 4
 
-Reached max number of terms 5 (consider increasing nk?)
+Reached nk 5
 After forward pass GRSq 0.841 RSq 0.871
 malloc     20  B: iPivots		nTerms 5 sizeof(int) 4
 malloc      4 kB: xUsed			nCases 100 nUsedCols 5 sizeof(double) 8
@@ -2606,7 +2606,7 @@ Forward pass: minspan 4 endspan 8
 12     0.9985 0.9989     0.001196    1           x1     0.29412  9       
 14     0.9990 0.9993    0.0003652    1           x1     0.64189  10      reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00037 < 0.001) at 13 terms
+RSq changed by less than 0.001 at 13 terms (DeltaRSq 0.00037)
 After forward pass GRSq 0.999 RSq 0.999
 Forward pass complete: 13 terms (9 terms used)
 Exhaustive pruning: number of subsets 381 (bx sing val ratio 0.0093)
@@ -3063,7 +3063,7 @@ h(1.1053-l2) * h(theta2-4.78874) * h(phi-1.3211)         71.271912
 h(3.21045-theta1) * h(theta2-1.44806) * h(phi-1.3211)     0.705762
 
 Selected 19 of 38 terms, and 5 of 5 predictors 
-Termination condition: Reached minimum GRSq -10 at 38 terms
+Termination condition: GRSq -10 at 38 terms
 Importance: theta2, l1, l2, phi, theta1
 Number of terms at each degree of interaction: 1 6 9 3
 GCV 0.0290417    RSS 0.8468559    GRSq 0.8445554    RSq 0.953752
@@ -3116,7 +3116,7 @@ data.global[,1] =
   bf20  h(3.21045-theta1)
 
 Selected 19 of 38 terms, and 5 of 5 predictors 
-Termination condition: Reached minimum GRSq -10 at 38 terms
+Termination condition: GRSq -10 at 38 terms
 Importance: theta2, l1, l2, phi, theta1
 Number of terms at each degree of interaction: 1 6 9 3
 GCV 0.0290417    RSS 0.8468559    GRSq 0.8445554    RSq 0.953752
@@ -3165,7 +3165,7 @@ h(1.1053-l2) * h(theta2-4.78874) * h(phi-1.3211)         71.271912
 h(3.21045-theta1) * h(theta2-1.44806) * h(phi-1.3211)     0.705762
 
 Selected 19 of 38 terms, and 5 of 5 predictors 
-Termination condition: Reached minimum GRSq -10 at 38 terms
+Termination condition: GRSq -10 at 38 terms
 Importance: theta2, l1, l2, phi, theta1
 Number of terms at each degree of interaction: 1 6 9 3
 GCV 0.0290417    RSS 0.8468559    GRSq 0.8445554    RSq 0.953752
@@ -3218,7 +3218,7 @@ data.global[,1] =
   bf20  h(3.21045-theta1)
 
 Selected 19 of 38 terms, and 5 of 5 predictors 
-Termination condition: Reached minimum GRSq -10 at 38 terms
+Termination condition: GRSq -10 at 38 terms
 Importance: theta2, l1, l2, phi, theta1
 Number of terms at each degree of interaction: 1 6 9 3
 GCV 0.0290417    RSS 0.8468559    GRSq 0.8445554    RSq 0.953752
@@ -3371,7 +3371,7 @@ Forward pass: minspan 6 endspan 10
 18     0.7676 0.8207     0.008326    7          ibt         254  16  17  2   
 20     0.7701 0.8287     0.007986    2         wind           6  18  19  5   
 
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.770 RSq 0.829
 Forward pass complete: 21 terms (19 terms used)
 
@@ -5233,7 +5233,7 @@ update.earth: using 31 by 1 subset argument from original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 15 terms
+RSq changed by less than 0.001 at 15 terms (DeltaRSq 0)
 After forward pass GRSq 0.466 RSq 0.941
 Prune method "backward" penalty 2 nprune 10: selected 4 of 10 terms, and 2 of 2 predictors
 After backward pass GRSq 0.866 RSq 0.914 
@@ -5251,7 +5251,7 @@ update.earth: using 31 by 1 subset argument from original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0.00011 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0.00011)
 After forward pass GRSq 0.938 RSq 0.978
 Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
 After backward pass GRSq 0.954 RSq 0.971 
@@ -5270,7 +5270,7 @@ update.earth: using 31 by 3 data argument from original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 4e-05 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 4e-05)
 After forward pass GRSq 0.906 RSq 0.973
 Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
 After backward pass GRSq 0.949 RSq 0.97 
@@ -5307,7 +5307,7 @@ update.earth: using 1 by 1 wp saved by keepxy in original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 15 terms
+RSq changed by less than 0.001 at 15 terms (DeltaRSq 0)
 After forward pass GRSq 0.466 RSq 0.941
 Prune method "backward" penalty 2 nprune 10: selected 4 of 10 terms, and 2 of 2 predictors
 After backward pass GRSq 0.866 RSq 0.914 
@@ -5324,7 +5324,7 @@ update.earth: using 31 by 3 data saved by keepxy in original call to earth
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0.00011 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0.00011)
 After forward pass GRSq 0.938 RSq 0.978
 Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
 After backward pass GRSq 0.954 RSq 0.971 
@@ -5371,7 +5371,7 @@ update.earth: using 31 by 1 subset argument from original call to earth
 x is a 31 by 2 matrix: 1=Height, 2=Volume
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0.00026 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0.00026)
 After forward pass GRSq 0.992 RSq 0.996
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 1 of 2 predictors
 After backward pass GRSq 0.994 RSq 0.995 
@@ -5425,7 +5425,7 @@ Forward pass: minspan 4 endspan 8
 1      0.0000 0.0000                    (Intercept)
 2      1.0000 1.0000            1    2       Volume        15.6< 2       
 
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms (2 terms used)
 
@@ -5532,7 +5532,7 @@ Forward pass: minspan 4 endspan 8
 2      0.9939 0.9954       0.9954    2       Volume        35.7  2   3   
 4      0.9919 0.9957    0.0002618    1       Height          75  4   5   reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00026 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0.00026)
 After forward pass GRSq 0.992 RSq 0.996
 Forward pass complete: 3 terms
 
@@ -5961,7 +5961,7 @@ Contents of y are
 [100,] 9
 [101,] 0
 
-earth.c version 4.0.0
+earth.c version 4.1.0
 BetaCache 3.53 kB
 Forward pass: minspan 4 endspan 7
 
@@ -5969,7 +5969,7 @@ Forward pass: minspan 4 endspan 7
 1      0.0000 0.0000                    (Intercept)
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms (2 terms used)
 
@@ -6014,7 +6014,7 @@ Forward pass: minspan 4 endspan 7
 1      0.0000 0.0000                    (Intercept)
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms (2 terms used)
 
@@ -6059,7 +6059,7 @@ Forward pass: minspan 4 endspan 7
 1      0.0000 0.0000                    (Intercept)
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms (2 terms used)
 
@@ -6108,7 +6108,7 @@ Forward pass: minspan 4 endspan 7
 1      0.0000 0.0000                    (Intercept)
 2      1.0000 1.0000            1    1            x           0< 2       
 
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms (2 terms used)
 
@@ -6204,7 +6204,7 @@ Forward pass: minspan 6 endspan 8
 4      0.0116 0.0210     0.003025    1          2nd           0< 3       
 6      0.0068 0.0210            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.007 RSq 0.021
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 2 of 3 terms, and 1 of 2 predictors
@@ -6249,7 +6249,7 @@ Forward pass: minspan 5 endspan 7
 2      0.0073 0.0120      0.01202    1          sex           0< 2       
 4      0.0025 0.0120            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
 After forward pass GRSq 0.003 RSq 0.012
 Forward pass complete: 3 terms (2 terms used)
 Prune method "backward" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
@@ -6285,7 +6285,7 @@ Forward pass: minspan 6 endspan 8
 4      0.1640 0.1720      0.05838    1          2nd           0< 3       
 6      0.1600 0.1720            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.160 RSq 0.172
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
@@ -6319,7 +6319,7 @@ Forward pass: minspan 5 endspan 7
 8      0.0849 0.1067      0.00116    1          age          44  6       
 10     0.0813 0.1075    0.0008104    1          age          48  7       reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00081 < 0.001) at 9 terms
+RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00081)
 After forward pass GRSq 0.081 RSq 0.107
 Forward pass complete: 9 terms (6 terms used)
 Prune method "backward" penalty 3 nprune 6: selected 2 of 6 terms, and 1 of 1 predictors
@@ -6361,7 +6361,7 @@ Forward pass: minspan 6 endspan 8
 16     0.1532 0.1971      0.00157    3          age          55  11  12  10  
 18     0.1497 0.1978    0.0006704    3          age          44  13      reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00067 < 0.001) at 17 terms
+RSq changed by less than 0.001 at 17 terms (DeltaRSq 0.00067)
 After forward pass GRSq 0.150 RSq 0.198
 Forward pass complete: 17 terms (12 terms used)
 Prune method "backward" penalty 3 nprune 12: selected 9 of 12 terms, and 3 of 3 predictors
@@ -6411,7 +6411,7 @@ Forward pass: minspan 6 endspan 9
 18     0.4080 0.4470     0.002107    4          age          67  14  15  
 20     0.4077 0.4494     0.002459    4          age          32  16      2   
 
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.408 RSq 0.449
 Forward pass complete: 21 terms (16 terms used)
 Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 6 predictors
@@ -6456,7 +6456,7 @@ Forward pass: minspan 6 endspan 9
 18     0.0974 0.1526     0.001929    1     survived           0< 14      10  
 20     0.0944 0.1540     0.001385    4        parch           1  15      
 
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.094 RSq 0.154
 Forward pass complete: 21 terms (15 terms used)
 Prune method "backward" penalty 3 nprune 15: selected 7 of 15 terms, and 2 of 4 predictors
@@ -6503,7 +6503,7 @@ Forward pass: minspan 6 endspan 8
 4      0.0116 0.0210     0.003025    1    pclass2nd           0< 3       
 6      0.0068 0.0210            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.007 RSq 0.021
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 2 of 3 terms, and 1 of 2 predictors
@@ -6548,7 +6548,7 @@ Forward pass: minspan 5 endspan 7
 2      0.0073 0.0120      0.01202    1      sexmale           0< 2       
 4      0.0025 0.0120            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
 After forward pass GRSq 0.003 RSq 0.012
 Forward pass complete: 3 terms (2 terms used)
 Prune method "backward" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
@@ -6584,7 +6584,7 @@ Forward pass: minspan 6 endspan 8
 4      0.1640 0.1720      0.05838    1    pclass2nd           0< 3       
 6      0.1600 0.1720            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.160 RSq 0.172
 Forward pass complete: 5 terms (3 terms used)
 Prune method "backward" penalty 3 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
@@ -6618,7 +6618,7 @@ Forward pass: minspan 5 endspan 7
 8      0.0849 0.1067      0.00116    1          age          44  6       
 10     0.0813 0.1075    0.0008104    1          age          48  7       reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00081 < 0.001) at 9 terms
+RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00081)
 After forward pass GRSq 0.081 RSq 0.107
 Forward pass complete: 9 terms (6 terms used)
 Prune method "backward" penalty 3 nprune 6: selected 2 of 6 terms, and 1 of 1 predictors
@@ -6660,7 +6660,7 @@ Forward pass: minspan 6 endspan 8
 16     0.1532 0.1971      0.00157    3          age          55  11  12  10  
 18     0.1497 0.1978    0.0006704    3          age          44  13      reject term
 
-Reached delta RSq threshold (DeltaRSq 0.00067 < 0.001) at 17 terms
+RSq changed by less than 0.001 at 17 terms (DeltaRSq 0.00067)
 After forward pass GRSq 0.150 RSq 0.198
 Forward pass complete: 17 terms (12 terms used)
 Prune method "backward" penalty 3 nprune 12: selected 9 of 12 terms, and 3 of 3 predictors
@@ -6711,7 +6711,7 @@ Forward pass: minspan 6 endspan 9
 18     0.4080 0.4470     0.002107    4          age          67  14  15  
 20     0.4077 0.4494     0.002459    4          age          32  16      2   
 
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.408 RSq 0.449
 Forward pass complete: 21 terms (16 terms used)
 Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 6 predictors
@@ -6760,7 +6760,7 @@ Forward pass: minspan 3 endspan 7
 4      0.5250 0.7012     0.005454    1           ff          19  4       
 6      0.4302 0.7012            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.430 RSq 0.701
 Forward pass complete: 5 terms (4 terms used)
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 1 of 1 predictors
@@ -6791,7 +6791,7 @@ Forward pass: minspan 3 endspan 7
 2      0.3877 0.4693       0.4693    1       vowels           0< 2       
 4      0.2858 0.4693            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
 After forward pass GRSq 0.286 RSq 0.469
 Forward pass complete: 3 terms (2 terms used)
 Prune method "backward" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors

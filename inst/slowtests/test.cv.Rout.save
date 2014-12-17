@@ -173,7 +173,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 4
 
 $weights
@@ -411,7 +411,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 4
 
 $weights
@@ -516,7 +516,7 @@ a1: trees with trace enabled
 x is a 31 by 2 matrix: 1=Girth, 2=Height
 y is a 31 by 1 matrix: 1=Volume
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0.00011 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0.00011)
 After forward pass GRSq 0.938 RSq 0.978
 Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
 After backward pass GRSq 0.954 RSq 0.971 
@@ -525,7 +525,7 @@ CV fold 1 --------------------------------------------------------------------
 x is a 20 by 2 matrix: 1=Girth, 2=Height
 y is a 20 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0.00017 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00017)
 After forward pass GRSq 0.924 RSq 0.983
 Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 predictors
 After backward pass GRSq 0.962 RSq 0.982 
@@ -535,7 +535,7 @@ CV fold 2 --------------------------------------------------------------------
 x is a 21 by 2 matrix: 1=Girth, 2=Height
 y is a 21 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0.00045 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00045)
 After forward pass GRSq 0.932 RSq 0.983
 Prune method "backward" penalty 2 nprune 5: selected 3 of 5 terms, and 1 of 2 predictors
 After backward pass GRSq 0.962 RSq 0.976 
@@ -545,7 +545,7 @@ CV fold 3 --------------------------------------------------------------------
 x is a 21 by 2 matrix: 1=Girth, 2=Height
 y is a 21 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0.00056 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0.00056)
 After forward pass GRSq 0.823 RSq 0.972
 Prune method "backward" penalty 2 nprune 6: selected 4 of 6 terms, and 2 of 2 predictors
 After backward pass GRSq 0.935 RSq 0.968 
@@ -865,7 +865,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 7
 
 $weights
@@ -3230,7 +3230,7 @@ a7: titanic data, multiple responses (i.e. 3 level factor)
 x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.164 RSq 0.227
 Prune method "backward" penalty 3 nprune 17: selected 9 of 17 terms, and 5 of 5 predictors
 After backward pass GRSq 0.175 RSq 0.206 
@@ -3242,7 +3242,7 @@ CV fold 1.1 --------------------------------------------------------------------
 x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.143 RSq 0.245
 Prune method "backward" penalty 3 nprune 18: selected 11 of 18 terms, and 5 of 5 predictors
 After backward pass GRSq 0.171 RSq 0.229 
@@ -3257,7 +3257,7 @@ CV fold 1.2 --------------------------------------------------------------------
 x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.128 RSq 0.226
 Prune method "backward" penalty 3 nprune 17: selected 9 of 17 terms, and 5 of 5 predictors
 After backward pass GRSq 0.15 RSq 0.199 
@@ -3272,7 +3272,7 @@ CV fold 1.3 --------------------------------------------------------------------
 x is a 698 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 698 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.110 RSq 0.221
 Prune method "backward" penalty 3 nprune 19: selected 7 of 19 terms, and 4 of 5 predictors
 After backward pass GRSq 0.161 RSq 0.197 
@@ -3287,7 +3287,7 @@ CV fold 2.1 --------------------------------------------------------------------
 x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.126 RSq 0.224
 Prune method "backward" penalty 3 nprune 17: selected 11 of 17 terms, and 5 of 5 predictors
 After backward pass GRSq 0.151 RSq 0.211 
@@ -3303,7 +3303,7 @@ CV fold 2.2 --------------------------------------------------------------------
 x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.134 RSq 0.237
 Prune method "backward" penalty 3 nprune 18: selected 8 of 18 terms, and 5 of 5 predictors
 After backward pass GRSq 0.168 RSq 0.209 
@@ -3318,7 +3318,7 @@ CV fold 2.3 --------------------------------------------------------------------
 x is a 698 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 698 by 3 matrix: 1=1st, 2=2nd, 3=3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.139 RSq 0.240
 Prune method "backward" penalty 3 nprune 18: selected 10 of 18 terms, and 5 of 5 predictors
 After backward pass GRSq 0.168 RSq 0.221 
@@ -3471,7 +3471,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 7
 
 $weights
@@ -8307,7 +8307,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 7
 
 $weights
@@ -9735,7 +9735,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 4
 
 $weights
@@ -10068,7 +10068,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 4
 
 $weights
@@ -10311,7 +10311,7 @@ Got error as expected
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.408 RSq 0.449
 Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 6 predictors
 After backward pass GRSq 0.42 RSq 0.44 
@@ -10320,7 +10320,7 @@ CV fold 1 --------------------------------------------------------------------
 x is a 839 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 839 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.395 RSq 0.445
 Prune method "backward" penalty 3 nprune 15: selected 8 of 15 terms, and 5 of 6 predictors
 After backward pass GRSq 0.411 RSq 0.435 
@@ -10330,7 +10330,7 @@ CV fold 2 --------------------------------------------------------------------
 x is a 838 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 838 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.391 RSq 0.448
 Prune method "backward" penalty 3 nprune 17: selected 9 of 17 terms, and 5 of 6 predictors
 After backward pass GRSq 0.413 RSq 0.441 
@@ -10340,7 +10340,7 @@ CV fold 3 --------------------------------------------------------------------
 x is a 828 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 828 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.397 RSq 0.450
 Prune method "backward" penalty 3 nprune 16: selected 8 of 16 terms, and 5 of 6 predictors
 After backward pass GRSq 0.414 RSq 0.438 
@@ -10350,7 +10350,7 @@ CV fold 4 --------------------------------------------------------------------
 x is a 840 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 840 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.410 RSq 0.458
 Prune method "backward" penalty 3 nprune 15: selected 8 of 15 terms, and 5 of 6 predictors
 After backward pass GRSq 0.422 RSq 0.446 
@@ -10360,7 +10360,7 @@ CV fold 5 --------------------------------------------------------------------
 x is a 839 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
 y is a 839 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.413 RSq 0.464
 Prune method "backward" penalty 3 nprune 16: selected 7 of 16 terms, and 5 of 6 predictors
 After backward pass GRSq 0.431 RSq 0.452 
@@ -10483,7 +10483,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 7
 
 $weights

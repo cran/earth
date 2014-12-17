@@ -132,7 +132,7 @@ Forward pass: minspan 3 endspan 8
 8      0.8358 0.9986     0.007558    3       ldose1         0.1< 5       2   
 10       -inf 0.9987    8.021e-05    3       ldose1         0.1< 6       reject term
 
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Forward pass complete: 9 terms (5 terms used)
 
@@ -477,7 +477,7 @@ check.models.equal not identical: a1update a1 [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -488,7 +488,7 @@ check.models.equal not identical: a1 a1a [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -499,7 +499,7 @@ check.models.equal not identical: a1 a1b [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -510,7 +510,7 @@ check.models.equal not identical: a1 a1c [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -526,7 +526,7 @@ check.models.equal not identical: a1 a1d [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -538,7 +538,7 @@ check.models.equal not identical: a1 a1g [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -1172,7 +1172,7 @@ persp(ldose:ldose1) theta 235 ylim 0 1 cex 0.83
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 2 matrix: 1=numdead, 2=numalive
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 8.5e-05 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 8.5e-05)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 3 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -1426,7 +1426,7 @@ ylim 3.22619 17.79762
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=I(ldose1-3)
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -1467,7 +1467,7 @@ Forward pass: minspan 3 endspan 8
 6      0.9569 0.9911      0.01033    3 sexmale:ldos          -2< 4       
 8      0.8801 0.9911            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0)
 After forward pass GRSq 0.880 RSq 0.991
 Forward pass complete: 7 terms (4 terms used)
 
@@ -1701,7 +1701,7 @@ Forward pass: minspan 3 endspan 8
 6      0.9569 0.9911      0.01033    3 sexmale:ldos          -2< 4       
 8      0.8801 0.9911            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0)
 After forward pass GRSq 0.880 RSq 0.991
 Forward pass complete: 7 terms (4 terms used)
 
@@ -1771,7 +1771,7 @@ a4: double response glm model with two binomial paired cols
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0)
 After forward pass GRSq 0.783 RSq 0.984
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
 After backward pass GRSq 0.939 RSq 0.975 
@@ -2087,7 +2087,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 4
 
 $weights
@@ -2177,7 +2177,7 @@ attr(,"class")
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0)
 After forward pass GRSq 0.783 RSq 0.984
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
 After backward pass GRSq 0.939 RSq 0.975 
@@ -2194,7 +2194,7 @@ check.models.equal not identical: a4update a4a [but within numerical tolerances]
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=sexmale:ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0)
 After forward pass GRSq 0.783 RSq 0.984
 Prune method "backward" penalty 2 nprune 4: selected 3 of 4 terms, and 2 of 3 predictors
 After backward pass GRSq 0.939 RSq 0.975 
@@ -2208,7 +2208,7 @@ check.models.equal not identical: a4aa a4a [but within numerical tolerances]
 x is a 12 by 1 matrix: 1=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
 After forward pass GRSq 0.815 RSq 0.925
 Prune method "backward" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
 After backward pass GRSq 0.888 RSq 0.925 
@@ -2961,7 +2961,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 7
 
 $weights
@@ -3103,7 +3103,7 @@ a6: titanic data, one logical response
 x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
 y is a 1046 by 1 matrix: 1=pclass1
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.250 RSq 0.310
 Prune method "backward" penalty 3 nprune 18: selected 8 of 18 terms, and 4 of 5 predictors
 After backward pass GRSq 0.27 RSq 0.294 
@@ -3713,7 +3713,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 7
 
 $weights
@@ -3805,7 +3805,7 @@ a7: titanic data, one response which is a two level factor
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.339 RSq 0.383
 Prune method "backward" penalty 3 nprune 15: selected 10 of 15 terms, and 6 of 6 predictors
 After backward pass GRSq 0.351 RSq 0.379 
@@ -4494,7 +4494,7 @@ $nk
 $thresh
 [1] 0.001
 
-$reason
+$termcond
 [1] 7
 
 $weights
@@ -4588,7 +4588,7 @@ update.earth: using 1046 by 6 data argument from original call to earth
 x is a 1046 by 4 matrix: 1=survived, 2=age, 3=sibsp, 4=parch
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.307 RSq 0.366
 Prune method "backward" penalty 3 nprune 19: selected 9 of 19 terms, and 4 of 4 predictors
 After backward pass GRSq 0.334 RSq 0.36 
@@ -4605,7 +4605,7 @@ update.earth: using 1046 by 6 data argument from original call to earth
 x is a 1046 by 4 matrix: 1=survived, 2=age, 3=sibsp, 4=parch
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.307 RSq 0.366
 Prune method "backward" penalty 3 nprune 19: selected 9 of 19 terms, and 4 of 4 predictors
 After backward pass GRSq 0.334 RSq 0.36 
@@ -4621,7 +4621,7 @@ update.earth: using 1046 by 6 data argument from original call to earth
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.341 RSq 0.388
 Prune method "backward" penalty 3 nprune 16: selected 12 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.353 RSq 0.387 
@@ -4636,7 +4636,7 @@ update.earth: using 1046 by 6 data argument from original call to earth
 x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 1046 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.341 RSq 0.388
 Prune method "backward" penalty 3 nprune 16: selected 12 of 16 terms, and 6 of 6 predictors
 After backward pass GRSq 0.353 RSq 0.387 
@@ -4675,7 +4675,7 @@ check.models.equal not identical: a7update a7g with link=probit and keepxy [but 
 x is a 801 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=survived, 4=age, 5=sibsp, ...
 y is a 801 by 1 matrix: 1=male
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.344 RSq 0.408
 Prune method "backward" penalty 3 nprune 17: selected 9 of 17 terms, and 6 of 6 predictors
 After backward pass GRSq 0.368 RSq 0.399 
@@ -4707,7 +4707,7 @@ Forward pass: minspan 3 endspan 9
 4     -0.8939 0.5265       0.2424    2     outcome3           0< 3       
 6     -6.5758 0.5265            0    -                                reject term
 
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -6.576 RSq 0.527
 Forward pass complete: 5 terms (3 terms used)
 
@@ -4938,7 +4938,7 @@ a10: two response poisson model
 x is a 9 by 4 matrix: 1=outcome2, 2=outcome3, 3=treatment2, 4=treatment3
 y is a 9 by 2 matrix: 1=counts, 2=counts2
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -6.576 RSq 0.527
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 4 predictors
 After backward pass GRSq -0.894 RSq 0.527 
@@ -5191,7 +5191,7 @@ Forward pass: minspan 6 endspan 9
 18     0.3404 0.3808     0.004528    1    pclass2nd           0< 14      2   
 20     0.3395 0.3830     0.002166    4          age          26  15      2   
 
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.339 RSq 0.383
 Forward pass complete: 21 terms (15 terms used)
 
@@ -5334,7 +5334,7 @@ Forward pass: minspan 6 endspan 9
 18     0.2112 0.2631     0.002336    3     survived           0< 15      2   
 20     0.2055 0.2652     0.002045    4        sibsp           2  16  17  4   
 
-Reached max number of terms 21 (consider increasing nk?)
+Reached nk 21
 After forward pass GRSq 0.206 RSq 0.265
 Forward pass complete: 21 terms (17 terms used)
 
@@ -5473,7 +5473,7 @@ y2  1.022962e+09 1045 7.622385e+08 1038     2         1
 x is a 60 by 2 matrix: 1=my.input.matmy.x1, 2=my.input.matmy.x2
 y is a 60 by 1 matrix: 1=my.response
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.682 RSq 0.762
 Prune method "backward" penalty 2 nprune 4: selected 4 of 4 terms, and 2 of 2 predictors
 After backward pass GRSq 0.705 RSq 0.762 
@@ -5515,7 +5515,7 @@ GCV 17.52421    RSS 820.425    GRSq 0.7054941    RSq 0.7623478
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.939 RSq 0.975 
@@ -5766,7 +5766,7 @@ predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.0
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.939 RSq 0.975 
@@ -5989,7 +5989,7 @@ check.models.equal not identical: aref a21 [but within numerical tolerances]
 x is a 12 by 2 matrix: 1=sex, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.939 RSq 0.975 
@@ -6207,7 +6207,7 @@ predict.earth(xgrid, type="response") column "numdead" returned length 6 min 0.0
 x is a 12 by 2 matrix: 1=sex, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.939 RSq 0.975 
@@ -7157,14 +7157,14 @@ predict.earth: returning earth predictions
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
 x is a 12 by 3 matrix: 1=sexmale, 2=ldose, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 3 predictors
 After backward pass GRSq 0.836 RSq 0.999 
@@ -8066,7 +8066,7 @@ A-68 input matrix to formula interface trace=1, expect error "could not interpre
 x is a 60 by 2 matrix: 1=my.input.matmy.x1, 2=my.input.matmy.x2
 y is a 60 by 1 matrix: 1=my.response
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.682 RSq 0.762
 Prune method "backward" penalty 2 nprune 4: selected 4 of 4 terms, and 2 of 2 predictors
 After backward pass GRSq 0.705 RSq 0.762 
@@ -8094,7 +8094,7 @@ Tests with not all predictors used in the model so can pass fewer columns
 x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0.00015 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00015)
 After forward pass GRSq 0.251 RSq 0.924
 Prune method "none" penalty 3 nprune 3: selected 3 of 3 terms, and 2 of 3 predictors
 After backward pass GRSq 0.745 RSq 0.924 
@@ -8206,7 +8206,7 @@ A-73m identical
 x is a 12 by 3 matrix: 1=ldose, 2=dummy, 3=ldose1
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0.00015 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00015)
 After forward pass GRSq 0.251 RSq 0.924
 Prune method "none" penalty 3 nprune 3: selected 3 of 3 terms, and 2 of 3 predictors
 After backward pass GRSq 0.745 RSq 0.924 
@@ -8347,14 +8347,14 @@ A-73f identical
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.995
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 6 predictors
 After backward pass GRSq -0.446 RSq 0.988 
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 2 matrix: 1=numdead, 2=numdead2
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached GRSq = -Inf at 9 terms
+GRSq -Inf at 9 terms
 After forward pass GRSq -in RSq 0.995
 Prune method "none" penalty 3 nprune 5: selected 5 of 5 terms, and 3 of 6 predictors
 After backward pass GRSq -0.446 RSq 0.988 
@@ -8752,14 +8752,14 @@ B-60f identical
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 3 matrix: 1=dead1, 2=dead2, 3=dead3
 Forward pass term 1, 2, 4, 6, 8
-Reached min GRSq (GRSq -26.0319 < -10) at 7 terms
+Reached minimum GRSq -10 at 7 terms (GRSq -26)
 After forward pass GRSq -26.032 RSq 0.777
 Prune method "none" penalty 3 nprune 4: selected 4 of 4 terms, and 3 of 6 predictors
 After backward pass GRSq -1.84 RSq 0.713 
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=ldose1, 5=fac3lev2, ...
 y is a 12 by 3 matrix: 1=dead1, 2=dead2, 3=dead3
 Forward pass term 1, 2, 4, 6, 8
-Reached min GRSq (GRSq -26.0319 < -10) at 7 terms
+Reached minimum GRSq -10 at 7 terms (GRSq -26)
 After forward pass GRSq -26.032 RSq 0.777
 Prune method "none" penalty 3 nprune 4: selected 4 of 4 terms, and 3 of 6 predictors
 After backward pass GRSq -1.84 RSq 0.713 
@@ -9477,7 +9477,7 @@ c1a: single response glm model with a binomial pair of y columns, fitted values,
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -9486,7 +9486,7 @@ GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -9520,7 +9520,7 @@ c1b: single response glm model with a binomial pair of y columns
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead (paired with numalive)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -9531,7 +9531,7 @@ Warning: No "data" argument to earth so "keepxy" is limited
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=numdead
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -9654,7 +9654,7 @@ c2: double response glm model with two y binomial pairs
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 4 matrix: 1=numdead (paired with numalive), 2=numdead2 (paired with numalive2)
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -9666,7 +9666,7 @@ Warning: No "data" argument to earth so "keepxy" is limited
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 2 matrix: 1=numdead, 2=numdead.1
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.952 RSq 0.981 
@@ -9796,7 +9796,7 @@ c3a: single response glm model with a boolean response, fitted values, keepxy=0
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=mybool
 Forward pass term 1, 2
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Prune method "none" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 2 predictors
 After backward pass GRSq 1 RSq 1 
@@ -9838,7 +9838,7 @@ c3b: single response glm model with a boolean response, fitted values, keepxy=1
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=mybool
 Forward pass term 1, 2
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Prune method "none" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 2 predictors
 After backward pass GRSq 1 RSq 1 
@@ -9881,7 +9881,7 @@ c3c: single response glm model with a boolean response
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 1 matrix: 1=mybool
 Forward pass term 1, 2
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Prune method "none" penalty 2 nprune 2: selected 2 of 2 terms, and 1 of 2 predictors
 After backward pass GRSq 1 RSq 1 
@@ -9935,7 +9935,7 @@ Expect "did not converge warnings", it doesn't matter for our purposes here
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 3 matrix: 1=A, 2=B, 3=C
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -1.245 RSq 0.536
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq -0.145 RSq 0.536 
@@ -9980,7 +9980,7 @@ c5: multiple response glm model with two multi level factor responses
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 7 matrix: 1=fac3A, 2=fac3B, 3=fac3C, 4=fac4P, 5=fac4Q, ...
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -1.104 RSq 0.565
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq -0.0737 RSq 0.565 
@@ -9996,7 +9996,7 @@ c6: multiple response earth model with mixed responses
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 18 matrix: 1=numdead, 2=numalive, 3=fac3A, 4=fac3B, 5=fac3C, ...
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.890 RSq 0.977
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.944 RSq 0.977 
@@ -10014,7 +10014,7 @@ Expect "did not converge warnings", it doesn't matter for our purposes here
 x is a 12 by 2 matrix: 1=sexmale, 2=ldose
 y is a 12 by 18 matrix: 1=numdead (paired with numalive), 2=fac3A, 3=fac3B, 4=fac3C, ...
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq 0.874 RSq 0.974
 Prune method "none" penalty 2 nprune 3: selected 3 of 3 terms, and 2 of 2 predictors
 After backward pass GRSq 0.936 RSq 0.974 
@@ -10564,7 +10564,7 @@ a.intercept.only: intercept only logistic model
 x is a 18 by 2 matrix: 1=bbb, 2=ccc
 y is a 18 by 1 matrix: 1=aaa
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0)
 After forward pass GRSq -6.415 RSq 0.359
 Prune method "backward" penalty 2 nprune 6: selected 1 of 6 terms, and 0 of 2 predictors
 After backward pass GRSq 0 RSq 0 
@@ -10575,7 +10575,7 @@ CV fold 1 --------------------------------------------------------------------
 x is a 8 by 2 matrix: 1=bbb, 2=ccc
 y is a 8 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -7.312 RSq 0.830
 Prune method "backward" penalty 2 nprune 3: selected 2 of 3 terms, and 1 of 2 predictors
 After backward pass GRSq 0.525 RSq 0.758 
@@ -10587,7 +10587,7 @@ CV fold 2 --------------------------------------------------------------------
 x is a 10 by 2 matrix: 1=bbb, 2=ccc
 y is a 10 by 1 matrix: 1=infold.y
 Forward pass term 1, 2, 4, 6
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 5 terms
+RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -7.486 RSq 0.057
 Prune method "backward" penalty 2 nprune 3: selected 1 of 3 terms, and 0 of 2 predictors
 After backward pass GRSq 0 RSq 0 
@@ -11036,7 +11036,7 @@ update.earth: using 18 by 3 data argument from original call to earth
 x is a 18 by 2 matrix: 1=bbb, 2=ccc
 y is a 18 by 1 matrix: 1=aaa
 Forward pass term 1, 2, 4, 6, 8
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 7 terms
+RSq changed by less than 0.001 at 7 terms (DeltaRSq 0)
 After forward pass GRSq -6.415 RSq 0.359
 Prune method "backward" penalty 2 nprune 1: selected 1 of 6 terms, and 0 of 2 predictors
 After backward pass GRSq 0 RSq 0 
@@ -11227,7 +11227,7 @@ predict.earth(xgrid, type="response") column "aaa" returned length 18 min 0.6666
 x is a 12 by 1 matrix: 1=numdead
 y is a 12 by 3 matrix: 1=sex1, 2=sex2, 3=sex1.1
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
 After forward pass GRSq -1.322 RSq 0.060
 Prune method "backward" penalty 2 nprune 2: selected 1 of 2 terms, and 0 of 1 predictors
 After backward pass GRSq 0 RSq 0 
@@ -11247,7 +11247,7 @@ All    0.8925620   9  0.000000e+00  0.000000e+00
 x is a 12 by 1 matrix: 1=numdead
 y is a 12 by 4 matrix: 1=sex1, 2=sex2, 3=sex1.1, 4=sex1.2
 Forward pass term 1, 2, 4
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 3 terms
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
 After forward pass GRSq -1.322 RSq 0.060
 Prune method "backward" penalty 2 nprune 2: selected 1 of 2 terms, and 0 of 1 predictors
 After backward pass GRSq 0 RSq 0 
@@ -11283,7 +11283,7 @@ All    1.1900826  12  0.000000e+00  0.000000e+00
 x is a 12 by 6 matrix: 1=sex3female, 2=sex3male, 3=ldose, 4=fac3lev2, 5=fac3lev3, ...
 y is a 12 by 7 matrix: 1=sex2, 2=d_dead1, 3=d_dead2, 4=d_dead3, 5=sex, ...
 Forward pass term 1, 2, 4, 6, 8
-Reached min GRSq (GRSq -10.5851 < -10) at 7 terms
+Reached minimum GRSq -10 at 7 terms (GRSq -11)
 After forward pass GRSq -10.585 RSq 0.904
 Prune method "none" penalty 3 nprune 4: selected 4 of 4 terms, and 3 of 6 predictors
 After backward pass GRSq -0.331 RSq 0.865 
@@ -11302,7 +11302,7 @@ After backward pass GRSq -0.331 RSq 0.865
 x is a 12 by 1 matrix: 1=sex2
 y is a 12 by 2 matrix: 1=female, 2=male
 Forward pass term 1, 2
-Reached max RSq (RSq 1.0000 >= 0.9990) at 3 terms
+Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Prune method "none" penalty 3 nprune 2: selected 2 of 2 terms, and 1 of 1 predictors
 After backward pass GRSq 1 RSq 1 
@@ -11321,7 +11321,7 @@ update.earth: using 31 by 2 y argument from original call to earth
 x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 9 terms
+RSq changed by less than 0.001 at 9 terms (DeltaRSq 0)
 After forward pass GRSq -0.647 RSq 0.407
 Prune method "backward" penalty 2 nprune 6: selected 2 of 6 terms, and 1 of 1 predictors
 After backward pass GRSq 0.239 RSq 0.338 
@@ -11341,7 +11341,7 @@ update.earth: using 31 by 2 y argument from original call to earth
 x is a 31 by 1 matrix: 1=x1
 y is a 31 by 2 matrix: 1=volumei (paired with y2)
 Forward pass term 1, 2, 4, 6, 8, 10
-Reached delta RSq threshold (DeltaRSq 0 < 0.001) at 9 terms
+RSq changed by less than 0.001 at 9 terms (DeltaRSq 0)
 After forward pass GRSq -0.647 RSq 0.407
 Prune method "backward" penalty 2 nprune 6: selected 2 of 6 terms, and 1 of 1 predictors
 After backward pass GRSq 0.239 RSq 0.338 

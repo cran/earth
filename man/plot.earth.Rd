@@ -44,12 +44,12 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   \item{which}{
     Which plots to plot. Default is \code{1:4}.\cr
 1) Model selection (GRSq versus number of terms)\cr
-2) Cumulative distribution of absolute values of residuals\cr
-3) Residuals versus Fitted\cr
+2) Cumulative distribution of abs residuals\cr
+3) Residuals versus fitted\cr
 4) QQ plot of residuals\cr
 5) Abs residuals versus fitted\cr
 6) Abs residuals versus log fitted\cr
-7) Cube root squared residuals versus log fitted\cr
+7) Cube root of the squared residuals versus log fitted\cr
 8) Log abs residuals versus log fitted\cr
   }
   \item{info}{
@@ -97,21 +97,20 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
   \item{versus}{
     What do we plot the residuals against?  One of:\cr\cr
-\code{NULL} Default. Plot the residuals versus the fitted values\cr
+\code{NULL} Default. Plot the residuals versus the fitted values
+(the log fitted values when \code{which=6} to \code{8}).\cr
 \cr
-\code{""} Residuals versus the predictors (multiple plots if multiple predictors)\cr
+\code{""} Residuals versus the predictors (multiple plots if multiple predictors).\cr
 \cr
-\code{"*"} Residuals versus the \code{earth} basis functions\cr
+\code{"*"} Residuals versus the \code{earth} basis functions.\cr
 \cr
 \code{string} Character vector specifying which predictors to plot against.
 e.g. \code{versus=c("wind", "vis")}.
 Note: \code{\link{grep}} is used for matching.  Thus \code{"wind"} will match
 all variables that have \code{"wind"} in their names. Use \code{"^wind$"}
-to match only the variable named \code{"wind"}.\cr
-\cr
-% If \code{versus} is not NULL, only the residual plots are plotted.
-% Note that \code{versus=""} is just a special case, since the regex \code{""}
-% matches anything.
+to match only the variable named \code{"wind"}.
+Note that \code{versus=""} above is actually just a special case,
+since the regex \code{""} matches anything.\cr\cr
   }
   \item{nresponse}{
      Specify which column of the response to plot if the model has multiple responses.
