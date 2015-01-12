@@ -2,6 +2,7 @@
 
 library(earth)
 library(mda)
+options(warn=1) # print warnings as they occur
 check.equal <- function(x, y, msg="")
 {
     diff <- x - y
@@ -20,10 +21,11 @@ check.models.equal <- function(lm.mod, earth.mod)
     lm.mod.name <- deparse(substitute(lm.mod))
     earth.mod.name <- deparse(substitute(earth.mod))
     msg <- sprintf("%s vs %s", lm.mod.name, earth.mod.name)
-    check.equal(lm.mod$coefficients,       earth.mod$coefficients, msg=sprintf("%s coefficients", msg))
-    check.equal(lm.mod$rss,                earth.mod$rss,          msg=sprintf("%s rss", msg))
-    check.equal(lm.mod$residuals,          earth.mod$residuals,    msg=sprintf("%s residuals", msg))
-    check.equal(summary(lm.mod)$r.squared, earth.mod$rsq,          msg=sprintf("%s rsq", msg))
+    check.equal(lm.mod$coefficients,       earth.mod$coefficients,       msg=sprintf("%s coefficients", msg))
+    check.equal(lm.mod$rss,                earth.mod$rss,                msg=sprintf("%s rss", msg))
+    check.equal(lm.mod$residuals,          earth.mod$residuals,          msg=sprintf("%s residuals", msg))
+    check.equal(summary(lm.mod)$r.squared, earth.mod$rsq,                msg=sprintf("%s rsq", msg))
+    check.equal(summary(lm.mod)$r.squared, earth.mod$rsq.per.reponse[1], msg=sprintf("%s rsq.per.response", msg))
 }
 if(!interactive())
     postscript(paper="letter")
@@ -68,12 +70,16 @@ check.models.equal(lm4, a4)
 # want to use the standard thresh=.001, even with weights.
 
 cat("=== a5.noweights ===\n")
-a5.noweights <- earth(y~., data=data,
-                      minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
 par(mfrow = c(2, 2))
 par(mar = c(3, 3, 3, 1))
 par(mgp = c(1.5, 0.5, 0))
+a5.noweights <- earth(y~., data=data,
+                      minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
 plotmo(a5.noweights, col.response=2, do.par=F, main="a5.noweights", grid="gray")
+# TODO why does this model differ from the above model?
+a5.noweights.force <- earth(y~., data=data, Force.weights=T,
+                      minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
+plotmo(a5.noweights.force, col.response=2, do.par=F, main="a5.noweights.force", grid="gray")
 
 cat("=== a6.azeroweight ===\n")
 a6.azeroweight  <- earth(y~., data=data, weights=c(1, 1, 1, 1, 0, 1, 1, 1, 1),
@@ -91,7 +97,7 @@ a7.xy.asmallweight  <- earth(xxx, yyy, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
 check.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
 
 cat("=== a8 ===\n")
-par(mfrow = c(2, 2)) # new page
+par(mfrow = c(3, 2)) # new page
 par(mar = c(3, 3, 3, 1))
 par(mgp = c(1.5, 0.5, 0))
 data$y <- c(0, 0, 0, 1, 0, 1, 1, 1, 1) != 0
@@ -125,6 +131,31 @@ plotmo(a8.weights, type="earth",
 glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
 # TODO this fails if a weight is 0 in glm.weights
 stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm))
+
+cat("=== a8.weights ===\n")
+# now glm models with weights
+glm.weights <- c(.8,1,1,0,1,1,1,1,1)
+a8.azeroweight <- earth(y~., data=data,
+                    linpreds=TRUE, glm=list(family=binomial),
+                    weights=glm.weights,
+                    minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+plotmo(a8.azeroweight, type="response",
+       col.response=2, do.par=F, main="a8.azeroweight glm\ntype=\"response\"",
+       grid="gray", ylim=c(-.2, 1.2))
+plotmo(a8.azeroweight, type="earth",
+       col.response=2, do.par=F, main="a8.azeroweight glm\ntype=\"earth\"",
+       grid="gray", ylim=c(-.2, 1.2))
+# glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
+# print(coefficients(a8.azeroweight$glm.list[[1]]))
+# print(coefficients(glm))
+# # TODO this fails if a weight is 0 in glm.weights
+# stopifnot(coefficients(a8.azeroweight$glm.list[[1]]) == coefficients(glm))
+
+cat("=== plot.earth with weights ===\n")
+plot(a8)
+plot(a8.weights)
+plot(a8.azeroweight)
+plot(a8.azeroweight, delever=TRUE)
 
 # multivariate models
 

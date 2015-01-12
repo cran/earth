@@ -1,11 +1,57 @@
 Changes to Earth Package
 ------------------------
 
+4.2.0  Jan 12, 2015
+
+  plot.earth:
+    o Changed the default color scheme to black and red (was black and lightblue)
+      for consistency with plot.lm and similar functions, and for readability.
+      A result of this change is that col.line is now once again called col.rsq.
+    o The type="pearson" arg is now type="student", since the stddev
+      estimated by the varmod now includes a leverage correction.
+    o The versus arg now takes numeric values, and can be used to plot
+      the residuals versus the response or the leverages.
+    o Added "abs" to displayed spearman correlation text to minimize confusion.
+    o The error handling for the versus argument is improved.
+
+  minspan and endspan:
+    o The positioning of knots is now more symmetrical (in that we now have
+      an equal number of skipped cases at each end of the predictor range).
+    o We always allow a knot, even if endspan and minspan are such that
+      no knots would normally be allowed.
+    o Added the Adjust.endspan argument to reduce the possibility of an
+      overfitted interaction term supported by just a few cases on the
+      boundary of the predictor space.
+
+  variance models:
+    o Variance model residuals now use the predicted value instead of the
+      mean out-of-fold values.  This is simpler, and gives better results
+      in simulation.  A consequence is that the legal values for
+      predict.varmod's type argument have changed.
+    o The convergence criteria for residual model IRLS was modified and
+      non-convergence is better reported.
+
+  The intercept-only RSS with weights is now calculated correctly in earth.c.
+  Weights are now better tested.
+
+  The Get.crit argument was removed from earth.fit.  No longer needed.
+
+  RSq's and GRSq's that are almost zero are now set to zero to facilitate
+  testing across machines in the presence of numerical error,  especially
+  when case weights are used.
+
+  Increased MaxAllowedRssDelta in earth.c because it was a bit too conservative.
+
+  Updated the vignettes and help pages, and some error messages.
+
 4.1.0  Dec 17, 2014
 
   Added clang to the slowtests suite, and cleaned up minor warnings issued by clang.
+
   Forward pass termination messages are now similar in R and C code.
+
   The internal variable "reason" is now named "termcond".
+
   Documentation improvements.
 
 4.0.0  Dec 12, 2014
@@ -68,7 +114,7 @@ Changes to Earth Package
   Changes to plot.earth:
 
       plot.earth has some new arguments, including info,
-      delever, pearson, level, annd versus.
+      delever, pearson, level, and versus.
 
       The which argument now has extra values 5:8, to plot
       residuals vs log fitted values etc.

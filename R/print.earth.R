@@ -108,45 +108,34 @@ print.termcond <- function(object) # print reason we terminated the forward pass
     check.numeric.scalar(nterms.before.pruning)
     thresh <- object$thresh
     check.numeric.scalar(thresh)
+    terms.string = if(nterms.before.pruning == 1) "term" else "terms"
     if(termcond == 1)
         printf("Reached nk %d\n", nk)
     else if(termcond == 2)
-        printf("GRSq -Inf at %d terms\n", nterms.before.pruning)
+        printf("GRSq -Inf at %d %s\n", nterms.before.pruning, terms.string)
     else if(termcond == 3)
-        printf("GRSq -10 at %d terms\n", nterms.before.pruning)
+        printf("GRSq -10 at %d %s\n", nterms.before.pruning, terms.string)
     else if(termcond == 4)
-        printf("RSq changed by less than %g at %d terms\n",
-            thresh, nterms.before.pruning)
+        printf("RSq changed by less than %g at %d %s\n",
+            thresh, nterms.before.pruning, terms.string)
     else if(termcond == 5)
-        printf("Reached maximum RSq %.4f at %d terms\n", 1-thresh, nterms.before.pruning)
+        printf("Reached maximum RSq %.4f at %d %s\n",
+               1-thresh, nterms.before.pruning, terms.string)
     else if(termcond == 6)
-        printf("No new term increases RSq at %d terms\n", nterms.before.pruning)
+        printf("No new term increases RSq at %d %s\n",
+               nterms.before.pruning, terms.string)
     else if(termcond == 7)
         printf("Reached nk %d\n", nk)
     else
         printf("Unknown (termcond %d)\n", termcond) # should never happen
 }
-get.model.response <- function(object, newdata) # extract response from newdata
+get.rsq.on.newdata <- function(object, newdata, env)
 {
-    if(is.null(object$terms)) # TODO lift this irksome restriction
-        stop0("newdata is not allowed because ",
-              "the earth model was not created with a formula")
-    get.model.response.from.formula(formula(object$terms), newdata)
-}
-get.rsq1 <- function(y, fitted)
-{
-    stopifnot(!is.null(y))
-    stopifnot(!is.null(fitted))
-    stopifnot(length(fitted)  == length(y))
-
-    1 - ss(y - fitted) / ss(y - mean(y))
-}
-get.rsq.on.newdata <- function(object, newdata)
-{
-    if(is.null(dim(newdata))) # TODO could lift this restriction?
+    if(is.null(dim(newdata)))
         stop0("get.rsq.on.newdata: newdata must be a matrix or data.frame")
 
-    get.rsq1(get.model.response(object, newdata), predict(object, newdata=newdata))
+    get.weighted.rsq(get.response(object, newdata),
+                     predict(object, newdata=newdata))
 }
 print.rsq.on.newdata <- function(object, newdata)
 {
@@ -235,7 +224,7 @@ print.summary.earth <- function(
         print.cv(x)
     if(!is.null(x$varmod)) {
         printf("\nvarmod: ")
-        print.varmod(x$varmod, digits=digits)
+        x$varmod <- print.varmod(x$varmod, digits=digits)
     }
     invisible(x)
 }

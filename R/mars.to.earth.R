@@ -50,7 +50,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
         newcall$trace <- 4          # trace.mars=TRUE was specified in original call
     newcall$trace.mars <- NULL
     y <- eval.parent(object$call$y)
-    # convert vector y to ncases x 1 matrices so can access uniformly below.
+    # convert vector y to ncases x 1 matrix so can access uniformly below
     if(is.null(dim(y)))
         dim(y) <- c(length(y), 1)
     nresp  <- ncol(y)               # number of responses
@@ -120,7 +120,16 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
     }
     pred.names <- generate.colnames(object$factor)
     term.names <- get.earth.term.name(1:nrow(object$factor),
-                                      object$factor, object$cuts, pred.names, NULL)
+                                      object$factor, object$cuts, pred.names,
+                                      NULL, warn.if.dup=FALSE)
+    duplicated <- duplicated(term.names)
+    if(any(duplicated)) {
+        ndup <- sum(duplicated)
+        term.names[duplicated] <- sprintf("%s.%d", term.names[duplicated], 1:ndup)
+        if(trace > 0)
+            printf("Renamed %d duplicated term name%s to %s\n\n",
+                   ndup, if(ndup == 1) "" else "s", quote.with.c(term.names[duplicated]))
+    }
     dimnames(object$factor) <- list(term.names, pred.names)
     dimnames(object$cuts)   <- list(term.names, pred.names)
     colnames(object$x) <- term.names[selected.terms]
@@ -150,6 +159,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
         fitted.values     = object$fitted.values,
         residuals         = residuals,
         coefficients      = object$coefficients,
+        leverages         = hatvalues.lm.fit(lm.fit(object$x, y, singular.ok=FALSE)),
         penalty           = object$penalty,
         namesx            = colnames(dirs),
         namesx.org        = colnames(dirs),

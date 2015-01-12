@@ -1,7 +1,5 @@
 \name{varmod}
 \alias{varmod}
-\alias{print.varmod}
-\alias{print.summary.varmod}
 \alias{summary.varmod}
 \title{Variance models for estimating prediction intervals}
 \description{
@@ -14,37 +12,21 @@ A variance model is built by \code{earth} if \code{earth}'s
 Results are stored in the \code{$varmod} field of the \code{earth} model.
 See the vignette \dQuote{\href{../doc/earth-varmod.pdf}{Variance models in earth}} for details.
 
-You probably won't need to directly call the functions below.
-They get called internally by \code{\link{summary.earth}}
-to display variance models.
+You probably won't need to directly call
+\code{print.varmod} or \code{summary.varmod}.
+They get called internally by \code{\link{summary.earth}}.
 }
 \usage{
-\method{print}{varmod}(
-    x       = stop("no 'x' arg"),
+\method{summary}{varmod}(
+    object  = stop("no \"object\" arg"),
     level   = .95,
     style   = "standard",
     digits  = 2,
     newdata = NULL,
     \dots)
-
-\method{print}{summary.varmod}(
-    x       = stop("no 'x' arg"),
-    level   = x$level,
-    style   = x$style,
-    digits  = x$digits,
-    newdata = x$newdata,
-    \dots)
-
-\method{summary}{varmod}(
-    object  = stop("no \"object\" arg"),
-    level   = .95,
-    style   = "standard", # one of VARMOD.COEF.TAB.STYLES
-    digits  = 2,
-    newdata = NULL,
-    \dots)
 }
 \arguments{
-  \item{object,x}{
+  \item{object}{
     A \code{varmod} object.  This is the only required argument.
   }
   \item{level}{
@@ -79,13 +61,19 @@ A \code{"varmod"} object has the following fields:
 
     \item{\code{method}} Copy of the \code{varmod.method} argument to the parent model.
 
+    \item{\code{package}} NULL, unless \code{method="gam"} (in which case either \code{"gam"} or \code{"mgcv"}).
+
     \item{\code{exponent}} Copy of the \code{varmod.exponent} argument to the parent model.
 
     \item{\code{lambda}} Copy of the \code{varmod.lambda} parameter.
     (Currently always 1, absolute residuals.)
 
+    \item{\code{converged}} Did the residual submodel IRLS converge?
+
+    \item{\code{iters}} Number of residual model IRLS iterations (1 to 50).
+
     \item{\code{residmod}} The residual submodel.
-    So for example, if \code{varmod.method="lm"}, this will be a \code{lm} object.
+    So for example, if \code{varmod.method="lm"}, this will be an \code{lm} object.
 
     \item{\code{min.sd}}
     The predicted residual standard deviation is clamped
@@ -103,21 +91,12 @@ A \code{"varmod"} object has the following fields:
     It is the variance of the mean out-of-fold prediction for that
     observation over \code{ncross} repetitions.
 
-    \item{\code{meanfit}}
-    An n x 1 matrix.
-    The \code{meanfit} for an observation is an estimate of the mean
-    fitted value over all datasets, and is estimated with repeated cross
-    validation.
-    It is the mean of the \code{ncross} predicted values for that
-    observation, where each prediction is made when that observation is
-    out-of-fold.
-
     \item{\code{abs.resids}}
     An n x 1 matrix.
     The absolute residuals used to build the residual model.
 
     \item{\code{parent.x}} {
-    An n x 1 matrix. Parent earth model \code{x}.
+    An n x p matrix. Parent earth model \code{x}.
     }
     \item{\code{parent.y}} {
     An n x 1 matrix. Parent earth model \code{y}.

@@ -313,9 +313,9 @@ format.lm <- function(
     # if any coef is NA then issue warning and change the coef to 0
     if(any(is.na(coefs))) {
         which <- which(is.na(coefs))
-        warning0(sprintf("coefficient for %s%s is NA, printing it as 0",
-                         pred.names[which[1]],
-                         if(length(which) > 1) " and others" else ""))
+        warnf("coefficient for %s%s is NA, printing it as 0",
+              pred.names[which[1]],
+              if(length(which) > 1) " and others" else "")
         coefs[which] <- 0
     }
     intercept <- 0

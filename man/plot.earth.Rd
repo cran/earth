@@ -3,24 +3,24 @@
 \title{Plot an earth object}
 \description{
 Plot an \code{\link{earth}} object.
-The plot shows model selection, cumulative distribution
+By default the plot shows model selection, cumulative distribution
 of the residuals, residuals versus fitted values, and the residual QQ plot.
 }
 \usage{
 \method{plot}{earth}(x = stop("no 'x' arg"), which = 1:4,
-    info = FALSE, delever = FALSE, pearson = FALSE, level = 0, versus = NULL,
+    info = FALSE, student = FALSE, delever = FALSE, level = 0, versus = 1,
     nresponse = 1, npoints = 1000, id.n = 3,
     labels.id = rownames(residuals(object, warn=FALSE)),
     center = TRUE, loess.f = .5,
     do.par = length(which) > 1, xlim = NULL, ylim = NULL,
-    main = NULL, cex.main = 1.2, caption = if(do.par) NULL else "",
+    main = NULL, cex.main = 1.1, caption = if(do.par) NULL else "",
     xlab = NULL, ylab = NULL,
-    pch = 20, col.line = "lightblue",
-    col.loess = NULL, lwd.loess = NULL, col.cv = "red",
-    col.qq = col.line, col.grid = "lightgray", col.points = 1, cex.points = NULL,
+    pch = 20, col.rsq = "red",
+    col.loess = "red", lwd.loess = 1, col.cv = "lightblue",
+    col.qq = "gray", col.grid = "lightgray", col.points = 1, cex.points = NULL,
     shade.pints = "mistyrose2", shade.cints = "mistyrose4",
     cum.grid = "percentages",
-    col.rsq = NA, col.residuals = NA, nresiduals = NA,
+    col.line = NA, col.residuals = NA, nresiduals = NA,
     # following are passed to plot.model.selection
     legend.pos = NULL, cex.legend = NULL, col.grsq = 1, col.infold.rsq = 0,
     col.mean.infold.rsq = 0,  col.mean.oof.rsq = "palevioletred",
@@ -34,7 +34,7 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
 \arguments{
   There are numerous arguments, but most are merely for
   embellishing the plot.
-  The important arguments are early in the argument list.
+  The important arguments are listed first.
 
   \item{x}{
     An \code{\link{earth}} object.
@@ -43,53 +43,61 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
   \item{which}{
     Which plots to plot. Default is \code{1:4}.\cr
-1) Model selection (GRSq versus number of terms)\cr
-2) Cumulative distribution of abs residuals\cr
-3) Residuals versus fitted\cr
-4) QQ plot of residuals\cr
-5) Abs residuals versus fitted\cr
-6) Abs residuals versus log fitted\cr
-7) Cube root of the squared residuals versus log fitted\cr
-8) Log abs residuals versus log fitted\cr
+1 Model selection (GRSq vs number of terms)\cr
+2 Cumulative distribution of abs residuals\cr
+3 Residuals vs fitted\cr
+4 QQ plot of residuals\cr
+5 Abs residuals vs fitted\cr
+6 Sqrt abs residuals vs fitted (Scale-Location plot)\cr
+7 Abs residuals vs log fitted\cr
+8 Cube root of the squared residuals vs log fitted\cr
+9 Log abs residuals vs log fitted\cr
   }
   \item{info}{
-    Print some additional information in the Residuals plot.
+    Print some additional information in the residuals plots.
     Default is \code{FALSE}.\cr
-    (1) Plot the distribution of the residuals along the bottom of the plot.\cr
-    (2) Show the Spearman Rank Correlation of the absolute residuals
+    i) Plot the distribution of the residuals along the bottom of the plot.\cr
+    ii) Show the Spearman Rank Correlation of the absolute residuals
     with the fitted values.
-    (The delevered and/or pearson residuals are used if the corresponding
-    arguments are set.)
-    Note that this correlation is invariant to monotone transforms of the residuals.\cr
-    (3) Only for \code{which=5} or \code{8}.
+    Actually, correlation is measured against the absolute values
+    of whatever is on the horizontal
+    axis --- by default this is the fitted response, but may be something
+    else if the \code{versus} argument is used.\cr
+    iii) Only for \code{which=5} or \code{9}.
     Regress the absolute residuals against the fitted values
     and show the regression slope.
     Robust linear regression is used via \code{\link[MASS]{rlm}} in the MASS package.
     % If we assume that the "power of the mean model" holds:\cr
     % \code{sd(residuals) = const * meanresponse ^ lambda}\cr
-    % then the slope of this line estimates the exponent
-    % (a large sample is necessary).
+    % then if which=9, with the slope of this line estimates\cr
+    % the exponent (a large sample is necessary).
+  }
+  \item{student}{
+    Default is \code{FALSE}.
+    Use \code{TRUE} to divide each residual by \code{se * sqrt(1 - h_ii)},
+    where \code{se} is the standard error of the prediction
+    and \code{h_ii} is described below.\cr
+    Applies to all plots where the residuals are used (including the
+    cumulative distribution and QQ plots, and to statistics calculated
+    for the \code{info} argument).
+    Requires that the model was built with the \code{varmod.method} argument,
+    because we need the variance model to get the standard errors.\cr
+    When the variance model holds, the studentized residuals are
+    homoscedastic with unity variance.
   }
   \item{delever}{
     Default is \code{FALSE}.
-    Divide the residuals by \code{sqrt(1 - h_ii)},
+    Use \code{TRUE} to divide the residuals by \code{sqrt(1 - h_ii)},
     where \code{h_ii} are the diagonal entries of the hat matrix.
-    The hat matrix here is from the linear fit on earth's basis matrix \code{bx}.
-    (Note: This is sometimes called \dQuote{(internal) studentization}
-    or \dQuote{standardization}, but those terms are
-    also used in other senses.)
-  }
-  \item{pearson}{
-    Default is \code{FALSE}.
-    Divide each residual by its estimated standard deviation.
-    Requires that the model was built with the \code{varmod.method} argument,
-    because we need the residual model to get the standard deviations.
-    Does not include de-levering unless that argument is set.
-    (Note: Some authors use \dQuote{pearson residuals} in a different sense.)
+    The hat matrix here is from the \code{\link{lm}} fit on
+    the earth basis matrix \code{bx}.\cr
+    Applies to all plots where the residuals are used (including the
+    cumulative distribution and QQ plots, and to statistics calculated
+    for the \code{info} argument).
   }
   \item{level}{
     Plot prediction intervals at the given confidence level.
-    Default is \code{0} meaning do not plot the bands.
+    Default is \code{0}, meaning do not plot the intervals.
     A typical value is \code{level=.95}.\cr
     Requires that the model was built with the \code{varmod.method} argument.\cr
     The color of the bands is determined by the arguments \code{shade.pints} and
@@ -97,20 +105,40 @@ of the residuals, residuals versus fitted values, and the residual QQ plot.
   }
   \item{versus}{
     What do we plot the residuals against?  One of:\cr\cr
-\code{NULL} Default. Plot the residuals versus the fitted values
-(the log fitted values when \code{which=6} to \code{8}).\cr
+\code{1} Default. Plot the residuals versus the fitted values
+(or the log values when \code{which=7} to \code{9}).\cr
 \cr
-\code{""} Residuals versus the predictors (multiple plots if multiple predictors).\cr
+\code{2} Residuals versus observation number,
+after observations have been sorted on the fitted value.
+Same as \code{versus=1}, except that the residuals are spaced
+uniformly along the horizontal axis.
 \cr
-\code{"*"} Residuals versus the \code{earth} basis functions.\cr
 \cr
-\code{string} Character vector specifying which predictors to plot against.
-e.g. \code{versus=c("wind", "vis")}.
-Note: \code{\link{grep}} is used for matching.  Thus \code{"wind"} will match
-all variables that have \code{"wind"} in their names. Use \code{"^wind$"}
-to match only the variable named \code{"wind"}.
-Note that \code{versus=""} above is actually just a special case,
-since the regex \code{""} matches anything.\cr\cr
+\code{3} Residuals versus the response.
+\cr
+\cr
+\code{4} Residuals versus the hat matrix leverages
+(from the linear regression of the response on \code{bx}).
+\cr
+\cr
+\code{"*"} Residuals versus the \code{earth} terms.
+A optional regex can follow the \code{"*"} to specify a subset of the
+terms, e.g. \code{versus="*wind"} will plot terms with \code{"wind"} in
+their name.
+\cr
+\cr
+Else a character vector specifying which predictors to plot against.
+\cr
+Example 1: \code{versus=""} plots against all predictors (since the
+regex \code{versus=""} matches anything).
+\cr
+Example 2: \code{versus=c("wind", "vis")}.
+\cr
+Note: \code{\link{grep}} is used for matching.  Thus
+\code{versus="wind"} will match all variables that have \code{"wind"}
+in their names. Use \code{"^wind$"} to match only the variable named
+\code{"wind"}.
+\cr\cr
   }
   \item{nresponse}{
      Specify which column of the response to plot if the model has multiple responses.
@@ -122,9 +150,9 @@ since the regex \code{""} matches anything.\cr\cr
   \item{npoints}{
     Maximum number of points to display in residual and other plots.
     Use \code{-1} for all.
-    Default is \code{1000} (not all to reduce over-plotting).
+    Default is \code{1000} (not all, to reduce over-plotting).
     A systematic sample of size \code{nresiduals} is taken but
-    the largest few residuals are always included.
+    the biggest few residuals are always included.
   }
   \item{id.n}{
     The largest \code{id.n} residuals will be labeled in the plot.
@@ -139,7 +167,7 @@ since the regex \code{""} matches anything.\cr\cr
     so asymmetry in the residual distribution is more obvious.
   }
   \item{loess.f}{
-    Smoothing parameter for the light blue smooth line in the residuals plot.
+    Smoothing parameter for the red smooth line in the residuals plot.
     Default \code{.5}.
     Lower values make the line bumpier.
     This argument is passed as \code{f} in the internal call to \code{\link{lowess}}.
@@ -175,7 +203,7 @@ since the regex \code{""} matches anything.\cr\cr
     Default is \code{NULL}, meaning generate the headings automatically.
   }
   \item{cex.main}{
-    Size of plot titles.  Default is \code{1.2}.
+    Size of plot titles.  Default is \code{1.1}.
     Used only if \code{do.par} is \code{TRUE} (default).
   }
   \item{caption}{
@@ -194,30 +222,28 @@ since the regex \code{""} matches anything.\cr\cr
   \item{pch}{
     Default is \code{20}.
   }
-  \item{col.line}{
-    Color of lines such as the RSq line in the Model Selection plot.
-    Default is \code{"lightblue"}
+  \item{col.rsq}{
+    Color of the RSq line in the Model Selection plot.
+    Default is \code{"red"}
     Use \code{0} for no RSq line.
   }
   \item{col.loess}{
-    Color of \code{loess} line in the residuals plot.
-    Default is \code{NULL}, meaning automatic.
+    Default \code{"red"}. Color of \code{loess} line in the residuals plot.
     (Actually \code{\link{lowess}} is used rather than \code{\link{loess}},
-    to avoid ugly warnings issued by \code{loess}.
+    to avoid internal warnings issued by \code{loess}.
     The arguments is so named for backward compatibility.)
   }
   \item{lwd.loess}{
-    Line width of the \code{loess} line.
-    Default is \code{NULL}, meaning automatic.
+    Default \code{1}. Line width of the \code{loess} line.
   }
   \item{col.cv}{
-    Default is \code{"red"}.
+    Default is \code{"lightblue"}.
     Color of cross validation line in the residuals plot.
     This is the residual of the mean out-fold-predicted value.
   }
   \item{col.qq}{
     Color of QQ line in the QQ plot.
-    Default is \code{col.line}.
+    Default is \code{"gray"}.
     Use \code{0} for no QQ line.
   }
   \item{col.grid}{
@@ -249,8 +275,8 @@ since the regex \code{""} matches anything.\cr\cr
     \code{"grid"}  add grid\cr
     \code{"percentages"}  (default) add grid and percentage labels to quantile lines.
   }
-  \item{col.rsq}{
-    Deprecated, please use \code{col.line} instead.
+  \item{col.line}{
+    Deprecated, please use \code{col.rsq} instead.
     Default is \code{NA}.
   }
   \item{col.residuals}{
@@ -261,7 +287,7 @@ since the regex \code{""} matches anything.\cr\cr
     Deprecated, please use \code{npoints} instead.
     Default is \code{NA}.
 \cr\cr
-    \bold{The following are passed to \code{plot.model.selection}.}
+    \bold{The following are for the Model Selection plot.}
   }
   \item{legend.pos}{
     Legend position.

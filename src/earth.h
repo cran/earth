@@ -46,9 +46,10 @@ void ForwardPassR(              // for use by R
     const SEXP Allowed,           // in: constraints function, can be MyNull
     const int* pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,               // in: environment for Allowed function
+    const double* pAdjustEndSpan, // in:
     const int* pnUseBetaCache,    // in: 1 to use the beta cache, for speed
     const double* pTrace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char *sPredNames[],     // in: predictor names in trace printfs, can be MyNull
+    const char* sPredNames[],     // in: predictor names in trace printfs, can be MyNull
     const SEXP MyNull);           // in: trick to avoid R check warnings on passing R_NilValue
 
 void EvalSubsetsUsingXtxR(      // for use by R
@@ -105,9 +106,10 @@ void Earth(
     const double FastBeta,      // in: Fast MARS ageing coef
     const double NewVarPenalty, // in: penalty for adding a new variable
     const int LinPreds[],       // in: nPreds x 1, 1 if predictor must enter linearly
+    const double AdjustEndSpan, // in:
     const bool UseBetaCache,    // in: 1 to use the beta cache, for speed
     const double Trace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char *sPredNames[]);  // in: predictor names in trace printfs, can be NULL
+    const char* sPredNames[]);  // in: predictor names in trace printfs, can be NULL
 
 void FormatEarth(
     const bool   UsedCols[],// in: nMaxTerms x 1, indices of best set of cols of bx

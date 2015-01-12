@@ -169,7 +169,7 @@ plot.evimp <- function(
     lty.nsubsets = 1,           # line type of nsubsets line
 
     type.gcv = "l",             # plot type for gcv graph,
-    col.gcv = "lightblue",      # as above but for the gcv plot
+    col.gcv = "red",            # as above but for the gcv plot
     lty.gcv = 1,
 
     type.rss = "l",             # as above but for the rss plot

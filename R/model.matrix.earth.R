@@ -1,4 +1,4 @@
-# model.matrix.earth.R: functions for diddling around with model matrices
+# model.matrix.earth.R: functions for manipulating earth model matrices
 #
 # The main functions are:
 #
@@ -206,7 +206,7 @@ get.earth.x <- function(    # returns x expanded for factors
                        x <- x[,imatch]
                        colnames <- colnames[imatch]
                    } else
-                       warning0(sprintf(s, ""))
+                       warnf(s, "")
                 }
             }
         }

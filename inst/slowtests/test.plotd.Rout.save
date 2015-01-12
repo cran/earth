@@ -52,19 +52,19 @@ First few rows of y are
 Predicted response: yhat is a 1046 by 1 matrix: 1=survived
 First few rows of yhat are
       survived
-[1,] 0.9322034
-[2,] 0.9684924
-[3,] 0.9322034
-[4,] 0.4522720
-[5,] 0.9322034
-[6,] 0.2841892
+[1,] 0.9637385
+[2,] 0.9539389
+[3,] 0.9829011
+[4,] 0.4091613
+[5,] 0.9675274
+[6,] 0.2928213
 
 Observed response: numeric or logical vector
 Predicted response type="response": numeric or logical vector
 Grouping criterion: CLASS1 survived == 0, CLASS2 survived != 0
 
-predicted.response.per.class[not survived]: 0.9322034 0.452272 0.9322034 0.3747558 0.1217001 0.2935908 ...
-predicted.response.per.class[survived    ]: 0.9322034 0.9684924 0.2841892 0.9322034 0.9322034 0.9322034 ...
+predicted.response.per.class[not survived]: 0.9829011 0.4091613 0.9675274 0.3487411 0.2030343 0.2987726 ...
+predicted.response.per.class[survived    ]: 0.9637385 0.9539389 0.2928213 0.9095893 0.9304968 0.9732563 ...
 
 > 
 > plotd(a1, main="earth-glm, numeric, type=earth, params",

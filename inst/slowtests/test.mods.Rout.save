@@ -1,0 +1,441 @@
+> # test.mods.R: test earth's ability to build various models
+> 
+> library(earth)
+Loading required package: plotmo
+Loading required package: plotrix
+> 
+> options(digits=3)
+> options(warn=2) # treat warnings as errors
+> 
+> PLOT <- FALSE
+> PRINT <- FALSE
+> PRINT.DATA <- FALSE
+> SUMMARY <- FALSE
+> TIME <- FALSE
+> TRACE <- 0
+> FORCE.WEIGHTS <- FALSE
+> 
+> itest <- 0
+> 
+> printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
+> 
+> ss <- function(x) # sum of squares
++ {
++     sum(as.vector(x^2))
++ }
+> test.earth <- function(func, x, xtest, npreds, nk=NULL, degree=2, ...)
++ {
++     itest <<- itest + 1
++     set.seed(itest)
++     x <- x[, 1:npreds, drop=FALSE]
++     y <- func(x)
++     nk <- if(is.null(nk)) min(200, max(20, 2 * ncol(x))) + 1 else nk
++     printf("TEST %-2g n %g %-28s nk %-3g degree %-2g ",
++         itest, nrow(x), deparse(substitute(func)), nk, degree)
++     gc()
++     earth.time <- system.time(mod <- earth(x, y, nk=nk, degree=degree,
++                               trace=TRACE, Force.weights=FORCE.WEIGHTS, ...))
++ 
++     ytest <- func(xtest)
++     fitted <- predict(mod, xtest)
++     stopifnot(length(fitted) == nrow(xtest))
++     test.rsq <- 1 - ss(ytest - fitted) / ss(ytest - mean(ytest))
++ 
++     time.string <- if(TIME) sprintf(" [time %5.3f]", earth.time[3]) else ""
++     printf(" nterms %-3g%s grsq % 4.2f test.rsq % 4.2f\n",
++         ncol(mod$bx), time.string, mod$grsq, test.rsq)
++     if(PRINT) {
++         print(mod)
++         printf("\n")
++     }
++     if(SUMMARY) {
++         print(summary(mod))
++         printf("\n")
++     }
++     if(PRINT.DATA) {
++         print(cbind(y, x))
++         printf("\n")
++     }
++     if(PLOT) {
++         nterms2 <- 0
++         nterms <- earth:::get.nterms.per.degree(mod)
++         if(length(nterms) >= 3)
++             nterms2 <- nterms[3] # number of degree2 terms
++         nrow <- 3
++         par(mfrow=c(nrow, nrow), mar = c(1.5, 1.5, 3, .5), mgp = c(1.5, .5, 0), cex.main=1)
++         oma <- par("oma") # space for caption
++         oma[3] <- 3
++         par(oma=oma)
++         col.response <- "red" # ifelse(mod$leverages<.25, "green", "red")
++         plotmo(mod, trace=-1, do.par=FALSE, col.response=col.response, npoints=500, cex.response=.8)
++         caption <- sprintf("test %g n %d %s nk %g degree %g grsq %.2f test.rsq %.2f",
++                     itest, nrow(x), deparse(substitute(func)), nk, degree, mod$grsq, test.rsq)
++         mtext(caption, outer=TRUE, font=2, line=1, cex=1)
++         plotmo(mod, trace=-1, do.par=FALSE, col.response=col.response, cex.response=.8,
++                degree1=0, type2="image", npoints=500)
++         col.response <- ifelse(mod$leverages<.25, "green", "red")
++         plot(mod, versus=4, caption="", col.points=col.response, npoints=1000) # leverage plot
++     }
++     mod
++ }
+> testn <- function(n)
++ {
++     itest <<- 0
++     max.ncol <- 10
++     set.seed(n)
++     x <- matrix(runif(max.ncol * n, -1, 1), ncol=max.ncol)
++     x <- x[order(x[,1]), , drop=FALSE] # sort first column for convenience
++     colnames(x) <- paste("x", 1:ncol(x), sep="")
++ 
++     xtest <- matrix(runif(max.ncol * 10000, -1, 1), ncol=max.ncol)
++     xtest <- xtest[order(xtest[,1]), , drop=FALSE]
++     colnames(xtest) <- c(paste("x", 1:max.ncol, sep=""))
++ 
++     univariate <- function(x)
++     {
++         x[,1] + .3 * rnorm(nrow(x))
++     }
++     test.earth(univariate, x, xtest, 1, degree=1)
++ 
++     bivariate <- function(x)
++     {
++         x[,1] + x[,2] + .3 * rnorm(nrow(x))
++     }
++     test.earth(bivariate, x, xtest, 2)
++ 
++     bivariate.with.interaction <- function(x)
++     {
++         x[,1] + x[,2] + (x[,1] * x[,2]) + .3 * rnorm(nrow(x))
++     }
++     test.earth(bivariate.with.interaction, x, xtest, 2)
++ 
++     trivariate <- function(x)
++     {
++         x[,1] + x[,2] + x[,3] + .3 * rnorm(nrow(x))
++     }
++     test.earth(trivariate, x, xtest, 3)
++ 
++     sq <- function(x) x * x
++ 
++     trivariate.with.interaction <- function(x)
++     {
++         x[,1] + x[,2] + sq(x[,3]) + (x[,1] * x[,2]) + .2 * rnorm(nrow(x))
++     }
++     test.earth(trivariate.with.interaction, x, xtest, 3)
++ 
++     trivariate.two.interactions <- function(x)
++     {
++         x[,1] + x[,2] + sq(x[,3]) + (x[,1] * x[,2]) + sq(x[,1] * sq(x[,3])) + .1 * rnorm(nrow(x))
++     }
++     test.earth(trivariate.two.interactions, x, xtest, 3)
++     printf("\n")
++ 
++     sin.5.times.x1 <- function(x)
++     {
++         sin(5 * x[,1])
++     }
++     test.earth(sin.5.times.x1, x, xtest, 1, nk=5, degree=1)
++     test.earth(sin.5.times.x1, x, xtest, 1, nk=5)
++     test.earth(sin.5.times.x1, x, xtest, 1, degree=1)
++     test.earth(sin.5.times.x1, x, xtest, 1)
++     printf("\n")
++ 
++     sin.3x1.times.x2 <- function(x)
++     {
++         sin(3 * x[,1]) + x[,2]
++     }
++     test.earth(sin.3x1.times.x2, x, xtest, 2, nk=5, degree=1)
++     test.earth(sin.3x1.times.x2, x, xtest, 2, nk=5)
++     test.earth(sin.3x1.times.x2, x, xtest, 2, degree=1)
++     test.earth(sin.3x1.times.x2, x, xtest, 2)
++     printf("\n")
++ 
++     if(n < 100)
++         return(invisible())
++ 
++     pure.noise <- function(x)
++     {
++         rnorm(nrow(x))
++     }
++     test.earth(pure.noise, x, xtest, 1, nk=5,  degree=1)
++     test.earth(pure.noise, x, xtest, 1, nk=5)
++     test.earth(pure.noise, x, xtest, 1, nk=51, degree=1)
++     test.earth(pure.noise, x, xtest, 1, nk=51)
++     test.earth(pure.noise, x, xtest, 5, nk=5,  degree=1)
++     test.earth(pure.noise, x, xtest, 5, nk=5)
++     test.earth(pure.noise, x, xtest, 5, nk=51, degree=1)
++ 	# TODO n=100, with weights test.rsq -1.34, without weights test.rsq 0.01
++     test.earth(pure.noise, x, xtest, 5, nk=51)
++     printf("\n")
++ 
++     five.predictors <- function(x)
++     {
++         y <- 0
++         for (i in 1:5)
++             y <- y + sin(2 * x[,i])
++         y + x[,1] * cos(4 * x[,2]) + (x[,3]-2)* x[,4]
++     }
++     test.earth(five.predictors, x, xtest, 5, degree=1)
++     test.earth(five.predictors, x, xtest, 5)
++ 	# TODO n=100, with weights test.rsq 0.69, without weights test.rsq 0.91
++     test.earth(five.predictors, x, xtest, 5, degree=10)
++     test.earth(five.predictors, x, xtest, 5, nk=51, degree=1)
++     test.earth(five.predictors, x, xtest, 5, nk=51)
++     test.earth(five.predictors, x, xtest, 5, nk=51, degree=3)
++     printf("\n")
++ 
++     # gives negative test.rsq
++     #
++     # five.predictors.noise <- function(x)
++     # {
++     #     five.predictors(x) + .01 * nrow(x)
++     # }
++     # test.earth(five.predictors.noise, x, xtest, 5, degree=1)
++     # test.earth(five.predictors.noise, x, xtest, 5)
++     # test.earth(five.predictors.noise, x, xtest, 5, degree=3)
++     # test.earth(five.predictors.noise, x, xtest, 5, nk=51, degree=1)
++     # test.earth(five.predictors.noise, x, xtest, 5, nk=51)
++     # test.earth(five.predictors.noise, x, xtest, 5, nk=51, degree=3)
++     # printf("\n")
++ 
++     eqn56 <- function(x) # Friedman MARS paper equation 56
++     {
++         0.1 * exp(4 * x[,1]) +
++         4 / (1 + exp(-20 * (x[,2] - 0.5))) +
++         3 * x[,3] +
++         2 * x[,4] +
++         x[,5]
++     }
++     test.earth(eqn56, x, xtest, 5, degree=1)
++     test.earth(eqn56, x, xtest, 5)
++     test.earth(eqn56, x, xtest, 5, degree=3)
++     test.earth(eqn56, x, xtest, 5, nk=51, degree=1)
++     test.earth(eqn56, x, xtest, 5, nk=51)
++     test.earth(eqn56, x, xtest, 5, nk=51, degree=3)
++     printf("\n")
++ 
++     eqn56.noise <- function(x)
++     {
++         eqn56(x) + 1 * rnorm(nrow(x))
++     }
++     test.earth(eqn56.noise, x, xtest, 5, degree=1)
++     test.earth(eqn56.noise, x, xtest, 5)
++     test.earth(eqn56.noise, x, xtest, 5, degree=3)
++     test.earth(eqn56.noise, x, xtest, 5, nk=51, degree=1)
++     test.earth(eqn56.noise, x, xtest, 5, nk=51)
++     test.earth(eqn56.noise, x, xtest, 5, nk=51, degree=3)
++     printf("\n")
++ 
++     eqn56.noise.plus.extra.preds <- function(x)
++     {
++         eqn56(x) + 1 * rnorm(nrow(x))
++     }
++     test.earth(eqn56.noise.plus.extra.preds, x, xtest, 10, degree=1)
++     test.earth(eqn56.noise.plus.extra.preds, x, xtest, 10)
++     test.earth(eqn56.noise.plus.extra.preds, x, xtest, 10, degree=3)
++     test.earth(eqn56.noise.plus.extra.preds, x, xtest, 10, nk=51, degree=1)
++     test.earth(eqn56.noise.plus.extra.preds, x, xtest, 10, nk=51)
++     test.earth(eqn56.noise.plus.extra.preds, x, xtest, 10, nk=51, degree=3)
++     printf("\n")
++ 
++     # this has linear preds in both 1 and 2 degree terms
++     test.earth(eqn56, x, xtest, 5, linpreds=c("^x1$","x3","5"))
++     test.earth(eqn56, x, xtest, 5, linpreds=c(3,5))
++ 
++     # check symmetry by using negative of eqn56 (may not be completely
++     # symmetric because of fencepost odd/even alignment issues)
++     neg.eqn56 <- function(x)
++     {
++         -eqn56(x)
++     }
++     test.earth(neg.eqn56, x, xtest, 5, linpreds=c(3,5))
++     printf("\n")
++ 
++     robot.arm <- function(x) # Friedman Fast MARS paper
++     {
++         l1     <- x[,1]
++         l2     <- x[,2]
++         theta1 <- x[,3]
++         theta2 <- x[,4]
++         phi    <- x[,5]
++ 
++         x1 <- l1 * cos(theta1) - l2 * cos(theta1 + theta2) * cos(phi)
++         y <-  l1 * sin(theta1) - l2 * sin(theta1 + theta2) * cos(phi)
++         z <-  l2 * sin(theta2) * sin(phi)
++ 
++         sqrt(x1^2 + y^2 + z^2)
++     }
++ 
++     x[,1] <- (x[,1] + 1) / 2    # l1  0..1
++     x[,2] <- (x[,2] + 1) / 2    # l2  0..1
++     x[,3] <- pi * (x[,3] + 1)   # theta1
++     x[,4] <- pi * (x[,4] + 1)   # theta2
++     x[,5] <- pi * x[,5] / 2     # phi
++     colnames(x) <- c("l1", "l2", "theta1", "theta2", "phi", paste("x", 6:ncol(x), sep=""))
++ 
++     xtest[,1] <- (xtest[,1] + 1) / 2    # l1  0..1
++     xtest[,2] <- (xtest[,2] + 1) / 2    # l2  0..1
++     xtest[,3] <- pi * (xtest[,3] + 1)   # theta1
++     xtest[,4] <- pi * (xtest[,4] + 1)   # theta2
++     xtest[,5] <- pi * xtest[,5] / 2     # phi
++     colnames(xtest) <- c("l1", "l2", "theta1", "theta2", "phi", paste("x", 6:ncol(x), sep=""))
++ 
++     test.earth(robot.arm, x, xtest, 5, nk=51,  degree=3)
++     test.earth(robot.arm, x, xtest, 5, nk=201, degree=3)
++     test.earth(robot.arm, x, xtest, 5, nk=201, degree=5)
++ 
++     invisible()
++ }
+> if(PLOT) {
++     printf("opening test.mods.pdf\n")
++     pdf("test.mods.pdf")
++ }
+> start.time <- proc.time()
+> testn(30)
+TEST 1  n 30 univariate                   nk 21  degree 1   nterms 3   grsq  0.72 test.rsq  0.77
+TEST 2  n 30 bivariate                    nk 21  degree 2   nterms 4   grsq  0.76 test.rsq  0.82
+TEST 3  n 30 bivariate.with.interaction   nk 21  degree 2   nterms 4   grsq  0.80 test.rsq  0.82
+TEST 4  n 30 trivariate                   nk 21  degree 2   nterms 6   grsq  0.87 test.rsq  0.89
+TEST 5  n 30 trivariate.with.interaction  nk 21  degree 2   nterms 6   grsq  0.69 test.rsq  0.83
+TEST 6  n 30 trivariate.two.interactions  nk 21  degree 2   nterms 6   grsq  0.79 test.rsq  0.90
+
+TEST 7  n 30 sin.5.times.x1               nk 5   degree 1   nterms 4   grsq  0.69 test.rsq  0.67
+TEST 8  n 30 sin.5.times.x1               nk 5   degree 2   nterms 4   grsq  0.65 test.rsq  0.67
+TEST 9  n 30 sin.5.times.x1               nk 21  degree 1   nterms 4   grsq  0.94 test.rsq  0.89
+TEST 10 n 30 sin.5.times.x1               nk 21  degree 2   nterms 4   grsq  0.93 test.rsq  0.89
+
+TEST 11 n 30 sin.3x1.times.x2             nk 5   degree 1   nterms 4   grsq  0.88 test.rsq  0.82
+TEST 12 n 30 sin.3x1.times.x2             nk 5   degree 2   nterms 4   grsq  0.87 test.rsq  0.82
+TEST 13 n 30 sin.3x1.times.x2             nk 21  degree 1   nterms 6   grsq  0.91 test.rsq  0.90
+TEST 14 n 30 sin.3x1.times.x2             nk 21  degree 2   nterms 6   grsq  0.89 test.rsq  0.89
+
+> testn(100)
+TEST 1  n 100 univariate                   nk 21  degree 1   nterms 2   grsq  0.79 test.rsq  0.78
+TEST 2  n 100 bivariate                    nk 21  degree 2   nterms 4   grsq  0.83 test.rsq  0.86
+TEST 3  n 100 bivariate.with.interaction   nk 21  degree 2   nterms 8   grsq  0.93 test.rsq  0.83
+TEST 4  n 100 trivariate                   nk 21  degree 2   nterms 7   grsq  0.91 test.rsq  0.90
+TEST 5  n 100 trivariate.with.interaction  nk 21  degree 2   nterms 12  grsq  0.96 test.rsq  0.92
+TEST 6  n 100 trivariate.two.interactions  nk 21  degree 2   nterms 11  grsq  0.98 test.rsq  0.97
+
+TEST 7  n 100 sin.5.times.x1               nk 5   degree 1   nterms 4   grsq  0.84 test.rsq  0.87
+TEST 8  n 100 sin.5.times.x1               nk 5   degree 2   nterms 4   grsq  0.84 test.rsq  0.87
+TEST 9  n 100 sin.5.times.x1               nk 21  degree 1   nterms 7   grsq  0.98 test.rsq  0.98
+TEST 10 n 100 sin.5.times.x1               nk 21  degree 2   nterms 7   grsq  0.98 test.rsq  0.98
+
+TEST 11 n 100 sin.3x1.times.x2             nk 5   degree 1   nterms 5   grsq  0.91 test.rsq  0.84
+TEST 12 n 100 sin.3x1.times.x2             nk 5   degree 2   nterms 5   grsq  0.91 test.rsq  0.84
+TEST 13 n 100 sin.3x1.times.x2             nk 21  degree 1   nterms 9   grsq  1.00 test.rsq  1.00
+TEST 14 n 100 sin.3x1.times.x2             nk 21  degree 2   nterms 9   grsq  1.00 test.rsq  1.00
+
+TEST 15 n 100 pure.noise                   nk 5   degree 1   nterms 1   grsq  0.00 test.rsq -0.01
+TEST 16 n 100 pure.noise                   nk 5   degree 2   nterms 1   grsq  0.00 test.rsq -0.01
+TEST 17 n 100 pure.noise                   nk 51  degree 1   nterms 5   grsq  0.00 test.rsq -0.15
+TEST 18 n 100 pure.noise                   nk 51  degree 2   nterms 1   grsq  0.00 test.rsq -0.01
+TEST 19 n 100 pure.noise                   nk 5   degree 1   nterms 2   grsq  0.02 test.rsq -0.04
+TEST 20 n 100 pure.noise                   nk 5   degree 2   nterms 2   grsq  0.02 test.rsq -0.15
+TEST 21 n 100 pure.noise                   nk 51  degree 1   nterms 4   grsq  0.01 test.rsq -0.20
+TEST 22 n 100 pure.noise                   nk 51  degree 2   nterms 1   grsq  0.00 test.rsq -0.01
+
+TEST 23 n 100 five.predictors              nk 21  degree 1   nterms 12  grsq  0.91 test.rsq  0.84
+TEST 24 n 100 five.predictors              nk 21  degree 2   nterms 16  grsq  0.95 test.rsq  0.92
+TEST 25 n 100 five.predictors              nk 21  degree 10  nterms 12  grsq  0.95 test.rsq  0.91
+TEST 26 n 100 five.predictors              nk 51  degree 1   nterms 11  grsq  0.91 test.rsq  0.82
+TEST 27 n 100 five.predictors              nk 51  degree 2   nterms 20  grsq  0.96 test.rsq  0.96
+TEST 28 n 100 five.predictors              nk 51  degree 3   nterms 22  grsq  0.97 test.rsq  0.95
+
+TEST 29 n 100 eqn56                        nk 21  degree 1   nterms 12  grsq  1.00 test.rsq  1.00
+TEST 30 n 100 eqn56                        nk 21  degree 2   nterms 11  grsq  1.00 test.rsq  1.00
+TEST 31 n 100 eqn56                        nk 21  degree 3   nterms 11  grsq  1.00 test.rsq  1.00
+TEST 32 n 100 eqn56                        nk 51  degree 1   nterms 12  grsq  1.00 test.rsq  1.00
+TEST 33 n 100 eqn56                        nk 51  degree 2   nterms 11  grsq  1.00 test.rsq  1.00
+TEST 34 n 100 eqn56                        nk 51  degree 3   nterms 11  grsq  1.00 test.rsq  1.00
+
+TEST 35 n 100 eqn56.noise                  nk 21  degree 1   nterms 8   grsq  0.85 test.rsq  0.88
+TEST 36 n 100 eqn56.noise                  nk 21  degree 2   nterms 8   grsq  0.86 test.rsq  0.85
+TEST 37 n 100 eqn56.noise                  nk 21  degree 3   nterms 10  grsq  0.79 test.rsq  0.85
+TEST 38 n 100 eqn56.noise                  nk 51  degree 1   nterms 8   grsq  0.85 test.rsq  0.89
+TEST 39 n 100 eqn56.noise                  nk 51  degree 2   nterms 13  grsq  0.84 test.rsq  0.84
+TEST 40 n 100 eqn56.noise                  nk 51  degree 3   nterms 8   grsq  0.80 test.rsq  0.84
+
+TEST 41 n 100 eqn56.noise.plus.extra.preds nk 21  degree 1   nterms 12  grsq  0.83 test.rsq  0.86
+TEST 42 n 100 eqn56.noise.plus.extra.preds nk 21  degree 2   nterms 12  grsq  0.84 test.rsq  0.73
+TEST 43 n 100 eqn56.noise.plus.extra.preds nk 21  degree 3   nterms 10  grsq  0.82 test.rsq  0.84
+TEST 44 n 100 eqn56.noise.plus.extra.preds nk 51  degree 1   nterms 8   grsq  0.81 test.rsq  0.85
+TEST 45 n 100 eqn56.noise.plus.extra.preds nk 51  degree 2   nterms 14  grsq  0.81 test.rsq  0.57
+TEST 46 n 100 eqn56.noise.plus.extra.preds nk 51  degree 3   nterms 20  grsq  0.82 test.rsq  0.65
+
+TEST 47 n 100 eqn56                        nk 21  degree 2   nterms 11  grsq  0.90 test.rsq  0.91
+TEST 48 n 100 eqn56                        nk 21  degree 2   nterms 9   grsq  1.00 test.rsq  1.00
+TEST 49 n 100 neg.eqn56                    nk 21  degree 2   nterms 9   grsq  1.00 test.rsq  1.00
+
+TEST 50 n 100 robot.arm                    nk 51  degree 3   nterms 18  grsq  0.89 test.rsq  0.67
+TEST 51 n 100 robot.arm                    nk 201 degree 3   nterms 18  grsq  0.89 test.rsq  0.67
+TEST 52 n 100 robot.arm                    nk 201 degree 5   nterms 18  grsq  0.89 test.rsq  0.67
+> testn(500)
+TEST 1  n 500 univariate                   nk 21  degree 1   nterms 3   grsq  0.79 test.rsq  0.79
+TEST 2  n 500 bivariate                    nk 21  degree 2   nterms 5   grsq  0.87 test.rsq  0.88
+TEST 3  n 500 bivariate.with.interaction   nk 21  degree 2   nterms 8   grsq  0.89 test.rsq  0.89
+TEST 4  n 500 trivariate                   nk 21  degree 2   nterms 6   grsq  0.92 test.rsq  0.92
+TEST 5  n 500 trivariate.with.interaction  nk 21  degree 2   nterms 10  grsq  0.95 test.rsq  0.95
+TEST 6  n 500 trivariate.two.interactions  nk 21  degree 2   nterms 15  grsq  0.99 test.rsq  0.99
+
+TEST 7  n 500 sin.5.times.x1               nk 5   degree 1   nterms 4   grsq  0.85 test.rsq  0.84
+TEST 8  n 500 sin.5.times.x1               nk 5   degree 2   nterms 4   grsq  0.85 test.rsq  0.84
+TEST 9  n 500 sin.5.times.x1               nk 21  degree 1   nterms 7   grsq  0.99 test.rsq  0.99
+TEST 10 n 500 sin.5.times.x1               nk 21  degree 2   nterms 7   grsq  0.99 test.rsq  0.99
+
+TEST 11 n 500 sin.3x1.times.x2             nk 5   degree 1   nterms 4   grsq  0.86 test.rsq  0.87
+TEST 12 n 500 sin.3x1.times.x2             nk 5   degree 2   nterms 4   grsq  0.86 test.rsq  0.87
+TEST 13 n 500 sin.3x1.times.x2             nk 21  degree 1   nterms 7   grsq  1.00 test.rsq  1.00
+TEST 14 n 500 sin.3x1.times.x2             nk 21  degree 2   nterms 7   grsq  1.00 test.rsq  1.00
+
+TEST 15 n 500 pure.noise                   nk 5   degree 1   nterms 1   grsq  0.00 test.rsq -0.00
+TEST 16 n 500 pure.noise                   nk 5   degree 2   nterms 1   grsq  0.00 test.rsq -0.00
+TEST 17 n 500 pure.noise                   nk 51  degree 1   nterms 1   grsq  0.00 test.rsq -0.00
+TEST 18 n 500 pure.noise                   nk 51  degree 2   nterms 1   grsq  0.00 test.rsq -0.00
+TEST 19 n 500 pure.noise                   nk 5   degree 1   nterms 1   grsq  0.00 test.rsq -0.00
+TEST 20 n 500 pure.noise                   nk 5   degree 2   nterms 2   grsq  0.00 test.rsq -0.01
+TEST 21 n 500 pure.noise                   nk 51  degree 1   nterms 4   grsq  0.01 test.rsq -0.04
+TEST 22 n 500 pure.noise                   nk 51  degree 2   nterms 2   grsq  0.00 test.rsq -0.01
+
+TEST 23 n 500 five.predictors              nk 21  degree 1   nterms 12  grsq  0.87 test.rsq  0.89
+TEST 24 n 500 five.predictors              nk 21  degree 2   nterms 17  grsq  0.96 test.rsq  0.97
+TEST 25 n 500 five.predictors              nk 21  degree 10  nterms 17  grsq  0.96 test.rsq  0.97
+TEST 26 n 500 five.predictors              nk 51  degree 1   nterms 13  grsq  0.88 test.rsq  0.88
+TEST 27 n 500 five.predictors              nk 51  degree 2   nterms 25  grsq  0.99 test.rsq  0.99
+TEST 28 n 500 five.predictors              nk 51  degree 3   nterms 25  grsq  0.99 test.rsq  0.99
+
+TEST 29 n 500 eqn56                        nk 21  degree 1   nterms 14  grsq  1.00 test.rsq  1.00
+TEST 30 n 500 eqn56                        nk 21  degree 2   nterms 14  grsq  1.00 test.rsq  1.00
+TEST 31 n 500 eqn56                        nk 21  degree 3   nterms 14  grsq  1.00 test.rsq  1.00
+TEST 32 n 500 eqn56                        nk 51  degree 1   nterms 14  grsq  1.00 test.rsq  1.00
+TEST 33 n 500 eqn56                        nk 51  degree 2   nterms 14  grsq  1.00 test.rsq  1.00
+TEST 34 n 500 eqn56                        nk 51  degree 3   nterms 14  grsq  1.00 test.rsq  1.00
+
+TEST 35 n 500 eqn56.noise                  nk 21  degree 1   nterms 11  grsq  0.88 test.rsq  0.89
+TEST 36 n 500 eqn56.noise                  nk 21  degree 2   nterms 11  grsq  0.89 test.rsq  0.88
+TEST 37 n 500 eqn56.noise                  nk 21  degree 3   nterms 11  grsq  0.87 test.rsq  0.89
+TEST 38 n 500 eqn56.noise                  nk 51  degree 1   nterms 12  grsq  0.90 test.rsq  0.90
+TEST 39 n 500 eqn56.noise                  nk 51  degree 2   nterms 12  grsq  0.90 test.rsq  0.89
+TEST 40 n 500 eqn56.noise                  nk 51  degree 3   nterms 20  grsq  0.89 test.rsq  0.87
+
+TEST 41 n 500 eqn56.noise.plus.extra.preds nk 21  degree 1   nterms 14  grsq  0.88 test.rsq  0.89
+TEST 42 n 500 eqn56.noise.plus.extra.preds nk 21  degree 2   nterms 12  grsq  0.89 test.rsq  0.89
+TEST 43 n 500 eqn56.noise.plus.extra.preds nk 21  degree 3   nterms 14  grsq  0.89 test.rsq  0.88
+TEST 44 n 500 eqn56.noise.plus.extra.preds nk 51  degree 1   nterms 11  grsq  0.88 test.rsq  0.89
+TEST 45 n 500 eqn56.noise.plus.extra.preds nk 51  degree 2   nterms 27  grsq  0.89 test.rsq  0.85
+TEST 46 n 500 eqn56.noise.plus.extra.preds nk 51  degree 3   nterms 22  grsq  0.89 test.rsq  0.85
+
+TEST 47 n 500 eqn56                        nk 21  degree 2   nterms 8   grsq  0.92 test.rsq  0.93
+TEST 48 n 500 eqn56                        nk 21  degree 2   nterms 12  grsq  1.00 test.rsq  1.00
+TEST 49 n 500 neg.eqn56                    nk 21  degree 2   nterms 12  grsq  1.00 test.rsq  1.00
+
+TEST 50 n 500 robot.arm                    nk 51  degree 3   nterms 40  grsq  0.95 test.rsq  0.94
+TEST 51 n 500 robot.arm                    nk 201 degree 3   nterms 44  grsq  0.96 test.rsq  0.94
+TEST 52 n 500 robot.arm                    nk 201 degree 5   nterms 46  grsq  0.96 test.rsq  0.91
+> printf("[total time %.3f]\n", (proc.time() - start.time)[3])
+[total time 6.830]
+> if(PLOT)
++     dev.off()
+> if(!interactive())
++     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

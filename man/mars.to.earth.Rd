@@ -27,6 +27,8 @@ mars.to.earth(object, trace=TRUE)
   have an effect.
 }
 \note{
+\bold{Differences between mars and earth objects}
+
   Perhaps the most notable difference between
   \code{mars} and \code{earth} objects is that \code{mars} returns the
   MARS basis matrix in a field called "\code{x}"
@@ -41,7 +43,7 @@ mars.to.earth(object, trace=TRUE)
 
 \bold{Weights}
 
-  Note that the \code{w} argument is is actually ignored by \code{mars}.
+  The \code{w} argument is silently ignored by \code{mars}.
   % The equivalent \code{earth} argument \code{weights} is also not yet supported,
   % and you will get a warning.
 
@@ -63,22 +65,9 @@ mars.to.earth(object, trace=TRUE)
 if(require(mda)) {
     mars.mod <- mars(trees[,-3], trees[,3])
     earth.mod <- mars.to.earth(mars.mod)
-    summary(earth.mod, digits = 2) # the standard earth functions can now be used
-
-    # yields (note the reconstructed call):
-    #    Call: earth(x=trees[, -3], y=trees[, 3])
-    #
-    #                  coefficients
-    #    (Intercept)           26.3
-    #    h(13.8-Girth)         -3.2
-    #    h(Girth-13.8)          6.1
-    #    h(11.4-Girth)          0.5
-    #
-    #    Selected 4 of 8 terms, and 2 of 2 predictors
-    #    Termination condition: Unknown
-    #    Importance: object has no prune.terms, call update() on the model to fix that
-    #    Number of terms at each degree of interaction: 1 3 (additive model)
-    #    GCV 10    RSS 190    GRSq 0.96    RSq 0.98
+    # the standard earth functions can now be used
+    # note the reconstructed call in the summary
+    summary(earth.mod, digits = 2)
 }
 }
 \keyword{models}

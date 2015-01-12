@@ -37,8 +37,8 @@ This is usually much faster for large models.
      trace
      nprune
      pmethod
-     Get.crit
      Eval.model.subsets
+     Adjust.endspan
      Print.pruning.pass
      Force.xtx.prune
      Use.beta.cache
@@ -46,8 +46,6 @@ This is usually much faster for large models.
 This automatic determination to do a forward pass can be overridden
 with the \code{ponly} argument.
 If \code{ponly=TRUE} the forward pass will be skipped and only the pruning pass will be executed.
-\cr
-\cr
 This is useful for doing a pruning pass with new data.
 (Use earth's \code{data} argument to specify the new data.)
 Typically in this scenario you would also specify \code{penalty=-1}.
@@ -66,6 +64,8 @@ See also the description of \code{penalty} on the
 Another (somewhat esoteric) use of \code{ponly=TRUE} is to do subset
 selection with a different \code{penalty} from that used to build the
 original model.
+\cr
+\cr
 With \code{trace=1}, \code{update.earth} will tell you if earth's
 forward pass was skipped.
 \cr
@@ -74,7 +74,7 @@ If you used \code{keepxy=TRUE} in your original call to \code{earth}, then
 \code{update.earth} will use the saved values of \code{x}, \code{y}, etc.,
 unless you specify otherwise by arguments to \code{update.earth}.
 It can be helpful to set \code{trace=1} to see which \code{x} and \code{y}
-\code{update.earth} is using.
+is used by \code{update.earth}.
 }
 \value{
    The value is the same as that returned by \code{\link{earth}}.

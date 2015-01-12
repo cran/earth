@@ -10,7 +10,7 @@ when that function's \code{interval} argument is used.
 \method{predict}{varmod}(
     object  = stop("no 'object' arg"),
     newdata = NULL,
-    type    = c("pint", "training.pint", "training.cint", "se", "abs.residual"),
+    type    = c("pint", "cint", "se", "abs.residual"),
     level   = .95,
     trace   = FALSE,
     \dots)
@@ -27,24 +27,21 @@ when that function's \code{interval} argument is used.
     Type of prediction. This is the \code{interval} argument of
 \code{\link{predict.earth}}. One of
 \cr\cr
-\code{"pint"} Prediction intervals on newdata.
+\code{"pint"} Prediction intervals.
 \cr\cr
-\code{"training.pint"} Prediction intervals on the training data.
-Cannot be used with \code{newdata}.
-\cr\cr
-\code{"training.cint"} Confidence intervals on the training data.
+\code{"cint"} Confidence intervals.
 Cannot be used with \code{newdata}.
 \cr\cr
 \code{"se"} Standard error of the parent model residuals.
 \cr\cr
-\code{"abs.residual"} The absolute residuals on which the residual model regresses.
+\code{"abs.residual"} The absolute residuals of the parent model
+on which the residual model regresses.
 \cr\cr
   }
   \item{level}{
     Confidence level for the \code{interval} argument.
     Default is \code{.95}, meaning construct 95\% confidence bands
-    (that is, assume the residual variance is symmetrical and
-    calculate 2.5\% and 97.5\% levels).
+    (estimate the 2.5\% and 97.5\% levels).
   }
   \item{trace}{
      Currently unused.

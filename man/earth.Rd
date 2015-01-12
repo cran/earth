@@ -21,7 +21,7 @@ See the package vignette
    na.action = na.fail, keepxy = FALSE, trace = 0, glm = NULL,
    ncross=1, nfold=0, stratify=TRUE,
    varmod.method = "none", varmod.exponent = 1,
-   varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -5,
+   varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
    Scale.y = (NCOL(y)==1), \dots)
 
 \method{earth}{default}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
@@ -29,7 +29,7 @@ See the package vignette
     na.action = na.fail, keepxy = FALSE, trace = 0, glm = NULL,
     ncross=1, nfold=0, stratify=TRUE,
     varmod.method = "none", varmod.exponent = 1,
-    varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -5,
+    varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
     Scale.y = (NCOL(y)==1), \dots)
 
 \method{earth}{fit}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
@@ -41,8 +41,8 @@ See the package vignette
     newvar.penalty = 0, fast.k = 20, fast.beta = 1,
     linpreds = FALSE, allowed = NULL,
     pmethod = c("backward", "none", "exhaustive", "forward", "seqrep"),
-    nprune = NULL,
-    Object = NULL, Get.crit = get.gcv, Eval.model.subsets = eval.model.subsets,
+    nprune = NULL, Object = NULL,
+    Eval.model.subsets = eval.model.subsets, Adjust.endspan = 2,
     Scale.y = (NCOL(y)==1), Force.xtx.prune = FALSE, Force.weights = FALSE,
     Use.beta.cache = TRUE, Exhaustive.tol = 1e-10, \dots)
 }
@@ -54,13 +54,13 @@ To start off, look at the arguments
 \code{y},
 \code{nk},
 \code{degree}, and
-\code{trace}.\cr
+\code{trace}.
+\cr
 Most users will find that those arguments are all they need,
 plus in some cases
-\code{keepxy},
-\code{nprune},
-\code{penalty}, and
-\code{minspan}.\cr
+\code{keepxy} and
+\code{nprune}.
+\cr
 For Generalized Linear Models, use the \code{glm} argument
 (useful for example when the response is binary).\cr
 For cross validation, use the \code{nfold} argument.\cr
@@ -85,13 +85,11 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 }
 \item{weights}{
      Default is NULL, meaning no case weights.\cr
+     If specified, \code{weights} must have length equal to \code{nrow(x)}
+     before applying \code{subset}.\cr
      The current implementation of weights is provisional and not fully tested.
      Thus if weights are used a warning will be issued.
-     Supress just this warning with \code{trace=-1}.
-     The current implemenation of weights is slow.\cr
-     If specified, \code{weights} must have length equal to \code{nrow(x)}
-     before applying \code{subset}.
-     Zero values are converted to a very small nonzero value.\cr
+     Supress just this warning with \code{trace=-1} or \code{Force.weights=TRUE}.
 }
 \item{wp}{
      Response weights.
@@ -112,26 +110,28 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      NA action. Default is \code{na.fail}, and only \code{na.fail} is supported.
 }
 \item{keepxy}{
+     Default is \code{FALSE}.
      Set to \code{TRUE} to retain the following in the returned value: \code{x} and \code{y} (or \code{data}),
      \code{subset}, and \code{weights}.
-     Default is \code{FALSE}.
      The function \code{\link{update.earth}} and friends will use these
      if present instead of searching for them
-     in the environment at the time \code{\link{update.earth}} is invoked.
-     This argument also affects the amount of data kept when
-     the \code{nfold} argument is used
-     (see \code{cv.list} in the \dQuote{\emph{Value}} section below).\cr
+     in the environment at the time \code{\link{update.earth}} is invoked.\cr
+     When the \code{nfold} argument is used with
+     \code{keepxy=TRUE}, \code{earth} keeps more data
+     (see \code{cv.list} in the \dQuote{\emph{Value}} section below),
+     and generates \code{cv.oof.rsq.tab} and \code{cv.infold.rsq.tab}.
+     It therefore makes cross-validation significantly slower.
 }
 \item{trace}{
-     Trace \code{earth}'s execution.  Default is 0.  Values:\cr
-        0 no tracing\cr
-        0.3 variance model (the \code{varmod.method} arg)\cr
-        0.5 cross validation (the \code{nfold} arg)\cr
-        1 overview\cr
-        2 forward pass\cr
-        3 pruning\cr
-        4 model mats, pruning details\cr
-        5 internal details of operation\cr
+     Trace \code{earth}'s execution.  Default is \code{0}.  Values:\cr
+        \code{0} no tracing\cr
+        \code{0.3} variance model (the \code{varmod.method} arg)\cr
+        \code{0.5} cross validation (the \code{nfold} arg)\cr
+        \code{1} overview\cr
+        \code{2} forward pass\cr
+        \code{3} pruning\cr
+        \code{4} model mats, pruning details\cr
+        \code{5} internal details of operation\cr
 }
 \item{glm}{
      NULL (default) or a list of arguments to pass on to \code{\link{glm}}.
@@ -144,15 +144,15 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 }
 \item{degree}{
      Maximum degree of interaction (Friedman's \eqn{mi}).
-     Default is 1, meaning build an additive model (i.e., no interaction terms).
+     Default is \code{1}, meaning build an additive model (i.e., no interaction terms).
 }
 \item{penalty}{
     Generalized Cross Validation (GCV) penalty per knot.
     Default is \code{if(degree>1) 3 else 2}.
-    A value of 0 penalizes only terms, not knots.
-    The value -1 is treated specially to mean no penalty, so GCV=RSS/n.
-    Simulation studies have suggested values in the range of about 2 to 4.
-    In practice, for big datasets larger values can be useful to force a smaller model.
+    A value of \code{0} penalizes only terms, not knots.
+    The value \code{-1} is treated specially to mean no penalty, so GCV=RSS/n.
+    Simulation studies have suggested values in the range of about \code{2}
+    to \code{4}.
     The FAQ section in the package vignette has some information on GCVs.
 }
 \item{nk}{
@@ -161,14 +161,14 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      Includes the intercept.\cr
      The actual number of terms created by the forward pass will often be
      less than \code{nk} because of other stopping conditions.
-     See \dQuote{Termination conditions for the forward pass}
+     See \dQuote{\emph{Termination conditions for the forward pass}}
      in the package vignette.\cr
      The default is semi-automatically calculated from the number of predictors
      but may need adjusting.
 }
 \item{thresh}{
      Forward stepping threshold.
-     Default is 0.001.
+     Default is \code{0.001}.
      This is one of the arguments used to decide when forward stepping
      should terminate:
      the forward pass terminates if adding a term changes RSq by less than \code{thresh}.
@@ -183,7 +183,8 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
     Set \code{trace>=2} to see the calculated value.\cr
     Use \code{minspan=1} and \code{endspan=1} to consider all x values.\cr
     Negative values of \code{minspan} specify the maximum number of knots
-    per predictor (these will be equally spaced).
+    per predictor.  These will be equally spaced.  Knots that fall in
+    the endzones specified by \code{endspan} will be ignored as usual.
 }
 \item{endspan}{
     Minimum number of observations before the first and after the final knot.\cr
@@ -191,12 +192,13 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
     means calculate the \code{minspan} internally as per
     the MARS paper equation 45 with \eqn{alpha} = 0.05.
     Set \code{trace>=2} to see the calculated value.
+    See also the \code{Adjust.endspan} argument.
 }
 \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
      (Friedman's \eqn{gamma}, equation 74 in the MARS paper).
-     Default is 0, meaning no penalty for adding a new variable.
-     Useful non-zero values typically range from about 0.01 to 0.2
+     Default is \code{0}, meaning no penalty for adding a new variable.
+     Useful non-zero values typically range from about \code{0.01} to \code{0.2}
      and sometimes higher ---
      you will need to experiment.\cr
      A word of explanation.  With the default \code{newvar.penalty=0},
@@ -214,30 +216,35 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 \item{fast.k}{
      Maximum number of parent terms considered at each step of the forward pass.
      (This speeds up the forward pass. See the Fast MARS paper section 3.0.)\cr
-     Default is 20.
-     A value of 0 is treated specially
+     Default is \code{20}.
+     A value of \code{0} is treated specially
      (as being equivalent to infinity), meaning no Fast MARS.
-     Typical values, apart from 0, are 20, 10, or 5.\cr
-     In general, with a lower \code{fast.k} (say 5), \code{earth} is faster;
-     with a higher \code{fast.k}, or with \code{fast.k} disabled (set to 0),
+     Typical values, apart from \code{0}, are \code{20}, \code{10}, or \code{5}.\cr
+     In general, with a lower \code{fast.k} (say \code{5}), \code{earth} is faster;
+     with a higher \code{fast.k}, or with \code{fast.k} disabled (set to \code{0}),
      \code{earth} builds a better model.
      However, because of random variation this general rule often doesn't apply.
 }
 \item{fast.beta}{
-     Fast MARS aging coefficient, as described in the
+     Fast MARS ageing coefficient, as described in the
      Fast MARS paper section 3.1.
-     Default is 1.
-     A value of 0 sometimes gives better results.
+     Default is \code{1}.
+     A value of \code{0} sometimes gives better results.
 }
 \item{linpreds}{
      Index vector specifying which predictors should enter linearly, as in \code{\link{lm}}.
      The default is \code{FALSE}, meaning all predictors enter
-     in the standard MARS fashion, i.e., in hinge functions.\cr
+     in the standard MARS fashion, i.e., in hinge functions.
+\cr
      This does not say that a predictor \emph{must} enter the model;
      only that if it enters, it enters linearly.
-     See \dQuote{\emph{The \code{linpreds} argument}} in the package vignette.\cr
+     See \dQuote{\emph{The \code{linpreds} argument}} in the package vignette.
+\cr
      A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
-     (after factors have been expanded).\cr
+     (after factors have been expanded).
+\cr
+     \code{linpreds=TRUE} makes all predictors enter linearly (the \code{TRUE} gets recycled).
+\cr
      \code{linpreds} may also be a character vector e.g.
      \code{linpreds=c("wind", "vis")}.  Note: \code{\link{grep}} is used
      for matching. Thus \code{"wind"} will match all variables that have
@@ -258,10 +265,10 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      Pruning method.
      One of: \code{backward none exhaustive forward seqrep}.\cr
      Default is \code{"backward"}.\cr
-     Use \code{none} to retain all the terms created by the forward pass.\cr
-     If \code{y} has multiple columns, then only \code{backward} or \code{none}
+     Use \code{"none"} to retain all the terms created by the forward pass.\cr
+     If \code{y} has multiple columns, then only \code{"backward"} or \code{"none"}
      is allowed.\cr
-     Pruning can take a while if \code{exhaustive} is chosen and
+     Pruning can take a while if \code{"exhaustive"} is chosen and
      the model is big (more than about 30 terms).
      The current version of the \code{\link[leaps]{leaps}} package
      used during pruning does not allow user interrupts
@@ -280,12 +287,12 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 \item{ncross}{
     Only applies if \code{nfold>1}.
     Number of cross-validations.  Each cross-validation has \code{nfold} folds.
-    Default 1.
+    Default \code{1}.
 }
 \item{nfold}{
      Number of cross-validation folds.
-     Default is 0, no cross validation.
-     If greater than 1, \code{earth} first builds a standard model as usual with all the data.
+     Default is \code{0}, no cross validation.
+     If greater than \code{1}, \code{earth} first builds a standard model as usual with all the data.
      It then builds \code{nfold} cross-validated models,
      measuring R-Squared on the out-of-fold (left out) data each time.
      The final cross validation R-Squared (\code{CVRSq}) is the mean of these
@@ -305,7 +312,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      occur in each cross validation subset.
      So if the response \code{y} is logical, the \code{TRUE}s will be spread
      evenly across folds.
-     And if the response is a factor, there will be an
+     And if the response is a multilevel factor, there will be an
      approximately equal number of each factor level in each fold
      (because a multilevel factor response gets expanded to columns of zeros and ones,
      see \dQuote{\emph{Factors}} in  the package vignette).
@@ -317,33 +324,30 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 }
 \item{varmod.method}{
 Construct a variance model.
-For more details, see \code{\link{varmod}} and the vignette
+For details, see \code{\link{varmod}} and the vignette
 \dQuote{\href{../doc/earth-varmod.pdf}{Variance models in earth}}.
 Use \code{trace=.3} to trace construction of the variance model.
 \cr
 This argument requires \code{nfold} and \code{ncross}. (We suggest at least \code{ncross=30}
-here to properly calculate the variance of the residuals --- although
+here to properly calculate the variance of the errors --- although
 you can use a smaller value, say \code{3}, for debugging.)\cr
 The \code{varmod.method} argument should be one of\cr
-\code{"none"} Default.  Don't build a variance model.
+\bold{\code{"none"}} Default.  Don't build a variance model.
 \cr
-\code{"const"} Assume homoscedastic residuals.
+\bold{\code{"const"}} Assume homoscedastic errors.
 \cr
-\code{"lm"} Use \code{\link{lm}} to estimate residual standard deviation as a
+\bold{\code{"lm"}} Use \code{\link{lm}} to estimate standard deviation as a
 function of the predicted response.
 \cr
-\code{"rlm"} Use \code{\link{rlm}} in the MASS package to estimate
-residual standard deviation as a function of the predicted response.
+\bold{\code{"rlm"}} Use \code{\link{rlm}}.
 \cr
-\code{"earth"} Use \code{\link{earth}}
-to estimate residual standard deviation as a function of the predicted response.
+\bold{\code{"earth"}} Use \code{\link{earth}}.
 \cr
-\code{"gam"} Use \code{gam} to estimate residual standard deviation as a
-function of the predicted response.  This will use the
-\code{\link[gam]{gam}} package unless the the \code{mgcv} package is
-already loaded.
+\bold{\code{"gam"}} Use \code{gam}.
+This will use either \code{\link[gam]{gam}}
+or the \code{mgcv} package, whichever is loaded.
 \cr
-\code{"power"} Estimate residual standard deviation as
+\bold{\code{"power"}} Estimate standard deviation as
 \code{intercept + coef * predicted.response^exponent},
 where
 \code{intercept}, \code{coef}, and \code{exponent} will be estimated by \code{\link{nls}}.
@@ -351,29 +355,29 @@ This is equivalent to \code{varmod.method="lm"} except that \code{exponent} is
 automatically estimated instead of being held at the value
 set by the \code{varmod.exponent} argument.
 \cr
-\code{"power0"} Same as \code{"power"} but no intercept (offset) term.
+\bold{\code{"power0"}} Same as \code{"power"} but no intercept (offset) term.
 \cr
-\code{"x.lm"},
-\code{"x.rlm"},
-\code{"x.earth"},
-\code{"x.gam"}
-As the similarly named options above,
-but estimate residual standard deviation by regressing on \code{x}
+\bold{\code{"x.lm"}},
+\bold{\code{"x.rlm"}},
+\bold{\code{"x.earth"}},
+\bold{\code{"x.gam"}}
+Like the similarly named options above,
+but estimate standard deviation by regressing on the predictors \code{x}
 (instead of the predicted response).
 A current implementation restriction is that \code{"x.gam"}
-requires a univariate model (\code{x} must have only one column).
+allows only models with one predictor (\code{x} must have only one column).
 }
 \item{varmod.exponent}{
 Power transform applied to the rhs before regressing the
 absolute residuals with the specified \code{varmod.method}.
-Default is 1.\cr
-For example, with \code{varmod.method="lm"},
-if you expect the standard
-deviance of the residuals to increase linearly with the mean response,
-use \code{varmod.exponent=1}.  If you expect the standard deviance to
-increase with the square root of the mean response, use
+Default is \code{1}.\cr
+For example, with \code{varmod.method="lm"}, if you expect the
+standard deviance to increase linearly with the mean response, use
+\code{varmod.exponent=1}.
+If you expect the standard deviance to increase with the square root
+of the mean response, use
 \code{varmod.exponent=.5}
-(where negative response values will be treated as 0,
+(where negative response values will be treated as \code{0},
 and you will get an error message if more than 20\% of them are negative).
 }
 %\item{varmod.lambda}{
@@ -387,7 +391,7 @@ when creating the variance model.\cr
 Iterations stop when the mean value of the coefficients of the
 residual model change by less than \code{varmod.conv}
 percent.
-Default is 1 percent.\cr
+Default is \code{1} percent.\cr
 Negative values force the specified number of iterations,
 e.g. \code{varmod.conv=-2} means iterate twice.\cr
 Positive values are ignored for \code{varmod="const"}
@@ -395,37 +399,41 @@ and also currently ignored for \code{varmod="earth"}
 (these are iterated just once, the same as using \code{varmod.conv=-1}).
 }
 \item{varmod.clamp}{
-The standard deviation of the main model residuals estimated by the
-variance model is forced to always be at least a small positive value,
+The estimated standard deviation of the main model errors
+is forced to be at least a small positive value,
 which we call \code{min.sd}.
 This prevents negative or absurdly small estimated standard deviations.
 Clamping takes place in \code{predict.varmod}, which is called
 by \code{predict.earth} when estimating prediction intervals.
 The value of \code{min.sd} is determined when building the variance
 model as \code{min.sd = varmod.clamp * mean(sd(training.residuals))}.
-The default \code{varmod.clamp} is \code{.1}.
+The default \code{varmod.clamp} is \code{0.1}.
 }
 \item{varmod.minspan}{
 Only applies when \code{varmod.method="earth"} or \code{"x.earth"}.
 This is the \code{minspan} used in the internal call to \code{earth}
 when creating the variance model (not the main \code{earth} model).\cr
-Default is -5, i.e., five evenly spaced knots per predictor.
-Residuals tend to be very noisy, and evaluating only this small
-number of knots help prevent overfitting which would create a variance
-model with too many kinks.
+Default is \code{-3}, i.e., three evenly spaced knots per predictor.
+Residuals tend to be very noisy, and allowing only this small
+number of knots helps prevent overfitting.
 \cr\cr
     \bold{The following arguments are for internal or advanced use.}
 }
 \item{Object}{
 Earth object to be updated, for use by \code{\link{update.earth}}.
 }
-\item{Get.crit}{
-Criterion function for model selection during pruning.
-By default a function that returns the GCV.
-See \dQuote{\emph{The pruning pass}} in the package vignette.
-}
 \item{Eval.model.subsets}{
 Function to evaluate model subsets --- see notes in source code.
+}
+\item{Adjust.endspan}{
+\bold{New in version 4.2.0.}
+In interaction terms, \code{endspan} gets multiplied by this value.
+This reduces the possibility of an overfitted interaction term
+supported by just a few cases on the boundary of the predictor space
+(as verified in our simulation studies).\cr
+The default is \code{2}.
+Use \code{Adjust.endspan=1} for compatibility with previous
+version of \code{earth}.
 }
 \item{Scale.y}{
 \code{\link[=scale]{Scale}} \code{y} in the forward pass for better numeric stability.
@@ -451,6 +459,9 @@ Default is \code{FALSE}.
 For testing the \code{weights} argument.
 Force use of the code for handling weights in the \code{earth} code,
 even if \code{weights=NULL} or all the weights are the same.
+This will not necessarily generate an identical model,
+primarily because the non-weighted code requires some tests for
+numerical stability that can sometimes affect knot selection.
 }
 \item{Use.beta.cache}{
 Default is \code{TRUE}.
@@ -482,17 +493,18 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the package vignette.
   (each line of the output from \code{\link{format.earth}} is a term).
   Term number 1 is always the intercept.
 \item{\code{rss}}{
-     Residual sum-of-squares (RSS) of the model (summed over all responses
+     Residual sum-of-squares (RSS) of the model (summed over all responses,
      if \code{y} has multiple columns).
 }
 \item{\code{rsq}}{
     \code{1-rss/tss}.
-     R-Squared of the model (calculated over all responses).
+     R-Squared of the model (calculated over all responses,
+     and calculated using the \code{weights} argument if it was supplied).
      A measure of how well the model fits the training data.
      Note that \code{tss} is the total sum-of-squares, \code{sum((y - mean(y))^2)}.
 }
 \item{\code{gcv}}{
-     Generalized Cross Validation (GCV) of the model (summed over all responses)
+     Generalized Cross Validation (GCV) of the model (summed over all responses).
      The GCV is calculated using the \code{penalty} argument.
      For details of the GCV calculation, see
      equation 30 in Friedman's MARS paper and \code{earth:::get.gcv}.
@@ -500,7 +512,8 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the package vignette.
 \item{\code{grsq}}{
      \code{1-gcv/gcv.null}.
      An estimate of the predictive power of the model (calculated over all responses,
-     \code{gcv.null} is the GCV of an intercept-only model).
+and calculated using the \code{weights} argument if it was supplied).
+     \code{gcv.null} is the GCV of an intercept-only model.
      See \dQuote{\emph{Can \code{GRSq} be negative?}} in the package vignette.
 }
 \item{\code{bx}}{
@@ -583,7 +596,8 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
     The \code{rss} component above is  equal to \code{sum(rss.per.response)}.
 }
 \item{\code{rsq.per.response}}{
-    A vector of the R-Squared for each response.
+    A vector of the R-Squared for each response
+(where R-Squared is calculated using the \code{weights} argument if it was supplied).
     Length is the number of responses.
 }
 \item{\code{gcv.per.response}}{
@@ -592,11 +606,12 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
     The \code{gcv} component above is equal to \code{sum(gcv.per.response)}.
 }
 \item{\code{grsq.per.response}}{
-    A vector of the GRSq for each response.
+    A vector of the GRSq for each response
+(calculated using the \code{weights} argument if it was supplied).
     Length is the number of responses.
 }
 \item{\code{rss.per.subset}}{
-     A vector of the RSS (measured on the training data)
+     A vector of the RSS
      for each model subset generated by the pruning pass.
      Length is \code{nprune}.
      For multiple responses, the RSS is summed over all responses for each subset.
@@ -621,13 +636,6 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
     A matrix with dimensions \code{nrow(y)} x \code{ncol(y)}
     after factors in \code{y} have been expanded.
 }
-% \item{\code{studentized.residuals}}{
-%   Studentized residuals.
-%   NULL unless \code{keepxy=TRUE}.
-%   These are the above \code{residuals} divided by \code{sqrt(1 - h_ii)},
-%   where \code{h_ii} are the diagonal entries of the hat matrix.
-%   The hat matrix here is from the linear fit on earth's basis matrix \code{bx}.
-% }
 \item{\code{coefficients}}{
     Regression coefficients.
     A matrix with dimensions \code{length(selected.terms)} x \code{ncol(y)}
@@ -635,6 +643,9 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
     Each column holds the least squares coefficients from regressing that
     column of \code{y} on \code{bx}.
     The first row holds the intercept coefficient(s).
+}
+\item{\code{leverages}}{
+    Diagonal of the hat matrix (from the linear regression of the response on \code{bx}).
 }
 \item{\code{penalty,nk,thresh}}{
      Copies of corresponding arguments to \code{earth}.
@@ -667,12 +678,13 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
   \cr\cr
   \bold{The following fields appear only if \code{earth}'s argument \code{keepxy} is \code{TRUE}.}
 }
-\item{\code{x}}{}
-\item{\code{y}}{}
-\item{\code{data}}{}
-\item{\code{subset}}{}{
-     Copies of the corresponding arguments to \code{earth}.
-     Only exist if \code{keepxy=TRUE}.
+% \item{\code{x}}{}
+% \item{\code{y}}{}
+% \item{\code{data}}{}
+% \item{\code{subset}}{}{
+\item{\code{x},\code{y},\code{data},\code{subset}}{
+Copies of the corresponding arguments to \code{earth}.
+Only exist if \code{keepxy=TRUE}.
   \cr\cr
   \bold{The following fields appear only if \code{earth}'s \code{glm} argument is used.}
 }
@@ -702,13 +714,13 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
    \bold{The following fields appear only if the \code{nfold} argument is greater than 1.}
 }
 \item{\code{cv.list}}{
-      List of \code{earth} models, one model for each fold (\code{ncross * nfold} models).
+      List of \code{earth} models, one model for each fold (\code{ncross * nfold} models).\cr
+      The fold models have two extra fields,
+      \code{icross} (an integer from \code{1} to \code{ncross})
+      and \code{ifold} (an integer from \code{1} to \code{nfold}).\cr
       To save memory, lengthy fields
       in the fold models are removed unless you use \code{keepxy=TRUE}.
       The \dQuote{lengthy fields} are \code{$bx}, \code{$fitted.values}, and \code{$residuals}.
-      The fold models have two extra fields,
-      \code{icross} (the cross-validation index, \code{1:ncross})
-      and \code{ifold} (the fold index, \code{1:nfold}).
 }
 \item{\code{cv.nterms}}{
       Vector of length \code{ncross * nfold + 1}.
@@ -734,42 +746,45 @@ h(Girth-12.9)*h(Height-76)  12.9  76  #4th term has two cuts
       the out-of-fold data for each response of the model generated at that row's fold.
       (A \code{cv.rsq} is calculated from predictions on the out-of-fold data
       using the best model built from the in-fold data;
-      where \dQuote{best} means the model was selected using the in-fold GCV.)
-      The final column holds the row mean (a weighted mean if \code{wp} if specified).
+      where \dQuote{best} means the model was selected using the in-fold GCV.
+      The R-Squareds are calculated using the \code{weights} argument if it was supplied.
+      The final column holds the row mean (a weighted mean if \code{wp} if specified)).
       The final row holds the column means.
       The values in this final row is the mean \code{cv.rsq}
       printed by \code{\link{summary.earth}}.
 \cr\cr
       Example for a single response model (where the \code{mean} column
 is redundant but included for uniformity with multiple response models):
-\preformatted{            y  mean
+\preformatted{           y  mean
 fold1  0.909 0.909
 fold2  0.869 0.869
 fold3  0.952 0.952
 fold4  0.157 0.157
 fold5  0.961 0.961
-mean    0.769 0.769
+mean   0.769 0.769
 }
       Example for a multiple response model:
-\preformatted{          y1   y2    y3  mean
+\preformatted{         y1   y2    y3   mean
 fold1 0.915 0.951 0.944 0.937
 fold2 0.962 0.970 0.970 0.968
 fold3 0.914 0.940 0.942 0.932
 fold4 0.907 0.929 0.925 0.920
 fold5 0.947 0.987 0.979 0.971
-mean   0.929 0.955 0.952 0.946
+mean  0.929 0.955 0.952 0.946
 
 }
 }
 \item{\code{cv.oof.rsq.tab}}{
-     Matrix with \code{ncross * nfold + 1} rows and \code{max.nterms} columns,
-     Only calculated and kept if \code{keepxy=TRUE}.
+     Generated only if \code{keepxy=TRUE}.
+     A matrix with \code{ncross * nfold + 1} rows and \code{max.nterms} columns,
      Each element holds an out-of-fold RSq (\code{oof.rsq}),
      calculated from predictions from the out-of-fold observations using
      the model built with the in-fold data.  The final row is the mean over
      all folds.
+     The R-Squareds are calculated using the \code{weights} argument if it was supplied.
 }
 \item{\code{cv.infold.rsq.tab}}{
+     Generated only if \code{keepxy=TRUE}.
      Like \code{cv.oof.rsq.tab} but from predictions made on the in-fold observations.
 }
 \item{\code{cv.class.rate.tab}}{
@@ -783,6 +798,7 @@ mean   0.929 0.955 0.952 0.946
       versus not-the-level), which are usually higher than the overall
       classification rate (predicting the level versus not-the-level is
       easier than correctly predicting one of many levels).
+      The \code{weights} argument is ignored for all cross-validation stats except R-Squareds.
 }
 \item{\code{cv.maxerr.tab}}{
       Like \code{cv.rsq.tab} but is the \code{MaxErr} at each fold.
@@ -818,8 +834,8 @@ mean   0.929 0.955 0.952 0.946
       Only appears if the \code{varmod.method} argument is used.
       Predicted values on the out-of-fold data.
       Dataframe with \code{nrow(data)} rows and \code{ncross} columns.
-   \cr\cr
-   \bold{The following field appears only if the \code{varmod.methis} is specified.}
+\cr\cr
+   \bold{The following field appears only if the \code{varmod.method} is specified.}
 }
 \item{\code{varmod}}{
       An object of class \code{"varmod"}.

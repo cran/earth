@@ -45,8 +45,8 @@
 # NOTE: if you change the pruning formal arguments in earth.fit(), update this too!
 
 prune.only.args <- c("glm", "trace", "nprune", "pmethod",
-                     "Get.crit", "Eval.model.subsets",
-                     "Force.xtx.prune")
+                     "Eval.model.subsets", "Adjust.endspan",
+                     "Force.xtx.prune", "Use.beta.cache")
 
 # returns the number of arguments to the user's "allowed" function
 
@@ -75,14 +75,14 @@ check.allowed.arg <- function(allowed) # check earth's "allowed" argument
     }
     len
 }
-check.weights <- function(w, wname, expected.len) # invoked for both "wp" and "weights"
+check.weights <- function(w, wname, expected.len) # invoked for both wp and weights
 {
     check.vec(w, wname, expected.len)
     check(w, wname, "negative value", function(x) { x < 0})
     meanw <- mean(w)
     if(meanw < 1e-8)
         stop0("mean of \"", wname, "\" is 0")
-    # TODO finagle zero weights (but should really do what lm.wfit does and delete cols)
+    # TODO fix zero weights (but should maybe do what lm.wfit does and delete cols)
     almost.zero <- meanw / 1e8  # note that 1e8 becomes 1e4 after sqrt later
     w[w < almost.zero] <- almost.zero
     w
@@ -128,7 +128,7 @@ earth.default <- function(
     varmod.exponent = 1,            # power transform applied to fitted response
     varmod.conv     = 1,            # max mean percent coef change for IRLS iterations
     varmod.clamp    = .1,           # min.sd predicted by varmod is varmod.clamp * mean(sd)
-    varmod.minspan  = -5,           # minspan for varmod call to earth
+    varmod.minspan  = -3,           # minspan for varmod call to earth
     Scale.y         = (NCOL(y)==1), # TRUE to scale y in the forward pass
     ...)                            # passed on to earth.fit
 {
@@ -162,6 +162,10 @@ earth.default <- function(
     ylevels <- get.ylevels(y, glm)
     y <- expand.arg(y, env, is.y.arg=TRUE, deparse(substitute(y)))
     rownames(y) <- possibly.delete.rownames(y)
+
+    # we need the diag of the hat matrix if varmod.method != "none"
+    varmod.methods=c("none", VARMOD.METHODS)
+    varmod.method <- match.choices(varmod.method, varmod.methods)
 
     rval <- earth.fit(x=x, y=y, weights=weights, wp=wp, subset=subset,
                       na.action=na.action, keepxy=keepxy, trace=trace, glm=glm,
@@ -206,8 +210,8 @@ earth.default <- function(
          rval$cv.deviance.tab    <- cv$deviance.tab
          rval$cv.calib.int.tab   <- cv$calib.int.tab
          rval$cv.calib.slope.tab <- cv$calib.slope.tab
-         rval$cv.oof.fit.tab     <- cv$oof.fit.tab # null unless varmod specified
-         rval$varmod             <- cv$varmod      # null unless varmod specified
+         rval$cv.oof.fit.tab     <- cv$oof.fit.tab    # null unless varmod specified
+         rval$varmod             <- cv$varmod         # null unless varmod specified
     }
     rval
 }
@@ -228,7 +232,7 @@ earth.formula <- function(
     varmod.exponent = 1,
     varmod.conv     = 1,
     varmod.clamp    = .1,
-    varmod.minspan  = -5,
+    varmod.minspan  = -3,
     Scale.y         = (NCOL(y)==1),
     ...)
 {
@@ -296,6 +300,10 @@ earth.formula <- function(
     y <- expand.arg(y, env, is.y.arg=TRUE, xname=yname)
     rownames(y) <- possibly.delete.rownames(y)
 
+    # we need the diag of the hat matrix if varmod.method != "none"
+    varmod.methods=c("none", VARMOD.METHODS)
+    varmod.method <- match.choices(varmod.method, varmod.methods)
+
     rval <- earth.fit(x=x, y=y, weights=weights, wp=wp, subset=subset,
                       na.action=na.action, keepxy=keepxy, trace=trace, glm=glm,
                       Scale.y=Scale.y, ...)
@@ -340,8 +348,8 @@ earth.formula <- function(
          rval$cv.deviance.tab    <- cv$deviance.tab
          rval$cv.calib.int.tab   <- cv$calib.int.tab
          rval$cv.calib.slope.tab <- cv$calib.slope.tab
-         rval$cv.oof.fit.tab     <- cv$oof.fit.tab # null unless varmod specified
-         rval$varmod             <- cv$varmod      # null unless varmod specified
+         rval$cv.oof.fit.tab     <- cv$oof.fit.tab    # null unless varmod specified
+         rval$varmod             <- cv$varmod         # null unless varmod specified
     }
     rval
 }
@@ -400,8 +408,8 @@ earth.fit <- function(
     Object  = NULL,         # if null, recreate earth model from scratch with forward pass
                             # if not null: no forward pass, just pruning pass
 
-    Get.crit           = get.gcv,            # criterion func for model select during pruning
     Eval.model.subsets = eval.model.subsets, # function used to evaluate model subsets
+    Adjust.endspan     = 2, # in interaction terms, multiply endspan by this
     Scale.y            = (NCOL(y)==1), # TRUE to scale y in the forward pass
     Force.xtx.prune    = FALSE, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
     Force.weights      = FALSE, # TRUE to force use of weight code in earth.c
@@ -417,6 +425,7 @@ earth.fit <- function(
     }
     Force.xtx.prune <- check.boolean(Force.xtx.prune)
     Use.beta.cache  <- check.boolean(Use.beta.cache)
+    check.numeric.scalar(Adjust.endspan)
     env <- parent.frame()
     y.org <- y
     pmethod <- match.arg1(pmethod) # check pmethod is legal, and expand
@@ -454,13 +463,6 @@ earth.fit <- function(
     } else if(!identical(na.action, na.fail))
         stop0("illegal \"na.action\", only na.action=na.fail is allowed")
     na.action <- na.fail
-    if(trace != -1 &&
-       !is.null(weights) &&
-       !isTRUE(all.equal(weights, rep(weights[1], length(weights))))) {
-        warning0("support of weights is provisional in this version of earth")
-    }
-    if(trace == -1)
-        trace <- 0
     n.allowedfunc.args <- check.allowed.arg(allowed)
     stopif(is.vector(x)) # should have been converted to matrix in earth.default or earth.formula
     stopif(is.vector(y)) # ditto
@@ -475,25 +477,21 @@ earth.fit <- function(
         stop("non double entries in \"x\" argument")
     if(!all(is.double(y)))
         stop("non double entries in \"y\" argument")
-    weights.or.null <- weights
-    if(is.null(weights))
-        weights <- repl(1, nrow(x))
-    weights <- check.weights(weights, "weights", nrow(x))
-    if(!is.double(weights)) # weights must be double for calls to C functions
-        weights <- as.double(weights)
-    if(!is.null(subset)) {
-        # duplicates are allowed in subsets so user can specify a bootstrap sample
-        subset <- plotmo::check.index(subset, "subset", x, allow.dups=TRUE, allow.zeroes=TRUE)
-        x <- x[subset, , drop=FALSE]
-        y <- y[subset, , drop=FALSE]
-        weights <- weights[subset]
-    }
+
+    # case weights
+    weights <- get.weights(weights, nrow(x))
+    use.weights <- check.boolean(Force.weights) ||
+                   any(abs(weights - weights[1]) > 1e-8)
+    if(trace == -1)
+        trace <- 0
+    else if(use.weights && !Force.weights)
+        warning0("support of weights is provisional in this version of earth")
     yw <- NULL # weighted version of y
-    if(Force.weights ||
-       (!is.null(weights.or.null) && !all(abs(weights - weights[1]) < 1e-8))) {
+    if(use.weights)
         yw <- sqrt(weights) * y
-    }
-    if(!is.null(wp)) { # column weights
+
+    # column weights
+    if(!is.null(wp)) {
         wp <- check.weights(wp, "wp", ncol(y))
         wp <- sqrt(wp / mean(wp)) # normalize
         # multiply each column of y by its normalized weight
@@ -501,6 +499,15 @@ earth.fit <- function(
         if(!is.null(yw))
             yw <- yw * outer(repl(1, nrow(y)), wp)
     }
+    # subset
+    if(!is.null(subset)) {
+        # duplicates are allowed in subset so user can specify a bootstrap sample
+        subset <- plotmo::check.index(subset, "subset", x, allow.dups=TRUE, allow.zeroes=TRUE)
+        x <- x[subset, , drop=FALSE]
+        y <- y[subset, , drop=FALSE]
+        weights <- weights[subset]
+    }
+    # glm.bpairs
     if(!is.null(glm.bpairs)) {
         y <- y [, glm.bpairs, drop=FALSE]
         if(!is.null(yw))
@@ -510,8 +517,8 @@ earth.fit <- function(
         rval <- forward.pass(x, y, yw, weights,
                              trace, degree, penalty, nk, thresh,
                              minspan, endspan, newvar.penalty, fast.k, fast.beta,
-                             linpreds, allowed, Use.beta.cache, Scale.y, Force.weights,
-                             n.allowedfunc.args, env)
+                             linpreds, allowed, Use.beta.cache, Adjust.endspan,
+                             Scale.y, n.allowedfunc.args, env)
           bx       <- rval$bx
           dirs     <- rval$dirs
           cuts     <- rval$cuts
@@ -521,17 +528,17 @@ earth.fit <- function(
         if(trace >= 1)
             cat("Skipped forward pass\n")
         check.classname(Object, deparse(substitute(Object)), "earth")
-        bx       <- NULL
         dirs     <- Object$dirs
         cuts     <- Object$cuts
         termcond <- Object$termcond
+        bx       <- get.bx(x, 1:nrow(dirs), dirs, cuts) * sqrt(weights) # weight bx
     }
-    rval <- pruning.pass(if(is.null(yw)) x else sqrt(weights) * x,
-                         if(is.null(yw)) y else yw,
-                         subset,
-                         trace, penalty, pmethod, nprune, bx, dirs, cuts, Get.crit,
+    rval <- pruning.pass(if(use.weights) sqrt(weights) * x else x,
+                         if(use.weights) yw else y,
+                         bx,
+                         trace, penalty, pmethod, nprune, dirs,
                          Eval.model.subsets, Force.xtx.prune, Exhaustive.tol)
-      bx             <- rval$bx.prune
+      bx             <- rval$bx
       rss.per.subset <- rval$rss.per.subset # vector of RSSs for each model (index on subset size)
       gcv.per.subset <- rval$gcv.per.subset # vector of GCVs for each model
       prune.terms    <- rval$prune.terms    # triang mat: each row is a vector of term indices
@@ -551,18 +558,17 @@ earth.fit <- function(
     nresp <- ncol(y)  # number of responses
     nselected <- length(selected.terms)
 
-    # Regress y on bx to get fitted.values etc.
-    # The as.matrix calls after the call to lm are needed if y is
-    # a vector so the fitted.values etc. are always arrays.
-
-    if(!is.null(yw))
-        lfit <- lm.wfit(bx, y, w=weights, singular.ok=FALSE)
+    # regress y on bx to get fitted.values etc.
+    if(use.weights)
+        lm.fit <- lm.wfit(bx, y, w=weights, singular.ok=FALSE)
     else
-        lfit <- lm.fit(bx, y, singular.ok=FALSE)
+        lm.fit <- lm.fit(bx, y, singular.ok=FALSE)
 
-    fitted.values <- as.matrix(lfit$fitted.values)
-    residuals     <- as.matrix(lfit$residuals)
-    coefficients  <- as.matrix(lfit$coefficients)
+    # the as.matrix calls are needed if y is a vector
+    # so the fitted.values etc. are always arrays
+    fitted.values <- as.matrix(lm.fit$fitted.values)
+    residuals     <- as.matrix(lm.fit$residuals)
+    coefficients  <- as.matrix(lm.fit$coefficients)
     response.names <- colnames(y)
     colnames(fitted.values) <- response.names
     colnames(residuals)     <- response.names
@@ -590,7 +596,7 @@ earth.fit <- function(
     }
     # prepare returned summary statistics
 
-    rss <- rss.per.subset[nselected]
+    rss  <- rss.per.subset[nselected]
     rsq  <- get.rsq(rss, rss.per.subset[1])
     gcv  <- gcv.per.subset[nselected]
     grsq <- get.rsq(gcv, gcv.per.subset[1])
@@ -598,15 +604,18 @@ earth.fit <- function(
     rsq.per.response  <- vector(mode="numeric", length=nresp)
     gcv.per.response  <- vector(mode="numeric", length=nresp)
     grsq.per.response <- vector(mode="numeric", length=nresp)
-
     for(iresp in 1:nresp) {
-        rss.per.response[iresp]  <- ss(residuals[,iresp])
-        tss                      <- ss(y[,iresp] - mean(y[,iresp]))
-        rsq.per.response[iresp]  <- get.rsq(rss.per.response[iresp], tss)
-        gcv.null                 <- Get.crit(tss, 1, penalty, nrow(x))
-        gcv.per.response[iresp]  <- Get.crit(rss.per.response[iresp], nselected,
-                                             penalty, nrow(x))
-        grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
+        rss.per.response[iresp] <- ss(residuals[,iresp])
+        rsq.per.response[iresp] <- get.weighted.rsq(y[,iresp], fitted.values[,iresp], weights)
+        gcv.per.response[iresp] <- get.gcv(rss.per.response[iresp], nselected, penalty, nrow(x))
+        tss                     <- ss(y[,iresp] - mean(y[,iresp]))
+        gcv.null                <- get.gcv(tss, 1, penalty, nrow(x))
+        if(!use.weights)
+            grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
+        else if(nresp == 1)
+            grsq.per.response[iresp] <- grsq
+        else # TODO grsq is wrong when weights and multiple responses
+            grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
     }
     rval <- structure(list(     # term 1 is the intercept in all returned data
         bx             = bx,    # selected terms only
@@ -634,12 +643,13 @@ earth.fit <- function(
         fitted.values  = fitted.values, # ncases (after subset) x nresp
         residuals      = residuals,     # ncases (after subset) x nresp
         coefficients   = coefficients,  # selected terms only: nselected x nresp
+        leverages      = hatvalues.lm.fit(lm.fit),
 
         penalty        = penalty,          # copy of penalty argument
         nk             = nk,               # copy of nk argument
         thresh         = thresh,           # copy of thresh argument
         termcond       = termcond,         # reason we terminated the forward pass
-        weights        = weights.or.null), # copy of weights argument, may be NULL
+        weights        = if(use.weights) weights else NULL),
     class = "earth")
 
     if(!is.null(glm.list)) {
@@ -755,9 +765,9 @@ eval.subsets.xtx <- function(
         rval <- .C("EvalSubsetsUsingXtxR",
             prune.terms = matrix(0, nrow=nterms, ncol=nterms), # double PruneTerms[]
             rss.per.subset = vector(mode="numeric", length=nterms),
-            as.integer(ncases),     # const int *pnCases
-            as.integer(nresp),      # const int *pnResp
-            as.integer(nterms),     # const int *pnMaxTerms
+            as.integer(ncases),     # const int* pnCases
+            as.integer(nresp),      # const int* pnResp
+            as.integer(nterms),     # const int* pnMaxTerms
             bx,                     # const double bx[]
             y,                      # const double y[]
             PACKAGE="earth")
@@ -776,27 +786,10 @@ eval.subsets.xtx <- function(
         forward    = bad.pmethod(),
         seqrep     = bad.pmethod())
 }
-do.scale.y <- function(y, yname)
-{
-    y.scaled <- scale(y)
-    # make sure that scaling was ok
-    i <- which(attr(y.scaled,"scaled:scale") == 0)
-    if(length(i)) {
-        if(ncol(y) > 1)
-            stop0("cannot scale column ", i[1],
-                  " of ", yname,
-                  " (values are all equal to ", y[1,i], ")")
-        else
-            stop0("cannot scale ", yname,
-                  " (values are all equal to ", y[1,1], ")\n",
-                  "Try Scale.y=FALSE?")
-    }
-    y
-}
 forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
                          trace, degree, penalty, nk, thresh,
                          minspan, endspan, newvar.penalty, fast.k, fast.beta,
-                         linpreds, allowed, Use.beta.cache, Scale.y, Force.weights,
+                         linpreds, allowed, Use.beta.cache, Adjust.endspan, Scale.y,
                          n.allowedfunc.args, env)
 {
     stopifnot(nrow(x) == nrow(y))
@@ -812,9 +805,9 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
 
     if(Scale.y) {
         # scale y for better stability in the forward pass
-        y.scaled <- do.scale.y(y, "y")
+        y.scaled <- get.scaled.y(y, "y")
         if(!is.null(yw))
-            yw.scaled <- do.scale.y(yw, "weighted y")
+            yw.scaled <- get.scaled.y(yw, "weighted y")
     } else {
         y.scaled <- y
         if(!is.null(yw))
@@ -834,10 +827,6 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
     if(is.null(allowed))
         allowed <- my.null
 
-    Force.weights <- check.boolean(Force.weights)
-
-    pred.names <- if(trace >= 2 || n.allowedfunc.args >= 4) colnames(x) else my.null
-
     termcond <- integer(length=1) # reason we terminated the forward pass
 
     on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interrupts
@@ -852,27 +841,27 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
         y.scaled,                                # in: const double y[]
         if(is.null(yw)) my.null else yw.scaled,  # in: const double yw[]
         weights,                        # in: const double WeightsArg[]
-        as.integer(nrow(x)),            # in: const int *pnCases
-        as.integer(ncol(y)),            # in: const int *pnResp
-        as.integer(npreds),             # in: const int *pnPreds
-        as.integer(degree),             # in: const int *pnMaxDegree
-        as.double(penalty),             # in: const double *pPenalty
-        as.integer(nk),                 # in: const int *pnMaxTerms
-        as.double(thresh),              # in: double *pThresh
-        as.integer(minspan),            # in: const int *pnMinSpan
-        as.integer(endspan),            # in: const int *pnEndSpan
-        as.integer(fast.k),             # in: const int *pnFastK
-        as.double(fast.beta),           # in: const double *pFastBeta
-        as.double(newvar.penalty),      # in: const double *pNewVarPenalty
+        as.integer(nrow(x)),            # in: const int* pnCases
+        as.integer(ncol(y)),            # in: const int* pnResp
+        as.integer(npreds),             # in: const int* pnPreds
+        as.integer(degree),             # in: const int* pnMaxDegree
+        as.double(penalty),             # in: const double* pPenalty
+        as.integer(nk),                 # in: const int* pnMaxTerms
+        as.double(thresh),              # in: double* pThresh
+        as.integer(minspan),            # in: const int* pnMinSpan
+        as.integer(endspan),            # in: const int* pnEndSpan
+        as.integer(fast.k),             # in: const int* pnFastK
+        as.double(fast.beta),           # in: const double* pFastBeta
+        as.double(newvar.penalty),      # in: const double* pNewVarPenalty
         as.integer(linpreds),           # in: const int LinPreds[]
         allowed,                        # in: const SEXP Allowed
-        as.integer(n.allowedfunc.args), # in: const int *pnAllowedFuncArgs
+        as.integer(n.allowedfunc.args), # in: const int* pnAllowedFuncArgs
         env,                            # in: const SEXP Env for Allowed
-        as.integer(Use.beta.cache),     # in: const int *pnUseBetaCache
-        as.double(trace),               # in: const double *pTrace
-        pred.names,                     # in: const char *sPredNames[], can be MyNull
+        as.double(Adjust.endspan),      # in: const double EndspanAdjust
+        as.integer(Use.beta.cache),     # in: const int* pnUseBetaCache
+        as.double(trace),               # in: const double* pTrace
+        colnames(x),                    # in: const char* sPredNames[]
         my.null,                        # in: const SEXP MyNull
-        as.integer(Force.weights),      # in
         NAOK = TRUE, # we check for NAs etc. internally in C ForwardPass
         PACKAGE="earth")
 
@@ -903,7 +892,7 @@ get.degrees.per.term <- function(dirs)
 # x can be NULL (currently only when called from mars.to.earth), it is used
 # only for simplifying terms with factor predictors.
 
-get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
+get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x, warn.if.dup=TRUE)
 {
     get.term.name1 <- function(nterm, dirs, cuts, pred.names, xrange, form1, form2)
     {
@@ -958,9 +947,9 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
     }
     term.names <- sapply(seq_along(ntermsVec), get.term.name1, dirs, cuts,
                          pred.names, xrange, form1, form2)
-    # check for duplicate term names
+    # check for duplicated term names
     duplicated <- duplicated(term.names)
-    if(any(duplicated))
+    if(warn.if.dup && any(duplicated))
         warning0("duplicate term name \"", term.names[which(duplicated)[1]], "\"\n",
                  "This is usually caused by cuts that are very close to each other\n",
                  "Remedy: use options(digits=NDIGITS), ",
@@ -971,7 +960,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x)
 # get.gcv returns GCVs as defined in Friedman's MARS paper, with an
 # extension for penalty < 0
 
-get.gcv <- function(    # default Get.crit function
+get.gcv <- function(
     rss.per.subset,
     ntermsVec,          # number of MARS regression terms including intercept
     penalty,            # penalty per knot, argument from earth.fit()
@@ -980,15 +969,20 @@ get.gcv <- function(    # default Get.crit function
     stopifnot(length(rss.per.subset) == length(ntermsVec))
     nknotsVec <- get.nknots(ntermsVec)
     nparams <- effective.nbr.of.params(ntermsVec, nknotsVec, penalty)
-
-    # Removed in earth version 3.1-2:
-    #     if(max(nparams, na.rm=TRUE) >= ncases)
-    #         warning0("effective number ", max(nparams, na.rm=TRUE),
-    #                  " of GCV parameters >= number ", ncases, " of cases")
-
     ifelse(nparams >= ncases,
            Inf, # ensure that GCVs are non-decreasing as number of terms increases
            rss.per.subset / (ncases * (1 - nparams/ncases)^2))
+}
+hatvalues.lm.fit <- function(lm.fit)
+{
+    # hatvalue.lm doesn't work on lm.fit objects, so have to do it here
+    # TODO this has not been tested for multiple response models
+    qr <- lm.fit$qr
+    stopifnot(!is.null(qr))
+    leverages <- rowSums(qr.qy(qr, diag(1, nrow=nrow(qr$qr), ncol=qr$rank))^2)
+    leverages[leverages < 1e-8]     <- 0 # allow for numerical error
+    leverages[leverages > 1 - 1e-8] <- 1 # allow for numerical error
+    leverages
 }
 # Return the estimated number of knots
 #
@@ -1004,7 +998,13 @@ get.nterms.per.degree <- function(object, which.terms = object$selected.terms)
 {
     check.classname(object, deparse(substitute(object)), "earth")
     check.which.terms(object$dirs, which.terms)
-    table(get.degrees.per.term(object$dirs[which.terms, , drop=FALSE]))
+    degrees.per.term <- get.degrees.per.term(object$dirs[which.terms, , drop=FALSE])
+    max.degree <- max(degrees.per.term)
+    nterms.per.degree <- repl(0, max.degree+1) # +1 for intercept
+    for(i in 0:max.degree)
+        nterms.per.degree[i+1] <- sum(degrees.per.term == i)
+    names(nterms.per.degree) <- 0:max.degree # for backward compat with old version
+    nterms.per.degree
 }
 get.nused.preds.per.subset <- function(dirs, which.terms)
 {
@@ -1026,6 +1026,33 @@ get.nused.preds.per.subset <- function(dirs, which.terms)
                              dirs[which.terms[i,,drop=FALSE], , drop=FALSE])))
     }
     nused
+}
+get.scaled.y <- function(y, yname)
+{
+    y.scaled <- scale(y)
+    # make sure that scaling was ok
+    i <- which(attr(y.scaled,"scaled:scale") == 0)
+    if(length(i)) {
+        if(ncol(y) > 1)
+            stop0("cannot scale column ", i[1],
+                  " of ", yname,
+                  " (values are all equal to ", y[1,i], ")")
+        else
+            stop0("cannot scale ", yname,
+                  " (values are all equal to ", y[1,1], ")\n",
+                  "Try Scale.y=FALSE?")
+    }
+    y
+}
+get.weights <- function(weights, ncases)
+{
+    if(is.null(weights))
+        weights <- repl(1, ncases)
+    else
+        weights <- check.weights(weights, "weights", ncases)
+    if(!is.double(weights)) # weights must be double for calls to C functions
+        weights <- as.double(weights)
+    weights
 }
 get.ylevels <- function(y, glm)
 {
@@ -1059,7 +1086,7 @@ possibly.delete.rownames <- function(x)
 print.linpreds <- function(linpreds, x)
 {
     if(any(linpreds != 0)) {
-        cat("linear predictors ")
+        cat("Linear predictors ")
         colnames. <- colnames(x)
         index <- (1:length(linpreds))[linpreds]
         if(!is.null(colnames.))
@@ -1067,6 +1094,26 @@ print.linpreds <- function(linpreds, x)
         else
             cat(paste.with.space((1:length(linpreds))[linpreds]))
         cat("\n")
+    }
+}
+# This reports when more than one term changes in a single pruning pass step.
+# To see run the call to earth below, and in the pruning pass note that at
+# step 8 several terms are added and deleted (but really only one term
+# should be added per step if pmethod="backward" or "forward").
+#     earth(O3 ~ ., data = ozone1, degree=2, trace=5)
+
+check.one.term.per.step <- function(prune.terms, trace)
+{
+    for(i in 2:nrow(prune.terms)) {
+        which1 <- which2 <- repl(FALSE, ncol(prune.terms))
+        which1[prune.terms[i-1,]] <- TRUE
+        which2[prune.terms[i,]]   <- TRUE
+        xor <- xor(which1, which2) # true for every term that changed
+        if(sum(xor) > 1) { # more than one term changed?
+            printf("%g terms changed between steps %g and %g of the pruning pass\n",
+                   sum(xor), i-1, i)
+            break
+        }
     }
 }
 print.pruning.pass <- function(trace, pmethod, penalty, nprune, selected.terms,
@@ -1094,10 +1141,12 @@ print.pruning.pass <- function(trace, pmethod, penalty, nprune, selected.terms,
                  "  ")
             if(trace >= 4)
                 cat(selected)
-        cat("\n")
+            cat("\n")
         }
-    cat("\n")
+        cat("\n")
     }
+    if(trace >= 5 && (pmethod == "backward" || pmethod == "forward"))
+        check.one.term.per.step(prune.terms)
     if(trace >= 1) {
         cat0("Prune method \"", pmethod[1], "\" penalty ", penalty,
              " nprune ", nprune, ": selected ", nselected, " of ")
@@ -1113,8 +1162,8 @@ print.pruning.pass <- function(trace, pmethod, penalty, nprune, selected.terms,
             "\n")
     }
 }
-pruning.pass <- function(x, y, # x and y may be weighted
-    subset, trace, penalty, pmethod, nprune, bx, dirs, cuts, Get.crit,
+pruning.pass <- function(x, y, bx, # x, y, and bx are weighted if weights arg was used
+    trace, penalty, pmethod, nprune, dirs,
     Eval.model.subsets, Force.xtx.prune, Exhaustive.tol)
 {
     possibly.print.pacifier <- function(bx, nprune) # print a reminder if pruning will be slow
@@ -1185,20 +1234,15 @@ pruning.pass <- function(x, y, # x and y may be weighted
         nprune
     }
     #--- pruning.pass starts here ---
-    if(!is.null(bx) && is.null(subset))
-        bx.prune <- bx   # use bx created in forward pass
-    else                 # else recreate bx with all terms (update invoked earth)
-        bx.prune <- get.bx(x, 1:nrow(dirs), dirs, cuts) # all terms
-    stopifnot(nrow(bx.prune) == nrow(y))
+    stopifnot(nrow(bx) == nrow(y))
     nprune <- get.nprune()
-    possibly.print.pacifier(bx.prune, nprune)
-    pmethod <- possibly.change.exhaustive.to.backward(pmethod, bx.prune)
+    possibly.print.pacifier(bx, nprune)
+    pmethod <- possibly.change.exhaustive.to.backward(pmethod, bx)
     flush.console() # make sure previous messages get seen, pruning make take a while
-    rval <- Eval.model.subsets(bx.prune, y,
+    rval <- Eval.model.subsets(bx, y,
                                pmethod, nprune, Force.xtx.prune, trace)
       rss.per.subset <- rval$rss.per.subset # RSS for each subset (across all responses)
       prune.terms    <- rval$prune.terms    # each row is a vec of term indices
-
     # sanity checks here because Eval.model.subsets may be user written
     # rss.per.subset will be less than nprune if lin dep discovered by leaps
     stopifnot(length(rss.per.subset) <= nprune)
@@ -1207,7 +1251,7 @@ pruning.pass <- function(x, y, # x and y may be weighted
     stopifnot(NCOL(prune.terms) == nprune)
     prune.terms <- prune.terms[1:nprune, 1:nprune, drop=FALSE]
     stopif(any(prune.terms[,1] != 1))   # check intercept column
-    gcv.per.subset <- Get.crit(rss.per.subset, 1:nprune, penalty, nrow(bx.prune))
+    gcv.per.subset <- get.gcv(rss.per.subset, 1:nprune, penalty, nrow(bx))
     if(!all(is.finite(rss.per.subset)))
         warning0("earth: non finite RSS in model subsets ",
                  "(see the rss.per.subset returned by earth)")
@@ -1224,7 +1268,7 @@ pruning.pass <- function(x, y, # x and y may be weighted
     print.pruning.pass(trace, pmethod, penalty, nprune, selected.terms,
                        prune.terms, rss.per.subset, gcv.per.subset, dirs)
 
-    list(bx.prune      = bx.prune,
+    list(bx            = bx,
         rss.per.subset = rss.per.subset, # vector of RSSs for each model (index on subset size)
         gcv.per.subset = gcv.per.subset, # vector of GCVs for each model (index on subset size)
         prune.terms    = prune.terms,    # triang mat: each row is a vector of term indices
@@ -1343,11 +1387,11 @@ update.earth <- function(
     trace <- get.update.arg(this.call$trace, "trace", object,
                             trace1=NULL, "update.earth", print.trace=FALSE)
     trace <- eval.parent(trace)
-    if(is.name(trace))      # TODO needed when called from earth.cv with glm=NULL, why?
+    if(is.name(trace))    # TODO needed when called from earth.cv with glm=NULL, why?
         trace <- eval.parent(trace)
     if(is.null(trace))
         trace <- 0
-    if(is.name(Call$glm))   # TODO needed when called from earth.cv with glm=NULL, why?
+    if(is.name(Call$glm)) # TODO needed when called from earth.cv with glm=NULL, why?
         Call$glm <- eval.parent(Call$glm)
     dots <- match.call(expand.dots=FALSE)$...
     if(length(dots) > 0) {
@@ -1388,166 +1432,4 @@ update.earth <- function(
         eval.parent(Call)
     else
         Call
-}
-#-----------------------------------------------------------------------------
-# Method functions for generics in models.R
-# All standard method funcs are supported, I think, or give a warning.
-# TODO Some of the functions that give just a warning could possibly give
-# a meaningful value.
-
-deviance.earth <- function(object, warn=TRUE, ...)
-{
-    if(warn && !is.null(object$glm.list))
-        warning0("deviance.earth: returning earth (not GLM) deviance")
-    object$rss
-}
-effects.earth <- function(object, warn=TRUE, ...)
-{
-    if(warn)
-        warning0("effects.earth: returning NULL")
-    NULL
-}
-family.earth <- function(object, ...)
-{
-    family(object$glm.list[[1]])
-}
-anova.earth <- function(object, warn=TRUE, ...)
-{
-    if(warn)
-        warning0("anova.earth: returning NULL")
-    NULL
-}
-# use.names can have the following values:
-#   TRUE:  return name if possible, else return x[,i] or x[i-1].
-#   FALSE: return x[,i]
-#   -1:    return x[i] with 0 based indexing (treat x as a C array)
-
-variable.names.earth <- function(object, ..., use.names=TRUE)
-{
-    warn.if.dots.used("variable.names.earth", ...)
-    ipred <- 1:ncol(object$dirs)
-    if(length(use.names) != 1)
-        stop0("illegal value for use.names")
-    if(use.names == TRUE) {
-        varname <- colnames(object$dirs)[ipred]
-        if(!is.null(varname) && !is.na(varname))
-            varname
-        else
-            paste0("x[,", ipred, "]")
-    } else if(use.names == FALSE)
-        paste0("x[,", ipred, "]")
-    else if(use.names == -1)
-        paste0("x[", ipred-1, "]")
-    else
-        stop0("illegal value for use.names \"", use.names, "\"")
-}
-case.names.earth <- function(object, ...)
-{
-    if(is.null(row.names(object$residuals)))
-        paste(1:nrow(object$residuals))
-    else
-        row.names(object$residuals)
-}
-residuals.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=TRUE, ...)
-{
-    glm.resids <- function(object, type)
-    {
-        g <- object$glm.list
-        if(is.null(g))
-            stop0("residuals.earth: type \"", type, "\" can be used ",
-                  "only on earth-glm models")
-        colnames <- ""
-        for(imodel in seq_along(g)) {
-            rval1 <- residuals(g[[imodel]], type)
-            if(imodel == 1)
-                rval <- rval1
-            if(NROW(rval1) != NROW(rval)) # should never happen
-                stop0("residuals.earth: glm.list[[", imodel, "]] does ",
-                      "not conform to glm.list[[", 1, "]] ",
-                      "(residuals have a different length)")
-            if(imodel > 1) {
-                colnames <- c(colnames)
-                rval <- cbind(rval, rval1)
-            }
-        }
-        rval
-    }
-    #--- residuals.earth starts here ---
-
-    warn.if.dots.used("residuals.earth", ...)
-    if(warn && is.null(type) && !is.null(object$glm.list))
-        warning0("residuals.earth: returning earth (not glm) residuals")
-    if(is.null(type))
-        type <- "earth"
-    types <- c("earth", "pearson", "deviance",
-               "glm.pearson", "glm.working", "glm.response", "glm.partial")
-    rval <- switch(match.choices(type, types),
-        earth    = object$residuals,
-        deviance = if(is.null(object$glm.list))
-                       object$residuals
-                   else
-                       glm.resids(object, "deviance"),
-        pearson      = object$residuals / get.se(object),
-        glm.pearson  = glm.resids(object, "pearson"),
-        glm.working  = glm.resids(object, "working"),
-        glm.response = glm.resids(object, "response"),
-        glm.partial  = glm.resids(object, "partial"))
-
-    if(!is.matrix(rval))
-        rval <- matrix(rval, ncol = 1)
-    if(type != "glm.partial")
-        colnames(rval) <- colnames(object$residuals)
-    rownames(rval) <- case.names(object)
-    rval
-}
-resid.earth <- function(object = stop("no 'object' arg"), type = NULL, warn=TRUE, ...)
-{
-    residuals.earth(object, type, warn, ...)
-}
-# Fake the AIC by returning the GCV. This is enough for step() to work.
-
-extractAIC.earth <- function(fit, scale = 0, k = 2, warn=TRUE, ...)
-{
-    if(warn)
-        warning0("extractAIC.earth: returning GCV instead of AIC")
-    if(scale != 0)
-        warning0("extractAIC.earth: ignored scale parameter ", scale)
-    if(k != 2)
-        warning0("extractAIC.earth: ignored k parameter ", k)
-    warn.if.dots.used("extractAIC.earth", ...)
-    nterms <- length(fit$selected.terms)
-    c(effective.nbr.of.params(nterms, get.nknots(nterms), fit$penalty), fit$gcv)
-}
-hatvalues.earth <- function(model, ...)
-{
-    stop.if.dots.used("hatvalues.earth", ...)
-    if(is.null(model$y))
-        stop0("hatvalues.earth: earth object has no $y field.\n",
-              "       Use keepxy=TRUE in the call to earth.")
-    stopifnot(!is.null(ncol(model$y)))
-    stopifnot(!is.null(model$bx))
-    if(ncol(model$y) > 1)
-        warning0("multiple response earth model: \n",
-                 "getting hat values for only the first response")
-    hatvalues(lm(model$y[,1] ~ model$bx))
-}
-coef.earth <- function(object, decomp="none", ...)
-{
-    warn.if.dots.used("coef.earth", ...)
-    coef <- object$coefficients
-    if(NCOL(coef) > 1)
-        stop0("coef.earth: multiple response models not supported")
-    new.order <- reorder.earth(object, decomp=decomp)
-    names <- spaceout(rownames(coef))
-    coef <- coef[new.order,]
-    names(coef) <- names
-    coef
-}
-weights.earth <- function(object, ...)
-{
-    warn.if.dots.used("weights.earth", ...)
-    if(is.null(object$weights)) # weights arg to earth was NULL?
-        repl(1, length(object$fitted.values))
-    else
-        object$weights
 }

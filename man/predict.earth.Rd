@@ -42,8 +42,7 @@ Predict with an \code{\link{earth}} model.
   \item{level}{
     Confidence level for the \code{interval} argument.
     Default is \code{.95}, meaning construct 95\% confidence bands
-    (assume the residual variance is symmetrical and
-    calculate 2.5\% and 97.5\% levels).
+    (estimate the 2.5\% and 97.5\% levels).
   }
   \item{thresh}{
     Threshold, a value between 0 and 1 when predicting a probability.
@@ -63,8 +62,7 @@ The predicted values (a matrix for multiple response models).
 
 If \code{type="terms"}, a matrix with each column showing the contribution of a predictor.
 
-If \code{interval="pint"}, \code{"training.cint"}, or
-\code{"training.pint"}, a matrix with three columns:\cr
+If \code{interval="pint"} or \code{"cint"}, a matrix with three columns:\cr
 \code{fit}: the predicted values\cr
 \code{lwr}: the lower confidence or prediction limit\cr
 \code{upr}: the upper confidence or prediction limit

@@ -43,27 +43,29 @@ print.default(earth.trees$varmod)
 printh("summary(earth.trees)")
 print(summary(earth.trees))
 
+# level arg not allowed with interval="se"
+expect.err(try(predict(earth.trees, interval="se", level=.8)))
+
 printh("predict(earth.trees, interval=\"se\")")
 stderrs <- predict(earth.trees, interval="se")
 print(stderrs)
+
+# level arg not allowed with interval="abs.residual"
+expect.err(try(predict(earth.trees, interval="abs.res", level=.8)))
 
 printh("predict(earth.trees, interval=\"abs.residual\")")
 stderrs <- predict(earth.trees, interval="abs.residual")
 print(stderrs)
 
-expect.err(try(predict(earth.trees, newdata=trees, interval="training.cint")))
+expect.err(try(predict(earth.trees, newdata=trees, interval="cint")))
 
-printh("predict(earth.trees, interval=\"training.cint\")")
-cints <- predict(earth.trees, interval="training.cint")
+printh("predict(earth.trees, interval=\"cint\")")
+cints <- predict(earth.trees, interval="cint")
 print(cints)
 
-printh("predict(earth.trees, interval=\"pint\", level=.80)")
-news <- predict(earth.trees, interval="pint", level=.80)
+printh("predict(earth.trees, interval=\"pin\", level=.80)")
+news <- predict(earth.trees, interval="pin", level=.80)
 print(news)
-
-printh("predict(earth.trees, interval=\"training.pint\", level=.90)")
-pints <- predict(earth.trees, interval="training.pint", level=.90)
-print(pints)
 
 printh("print.default(earth.trees$varmod$residmod)")
 # have to modify earth.trees because terms field stores the environment
@@ -90,7 +92,7 @@ plotmo(a, do.par=FALSE, col.response=1, level=.95, main="earth model: O3~temp")
 
 plot(a, which=1)            # model selection plot, same as ever
 plot(a, which=3, level=.95) # residual plot: note 95% pred and darker conf intervals
-plot(a, which=3, level=.95, pearson=TRUE) # standardized resids are approx homoscedastic
+plot(a, which=3, level=.95, student=TRUE) # student resids are approx homoscedastic
 
 par(par=old.mfrow)
 
@@ -116,12 +118,46 @@ plot(mod.temp.vh.doy, versus="", level=.9, caption="plot.earth versus=\"\"")
 plot(mod.temp.vh.doy, versus="v", level=.9, caption="plot.earth versus=\"v\" and versus=\"temp\"", do.par=2)
 plot(mod.temp.vh.doy, versus="temp", level=.9, caption="", main="temp on same page")
 
-# plot.earth will silently not plots it cannot plot below, so 1:8 becomes c(3,5)
-plot(mod.temp.vh.doy, which=1:8, versus="v", info=T, caption='which=c(3,5) versus="v" info=T')
+# plot.earth will silently not plots it cannot plot below, so 1:9 becomes c(3,5,6)
+plot(mod.temp.vh.doy, which=1:9, versus="v", info=T, caption='which=c(3,5) versus="v" info=T')
 
-plot(mod.temp.vh.doy, versus="*", level=.9, caption="plot.earth versus=\"*\"")
+# versus="*"
+
+plot(mod.temp.vh.doy, versus="*", level=.9,
+     caption="plot.earth versus=\"*\"")
+
+# versus="*" and versus=1:4 with info
+
+plot(mod.temp.vh.doy, versus="*", level=.8, info=TRUE,
+     caption="plot.earth versus=\"*\" with info")
+
+multifigure("versus=1:4", 3, 3)
+
+plot(mod.temp.vh.doy, versus=1, caption="", do.par=FALSE, which=3)
+do.caption()
+plot(mod.temp.vh.doy, versus=2, caption="", do.par=FALSE)
+plot(mod.temp.vh.doy, versus=3, caption="", do.par=FALSE)
+
+plot(mod.temp.vh.doy, versus=1, info=TRUE, caption="", do.par=FALSE, which=3)
+plot(mod.temp.vh.doy, versus=2, info=TRUE, caption="", do.par=FALSE)
+plot(mod.temp.vh.doy, versus=3, info=TRUE, caption="", do.par=FALSE)
+
+plot(mod.temp.vh.doy, versus=1, info=TRUE, caption="", do.par=FALSE, level=.8, which=3)
+plot(mod.temp.vh.doy, versus=2, info=TRUE, caption="", do.par=FALSE, level=.8)
+plot(mod.temp.vh.doy, versus=3, info=TRUE, caption="", do.par=FALSE, level=.8)
+
+expect.err(try(plot(mod.temp.vh.doy, versus=9)))
+expect.err(try(plot(mod.temp.vh.doy, versus=1.2)))
+expect.err(try(plot(mod.temp.vh.doy, versus=2:3)))
+
+# versus="*doy"
 
 plot(mod.temp.vh.doy, versus="*doy", level=.9, caption="plot.earth versus=\"*doy\"")
+
+# test warnings from plotmor about which
+options(warn=1) # print warnings as they occur
+plot(mod.temp.vh.doy, which=1, versus="*doy")
+options(warn=2)
 
 multifigure("test example in (very old) earth vignette", 2, 2)
 
@@ -131,7 +167,7 @@ y <- ozone1$O3
 
 set.seed(1) # optional, for cross validation reproducibility
 earth.mod <- earth(y~x, nfold=10, ncross=3, varmod.method="earth", trace=.1)
-predict <- predict(earth.mod, interval="training.pint")
+predict <- predict(earth.mod, interval="pint")
 
 order <- order(x)
 x <- x[order]
@@ -157,8 +193,8 @@ plot(earth.mod$varmod, do.par=F, which=1:2)
 
 cat('head(residuals(earth.mod))\n')
 print(head(residuals(earth.mod)))
-cat('head(residuals(earth.mod, type="pearson"))\n')
-print(head(residuals(earth.mod, type="pearson")))
+cat('head(residuals(earth.mod, type="student"))\n')
+print(head(residuals(earth.mod, type="student")))
 
 multifigure("plot.earth varmod options", 2, 2)
 
@@ -167,39 +203,67 @@ do.caption()
 plot(earth.mod, which=3, shade.pints="orange", shade.cints="darkgray", level=.99)
 plot(earth.mod, which=3, level=.95, shade.pints=0, shade.cints="mistyrose4")
 
-multifigure("plot.earth delever and pearson", 2, 2)
+multifigure("plot.earth delever and student", 2, 2)
 
 set.seed(4)
 earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.1)
 plot(earth.mod1, which=3, ylim=c(-16,20), info=TRUE, level=.95)
 do.caption()
 plot(earth.mod1, which=3, ylim=c(-16,20), delever=TRUE, level=.95)
-plot(earth.mod1, which=3, pearson=TRUE, info=TRUE,    level=.95)
-plot(earth.mod1, which=3, pearson=TRUE, delever=TRUE, level=.95)
+plot(earth.mod1, which=3, student=TRUE, info=TRUE,    level=.95)
+# the student and delever arguments cannot both be set
+expect.err(try(plot(earth.mod1, which=3, student=TRUE, delever=TRUE, level=.95)))
 
 multifigure("plot.earth which=5 and which=6", 2, 3)
 plot(earth.mod1, which=5, info=T,            main="which=5, info=T")
-plot(earth.mod1, which=5, pearson=T, info=T, main="which=5, pearson=T, info=T")
-plot(earth.mod1, which=5, pearson=T,         main="which=5, pearson=T")
+plot(earth.mod1, which=5, student=T, info=T, main="which=5, student=T, info=T")
+plot(earth.mod1, which=5, student=T,         main="which=5, student=T")
 do.caption()
 plot(earth.mod1, which=6, info=T,            main="which=6, info=T")
-plot(earth.mod1, which=6, pearson=T, info=T, main="which=6, pearson=T, info=T")
-plot(earth.mod1, which=6, pearson=T,         main="which=6, pearson=T")
+plot(earth.mod1, which=6, student=T, info=T, main="which=6, student=T, info=T")
+plot(earth.mod1, which=6, student=T,         main="which=6, student=T")
 
-multifigure("plot.earth which=7 and which=8", 2, 3)
+multifigure("plot.earth which=7", 2, 3)
 plot(earth.mod1, which=7, info=T,            main="which=7, info=T")
-plot(earth.mod1, which=7, pearson=T, info=T, main="which=7, pearson=T, info=T")
-plot(earth.mod1, which=7, pearson=T,         main="which=7, pearson=T")
+plot(earth.mod1, which=7, student=T, info=T, main="which=7, student=T, info=T")
+plot(earth.mod1, which=7, student=T,         main="which=7, student=T")
 do.caption()
+
+multifigure("plot.earth which=8 and which=9", 2, 3)
 plot(earth.mod1, which=8, info=T,            main="which=8, info=T")
-plot(earth.mod1, which=8, pearson=T, info=T, main="which=8, pearson=T, info=T")
-plot(earth.mod1, which=8, pearson=T,         main="which=8, pearson=T")
+plot(earth.mod1, which=8, student=T, info=T, main="which=8, student=T, info=T")
+plot(earth.mod1, which=8, student=T,         main="which=8, student=T")
+do.caption()
+plot(earth.mod1, which=9, info=T,            main="which=9, info=T")
+plot(earth.mod1, which=9, student=T, info=T, main="which=9, student=T, info=T")
+plot(earth.mod1, which=9, student=T,         main="which=9, student=T")
+
+multifigure("plot.earth versus=4, which=3 and which=5", 2, 3)
+plot(earth.mod1, versus=4, which=3,                    main="versus=4, which=3")
+plot(earth.mod1, versus=4, which=3, student=T, info=T, main="versus=4, which=3, student=T, info=T")
+plot(earth.mod1, versus=4, which=3, student=T,         main="versus=4, which=3, student=T")
+do.caption()
+plot(earth.mod1, versus=4, which=5,                    main="versus=4, which=5")
+plot(earth.mod1, versus=4, which=5, student=T, info=T, main="versus=4, which=5, student=T, info=T")
+plot(earth.mod1, versus=4, which=5, student=T,         main="versus=4, which=5, student=T")
 
 cat("summary(earth.mod1, newdata=ozone1)\n")
 print(summary(earth.mod1, newdata=ozone1))
 
 cat("summary(earth.mod1, newdata=ozone1[1:100,]:)\n")
 print(summary(earth.mod1, newdata=ozone1[1:100,]))
+
+# earth.default
+O3 <- ozone1$O3
+temp <- ozone1$temp
+set.seed(4)
+earth.default <- earth(temp, O3, nfold=5, ncross=3, varmod.method="lm")
+cat("summary(earth.default)\n")
+print(summary(earth.default))
+cat("summary(earth.default, newdata=ozone1[1:100,]:)\n")
+print(summary(earth.default, newdata=ozone1[1:100,]))
+plot(earth.default, level=.80, caption="earth.default")
+plotmo(earth.default, level=.80, col.response=3, caption="earth.default\nlevel = .80")
 
 # TODO the following give err msg as expected, but do not give a try error
 # expect.err(try(summary(earth.mod1, newdata=c(1,2,3))))
@@ -211,9 +275,9 @@ earth.mod2 <- earth(y~x, nfold=10, ncross=5, varmod.method="earth")
 plot(earth.mod2, caption="plot(earth.mod2)", level=.95)
 do.caption()
 
-multifigure("plot(earth.mod2) with pearson=TRUE", 2, 2)
-plot(earth.mod2, pearson=TRUE, level=.95,
-     caption="plot(earth.mod2, pearson=TRUE, level=.95)")
+multifigure("plot(earth.mod2) with student=TRUE", 2, 2)
+plot(earth.mod2, student=TRUE, level=.95,
+     caption="plot(earth.mod2, student=TRUE, level=.95)")
 do.caption()
 
 multifigure("plot.varmod by calling plot(earth.mod2$varmod)", 2, 2)
@@ -261,11 +325,17 @@ print(coef(a.varmod.minspan1$varmod))
 # gam and y.gam are repeated below and on the repeat we will use the mgcv not gam package
 use.mgcv.package <- FALSE
 
-for(varmod.method in earth:::VARMOD.METHODS) {
+for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
 
     multifigure(sprintf("varmod.method=\"%s\"", varmod.method), 2, 3)
     par(mar = c(3, 3, 2, 3)) # space for right margin axis
 
+    if(varmod.method %in% c("gam", "x.gam")) {
+        if(use.mgcv.package)
+            library(mgcv)
+        else
+            library(gam)
+    }
     set.seed(6)
     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
                        varmod.method=varmod.method,
@@ -291,11 +361,11 @@ for(varmod.method in earth:::VARMOD.METHODS) {
     pints <- predict(earth.mod, interval="pint")
     print(pints)
 
-    plotmo(earth.mod$varmod, do.par=FALSE, col.response=2,
+    plotmo(earth.mod$varmod, do.par=FALSE, col.response=2, clip=FALSE,
            main="plotmo residual model",
            xlab="x", ylab="varmod residuals")
 
-    plotmo(earth.mod, level=.90, do.par=FALSE, col.response=1,
+    plotmo(earth.mod, level=.90, do.par=FALSE, col.response=1, clip=FALSE,
            main="main model plotmo Girth")
     do.caption()
 
@@ -305,10 +375,9 @@ for(varmod.method in earth:::VARMOD.METHODS) {
     plot(earth.mod$varmod, do.par=FALSE, which=1:3, info=(varmod.method=="earth"))
 
     # on second use of gam and y.gam we want to use the mgcv package
-    if(varmod.method == "y.gam" && !use.mgcv.package) {
+    if(varmod.method == "x.gam" && !use.mgcv.package) {
         use.mgcv.package <- TRUE
         detach("package:gam", unload=TRUE)
-        library("mgcv")
     }
 }
 # test varmod.exponent

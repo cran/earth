@@ -45,7 +45,7 @@ static bool First;
 void InitAllowedFunc(
         SEXP Allowed, // can be NULL
         int nAllowedFuncArgs, SEXP Env,
-        const char *sPredNames[], int nPreds)
+        const char* sPredNames[], int nPreds)
 {
     if(Allowed == NULL)
         AllowedFunc = NULL;

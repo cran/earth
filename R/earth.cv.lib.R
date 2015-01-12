@@ -26,7 +26,7 @@ get.auc <- function(yhat, y) # area under ROC curve
 get.binomial.calib <- function(yhat, y) # returns c(intercept, slope)
 {
     yhat <- yhat + 1e-005 # TODO to prevent log(0)? (from Elith Leathwick code)
-    yhat[yhat >= 1] <- 0.99999
+    yhat[yhat >= 1] <- .99999
     glm(y ~ log(yhat / (1 - yhat)), family = binomial)$coefficients
 }
 get.poisson.calib <- function(yhat, y) # returns c(intercept, slope)

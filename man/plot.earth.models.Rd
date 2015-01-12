@@ -8,13 +8,13 @@ Compare \code{\link{earth}} models by plotting them.
 \method{plot}{earth.models}(x = stop("no 'x' arg"), which = c(1:2),
     caption = "", jitter = 0,
     col.grsq = discrete.plot.cols(length(x)), lty.grsq = 1,
-    col.line = 0, lty.rsq = 5,
+    col.rsq = 0, lty.rsq = 5,
     col.vline = col.grsq, lty.vline = 3,
     col.npreds = 0,  lty.npreds  = 2, col.sel.grid = 0,
     ylim = c(0,1),
     col.legend = 1, cex.legend = NULL, legend.pos = NULL, legend.text = NULL,
     col.cum = NULL, do.par = TRUE,
-    main = "Model Comparison", cex.main = 1.2, \dots)
+    main = "Model Comparison", cex.main = 1.1, \dots)
 }
 \arguments{
   \item{x}{
@@ -54,7 +54,7 @@ Compare \code{\link{earth}} models by plotting them.
     Line type for the GRSq plot.
     Default is \code{1}.
   }
-  \item{col.line}{
+  \item{col.rsq}{
     Vector of colors for the RSq plot.
     Default is \code{0}, meaning no RSq plot.
   }
@@ -135,7 +135,7 @@ Compare \code{\link{earth}} models by plotting them.
     Default is \code{NULL}, meaning generate figure headings automatically.
   }
   \item{cex.main}{
-    Size of plot titles.  Default is \code{1.2}.
+    Size of plot titles.  Default is \code{1.1}.
     Used only if \code{do.par} is \code{TRUE} (default).
   }
   \item{\dots}{

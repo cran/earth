@@ -92,9 +92,11 @@ SF <- cbind(numdead, numalive=20 - numdead)
 numdead2 <- c(2,3,10,13,19,20,0,3,7,11,13,17)
 SF2 <- cbind(numdead2, numalive2=20 - numdead2)
 
+PMETHOD <- "none"
+
 # single response glm model but with a binomial pair of y columns
 cat("a1: single response glm model but with a binomial pair of y columns, with ldose1 data degree=2\n\n")
-a1 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=4, pmethod="none", degree=2)
+a1 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=4, pmethod=PMETHOD, degree=2)
 show.earth.models(a1)
 printh(evimp(a1, trim=FALSE, sqrt=FALSE))
 printh(evimp(a1, trim=FALSE, sqrt=TRUE)) # this tests sqrt param with negative evimps
@@ -102,28 +104,28 @@ a1update <- update(a1, trace=0)
 check.models.equal(a1, a1update, msg="a1update a1")
 
 # test some different but equivalent glm specs
-a1a <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=1, pmethod="none", degree=2)
+a1a <-  earth(SF ~ sex + ldose + ldose1, glm=list(family="binomial"), trace=1, pmethod=PMETHOD, degree=2)
 check.models.equal(a1a, a1, msg="a1 a1a")
-a1b <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial), trace=1, pmethod="none", degree=2)
+a1b <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial), trace=1, pmethod=PMETHOD, degree=2)
 check.models.equal(a1, a1b, msg="a1 a1b")
-a1c <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial()), trace=1, pmethod="none", degree=2)
+a1c <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial()), trace=1, pmethod=PMETHOD, degree=2)
 check.models.equal(a1, a1c, msg="a1 a1c")
-a1d <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), trace=1, pmethod="none", degree=2)
+a1d <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), trace=1, pmethod=PMETHOD, degree=2)
 check.models.equal(a1, a1d, msg="a1 a1d")
 # Removed for earth 2.3.3 because offset is no longer supported
-# a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod="none", degree=2)
+# a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod=PMETHOD, degree=2)
 # check.models.equal(a1, a1e, msg="a1 a1e")
-# a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod="none", degree=2)
+# a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod=PMETHOD, degree=2)
 # check.models.equal(a1, a1f, msg="a1 a1f")
-a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod="none", degree=2)
+a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod=PMETHOD, degree=2)
 check.models.equal(a1, a1g, msg="a1 a1g")
 # following should cause a "did not converge warning" because maxit=2
-a1h <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8, maxit=2, trace=TRUE)), trace=1, pmethod="none", degree=2)
+a1h <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8, maxit=2, trace=TRUE)), trace=1, pmethod=PMETHOD, degree=2)
 show.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
 check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
 stopifnot(a1h$glm.list[[1]]$control$maxit == 2)
 # equivalent way of specifying maxit
-a1h2 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8),maxit=2), pmethod="none", degree=2)
+a1h2 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8),maxit=2), pmethod=PMETHOD, degree=2)
 check.models.equal(a1h, a1h2, msg="a1h a1h2")
 stopifnot(a1h2$glm.list[[1]]$control$maxit == 2)
 
@@ -136,17 +138,17 @@ stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
 show.earth.models(a1h.update2, nresponse="numali")
 
 # basic check with an I in formula
-a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod="none", degree=2)
+a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod=PMETHOD, degree=2)
 print(summary(a1i))
 
 cat("a2: single response glm model but with a binomial pair of y columns, degree=1\n\n")
-a2 <-  earth(SF ~ sex*ldose, glm=list(fa="b"), trace=3, pmethod="none")
+a2 <-  earth(SF ~ sex*ldose, glm=list(fa="b"), trace=3, pmethod=PMETHOD)
 show.earth.models(a2)
 # repeat with bpairs arg
-a2a <- earth(SF ~ sex*ldose, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=3, pmethod="none")
+a2a <- earth(SF ~ sex*ldose, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=3, pmethod=PMETHOD)
 stopifnot(identical(a2$glm.list[[1]]$coefficients, a2a$glm.list[[1]]$coefficients))
 
-a2c <- earth(SF ~ sex, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=0, pmethod="none")
+a2c <- earth(SF ~ sex, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=0, pmethod=PMETHOD)
 a2update <- update(a2, SF ~ sex, trace=0)
 check.models.equal(a2c, a2update, msg="a2c a2update")
 
@@ -160,21 +162,21 @@ cat("---------------------------------------------------------------------------
 # double response glm model with two binomial paired cols
 SF.both <- cbind(SF, SF2)
 cat("a4: double response glm model with two binomial paired cols\n\n")
-a4 <-  earth(SF.both ~ sex*ldose, glm=list(family="binomial"), trace=1)
+a4 <-  earth(SF.both ~ sex*ldose, linpreds=TRUE, glm=list(family="binomial"), trace=1)
 show.earth.models(a4, nresponse="numdead")
 print.stripped.earth.model(a4, "a4")
 # repeat with bpairs arg
-a4a <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=1)
+a4a <- earth(SF.both ~ sex*ldose, linpreds=TRUE, glm=list(fam="bi", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=1)
 stopifnot(identical(a4$glm.list[[1]]$coefficients, a4a$glm.list[[1]]$coefficients))
 stopifnot(identical(a4$glm.list[[2]]$coefficients, a4a$glm.list[[2]]$coefficients))
 a4update <- update(a4a, trace=0)
 check.models.equal(a4update, a4a, msg="a4update a4a")
 
 # alternative way of specifying bpairs
-a4aa <- earth(SF.both ~ sex*ldose, glm=list(fam="bi", bpa=c(1,3)), trace=1)
+a4aa <- earth(SF.both ~ sex*ldose, linpreds=TRUE, glm=list(fam="bi", bpa=c(1,3)), trace=1)
 check.models.equal(a4aa, a4a, msg="a4aa a4a")
 
-a4d <- earth(SF.both ~ ldose, glm=list(fam="bino", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=0)
+a4d <- earth(SF.both ~ ldose, linpreds=TRUE, glm=list(fam="bino", bpa=c(TRUE,FALSE,TRUE,FALSE)), trace=0)
 a4update <- update(a4a, form=SF.both ~ ldose)
 check.models.equal(a4update, a4d, msg="a4update a4d no keepxy")
 
@@ -184,6 +186,8 @@ a5 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), tr
 show.earth.models(a5, nresponse=3)
 printh(a5$levels)
 print.stripped.earth.model(a5, "a5")
+# variance models are not supported for multiple response models
+expect.err(try(earth(pclass ~ ., data=etitanic, ncross=3, nfold=3, varmod.method="lm")))
 
 a5d <- earth(pclass ~ .-age, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 a5update <- update(a5, form=pclass ~ .-age)
@@ -252,7 +256,7 @@ d.AD <- data.frame(treatment, outcome, counts, counts2)
 
 # one response poisson model
 cat("a8p: one response poisson model\n\n")
-a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod="none")
+a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=3, pmethod=PMETHOD)
 show.earth.models(a8p)
 # build a standard GLM model for comparison
 cat("a9: one response poisson model, standard GLM model for comparison\n\n")
@@ -263,7 +267,7 @@ plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + 
 
 # two response poisson model
 cat("a10: two response poisson model\n\n")
-a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), trace=1, pmethod="none")
+a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), trace=1, pmethod=PMETHOD)
 show.earth.models(a10, nresponse="counts2")
 
 # compare family=gaussian to standard earth model
@@ -349,8 +353,8 @@ test.predict.with.factors <- function(trace)
     numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
 
     sexmale <- (sex == "male")
-    am <-  earth(cbind(sexmale, ldose, ldose1), numdead, trace=trace, pmethod="none", degree=2)
-    af <-  earth(numdead ~ sex + ldose + ldose1, trace=trace, pmethod="none", degree=2)
+    am <-  earth(cbind(sexmale, ldose, ldose1), numdead, trace=trace, pmethod=PMETHOD, degree=2)
+    af <-  earth(numdead ~ sex + ldose + ldose1, trace=trace, pmethod=PMETHOD, degree=2)
     check.models.equal(am, af, "predict with single level factors and a single response")
 
     cat("A-20m head(predict(am, trace=", trace, ")\n", sep="")
@@ -651,7 +655,7 @@ test.predict.with.factors <- function(trace)
 
     # first for earth.default
     dummy <- rep(0, 12)
-    am <-  earth(cbind(ldose, dummy, ldose1), numdead, trace=trace, pmethod="none", degree=2)
+    am <-  earth(cbind(ldose, dummy, ldose1), numdead, trace=trace, pmethod=PMETHOD, degree=2)
     # prepare reference prediction, using all columns
     newdata <- matrix(c(-2, 0, 0.1), ncol=3, nrow=1)
     colnames(newdata) <- c("ldose", "dummy", "ldose1")
@@ -679,7 +683,7 @@ test.predict.with.factors <- function(trace)
 
     # now for earth.formula
     dummy <- rep(0, 12)
-    af <-  earth(numdead ~ ldose + dummy + ldose1, trace=trace, pmethod="none", degree=2)
+    af <-  earth(numdead ~ ldose + dummy + ldose1, trace=trace, pmethod=PMETHOD, degree=2)
     # prepare reference prediction, using all columns
     newdata <- matrix(c(-2, 0, 0.1), ncol=3, nrow=1)
     colnames(newdata) <- c("ldose", "dummy", "ldose1")
@@ -725,8 +729,8 @@ test.predict.with.factors <- function(trace)
     numdeadboth <- cbind(numdead, numdead2)
     isex <- as.double(sex3) # sex3 as an index
     df <- data.frame(sex3, ldose, ldose1, fac3)
-    am <-  earth(df, numdeadboth, trace=trace, pmethod="none", degree=2)
-    af <-  earth(numdeadboth ~ ., data=df, trace=trace, pmethod="none", degree=2)
+    am <-  earth(df, numdeadboth, trace=trace, pmethod=PMETHOD, degree=2)
+    af <-  earth(numdeadboth ~ ., data=df, trace=trace, pmethod=PMETHOD, degree=2)
     check.models.equal(am, af, "B predict with multiple level factors and a multiple real response")
     cat("20m head(predict(am, trace=", trace, ")\n", sep="")
     pm <- predict(am, trace=trace)
@@ -886,9 +890,9 @@ test.predict.with.factors <- function(trace)
 
     isex <- as.double(sex3) # sex3 as an index
     df <- data.frame(sex3=sex3, ldose=ldose, ldose1=ldose1, fac3=fac3)
-    am <-  earth(df, facdead, trace=trace, pmethod="none", degree=2)
+    am <-  earth(df, facdead, trace=trace, pmethod=PMETHOD, degree=2)
     df.with.response <- data.frame(sex3=sex3, ldose=ldose, ldose1=ldose1, facdead=facdead, fac3=fac3)
-    af <-  earth(facdead ~ ., data=df.with.response, trace=trace, pmethod="none", degree=2)
+    af <-  earth(facdead ~ ., data=df.with.response, trace=trace, pmethod=PMETHOD, degree=2)
     check.models.equal(am, af, "C predict with multiple level factors and a multiple real response")
     cat("20m head(predict(am, trace=", trace, ")\n", sep="")
     pm <- predict(am, trace=trace)
@@ -1040,8 +1044,8 @@ numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
 SF <- cbind(numdead, numalive=20 - numdead)
 
 cat("c1a: single response glm model with a binomial pair of y columns, fitted values, keepxy=0\n")
-c1a <-  earth(SF ~ sex + ldose, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=0)
-c1ae <-  earth(numdead ~ sex + ldose, trace=1, pmethod="none", degree=1, keepxy=0)
+c1a  <- earth(SF ~ sex + ldose, glm=list(family="binomial"), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=0)
+c1ae <- earth(numdead ~ sex + ldose, trace=1, linpreds=TRUE, pmethod=PMETHOD, degree=1, keepxy=0)
 c1ag <- glm(SF ~ sex + ldose, family="binomial") # use this as a reference
 
 c1a.predict <- predict(c1a, trace=1)
@@ -1058,8 +1062,8 @@ c1ae.predict <- predict(c1ae, trace=1)
 check.fuzzy.equal(c1a.predict, c1ae.predict, fuzz=1e-10, msg="c1a fitted values, type=earth, keepxy=0", verbose=TRUE)
 
 cat("c1b: single response glm model with a binomial pair of y columns\n")
-c1b <-  earth(SF ~ sex + ldose, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=1)
-c1be <-  earth(numdead ~ sex + ldose, trace=1, pmethod="none", degree=1, keepxy=1)
+c1b <-  earth(SF ~ sex + ldose, glm=list(family="binomial"), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
+c1be <-  earth(numdead ~ sex + ldose, linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
 c1bg <- glm(SF ~ sex + ldose, family="binomial") # use this as a reference
 
 newdata <- data.frame(sex=sex[1], ldose=2)
@@ -1094,8 +1098,8 @@ check.fuzzy.equal(c1b.predict, c1be.predict, fuzz=1e-10, msg="c1b multiple rows 
 
 cat("c2: double response glm model with two y binomial pairs\n")
 SF2 <- cbind(numdead, numalive=20 - numdead, numdead2=numdead, numalive2=20 - numdead)
-c2 <-  earth(SF2 ~ sex + ldose, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=1)
-c2e <-  earth(data.frame(sex, ldose), data.frame(numdead,numdead), trace=1, pmethod="none", degree=1, keepxy=1)
+c2 <-  earth(SF2 ~ sex + ldose, glm=list(family="binomial"), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
+c2e <-  earth(data.frame(sex, ldose), data.frame(numdead,numdead), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
 c2g <- glm(SF ~ sex + ldose, family="binomial") # use this as a reference
 
 newdata <- data.frame(sex=sex[1], ldose=2)
@@ -1130,9 +1134,9 @@ cat("c3a: single response glm model with a boolean response, fitted values, keep
 
 mybool <- rep(c(FALSE, TRUE), times=c(6,6))
 data1 <- data.frame(mybool, sex, ldose)
-c3a <-  earth(mybool ~ sex + ldose, data=data1, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=0)
+c3a <-  earth(mybool ~ sex + ldose, data=data1, glm=list(family="binomial"), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=0)
 c3ag <- glm(mybool ~ sex + ldose, family="binomial") # use this as a reference
-c3ae <- earth(mybool ~ sex + ldose, data=data1, pmethod="none", degree=1, keepxy=1)
+c3ae <- earth(mybool ~ sex + ldose, data=data1, linpreds=TRUE, pmethod=PMETHOD, degree=1, keepxy=1)
 
 c3a.predict <- predict(c3a, trace=1)
 c3ag.predict <- predict(c3ag, trace=1)
@@ -1154,9 +1158,9 @@ stopifnot(c3a.class.predict == (c3a.response.predict > .5))
 
 cat("c3b: single response glm model with a boolean response, fitted values, keepxy=1\n")
 
-c3b <-  earth(mybool ~ sex + ldose, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=1)
+c3b <-  earth(mybool ~ sex + ldose, glm=list(family="binomial"), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
 c3bg <- glm(mybool ~ sex + ldose, family="binomial") # use this as a reference
-c3be <- earth(mybool ~ sex + ldose, pmethod="none", degree=1, keepxy=0)
+c3be <- earth(mybool ~ sex + ldose, linpreds=TRUE, pmethod=PMETHOD, degree=1, keepxy=0)
 
 c3b.predict <- predict(c3b, trace=1) # fitted values
 c3bg.predict <- predict(c3bg, trace=1)
@@ -1177,9 +1181,9 @@ stopifnot(c3b.class.predict == (c3b.response.predict > .5))
 
 cat("c3c: single response glm model with a boolean response\n")
 
-c3c <-  earth(mybool ~ sex + ldose, data=data1, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=0)
+c3c <-  earth(mybool ~ sex + ldose, data=data1, linpreds=TRUE, glm=list(family="binomial"), trace=1, pmethod=PMETHOD, degree=1, keepxy=0)
 c3cg <- glm(mybool ~ sex + ldose, data=data1, family="binomial") # use this as a reference
-c3ce <- earth(mybool ~ sex + ldose, data=data1, pmethod="none", degree=1, keepxy=0)
+c3ce <- earth(mybool ~ sex + ldose, data=data1, linpreds=TRUE, pmethod=PMETHOD, degree=1, keepxy=0)
 
 newdata <- data.frame(sex=sex[1], ldose=2)
 c3c.predict <- predict(c3c, newdata)
@@ -1207,14 +1211,14 @@ stopifnot(c3c.class.predict == (c3c.response.predict > .5))
 cat("c3d: single response glm model with a two level factor response\n")
 cat("Expect \"did not converge warnings\", it doesn't matter for our purposes here\n")
 myfac <- gl(2, 3, length=12, labels = c("Control", "Treat"))
-c3d <-  earth(myfac ~ ldose + sex, data=data1, glm=list(family="binomial"), trace=0, pmethod="none", degree=1)
+c3d <-  earth(myfac ~ ldose + sex, data=data1, glm=list(family="binomial"), trace=0, pmethod=PMETHOD, degree=1)
 c3d.class.predict <- predict(c3d,type="cl") # we also test here that the type can be abbreviated
 stopifnot(c3d.class.predict == myfac)
 
 cat("c4: multiple response glm model with a factor response\n")
 fac3 <- factor(rep(c("A", "B", "C"), times=c(4,3,5)))
 cat("Expect \"did not converge warnings\", it doesn't matter for our purposes here\n")
-c4 <-  earth(fac3 ~ sex + ldose, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=1)
+c4 <-  earth(fac3 ~ sex + ldose, linpreds=TRUE, glm=list(family="binomial"), trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
 c4g <- glm(fac3 ~ sex + ldose, family="binomial") # use this as a reference
 
 newdata <- data.frame(sex=sex[1], ldose=2)
@@ -1237,7 +1241,7 @@ cat("c5: multiple response glm model with two multi level factor responses\n")
 fac3 <- factor(rep(c("A", "B", "C"), times=c(4,3,5)))
 fac4 <- factor(rep(c("P", "Q", "R", "S"), times=c(3,3,3,3)))
 big.dataframe <- data.frame(fac3, fac4)
-c5 <-  earth(data.frame(sex, ldose), big.dataframe, trace=1, pmethod="none", degree=1, keepxy=1)
+c5 <-  earth(data.frame(sex, ldose), big.dataframe, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
 stopifnot(colnames(c5$coef) == c("fac3A", "fac3B", "fac3C",
                                  "fac4P", "fac4Q", "fac4R", "fac4S"))
 stopifnot(is.null(c5$glm.bpairs))
@@ -1245,7 +1249,7 @@ stopifnot(is.null(c5$glm.bpairs))
 cat("c6: multiple response earth model with mixed responses\n")
 
 big.dataframe2 <- data.frame(SF, fac3, fac4, SF+1, sex, fac4, SF+3)
-c6 <-  earth(data.frame(sex, ldose), big.dataframe2, trace=1, pmethod="none", degree=1, keepxy=1)
+c6 <-  earth(data.frame(sex, ldose), big.dataframe2, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
 stopifnot(colnames(c6$coef) == c("numdead", "numalive", "fac3A", "fac3B", "fac3C",
                                   "fac4P", "fac4Q", "fac4R", "fac4S", "numdead.1", "numalive.1",
                                   "sex", "fac4.1P", "fac4.1Q", "fac4.1R", "fac4.1S",
@@ -1254,7 +1258,7 @@ stopifnot(is.null(c6$glm.bpairs))
 
 cat("c7: multiple response glm model with mixed responses\n")
 cat("Expect \"did not converge warnings\", it doesn't matter for our purposes here\n")
-c7 <-  earth(data.frame(sex, ldose), big.dataframe2, glm=list(family="binomial"), trace=1, pmethod="none", degree=1, keepxy=1)
+c7 <-  earth(data.frame(sex, ldose), big.dataframe2, glm=list(family="binomial"), trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
 print(summary(c7))
 print(summary(c7, details=1))
 stopifnot(colnames(c7$coef) == c("numdead", "fac3A", "fac3B", "fac3C",
@@ -1277,8 +1281,8 @@ printh(resid(a, type="glm.working"), max.print=3)
 printh(resid(a, type="glm.response"), max.print=3)
 printh(resid(a, type="glm.partial"), max.print=3)
 expect.err(try(printh(resid(a, type="nonesuch"), max.print=3))) # type="nonesuch" is illegal.
-expect.err(try(printh(resid(a, type="g"), max.print=3))) # type="g" is ambiguous.
-expect.err(try(printh(resid(a, type="pearson"), max.print=3))) # model was not built with varmod.method
+expect.err(try(printh(resid(a, type="g"), max.print=3))) # type="g" is ambiguous
+expect.err(try(printh(resid(a, type="student"), max.print=3))) # model was not built with varmod.method
 
 # tests based on Gavin Simpson's bug report
 # fit a MARS model allowing one-way interactions
@@ -1360,7 +1364,7 @@ facdead <- factor(c("dead2", "dead2", "dead3", "dead1", "dead3", "dead3",
 
 isex <- as.double(sex3) # sex3 as an index
 df1 <- data.frame(sex2, d_=facdead, sex, sex, isex)
-af <-  earth(data.frame(sex3,ldose,fac3,isex), df1, trace=1, pmethod="none", degree=2)
+af <-  earth(data.frame(sex3,ldose,fac3,isex), df1, trace=1, pmethod=PMETHOD, degree=2)
 
 cat("---misc 3---\n")
 
@@ -1371,7 +1375,7 @@ cat("---misc 3---\n")
 ldose  <- rep(0:5, 2) - 2
 ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
 sex2 <- rep(c("male", "female"), times=c(6,6))
-af <-  earth(sex2, sex2, trace=1, pmethod="none", degree=2)
+af <-  earth(sex2, sex2, trace=1, pmethod=PMETHOD, degree=2)
 
 # test update.earth with a bpairs argument (for now always do forward pass if bpairs used)
 

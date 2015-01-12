@@ -67,44 +67,9 @@ data(trees)
 earth.mod <- earth(Volume ~ ., data = trees)
 summary(earth.mod, decomp = "none") # "none" to print terms in same seq as lm.mod below
 
-# yields:
-#  Call: earth(formula=Volume~., data=trees)
-#
-#               coefficients
-#  (Intercept)         37.93
-#  h(Girth-16)          7.40
-#  h(16-Girth)         -3.92
-#  h(Height-75)         0.48
-#
-#  Selected 4 of 6 terms, and 2 of 2 predictors
-#  Termination condition: RSq changed by less than 0.001 at 6 terms
-#  Importance: Girth, Height
-#  Number of terms at each degree of interaction: 1 3 (additive model)
-#  GCV 12.7    RSS 236    GRSq 0.954    RSq 0.971
-
 bx <- model.matrix(earth.mod)         # equivalent to bx <- earth.mod$bx
 lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
 summary(lm.mod)                       # yields same coeffs as above summary
                                       # displayed t values are not meaningful
-
-# yields (note that the displayed stderrs and p values are meaningless):
-#
-#  Call:
-#  lm(formula = trees$Volume ~ bx[, -1])
-#
-#  Residuals:
-#     Min     1Q Median     3Q    Max
-#  -5.272 -2.228  0.373  2.016  4.947
-#
-#  Coefficients:
-#                       Estimate Std. Error t value Pr(>|t|)
-#  (Intercept)            37.927      1.291   29.38  < 2e-16
-#  bx[, -1]h(16-Girth)    -3.919      0.275  -14.25  4.4e-14
-#  bx[, -1]h(Girth-16)     7.401      0.727   10.18  9.8e-11
-#  bx[, -1]h(Height-75)    0.484      0.176    2.76     0.01
-#
-#  Residual standard error: 2.96 on 27 degrees of freedom
-#  Multiple R-squared:  0.971,  Adjusted R-squared:  0.968
-#  F-statistic:  300 on 3 and 27 DF,  p-value: <2e-16
 }
 \keyword{models}

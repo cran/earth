@@ -254,7 +254,7 @@ static void TestEarth(char sTestName[],
     nTest++;
 
     printf("=============================================================================\n");
-    printf("TEST %d: %s\n", nTest, sTestName);
+    printf("TEST %d: %s n=%d p=%d\n", nTest, sTestName, nCases, nPreds);
 
     // init x
     srand(seed);
@@ -289,13 +289,28 @@ static void TestEarth(char sTestName[],
     int nTerms, iReason;
     const double Penalty = ((nMaxDegree>1)? 3:2);
     clock_t Time = clock();
-
+    if(Trace >= 4) {
+        if(nResponses != 1)
+            error("cannot use Trace>=4 with nResponses!=1");
+        printf("           y");
+        for(int iPred = 0; iPred < nPreds; iPred++)
+            printf("         x%d", iPred);
+        printf("\n");
+        for(int i = 0; i < nCases; i++) {
+            printf("%4d % 7.5f", i, y[i]);
+            for(int iPred = 0; iPred < nPreds; iPred++) {
+                printf(" % 7.5f", x[i + iPred * nCases]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
     Earth(&BestGcv, &nTerms, &iReason, BestSet, bx, Dirs, Cuts, Residuals, Betas,
         x, y, NULL, // weights are NULL
         nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0, 0,   // MinSpan, EndSpan
         true,   // Prune
-        nFastK, FastBeta, NewVarPenalty, LinPreds, true, Trace, NULL);
+        nFastK, FastBeta, NewVarPenalty, LinPreds, 2 /*AdjustEndSpan*/, true, Trace, NULL);
 
     // calc nUsedTerms
 
@@ -338,18 +353,18 @@ static void TestEarth(char sTestName[],
                    nTest, iResponse+1, GRSq, RSq,
                    nUsedTerms, nTerms, nMaxTerms);
             if (iResponse == 0)
-                printf(" FUNCTION %s [%.2f secs]", sTestName, TimeDelta);
+                printf(" FUNCTION %s n=%d p=%d [%.2f secs]", 
+                   sTestName, nCases, nPreds, TimeDelta);
             printf("\n");
-
         }
         else
             printf("RESULT %d: GRSq %g RSq %g nTerms %d of %d of %d "
-                   "FUNCTION %s [%.2f secs]\n",
+                   "FUNCTION %s n=%d p=%d [%.2f secs]\n",
                    nTest, GRSq, RSq, nUsedTerms, nTerms, nMaxTerms,
-                   sTestName, TimeDelta);
+                   sTestName, nCases, nPreds, TimeDelta);
     }
     if (Format && Trace != 0) {
-        printf("\nTEST %d: FUNCTION %s\n", nTest, sTestName);
+        printf("\nTEST %d: FUNCTION %s n=%d p=%d\n", nTest, sTestName, nCases, nPreds);
         FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResponses, nTerms, nMaxTerms, 3, 1e-6);
         printf("\n");
     }
@@ -368,79 +383,79 @@ static void TestEarth(char sTestName[],
 int main(void)
 {
   clock_t Time = clock();
-                                         // func    nCases     nResp nPreds  nMaxDegree nMaxTerms  Trace Form Thresh K B N s
-  TestEarth("noise N=1000",            funcNoise,     1000,        1,     1,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("x0 N=10",                     func0,       10,        1,     1,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("x0 N=1000",                   func0,     1000,        1,     1,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("x0 + noise N=1000",           func0,     1000,        1,   1+1,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("x0 + x1 N=1000",              func1,     1000,        1,     2,          2,       11,     7,true,0.001,20,1,0,99);
-  TestEarth("x0 + x1 + noise N=1000",      func1,     1000,        1,   2+8,          2,       51,     0,true,0.001,20,1,0,99);
-  TestEarth("x0 + x1 + x0*x1 N=30",        func2,       30,        1,     2,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("x0 + x1 + x0*x1 N=1000",      func2,     1000,        1,     2,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("x0 + x1 + x0*x1 N=1000, trace=1.5", func2, 1000,      1,     2,          2,       51,   1.5,true,0.001,20,1,0,99);
-  TestEarth("cos(x0) + x1 N=1000",         func3,     1000,        1,     2,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,        1,     2,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("sin(2*x0)+2*x1*.5*x0*x1",     func4,     1000,        1,     3,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("3rd order, mi=2 ni=11",       func5,     1000,        1,     6,          2,       11,     1,true,0.001,20,1,0,99);
-  TestEarth("3rd order, mi=2 ni=51",       func5,     1000,        1,     6,          2,       51,     2,true,0.001,20,1,0,99);
-  TestEarth("3rd order, mi=3",             func5,     1000,        1,     6,          3,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("5 preds + noise",             func6,      200,        1,  5+10,          2,      101,     3,true,0.001,20,1,0,99);
-  TestEarth("5 preds clean",          func6clean,      200,        1,  5+10,          2,      101,     3,true,0.001,20,1,0,99);
-  TestEarth("10 preds + noise",            func7,      200,        1, 10+40,          2,      101,     3,true,0.001,20,1,0,99);
-  TestEarth("20 preds + noise, N=100",     func8,      100,        1, 20+10,          2,      101,     3,true,0.001,20,1,0,99);
-  TestEarth("20 preds + noise, N=400",     func8,      400,        1, 20+10,          2,      101,     3,true,0.001,20,1,0,99);
-  TestEarth("3rd order, mi=3, + noise",    func5,     1000,        1,    10,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("eqn56 mi=1 N=300",            func56,     300,        1,     6,          1,      101,     3,true,0.001,20,1,0,99);
-  TestEarth("eqn56 mi=2 N=300",            func56,     300,        1,     6,          2,       51,     3,true,0.001,20,1,0,99);
-  TestEarth("eqn56 mi=10 N=300",           func56,     300,        1,     6,         10,       51,     3,true,0.001,20,1,0,99);
+                                       // func  nCases     nResp nPreds  nMaxDegree nMaxTerms  Trace Form Thresh K B N s
+  TestEarth("noise",                   funcNoise, 1000,        1,     1,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("x0",                      func0,       10,        1,     1,          2,       51,     7,true,0.001,20,1,0,99);
+  TestEarth("x0",                      func0,     1000,        1,     1,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("x0 + noise",              func0,     1000,        1,   1+1,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("x0 + x1",                 func1,     1000,        1,     2,          2,       11,     7,true,0.001,20,1,0,99);
+  TestEarth("x0 + x1 + noise",         func1,     1000,        1,   2+8,          2,       51,     0,true,0.001,20,1,0,99);
+  TestEarth("x0 + x1 + x0*x1",         func2,       30,        1,     2,          2,       51,     4,true,0.001,20,1,0,99);
+  TestEarth("x0 + x1 + x0*x1",         func2,     1000,        1,     2,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("x0 + x1 + x0*x1",         func2,     1000,        1,     2,          2,       51,   1.5,true,0.001,20,1,0,99);
+  TestEarth("cos(x0) + x1",            func3,     1000,        1,     2,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("sin(2*x0)+2*x1*.5*x0*x1", func4,     1000,        1,     2,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("sin(2*x0)+2*x1*.5*x0*x1", func4,     1000,        1,     3,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("3rd order, mi=2 ni=11",   func5,     1000,        1,     6,          2,       11,     1,true,0.001,20,1,0,99);
+  TestEarth("3rd order, mi=2 ni=51",   func5,     1000,        1,     6,          2,       51,     2,true,0.001,20,1,0,99);
+  TestEarth("3rd order, mi=3",         func5,     1000,        1,     6,          3,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("5 preds + noise",         func6,      200,        1,  5+10,          2,      101,     3,true,0.001,20,1,0,99);
+  TestEarth("5 preds clean",           func6clean, 200,        1,  5+10,          2,      101,     3,true,0.001,20,1,0,99);
+  TestEarth("10 preds + noise",        func7,      200,        1, 10+40,          2,      101,     3,true,0.001,20,1,0,99);
+  TestEarth("20 preds + noise,",       func8,      100,        1, 20+10,          2,      101,     3,true,0.001,20,1,0,99);
+  TestEarth("20 preds + noise,",       func8,      400,        1, 20+10,          2,      101,     3,true,0.001,20,1,0,99);
+  TestEarth("3rd order, mi=3 + noise", func5,     1000,        1,    10,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("eqn56 mi=1",              func56,     300,        1,     6,          1,      101,     3,true,0.001,20,1,0,99);
+  TestEarth("eqn56 mi=2",              func56,     300,        1,     6,          2,       51,     3,true,0.001,20,1,0,99);
+  TestEarth("eqn56 mi=10",             func56,     300,        1,     6,         10,       51,     3,true,0.001,20,1,0,99);
   // Following two tests are slow so are commented out (take more than half a second each)
-  // TestEarth("eqn56 mi=10 N=1000",       func56,    1000,        1,     6,         10,      101,     3,true,0.001,20,1,0,99);
-  // TestEarth("eqn56 mi=10 N=5000",       func56,    5000,        1,     6,         10,      101,     3,true,0.001,20,1,0,99);
+  // TestEarth("eqn56 mi=10",          func56,    1000,        1,     6,         10,      101,     3,true,0.001,20,1,0,99);
+  // TestEarth("eqn56 mi=10",          func56,    5000,        1,     6,         10,      101,     3,true,0.001,20,1,0,99);
 
-  TestEarth("x0 + x1 + x0*x1 N=30 fastk=99",           func2, 30,  1,     2,          2,       51,     7,true,0.001,99,1,0,99);
-  TestEarth("x0 + x1 + x0*x1 N=30 fastk=4 fastbeta=0", func2, 30,  1,     2,          2,       51,     7,true,0.001, 4,0,0,99);
-  TestEarth("x0 + x1 + x0*x1 N=30 fastk=4 fastbeta=1", func2, 30,  1,     2,          2,       51,     7,true,0.001, 4,1,0,99);
+  TestEarth("x0 + x1 + x0*x1",         func2,       30,        1,     2,          2,       51,     3,true,0.001,99,1,0,99);
+  TestEarth("x0 + x1 + x0*x1",         func2,       30,        1,     2,          2,       51,     3,true,0.001, 4,0,0,99);
+  TestEarth("x0 + x1 + x0*x1",         func2,       30,        1,     2,          2,       51,     3,true,0.001, 4,1,0,99);
 
   // test multiple responses                func    nCases     nResp nPreds  nMaxDegree nMaxTerms  Trace Form  Thresh K B N s
 
-  TestEarth("x0|x0+x1 N=30 degree=1",    func0_1clean,  30,        2,     2,          1,       51,     4, true,0.001,20,1,0,99);
+  TestEarth("x0|x0+x1 degree=1",     func0_1clean,  30,        2,     2,          1,       51,     3, true,0.001,20,1,0,99);
 
-  TestEarth("x0|x+x1+noise N=100",       func0_1,      100,        2,     2,          1,       51,     4, true,0.001,20,1,0,99);
+  TestEarth("x0|x+x1+noise",         func0_1,      100,        2,     2,          1,       51,     3, true,0.001,20,1,0,99);
 
-  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=1, N=100",
-                                         func2_2,      100,        2,     2,          1,       51,     4, true,0.001,20,1,0,99);
+  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=1",
+                                     func2_2,      100,        2,     2,          1,       51,     3, true,0.001,20,1,0,99);
 
-  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=2 N=100",
-                                         func2_2,      100,        2,     2,          2,       51,     7, true,0.001,20,1,0,99);
+  TestEarth("x0+x1+x0*x1|x0+x1+x0*x1 degree=2",
+                                     func2_2,      100,        2,     2,          2,       51,     3, true,0.001,20,1,0,99);
 
-  TestEarth("x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds, N=200",
-                                         func0_4,      200,        2,    10,          2,      101,     3, true,0.001,20,1,0,99);
+  TestEarth("x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds",
+                                     func0_4,      200,        2,    10,          2,      101,     3, true,0.001,20,1,0,99);
 
-  TestEarth("x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds N=200",
-                                         func0_2_4,    200,        3,   3+8,          2,      101,     3, true,0.001,20,1,0,99);
+  TestEarth("x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds",
+                                     func0_2_4,    200,        3,   3+8,          2,      101,     3, true,0.001,20,1,0,99);
 
-  TestEarth("|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds N=200",
-                                         func2_4_0,    200,        3,   3+8,          2,      101,     3, true,0.001,20,1,0,99);
+  TestEarth("|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds",
+                                     func2_4_0,    200,        3,   3+8,          2,      101,     3, true,0.001,20,1,0,99);
 
-  TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds N=200",
-                                         func4_2_0,    200,        3,   3+8,          2,      101,     3, true,0.001,20,1,0,99);
+  TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds",
+                                     func4_2_0,    200,        3,   3+8,          2,      101,     3, true,0.001,20,1,0,99);
 
   //TODO following gives lousy GRSq for Response 2, investigate
-  TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise N=1000",
-                                         func4_6,     1000,         2,     6,         2,      101,     3, true,0.001,20,1,0,99);
+  TestEarth("sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise",
+                                     func4_6,     1000,        2,     6,         2,      101,      3, true,0.001,20,1,0,99);
 
   // test NewVarPenalty                     func    nCases     nResp nPreds  nMaxDegree nMaxTerms   Trace Form Thresh  K B  NP  s Colin
 
   // basis functions (after pruning) include both predictors
   TestEarth("cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0",
-                                     func2collinear,      100,        1,     2,          1,       51,     3, true, 0.001,20,1,  0, 99,.07);
+                               func2collinear,      100,       1,     2,          1,       51,     3, true, 0.001,20,1,  0, 99,.07);
 
   // basis functions (after pruning) include only one predictor
   TestEarth("cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0",
-                                     func2collinear,      100,        1,     2,          1,       51,     3, true, 0.001,20,1,0.1, 99,.07);
+                               func2collinear,      100,       1,     2,          1,       51,     3, true, 0.001,20,1,0.1, 99,.07);
 
 #if PRINT_TIME
-  printf("Total time %.2f secs\n", (double)(clock() - Time) / CLOCKS_PER_SEC);
+  printf("[Total time %.2f secs]\n", (double)(clock() - Time) / CLOCKS_PER_SEC);
 #endif
 
   return 0;

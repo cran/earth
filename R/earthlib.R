@@ -1,12 +1,16 @@
-# earthlib.R: general purpose routines that are needed by the earth package
-#
-# Stephen Milborrow Mar 2007 Petaluma
+# earthlib.R: general purpose routines for the earth package
 #
 # TODO the make.space functions should take into account char height and other par settings
 
 stop0 <- function(...) stop(..., call.=FALSE)
 
+# like stop0, but pass args in printf format
+stopf <- function(...) stop(sprintf(...), call.=FALSE)
+
 warning0 <- function(...) warning(..., call.=FALSE)
+
+# like warning0, but pass args in printf format
+warnf <- function(...) warning(sprintf(...), call.=FALSE)
 
 any1 <- function(x) any(x != 0) # like any but no warning if x not logical
 
@@ -26,6 +30,20 @@ paste.with.comma <- function(s) paste(s, collapse=", ")
 paste.quoted.names <- function(names) # add quotes and comma seperators
     paste0("\"", paste(names, collapse="\" \""), "\"")
 
+quote.with.c <- function(names) # return "x" or c("x1", "x2")
+{
+    if(length(names) == 1)
+        sprintf("\"%s\"", names)
+    else
+        sprintf("c(%s)", paste0("\"", paste(names, collapse="\", \""), "\""))
+}
+paste.with.c <- function(x) # return x or c(x1, x2)
+{
+    if(length(x) == 1)
+        sprintf("%d", x)
+    else
+        sprintf("c(%s)", paste(x, collapse=", "))
+}
 printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
 
 pastef <- function(s, format, ...) # paste the c printf style args to s
@@ -51,8 +69,6 @@ lty.as.char <- function(lty)
     }
     char
 }
-get.rsq <- function(rss, tss) 1 - rss / tss
-
 get.mean.rsq <- function(rss, tss, wp)
 {
     if(is.null(wp))
@@ -62,6 +78,26 @@ get.mean.rsq <- function(rss, tss, wp)
     for(iresp in seq_along(rss))
         total.rsq <- total.rsq + wp[iresp] * get.rsq(rss[iresp], tss[iresp])
     sum(total.rsq) / sum(wp)
+}
+get.rsq <- function(rss, tss)
+{
+    rsq <- 1 - rss / tss
+    # following makes testing easier across machines in presence of numerical error
+    rsq[rsq > -1e-5 & rsq < 1e-5] <- 0
+    rsq
+}
+get.weighted.rsq <- function(y, yhat, w=NULL)
+{
+    stopifnot(length(y) == length(yhat))
+    if(is.null(w)) {
+        rss <- sum((y - yhat)^2)
+        tss <- sum((y - mean(y))^2)
+    } else {
+        stopifnot(length(w) == length(yhat))
+        rss <- sum(w * (y - yhat)^2)
+        tss <- sum(w * (y - weighted.mean(y, w))^2)
+    }
+    get.rsq(rss, tss)
 }
 weighted.mean <- function(x, w) sum(w * x) / sum(w)
 
@@ -112,6 +148,9 @@ to.logical <- function(x, len)
 }
 repl <- function(x, length.out)
 {
+    check.numeric.scalar(length.out)
+    stopifnot(floor(length.out) == length.out)
+    stopifnot(length.out > 0)
     rep(x, length.out=length.out)
 }
 check.boolean <- function(b) # b==0 or b==1 is also ok
@@ -138,6 +177,7 @@ check.numeric.scalar <- function(x, null.ok=FALSE, na.ok=FALSE, xname=NULL)
         stop0("the ", xname, " argument must be numeric")
     else if(length(x) != 1)
         stop0("the ", xname, " argument must be scalar")
+    x
 }
 check.integer.scalar <- function(x, min=NULL, null.ok=FALSE, na.ok=FALSE, xname=NULL)
 {
@@ -267,7 +307,7 @@ make.space.for.caption <- function(caption="CAPTION")
     needed <- 3
     # adjust for newlines in caption
     newlines <- grep("\n", caption)
-    if(length(newlines))
+    if(length(newlines) > 0)
         needed <- needed + .5 * newlines # .5 seems enough although 1 in theory
     if(!is.null(caption) && any(nchar(caption)) && oma[3] <= needed) {
         oma[3] <- needed
@@ -296,17 +336,24 @@ show.caption <- function(caption, trim=TRUE, show=TRUE, cex=1)
     }
     caption
 }
-# Like text, but with a white background
-# This assumes adj=.5 and pos=NULL.
+# like text, but with a white background
+# TODO sign of adj is backwards?
 
-text.on.white <- function(x, y, label, cex, ...)
+text.on.white <- function(x, y, label, cex=1, adj=.5, font=1, ...)
 {
     stopifnot(length(label) == 1)
-    width  <- strwidth(label, cex=cex)
-    height <- strheight(label, cex=cex)
-    rect(x - width/2, y - 1.5 * height/2, x + width/2, y + 1.2 * height/2,
+    width       <- strwidth(label, cex=cex, font=font)
+    char.width  <- strwidth("X", cex=cex, font=font)
+    height      <- strheight(label, cex=cex, font=font)
+    char.height <- strheight("X", cex=cex, font=font)
+    if(length(adj) == 1)
+        adj <- c(adj, .5)
+    rect(x - adj[1]         * width  - .2 * char.width,
+         y - 1 * adj[2]     * height - .5 * char.height,
+         x + (1-adj[1])     * width  + .2 * char.width,
+         y + 1 * (1-adj[2]) * height + .1 * char.height,
          col="white", border=NA)
-    text(x=x, y=y, labels=label, cex=cex, ...)
+    text(x=x, y=y, labels=label, cex=cex, adj=adj, font=font, ...)
 }
 # Given a list of objects, return a vector of strings.  Each string shows where
 # the $call argument of the object differs from the call of the first object.
@@ -436,7 +483,7 @@ print.matrix.info <- function(xname, x, Callers.name=NULL, bpairs=NULL,
     }
 }
 # If xlim[1] == xlim[2], then plot() issues a message.  We don't want that,
-# so use this function to make sure xlim[2] is different than xlim[1].
+# so use this function to make sure xlim[2] is different to xlim[1].
 # We also use this function for ylim.
 
 fix.lim <- function(xlim)
@@ -460,7 +507,7 @@ check.that.most.are.positive <- function(x, xname, user.arg, non.positive.msg, f
     check.numeric.scalar(frac.allowed)
     stopifnot(frac.allowed >= 0 && frac.allowed <= 1)
     nonpos <- x <= 0
-    if(sum(nonpos) > frac.allowed * length(x)) { # more than frac.allowed nonpos?
+    if(sum(nonpos, na.rm=TRUE) > frac.allowed * length(x)) { # more than frac.allowed nonpos?
         ifirst <- which(nonpos)[1]
         stop0(sprintf(
                 "%s is not allowed because too many %ss are %s\n",
@@ -489,27 +536,34 @@ check.deprecated <-function(new, new.is.missing, old)
     if(length(old) != 1 || !is.na(old)) {
         new.name <- deparse(substitute(new))
         old.name <- deparse(substitute(old))
-        warning0(sprintf(
-            "%s is deprecated.  Please use %s instead.",
-            old.name, new.name))
+        warnf("%s is deprecated.  Please use %s instead.", old.name, new.name)
         if(!new.is.missing)
-            warning0(sprintf(
-                "%s and %s both specified.  Please use just %s.",
-                old.name, new.name, new.name))
+            warnf("%s and %s both specified.  Please use just %s.",
+                  old.name, new.name, new.name)
         new <- old
     }
     new
 }
-check <- function(x, xname, check.name, check.func)
+check <- function(x, xname, check.name, check.func, allow.na=FALSE)
 {
-    if(any(check.func(x))) {
+    any <- check.func(x)
+    if(allow.na)
+        any <- any[!is.na(any)]
+    else {
+        which.na <- which(is.na(any))
+        if(length(which.na)) {
+            stopf("NA in %s\n       %s[%d] is %g",
+                  xname, xname, which.na[1], x[which.na[1]])
+        }
+    }
+    if(any(any)) {
         which <- which(check.func(x))
         stopifnot(length(which) > 0)
-        stop0(sprintf("%s in %s\n       %s[%d] is %g",
-              check.name, xname, xname, which[1], x[which[1]]))
+        stopf("%s in %s\n       %s[%d] is %g",
+              check.name, xname, xname, which[1], x[which[1]])
     }
 }
-check.vec <- function(x, xname, expected.len=NA, allow.logical=TRUE)
+check.vec <- function(x, xname, expected.len=NA, allow.logical=TRUE, allow.na=FALSE)
 {
     if(!(NROW(x) == 1 || NCOL(x) == 1))
         stop0(xname, " is not a vector\n       ",
@@ -519,7 +573,10 @@ check.vec <- function(x, xname, expected.len=NA, allow.logical=TRUE)
     if(!is.na(expected.len) && length(x) != expected.len)
         stop0(xname, " has the wrong length ",
               length(x), ", expected ", expected.len)
-    check(x, xname, "NA", is.na)
+    if(allow.na)
+        x[is.na(x)] <- 1 # prevent check is.finite from complaining
+    else
+        check(x, xname, "NA", is.na)
     check(x, xname, "non-finite value", function(x) {!is.finite(x)})
 }
 par.for.plot <- function(do.par, nfigs, cex.main, caption="CAPTION", right.axis=FALSE)
@@ -532,9 +589,68 @@ par.for.plot <- function(do.par, nfigs, cex.main, caption="CAPTION", right.axis=
         nrows <- ceiling(sqrt(nfigs))
         par(mfrow=c(nrows, nrows))
         par(mar=c(4, 4, 2, if(right.axis) 3 else 1)) # small margins to pack figs in
-        par(mgp=c(1.6, 0.6, 0))                      # flatten axis elements
+        par(mgp=c(1.6, .6, 0))                       # flatten axis elements
         par(cex.main=cex.main)
         make.space.for.caption(caption)
     }
     old.par
+}
+get.response.given.formula <- function(formula, data, subset)
+{
+    call. <- match.call(expand.dots=FALSE)
+    mf <- call.[c(1, match(c("formula", "data"), names(call.), 0))]
+    mf[[1]] <- as.name("model.frame")
+    y <- try(model.response(eval.parent(mf), "any"))
+    if(is.try.error(y))
+        stop0("cannot get the model response from newdata")
+    if(is.null(y)) # probably not needed
+        stop0("cannot get the model response from newdata")
+    as.matrix(y)
+}
+# the model was created with the x,y interface (no formula)
+
+get.response.given.xy.model <- function(object, newdata)
+{
+    stopifnot(is.null(object$terms)) # shouldn't be here if model has formula
+    colnames.newdata <- colnames(newdata)
+    if(is.null(colnames.newdata))
+        stop0("cannot get response from newdata because newdata has no column names\n",
+              "Possible remedy: use a formula when building the model")
+    fitted <- fitted(object)
+    response.name <- colnames(fitted)
+    if(is.null(response.name)) {
+        y <- plotmo::get.plotmo.y.wrapper(object, parent.env, 1, NROW(fitted), trace=01)
+        response.name <- colnames(y)
+    }
+    if(is.null(response.name))
+        stopf("%s\n%s\n%s",
+              "cannot get response from newdata",
+              "Remedy 1: use a formula when building the model",
+              "Remedy 2: use y with a column name when building the model")
+    if(length(response.name) != 1)
+        stop0("multiple response models are not supported here")
+    which <- which(colnames.newdata == response.name)
+    if(length(which) == 0)
+        stop0("No column names in newdata match the original response name\n",
+              sprintf("       Response name: %s\n", response.name),
+              "       Column names in newdata: ", paste.with.space(colnames.newdata))
+    if(length(which) > 1)
+        stopf("multiple column names in newdata match the original response name %s",
+              response.name)
+    y <- as.matrix(newdata[, colnames.newdata[which]])
+    stopifnot(!is.null(y))
+    y <- as.matrix(y)
+    colnames(y) <- response.name
+    y
+}
+# extract the response column from newdata, using the model object
+# to figure out which column is the reponse column
+
+get.response <- function(object, newdata)
+{
+    stopifnot(!is.null(newdata))
+    if(is.null(object$terms))
+        get.response.given.xy.model(object, newdata)
+    else
+        get.response.given.formula(formula(object$terms), newdata)
 }

@@ -8,7 +8,7 @@
 \method{plot}{evimp}(x = stop("no 'x' arg"),
     cex.var = 1,
     type.nsubsets = "l", col.nsubsets = "black", lty.nsubsets = 1,
-    type.gcv = "l", col.gcv = "lightblue", lty.gcv = 1,
+    type.gcv = "l", col.gcv = "red", lty.gcv = 1,
     type.rss = "l", col.rss = "gray60", lty.rss = 1,
     cex.legend = 1, x.legend = nrow(x), y.legend = x[1,"nsubsets"],
     main = "Variable importance",

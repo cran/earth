@@ -1,16 +1,12 @@
 \name{residuals.earth}
 \alias{residuals.earth}
-\alias{resid.earth}
 \title{Residuals for an earth model}
 \description{
-Residuals for an \code{\link{earth}} model.
+Residuals of an \code{\link{earth}} model.
 }
 \usage{
 \method{residuals}{earth}(object = stop("no 'object' arg"),
           type = NULL, warn = TRUE, \dots)
-
-\method{resid}{earth}(object = stop("no 'object' arg"),
-      type = NULL, warn = TRUE, \dots)
 }
 \arguments{
   \item{object}{
@@ -19,10 +15,13 @@ Residuals for an \code{\link{earth}} model.
   }
   \item{type}{
      One of\cr
-        \code{"earth"} (default) return earth residuals (from the \code{\link{lm}} fit on \code{bx})\cr
-        \code{"pearson"} earth residuals divided by their stderrs (requires \code{\link{varmod}})\cr
+        \code{"earth"} (default) Residuals (from the \code{\link{lm}} fit on \code{bx}).\cr
+        \code{"student"} Residuals divided by \code{se * sqrt(1 - h_ii)}.
+See the \code{student} argument of \code{\link{plot.earth}}.\cr
+        \code{"delever"} Residuals divided by \code{sqrt(1 - h_ii)}.
+See the \code{delever} argument of \code{\link{plot.earth}}.\cr
         \code{"deviance"}
-            Return the earth \code{\link{lm}} residuals unless the object has a \code{\link{glm}} component,
+            Residuals as above, unless the object has a \code{\link{glm}} component,
             in which case return the \code{\link{glm}} deviance residuals.\cr
         \code{"glm.pearson"}\cr
         \code{"glm.working"}\cr

@@ -181,7 +181,7 @@ plot(earth.mod.help, which=1, col.oof.rsq=0, col.npreds="gray", lty.npreds=1,
      main="col.oof.rsq=0 col.npreds=gray", do.par=F)
 
 plot(earth.mod.help, which=1, main="col.infold.rsq=lightblue",
-     col.grsq = 0, col.line = 0, col.vline = 0, col.oof.vline = 0,
+     col.grsq = 0, col.rsq = 0, col.vline = 0, col.oof.vline = 0,
      col.mean.infold.rsq="blue", col.infold.rsq="lightblue",
      col.mean.oof.rsq="red", col.oof.rsq="pink",
      col.pch.max.oof.rsq="purple", col.pch.cv.rsq=1,
@@ -210,7 +210,7 @@ data <- data.frame(y=scor[,3], # didactic canonical data frame
 # to retain the cross-validation data for further processing.
 
 mod <- earth(y~., data=data, nfold=5, keepxy=TRUE)
-plot(mod, which=1, col.line=0, caption="Cross Validated Models")
+plot(mod, which=1, col.rsq=0, caption="Cross Validated Models")
 print(mod$cv.oof.rsq.tab, digits=2) # out-of-fold R-Squareds
 
 # Use the cross-validation results to select the optimum number-of-terms.

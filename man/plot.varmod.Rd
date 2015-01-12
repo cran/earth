@@ -11,7 +11,7 @@ embedded in an \code{earth} model.
 \method{plot}{varmod}(x = stop("no 'x' arg"), which = 1:4,
   do.par = length(which) > 1, info=FALSE,
   cex = NULL, caption = if(do.par) NULL else "", main = NULL,
-  col.line = "lightblue", col.min.sd = col.line, \dots)
+  col.line = "red", col.min.sd = col.line, \dots)
 }
 \arguments{
   \item{x}{
@@ -49,7 +49,7 @@ the \code{varmod} is embedded.\cr
   }
   \item{col.line}{
     Color of lines in the plots.
-    Default is \code{lightblue}.
+    Default is \code{red}.
   }
   \item{col.min.sd}{
     Color of the \code{min.sd} dotted horizontal line.
@@ -60,7 +60,7 @@ the \code{varmod} is embedded.\cr
  }
 }
 \note{
-The horizontal pale blue dotted line in the first two plots
+The horizontal red dotted line in the first two plots
 shows the value of \code{min.sd}.
 See \code{\link{earth}}'s \code{varmod.clamp} argument.
 }

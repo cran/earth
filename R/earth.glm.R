@@ -87,7 +87,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
     ncases <- nrow(bx)
     intercept.only <- ncol(bx) == 1
     if(intercept.only) {
-        # glm() requires something on the rhs the formula.
+        # glm() requires something on the rhs of the formula.
         # But this is an intercept-only model, so actually nothing on the rhs.
         # To work around that, give glm() the earth intercept, which will have
         # no effect on the glm model but will cause an extra coefficient etc. in
@@ -159,6 +159,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
         # FIXED (earth 2.3-4): removed offset etc. arguments because of
         # difficulties evaluating them later in the correct environment
         # (get.glm.arg has already checked if such args were supplied by the user).
+        # TODO if weights are used, glm gives warning "non-integer #successes in a binomial glm"
 
         g <- glm(yarg ~ ., family=family, data=bx.data.frame,
                 weights=weights, na.action=na.action,

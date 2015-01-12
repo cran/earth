@@ -65,7 +65,7 @@ plotd <- function(obj,      # obj is a model object
                 labels <- format(x$counts)
                 labels[x$counts == 0] <- ""
             }
-            text(x$mids, x$counts, labels=labels, adj=c(0.5, -0.5), cex=cex)
+            text(x$mids, x$counts, labels=labels, adj=c(.5, -.5), cex=cex)
         }
     }
     #--- plotd starts here ---

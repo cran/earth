@@ -14,7 +14,7 @@ test <- function(nk, degree, use.ozone) {
     } else {
         # example of a bigger model: 30 predictors 3000 cases
 
-        robotArm <- function(x) { # lifted from Friedman's Fast MARS paper
+        robot.arm <- function(x) { # lifted from Friedman's Fast MARS paper
           x. <- with(x, l1 * cos(theta1) - l2 * cos(theta1 + theta2) * cos(phi))
           y  <- with(x, l1 * sin(theta1) - l2 * sin(theta1 + theta2) * cos(phi))
           z  <- with(x, l2 * sin(theta2) * sin(phi))
@@ -31,7 +31,7 @@ test <- function(nk, degree, use.ozone) {
         for (i in 1:25) # 25 dummy vars, so 30 vars in total
            x <- cbind(x, runif(ncases, 0, 1))
         x <- data.frame(x)
-        y <- robotArm(x)
+        y <- robot.arm(x)
         niters <- 5
     }
     e.time <- system.time(e <- for (i in 1:niters)

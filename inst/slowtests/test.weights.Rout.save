@@ -7,6 +7,7 @@ Loading required package: plotrix
 Loading required package: class
 Loaded mda 0.4-4
 
+> options(warn=1) # print warnings as they occur
 > check.equal <- function(x, y, msg="")
 + {
 +     diff <- x - y
@@ -25,10 +26,11 @@ Loaded mda 0.4-4
 +     lm.mod.name <- deparse(substitute(lm.mod))
 +     earth.mod.name <- deparse(substitute(earth.mod))
 +     msg <- sprintf("%s vs %s", lm.mod.name, earth.mod.name)
-+     check.equal(lm.mod$coefficients,       earth.mod$coefficients, msg=sprintf("%s coefficients", msg))
-+     check.equal(lm.mod$rss,                earth.mod$rss,          msg=sprintf("%s rss", msg))
-+     check.equal(lm.mod$residuals,          earth.mod$residuals,    msg=sprintf("%s residuals", msg))
-+     check.equal(summary(lm.mod)$r.squared, earth.mod$rsq,          msg=sprintf("%s rsq", msg))
++     check.equal(lm.mod$coefficients,       earth.mod$coefficients,       msg=sprintf("%s coefficients", msg))
++     check.equal(lm.mod$rss,                earth.mod$rss,                msg=sprintf("%s rss", msg))
++     check.equal(lm.mod$residuals,          earth.mod$residuals,          msg=sprintf("%s residuals", msg))
++     check.equal(summary(lm.mod)$r.squared, earth.mod$rsq,                msg=sprintf("%s rsq", msg))
++     check.equal(summary(lm.mod)$r.squared, earth.mod$rsq.per.reponse[1], msg=sprintf("%s rsq.per.response", msg))
 + }
 > if(!interactive())
 +     postscript(paper="letter")
@@ -74,6 +76,9 @@ Loaded mda 0.4-4
 > 
 > cat("=== a5.noweights ===\n")
 === a5.noweights ===
+> par(mfrow = c(2, 2))
+> par(mar = c(3, 3, 3, 1))
+> par(mgp = c(1.5, 0.5, 0))
 > a5.noweights <- earth(y~., data=data,
 +                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
 x is a 9 by 1 matrix: 1=x
@@ -85,27 +90,54 @@ Forward pass: minspan 1 endspan 1
 1      0.0000 0.0000                    (Intercept)
 2      0.8768 0.8768       0.8768    1            x           5  2   3   
 4      0.9138 0.9138      0.03695    1            x           4  4       
-6      0.9630 0.9630      0.04927    1            x           7  5       
-8      1.0000 1.0000      0.03695    1            x           6  6       
+6      1.0000 1.0000      0.08623    1            x           6  5       
 
-Reached maximum RSq 1.0000 at 9 terms (RSq 1.0000)
+Reached maximum RSq 1.0000 at 7 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 9 terms (6 terms used)
+Forward pass complete: 7 terms (5 terms used)
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds
           1      0.0000  0.0000     0.0000      0  
           2      0.6259  0.6259     0.6259      1  
           3      0.8768  0.8768     0.2509      1  
           4      0.9326  0.9326     0.0558      1  
-          5      1.0000  1.0000     0.0674      1  
-chosen    6      1.0000  1.0000     0.0000      1  
+chosen    5      1.0000  1.0000     0.0674      1  
 
-Prune method "backward" penalty -1 nprune 6: selected 6 of 6 terms, and 1 of 1 predictors
+Prune method "backward" penalty -1 nprune 5: selected 5 of 5 terms, and 1 of 1 predictors
 After backward pass GRSq 1 RSq 1 
-> par(mfrow = c(2, 2))
-> par(mar = c(3, 3, 3, 1))
-> par(mgp = c(1.5, 0.5, 0))
 > plotmo(a5.noweights, col.response=2, do.par=F, main="a5.noweights", grid="gray")
+Warning: Predicted values in the "x" graph are out of ylim=(1, 9).
+         Use clip=FALSE to make this warning go away.
+> # TODO why does this model differ from the above model?
+> a5.noweights.force <- earth(y~., data=data, Force.weights=T,
++                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
+x is a 9 by 1 matrix: 1=x
+y is a 9 by 1 matrix: 1=y
+
+Forward pass (with weights): minspan 1 endspan 1
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
+1      0.0000 0.0000                    (Intercept)
+2      0.8768 0.8768       0.8768    1            x           5  2   3   
+4      0.9138 0.9138      0.03695    1            x           6  4       
+6      1.0000 1.0000      0.08623    1            x           4  5       
+
+Reached maximum RSq 1.0000 at 7 terms (RSq 1.0000)
+After forward pass GRSq 1.000 RSq 1.000
+Forward pass complete: 7 terms (5 terms used)
+
+Subset size        GRSq     RSq  DeltaGRSq nPreds
+          1      0.0000  0.0000     0.0000      0  
+          2      0.6259  0.6259     0.6259      1  
+          3      0.8768  0.8768     0.2509      1  
+          4      0.9326  0.9326     0.0558      1  
+chosen    5      1.0000  1.0000     0.0674      1  
+
+Prune method "backward" penalty -1 nprune 5: selected 5 of 5 terms, and 1 of 1 predictors
+After backward pass GRSq 1 RSq 1 
+> plotmo(a5.noweights.force, col.response=2, do.par=F, main="a5.noweights.force", grid="gray")
+Warning: Predicted values in the "x" graph are out of ylim=(1, 9).
+         Use clip=FALSE to make this warning go away.
 > 
 > cat("=== a6.azeroweight ===\n")
 === a6.azeroweight ===
@@ -115,7 +147,8 @@ x is a 9 by 1 matrix: 1=x
 y is a 9 by 1 matrix: 1=y
 weights is a 9 by 1 matrix: 1=UNNAMED
 
-Forward pass: minspan 1 endspan 1
+Warning: support of weights is provisional in this version of earth
+Forward pass (with weights): minspan 1 endspan 1
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                    (Intercept)
@@ -132,9 +165,9 @@ chosen    3      1.0000  1.0000     0.1429      1
 
 Prune method "backward" penalty -1 nprune 3: selected 3 of 3 terms, and 1 of 1 predictors
 After backward pass GRSq 1 RSq 1 
-Warning message:
-support of weights is provisional in this version of earth 
 > plotmo(a6.azeroweight, col.response=2, do.par=F, main="a6.azeroweight", grid="gray")
+Warning: Predicted values in the "x" graph are out of ylim=(1, 9).
+         Use clip=FALSE to make this warning go away.
 > 
 > cat("=== a7.asmallweight ===\n") # different set of weights (pick up notch in data, but with different forward pass RSq's)
 === a7.asmallweight ===
@@ -144,13 +177,14 @@ x is a 9 by 1 matrix: 1=x
 y is a 9 by 1 matrix: 1=y
 weights is a 9 by 1 matrix: 1=UNNAMED
 
-Forward pass: minspan 1 endspan 1
+Warning: support of weights is provisional in this version of earth
+Forward pass (with weights): minspan 1 endspan 1
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                    (Intercept)
-2      0.9056 0.9056       0.9056    1            x           5  2   3   
-4      0.9259 0.9259      0.02022    1            x           6  4       
-6      1.0000 1.0000      0.07415    1            x           4  5       
+2      0.9138 0.9138       0.9138    1            x           5  2   3   
+4      0.9323 0.9323      0.01846    1            x           6  4       
+6      1.0000 1.0000       0.0677    1            x           4  5       
 
 Reached maximum RSq 1.0000 at 7 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
@@ -165,9 +199,9 @@ chosen    5      1.0000  1.0000     0.0677      1
 
 Prune method "backward" penalty -1 nprune 5: selected 5 of 5 terms, and 1 of 1 predictors
 After backward pass GRSq 1 RSq 1 
-Warning message:
-support of weights is provisional in this version of earth 
 > plotmo(a7.asmallweight, col.response=2, do.par=F, main="a7.asmallweight", grid="gray")
+Warning: Predicted values in the "x" graph are out of ylim=(1, 9).
+         Use clip=FALSE to make this warning go away.
 > 
 > cat("=== a7.xy.asmallweight ===\n") # x,y interface
 === a7.xy.asmallweight ===
@@ -177,13 +211,14 @@ x is a 9 by 1 matrix: 1=xxx
 y is a 9 by 1 matrix: 1=yyy
 weights is a 9 by 1 matrix: 1=UNNAMED
 
-Forward pass: minspan 1 endspan 1
+Warning: support of weights is provisional in this version of earth
+Forward pass (with weights): minspan 1 endspan 1
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   ParentTerm
 1      0.0000 0.0000                    (Intercept)
-2      0.9056 0.9056       0.9056    1          xxx           5  2   3   
-4      0.9259 0.9259      0.02022    1          xxx           6  4       
-6      1.0000 1.0000      0.07415    1          xxx           4  5       
+2      0.9138 0.9138       0.9138    1          xxx           5  2   3   
+4      0.9323 0.9323      0.01846    1          xxx           6  4       
+6      1.0000 1.0000       0.0677    1          xxx           4  5       
 
 Reached maximum RSq 1.0000 at 7 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
@@ -198,13 +233,11 @@ chosen    5      1.0000  1.0000     0.0677      1
 
 Prune method "backward" penalty -1 nprune 5: selected 5 of 5 terms, and 1 of 1 predictors
 After backward pass GRSq 1 RSq 1 
-Warning message:
-support of weights is provisional in this version of earth 
 > check.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
 > 
 > cat("=== a8 ===\n")
 === a8 ===
-> par(mfrow = c(2, 2)) # new page
+> par(mfrow = c(3, 2)) # new page
 > par(mar = c(3, 3, 3, 1))
 > par(mgp = c(1.5, 0.5, 0))
 > data$y <- c(0, 0, 0, 1, 0, 1, 1, 1, 1) != 0
@@ -230,8 +263,8 @@ support of weights is provisional in this version of earth
 +                     linpreds=TRUE, glm=list(family=binomial),
 +                     weights=glm.weights,
 +                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-Warning message:
-In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
+Warning in eval(expr, envir, enclos) :
+  non-integer #successes in a binomial glm!
 > plotmo(a8.weights, type="response",
 +        col.response=2, do.par=F, main="a8.weights glm\ntype=\"response\"",
 +        grid="gray", ylim=c(-.2, 1.2))
@@ -239,10 +272,38 @@ In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
 +        col.response=2, do.par=F, main="a8.weights glm\ntype=\"earth\"",
 +        grid="gray", ylim=c(-.2, 1.2))
 > glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
-Warning message:
-In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
+Warning in eval(expr, envir, enclos) :
+  non-integer #successes in a binomial glm!
 > # TODO this fails if a weight is 0 in glm.weights
 > stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm))
+> 
+> cat("=== a8.weights ===\n")
+=== a8.weights ===
+> # now glm models with weights
+> glm.weights <- c(.8,1,1,0,1,1,1,1,1)
+> a8.azeroweight <- earth(y~., data=data,
++                     linpreds=TRUE, glm=list(family=binomial),
++                     weights=glm.weights,
++                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+> plotmo(a8.azeroweight, type="response",
++        col.response=2, do.par=F, main="a8.azeroweight glm\ntype=\"response\"",
++        grid="gray", ylim=c(-.2, 1.2))
+> plotmo(a8.azeroweight, type="earth",
++        col.response=2, do.par=F, main="a8.azeroweight glm\ntype=\"earth\"",
++        grid="gray", ylim=c(-.2, 1.2))
+> # glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
+> # print(coefficients(a8.azeroweight$glm.list[[1]]))
+> # print(coefficients(glm))
+> # # TODO this fails if a weight is 0 in glm.weights
+> # stopifnot(coefficients(a8.azeroweight$glm.list[[1]]) == coefficients(glm))
+> 
+> cat("=== plot.earth with weights ===\n")
+=== plot.earth with weights ===
+> plot(a8)
+> plot(a8.weights)
+> plot(a8.azeroweight)
+> plot(a8.azeroweight, delever=TRUE)
 > 
 > # multivariate models
 > 
@@ -260,11 +321,15 @@ In eval(expr, envir, enclos) : non-integer #successes in a binomial glm!
 > a21.noweights <- earth(y~., data=data, # no weights for comparison
 +                        minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 > plotmo(a21.noweights, col.resp=2, trace=-1, caption="a21.noweights")
+Warning: Predicted values in the "x2" graph are out of ylim=(1, 9).
+         Use clip=FALSE to make this warning go away.
 > 
 > weights <- c(1, 1, 1, 1, .5, 1, 1, 1, 1)
 > a10  <- earth(y~., data=data, weights=weights,
 +               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 > plotmo(a10, col.resp=2, trace=-1, caption="a10")
+Warning: Predicted values in the "x2" graph are out of ylim=(1, 9).
+         Use clip=FALSE to make this warning go away.
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

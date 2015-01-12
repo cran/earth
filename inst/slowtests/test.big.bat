@@ -11,7 +11,15 @@
 @echo.
 @exit /B 1
 :good1
-mks.diff test.big.Rout test.big.Rout.save
+@echo mks.diff -w test.big.Rout test.big.Rout.save
+@rem egreps to deal with times
+@\Rtools\bin\echo -n "new "
+@egrep "^\[total time" test.big.Rout
+@\Rtools\bin\echo -n "old "
+@egrep "^\[total time" test.big.Rout.save
+@egrep -v "^\[total time" test.big.Rout      >test.big.Rout1
+@egrep -v "^\[total time" test.big.Rout.save >test.big.Rout.save1
+@mks.diff test.big.Rout1 test.big.Rout.save1
 @if %errorlevel% equ 0 goto good2
 @echo === Files are different ===
 @diffps -s Rplots.ps ..\..\.#\test-reference\test.big.save.ps
@@ -24,6 +32,6 @@ diffps Rplots.ps ..\..\.#\test-reference\test.big.save.ps
 @echo === Files are different ===
 @exit /B 1
 :good3
-@rm -f test.big.Rout
+@rm -f test.big.Rout test.big.Rout1 test.big.Rout.save1
 @rm -f Rplots.ps
 @exit /B  0

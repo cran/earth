@@ -1,6 +1,4 @@
 # plot.model.selection.R:
-#
-# Stephen Milborrow Jun 2011 Berea
 
 plot.model.selection <- function(
     object,
@@ -10,7 +8,7 @@ plot.model.selection <- function(
     ylim,
     main,
 
-    col.line            = "lightblue",
+    col.rsq             = "red",
 
     legend.pos          = NULL, # NULL means auto, NA means no legend
     cex.legend          = NULL,
@@ -69,7 +67,7 @@ plot.model.selection <- function(
         text <- ""
         if(is.specified(col.grsq))
             text <- "GRSq"
-        if(is.specified(col.line) ||
+        if(is.specified(col.rsq) ||
                 is.specified(col.oof.rsq) || is.specified(col.mean.oof.rsq) ||
                 is.specified(col.infold.rsq) || is.specified(col.mean.infold.rsq))
             text <- paste0(text, "   RSq")
@@ -78,7 +76,10 @@ plot.model.selection <- function(
     }
     right.axis <- function()
     {
-        pretty <- pretty(c(0, max.npreds))
+        if(max.npreds <= 5) # try to get rid of fractions in the label
+            pretty <- pretty(c(0, max.npreds), n=max.npreds)
+        else
+            pretty <- pretty(c(0, max.npreds))
         axis(side=4, at=scale1(pretty, 0, max.npreds), labels=pretty, srt=90)
         mtext("Number of used predictors", side=4, line=1.6, cex=par("cex"))
     }
@@ -187,7 +188,7 @@ plot.model.selection <- function(
     {
         if(jitter > 0)
             rsq.vec  <- jitter(rsq.vec, amount=jitter)
-        lines(scale1(rsq.vec,  ylim[1], ylim[2]), col=col.line, lty=lty.rsq)
+        lines(scale1(rsq.vec,  ylim[1], ylim[2]), col=col.rsq, lty=lty.rsq)
     }
     plot.grsq <- function()
     {
@@ -250,7 +251,7 @@ plot.model.selection <- function(
             update.legend(paste0("GRSq", full.model), lwd=lwd)
         if(is.specified(col.vline))
             update.legend("selected model", col.vline, lty.vline, vert=TRUE)
-        if(is.specified(col.line)) {
+        if(is.specified(col.rsq)) {
             RSq.string <- if(show.cv.data) "RSq (full model)" else "RSq"
             if(is.specified(col.grsq) && is.obscured(rsq.vec, grsq.vec))
                 text <- paste0(RSq.string, full.model, " (obscured)")
@@ -259,7 +260,7 @@ plot.model.selection <- function(
                 text <- paste0(RSq.string, " (obscured)")
             else
                 text <- RSq.string
-            update.legend(text, col.line, lty.rsq)
+            update.legend(text, col.rsq, lty.rsq)
         }
         added.space <- FALSE
         # We draw the infold legend above the oof legend because the infold
@@ -329,12 +330,12 @@ plot.model.selection <- function(
         else
             main <- "Model Selection"
     }
-    if(jitter > 0.05)
+    if(jitter > .05)
         stop0("\"jitter\" ", jitter , " is too big, try something like jitter=0.01")
     if(!is.specified(lty.grsq))
         col.grsq <- 0
     if(!is.specified(lty.rsq))
-        col.line <- 0
+        col.rsq <- 0
     if(!is.specified(lty.npreds))
         col.npreds <- 0
     if(!is.specified(lty.vline))
@@ -344,7 +345,7 @@ plot.model.selection <- function(
         col.mean.oof.rsq <- col.oof.rsq <- col.mean.infold.rsq <- col.infold.rsq <- 0
     show.cv.data <- is.specified(col.mean.oof.rsq)  || is.specified(col.oof.rsq) ||
                     is.specified(col.mean.infold.rsq) || is.specified(col.infold.rsq)
-    show.non.cv.data <- is.specified(col.grsq) || is.specified(col.line) || is.specified(col.npreds)
+    show.non.cv.data <- is.specified(col.grsq) || is.specified(col.rsq) || is.specified(col.npreds)
     if(is.null(col.npreds)) # by default, show npreds if not show cv data
         col.npreds <- if(show.cv.data) 0 else 1
     rsq.vec  <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
@@ -400,7 +401,7 @@ plot.model.selection.wrapper <- function(
     ylim,
     main,
 
-    col.line            = "lightblue",
+    col.rsq             = "red",
 
     legend.pos          = NULL, # NULL means auto, NA means no legend
     cex.legend          = NULL, # NULL means auto
@@ -429,7 +430,7 @@ plot.model.selection.wrapper <- function(
         warning0("col.legend is deprecated.  Please use legend.pos=NA for no legend.")
         legend.pos = NA
     }
-    ylim <- get.model.selection.ylim(object, ylim, 1, col.line,
+    ylim <- get.model.selection.ylim(object, ylim, 1, col.rsq,
                 col.mean.oof.rsq, col.oof.rsq, col.mean.infold.rsq, col.infold.rsq)
 
     plot.model.selection(
@@ -440,7 +441,7 @@ plot.model.selection.wrapper <- function(
         ylim,
         main,
 
-        col.line,
+        col.rsq,
 
         legend.pos,
         cex.legend,
@@ -490,7 +491,7 @@ get.model.selection.xlim <- function(object, xlim,
 }
 # check ylim specified by user, and convert special values in ylim to actual vals
 
-get.model.selection.ylim <- function(object, ylim, col.grsq, col.line,
+get.model.selection.ylim <- function(object, ylim, col.grsq, col.rsq,
                                      col.mean.oof.rsq=0, col.oof.rsq=0,
                                      col.mean.infold.rsq=0, col.infold.rsq=0)
 {
@@ -535,7 +536,7 @@ get.model.selection.ylim <- function(object, ylim, col.grsq, col.line,
             grsq <- get.rsq(object$gcv.per.subset, object$gcv.per.subset[1])
         rsq <- get.rsq(object$rss.per.subset, object$rss.per.subset[1])
         temp <- get.fold.min.max()
-        if(!is.specified(col.line))
+        if(!is.specified(col.rsq))
             rsq <- NULL
         if(ylim[1] == -1) {
             ylim[1] <- min(grsq[-1], rsq[-1], temp$min, na.rm=TRUE)

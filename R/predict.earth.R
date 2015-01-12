@@ -116,13 +116,15 @@ predict.earth <- function(
 
     # check interval argument is legal
     interval <- match.choices(interval,
-                    c("none", "se", "abs.residual", "pint", "training.cint", "training.pint"))
-    if(interval == "none")
+                    c("none", "pint", "cint", "se", "abs.residual"))
+    if(interval == "none") {
+        if(!missing(level))
+            stop0("predict.earth: level=", level, " was specified but interval=\"none\"")
         return(fit)
-
+    }
     # the interval argument was used
     if(is.null(object$varmod))
-        stop0("prediction intervals are not available because ",
+        stop0("no prediction intervals because ",
               "the earth model was not built with varmod.method")
     if(type=="class" || type == "terms")
         stop0("predict.earth: the interval argument is not allowed ",

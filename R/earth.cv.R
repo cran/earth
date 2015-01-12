@@ -17,19 +17,20 @@ earth.cv <- function(obj, x, y,
             trace.get.fold1(trace, must.print.dots, nterms)
             # penalty=-1 to enforce strict nprune
             # glm=NULL for speed, ok because we don't need the glm submodel
-            # TODO 70% of cv time is spent in update.earth
+            # TODO with keepxy=TRUE, 70% of cv time is spent in update.earth
             pruned.foldmod <- update(foldmod, nprune=nterms, penalty=-1, ponly=TRUE,
                                      glm=NULL, trace=max(0, trace-1))
             fit <- predict(pruned.foldmod, newdata=x, type="earth")
             oof.fit    <- fit[oof.subset,  , drop=FALSE]
             infold.fit <- fit[infold.subset, , drop=FALSE]
-            for(i in 1:NCOL(fit)) { # for each response
+            for(iresp in 1:NCOL(fit)) { # for each response
                 oof.rsq.per.subset[nterms] <- oof.rsq.per.subset[nterms] +
-                    wp.expanded[i] * get.rsq(ss(oof.y[,i] - oof.fit[,i]),
-                                             ss(oof.y[,i] - mean(oof.y[,i])))
+                    wp.expanded[iresp] *
+                        get.weighted.rsq(oof.y[,iresp], oof.fit[,iresp], oof.weights)
+
                 infold.rsq.per.subset[nterms] <- infold.rsq.per.subset[nterms] +
-                    wp.expanded[i] * get.rsq(ss(infold.y[,i] - infold.fit[,i]),
-                                             ss(infold.y[,i] - mean(infold.y[,i])))
+                    wp.expanded[iresp] *
+                        get.weighted.rsq(infold.y[,iresp], infold.fit[,iresp], infold.weights)
             }
             if(nrow(foldmod$dirs) < max.nterms)
                 for(nterms in (nrow(foldmod$dirs)+1): max.nterms)
@@ -144,6 +145,7 @@ earth.cv <- function(obj, x, y,
             foldmod$ifold <- ifold
             oof.x <- x[oof.subset,,drop=FALSE]
             oof.y <- y[oof.subset,,drop=FALSE]
+            oof.weights <- weights[oof.subset]
             oof.fit <- predict(foldmod, newdata=oof.x, type="earth")
             # fill in subset of entries in this icross column of oof.fit.tab
             # note that we use only the first response when there are multiple responses
@@ -159,8 +161,7 @@ earth.cv <- function(obj, x, y,
 
             for(iresp in 1:nresp) {
                 rsq.tab[icross.fold, iresp] <-
-                    get.rsq(sum((oof.fit[,iresp] - oof.y[,iresp])^2),
-                            sum((oof.y[,iresp] - mean(oof.y[,iresp]))^2))
+                    get.weighted.rsq(oof.y[,iresp], oof.fit[,iresp], oof.weights)
                 if(is.binomial) {
                     deviance.tab[icross.fold, iresp] <-
                         get.binomial.deviance(oof.fit.resp[,iresp], oof.y[,iresp])
@@ -240,14 +241,12 @@ earth.cv <- function(obj, x, y,
     }
     varmod <- NULL
     if(varmod.method != "none") {
-        meanfit   <- apply(oof.fit.tab,  1, mean) # mean of each row of oof.fit.tab
-        meanfit   <- matrix(meanfit, ncol=1)      # convert to a n x 1 mat, for consistency
-        model.var <- apply(oof.fit.tab,  1, var)  # var  of each row of oof.fit.tab
+        model.var <- apply(oof.fit.tab,  1, var)    # var  of each row of oof.fit.tab
         model.var <- matrix(model.var, ncol=1)
         varmod <- varmod(obj,
                          varmod.method, varmod.exponent,
                          varmod.conv, varmod.clamp, varmod.minspan,
-                         trace, x, y, meanfit, model.var, degree=degree)
+                         trace, x, y, model.var, degree=degree)
     }
     if(trace >= 1)
         cat("\n")

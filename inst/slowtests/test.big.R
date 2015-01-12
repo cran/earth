@@ -3,8 +3,10 @@
 library(earth)
 if(!interactive())
     postscript(paper="letter")
-options(warn=1) # print warnings as they occur
+options(warn=2) # treat warnings as errors
 options(digits = 3)
+printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
+start.time <- proc.time()
 set.seed(777)
 N <- 1e4
 
@@ -57,7 +59,7 @@ y <- func2(x)
 trace=4
 a2 <- earth(x, y, degree=degree, minspan=0, trace=trace)
 print(summary(a2))
-
+printf("[total time %.3f]\n", (proc.time() - start.time)[3])
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

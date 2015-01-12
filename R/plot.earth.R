@@ -1,7 +1,5 @@
 # plot.earth.R: plotting routines for the earth package
 #
-# Stephen Milborrow Mar 2007 Petaluma
-#
 # TODO allow model comparison using newdata instead of data used to build model
 # TODO add nresponse to plot.earth.models
 
@@ -9,10 +7,10 @@ plot.earth <- function(
     x           = stop("no 'x' arg"),
     which       = 1:4,
     info        = FALSE,
+    student     = FALSE,
     delever     = FALSE,
-    pearson     = FALSE,
     level       = 0,
-    versus      = NULL,
+    versus      = 1,
 
     nresponse   = 1,
     npoints     = 1000,
@@ -26,17 +24,17 @@ plot.earth <- function(
     ylim        = NULL,
 
     main        = NULL,
-    cex.main    = 1.2,
+    cex.main    = 1.1,
     caption     = if(do.par) NULL else "", # NULL for auto
     xlab        = NULL,
     ylab        = NULL,
 
     pch         = 20,
-    col.line    = "lightblue",
-    col.loess   = NULL, # NULL for auto, col.line unless regression line also plotted
-    lwd.loess   = NULL, # NULL for auto
-    col.cv      = "red",
-    col.qq      = col.line,
+    col.rsq     = "red",
+    col.loess   = "red",
+    lwd.loess   = 1,
+    col.cv      = "lightblue",
+    col.qq      = "gray",
     col.grid    = "lightgray",
     col.points  = 1,
     cex.points  = NULL,
@@ -45,7 +43,7 @@ plot.earth <- function(
 
     cum.grid    = "percentages",
 
-    col.rsq       = NA, # deprecated, use col.line instead
+    col.line      = NA, # deprecated, use col.rsq instead
     col.residuals = NA, # deprecated, use col.points instead
     nresiduals    = NA, # deprecated, use npoints instead
 
@@ -79,10 +77,24 @@ plot.earth <- function(
     remove(x)   # not necessary but prevents mistakes later
     plot.earth.prolog(object, object.name)
     stop.if.dots.used("plot.earth", ...)
-    col.line   <- check.deprecated(col.line, missing(col.line), col.rsq)
+    col.rsq    <- check.deprecated(col.rsq, missing(col.rsq), col.line)
     col.points <- check.deprecated(col.points, missing(col.points), col.residuals)
     npoints    <- check.deprecated(npoints, missing(npoints), nresiduals)
-    plotmo::check.index(which, "which", 1:8)
+    plotmo::check.index(which, "which", -1e4:1e4)
+    if(any(is.na(which)) || any(which < 1) || any(which > 9)) {
+        stopf("%s\n\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
+            "Bad value for which",
+            "Legal values for which:",
+            "  1  Model selection",
+            "  2  Cumulative distribution",
+            "  3  Residuals vs fitted",
+            "  4  QQ plot",
+            "  5  Abs residuals vs fitted",
+            "  6  Sqrt abs residuals vs fitted (Scale-Location plot)",
+            "  7  Abs residuals vs log fitted",
+            "  8  Cube root of the squared residuals vs log fitted",
+            "  9  Log abs residuals vs log fitted")
+    }
     if(is.null(caption) || any(nchar(caption))) { # show caption?
         trim.caption <- is.null(caption) # trim if auto-generate the caption
         caption <- get.caption(which, object, nresponse, object.name, caption)
@@ -91,18 +103,20 @@ plot.earth <- function(
     stopifnot(length(do.par) == 1)
     stopifnot(do.par == 0 || do.par == 1 || do.par == 2)
     plotmor.do.par <- do.par
-    if(is.null(versus)) {
+    if(versus[1] == 1) {
         plotmor.do.par <- FALSE # we do.par here
         old.par <- par.for.plot(do.par, length(which), cex.main, caption)
         if(do.par == 1)
             on.exit(par(old.par))
     } else { # versus was specified
         # remove all from which except standard resid and abs resid plots
-        which <- which[which %in% c(3,5)]
+        # warnings below match what would happen if call plotmor directly
+        # TODO possibly move all this into plotmor?
+        which <- which[which %in% c(3,5,6)]
         if(length(which) == 0) {
-            warning0("plot.earth: nothing to plot\n",
-                     "(the \"which\" argument is empty after removing certain ",
-                     "plots because \"versus\" was specified)")
+            warning0("the \"which\" argument is empty after removing certain ",
+                     "plots because \"versus\" was specified")
+            warning0("plot.earth: nothing to plot")
             return(invisible())
         }
         do.par <- FALSE # plotmor will do.par
@@ -111,8 +125,7 @@ plot.earth <- function(
     if(any(which1)) {
         stopifnot(inherits(object, "earth"))
         plot.model.selection.wrapper(object,
-            do.par, xlim, ylim, main, col.line,
-            legend.pos, cex.legend,
+            do.par, xlim, ylim, main, col.rsq, legend.pos, cex.legend,
             col.grsq, col.infold.rsq, col.mean.infold.rsq, col.mean.oof.rsq,
             col.npreds, col.oof.labs, col.oof.rsq, col.oof.vline,
             col.pch.cv.rsq, col.pch.max.oof.rsq, col.sel.grid, col.vline,
@@ -124,8 +137,8 @@ plot.earth <- function(
             object,
             which,
             info,
+            student,
             delever,
-            pearson,
             level,
             versus,
 
@@ -147,7 +160,6 @@ plot.earth <- function(
             ylab,
 
             pch,
-            col.line,
             col.loess,
             lwd.loess,
             col.cv,
@@ -159,6 +171,7 @@ plot.earth <- function(
             shade.cints,
 
             cum.grid,
+            legend.pos,
 
             ...)
 
@@ -196,7 +209,7 @@ plot.earth.models <- function(
     jitter       = 0,
     col.grsq     = discrete.plot.cols(length(x)),
     lty.grsq     = 1,
-    col.line     = 0,
+    col.rsq      = 0,
     lty.rsq      = 5,
     col.vline    = col.grsq,
     lty.vline    = 3,
@@ -211,7 +224,7 @@ plot.earth.models <- function(
     col.cum      = NULL,
     do.par       = TRUE,
     main         = "Model Comparison",
-    cex.main     = 1.2,
+    cex.main     = 1.1,
     ...)
 {
     warn.if.dots.used("plot.earth.models", ...)
@@ -233,20 +246,20 @@ plot.earth.models <- function(
         warning0("plot.earth.models: nothing to plot (the \"which\" argument is empty)")
         return(invisible())
     }
-    if(is.null(col.line))
-        col.line <- if(is.null(col.grsq)) col.line else col.grsq
+    if(is.null(col.rsq))
+        col.rsq <- if(is.null(col.grsq)) col.rsq else col.grsq
     if(is.null(col.npreds))
-        col.npreds <- if(is.null(col.grsq)) col.line else col.grsq
+        col.npreds <- if(is.null(col.grsq)) col.rsq else col.grsq
     if(is.null(col.cum))
-        col.cum <- if(is.null(col.grsq)) col.line else col.grsq
-    if(show[1] && col.grsq[1] == 0 && col.line[1] == 0)
-        stop0("both col.grsq[1] and col.line[1] are zero")
+        col.cum <- if(is.null(col.grsq)) col.rsq else col.grsq
+    if(show[1] && col.grsq[1] == 0 && col.rsq[1] == 0)
+        stop0("both col.grsq[1] and col.rsq[1] are zero")
     if(show[2] && is.null(col.cum))
-        stop0("col.cum is NULL, and unable to use col.grsq or col.line instead")
+        stop0("col.cum is NULL, and unable to use col.grsq or col.rsq instead")
     nmodels <- length(objects)
     col.grsq   <- repl(col.grsq, nmodels)
     lty.grsq   <- repl(lty.grsq, nmodels)
-    col.line   <- repl(col.line, nmodels)
+    col.rsq    <- repl(col.rsq, nmodels)
     lty.rsq    <- repl(lty.rsq, nmodels)
     col.npreds <- repl(col.npreds, nmodels)
     lty.npreds <- repl(lty.npreds, nmodels)
@@ -264,7 +277,7 @@ plot.earth.models <- function(
         par(mar = c(4, 4, 2, 3))        # small margins to pack figs in
         if(length(which) == 1 && which == 1 && is.specified(col.npreds))
             par(mar = c(4, 4, 2, 4))    # space for right axis
-        par(mgp = c(1.6, 0.6, 0))       # flatten axis elements
+        par(mgp = c(1.6, .6, 0))        # flatten axis elements
         par(cex.main = cex.main)
         make.space.for.caption()
     }
@@ -273,7 +286,7 @@ plot.earth.models <- function(
     for(imodel in seq_along(objects)) {
         object <- objects[[imodel]]
         ylim <- range(ylim,
-                      get.model.selection.ylim(object, ylim, col.grsq[imodel], col.line[imodel]))
+                      get.model.selection.ylim(object, ylim, col.grsq[imodel], col.rsq[imodel]))
         max.npreds <- max(max.npreds,
                           get.nused.preds.per.subset(object$dirs, object$prune.terms))
         max.nterms <- max(max.nterms, length(object$rss.per.subset))
@@ -288,7 +301,7 @@ plot.earth.models <- function(
                 ylim                = ylim,
                 main                = if(imodel > 1) "" else main,
 
-                col.line            = col.line[imodel],
+                col.rsq             = col.rsq[imodel],
 
                 legend.pos          = NA, # we plot our own legend
                 cex.legend          = cex.legend,
@@ -320,7 +333,7 @@ plot.earth.models <- function(
         if(is.specified(col.legend) && length(objects) > 1 && !show[2])
             plot.earth.models.legend(objects, min.width=.4,
                 legend.text, legend.pos, cex.legend, col.legend,
-                col.line, lty.rsq, col.grsq, lty.grsq)
+                col.rsq, lty.rsq, col.grsq, lty.grsq)
     }
     if(show[2]) {
         multiple.responses <- FALSE
@@ -334,7 +347,8 @@ plot.earth.models <- function(
                 xlim <- range(xlim, abs(object$residuals))
         }
         for(imodel in seq_along(objects)) {
-            rinfo <- get.rinfo(objects[[imodel]], 1, FALSE, FALSE)
+            rinfo <- get.rinfo(objects[[imodel]], nresponse=1,
+                               student=FALSE, delever=FALSE, "ignored")
             plot.cum(
                 rinfo    = rinfo,
                 main     = if(imodel > 1)              ""
@@ -343,7 +357,7 @@ plot.earth.models <- function(
                 xlim     = xlim,
                 col      = if(length(col.cum) > 1)                 col.cum[imodel]
                            else if(is.specified(col.grsq[imodel])) col.grsq[imodel]
-                           else                                    col.line[imodel],
+                           else                                    col.rsq[imodel],
                 col.grid = 0,
                 cum.grid = "none",
                 add      = (imodel > 1),
@@ -352,7 +366,7 @@ plot.earth.models <- function(
         if(is.specified(col.legend) && length(objects) > 1)
             plot.earth.models.legend(objects, min.width=.5,
                 legend.text, legend.pos, cex.legend, col.legend,
-                col.line, lty.rsq, col.grsq, lty.grsq)
+                col.rsq, lty.rsq, col.grsq, lty.grsq)
     }
     show.caption(get.caption.from.call(caption, objects[1]))
     invisible()
@@ -364,7 +378,7 @@ plot.earth.models.legend <- function(
     legend.pos,
     cex.legend,
     col.legend,
-    col.line,
+    col.rsq,
     lty.rsq,
     col.grsq,
     lty.grsq)
@@ -381,8 +395,8 @@ plot.earth.models.legend <- function(
             legend.text <- names(objects)
     } else
         legend.text <- repl(legend.text, length(objects))
-     if(col.line[1] != 0) {       # RSq plotted?
-        col <- c(col, col.line)
+     if(col.rsq[1] != 0) {       # RSq plotted?
+        col <- c(col, col.rsq)
         lty <- c(lty, repl(lty.rsq, length(col)))
         if(col.grsq[1] != 0)
             legend1 <- paste("RSq", legend.text)
@@ -390,7 +404,7 @@ plot.earth.models.legend <- function(
     if(col.grsq[1] != 0) {      # GRSq plotted?
         col <- c(col, col.grsq)
         lty <- c(lty, repl(lty.grsq, length(col)))
-        if(col.line[1] != 0)
+        if(col.rsq[1] != 0)
             legend.text <- c(legend1, paste("GRSq", legend.text))
     }
     if(is.null(cex.legend))

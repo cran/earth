@@ -33,9 +33,7 @@ earth.regress <- function(
     ncols <- ncol(x)
     ncases <- nrow(x)
 
-    if(is.null(weights))
-        weights <- repl(1, ncases)
-    weights <- check.weights(weights, "weights", nrow(x))
+    weights <- get.weights(weights, ncases)
     if(is.null(used.cols)) {
         used.cols <- repl(TRUE, ncols)
         coefficients <- matrix(1.0, nrow=ncol(x), ncol=nresp)
@@ -55,15 +53,15 @@ earth.regress <- function(
         coefficients = coefficients, # double  Betas[]     out: nUsedCols * nResp
         residuals = matrix(1.0, nrow=ncases, ncol=nresp),
                                 # double       Residuals[] out: nCases * nResp
-        rss = double(1),        # double       *pRss       out: RSS, summed over all nResp
+        rss = double(1),        # double*      pRss        out: RSS, summed over all nResp
         diags = double(ncols),  # double       Diags[]     out:
-        rank = integer(1),      # int          *pnRank     out: nbr of indep cols in x
+        rank = integer(1),      # int*         pnRank      out: nbr of indep cols in x
         pivots = integer(ncols),# int          iPivots[]   out: nCols
         as.double(x),           # const double x[]         in: nCases x nCols
         as.double(y),           # const double y[]         in: nCases x nResp
-        as.integer(ncases),     # const int    *pnCases    in: number of rows in x and in y
-        as.integer(nresp),      # const int    *pnResp     in: number of cols in y
-        as.integer(ncols),      # int          *pnCols     in: number of columns in x
+        as.integer(ncases),     # const int*   pnCases     in: number of rows in x and in y
+        as.integer(nresp),      # const int*   pnResp      in: number of cols in y
+        as.integer(ncols),      # int*         pnCols      in: number of columns in x
         as.integer(used.cols),  # const bool   UsedCols[]) in: specifies used columns in x
         PACKAGE="earth")
 

@@ -4,7 +4,7 @@
 # lower and upper intervals, so the user can check for asymmetry of the
 # residuals.
 #
-# TODO Add QQ plot for prediction intervals, a "PIQ plot"
+# TODO Add QQ plot for prediction intervals, a "PIQ" plot
 #
 # TODO Consider making the code automatically detect non-monotonicity and
 # issuing a warning.  Probably only possible for univariate models.
@@ -19,29 +19,27 @@ VARMOD.METHODS <- c("const", "power", "power0",
 TRACE.VARMOD         <- .3
 TRACE.VARMOD.DETAILS <- .31 # will also cause plotting
 
-# varmod returns a "varmod" object which can be used to
-# estimate prediction intervals.
-#
+# varmod returns a "varmod" object.
 # y is the observed response (it is a n x 1 matrix)
 
 varmod <- function(parent,
                    method, exponent, conv, clamp, minspan,
-                   trace, x, y, meanfit, model.var, ...)
+                   trace, x, y, model.var, ...)
 {
     UseMethod("varmod")
 }
 varmod.earth <- function(parent,
                       method, exponent, conv, clamp, minspan,
-                      trace, x, y, meanfit, model.var, ...)
+                      trace, x, y, model.var, ...)
 {
     check.classname(parent, deparse(substitute(parent)), "earth")
     varmod.internal(parent,
                     method, exponent, conv, clamp, minspan,
-                    trace, x, y, meanfit, model.var, ...)
+                    trace, x, y, model.var, ...)
 }
 varmod.default <- function(parent,
                            method, exponent, conv, clamp, minspan,
-                           trace, x, y, meanfit, model.var, ...)
+                           trace, x, y, model.var, ...)
 {
     warning0("varmod.default: varmods are not supported for \"",
              class(parent)[1], "\" objects",
@@ -49,16 +47,15 @@ varmod.default <- function(parent,
 
     varmod.internal(parent,
                     method, exponent, conv, clamp, minspan,
-                    trace, x, y, meanfit, model.var, ...)
+                    trace, x, y, model.var, ...)
 }
 varmod.internal <- function(parent,
                             method, exponent=1, conv=1, clamp=.1, minspan=-5,
                             trace=0, parent.x=NULL, parent.y=NULL,
-                            meanfit, model.var,
-                            ...)
+                            model.var, ...)
 {
-    # The following constant was an argument to earth but I removed it
-    # and hardcoded it here for simplicity in the earth interface.
+    # The following constant "lambda" was an argument to earth but I removed
+    # it and hardcoded it here for simplicity in the earth interface.
     # We use lambda to transform the squared residuals as follows:
     #     transformed.resids = squared.resids ^ (lambda / 2)
     # So with lambda=1, we transform to absolute residuals, and if
@@ -77,8 +74,7 @@ varmod.internal <- function(parent,
     stopifnot(!is.null(parent.y))
     stopifnot(is.matrix(parent.y))
     if(NCOL(parent.y) != 1)
-        stop0("varmod.method cannot be used on multiple response models ",
-              "(implementation restriction)")
+        stop0("variance models are not supported for multiple response models")
 
     if(trace >= TRACE.VARMOD) {
         printf("\nvarmod method=\"%s\" exponent=%g lambda=%g conv=%g clamp=%g minspan=%g:\n",
@@ -86,17 +82,24 @@ varmod.internal <- function(parent,
         if(trace == TRACE.VARMOD.DETAILS) {
             old.par <- par(no.readonly=TRUE)
             on.exit(par(old.par))
-            par(mfrow=c(2, 3), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0))
+            par(mfrow=c(2, 3), mar=c(3, 3, 3, 1), mgp=c(1.5, .5, 0))
         }
     }
     n <- nrow(parent.x)
     df <- length(parent$selected.terms)
-    squared.resids <- n / (n - df) * (parent.y - meanfit)^2 + model.var
-    abs.resids <- squared.resids ^ (lambda / 2) # by default lambda=1, so take sqrt here
+    leverages <- parent$leverages
+    stopifnot(!is.null(leverages))
+    leverages[leverages > .9] <- .9 # prevent any residual from being too influential
+    correction <- n / ((n - df) * (1 - leverages))
+    squared.resids <- correction * (parent.y - predict(parent))^2 + model.var
+    abs.resids <- squared.resids ^ (lambda / 2) # by default lambda=1, so this takes sqrt
+    temp <- iterate.residmod(parent, abs.resids,
+                             method, exponent, lambda, conv, clamp, minspan,
+                             trace, parent.x, parent.y, ...)
+        residmod  <- temp$residmod
+        converged <- temp$converged
+        iters     <- temp$iters
 
-    residmod <- iterate.residmod(parent, abs.resids,
-                                 method, exponent, lambda, conv, clamp, minspan,
-                                 trace, parent.x, parent.y, ...)
     if(trace >= TRACE.VARMOD)
         printf("\n")
 
@@ -104,36 +107,34 @@ varmod.internal <- function(parent,
     varmod$call        <- make.call.generic(match.call(expand.dots=TRUE), "varmod")
     varmod$parent      <- parent
     varmod$method      <- method
+    varmod$package     <- which.package(method)
     varmod$exponent    <- exponent
     varmod$lambda      <- lambda
+    varmod$converged   <- temp$converged
+    varmod$iters       <- temp$iters
     varmod$residmod    <- residmod
     varmod$min.sd      <- get.min.sd(residmod, lambda, clamp)
     varmod$model.var   <- model.var
-    varmod$meanfit     <- meanfit
-    varmod$abs.resids  <- abs.resids # transformed residuals (actually on abs when lambda is 1)
+    varmod$abs.resids  <- abs.resids # transformed residuals (actually only abs when lambda is 1)
     varmod$parent.x    <- parent.x
     varmod$parent.y    <- parent.y
     class(varmod)      <- "varmod"
-    varmod$iter.rsq    <- get.varmod.weighted.rsq(varmod)
-    varmod$iter.stderr <- get.varmod.stderr(varmod)
+    varmod$iter.rsq    <- get.iter.rsq(varmod, abs.resids)
+    varmod$iter.stderr <- get.iter.stderr(varmod)
     varmod
 }
-get.varmod.weighted.rsq <- function(object, y) # return NULL if can't get rsq
+get.iter.rsq <- function(object, abs.resids) # return NULL if can't get rsq
 {
     check.classname(object, deparse(substitute(object)), "varmod")
     if(object$method == "const")
         return(NULL)
-    residmod  <- object$residmod
-    residuals <- residmod$residuals
-    fitted    <- residmod$fitted.values
-    weights   <- weights(residmod)
-    if(is.null(residuals) || is.null(fitted) || is.null(weights))
+    fitted  <- object$residmod$fitted.values
+    weights <- weights(object$residmod)
+    if(is.null(fitted) || is.null(weights))
         return(NULL)
-    mss <- sum(weights * (fitted - weighted.mean(fitted, weights))^2)
-    rss <- sum(weights * residuals^2)
-    mss / (mss + rss)
+    get.weighted.rsq(abs.resids, fitted, weights)
 }
-get.varmod.stderr <- function(object)
+get.iter.stderr <- function(object) # return if NULL if can't get stderr
 {
     check.classname(object, deparse(substitute(object)), "varmod")
     residmod <- object$residmod
@@ -141,25 +142,43 @@ get.varmod.stderr <- function(object)
         coef <- summary(residmod)$coefficients
         stopifnot(!is.null(coef[,"Std. Error"]))
         coef[,"Std. Error"]
-    } else if(class(residmod)[1] == "gam" && "package:gam" %in% search()) {
+    } else if(class(residmod)[1] == "gam" && object$package == "gam") {
         coef <- coefficients(summary.glm(residmod))
         stopifnot(!is.null(coef[,"Std. Error"]))
         coef[,"Std. Error"]
+    } else if(class(residmod)[1] == "gam" && object$package == "mgcv") {
+        # only the stderr for the intercept is available
+        len.coef <- length(coefficients(residmod))
+        std.err <- repl(NA, len.coef)
+        std.err[1] <- summary(residmod)$p.table[1, "Std. Error"] # se of intercept
+        std.err
     } else if(class(residmod)[1] == "earth") {
         coef <- summary(lm(residmod$y ~ residmod$bx))$coefficients
         coef[,"Std. Error"]
     } else
         NULL
 }
+# iteratively reweighted least squares
+
+ISSUED.SINGULARITIES.WARNING <- NULL
+
 iterate.residmod <- function(parent, abs.resids,
                             method, exponent, lambda, conv, clamp, minspan,
                             trace, parent.x, parent.y, ...)
 {
-    varmod    <- NULL
-    max.iter  <- 30
-    weights   <- rep(1, nrow(parent.y))
-    residmod  <- NULL
-    trace.tab <- NULL # to trace, build a dataframe and print it when we're done
+    varmod   <- NULL
+    max.iter <- 50
+    weights  <- rep(1, nrow(parent.y))
+    residmod <- NULL
+
+    # following is needed because we want to issue singular warning at most once
+    unlockBinding("ISSUED.SINGULARITIES.WARNING", asNamespace("earth"))
+    ISSUED.SINGULARITIES.WARNING <<- FALSE  # note <<- not <-
+    lockBinding("ISSUED.SINGULARITIES.WARNING", asNamespace("earth"))
+
+    # we always build the trace tab but only print it
+    # if tracing is enabled or convergence failed
+    trace.tab <- NULL
 
     for(iter in 1:max.iter) {
         residmod <- get.residmod(method, exponent, minspan, parent.x, parent.y,
@@ -177,57 +196,123 @@ iterate.residmod <- function(parent, abs.resids,
         class(varmod)   <- "varmod"
         weights         <- get.residmod.weights(varmod, iter, trace)
 
-        trace.tab <- trace.residmod(trace.tab, trace, iter, max.iter, residmod, varmod,
-                                    coef, coef.change, parent.y, weights, exponent)
+        trace.tab <- update.trace.tab(trace.tab, trace, iter, max.iter,
+                                      residmod, varmod, coef, coef.change,
+                                      parent.y, weights, exponent)
 
-        if(possibly.break(iter, max.iter, coef.change, method, conv))
+        if(residmod.converged(coef.change, conv, iter, max.iter, method))
             break
-
     }
-    if(iter == max.iter)
-        warning0(sprintf(
-            "varmod did not converge after %d iters (final coefchange%% %.2f)",
-            iter, mean(abs(coef.change))))
+    converged <- residmod.converged(coef.change, conv, iter, max.iter, method)
+
     if(trace >= TRACE.VARMOD) {
+       # || any(is.na(coef(residmod))) || (conv >= 0 && !converged))
         if(trace == TRACE.VARMOD.DETAILS && inherits(residmod, "nls"))
             printf("\n")
         print(trace.tab[1:iter,], row.names=FALSE, digits=2)
     }
-    residmod
-}
-TRACE.NCOEF <- 0
+    if(!converged)
+        warnf("varmod did not converge after %d iters (%s), final coefchange %.1f%%",
+              iter, get.non.convergence.reason(trace.tab), mean(abs(coef.change)))
 
+    list(residmod=residmod, converged=converged, iters=iter)
+}
 blank.plot <- function(main=NULL)
 {
     plot(0, 0, col=0, bty="n", xlab="", ylab="",
          xaxt="n", yaxt="n", main=main)
 }
-trace.residmod <- function(trace.tab, trace, iter, max.iter, residmod, varmod,
-                           coef, coef.change, parent.y, weights, exponent)
+TRACE.NCOEF <- 0
+
+update.trace.tab <- function(trace.tab, trace, iter, max.iter, residmod, varmod,
+                             coef, coef.change, parent.y, weights, exponent)
 {
-    if(trace >= TRACE.VARMOD) {
-        if(trace == TRACE.VARMOD.DETAILS) {
-            if(inherits(residmod, "nls"))
-                printf("\n")
-            plotmo::plotmo(varmod, type="abs.residual",
-                main="residmod first predictor",
-                do.par=FALSE, degree1=1, degree2=0, trace=-1,
-                col.response=1, col.degree1="lightblue", lwd.degree1=3)
-        }
-        coef <- coef(residmod)
-        if(iter == 1) {
-            unlockBinding("TRACE.NCOEF", asNamespace("earth"))
-            TRACE.NCOEF <<- length(coef) # needed because nbr of earth coefs can change
-            lockBinding("TRACE.NCOEF", asNamespace("earth"))
-            trace.tab <- as.data.frame(matrix(NA, nrow=max.iter, ncol=3+TRACE.NCOEF))
-            colnames(trace.tab) <- c("    iter", "weight.ratio", "coefchange%",
-                     fix.coef.names(names(coef), colnames(parent.y), exponent))
-        }
-        trace.tab[iter,] <-
-            c(iter, max(weights) / min(weights),
-              mean(abs(coef.change)), c(coef, repl(NA, TRACE.NCOEF))[1:TRACE.NCOEF])
+    if(trace == TRACE.VARMOD.DETAILS) {
+        if(inherits(residmod, "nls"))
+            printf("\n")
+        plotmo::plotmo(varmod, type="abs.residual",
+            main="residmod first predictor",
+            do.par=FALSE, degree1=1, degree2=0, trace=-1,
+            col.response=1, col.degree1="red", lwd.degree1=3)
     }
+    coef <- coef(residmod)
+    if(iter == 1) {
+        unlockBinding("TRACE.NCOEF", asNamespace("earth"))
+        TRACE.NCOEF <<- length(coef) # needed because nbr of earth coefs can change
+        lockBinding("TRACE.NCOEF", asNamespace("earth"))
+        trace.tab <- as.data.frame(matrix(NA, nrow=max.iter, ncol=3+TRACE.NCOEF))
+        colnames(trace.tab) <- c("    iter", "weight.ratio", "coefchange%",
+                 fix.coef.names(names(coef), colnames(parent.y), exponent))
+    }
+    trace.tab[iter,] <-
+        c(iter, max(weights) / min(weights),
+          mean(abs(coef.change)), c(coef, repl(NA, TRACE.NCOEF))[1:TRACE.NCOEF])
     trace.tab
+}
+# For debugging non-convergence.  In simulation about .4% of runs
+# did not converge, mostly "oscillating", nearly all with sample
+# sizes of less than 100.
+
+get.non.convergence.reason <- function(trace.tab)
+{
+
+    nrow <- nrow(trace.tab)
+    if(nrow < 7)
+        return <- "short tab" # should never return this
+
+    coefchange <- trace.tab[,"coefchange%"]
+    c6 <- coefchange[nrow-6]
+    c5 <- coefchange[nrow-5]
+    c4 <- coefchange[nrow-4]
+    c3 <- coefchange[nrow-3]
+    c2 <- coefchange[nrow-2]
+    c1 <- coefchange[nrow-1]
+    c0 <- coefchange[nrow-0]
+
+    # Example for oscillating:
+    #    iter weight.ratio     coefchange% (Intercept)     y
+    #      27           57   big   c3  3.7     0.00972 0.089
+    #      28           63   small c2  3.4     0.00921 0.091
+    #      29           57   big   c1  3.5     0.00971 0.089
+    #      30           62   small c0  3.3     0.00922 0.091
+
+    if(c0 < c1 && c1 > c2 && c2 < c3 && c3 > c0)
+        return("oscillating-lo") # oscillating, last iter lower than prev
+
+    else if(c0 > c1 && c1 < c2 && c2 > c3 && c3 < c0)
+        return("oscillating-hi") # oscillating, last iter higher than prev
+
+    if(c2 > c1 && c1 > c0) {        # only last two converged
+        reason <- "converging2"
+        if(c3 > c2) {               # only last three converged
+            reason <- "converging3"
+            if(c4 > c3) {           # only last four converged
+                reason <- "converging4"
+                if(c5 > c4) {       # only last five converged
+                    reason <- "converging5"
+                    if(c6 > c5)     # last six converged
+                        reason <- "converging6"
+                }
+            }
+        }
+        return(reason)
+    }
+    if(c2 < c1 && c1 < c0) {        # last two diverged
+        reason <- "diverging2"
+        if(c3 < c2) {               # last three diverged
+            reason <- "diverging3"
+            if(c4 < c3) {           # last four diverged
+                reason <- "diverging4"
+                if(c5 < c4) {       # last five diverged
+                    reason <- "diverging5"
+                    if(c6 < c5)     # last six diverged
+                        reason <- "diverging6"
+                }
+            }
+        }
+        return(reason)
+    }
+    "non-monotonic" # can find no other pattern
 }
 get.residmod <- function(method, exponent, minspan, parent.x, parent.y,
                          abs.resids, weights, trace, iter, parent, prev.residmod, ...)
@@ -252,7 +337,7 @@ get.residmod <- function(method, exponent, minspan, parent.x, parent.y,
                                  weights, trace, parent, ...),
 
         gam     = residmod.gam(exponent, parent.x, parent.y, abs.resids,
-                               weights, trace, parent, ...),
+                               weights, trace, parent, iter, ...),
 
         x.lm    = residmod.x.lm(exponent, parent.x, parent.y, abs.resids,
                                 weights, trace, ...),
@@ -264,52 +349,66 @@ get.residmod <- function(method, exponent, minspan, parent.x, parent.y,
                                    weights, trace, ...),
 
         x.gam   = residmod.x.gam(exponent, parent.x, parent.y, abs.resids,
-                                 weights, trace, ...),
+                                 weights, trace, iter, ...),
 
         stop0("illegal varmod.method \"", method, "\""))
 }
 PREV.COEF <- NULL
 
-get.coef.change <- function(method, iter, residmod) # returns percentages for each coef
+get.coef.change <- function(method, iter, residmod) # returns percents for each coef
 {
-    # TODO use of abs means we think coef unchanged if sign but not abs value changes
-    coef <- abs(coef(residmod))
+    coef <- coef(residmod)
 
+    # lm sometimes returns 2nd coef as NA if resids are all the same
+    # TODO this should be an error? --- but that halts simulation tests
+    if(any(is.na(coef))) {
+        if(!ISSUED.SINGULARITIES.WARNING) {
+            warning0("singularities in residual model (coefs ",
+                     paste.with.space(coef), ")")
+            unlockBinding("ISSUED.SINGULARITIES.WARNING", asNamespace("earth"))
+            ISSUED.SINGULARITIES.WARNING <<- TRUE  # note <<- not <-
+            lockBinding("ISSUED.SINGULARITIES.WARNING", asNamespace("earth"))
+        }
+        coef[is.na(coef)] <- 0
+    }
     unlockBinding("PREV.COEF", asNamespace("earth"))
     if(iter == 1)
         PREV.COEF <<- coef  # note <<- not <-
 
-    if(method %in% c("earth", "x.earth")) # see comments in possibly.break
+    if(method %in% c("earth", "x.earth")) # see comments in residmod.converged
         if(length(PREV.COEF) != length(coef))
             return(9999)
 
-    denom <- PREV.COEF
+    coef.change <- abs(coef - PREV.COEF)
+    prev <- abs(PREV.COEF)
 
-    # Prevent divide by near zero.  The code below downweights extremely
-    # small coefs and prevents them from dominating if rest are large.
-    min.coef <- .01 * max(coef)
-    denom[denom < min.coef] <- min.coef
-
-    coef.change <- 100 * (coef - PREV.COEF) / denom
-
-    PREV.COEF <<- coef      # note <<- not <-
+    PREV.COEF <<- coef # note <<- not <-
     lockBinding("PREV.COEF", asNamespace("earth"))
-    coef.change # a percentage for each coef
+
+    # Divide by absolute value of previous coefficients.
+    # But ensure no divide by near zero, by downweighting extremely small
+    # coefs, thus preventing them from completely dominating the mean
+    # change if the rest are large.
+    # The 1e-8 prevents noise floor coefficients from preventing convergence.
+
+    min <- max(.01 * max(prev), 1e-8)
+    prev[prev < min] <- min
+    100 * coef.change / prev # a percentage for each coef
 }
-possibly.break <- function(iter, max.iter, coef.change, method, conv)
+residmod.converged <- function(coef.change, conv, iter, max.iter, method)
 {
     if(conv < 0)
-        iter == -conv
+        iter >= abs(conv)
     else {
         method == "const" ||
 
         # TODO Since the earth basis funcs can change, looking at changes
         #      in the coefs can't be used to determine convergence.
-        #      So for now, always do 1 iter.
+        #      So for now, always do 1 iter for earth residual models.
 
         (method %in% c("earth", "x.earth")) ||
 
-        # TODO following will sometimes create an intercept only model.
+        # TODO following will sometimes create an intercept only model so unused
         # (method %in% c("earth", "x.earth") && iter >= 2) ||
 
         iter > 1 && mean(abs(coef.change)) < conv
@@ -332,8 +431,9 @@ plot.residmod.weights <- function(w, main, min=NA, max=NA, median=NA) # for debu
 clamp.se <- function(se, iter, trace)
 {
     median <- median(se)
-    min <- median / 5   # 5 seemed ok with some limited simulation studies
-    max <- 5 * median
+    max.ratio <- 5 # 5 seems ok with (limited) simulation studies
+    min <- median / max.ratio
+    max <- max.ratio * median
 
     if(trace == TRACE.VARMOD.DETAILS)
         plot.residmod.weights(se, sprintf("iter %d: se", iter), min, max, median)
@@ -354,7 +454,8 @@ get.residmod.weights <- function(object, iter=0, trace=0)
     # square to convert se to variance, inverse to convert variance to weight
     weights <- 1 / clamp.se(predict.varmod(object, type="se"), iter, trace)^2
 
-    weights <- weights / mean(weights) # normalization not strictly necessary, may help numerics
+    # normalization is not strictly necessary, may help numerics
+    weights <- weights / mean(weights)
 
     if(trace == TRACE.VARMOD.DETAILS)
         plot.residmod.weights(weights, "weights")
@@ -366,14 +467,14 @@ get.residmod.weights <- function(object, iter=0, trace=0)
 
 LAMBDA <- LAMBDA.FACTOR <- -999
 
-update.LAMBDA.FACTOR <- function(lambda, trace)
+update.lambda.factor <- function(lambda, trace)
 {
     approx.equal <- function(x, y)
     {
         # allow for limited precision in doubles, also allows .33 for 1/3
         abs(x - y) < 1e-2
     }
-    #--- update.LAMBDA.FACTOR starts here ---
+    #--- update.lambda.factor starts here ---
     if(lambda != LAMBDA) {
         unlockBinding("LAMBDA", asNamespace("earth"))
         unlockBinding("LAMBDA.FACTOR", asNamespace("earth"))
@@ -409,7 +510,7 @@ update.LAMBDA.FACTOR <- function(lambda, trace)
 
 to.sd <- function(abs.resids, lambda, trace=0)
 {
-    update.LAMBDA.FACTOR(lambda, trace)
+    update.lambda.factor(lambda, trace)
     # pmax is necessary to prevent e.g. sqrt of neg prediction from residmod
     (LAMBDA.FACTOR * pmax(abs.resids, 0)) ^ (1 / lambda)
 }
@@ -424,7 +525,7 @@ get.min.sd <- function(residmod, lambda, clamp=.1)
 check.lambda.arg <- function(lambda)
 {
     check.numeric.scalar(lambda)
-    if(lambda < 0.25 || lambda > 2)
+    if(lambda < .25 || lambda > 2)
         stop0("varmod.lambda must be between 0.25 and 2 ",
               "(you have lambda=", lambda, ")")
 }
@@ -479,14 +580,14 @@ residmod.const <- function(parent.x, parent.y, abs.resids, weights, trace)
     colnames(data) <- c("abs.resids", colnames(parent.x))
     lm(abs.resids~1, data=data, weights=weights, y=TRUE)
 }
-apply.exponent <- function(yhat, exponent, xname=colnames(yhat))
+apply.exponent <- function(yhat, exponent, yname=colnames(yhat))
 {
-    stopifnot(!is.null(xname))
+    stopifnot(!is.null(yname))
     check.vec(yhat, "yhat")
     # exponents of neg numbers are allowed only for integer exponents
     if(floor(exponent) != exponent) {
         check.that.most.are.positive(
-            yhat, xname, sprintf("exponent=%g", exponent), "nonpositive")
+            yhat, yname, sprintf("exponent=%g", exponent), "nonpositive")
         yhat[yhat < 0] <- 0 # don't want to take say sqrt of a neg number
     }
     yhat ^ exponent
@@ -546,12 +647,14 @@ residmod.power <- function(exponent, parent.x, parent.y, abs.resids,
         parent.fit, "predict(parent)", "varmod.method=\"power\"", "nonpositive")
     parent.fit[parent.fit < 0] <- 0 # force negative values to zero
     data <- data.frame(abs.resids, apply.exponent(parent.fit, exponent))
-    colnames(data) <- c("abs.resids", "FITTED")
-    start <- estimate.power.start.values(prev.residmod, abs.resids, data, weights, trace, iter)
-    nls.wrapper(abs.resids~`(Intercept)` + coef * FITTED^exponent,
+    colnames(data) <- c("abs.resids", "RHS")
+    start <- estimate.power.start.values(prev.residmod, abs.resids,
+                                         data, weights, trace, iter)
+    nls.wrapper(abs.resids~`(Intercept)` + coef * RHS^exponent,
                 data, start, weights, abs.resids, trace)
 }
-estimate.power0.start.values <- function(prev.residmod, abs.resids, data, weights, trace, iter)
+estimate.power0.start.values <- function(prev.residmod, abs.resids,
+                                         data, weights, trace, iter)
 {
     if(is.null(prev.residmod)) { # first iteration in iterate.residmod?
         # use a linear model to estimate the start values
@@ -589,26 +692,26 @@ residmod.power0 <- function(exponent, parent.x, parent.y, abs.resids,
         parent.fit, "predict(parent)", "varmod.method=\"power0\"", "nonpositive")
     parent.fit[parent.fit < 0] <- 0 # force negative values to zero
     data <- data.frame(abs.resids, apply.exponent(parent.fit, exponent))
-    colnames(data) <- c("abs.resids", "FITTED")
-    start <- estimate.power0.start.values(prev.residmod, abs.resids, data, weights, trace, iter)
-    nls.wrapper(abs.resids~coef * FITTED^exponent,
+    colnames(data) <- c("abs.resids", "RHS")
+    start <- estimate.power0.start.values(prev.residmod, abs.resids,
+                                          data, weights, trace, iter)
+    nls.wrapper(abs.resids~coef * RHS^exponent,
                 data, start, weights, abs.resids, trace)
 }
 residmod.lm <- function(exponent, parent.x, parent.y, abs.resids,
                         weights, trace, parent, ...)
 {
-    # we use FITTED instead of colnames(parent.y) because we have applied exponent
+    # we use RHS instead of colnames(parent.y) because we have applied exponent
     data <- data.frame(abs.resids, apply.exponent(predict(parent), exponent))
-    colnames(data) <- c("abs.resids", "FITTED")
+    colnames(data) <- c("abs.resids", "RHS")
     lm(abs.resids~., data=data, weights=weights, y=TRUE)
 }
 residmod.rlm <- function(exponent, parent.x, parent.y, abs.resids,
                         weights, trace, parent, ...)
 {
-    # we use FITTED instead of colnames(parent.y) because we have applied exponent
+    # we use RHS instead of colnames(parent.y) because we have applied exponent
     data <- data.frame(abs.resids, apply.exponent(predict(parent), exponent))
-    colnames(data) <- c("abs.resids", "FITTED")
-    library(MASS)
+    colnames(data) <- c("abs.resids", "RHS")
     mod <- MASS::rlm(abs.resids~., data=data, weights=weights, method="MM")
     # make model data available for plotmo and plotmor
     mod$y             <- abs.resids
@@ -619,46 +722,69 @@ residmod.earth <- function(exponent, minspan, parent.x, parent.y, abs.resids,
                            weights, trace, parent, ...)
 {
     data <- data.frame(abs.resids, apply.exponent(predict(parent), exponent))
-    colnames(data) <- c("abs.resids", "FITTED")
+    colnames(data) <- c("abs.resids", "RHS")
     earth(abs.resids~., data=data, weights=weights,
           keepxy=TRUE, trace=trace, minspan=minspan, ...)
 }
-gam.package.name <- function() # should we use the gam or the mgcv package?
+please.load.gam.package <- function()
 {
-    mgcv.package.loaded <- "package:mgcv" %in% search()
+    stop0("please load either the gam or mgcv package before using varmod.method=\"gam\"")
+}
+# Do we use the gam function in the gam or the mgcv package?
+# Note that library(gam) has to be used before calling gam::gam, else the
+# wrong "s" function is invoked.  This is because requireNamespace(gam)
+# doesn't work there, even if we use gam::s when invoking gam.
+# But CRAN check disallows library(gam) in the code (as from Jan 2015).
+# So we have to ask the user to manually load the package if it is not loaded.
 
-    if(mgcv.package.loaded && "package:gam" %in% search()) {
-        # prevent downstream strange error messages
-        stop0("cannot use varmod.method=\"gam\" when both the ",
-               "\"gam\" and \"mgcv\" package are loaded")
+which.gam.package.is.loaded <- function()
+{
+    gam.package.loaded  <- "package:gam"  %in% search()
+    mgcv.package.loaded <- "package:mgcv" %in% search()
+    if(mgcv.package.loaded && gam.package.loaded) {
+        # prevent downstream confusing error messages
+        stop0("varmod.method=\"gam\" is not allowed when both the ",
+               "\"gam\" and \"mgcv\" packages are loaded")
     }
+    if(gam.package.loaded)
+        return("gam")
     if(mgcv.package.loaded)
         return("mgcv")
-
-    "gam" # note that we prefer the gam package if neither is loaded
+    please.load.gam.package()
+}
+which.package <- function(method)
+{
+    if(method %in% c("gam", "x.gam")) {
+        if("package:gam" %in% search())
+            return("gam")
+        if("package:mgcv" %in% search())
+            return("mgcv")
+    }
+    NULL
+}
+residmod.gam.aux <- function(formula, data, weights, trace, iter)
+{
+    package.name <- which.gam.package.is.loaded()
+    if(package.name == "gam") {
+        if(trace >= TRACE.VARMOD && iter==1)
+            printf("using the gam function from the \"gam\" package\n")
+        residmod <- gam::gam(formula=formula, data=data, weights=weights,
+                             x=TRUE, y=TRUE)
+    } else if(package.name == "mgcv") {
+        if(trace >= TRACE.VARMOD && iter==1)
+            printf("using the gam function from the \"mgcv\" package\n")
+        residmod <- mgcv::gam(formula=formula, data=data, weights=weights)
+        residmod$data <- data # for later access by plotmo etc.
+    } else
+        please.load.gam.package()
+    residmod
 }
 residmod.gam <- function(exponent, parent.x, parent.y, abs.resids,
-                         weights, trace, parent, ...)
+                         weights, trace, parent, iter, ...)
 {
     data <- data.frame(abs.resids, apply.exponent(predict(parent), exponent))
-    colnames(data) <- c("abs.resids", "FITTED")
-    package.name <- gam.package.name()
-    if(package.name == "gam") {
-        if(trace >= 1) {
-            printf("gam::gam(abs.resids~s(FITTED), data=data)\n")
-            printf("x=TRUE, y=TRUE\n")
-        }
-        library(gam)
-        residmod <- gam::gam(abs.resids~s(FITTED), data=data, weights=weights,
-                           x=TRUE, y=TRUE)
-    } else { # package.name "mgcv"
-        if(trace >= 1)
-            printf("mgcv::gam(abs.resids~s(FITTED), data=data)\n")
-        library(mgcv)
-        residmod <- mgcv::gam(abs.resids~s(FITTED), data=data, weights=weights)
-        residmod$data <- data
-    }
-    residmod
+    colnames(data) <- c("abs.resids", "RHS")
+    residmod.gam.aux(abs.resids~s(RHS), data, weights, trace, iter)
 }
 residmod.x.lm <- function(exponent, parent.x, parent.y, abs.resids,
                           weights, trace, ...)
@@ -676,8 +802,8 @@ residmod.x.rlm <- function(exponent, parent.x, parent.y, abs.resids,
         stop0("the exponent argument cannot be used with varmod.method=\"x.rlm\"")
     data <- data.frame(abs.resids, parent.x)
     colnames(data) <- c("abs.resids", colnames(parent.x))
-    library(MASS)
-    mod <- MASS::rlm(abs.resids~., data=data, weights=weights, method="MM", y.ret=TRUE)
+    mod <- MASS::rlm(abs.resids~., data=data, weights=weights,
+                     method="MM", y.ret=TRUE)
     # make model data available for plotmo and plotmor
     mod$y             <- abs.resids
     mod$fitted.values <- predict(mod)
@@ -694,34 +820,16 @@ residmod.x.earth <- function(exponent, minspan, parent.x, parent.y, abs.resids,
           keepxy=TRUE, trace=trace, minspan=minspan, ...)
 }
 residmod.x.gam <- function(exponent, parent.x, parent.y, abs.resids,
-                           weights, trace, ...)
+                           weights, trace, iter, ...)
 {
     if(exponent != 1)
         stop0("the exponent argument cannot be used with varmod.method=\"x.gam\"")
     if(ncol(parent.x) != 1)
         stop0("varmod.method=\"x.gam\" is not allowed when x has more than one column")
-
     RHS <- parent.x[,1] # needed so we can use s() in call to gam
     data <- data.frame(abs.resids=abs.resids, RHS=RHS)
     colnames(data) <- c("abs.resids", "RHS")
-
-    package.name <- gam.package.name()
-    if(package.name == "gam") {
-        library(gam)
-        if(trace >= 1) {
-            printf("gam::gam(abs.resids~s(RHS), data=data, ")
-            printf("x=TRUE, y=TRUE\n")
-        }
-        residmod <- gam::gam(abs.resids~s(RHS), data=data, weights=weights,
-                           x=TRUE, y=TRUE)
-    } else { # package.name "mgcv"
-        library(mgcv)
-        if(trace >= 1)
-            printf("mgcv::gam(abs.resids~s(RHS), data=data)\n")
-        residmod <- mgcv::gam(abs.resids~s(RHS), data=data, weights=weights)
-        residmod$data <- data # for later access by plotmo etc.
-    }
-    residmod
+    residmod.gam.aux(abs.resids~s(RHS), data, weights, trace, iter)
 }
 get.quant <- function(level) # e.g for level=.95 return 1.96
 {
@@ -730,7 +838,11 @@ get.quant <- function(level) # e.g for level=.95 return 1.96
     level <- 1 - (1 - level) / 2 # .95 becomes .975
     qnorm(level)                 # .975 becomes 1.96
 }
-predict.abs.residual <- function(object, newdata, level)
+predict.se <- function(object, newdata)
+{
+    to.sd(predict.abs.residual(object, newdata), object$lambda)
+}
+predict.abs.residual <- function(object, newdata)
 {
     # unfortunately needed to get model formulas to work for some varmod methods
     hack.colnames <- function(newdata, method)
@@ -743,10 +855,7 @@ predict.abs.residual <- function(object, newdata, level)
                       "(implementation restriction)")
             }
             newdata <- as.data.frame(newdata)
-            if(method == "x.gam")
-                colnames(newdata) <- "RHS"
-            else
-                colnames(newdata) <- "FITTED"
+            colnames(newdata) <- "RHS"
         }
         newdata
     }
@@ -772,10 +881,6 @@ predict.abs.residual <- function(object, newdata, level)
     min.abs.resid <- (object$min.sd ^ object$lambda) / LAMBDA.FACTOR
     pmax(abs.resid, min.abs.resid)
 }
-predict.se <- function(object, newdata, level)
-{
-    to.sd(predict.abs.residual(object, newdata, level), object$lambda)
-}
 get.parent.fit <- function(object, newdata)
 {
     parent.fit <- predict(object$parent, newdata=newdata)
@@ -793,48 +898,44 @@ predict.pint <- function(object, newdata, level) # newdata allowed
                lwr = parent.fit - quant * se,
                upr = parent.fit + quant * se)
 }
-predict.training.int <- function(object, se, newdata, level, int.name)
+predict.cint <- function(object, newdata, level)
 {
     if(!is.null(newdata))
-        stop0("predict.varmod: newdata is not allowed with interval=\"",
-              int.name, "\"")
+        stop0("predict.varmod: newdata is not allowed with interval=\"cint\"")
     parent.fit <- get.parent.fit(object, newdata)
+    se <- sqrt(object$model.var)
     stopifnot(length(se) == length(parent.fit))
     quant <- get.quant(level)
     data.frame(fit = parent.fit,
-               lwr = object$meanfit - quant * se,
-               upr = object$meanfit + quant * se)
+               lwr = parent.fit - quant * se,
+               upr = parent.fit + quant * se)
 }
 predict.varmod <- function(
     object  = stop("no 'object' arg"),
     newdata = NULL,
-    type    = c("pint", "training.pint", "training.cint", "se", "abs.residual"),
+    type    = c("pint", "cint", "se", "abs.residual"),
     level   = .95,
-    trace   = FALSE, # currently unused
+    trace   = FALSE, # unused but needed for plotmo
     ...)
 {
+    check.level95 <- function(level)
+    {
+        check.level.arg(level, zero.ok=TRUE)
+        if(level != .95)
+            stop0("predict.varmod: the level argument is not allowed with type=\"",
+                  type, "\"")
+    }
     check.classname(object, deparse(substitute(object)), "varmod")
     warn.if.dots.used("predict.varmod", ...)
     switch(match.arg1(type),
-        pint = {
-            predict.pint(object, newdata, level)
-        },
-        training.pint = {
-            se <- predict.se(object, newdata)
-            predict.training.int(object, se, newdata, level, "training.pint")
-        },
-        training.cint = {
-            predict.training.int(object,
-                se=sqrt(object$model.var), newdata, level, "training.cint")
-        },
-        se = {
-            if(level != .95)
-                stop0("level argument is not allowed with this predict type")
+        pint = predict.pint(object, newdata, level),
+        cint = predict.cint(object, newdata, level),
+        se   = {
+            check.level95(level)
             predict.se(object, newdata)
         },
         abs.residual = {
-            if(level != .95)
-                stop0("level argument is not allowed with this predict type")
+            check.level95(level)
             predict.abs.residual(object, newdata)
         })
 }
@@ -852,7 +953,7 @@ dot.star.to.digits <- function(s, digits)
 # Example:
 #       fix.coef.names(coef.names=h(y-123), response.name="y", exponent=.5)
 #   returns
-#       h(sqrt(y)-123) # the func knows that the special case of exponent=.5 is the sqrt
+#       h(sqrt(y)-123) # the func knows that the special case of exponent=.5 is sqrt
 
 fix.coef.names <- function(coef.names, response.name, exponent)
 {
@@ -871,7 +972,7 @@ fix.coef.names <- function(coef.names, response.name, exponent)
             sprintf("sq(%s)", response.name)
         else
             sprintf("%s^%.3g", response.name, exponent)
-    coef.names <- gsub("FITTED", response.name, coef.names, fixed=TRUE)
+    coef.names <- gsub("RHS", response.name, coef.names, fixed=TRUE)
     if(exponent == 1)
         coef.names
     else {
@@ -911,10 +1012,9 @@ coef.varmod <- function(object, as.sd=TRUE, ...)
 }
 VARMOD.COEF.TAB.STYLES <- c("standard", "unit")
 
-print.varmod.coef.tab <- function(
+get.varmod.coef.tab <- function(
     object,
-    style  = VARMOD.COEF.TAB.STYLES,
-    digits = 2)
+    style  = VARMOD.COEF.TAB.STYLES)
 {
     style <- match.arg1(style)
     coef <- coef.varmod(object, as.sd=TRUE)
@@ -945,39 +1045,25 @@ print.varmod.coef.tab <- function(
         stderr <- to.sd(org.stderr, object$lambda) / unit
         stderr <- restore.exponent(stderr, org.stderr, object$method)
     }
-    # get stderr.percent
     abs.coef <- abs(coef)
     stderr.percent <- 100 * stderr / abs.coef
-    stderr.percent.as.char <- sprintf("%.0f", stderr.percent)
-    stderr.percent.as.char[stderr.percent >= 1e3] <- "big"
-
-    # create a data.frame and print that
     coef.names <- names(coef)
     coef.names <- gsub("`", "", coef.names) # remove backquotes added by lm etc.
     if(style == "unit") {
-        coef.tab <- data.frame(
-            zapsmall(c(coef, unit, object$min.sd / unit), digits+1),
-            # sprintf below so print "NA" not "<NA>"
-            c(sprintf("%g", zapsmall(stderr, digits)), " ", " "),
-            c(stderr.percent.as.char, " ", " "))
-        rownames(coef.tab) <- c(coef.names, "unit", "clamp")
+        coef.tab <- data.frame(c(coef, unit), c(stderr, NA), c(stderr.percent, NA))
+        rownames(coef.tab) <- c(coef.names, "unit")
     } else {
-        coef.tab <- data.frame(
-            zapsmall(coef, digits+1),
-            c(sprintf("%g", zapsmall(stderr, digits+1))),
-            c(stderr.percent.as.char))
+        coef.tab <- data.frame(coef, stderr, stderr.percent)
         rownames(coef.tab) <- coef.names
     }
     if(object$method %in% c("earth", "x.earth")) {
         order <- reorder.earth(object$residmod, decomp="anova")
-        order <- c(order, nrow(coef.tab)) # add "min.sd" row
         coef.tab <- coef.tab[order,]
     }
-    colnames(coef.tab) <- c("coefficients", "iter.stderr", "iter.stderr%")
-    print(coef.tab, digits=digits)
+    colnames(coef.tab) <- c("coefficients", "iter.stderr", "iter.stderr.percent")
     coef.tab
 }
-print.interval.tab <- function(object, level, digits)
+get.interval.tab <- function(object, level)
 {
     level <- check.level.arg(level, zero.ok=FALSE)
     predict <- predict.varmod(object, type="pint", level=level)
@@ -994,21 +1080,7 @@ print.interval.tab <- function(object, level, digits)
         " ", "largest",
         " ", "ratio")
     rownames(tab) <- sprintf("%g%% prediction interval", 100*level)
-    print(tab, digits=digits)
-    # remove spaces in returned table
-    tab[, c("mean", "smallest", "largest", "ratio")]
-}
-get.model.response.from.formula <- function(formula, data, subset) # extract response from data
-{
-    call. <- match.call(expand.dots=FALSE)
-    mf <- call.[c(1, match(c("formula", "data"), names(call.), 0))]
-    mf[[1]] <- as.name("model.frame")
-    y <- try(model.response(eval.parent(mf), "any"))
-    if(is.try.error(y))
-        stop0("cannot get the model response from newdata")
-    if(is.null(y)) # probably not needed
-        stop0("cannot get the model response from newdata")
-    as.matrix(y)
+    tab
 }
 percent.inconf <- function(object, level, parent.y, newdata)
 {
@@ -1031,10 +1103,10 @@ print.inconf.tab <- function(object, parent.y, newdata)
     lt <- function(x, level) if(x < level-.5) "<" else " "
 
     tab <- data.frame(
-        " ", sprintf("%.0f%%%s", inconf68, lt(inconf68, 68)),
-        " ", sprintf("%.0f%%%s", inconf80, lt(inconf80, 80)),
-        " ", sprintf("%.0f%%%s", inconf90, lt(inconf90, 90)),
-        " ", sprintf("%.0f%%%s", inconf95, lt(inconf95, 95)))
+        " ", sprintf("%.0f%s ", inconf68, lt(inconf68, 68)),
+        " ", sprintf("%.0f%s ", inconf80, lt(inconf80, 80)),
+        " ", sprintf("%.0f%s ", inconf90, lt(inconf90, 90)),
+        " ", sprintf("%.0f%s ", inconf95, lt(inconf95, 95)))
 
     colnames(tab) <- c(
         " ", "68% ",
@@ -1070,10 +1142,12 @@ print.varmod <- function(
     if(!is.null(newdata)) { # if newdata, print just the inconf table
         object$inconf.tab <-
             print.inconf.tab(object,
-                             get.model.response(object$parent, newdata), newdata)
+                             get.response(object$parent, newdata), newdata)
         return(invisible(object))
     }
     printf("method \"%s\"", object$method)
+    if(!is.null(object$package))
+        printf(" (%s package)", object$package)
     space <- if(object$exponent != 1 || object$lambda != 1) "" else "  "
     if(object$exponent != 1)
         printf("%s  exponent %.3f", space, object$exponent)
@@ -1085,13 +1159,36 @@ print.varmod <- function(
         # TODO prints too many digits
         # printf(dot.star.to.digits(", iter.rsq %.*f", digits+1), object$iter.rsq)
     }
+    # coef tab
     printf("\n\nstddev of predictions%s:\n",
            if(style == "unit") " (scaled by unit)" else "")
-    object$coef.tab <- print.varmod.coef.tab(object, style, digits)
+    tab <- object$coef.tab
+    if(is.null(tab)) { # needed if did not come here via summary.varmod
+        tab <- get.varmod.coef.tab(object, style)
+        object$coef.tab <- tab # for return value of this function
+    }
+    tab$coefficients <- zapsmall(tab$coefficients, digits+1)
+    # sprintf below so print "NA" not "<NA>"
+    tab$iter.stderr  <- sprintf("%g", zapsmall(tab$iter.stderr, digits))
+
+    # convert iter.stderr.percent to character and print "big" if appropriate
+    tab$iter.stderr.percent.as.char <- sprintf("%.0f", tab$iter.stderr.percent)
+    tab$iter.stderr.percent.as.char[tab$iter.stderr.percent >= 1e3] <- "big"
+    tab$iter.stderr.percent <- NULL
+    colnames(tab) <- c("coefficients", "iter.stderr", "iter.stderr%")
+    print(tab, digits=digits)
+
+    # interval and inconf tabs
     level <- check.level.arg(level, zero.ok=TRUE)
     if(is.specified(level)) {
+        stopifnot(level == object$level)
         printf("\n")
-        object$interval.tab <- print.interval.tab(object, level, digits)
+        tab <- object$interval.tab
+        if(is.null(tab)) {
+            tab <- get.interval.tab(object, level)
+            object$interval.tab <- tab # for return value of this function
+        }
+        print(tab, digits=digits)
         printf("\n")
         object$inconf.tab <- print.inconf.tab(object, object$parent.y, newdata=NULL)
     }
@@ -1120,7 +1217,7 @@ print.summary.varmod <- function(
         printf("\n")
         print.varmod(x, level, style, digits)
         printf("\nRegression submodel (%s):\n", get.resids.name(x))
-        if(!(class(x$residmod)[1] %in% c("lm", "x.lm"))) # TODO check this
+        if(!(class(x$residmod)[1] %in% c("lm", "x.lm")))
             printf("\n")
         print(x$residmod, digits=digits)
     }
@@ -1136,11 +1233,14 @@ summary.varmod <- function(
 {
     check.classname(object, deparse(substitute(object)), "varmod")
     warn.if.dots.used("summary.varmod", ...)
-    object$level   <- level   # pass level on to print.summary.varmod
-    object$style   <- style   # ditto
-    object$digits  <- digits  # ditto
-    object$newdata <- newdata # ditto
-    class(object)  <- c("summary.varmod", "varmod")
+    object$level        <- level   # pass level on to print.summary.varmod
+    object$style        <- style   # ditto
+    object$digits       <- digits  # ditto
+    object$newdata      <- newdata # ditto
+    object$coef.tab     <- get.varmod.coef.tab(object, style)
+    object$interval.tab <- get.interval.tab(object, level)
+    # TODO add inconf table here too
+    class(object)   <- c("summary.varmod", "varmod")
     object
 }
 get.resids.name <- function(object)
@@ -1165,7 +1265,8 @@ min.sd.line <- function(object, col.min.sd, lwd) # draw horizontal line at min.s
 }
 sd.axis <- function(object) # draw righthand axis in standard deviation scale
 {
-    sd <- LAMBDA.FACTOR * object$abs.resids ^ (1 / object$lambda) # for righthand axis
+    # for righthand axis
+    sd <- LAMBDA.FACTOR * object$abs.resids ^ (1 / object$lambda)
     pretty.sd <- pretty(range(sd))
     axis(side=4, at=pretty.sd / LAMBDA.FACTOR, labels=pretty.sd, srt=90)
     mtext(get.varmod.ylab(object, as.sd=TRUE), side=4, line=1.5, cex=par("cex"))
@@ -1178,7 +1279,7 @@ plot.varmod <- function(
     cex        = NULL,
     caption    = if(do.par) NULL else "", # NULL for auto
     main       = NULL, # NULL means auto
-    col.line   = "lightblue",
+    col.line   = "red",
     col.min.sd = col.line,
     ...)    # unused, for compat with the generic
 {
@@ -1207,9 +1308,8 @@ plot.varmod <- function(
     ylim <- fix.lim(c(min(object$abs.resids, 0), max(object$abs.resids)))
     parent.fitted <- predict(object$parent)[,1]
     order <- order(parent.fitted)
-    col.smooth <- if(info) 2 else 0
-    # lwd <- ifelse(length(parent.fitted) > 1000, 3, 2) # npoints matches plotmor
-    lwd <- 3
+    col.smooth <- if(info) "red" else 0
+    lwd <- 1
     for(iwhich in seq_along(which)) {
         if(which[iwhich] == 1) {            #--- fitted versus parent fitted ---
             plot(parent.fitted[order], object$abs.resids[order],
@@ -1226,11 +1326,12 @@ plot.varmod <- function(
             lines(parent.fitted[order], fitted[order], col=col.line, lwd=lwd)
             if(info) {
                 # lowess smooth
-                smooth <- lowess(parent.fitted[order], object$abs.resids[order], f=.5)
+                smooth <- lowess(parent.fitted[order],
+                                 object$abs.resids[order], f=.5)
                 lines(smooth$x, smooth$y, col=col.smooth, lwd=1)
             }
 
-        } else if(which[iwhich] == 2) {     #--- fitted versus parent first predictor ---
+        } else if(which[iwhich] == 2) {     #--- fitted versus parent first pred ---
             plotmo::plotmo(object, type="abs.residual",
                 ylim=ylim, degree1=1, degree2=0, do.par=FALSE, trace=-1,
                 col.response=1, col.degree1=col.line, cex.response=cex,
@@ -1251,9 +1352,11 @@ plot.varmod <- function(
         } else if(which[iwhich] == 4) {     #--- model selection graph ---
             if(class(object$residmod)[1] == "earth")
                 plot.earth(object$residmod, which=1,
-                           main=if(is.null(main)) "VarMod Model Selection" else main[iwhich])
+                           main=if(is.null(main)) "VarMod Model Selection"
+                                else main[iwhich])
         } else
-            stop0("plot.varmod: illegal value %g in \"which\" argument", which[iwhich])
+            stop0("plot.varmod: illegal value %g in \"which\" argument",
+                   which[iwhich])
     }
     if(is.null(caption) || any(nchar(caption))) { # show caption?
         trim <- FALSE
