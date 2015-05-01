@@ -3,7 +3,7 @@
 # predict.earth returns multiple columns for multiple response models
 
 predict.earth <- function(
-    object   = stop("no 'object' arg"),
+    object   = stop("no 'object' argument"),
     newdata  = NULL,
     type     = c("link", "response", "earth", "class", "terms"),
                         # "terms" always returns the earth not glm terms
@@ -38,24 +38,25 @@ predict.earth <- function(
                 print.returning.earth(trace, object, "fitted.values")
                 fit <- object$fitted.values
             } else {    # glm predictions
-                if(trace >= 1)
-                    cat("predict.earth: returning glm fitted.values\n")
+                trace1(trace, "predict.earth: returning glm fitted.values\n")
                 fit <- matrix(0, nrow=nrow(object$fitted.values),
                                  ncol=ncol(object$fitted.values))
                 colnames(fit) <- colnames(object$fitted.values)
                 for(i in seq_along(object$glm.list))
                     fit[,i] = predict.glm(object$glm.list[[i]], type=type)
             }
-        } else {        # user supplied newdata
-            bx <- model.matrix.earth(object, newdata, env=env,
-                                     trace=trace,
-                                     Callers.name="model.matrix.earth from predict.earth")
-            if(trace >= 1)
-                 print.matrix.info("bx", bx, "predict.earth", all.names=trace>=2)
+        } else { # user supplied newdata
+            bx <- model.matrix.earth(object, newdata, env=parent.frame(),
+                    trace=trace,
+                    Callers.name="model.matrix.earth from predict.earth")
+            if(trace >= 1) {
+                print_summary(bx, "predict.earth: bx", trace=2)
+                trace2(trace, "\n")
+            }
             if(is.null(object$glm.list) || type=="earth") {
                 print.returning.earth(trace, object, "predictions")
                 fit <- bx %*% object$coefficients
-            } else {    # glm predictions
+            } else { # glm predictions
                 if(trace >= 1)
                     cat("predict.earth: returning glm", type, "predictions\n")
                 fit <- matrix(0, nrow=nrow(bx),
@@ -72,7 +73,8 @@ predict.earth <- function(
             }
         }
         if(is.type.class)
-            fit <- convert.predicted.response.to.class(fit, ylevels, thresh)
+            fit <- convert.predicted.response.to.class(fit, ylevels,
+                                colnames(object$coefficients)[1], thresh)
         fit
     }
     # returns just enough for termplot to work
@@ -94,20 +96,19 @@ predict.earth <- function(
         termMat <- matrix(0, nrow=nrow(bx), ncol=ncol(dirs))
         colnames(termMat) <- var.names
         if(ncol(bx) >= 1)
-            for(ipred in 1:ncol(dirs))
-                for(iterm in 1:ncol(bx))
+            for(ipred in seq_len(ncol(dirs)))
+                for(iterm in seq_len(ncol(bx)))
                     if(dirs[iterm, ipred])
                         termMat[, ipred] =
                             termMat[, ipred] + coefs[iterm] * bx[, iterm]
         termMat
     }
     #--- predict.earth starts here ---
-
-    check.classname(object, deparse(substitute(object)), "earth")
-    warn.if.dots.used("predict.earth", ...)
-    trace <- check.trace.arg(trace)
+    check.classname(object, substitute(object), "earth")
+    warn.if.dots(...)
+    trace <- as.numeric(check.numeric.scalar(trace, logical.ok=TRUE))
     env <- parent.frame() # the environment from which predict.earth was called
-    fit <- switch(match.arg1(type),
+    fit <- switch(match.arg1(type, "type"),
         "link"     = get.predicted.response(object, newdata, "link"),
         "response" = get.predicted.response(object, newdata, "response"),
         "earth"    = get.predicted.response(object, newdata, "earth"),
@@ -116,7 +117,7 @@ predict.earth <- function(
 
     # check interval argument is legal
     interval <- match.choices(interval,
-                    c("none", "pint", "cint", "se", "abs.residual"))
+                    c("none", "pint", "cint", "se", "abs.residual"), "interval")
     if(interval == "none") {
         if(!missing(level))
             stop0("predict.earth: level=", level, " was specified but interval=\"none\"")
@@ -137,9 +138,7 @@ predict.earth <- function(
               "for multiple response models")
     predict.varmod(object$varmod, newdata=newdata, type=interval, level=level)
 }
-
-# resp is a matrix, return a vector
-convert.predicted.response.to.class <- function(resp, ylevels, thresh=.5)
+convert.predicted.response.to.class <- function(resp, ylevels, resp.name, thresh=.5)
 {
     which1 <- function(row, thresh) # row is a scalar or a vector
     {
@@ -154,5 +153,7 @@ convert.predicted.response.to.class <- function(resp, ylevels, thresh=.5)
     resp <- ylevels[apply(resp, 1, which1, thresh)]
     if(is.character(ylevels))
         resp <- factor(resp, levels = ylevels)
-    resp
+    fit <- as.matrix(resp, ncol=1)
+    colnames(fit) <- resp.name
+    fit
 }

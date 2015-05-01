@@ -20,7 +20,7 @@ Ozone readings in Los Angeles, with incomplete cases removed.}
   }
 }
 \source{
-This data was copied from \code{library(faraway)} and the name
+This dataset was copied from \code{library(faraway)} and the name
 changed to \code{ozone1} to prevent a name clash.
 The data were originally made available by Leo Breiman who was a consultant
 on a project where the data were generated.
@@ -44,5 +44,7 @@ Hastie and Tibshirani (1990) \emph{Generalized Additive Models}
 }
 \seealso{
   \code{\link{earth}}
+
+  \code{\link[datasets]{airquality}} a different set of ozone data
 }
 \keyword{datasets}

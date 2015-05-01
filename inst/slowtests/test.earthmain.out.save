@@ -1,4 +1,4 @@
-Forward pass: minspan 4 endspan 7
+Forward pass:    minspan 4    endspan 7    x is 100 by 1 (800 B)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -7,9 +7,9 @@ Forward pass: minspan 4 endspan 7
 5      0.9987 0.9989      0.01106    0       0.59  4       
 7      0.9987 0.9990    0.0001232    0       0.91  5       reject term
 
-RSq changed by less than 0.001 at 7 terms (DeltaRSq 0.00012)
+RSq changed by less than 0.001 at 7 terms, 5 terms used (DeltaRSq 0.00012)
 After forward pass GRSq 0.999 RSq 0.999
-Forward pass complete: 7 terms (5 terms used)
+Forward pass complete: 7 terms, 5 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq

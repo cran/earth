@@ -59,20 +59,20 @@ void EvalSubsetsUsingXtxR(      // for use by R
     const int*    pnResp,       // in: number of cols in yw
     const int*    pnMaxTerms,   // in
     const double bx[],          // in: MARS basis matrix, all cols must be indep
-    const double yw[]);          // in: nCases * nResp
+    const double yw[]);         // in: nCases * nResp
 
 void RegressR(                  // for testing earth routine Regress from R
     double       Betas[],       // out: (nUsedCols+1) * nResp, +1 is for intercept
     double       Residuals[],   // out: nCases * nResp
     double       Rss[],         // out: RSS, summed over all nResp
     double       Diags[],       // out: diags of inv(transpose(x) * x)
-    int*          pnRank,       // out: nbr of indep cols in x
+    int*         pnRank,        // out: nbr of indep cols in x
     int          iPivots[],     // out: nCols
     const double x[],           // in: nCases x nCols
     const double y[],           // in: nCases x nResp
-    const int*    pnCases,      // in: number of rows in x and in y
-    const int*    pnResp,       // in: number of cols in y
-    int*          pnCols,       // in: number of columns in x, some may not be used
+    const int*   pnCases,       // in: number of rows in x and in y
+    const int*   pnResp,        // in: number of cols in y
+    int*         pnCols,        // in: number of columns in x, some may not be used
     const bool   UsedCols[]);   // in: specifies used columns in x
 
 #endif // USING_R
@@ -92,7 +92,7 @@ void Earth(
     const double x[],           // in: nCases x nPreds
     const double y[],           // in: nCases x nResp
     const double WeightsArg[],  // in: nCases x 1, can be NULL, not yet supported
-    const int nCases,           // in: number of rows in x and elements in y
+    const size_t nCases,        // in: number of rows in x and elements in y
     const int nResp,            // in: number of cols in y
     const int nPreds,           // in: number of cols in x
     const int nMaxDegree,       // in: Friedman's mi

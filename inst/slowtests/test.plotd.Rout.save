@@ -3,6 +3,7 @@
 > library(earth)
 Loading required package: plotmo
 Loading required package: plotrix
+Loading required package: TeachingDemos
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -38,33 +39,11 @@ Loading required package: plotrix
 +       kernel="epan", adjust=.3, legend.names=c("mylegend", "mylegend2"),
 +       legend.pos=c(.3,4), cex.legend=1, legend.extra=TRUE,
 +       col=c(1, "green"), fill="red")
-
-Observed response: y is a 1046 by 1 matrix: 1=survived (numeric)
-First few rows of y are
-     survived
-[1,]        1
-[2,]        1
-[3,]        0
-[4,]        0
-[5,]        0
-[6,]        1
-
-Predicted response: yhat is a 1046 by 1 matrix: 1=survived
-First few rows of yhat are
-      survived
-[1,] 0.9637385
-[2,] 0.9539389
-[3,] 0.9829011
-[4,] 0.4091613
-[5,] 0.9675274
-[6,] 0.2928213
-
-Observed response: numeric or logical vector
-Predicted response type="response": numeric or logical vector
-Grouping criterion: CLASS1 survived == 0, CLASS2 survived != 0
-
-predicted.response.per.class[not survived]: 0.9829011 0.4091613 0.9675274 0.3487411 0.2030343 0.2987726 ...
-predicted.response.per.class[survived    ]: 0.9637385 0.9539389 0.2928213 0.9095893 0.9304968 0.9732563 ...
+observed response: numeric or logical vector
+predicted response: numeric or logical vector   (predict type is "response")
+grouping criterion: CLASS1 survived == 0, CLASS2 survived != 0
+        predicted.response.per.class[not survived][619,1] with no column names
+        predicted.response.per.class[survived    ][427,1] with no column names
 
 > 
 > plotd(a1, main="earth-glm, numeric, type=earth, params",
@@ -201,27 +180,47 @@ predicted.response.per.class[survived    ]: 0.9637385 0.9539389 0.2928213 0.9095
 > a12 <- earth(pclass ~ ., data=etitanic, degree=2)
 > plotd(a12, main="earth, 3 lev fac, no glm arg")
 > 
+> # test that we can change the order of the levels and still get the same results
+> multifigure("compare pclass with different factor levels")
+===compare pclass with different factor levels
+> printh("fit.pclass")
+===fit.pclass
+> fit.pclass <- earth(pclass ~ ., data=etitanic, degree=2)
+> plotd(fit.pclass, type="class", hist=1, main="fit.pclass", fill=0,
++            col=c(2, 1, "lightblue"))
+> do.caption("left and right graphs should match, up to level order")
+> printh("fit.pclass.reorder")
+===fit.pclass.reorder
+> tit <- etitanic
+> pclass <- as.character(tit$pclass)
+> pclass[pclass == "1st"] <- "first"
+> pclass[pclass == "2nd"] <- "class2"
+> pclass[pclass == "3rd"] <- "classthird"
+> tit$pclass <- factor(pclass, levels=c("class2", "classthird", "first"))
+> fit.pclass.reorder <- earth(pclass ~ ., data=tit, degree=2)
+> plotd(fit.pclass.reorder, type="class", hist=1, main="fit.pclass.reorder",
++       col=c(1, "lightblue", 2), fill=0, legend.pos="topright")
+> 
 > # examples from the man page
 > 
 > printh("example(plotd)")
 ===example(plotd)
 > example(plotd)
 
-plotd> old.par <- par(no.readonly=TRUE);
-
-plotd> par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
-
-plotd> data(etitanic)
-
-plotd> fit <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
-
-plotd> plotd(fit)
-
-plotd> plotd(fit, hist=TRUE, legend.pos=c(.25,220))
-
-plotd> plotd(fit, hist=TRUE, type="class", labels=TRUE, xlab="", xaxis.cex=.8)
-
-plotd> par(old.par)
+plotd> if (require(earth)) {
+plotd+     old.par <- par(no.readonly=TRUE);
+plotd+     par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
+plotd+     data(etitanic)
+plotd+     mod <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
+plotd+ 
+plotd+     plotd(mod)
+plotd+ 
+plotd+     plotd(mod, hist=TRUE, legend.pos=c(.25,220))
+plotd+ 
+plotd+     plotd(mod, hist=TRUE, type="class", labels=TRUE, xlab="", xaxis.cex=.8)
+plotd+ 
+plotd+     par(old.par)
+plotd+ }
 > do.caption("example(plotd)")
 > 
 > multifigure("glm.model example from man page")
@@ -235,40 +234,66 @@ plotd> par(old.par)
 ===lm.model example from man page
 > library(earth); data(etitanic)
 > lm.model <- lm(as.numeric(sex) ~ ., data=etitanic)
-> plotd(lm.model, trace=1)
-
-Observed response: y is a 1046 by 1 matrix: 1=as.numeric(sex)
-First few rows of y are
+> plotd(lm.model, trace=2)
+using the environment saved with the lm model: R_GlobalEnv
+plotd trace 2: plotd(object=lm.model, trace=2)
+object$call is lm(formula=as.numeric(sex)~., data=etitanic)
+observed response[1046,1]:
      as.numeric(sex)
-[1,]               1
-[2,]               2
-[3,]               1
-[4,]               2
-[5,]               1
-[6,]               2
+1                  1
+2                  2
+3                  1
+...                2
+1046               2
 
-Predicted response: yhat is a 1046 by 1 matrix: 1=UNNAMED
-First few elements of yhat are
-       1        2        3        4        5        6 
-1.392914 1.212219 1.733813 1.723106 1.725018 1.385648 
+calling predict.lm with NULL newdata
+stats::predict(lm.object, NULL, type="response")
+predict returned[1046,1] with no column names:
+           NA
+1    1.392914
+2    1.212219
+3    1.733813
+...  1.723106
+1309 1.882905
+predict after processing with nresponse=NULL is [1046,1] with no column names:
+           NA
+1    1.392914
+2    1.212219
+3    1.733813
+...  1.723106
+1309 1.882905
+single column yhat
 
-Observed response: numeric or logical vector
-Predicted response type="response": numeric or logical vector
-Grouping criterion: CLASS1 as.numeric(sex) == 1, CLASS2 as.numeric(sex) != 1
+observed response: numeric or logical vector
+predicted response: numeric or logical vector   (predict type is "response")
+grouping criterion: CLASS1 as.numeric(sex) == 1, CLASS2 as.numeric(sex) != 1
 
-predicted.response.per.class[as.numeric(sex) == 1]: 1.392914 1.733813 1.725018 1.353087 1.330086 1.370295 ...
-predicted.response.per.class[as.numeric(sex) != 1]: 1.212219 1.723106 1.385648 1.911098 1.898862 1.881214 ...
+predicted.response.per.class[as.numeric(sex) == 1][388,1] with no column names:
+          NA
+1   1.392914
+2   1.733813
+3   1.725018
+... 1.353087
+388 1.861625
+
+predicted.response.per.class[as.numeric(sex) != 1][658,1] with no column names:
+          NA
+1   1.212219
+2   1.723106
+3   1.385648
+... 1.911098
+658 1.882905
 
 > plot(1,1) # dummy plot
 > plot(1,1)
 > 
-> # test with rpart
+> # test with rpart (also test nresponse with a character value)
 > printh("rpart")
 ===rpart
 > library(rpart); library(earth); data(etitanic)
 > rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
-> plotd(rpart.model, type="prob", nresponse=1)
-> plotd(rpart.model, type="prob", nresponse=2)
+> plotd(rpart.model, type="prob", nresponse="female")
+> plotd(rpart.model, type="prob", nresponse="ma")
 > plotd(rpart.model, type="class", hist=TRUE, labels=TRUE)
 > plotd(rpart.model, hist=TRUE, labels=TRUE) # default type is "vector"
 > 
@@ -276,8 +301,8 @@ predicted.response.per.class[as.numeric(sex) != 1]: 1.212219 1.723106 1.385648 1
 ===lda.model examples from man pages
 > library(MASS); library(earth); data(etitanic)
 > lda.model <- lda(sex ~ ., data=etitanic)
-> plotd(lda.model)
-> plotd(lda.model, type="class", hist=TRUE, labels=TRUE)
+> plotd(lda.model, type="response")
+> plotd(lda.model, hist=TRUE, labels=TRUE)
 > 
 > library(MASS); library(earth); set.seed(420)
 > example(lda)
@@ -329,11 +354,11 @@ Petal.L. -3.6338679  0.4340017
 Proportion of trace:
    LD1    LD2 
 0.9934 0.0066 
-> plotd(z, nresponse=1) # nresponse=1 selects first linear discriminant
+> plotd(z, type="response", nresponse=1) # nresponse=1 selects first linear discriminant
 > do.caption("lda.model example from example(lda)")
 > 
 > a.qda <- qda(survived ~ ., data=etitanic)
-> plotd(a.qda, type="class")
+> plotd(a.qda)
 > plotd(a.qda, type="post")
 > 
 > # test plotd with lm models
@@ -417,86 +442,30 @@ Proportion of trace:
 > multifigure("lda1")
 ===lda1
 > lda1 <- lda(sex ~ ., data=etitanic)
-> plotd(lda1, main="lda1, 2 lev fac", trace=TRUE)
-
-Observed response: y is a 1046 by 1 matrix: 1=UNNAMED (factor)
-First few elements of y are
-     1      2      3      4      5      6 
-female   male female   male female   male 
-Levels: female male
-
-Special handling of "type" argument for lda or qda object
-
-Predicted response: yhat is a 1046 by 1 matrix: 1=LD1
-First few rows of yhat are
-            LD1
-[1,] -1.0487854
-[2,] -1.8512878
-[3,]  0.4652139
-[4,]  0.4176623
-[5,]  0.4261537
-[6,] -1.0810526
-
-Observed response: two-level factor
-Predicted response type="response": numeric or logical vector
-Grouping criterion: CLASS1 predicted[observed == female], CLASS2 predicted[observed == male]
-
-predicted.response.per.class[female]: -1.048785 0.4652139 0.4261537 -1.225663 -1.327817 -1.149241 ...
-predicted.response.per.class[male  ]: -1.851288 0.4176623 -1.081053 1.252573 1.198229 1.119851 ...
+> plotd(lda1, main="lda1, 2 lev fac", trace=1)
+observed response: two-level factor
+predicted response: numeric or logical vector   (predict type is "class")
+grouping criterion: CLASS1 predicted[observed == female], CLASS2 predicted[observed == male]
+        predicted.response.per.class[female][388,1] with no column names
+        predicted.response.per.class[male  ][658,1] with no column names
 
 > do.caption("lda1")
-> plotd(lda1, main="lda1, 2 lev fac, hist=TRUE", hist=TRUE)
+> plotd(lda1, main="lda1, 2 lev fac, hist=TRUE", type="response", hist=TRUE)
 > plotd(lda1, main="lda1, 2 lev fac, hist=TRUE, type=post", hist=TRUE, type="post")
 > plotd(lda1, main="lda1, 2 lev fac, hist=TRUE, type=class", hist=TRUE, type="class", labels=TRUE)
 > 
 > multifigure("lda2")
 ===lda2
 > lda2 <- lda(pclass ~ ., data=etitanic)
-> plotd(lda2, main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
+> plotd(lda2, type="response", main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
 > do.caption("lda2")
-> plotd(lda2, main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
-> plotd(lda2, main="lda2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2, trace=TRUE)
-
-Observed response: y is a 1046 by 1 matrix: 1=UNNAMED (factor)
-First few elements of y are
-  1   2   3   4   5   6 
-1st 1st 1st 1st 1st 1st 
-Levels: 1st 2nd 3rd
-
-Special handling of "type" argument for lda or qda object
-
-Predicted response: yhat is a 1046 by 2 matrix: 1=LD1, 2=LD2
-First few rows of yhat are
-            LD1        LD2
-[1,] -0.7265046 -1.2974049
-[2,]  0.9362152 -0.3240236
-[3,]  2.6008978 -0.2234925
-[4,]  0.5539435  1.1923110
-[5,]  1.0253822  0.4591737
-[6,] -2.1569529 -0.1487316
-Predicted response after selecting nresponse 2: yhat is a 1046 by 1 matrix: 1=LD2
-First few rows of yhat are
-            LD2
-[1,] -1.2974049
-[2,] -0.3240236
-[3,] -0.2234925
-[4,]  1.1923110
-[5,]  0.4591737
-[6,] -0.1487316
-
-Observed response: multi-level factor
-Predicted response type="response": numeric or logical vector
-Grouping criterion: predicted[observed == level] for 3 levels
-
-predicted.response.per.class[LD2: 1st]: -1.297405 -0.3240236 -0.2234925 1.192311 0.4591737 -0.1487316 ...
-predicted.response.per.class[LD2: 2nd]: 0.8584136 -0.4387892 -0.02988314 -0.3860568 -0.1782889 0.9771382 ...
-predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.06407257 -1.68326 -0.8313979 ...
-
+> plotd(lda2, type="response", main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
+> plotd(lda2, type="response", main="lda2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2)
 > # plotd(lda2, main="lda2, 3 lev fac, nresponse=NULL", jitter=TRUE, nresponse=NULL)
 > 
 > multifigure("lda2 part 2")
 ===lda2 part 2
-> # plotd(lda2, main="lda2, 3 lev fac, hist=TRUE", hist=TRUE)
+> # plotd(lda2, type="response", main="lda2, 3 lev fac, hist=TRUE", hist=TRUE)
 > plotd(lda2, main="lda2, 3 lev fac, hist=TRUE, type=p, nresponse=1", hist=TRUE, type="p", nresponse=1)
 > do.caption("lda2 part 2")
 > plotd(lda2, main="lda2, 3 lev fac, type=p", type="p")
@@ -513,9 +482,9 @@ predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.064072
 > multifigure("lda3")
 ===lda3
 > lda3 <- lda(survived ~ ., data=etitanic)
-> plotd(lda3, main="lda3, logical")
+> plotd(lda3, type="response", main="lda3, logical")
 > do.caption("lda3")
-> plotd(lda3, main="lda3, logical, hist=TRUE", hist=TRUE)
+> plotd(lda3, type="response", main="lda3, logical, hist=TRUE", hist=TRUE)
 > plotd(lda3, main="lda3, logical, hist=TRUE, type=posterior", hist=TRUE, type="posterior")
 > plotd(lda3, main="lda3, logical, hist=TRUE, type=class", hist=TRUE, type="class", labels=TRUE)
 > 
@@ -529,33 +498,33 @@ predicted.response.per.class[LD2: 3rd]: 0.3262906 -0.2005652 0.6098263 -0.064072
 > multifigure("ldad1")
 ===ldad1
 > ldad1 <- lda(etitanic1[,-3], etitanic$sex)
-> plotd(ldad1, main="ldad1, 2 lev fac")
+> plotd(ldad1, type="response", main="ldad1, 2 lev fac")
 > do.caption("ldad1")
-> plotd(ldad1, main="ldad1, 2 lev fac, hist=TRUE", hist=TRUE)
+> plotd(ldad1, type="response", main="ldad1, 2 lev fac, hist=TRUE", hist=TRUE)
 > plotd(ldad1, main="ldad1, 2 lev fac, hist=TRUE, type=post", hist=TRUE, type="post")
 > plotd(ldad1, main="ldad1, 2 lev fac, hist=TRUE, type=class", hist=TRUE, type="class")
 > 
 > multifigure("ldad2")
 ===ldad2
 > ldad2 <- lda(etitanic1[,-1], etitanic$pclass)
-> # plotd(ldad2, main="ldad2, 3 lev fac", jitter=TRUE)
-> plotd(ldad2, main="ldad2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
+> # plotd(ldad2, type="response", main="ldad2, 3 lev fac", jitter=TRUE)
+> plotd(ldad2, type="response", main="ldad2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
 > do.caption("ldad2")
-> plotd(ldad2, main="ldad2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2)
+> plotd(ldad2, type="response", main="ldad2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2)
 > multifigure("ldad2 part 2")
 ===ldad2 part 2
-> plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, nresponse=1", hist=TRUE, nresponse=1)
+> plotd(ldad2, type="response", main="ldad2, 3 lev fac, hist=TRUE, nresponse=1", hist=TRUE, nresponse=1)
 > do.caption("ldad2 part 2")
 > plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, type=p, nresponse=1", hist=TRUE, type="p", nresponse=1)
-> plotd(ldad2, main="ldad2, 3 lev fac, type=p, nresponse=1", type="p", nresponse=1)
-> plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, type=class, nresponse=1", hist=TRUE, type="class", nresponse=1)
+> plotd(ldad2, main="ldad2, 3 lev fac, type=p, nresponse=1", type="po", nresponse=1)
+> plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, type=class, nresponse=1", hist=TRUE, type="cla", nresponse=1)
 > 
 > multifigure("ldad3")
 ===ldad3
 > ldad3 <- lda(etitanic1[,-2], etitanic$survived)
-> plotd(ldad3, main="ldad3, logical")
+> plotd(ldad3, type="response", main="ldad3, logical")
 > do.caption("ldad3")
-> plotd(ldad3, main="ldad3, logical, hist=TRUE", hist=TRUE)
+> plotd(ldad3, type="response", main="ldad3, logical, hist=TRUE", hist=TRUE)
 > plotd(ldad3, main="ldad3, logical, hist=TRUE, type=post", hist=TRUE, type="post")
 > plotd(ldad3, main="ldad3, logical, hist=TRUE, type=cl", hist=TRUE, type="cl")
 > 

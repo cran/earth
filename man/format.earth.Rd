@@ -5,7 +5,7 @@
 Return a string representing an \code{\link{earth}} expression.
 }
 \usage{
-\method{format}{earth}(x = stop("no 'x' arg"),
+\method{format}{earth}(x = stop("no 'x' argument"),
        style = "h", decomp = "anova", digits = getOption("digits"),
        use.names = TRUE, colon.char = ":", \dots)
 }

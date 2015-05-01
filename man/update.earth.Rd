@@ -5,7 +5,7 @@
 Update an \code{\link{earth}} model.
 }
 \usage{
-\method{update}{earth}(object = stop("no 'object' arg"),
+\method{update}{earth}(object = stop("no 'object' argument"),
        formula. = NULL, ponly = FALSE, \dots, evaluate = TRUE)
 }
 \arguments{

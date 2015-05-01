@@ -5,16 +5,14 @@
 Compare \code{\link{earth}} models by plotting them.
 }
 \usage{
-\method{plot}{earth.models}(x = stop("no 'x' arg"), which = c(1:2),
+\method{plot}{earth.models}(x = stop("no 'x' argument"), which = c(1:2),
     caption = "", jitter = 0,
-    col.grsq = discrete.plot.cols(length(x)), lty.grsq = 1,
+    col.grsq = discrete.plot.cols(length(objects)), lty.grsq = 1,
     col.rsq = 0, lty.rsq = 5,
     col.vline = col.grsq, lty.vline = 3,
-    col.npreds = 0,  lty.npreds  = 2, col.sel.grid = 0,
-    ylim = c(0,1),
-    col.legend = 1, cex.legend = NULL, legend.pos = NULL, legend.text = NULL,
-    col.cum = NULL, do.par = TRUE,
-    main = "Model Comparison", cex.main = 1.1, \dots)
+    col.npreds = 0,  lty.npreds  = 2,
+    legend.text = NULL, do.par = NULL, trace = 0,
+    \dots)
 }
 \arguments{
   \item{x}{
@@ -77,70 +75,16 @@ Compare \code{\link{earth}} models by plotting them.
     Vector of colors for the "number of predictors" plot within the model selection plot.
     Default is \code{0}, meaning no "number of predictors" plot.
     The special value \code{NULL} means borrow \code{col.grsq}
-    (or \code{col.line} if \code{col.grsq} is \code{NULL}).
+    (or \code{col.rsq} if \code{col.grsq} is \code{NULL}).
   }
   \item{lty.npreds}{
      Line type of the "number of predictors" plot (in the Model Selection plot).
      Default is \code{2}.
   }
-  \item{col.sel.grid}{
-    Color of grid lines in the Model Selection graph.
-    Default is \code{0}, no grid.
-    Try something like \code{"lightgray"}, \code{"linen"}, or \code{"seashell"}.
-  }
-  \item{ylim}{
-    Two element vector \code{c(min,max)} specifying min and max
-    values on the y axis of the RSq/GRSq plot.
-    Default is \code{c(0,1)}.\cr
-    The special value min=\code{-1} means the minimum y axis value
-    is the smallest GRSq or RSq, excluding the intercept.\cr
-    The special value max=\code{-1} means the maximum y axis value
-    is the largest GRSq or RSq.
-  }
-  \item{col.legend}{
-    Deprecated.   Use \code{legend.pos=NA} for no legend.
-  }
-  \item{cex.legend}{
-     Legend cex.
-     Default is NULL, meaning choose automatically.
-  }
-  \item{legend.pos}{
-    Legend position.
-    Default \code{NULL}, meaning position the legend automatically.
-    Use NA for no legend.
-    Specify \code{c(x,y)} in user coordinates,
-    or use \code{"topleft"} etc. as explained in \code{\link{legend}}.
-  }
-  \item{legend.text}{
-    Vector of strings to use as legend text.
-    The special value \code{NULL} (default) means generate the legend text automatically
-    from \code{call$formula}.
-  }
-  \item{col.cum}{
-    Vector of colors for the cumulative distribution plot.
-    The special value \code{NULL} (default) means borrow \code{col.grsq}
-    (or \code{col.line} if \code{col.grsq} is \code{NULL}).
-\cr
-\cr
-     \emph{The following settings are related to \code{par()} and are included so you can override the defaults.}
-  }
-  \item{do.par}{
-    Call \code{par()} for global settings as appropriate.
-    Default is \code{TRUE},
-    which sets \code{mfrow, mar=c(4,4,2,3), mgp=c(1.6,0.6,0), cex=0.7}.
-    Set to \code{FALSE} if you want to append figures to an existing plot.
-  }
-  \item{main}{
-    Title of each plot.
-    Default is \code{NULL}, meaning generate figure headings automatically.
-  }
-  \item{cex.main}{
-    Size of plot titles.  Default is \code{1.1}.
-    Used only if \code{do.par} is \code{TRUE} (default).
-  }
-  \item{\dots}{
-    Unused, but provided for generic/method consistency.
-  }
+\item{legend.text,do.par,trace}{Please see \code{\link[plotmo]{plotres}}
+}
+\item{\dots}{Please see \code{\link[plotmo]{plotres}}
+}
 }
 \note{
    This function ignores GLM and cross-validation components of the earth model, if any.
@@ -149,7 +93,7 @@ Compare \code{\link{earth}} models by plotting them.
   \code{\link{earth}},
   \code{\link{plot.earth}},
   \code{\link{plot.earth.models}},
-  \code{\link{plotd}},
+  \code{\link[earth]{plotd}},
   \code{\link[plotmo]{plotmo}}
 }
 \examples{

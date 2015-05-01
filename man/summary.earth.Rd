@@ -6,12 +6,12 @@
 Summary method for \code{\link{earth}} objects.
 }
 \usage{
-\method{summary}{earth}(object = stop("no 'object' arg"),
+\method{summary}{earth}(object = stop("no 'object' argument"),
         details = FALSE,  style = c("h", "pmax", "max", "C", "bf"),
         decomp = "anova", digits = getOption("digits"), fixed.point=TRUE,
         newdata = NULL, \dots)
 
-\method{print}{summary.earth}(x = stop("no 'x' arg"),
+\method{print}{summary.earth}(x = stop("no 'x' argument"),
         details = x$details,
         decomp = x$decomp, digits = x$digits, fixed.point = x$fixed.point,
         newdata = x$newdata, \dots)
@@ -70,10 +70,9 @@ Matrices with two or fewer rows are never printed with a fixed point.
   }
   \item{newdata}{
 Default \code{NULL}.\cr
-Else print R-Squared for the new data, and
-if a variance model is present print the interval coverage table for the new data.\cr
-In the current implementation, \code{newdata} is allowed only if
-\code{earth} was called with a \code{formula} (not \code{x} and \code{y}).
+Else print R-Squared for the new data
+(and the returned object will have \code{newrsq} and \code{newdata} fields).
+Additionally, if a variance model is present print the interval coverage table for the new data.\cr
   }
   \item{\dots}{
     Extra arguments are passed to \code{\link{format.earth}}.
@@ -87,12 +86,12 @@ but with the following extra components.\cr
     String(s) created by \code{\link{format.earth}}.
     For multiple response models, a vector of strings.
   }
+  \item{newrsq}{Only if \code{newdata} was passed to \code{summary.earth}.}
+  \item{newdata}{Only if \code{newdata} was passed to \code{summary.earth}.}
   \item{digits}{}
   \item{details}{}
   \item{decomp}{}
-  \item{fixed.point}{
-    The corresponding arguments, passed on to \code{print.summary.earth}.
-  }
+  \item{fixed.point}{The corresponding arguments, passed on to \code{print.summary.earth}.}
 }
 \note{
 The printed \code{Estimated importance} uses \code{\link{evimp}}

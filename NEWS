@@ -1,6 +1,16 @@
 Changes to Earth Package
 ------------------------
 
+4.3.0  Apr 30, 2015
+
+   We now support data matrices bigger than 2GB.
+
+   The plot.earth function now invokes plotres in the plotmo package.
+   Reparameterized the argument list of plot.earth, but maintained 
+   back-compatibility by using the "dots" routines.
+
+   Numerous minor code clean-ups.
+
 4.2.0  Jan 12, 2015
 
   plot.earth:
@@ -36,7 +46,7 @@ Changes to Earth Package
 
   The Get.crit argument was removed from earth.fit.  No longer needed.
 
-  RSq's and GRSq's that are almost zero are now set to zero to facilitate
+  RSq's and GRSq's that are within 1e-5 of zero are now set to zero to facilitate
   testing across machines in the presence of numerical error,  especially
   when case weights are used.
 

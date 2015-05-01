@@ -20,12 +20,12 @@ get.auc <- function(yhat, y) # area under ROC curve
     nx <- length(y[y == 0])
     ny <- length(y[y == 1])
     xy <- c(yhat[y == 0], yhat[y == 1])
-    wilc <- nx * ny   +    (nx * (nx + 1)) / 2   -   sum(rank(xy)[1:nx])
+    wilc <- nx * ny   +    (nx * (nx + 1)) / 2   -   sum(rank(xy)[seq_len(nx)])
     wilc / (nx * ny)
 }
 get.binomial.calib <- function(yhat, y) # returns c(intercept, slope)
 {
-    yhat <- yhat + 1e-005 # TODO to prevent log(0)? (from Elith Leathwick code)
+    yhat <- yhat + 1e-005 # prevents log(0)
     yhat[yhat >= 1] <- .99999
     glm(y ~ log(yhat / (1 - yhat)), family = binomial)$coefficients
 }

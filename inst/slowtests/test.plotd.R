@@ -156,6 +156,24 @@ printh("a12")
 a12 <- earth(pclass ~ ., data=etitanic, degree=2)
 plotd(a12, main="earth, 3 lev fac, no glm arg")
 
+# test that we can change the order of the levels and still get the same results
+multifigure("compare pclass with different factor levels")
+printh("fit.pclass")
+fit.pclass <- earth(pclass ~ ., data=etitanic, degree=2)
+plotd(fit.pclass, type="class", hist=1, main="fit.pclass", fill=0,
+           col=c(2, 1, "lightblue"))
+do.caption("left and right graphs should match, up to level order")
+printh("fit.pclass.reorder")
+tit <- etitanic
+pclass <- as.character(tit$pclass)
+pclass[pclass == "1st"] <- "first"
+pclass[pclass == "2nd"] <- "class2"
+pclass[pclass == "3rd"] <- "classthird"
+tit$pclass <- factor(pclass, levels=c("class2", "classthird", "first"))
+fit.pclass.reorder <- earth(pclass ~ ., data=tit, degree=2)
+plotd(fit.pclass.reorder, type="class", hist=1, main="fit.pclass.reorder",
+      col=c(1, "lightblue", 2), fill=0, legend.pos="topright")
+
 # examples from the man page
 
 printh("example(plotd)")
@@ -171,32 +189,32 @@ do.caption("glm.model example from man page")
 printh("lm.model example from man page")
 library(earth); data(etitanic)
 lm.model <- lm(as.numeric(sex) ~ ., data=etitanic)
-plotd(lm.model, trace=1)
+plotd(lm.model, trace=2)
 plot(1,1) # dummy plot
 plot(1,1)
 
-# test with rpart
+# test with rpart (also test nresponse with a character value)
 printh("rpart")
 library(rpart); library(earth); data(etitanic)
 rpart.model <- rpart(sex ~ ., data = etitanic, method="class")
-plotd(rpart.model, type="prob", nresponse=1)
-plotd(rpart.model, type="prob", nresponse=2)
+plotd(rpart.model, type="prob", nresponse="female")
+plotd(rpart.model, type="prob", nresponse="ma")
 plotd(rpart.model, type="class", hist=TRUE, labels=TRUE)
 plotd(rpart.model, hist=TRUE, labels=TRUE) # default type is "vector"
 
 printh("lda.model examples from man pages")
 library(MASS); library(earth); data(etitanic)
 lda.model <- lda(sex ~ ., data=etitanic)
-plotd(lda.model)
-plotd(lda.model, type="class", hist=TRUE, labels=TRUE)
+plotd(lda.model, type="response")
+plotd(lda.model, hist=TRUE, labels=TRUE)
 
 library(MASS); library(earth); set.seed(420)
 example(lda)
-plotd(z, nresponse=1) # nresponse=1 selects first linear discriminant
+plotd(z, type="response", nresponse=1) # nresponse=1 selects first linear discriminant
 do.caption("lda.model example from example(lda)")
 
 a.qda <- qda(survived ~ ., data=etitanic)
-plotd(a.qda, type="class")
+plotd(a.qda)
 plotd(a.qda, type="post")
 
 # test plotd with lm models
@@ -269,22 +287,22 @@ plotd(glm4, dichot = FALSE, type=NULL) # default type="response"
 library(MASS)
 multifigure("lda1")
 lda1 <- lda(sex ~ ., data=etitanic)
-plotd(lda1, main="lda1, 2 lev fac", trace=TRUE)
+plotd(lda1, main="lda1, 2 lev fac", trace=1)
 do.caption("lda1")
-plotd(lda1, main="lda1, 2 lev fac, hist=TRUE", hist=TRUE)
+plotd(lda1, main="lda1, 2 lev fac, hist=TRUE", type="response", hist=TRUE)
 plotd(lda1, main="lda1, 2 lev fac, hist=TRUE, type=post", hist=TRUE, type="post")
 plotd(lda1, main="lda1, 2 lev fac, hist=TRUE, type=class", hist=TRUE, type="class", labels=TRUE)
 
 multifigure("lda2")
 lda2 <- lda(pclass ~ ., data=etitanic)
-plotd(lda2, main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
+plotd(lda2, type="response", main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
 do.caption("lda2")
-plotd(lda2, main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
-plotd(lda2, main="lda2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2, trace=TRUE)
+plotd(lda2, type="response", main="lda2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
+plotd(lda2, type="response", main="lda2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2)
 # plotd(lda2, main="lda2, 3 lev fac, nresponse=NULL", jitter=TRUE, nresponse=NULL)
 
 multifigure("lda2 part 2")
-# plotd(lda2, main="lda2, 3 lev fac, hist=TRUE", hist=TRUE)
+# plotd(lda2, type="response", main="lda2, 3 lev fac, hist=TRUE", hist=TRUE)
 plotd(lda2, main="lda2, 3 lev fac, hist=TRUE, type=p, nresponse=1", hist=TRUE, type="p", nresponse=1)
 do.caption("lda2 part 2")
 plotd(lda2, main="lda2, 3 lev fac, type=p", type="p")
@@ -299,9 +317,9 @@ plotd(lda2, main="lda2, 3 lev fac, dichot=1, type=p, nresponse=1", type="p", nre
 
 multifigure("lda3")
 lda3 <- lda(survived ~ ., data=etitanic)
-plotd(lda3, main="lda3, logical")
+plotd(lda3, type="response", main="lda3, logical")
 do.caption("lda3")
-plotd(lda3, main="lda3, logical, hist=TRUE", hist=TRUE)
+plotd(lda3, type="response", main="lda3, logical, hist=TRUE", hist=TRUE)
 plotd(lda3, main="lda3, logical, hist=TRUE, type=posterior", hist=TRUE, type="posterior")
 plotd(lda3, main="lda3, logical, hist=TRUE, type=class", hist=TRUE, type="class", labels=TRUE)
 
@@ -314,30 +332,30 @@ etitanic1[,3] <- as.numeric(etitanic1[,3]) # sex
 
 multifigure("ldad1")
 ldad1 <- lda(etitanic1[,-3], etitanic$sex)
-plotd(ldad1, main="ldad1, 2 lev fac")
+plotd(ldad1, type="response", main="ldad1, 2 lev fac")
 do.caption("ldad1")
-plotd(ldad1, main="ldad1, 2 lev fac, hist=TRUE", hist=TRUE)
+plotd(ldad1, type="response", main="ldad1, 2 lev fac, hist=TRUE", hist=TRUE)
 plotd(ldad1, main="ldad1, 2 lev fac, hist=TRUE, type=post", hist=TRUE, type="post")
 plotd(ldad1, main="ldad1, 2 lev fac, hist=TRUE, type=class", hist=TRUE, type="class")
 
 multifigure("ldad2")
 ldad2 <- lda(etitanic1[,-1], etitanic$pclass)
-# plotd(ldad2, main="ldad2, 3 lev fac", jitter=TRUE)
-plotd(ldad2, main="ldad2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
+# plotd(ldad2, type="response", main="ldad2, 3 lev fac", jitter=TRUE)
+plotd(ldad2, type="response", main="ldad2, 3 lev fac, nresponse=1", jitter=TRUE, nresponse=1)
 do.caption("ldad2")
-plotd(ldad2, main="ldad2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2)
+plotd(ldad2, type="response", main="ldad2, 3 lev fac, nresponse=2", jitter=TRUE, nresponse=2)
 multifigure("ldad2 part 2")
-plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, nresponse=1", hist=TRUE, nresponse=1)
+plotd(ldad2, type="response", main="ldad2, 3 lev fac, hist=TRUE, nresponse=1", hist=TRUE, nresponse=1)
 do.caption("ldad2 part 2")
 plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, type=p, nresponse=1", hist=TRUE, type="p", nresponse=1)
-plotd(ldad2, main="ldad2, 3 lev fac, type=p, nresponse=1", type="p", nresponse=1)
-plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, type=class, nresponse=1", hist=TRUE, type="class", nresponse=1)
+plotd(ldad2, main="ldad2, 3 lev fac, type=p, nresponse=1", type="po", nresponse=1)
+plotd(ldad2, main="ldad2, 3 lev fac, hist=TRUE, type=class, nresponse=1", hist=TRUE, type="cla", nresponse=1)
 
 multifigure("ldad3")
 ldad3 <- lda(etitanic1[,-2], etitanic$survived)
-plotd(ldad3, main="ldad3, logical")
+plotd(ldad3, type="response", main="ldad3, logical")
 do.caption("ldad3")
-plotd(ldad3, main="ldad3, logical, hist=TRUE", hist=TRUE)
+plotd(ldad3, type="response", main="ldad3, logical, hist=TRUE", hist=TRUE)
 plotd(ldad3, main="ldad3, logical, hist=TRUE, type=post", hist=TRUE, type="post")
 plotd(ldad3, main="ldad3, logical, hist=TRUE, type=cl", hist=TRUE, type="cl")
 

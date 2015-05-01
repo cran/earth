@@ -1,7 +1,6 @@
 # plotmo.rpart.R: plotmo methods for earth objects
-# See the descriptions of the methods in plotmo:::plotmo.methods.R.
 
-get.plotmo.singles.earth <- function(object, env, x, trace, all1)
+plotmo.singles.earth <- function(object, x, nresponse, trace, all1)
 {
     singles <- NULL
     max.degree <- 1
@@ -14,31 +13,31 @@ get.plotmo.singles.earth <- function(object, env, x, trace, all1)
         degree1.dirs <- object$dirs[selected, , drop=FALSE]
         # column numbers of dirs that have predictors in degree1 terms
         icol <- which(degree1.dirs != 0, arr.ind=TRUE)[,2]
-        if(!any(sapply(x, is.factor)))  # no factors in x?
+        if(!any(sapply(x, is.factor))) # no factors in x?
             singles <- icol
-        else {                          # factors in x
+        else {                         # factors in x
             colnames <- colnames(object$dirs)[icol]
             for(ipred in seq_along(prednames)) {
                 if(is.factor(x[,ipred])) {
-                    # This knows how to deal with expanded factor names because
+                    # This knows how to handle expanded factor names because
                     # it e.g. looks for "^pclass" in "pclass3rd"
                     # TODO this can give extra predictors if variable names alias
                     #      e.g. "x" and "x1" are both variable names
-                    if(length(grep(paste0("^", prednames[ipred]), colnames)) > 0)
+                    if(grepany(paste0("^", prednames[ipred]), colnames))
                         singles <- c(singles, ipred)
                 } else if(prednames[ipred] %in% colnames)
                     singles <- c(singles, ipred)
             }
         }
         if(any(singles > length(prednames)))
-            stop0("get.plotmo.singles.earth returned an index ",
+            stop0("plotmo.singles.earth returned an index ",
                   "greater than the number of predictors\n",
                   "       singles=", paste(singles, collapse=","),
                   " prednames=", paste(prednames, collapse=","))
     }
     singles
 }
-get.plotmo.pairs.earth <- function(object, env, x, trace, ...)
+plotmo.pairs.earth <- function(object, x, ...)
 {
     pairs <- matrix(0, nrow=0, ncol=2)      # no pairs
     selected <- object$selected.terms[      # selected is all degree 2 terms
@@ -56,44 +55,51 @@ get.plotmo.pairs.earth <- function(object, env, x, trace, ...)
         dir.colnames <- colnames(object$dirs)
         prednames <- object$namesx.org
         prednames.hat <- paste0("^", prednames)
-        for(i in 1:nrow(pairs))
+        for(i in seq_len(nrow(pairs)))
             for(j in 1:2) {
                 ipred1 <- 0
                 for(ipred in seq_along(prednames.hat))
-                    if(length(grep(prednames.hat[ipred], dir.colnames[pairs[i, j]])) > 0)
+                    if(grepany(prednames.hat[ipred], dir.colnames[pairs[i, j]]))
                         ipred1 <- ipred
                 if(ipred1 == 0)
-                    stop0("internal error: illegal ipred1 in get.plotmo.pairs.earth")
+                    stop0("internal error: illegal ipred1 in plotmo.pairs.earth")
                 pairs[i, j] <- ipred1
             }
     }
     pairs
 }
-get.plotmo.y.earth <- function(object, env, y.column, expected.len, trace)
+plotmo.y.earth <- function(object, trace, naked, expected.len)
 {
-    y <- plotmo::get.plotmo.y.default(object, env, y.column, expected.len, trace)
+    temp <- plotmo::plotmo.y.default(object, trace, naked, expected.len)
 
+    # plotmo.y.default returns list(field=y, do.subset=do.subset)
     # do the same processing on y as earth does, e.g. if y is a two
     # level factor, convert it to an indicator column of 0s and 1s
 
-    y <- expand.arg(y, env, is.y.arg=TRUE, colnames(y))
-    if(length(colnames(y)) == 1 && colnames(y) == "y")
-        colnames(y) <- NULL # remove artificial colname added by expand.arg
-    # TODO revisit y.column handling here
-    if(!is.null(object$glm.list[[1]])) # if an earth.glm model, use y.column 1
-        y.column <- 1
+    colnames <- colnames(temp$field)
 
-    list(y=y, y.column=y.column)
+    temp$field <- expand.arg(temp$field, model.env(object), trace, is.y.arg=TRUE,
+                             xname=if(!is.null(colnames)) colnames else "y")
+
+    temp
 }
-get.plotmo.pairs.bagEarth <- function(object, env, x, trace, ...)
+plotmo.pairs.bagEarth <- function(object, x, ...) # caret package
 {
     pairs <- matrix(0, nrow=0, ncol=2)
     for(i in seq_along(object$fit))
-        pairs <- rbind(pairs,
-                       get.plotmo.pairs.earth(object$fit[[i]], env, x, trace))
+        pairs <- rbind(pairs, plotmo.pairs.earth(object$fit[[i]], x))
     pairs[order(pairs[,1], pairs[,2]),]
+}
+plotmo.y.bagEarth <- function(object, trace, naked, expected.len)
+{
+    plotmo.y.earth(object, trace, naked, expected.len)
+}
+# back compatibility
+get.plotmo.pairs.bagEarth <- function(object, env, x, trace, ...)
+{
+    plotmo.pairs.bagEarth(object, x, ...)
 }
 get.plotmo.y.bagEarth <- function(object, env, y.column, expected.len, trace)
 {
-    get.plotmo.y.earth(object, env, y.column, expected.len, trace)
+    plotmo.y.bagEarth(object, trace)
 }

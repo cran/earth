@@ -1,0 +1,245 @@
+> # test.varmmod.mgcv.R
+> # mgcv has to be tested separately because of clashes between library(gam) and library(mgcv)
+> # Stephen Milborrow Apr 2015 Berea
+> 
+> library(earth)
+Loading required package: plotmo
+Loading required package: plotrix
+Loading required package: TeachingDemos
+> options(warn=2)
+> 
+> printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
+> 
+> expect.err <- function(obj) # test that we got an error as expected from a try() call
++ {
++     if(class(obj)[1] == "try-error")
++         cat("Got error as expected\n")
++     else
++         stop("did not get expected error")
++ }
+> printh <- function(caption)
++     cat("===", caption, "\n", sep="")
+> 
+> CAPTION <- NULL
+> 
+> multifigure <- function(caption, nrow=3, ncol=3)
++ {
++     CAPTION <<- caption
++     printh(caption)
++     par(mfrow=c(nrow, ncol))
++     par(cex = 0.8)
++     par(mar = c(3, 3, 5, 0.5)) # small margins but space for right hand axis
++     par(mgp = c(1.6, 0.6, 0))  # flatten axis elements
++     oma <- par("oma") # make space for caption
++     oma[3] <- 2
++     par(oma=oma)
++ }
+> do.caption <- function() # must be called _after_ first plot on new page
++     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
+> if(!interactive())
++     postscript(paper="letter")
+> old.par <- par(no.readonly=TRUE)
+> 
+> library(mgcv)
+Loading required package: nlme
+This is mgcv 1.8-6. For overview type 'help("mgcv-package")'.
+> 
+> for(varmod.method in c("gam", "x.gam")) {
++ 
++     multifigure(sprintf("varmod.method=\"%s\"", varmod.method), 2, 3)
++     par(mar = c(3, 3, 2, 3)) # space for right margin axis
++ 
++     set.seed(6)
++     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
++                        varmod.method=varmod.method,
++                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
++     printh(sprintf("varmod.method %s: summary(earth.mod)", varmod.method))
++     printh("summary(earth.mod)")
++     print(summary(earth.mod))
++ 
++     # summary(mgcv) prints environment as hex address which messes up the diffs
++     printh("skipping summary(mgcv::gam) etc.\n")
++ 
++     printh(sprintf("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
++     pints <- predict(earth.mod, interval="pint")
++     print(pints)
++ 
++     plotmo(earth.mod$varmod, do.par=FALSE, col.response=2, clip=FALSE,
++            main="plotmo residual model",
++            xlab="x", ylab="varmod residuals")
++ 
++     plotmo(earth.mod, level=.90, do.par=FALSE, col.response=1, clip=FALSE,
++            main="main model plotmo Girth")
++     do.caption()
++ 
++     plot(earth.mod, which=3, do.par=FALSE, level=.95)
++ 
++     # plot.varmod
++     plot(earth.mod$varmod, do.par=FALSE, which=1:3, info=(varmod.method=="earth"))
++ }
+===varmod.method="gam"
+===varmod.method gam: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees,
+            trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
+            ncross=3, nfold=3, varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.766764
+h(13.8-Girth)    -3.427802
+h(Girth-13.8)     6.570747
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.20145  RSS 309.6832  GRSq 0.949137  RSq 0.9617962  CVRSq 0.9151857
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.045         14 8.5
+
+varmod: method "gam" (mgcv package)    min.sd 0.406    iter.rsq 0.331
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)     4.058828    0.514738           13
+s(Volume).1     0.000000          NA           NA
+s(Volume).2     0.000000          NA           NA
+s(Volume).3     0.000000          NA           NA
+s(Volume).4     0.000000          NA           NA
+s(Volume).5     0.000000          NA           NA
+s(Volume).6     0.000000          NA           NA
+s(Volume).7     0.000000          NA           NA
+s(Volume).8     0.000000          NA           NA
+s(Volume).9     2.134571          NA           NA
+
+                              mean   smallest    largest      ratio
+95% prediction interval   15.91031   5.222227   38.74412   7.419079
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   74     90     97     97  
+===skipping summary(mgcv::gam) etc.
+
+===varmod.method gam: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.913855  7.302741 12.52497
+2  10.942195  8.059794 13.82460
+3  11.627755  8.564496 14.69101
+4  17.455018 12.854465 22.05557
+5  18.140578 13.359167 22.92199
+6  18.483359 13.611518 23.35520
+7  19.168919 14.116220 24.22162
+8  19.168919 14.116220 24.22162
+9  19.511699 14.368571 24.65483
+10 19.854479 14.620923 25.08804
+11 20.197259 14.873274 25.52125
+12 20.540040 15.125625 25.95445
+13 20.540040 15.125625 25.95445
+14 21.568380 15.882678 27.25408
+15 22.596721 16.639731 28.55371
+16 25.681742 18.910891 32.45259
+17 25.681742 18.910891 32.45259
+18 27.052863 19.920295 34.18543
+19 28.423983 20.929700 35.91827
+20 28.766764 21.182051 36.35148
+21 30.080913 22.149514 38.01231
+22 31.395063 23.116977 39.67315
+23 33.366287 24.568171 42.16440
+24 43.222408 31.824142 54.62067
+25 45.193632 33.275336 57.11193
+26 51.764379 38.112650 65.41611
+27 53.078529 39.080113 67.07695
+28 55.706828 41.015038 70.39862
+29 56.363903 41.498770 71.22904
+30 56.363903 41.498770 71.22904
+31 73.447846 54.075786 92.81991
+===varmod.method="x.gam"
+===varmod.method x.gam: summary(earth.mod)
+===summary(earth.mod)
+Call: earth(formula=Volume~Girth, data=trees,
+            trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
+            ncross=3, nfold=3, varmod.method=varmod.method)
+
+              coefficients
+(Intercept)      28.766764
+h(13.8-Girth)    -3.427802
+h(Girth-13.8)     6.570747
+
+Selected 3 of 4 terms, and 1 of 1 predictors 
+Termination condition: RSq changed by less than 0.001 at 4 terms
+Importance: Girth
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 14.20145  RSS 309.6832  GRSq 0.949137  RSq 0.9617962  CVRSq 0.9151857
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+
+     CVRSq    sd     MaxErr  sd
+      0.92 0.045         14 8.5
+
+varmod: method "x.gam" (mgcv package)    min.sd 0.396    iter.rsq 0.408
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)     3.956235    0.455909           12
+s(Volume).1     0.000000          NA           NA
+s(Volume).2     0.000000          NA           NA
+s(Volume).3     0.000000          NA           NA
+s(Volume).4     0.000000          NA           NA
+s(Volume).5     0.000000          NA           NA
+s(Volume).6     0.000000          NA           NA
+s(Volume).7     0.000000          NA           NA
+s(Volume).8     0.000000          NA           NA
+s(Volume).9     1.779045          NA           NA
+
+                              mean   smallest    largest      ratio
+95% prediction interval   15.50816   4.329829   32.11533   7.417229
+
+                                         68%    80%    90%    95% 
+response values in prediction interval   77     90     97     97  
+===skipping summary(mgcv::gam) etc.
+
+===varmod.method x.gam: predict(earth.mod, interval="pint")
+         fit       lwr      upr
+1   9.913855  7.748940 12.07877
+2  10.942195  8.438433 13.44596
+3  11.627755  8.898095 14.35742
+4  17.455018 12.805221 22.10482
+5  18.140578 13.264883 23.01627
+6  18.483359 13.494714 23.47200
+7  19.168919 13.954376 24.38346
+8  19.168919 13.954376 24.38346
+9  19.511699 14.184207 24.83919
+10 19.854479 14.414038 25.29492
+11 20.197259 14.643869 25.75065
+12 20.540040 14.873700 26.20638
+13 20.540040 14.873700 26.20638
+14 21.568380 15.563193 27.57357
+15 22.596721 16.252686 28.94076
+16 25.681742 18.321164 33.04232
+17 25.681742 18.321164 33.04232
+18 27.052863 19.240488 34.86524
+19 28.423983 20.159812 36.68815
+20 28.766764 20.389643 37.14388
+21 30.080913 21.477894 38.68393
+22 31.395063 22.566145 40.22398
+23 33.366287 24.198522 42.53405
+24 43.222408 32.360405 54.08441
+25 45.193632 33.992781 56.39448
+26 51.764379 39.434037 64.09472
+27 53.078529 40.522288 65.63477
+28 55.706828 42.698790 68.71487
+29 56.363903 43.242915 69.48489
+30 56.363903 43.242915 69.48489
+31 73.447846 57.390179 89.50551
+> par(old.par)
+> 
+> if(!interactive()) {
++     dev.off()         # finish postscript plot
++     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
++ }

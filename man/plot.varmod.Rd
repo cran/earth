@@ -8,10 +8,11 @@ Typically you call this function for a variance model
 embedded in an \code{earth} model.
 }
 \usage{
-\method{plot}{varmod}(x = stop("no 'x' arg"), which = 1:4,
-  do.par = length(which) > 1, info=FALSE,
-  cex = NULL, caption = if(do.par) NULL else "", main = NULL,
-  col.line = "red", col.min.sd = col.line, \dots)
+\method{plot}{varmod}(x = stop("no 'x' argument"), which = 1:4,
+  do.par = NULL, info=FALSE,
+  cex = NULL, caption = NULL,
+  line.col = 2, min.sd.col = line.col,
+  trace = 0, \dots)
 }
 \arguments{
   \item{x}{
@@ -30,11 +31,8 @@ the \code{varmod} is embedded.\cr
 3) residuals vs fitted\cr
 4) model selection graph (only when \code{varmod.method="earth"} or \code{"x.earth"}).\cr
   }
-  \item{do.par}{
-    Call \code{par()} for global settings as appropriate.
-    Default is \code{TRUE},
-    Set to \code{FALSE} if you want to append figures to an existing plot.
-  }
+  \item{do.par}{Please see \code{\link[plotmo]{plotres}}
+}
   \item{info}{
     Plot some additional information, including lowess fits in the first two plots.
   }
@@ -44,20 +42,16 @@ the \code{varmod} is embedded.\cr
   \item{caption}{
     Default is NULL, meaning automatically generate an overall caption.
   }
-  \item{main}{
-    Default is NULL, meaning automatically generate a title for each graph.
-  }
-  \item{col.line}{
+  \item{line.col}{
     Color of lines in the plots.
     Default is \code{red}.
   }
-  \item{col.min.sd}{
+  \item{min.sd.col}{
     Color of the \code{min.sd} dotted horizontal line.
-    Default is \code{col.line}.  Use \code{0} to not plot this line.
+    Default is \code{line.col}.  Use \code{0} to not plot this line.
   }
-  \item{\dots}{
-     Unused, but provided for generic/method consistency.
- }
+\item{trace,\dots}{Similar to \code{\link[plotmo]{plotres}}
+}
 }
 \note{
 The horizontal red dotted line in the first two plots

@@ -7,16 +7,15 @@
 @rem
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
-@echo === test.earthc ==================================================
-@cp "C:/Program Files/R/R-3.1.2/bin/i386/R.dll" .
+@cp "C:/Program Files/R/R-3.2.0/bin/i386/R.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.1.2/bin/i386/Rblas.dll" .
+@cp "C:/Program Files/R/R-3.2.0/bin/i386/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.1.2/bin/i386/Riconv.dll" .
+@cp "C:/Program Files/R/R-3.2.0/bin/i386/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.1.2/bin/i386/Rgraphapp.dll" .
+@cp "C:/Program Files/R/R-3.2.0/bin/i386/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.1.2/bin/i386/Rzlib.dll" .
+@cp "C:/Program Files/R/R-3.2.0/bin/i386/Rzlib.dll" .
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @cp "../../.#/Rdll.lib" .
                                 @if %errorlevel% neq 0 goto error

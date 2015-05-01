@@ -5,7 +5,7 @@
 Predict with an \code{\link{earth}} model.
 }
 \usage{
-\method{predict}{earth}(object = stop("no 'object' arg"), newdata = NULL,
+\method{predict}{earth}(object = stop("no 'object' argument"), newdata = NULL,
         type = c("link", "response", "earth", "class", "terms"),
         interval = "none", level = .95,
         thresh = .5, trace = FALSE, \dots)
@@ -99,20 +99,20 @@ If \code{interval="se"}, the standard errors.
     With option \code{"class"}, this function first makes predictions with
     \code{type="response"} and then assigns the predicted values to classes as follows:
 
-    (i) When \code{y} is a \emph{logical}, predict \code{TRUE} if
+    (i) When the response is a \emph{logical}, predict \code{TRUE} if
     the predicted probability is greater than \code{thresh}.
 
-    (ii) When \code{y} is a \emph{numeric}, predict \code{TRUE} if
+    (ii) When the response is a \emph{numeric}, predict \code{TRUE} if
     the predicted value is greater than \code{thresh}.
     Actually, this is identical to the above case,
     although \code{thresh} here may legitimately be a value
     outside the 0...1 range.
 
-    (iii) When \code{y} is a \emph{two level factor},
+    (iii) When the response is a \emph{two level factor},
     predict the second level if its probability is more than \code{thresh}.
     In other words, with the default \code{thresh=.5} predict the most probable level.
 
-    (iv) When \code{y} is a \emph{three or more level factor},
+    (iv) When the response is a \emph{three or more level factor},
     predict the most probable level (and \code{thresh} is ignored).
 
 \bold{Predicting with "terms"}

@@ -1,13 +1,12 @@
 @Rem test.mods.R: test earth's ability to build various models
 @rem Stephen Milborrow Jan 2014 Berea
 
-@echo === test.mods ==============================================
-@"C:\PROGRA~1\R\R-3.1.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.mods.R
+@"C:\PROGRA~1\R\R-3.2.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.mods.R
 @if %errorlevel% equ 0 goto good1
-@echo error: R returned errorlevel %errorlevel%, see test.mods.Rout:
+@echo R returned errorlevel %errorlevel%, see test.mods.Rout:
 @echo.
 @tail test.mods.Rout
-@echo.
+@echo test.mods.R
 @exit /B 1
 :good1
 @echo mks.diff -w test.mods.Rout test.mods.Rout.save

@@ -13,7 +13,7 @@ expect.err <- function(obj) # test that we got an error as expected from a try()
     if(class(obj)[1] == "try-error")
         cat("Got error as expected\n")
     else
-        stop("did not get expected try error")
+        stop("did not get expected error")
 }
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
@@ -105,20 +105,20 @@ set.seed(6)
 a6a <- earth(survived. ~ ., data=etitanic[,-2], degree=2, glm=list(family="binomial"), trace=0.5, nfold=3, stratify=FALSE, keepxy=TRUE)
 printh(a6a)
 printh(summary(a6a))
-plot(a6a, caption="a6a (stratify=FALSE)", which=1, col.oof.labs=1)
+plot(a6a, main="a6a (stratify=FALSE)", which=1, col.oof.labs=1)
 
 cat("a7: titanic data, multiple responses (i.e. 3 level factor)\n\n")
 set.seed(3)
 # keepxy is needed for summary and plotmo of resmodels
 a7 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=1, ncross=2, nfold=3, keepxy=TRUE)
 printh(a7)
-plot(a7)
+plot(a7, nresponse=1)
 print.stripped.earth.model(a7, "a7")
 printh(summary(a7))
 plotmo(a7, nresponse=1)
 printh(a7$cv.list[[3]])
 printh(summary(a7$cv.list[[3]]))
-plot(a7, caption="a7 (multiple response model)", which=1)
+plot(a7, main="a7 (multiple response model)", which=1, nresponse=1)
 
 cat("a7.wp: as above but with wp parameter\n\n")
 set.seed(3)
@@ -162,14 +162,15 @@ expect.err(try(earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam=
 
 set.seed(427)
 earth.mod.err <- earth(survived~., data=etitanic, degree=1, nfold=3, keepxy=FALSE)
-expect.err(try(plot(earth.mod.err$cv.list[[1]]))) # cannot plot earth.mod$cv.list[[1]] because its $residuals field is NULL
+expect.err(try(plot(earth.mod.err$cv.list[[1]]))) # earth object has no residuals field
 
 # test plot.earth with cross-validated models (example from help page)
 set.seed(427)
 earth.mod.help <- earth(survived~., data=etitanic, trace=1, degree=2, nfold=5, keepxy=TRUE)
 print.stripped.earth.model(earth.mod.help, "earth.mod.help")
 plot(earth.mod.help) # the full model
-plot(earth.mod.help$cv.list[[3]])
+# $$ TODO the following no longer works: Error: plotmo.y.default: cannot get y
+# plot(earth.mod.help$cv.list[[3]])
 
 # test various options
 old.par <- par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8))

@@ -22,10 +22,11 @@ contr.earth.response <- function(x, base, contrasts)
 # Factors in the y argument are treated in a non standard
 # way --- see the earth man page for details.
 
-expand.arg <- function(x,               # "x" is x or y arg to earth
-                    env,                # evironment for evaluation
-                    is.y.arg=FALSE,     # is.y.arg is TRUE if y arg to earth
-                    xname=NULL)         # used for colname when x has no name
+expand.arg <- function(x,              # "x" is x or y arg to earth
+                       env,            # evironment for evaluation
+                       trace,
+                       is.y.arg=FALSE, # is.y.arg is TRUE if y arg to earth
+                       xname=NULL)     # used for colnames when x has no name
 {
     # "two.level" here means logical or two level factor
     # They get converted to a single numeric column of 0s and 1s.
@@ -34,30 +35,29 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
 
     convert.two.level.to.numeric <- function(y)
     {
-        stopif(is.null(dim(y)))
+        stopifnot(!is.null(dim(y)))
         if(class(y)[1] == "data.frame") {
             # dataframe, handle each column independently
             # get here if y is a dataframe in call to earth.default
 
-            for(icol in 1:ncol(y)) {
+            for(icol in seq_len(ncol(y))) {
                 if(is.factor(y[,icol]) && nlevels(y[,icol]) <= 2)
                     y[,icol] <- as.numeric(y[,icol]) - 1
                 else if(is.logical(y[,icol]))
                     y[,icol] <- as.numeric(y[,icol])
             }
         } else {
-             # not dataframe, so all columns must be the same class
-
+            # not dataframe, so all columns must be the same class
             nrows <- nrow(y)
             ncols <- ncol(y)
             convert.from.two.levels <- FALSE
             convert.from.logical <- FALSE
-            colnames. <- colnames(y)
-            for(icol in 1:ncol(y)) {
+            colnames <- colnames(y)
+            for(icol in seq_len(ncol(y))) {
                 ycol <- y[,icol]
                 if(is.factor(ycol) && nlevels(ycol) <= 2) {
                     convert.from.two.levels <- TRUE
-                    colnames.[icol] <- format(levels(ycol)[2])
+                    colnames[icol] <- format(levels(ycol)[2])
                     break
                 }
                 else if(is.logical(ycol)) {
@@ -72,18 +72,22 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
                 y <- as.numeric(y)      # convert to 0s and 1s
                 dim(y) <- c(nrows, ncols)
             }
-            colnames(y) <- colnames.
+            colnames(y) <- colnames
         }
         y
     }
     #--- expand.arg starts here ---
+    if(is.null(xname))
+        xname <- sub(".*\\$", "", trunc.deparse(substitute(x))) # temp$y becomes y
     if(is.null(ncol(x)))        # make sure x is a matrix, not a vector
         dim(x) <- c(nrow=length(x), ncol=1)
     if(is.y.arg)
         x <- convert.two.level.to.numeric(x)
-    if(is.double(x)) {          # already double? (x must be a matrix, not data.frame)
-        colnames(x) <- generate.colnames(x, is.y.arg, xname)
-        return(x)               # then no need to convert
+    if(is.double(x)) {
+        # already double so no need to convert (x is matrix, not data.frame)
+        colnames(x) <-
+            gen.colnames(x, xname, if(is.y.arg) "y" else "x", trace, xname)
+        return(x)
     }
     if(is.y.arg) {
         old.contrasts <- getOption("contrasts")
@@ -95,7 +99,7 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
         mf <- call("model.frame", formula = ~., data=x, na.action=na.pass)
     else
         mf <- call("model.frame", formula = ~x, na.action=na.pass)
-    mf <- eval(mf, env)
+    mf <- eval(mf, env) # this is slow
     mf.has.colnames <- !is.null(colnames(mf))
     x <- model.matrix(object=attr(mf, "terms"), data=mf)
     intercept <- match("(Intercept)", colnames(x), nomatch=0)
@@ -107,9 +111,10 @@ expand.arg <- function(x,               # "x" is x or y arg to earth
 
     if(!is.data.frame && mf.has.colnames) {
         # strip 1st char of each column name
-        colnames(x) <- sapply(colnames(x), substr, 2, 99)
+        colnames(x) <- substr(colnames(x), 2, 61)
     }
-    colnames(x) <- generate.colnames(x, is.y.arg, xname)
+    colnames(x) <-
+        gen.colnames(x, xname, if(is.y.arg) "y" else "x", trace, xname)
 
     x   # all columns are now double with column names
 }

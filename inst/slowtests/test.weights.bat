@@ -1,13 +1,12 @@
 @rem test.weights.bat
 @rem Stephen Milborrow Dec 2014 Shrewsbury
 
-@echo === test.weights ===============================================
-@"C:\PROGRA~1\R\R-3.1.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.weights.R
+@"C:\PROGRA~1\R\R-3.2.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.weights.R
 @if %errorlevel% equ 0 goto good1
-@echo error: R returned errorlevel %errorlevel%, see test.weights.Rout:
+@echo R returned errorlevel %errorlevel%, see test.weights.Rout:
 @echo.
 @tail test.weights.Rout
-@echo.
+@echo test.weights.R
 @exit /B 1
 :good1
 mks.diff test.weights.Rout test.weights.Rout.save

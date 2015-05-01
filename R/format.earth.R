@@ -48,7 +48,7 @@
 # TODO would be nice to add an option to print in term importance order
 
 format.earth <- function(
-    x           = stop("no 'x' arg"),   # "earth" object
+    x           = stop("no 'x' argument"),   # "earth" object
     style       = "h",      # see get.term.strings
     decomp      = "anova",  # see reorder.earth for legal decomp values
     digits      = getOption("digits"),
@@ -56,8 +56,8 @@ format.earth <- function(
     colon.char  = ":",      # convert colons in expression to this char
     ...)                    # unused, for consistency with generic
 {
-    check.classname(x, deparse(substitute(a)), "earth")
-    warn.if.dots.used("format.earth", ...)
+    check.classname(x, substitute(x), "earth")
+    warn.if.dots(...)
     use.names <- check.boolean(use.names)
     nresp <- NCOL(x$coefficients)
     s <- vector(mode = "character", length=nresp)
@@ -67,13 +67,13 @@ format.earth <- function(
         use.names <- -1 # tell variable.names.earth to use zero based indexing
         colon.char = "*"
     }
-    for(iresp in 1:nresp)
+    for(iresp in seq_len(nresp))
         s[iresp] <- format.one.response(iresp, x, digits, use.names,
                                         decomp, style=style,
                                         colon.char=colon.char, coefs=NULL)
 
     if(!is.null(x$glm.list))   # embedded GLM model(s)?
-        for(iresp in 1:nresp)
+        for(iresp in seq_len(nresp))
             s[nresp + iresp] <- format.one.response(iresp, x, digits, use.names,
                                         decomp, style=style,
                                         colon.char=colon.char,
@@ -82,22 +82,22 @@ format.earth <- function(
 }
 format.one.response <- function( # called by format.earth
     iresp,          # response index i.e. column in y matrix
-    obj,            # "earth" obj
+    object,         # "earth" object
     digits,
     use.names,
     decomp,         # see reorder.earth for legal decomp values
     style,          # see get.term.strings
     colon.char=":", # convert colons in output to this char
-    coefs=NULL)     # if not NULL use these instead of obj$coefficients
+    coefs=NULL)     # if not NULL use these instead of object$coefficients
 {
-    new.order <- reorder.earth(obj, decomp=decomp)
+    new.order <- reorder.earth(object, decomp=decomp)
     if(is.null(coefs))
-        coefs <- obj$coefficients[, iresp]
+        coefs <- object$coefficients[, iresp]
     coefs <- coefs[new.order]
-    which.terms <- obj$selected.terms[new.order]
-    dirs <- obj$dirs
+    which.terms <- object$selected.terms[new.order]
+    dirs <- object$dirs
     check.which.terms(dirs, which.terms)
-    term.names <- get.term.strings(obj, digits, use.names, style, new.order)
+    term.names <- get.term.strings(object, digits, use.names, style, new.order)
     # convert colons to colon.char
     term.names <- make.unique(gsub(":", colon.char, term.names), sep="_")
     coef.width <- get.coef.width(coefs[-1], digits)
@@ -118,7 +118,7 @@ format.one.response <- function( # called by format.earth
         iterm <- iterm + 1
     }
     if(pmatch(style, "bf", nomatch=0)) # append table of basis functions?
-        s <- paste0(s, "\n", get.table.of.basis.functions(obj, new.order))
+        s <- paste0(s, "\n", get.table.of.basis.functions(object, new.order))
     s
 }
 get.coef.width <- function(coefs, digits)   # get print width for earth coefs
@@ -135,30 +135,30 @@ get.coef.width <- function(coefs, digits)   # get print width for earth coefs
 #   "C"    gives "max(0, x[0]) * max(0, 16 - x[1])"
 #   "bf"   gives basis functions e.g. "bf1" or "bf1 * bf3"
 
-get.term.strings <- function(obj, digits, use.names,
+get.term.strings <- function(object, digits, use.names,
                              style = c("h", "pmax", "max", "C", "bf"),
                              neworder)
 {
-    switch(match.arg1(style),
-        "h"    = get.term.strings.h(obj, digits, use.names, neworder),
-        "pmax" = get.term.strings.pmax(obj, digits, use.names, neworder, "pmax"),
-        "max"  = get.term.strings.pmax(obj, digits, use.names, neworder, "max"),
-        "C"    = get.term.strings.pmax(obj, digits, use.names, neworder, "max"),
-        "bf"   = get.term.strings.bf(obj,   digits, use.names, neworder))
+    switch(match.arg1(style, "style"),
+        "h"    = get.term.strings.h(object, digits, use.names, neworder),
+        "pmax" = get.term.strings.pmax(object, digits, use.names, neworder, "pmax"),
+        "max"  = get.term.strings.pmax(object, digits, use.names, neworder, "max"),
+        "C"    = get.term.strings.pmax(object, digits, use.names, neworder, "max"),
+        "bf"   = get.term.strings.bf(object,   digits, use.names, neworder))
 }
-get.term.strings.h <- function(obj, digits, use.names, new.order)
+get.term.strings.h <- function(object, digits, use.names, new.order)
 {
     # digits is unused
 
     if(!use.names)
         warning("use.names=FALSE ignored because style=\"h\"")
 
-    s <- colnames(obj$bx)[new.order]
+    s <- colnames(object$bx)[new.order]
 }
 # TODO need to add factor simplification to this routine
 # TODO need to add get.ndigits functionality (in get.earth.term.name) to this routine
 
-get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
+get.term.strings.pmax <- function(object, digits, use.names, new.order, fname)
 {
     # get.width returns the width for printing elements of the earth expression.
     # This is used to keep things lined up without too much white space.
@@ -175,24 +175,24 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
         max(nchar(var.names[used.preds]),
             nchar(format(as.list(cuts[which.terms, used.preds]), digits=digits)))
     }
-    which.terms <- obj$selected.terms[new.order]
-    cuts <- obj$cuts
-    var.names <- variable.names.earth(obj, use.names=use.names)
-    which.terms <- obj$selected.terms[new.order]
-    dirs <- obj$dirs
+    which.terms <- object$selected.terms[new.order]
+    cuts <- object$cuts
+    var.names <- variable.names.earth(object, use.names=use.names)
+    which.terms <- object$selected.terms[new.order]
+    dirs <- object$dirs
     width <- get.width(which.terms, dirs, var.names, cuts, digits)
     nterms <- length(which.terms)
     s <- character(nterms)
     s[1] = "(Intercept)"
     iterm <- 2
-    funcname <- if(funcname=="h") "h(" else paste0(funcname, "(0, ")
+    fname <- if(fname=="h") "h(" else paste0(fname, "(0, ")
     while(iterm <= nterms) {
         isel.term <- which.terms[iterm]
         dir <- dirs[isel.term, , drop=FALSE]
         cut <- cuts[isel.term, , drop=FALSE]
         npreds <- ncol(cuts)
         prefix <- ""
-        for(ipred in 1:npreds) {
+        for(ipred in seq_len(npreds)) {
             if(dir[ipred]) {
                 if(dir[ipred] == 2)     # linear predictor?
                     s[iterm] <- pastef(s[iterm], "%s%-*s %*s            ",
@@ -200,16 +200,16 @@ get.term.strings.pmax <- function(obj, digits, use.names, new.order, funcname)
                                     var.names[ipred], width=width, "")
                 else if(dir[ipred] == -1)
                     s[iterm] <- pastef(s[iterm], "%s%s%s - %*s) ",
-                                    prefix, funcname,
+                                    prefix, fname,
                                     format(cut[ipred], width=width, digits=digits),
                                     width, var.names[ipred])
                 else if(dir[ipred] == 1)
                     s[iterm] <- pastef(s[iterm], "%s%s%*s - %s) ",
-                                 prefix, funcname,
+                                 prefix, fname,
                                  width=width, var.names[ipred],
                                  format(cut[ipred], width=width, digits=digits))
                 else
-                    stop0("illegal direction ", dir[ipred], " in \"dirs\"")
+                    stop0("illegal direction ", dir[ipred], " in 'dirs'")
 
                 prefix <- "* "
             }
@@ -239,21 +239,21 @@ get.bfs <- function(names)
 
     data.frame(original, new)
 }
-get.term.strings.bf <- function(obj, digits, use.names, new.order)
+get.term.strings.bf <- function(object, digits, use.names, new.order)
 {
     # digits is unused
 
     if(!use.names)
         warning("use.names=FALSE ignored because style=\"h\"")
 
-    names <- colnames(obj$bx)[new.order]    # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", ...
+    names <- colnames(object$bx)[new.order] # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", ...
     bfs <- get.bfs(names)
 
     # replace original names with names in new.bfs
 
-    if(nrow(bfs) > 1) for(i in 2:nrow(bfs)) { # start at 2 to skip intercept
+    if(nrow(bfs) > 1) for(i in 2:nrow(bfs)) # start at 2 to skip intercept
         names <- gsub(bfs[i,1], bfs[i,2], names, fixed=TRUE)
-    }
+
     gsub("*", " * ", names, fixed=TRUE)     # put space around *
 }
 # Return a string like this:
@@ -262,9 +262,9 @@ get.term.strings.bf <- function(obj, digits, use.names, new.order)
 #   bf3  h(200-vis)
 #   bf4  h(doy-92)
 
-get.table.of.basis.functions <- function(obj, new.order)
+get.table.of.basis.functions <- function(object, new.order)
 {
-    names <- colnames(obj$bx)[new.order]
+    names <- colnames(object$bx)[new.order]
     bfs <- get.bfs(names)
     s <- ""
     if(nrow(bfs) > 1) for(i in 2:nrow(bfs)) # start at 2 to skip intercept
@@ -284,7 +284,7 @@ get.table.of.basis.functions <- function(obj, new.order)
 # TODO this function doesn't really belong in the earth package
 
 format.lm <- function(
-    x           = stop("no 'x' arg"),   # "lm" object, also works for "glm" objects
+    x           = stop("no 'x' argument"),   # "lm" object, also works for "glm" objects
     digits      = getOption("digits"),
     use.names   = TRUE,
     colon.char  = ":",                  # convert colons in expression to this char
@@ -294,7 +294,7 @@ format.lm <- function(
     {
         format(coef, justify="left", w=coef.width, digits=digits, format="%g")
     }
-    check.classname(x, deparse(substitute(x)), "lm")
+    check.classname(x, substitute(x), "lm")
     use.names <- check.boolean(use.names)
     dataClasses <- attr(x$terms, "dataClasses")
     # TODO extend this function to handle factors
@@ -303,7 +303,7 @@ format.lm <- function(
     coefs <- coef(x)
     stopifnot(length(coefs) > 0)
     if(!is.vector(coefs) || NCOL(coefs) > 1)
-        stop("format.lm can only handle single response models")
+        stop0("format.lm can only handle single response models")
     pred.names <- names(coefs)
     if(is.null(pred.names) || !use.names) {
         pred.names <- paste("x[,", 0:length(coefs), "]", sep="")
@@ -311,7 +311,7 @@ format.lm <- function(
     }
     pred.names <- make.unique(gsub(":", colon.char, pred.names), sep="_")
     # if any coef is NA then issue warning and change the coef to 0
-    if(any(is.na(coefs))) {
+    if(anyNA(coefs)) {
         which <- which(is.na(coefs))
         warnf("coefficient for %s%s is NA, printing it as 0",
               pred.names[which[1]],

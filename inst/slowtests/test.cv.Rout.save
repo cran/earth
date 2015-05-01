@@ -3,6 +3,7 @@
 > library(earth)
 Loading required package: plotmo
 Loading required package: plotrix
+Loading required package: TeachingDemos
 > if(!interactive())
 +     postscript(paper="letter")
 > data(ozone1)
@@ -15,7 +16,7 @@ Loading required package: plotrix
 +     if(class(obj)[1] == "try-error")
 +         cat("Got error as expected\n")
 +     else
-+         stop("did not get expected try error")
++         stop("did not get expected error")
 + }
 > printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 + {
@@ -311,7 +312,7 @@ Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 11.25439  RSS 209.1139  GRSq 0.959692  RSq 0.9742029  CVRSq 0.9428724
 > printh(summary(a0a))
 === summary(a0a)
-Call: earth(x=trees[, -3], y=trees[, 3], trace=0, nfold=3)
+Call: earth(x=trees[,-3], y=trees[,3], trace=0, nfold=3)
 
               coefficients
 (Intercept)     29.0599535
@@ -515,8 +516,8 @@ a1: trees with trace enabled
 > 
 > set.seed(1)
 > a1 <- earth(Volume ~ ., data = trees, trace=1, nfold=3)
-x is a 31 by 2 matrix: 1=Girth, 2=Height
-y is a 31 by 1 matrix: 1=Volume
+x[31,2] with colnames Girth Height
+y[31,1] with colname Volume
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00087)
 After forward pass GRSq 0.947 RSq 0.976
@@ -524,8 +525,8 @@ Prune method "backward" penalty 2 nprune 5: selected 4 of 5 terms, and 2 of 2 pr
 After backward pass GRSq 0.96 RSq 0.974 
 
 CV fold 1 --------------------------------------------------------------------
-x is a 20 by 2 matrix: 1=Girth, 2=Height
-y is a 20 by 1 matrix: 1=infold.y
+x[20,2] with colnames Girth Height
+y[20,1] with colname Volume
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 6.8e-05)
 After forward pass GRSq 0.912 RSq 0.980
@@ -534,8 +535,8 @@ After backward pass GRSq 0.953 RSq 0.978
 CV fold 1  CVRSq 0.962  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
 
 CV fold 2 --------------------------------------------------------------------
-x is a 21 by 2 matrix: 1=Girth, 2=Height
-y is a 21 by 1 matrix: 1=infold.y
+x[21,2] with colnames Girth Height
+y[21,1] with colname Volume
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00045)
 After forward pass GRSq 0.938 RSq 0.984
@@ -544,8 +545,8 @@ After backward pass GRSq 0.963 RSq 0.982
 CV fold 2  CVRSq 0.929  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
 
 CV fold 3 --------------------------------------------------------------------
-x is a 21 by 2 matrix: 1=Girth, 2=Height
-y is a 21 by 1 matrix: 1=infold.y
+x[21,2] with colnames Girth Height
+y[21,1] with colname Volume
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00024)
 After forward pass GRSq 0.886 RSq 0.972
@@ -687,8 +688,7 @@ Earth GCV 0.1398494  RSS 140.4678  GRSq 0.4222038  RSq 0.4441087  CVRSq 0.411644
 GLM null.deviance 1414.62 (1045 dof)   deviance 879.5912 (1037 dof)   iters 5
 > printh(summary(a6))
 === summary(a6)
-Call: earth(formula=survived.~., data=etitanic[, -2], trace=0.5, 
-      glm=list(family="binomial"), ncross=2, nfold=3, degree=2)
+Call: earth(formula=survived.~., data=etitanic[,-2], trace=0.5, glm=list(family="binomial"), ncross=2, nfold=3, degree=2)
 
 GLM coefficients
                         survived.
@@ -717,10 +717,8 @@ Cross validation:   nterms 8.33 sd 1.03    nvars 5.67 sd 0.52
  CVRSq    sd ClassRate    sd MaxErr sd  AUC    sd MeanDev    sd CalibInt   sd CalibSlope    sd
   0.41 0.018       0.8 0.016     -1  1 0.86 0.004     0.9 0.023    -0.05 0.16       0.91 0.042
 > plotmo(a6)
-
  grid:    pclass    sex age sibsp parch
              1st female  28     0     0
-
 > printh(a6$cv.list[[2]])
 === a6$cv.list[[2]]
 Earth selected 8 of 16 terms, and 6 of 6 predictors 
@@ -731,12 +729,10 @@ Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
 GLM null.deviance 934.5004 (688 dof)   deviance 585.7064 (681 dof)   iters 5
 > printh(summary(a6$cv.list[[2]]))
 === summary(a6$cv.list[[2]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, 
-      subset=subset, trace=trace, glm=glm, Scale.y=Scale.y, 
-      degree=degree)
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, trace=trace, glm=glm, Scale.y=Scale.y, degree=degree)
 
 GLM coefficients
-                         infold.y
+                        survived.
 (Intercept)             2.7863820
 pclass3rd              -2.5243139
 sexmale                -3.5338189
@@ -3264,9 +3260,7 @@ Earth GCV 0.1398494  RSS 140.4678  GRSq 0.4222038  RSq 0.4441087  CVRSq 0.412977
 GLM null.deviance 1414.62 (1045 dof)   deviance 879.5912 (1037 dof)   iters 5
 > printh(summary(a6a))
 === summary(a6a)
-Call: earth(formula=survived.~., data=etitanic[, -2], keepxy=TRUE, 
-      trace=0.5, glm=list(family="binomial"), nfold=3, 
-      stratify=FALSE, degree=2)
+Call: earth(formula=survived.~., data=etitanic[,-2], keepxy=TRUE, trace=0.5, glm=list(family="binomial"), nfold=3, stratify=FALSE, degree=2)
 
 GLM coefficients
                         survived.
@@ -3294,7 +3288,7 @@ Cross validation:   nterms 8.00 sd 1.00    nvars 5.67 sd 0.58
 
  CVRSq    sd ClassRate    sd MaxErr  sd  AUC    sd MeanDev    sd CalibInt   sd CalibSlope    sd
   0.41 0.029      0.79 0.015   0.98 1.1 0.86 0.018    0.89 0.037    -0.03 0.25       0.93 0.047
-> plot(a6a, caption="a6a (stratify=FALSE)", which=1, col.oof.labs=1)
+> plot(a6a, main="a6a (stratify=FALSE)", which=1, col.oof.labs=1)
 > 
 > cat("a7: titanic data, multiple responses (i.e. 3 level factor)\n\n")
 a7: titanic data, multiple responses (i.e. 3 level factor)
@@ -3302,8 +3296,8 @@ a7: titanic data, multiple responses (i.e. 3 level factor)
 > set.seed(3)
 > # keepxy is needed for summary and plotmo of resmodels
 > a7 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=1, ncross=2, nfold=3, keepxy=TRUE)
-x is a 1046 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
-y is a 1046 by 3 matrix: 1=1st, 2=2nd, 3=3rd
+x[1046,5] with colnames survived sexmale age sibsp parch
+y[1046,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.164 RSq 0.227
@@ -3314,8 +3308,8 @@ GLM 2nd: null.deviance 1175.305 (1045 dof)   deviance 1126.944 (1037 dof)   iter
 GLM 3rd: null.deviance 1448.212 (1045 dof)   deviance 1118.941 (1037 dof)   iters 5
 
 CV fold 1.1 --------------------------------------------------------------------
-x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
-y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
+x[697,5] with colnames survived sexmale age sibsp parch
+y[697,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.143 RSq 0.245
@@ -3329,8 +3323,8 @@ CV fold  1.1  CVRSq 0.165  Per response CVRSq 0.239  0.023  0.234
 
 
 CV fold 1.2 --------------------------------------------------------------------
-x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
-y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
+x[697,5] with colnames survived sexmale age sibsp parch
+y[697,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.128 RSq 0.226
@@ -3344,8 +3338,8 @@ CV fold  1.2  CVRSq 0.178  Per response CVRSq 0.259  0.042  0.234
 
 
 CV fold 1.3 --------------------------------------------------------------------
-x is a 698 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
-y is a 698 by 3 matrix: 1=1st, 2=2nd, 3=3rd
+x[698,5] with colnames survived sexmale age sibsp parch
+y[698,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.110 RSq 0.221
@@ -3359,8 +3353,8 @@ CV fold  1.3  CVRSq 0.145  Per response CVRSq 0.212  0.019  0.203
 
 
 CV fold 2.1 --------------------------------------------------------------------
-x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
-y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
+x[697,5] with colnames survived sexmale age sibsp parch
+y[697,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.126 RSq 0.224
@@ -3375,8 +3369,8 @@ CV fold  2.1  CVRSq 0.179  Per response CVRSq 0.253  0.024  0.262
 
 
 CV fold 2.2 --------------------------------------------------------------------
-x is a 697 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
-y is a 697 by 3 matrix: 1=1st, 2=2nd, 3=3rd
+x[697,5] with colnames survived sexmale age sibsp parch
+y[697,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.134 RSq 0.237
@@ -3390,8 +3384,8 @@ CV fold  2.2  CVRSq 0.176  Per response CVRSq 0.279  0.035  0.214
 
 
 CV fold 2.3 --------------------------------------------------------------------
-x is a 698 by 5 matrix: 1=survived, 2=sexmale, 3=age, 4=sibsp, 5=parch
-y is a 698 by 3 matrix: 1=1st, 2=2nd, 3=3rd
+x[698,5] with colnames survived sexmale age sibsp parch
+y[698,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.146 RSq 0.241
@@ -3426,7 +3420,7 @@ GLM (family binomial, link logit)
 1st      1223.308 1045  894.8141 1037     5         1
 2nd      1175.305 1045 1126.9441 1037     5         1
 3rd      1448.213 1045 1118.9411 1037     5         1
-> plot(a7)
+> plot(a7, nresponse=1)
 > print.stripped.earth.model(a7, "a7")
 print.stripped.earth.model(a7)
 $dirs
@@ -8139,8 +8133,7 @@ attr(,"class")
 
 > printh(summary(a7))
 === summary(a7)
-Call: earth(formula=pclass~., data=etitanic, keepxy=TRUE, trace=1, 
-      glm=list(family="binomial"), ncross=2, nfold=3, degree=2)
+Call: earth(formula=pclass~., data=etitanic, keepxy=TRUE, trace=1, glm=list(family="binomial"), ncross=2, nfold=3, degree=2)
 
 GLM coefficients
                                 1st         2nd         3rd
@@ -8182,10 +8175,8 @@ Cross validation:   nterms 9.50 sd 1.38    nvars 4.83 sd 0.41
 3rd  0.23 0.020      0.69 0.019   0.98 0.035 0.78 0.015    1.12 0.033    -0.01 0.097       0.89 0.116
 All  0.17 0.014      0.58 0.012   1.00 0.015 0.73 0.013    1.05 0.015    -0.15 0.103       0.81 0.112
 > plotmo(a7, nresponse=1)
-
  grid:    survived    sex age sibsp parch
                  0 female  28     0     0
-
 > printh(a7$cv.list[[3]])
 === a7$cv.list[[3]]
 Earth selected 8 of 19 terms, and 4 of 5 predictors 
@@ -8207,9 +8198,7 @@ GLM (family binomial, link logit)
 3rd      966.3437 697 769.5983 690     6         1
 > printh(summary(a7$cv.list[[3]]))
 === summary(a7$cv.list[[3]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, 
-      subset=subset, trace=trace, glm=glm, Scale.y=Scale.y, 
-      degree=degree)
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, trace=trace, glm=glm, Scale.y=Scale.y, degree=degree)
 
 GLM coefficients
                               1st         2nd         3rd
@@ -8239,7 +8228,7 @@ GLM (family binomial, link logit)
 1st      817.2756 697 602.3965 690     6         1
 2nd      783.9193 697 749.8527 690     6         1
 3rd      966.3437 697 769.5983 690     6         1
-> plot(a7, caption="a7 (multiple response model)", which=1)
+> plot(a7, main="a7 (multiple response model)", which=1, nresponse=1)
 > 
 > cat("a7.wp: as above but with wp parameter\n\n")
 a7.wp: as above but with wp parameter
@@ -8281,9 +8270,7 @@ GLM (family binomial, link logit)
 3rd      1448.213 1045 1093.043 1033     6         1
 > printh(summary(a7.wp))
 === summary(a7.wp)
-Call: earth(formula=pclass~., data=etitanic, wp=c(1, 3, 1), 
-      trace=0.5, glm=list(family="binomial"), nfold=3, 
-      degree=2)
+Call: earth(formula=pclass~., data=etitanic, wp=c(1,3,1), trace=0.5, glm=list(family="binomial"), nfold=3, degree=2)
 
 GLM coefficients
                                 1st         2nd         3rd
@@ -9843,8 +9830,7 @@ Earth GCV 17.16461  RSS 347.5833  GRSq 0.2538186  RSq 0.5559459  CVRSq 0.3231995
 GLM null.deviance 41.6537 (35 dof)   deviance 18.97441 (31 dof)   iters 4
 > printh(summary(a8p))
 === summary(a8p)
-Call: earth(formula=counts~outcome+treatment, trace=0.5, glm=list(family=poisson()), 
-      nfold=3, pmethod="none")
+Call: earth(formula=counts~outcome+treatment, trace=0.5, glm=list(family=poisson()), nfold=3, pmethod="none")
 
 GLM coefficients
                 counts
@@ -10175,8 +10161,7 @@ counts        41.6537 35  22.35113 32     4         1
 counts2      418.8258 35 204.97309 32     4         1
 > printh(summary(a10))
 === summary(a10)
-Call: earth(formula=cbind(counts, counts2)~outcome+treatment, 
-      trace=0.5, glm=list(fam="po"), nfold=3, pmethod="none")
+Call: earth(formula=cbind(counts,counts2)~outcome+treatment, trace=0.5, glm=list(fam="po"), nfold=3, pmethod="none")
 
 GLM coefficients
                  counts    counts2
@@ -10521,16 +10506,24 @@ Got error as expected
 > 
 > set.seed(427)
 > earth.mod.err <- earth(survived~., data=etitanic, degree=1, nfold=3, keepxy=FALSE)
-> expect.err(try(plot(earth.mod.err$cv.list[[1]]))) # cannot plot earth.mod$cv.list[[1]] because its $residuals field is NULL
-Error : earth.mod.err$cv.list[[1]] has no $residuals field.
-       Use keepxy=TRUE in the call to earth.
+> expect.err(try(plot(earth.mod.err$cv.list[[1]]))) # earth object has no residuals field
+
+Looked unsuccessfully for the original response in the following places:
+
+(1) object$y: NULL
+
+(2) model.frame: no formula in object$call
+
+(3) object$call$y: object 'infold.y' not found
+
+Error : cannot get the original model response (use trace=2 for details)
 Got error as expected
 > 
 > # test plot.earth with cross-validated models (example from help page)
 > set.seed(427)
 > earth.mod.help <- earth(survived~., data=etitanic, trace=1, degree=2, nfold=5, keepxy=TRUE)
-x is a 1046 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
-y is a 1046 by 1 matrix: 1=survived
+x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
+y[1046,1] with colname survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.407 RSq 0.449
@@ -10538,8 +10531,8 @@ Prune method "backward" penalty 3 nprune 16: selected 9 of 16 terms, and 6 of 6 
 After backward pass GRSq 0.422 RSq 0.444 
 
 CV fold 1 --------------------------------------------------------------------
-x is a 839 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
-y is a 839 by 1 matrix: 1=infold.y
+x[839,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
+y[839,1] with colname survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.395 RSq 0.445
@@ -10548,8 +10541,8 @@ After backward pass GRSq 0.411 RSq 0.435
 CV fold 1  CVRSq 0.451  n.oof 839 20%  n.infold.nz 341 41%  n.oof.nz  86 42%  
 
 CV fold 2 --------------------------------------------------------------------
-x is a 838 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
-y is a 838 by 1 matrix: 1=infold.y
+x[838,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
+y[838,1] with colname survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.391 RSq 0.448
@@ -10558,8 +10551,8 @@ After backward pass GRSq 0.413 RSq 0.441
 CV fold 2  CVRSq 0.442  n.oof 838 20%  n.infold.nz 341 41%  n.oof.nz  86 41%  
 
 CV fold 3 --------------------------------------------------------------------
-x is a 828 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
-y is a 828 by 1 matrix: 1=infold.y
+x[828,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
+y[828,1] with colname survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.397 RSq 0.450
@@ -10568,8 +10561,8 @@ After backward pass GRSq 0.414 RSq 0.438
 CV fold 3  CVRSq 0.435  n.oof 828 21%  n.infold.nz 342 41%  n.oof.nz  85 39%  
 
 CV fold 4 --------------------------------------------------------------------
-x is a 840 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
-y is a 840 by 1 matrix: 1=infold.y
+x[840,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
+y[840,1] with colname survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.408 RSq 0.460
@@ -10578,8 +10571,8 @@ After backward pass GRSq 0.42 RSq 0.451
 CV fold 4  CVRSq 0.388  n.oof 840 20%  n.infold.nz 342 41%  n.oof.nz  85 41%  
 
 CV fold 5 --------------------------------------------------------------------
-x is a 839 by 6 matrix: 1=pclass2nd, 2=pclass3rd, 3=sexmale, 4=age, 5=sibsp, ...
-y is a 839 by 1 matrix: 1=infold.y
+x[839,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
+y[839,1] with colname survived
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.413 RSq 0.464
@@ -14062,7 +14055,8 @@ attr(,"class")
 -------------------------------------------------------------------------------
 
 > plot(earth.mod.help) # the full model
-> plot(earth.mod.help$cv.list[[3]])
+> # $$ TODO the following no longer works: Error: plotmo.y.default: cannot get y
+> # plot(earth.mod.help$cv.list[[3]])
 > 
 > # test various options
 > old.par <- par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8))

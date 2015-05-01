@@ -17,12 +17,19 @@ options.old <- options()
 options(warn=1) # print warnings as they occur
 # options(digits=5) # removed because want to check against default
 
-expect.err <- function(obj) # test that we got an error as expected from a try() call
+# test that we got an error as expected from a try() call
+expect.err <- function(object, expected.msg="")
 {
-    if(class(obj)[1] == "try-error")
-        cat("Got error as expected\n")
-    else
-        stop("did not get expected try error")
+    if(class(object)[1] == "try-error") {
+        msg <- attr(object, "condition")$message[1]
+        if(length(grep(expected.msg, msg, fixed=TRUE)))
+            cat("Got error as expected from ",
+                deparse(substitute(object)), "\n", sep="")
+        else
+            stop(sprintf("Expected: %s\n  Got:      %s",
+                         expected.msg, substr(msg, 1, 1000)))
+    } else
+        stop("did not get expected error for ", expected.msg)
 }
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
@@ -44,21 +51,32 @@ print(citation("earth"))
 cat("--- earth.Rd -----------------------------\n")
 example(earth)
 
-a <- earth(mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
+set.seed(2015)
 
-set.seed(1)
-train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
-test.subset <- (1:nrow(trees))[-train.subset]
-a <- earth(Volume ~ ., data = trees[train.subset, ])
-yhat <- predict(a, newdata = trees[test.subset, ])
-y <- trees$Volume[test.subset]
-printh(sum((yhat - mean(yhat))^2) / sum((y - mean(y))^2)) # print R-Squared
+    train.subset <- sample(1:nrow(trees), .8 * nrow(trees))
+    test.subset <- (1:nrow(trees))[-train.subset]
+
+    earth.model <- earth(Volume ~ ., data = trees[train.subset,])
+
+    # print R-Squared on the test data
+    print(summary(earth.model, newdata=trees[test.subset,]))
+
+    # manually calculate R-Squared on the test data (same as above call to summary)
+    yhat <- predict(earth.model, newdata = trees[test.subset,])
+    y <- trees$Volume[test.subset]
+    printh(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
+
+newrsq <- 1 - sum((y - yhat)^2) / sum((y - mean(y))^2)
+stopifnot(abs(summary(earth.model, newdata=trees[test.subset,])$newrsq - newrsq) < 1e-10)
+
+cars <- earth(mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
+
 get.used.pred.names <- function(obj) # obj is an earth object
 {
   any1 <- function(x) any(x != 0)    # like any but no warning if x is double
   names(which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any1)))
 }
-printh(get.used.pred.names(a))
+printh(get.used.pred.names(cars))
 
 a1 <- earth(survived ~ ., data=etitanic,   # c.f. Harrell "Reg. Mod. Strat." ch. 12
              degree=2, trace=1,
@@ -126,19 +144,19 @@ printh(lm.fit2)
 plotmo(lm.fit2, all2=TRUE, clip=FALSE, trace=-1)
 
 cat("--- print.default of earth object---------\n")
-print.default(a, digits=3)
+print.default(cars, digits=3)
 cat("--- done print.default of earth object----\n")
 if (PLOT)
-    plot(a)
+    plot(cars)
 library(mda)
 (a <- fda(Species~., data=iris, method=earth, keepxy=TRUE))
 if (PLOT)
     plot(a)
 printh(summary(a$fit))
-expect.err(try(printh(summary(a$fit, none.such1="xxx")))) # summary.earth unrecognized argument "none.such1"
+expect.err(try(printh(summary(a$fit, none.such1="xxx"))), "unrecognized argument") # summary.earth unrecognized argument "none.such1"
 printh(summary(a$fit, style="bf", none.such2="xxx")) # Warning: format.earth ignored unrecognized argument "none.such2"
 if (PLOT) {
-    plot(a$fit, col.residuals=iris$Species)
+    plot(a$fit, col.residuals=iris$Species, nresponse=1)
     plotmo(a$fit, nresponse=1, ylim=c(-1.5,1.5), clip=FALSE, trace=-1)
     plotmo(a$fit, nresponse=2, ylim=c(-1.5,1.5), clip=FALSE, trace=-1)
 }
@@ -202,7 +220,7 @@ if (PLOT) {
     data(etitanic)
     a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial))
     par(mfrow=c(2,2))
-    plot(a$glm.list[[1]])
+    plot(a$glm.list[[1]], caption="a$glm.list[[1]]")
     example(plot.earth)
 }
 cat("--- predict.earth.Rd ----------------------\n")
@@ -407,7 +425,7 @@ a$selected.terms[earth:::reorder.earth(a)]
 cat("--- tests with ozone data ----------------------\n")
 
 ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
-                    plotit=PLOT, trace=0, col.loess="red")
+                    plotit=PLOT, trace=0, smooth.col="red")
 {
     fite <- earth(x, y, degree=degree, nk=nk, trace=trace)
     fitm <- mars(x, y, degree=degree, nk=nk)
@@ -428,14 +446,13 @@ ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
         fitme <- mars.to.earth(fitm)
         plotmo(fite, caption=paste("EARTH", caption), trace=-1)
         plotmo(fitme, caption=paste("MARS", caption), trace=-1)
-        plot(fite, npoints=500, col.loess=col.loess, caption=paste("EARTH", caption))
-        plot(fitme, caption=paste("MARS", caption))
+        plot(fite, npoints=500, smooth.col=smooth.col, caption=paste("EARTH", caption), info=TRUE)
+        plot(fitme, caption=paste("MARS", caption), info=TRUE)
         fitme <- update(fitme)  # generate model selection data
         plot.earth.models(list(fite, fitme), caption=paste(itest, ": Compare earth to mars ", sModel, sep=""))
     }
     fite
 }
-
 data(ozone1)
 attach(ozone1)
 
@@ -452,8 +469,8 @@ itest <- itest+1; a91 <- ozone.test(itest, "doy ~ wind+humidity+temp+vis", x.glo
 cat("--Expect warning from mda::mars: NAs introduced by coercion\n") # why do we get a warning?
 x.global <- cbind(wind, exp(humidity))
 y <- doy
-# col.loess is 0 else get loess errors
-itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, col.loess=0)
+# smooth.col is 0 else get loess errors
+itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, smooth.col=0)
 
 x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 y <- O3
@@ -477,15 +494,15 @@ cat("--- plot.earth and plot.earth.models ------------\n")
 a <- earth(O3 ~ ., data=ozone1) # formula interface
 
 if (PLOT)
-    plot(a, caption="plot.earth test 1", col.rsq=3, col.loess=4, col.qq="pink",
+    plot(a, caption="plot.earth test 1", col.rsq=3, smooth.col=4, qqline.col="pink",
          col.vline=1, col.npreds=0, nresiduals=100, cum.grid="grid",
-         col.grid="linen", col.sel.grid="linen")
+         grid.col="lightblue", col.sel.grid="lightgreen")
 
 set.seed(1)
 if (PLOT) {
     plot(a, caption="plot.earth test 2", which=c(3,4,1), ylim=c(.2,.9),
          id.n=20, legend.pos=c(10,.4), pch=20, lty.vline=1, cex.legend=1,
-         col.sel.grid="lightgray")
+         grid.col="lightblue")
 
     plot(a, caption="plot.earth test 3", which=2, main="test main")
 }
@@ -531,10 +548,10 @@ test.plot.earth.args <- function()
 
     plot(argtest, do.par=FALSE, which=1,
          col.rsq=3, col.grsq=2,
-         col.npreds="lightblue", col.sel.grid="lightgray",
+         col.npreds="blue", grid.col="lightblue",
          main=sprintf("%s\n%s",
             "col.rsq=3, col.grsq=2, ",
-            "col.npreds=\"lightblue\", col.sel.grid=\"lightgray\""))
+            "col.npreds=\"lightblue\", col.sel.grid=\"gray\""))
 
     plot(argtest, do.par=FALSE, which=1,
          col.vline="pink", legend.pos="topleft",
@@ -543,10 +560,9 @@ test.plot.earth.args <- function()
             "col.vline=\"pink\", legend.pos=\"topleft\", ",
             "lty.grsq=2, lty.npreds=1, lty.vline=1"))
 
-    # expect warning: col.legend is deprecated
     plot(argtest, do.par=FALSE, which=1,
-         col.legend=0, col.npreds=0,
-         main="col.legend=0, col.npreds=0")
+         legend.pos=NA, col.npreds=0,
+         main="legend.pos=NA, col.npreds=0")
 
     plot(argtest, do.par=FALSE, which=1,
          legend.pos=NA,
@@ -598,7 +614,7 @@ test.two.responses <- function(itest, func1, func2,
             plotmo(fite, func=func1, caption=caption, nresponse=1)
             plotmo(fite, func=func2, nresponse=2)
         }
-        plot(fite, caption=caption)
+        plot(fite, caption=caption, nresponse=1)
         plot(fite, nresponse=2)
     }
     cat("\n")
@@ -610,8 +626,8 @@ test.two.responses <- function(itest, func1, func2,
         printh(fitme)
         printh(summary(fitme))
         if(plotit) {
-            plotmo(fitm, func=func1, caption=caption, nresponse=1)
-            plotmo(fitm, func=func2, nresponse=2)
+            plotmo(fitm, func=func1, caption=caption, nresponse=1, clip=FALSE)
+            plotmo(fitm, func=func2, nresponse=2, clip=FALSE)
         }
 # TODO following code causes error "nk" not found, looking in wrong environment?
 #       cat("Expect warnings because of weights in the mars model\n")
@@ -644,9 +660,9 @@ x.global <- cbind(                                     x1, x2)
 data.global <- cbind(func1(x.global), func7(x.global), x1, x2)
 colnames(data.global) = c("func1", "func7", "x1", "x2")
 # expect pmethod="ex" cannot be used with multiple response models
-expect.err(try(test.two.responses(itest, func1, func7, nk=51, degree=1, pmethod="ex")))
+expect.err(try(test.two.responses(itest, func1, func7, nk=51, degree=1, pmethod="ex")), "not allowed with multiple response models")
 # expect pmethod="seq" cannot be used with multiple response models
-expect.err(try(test.two.responses(itest, func1, func7, nk=51, degree=1, pmethod="seq")))
+expect.err(try(test.two.responses(itest, func1, func7, nk=51, degree=1, pmethod="seq")), "not allowed with multiple response models")
 itest <- itest+1; a <- test.two.responses(itest, func1, func7, nk=51, degree=1)
 printh(summary(a))
 printh(summary(a, style="bf"))
@@ -815,7 +831,7 @@ printh(all.equal(a$bx, a.backwards$bx))
 
 cat("--- Force.xtx.prune -----------------------------\n")
 
-expect.err(try(earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE, pmethod="ex"))) # pmethod="ex" cannot be used with Force.xtx.prune
+expect.err(try(earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE, pmethod="ex")), "not allowed with") # pmethod="ex" cannot be used with Force.xtx.prune
 
 m1 <- earth(Volume ~ ., data = trees)
 m2 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
@@ -871,7 +887,7 @@ printh(a)
 cat("mda with mars  ", attr(confusion(am), "error"), "\n")
 cat("mda with earth ", attr(confusion(a),  "error"), "\n")
 if (PLOT) {
-    plot(a$fit, caption="mda on glass data")
+    plot(a$fit, caption="mda on glass data", nresponse=1)
     plotmo(a$fit, nresponse=9, clip=FALSE, ylim=NA, caption="mda on glass data", trace=-1)
 }
 
@@ -1047,16 +1063,16 @@ check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a")
 
 # "allowed" function checks, these check error handling by forcing an error
 
-expect.err(try(earth(Volume ~ ., data = trees, allowed = 99)))
+expect.err(try(earth(Volume ~ ., data = trees, allowed = 99)), "argument is not a function")
 
 example7  <- function(degree, pred) pred!=2
-expect.err(try(earth(Volume ~ ., data = trees, allowed = example7)))
+expect.err(try(earth(Volume ~ ., data = trees, allowed = example7)), "function does not have the correct number of arguments")
 
 example8  <- function(degree, pred, parents99) pred!=2
-expect.err(try(earth(Volume ~ ., data = trees, allowed = example8)))
+expect.err(try(earth(Volume ~ ., data = trees, allowed = example8)), "function needs the following arguments")
 
 example9  <- function(degree, pred, parents, namesx99) pred!=2
-expect.err(try(earth(Volume ~ ., data = trees, allowed = example9)))
+expect.err(try(earth(Volume ~ ., data = trees, allowed = example9)), "function needs the following arguments")
 
 cat("--- beta cache -------------------------\n")
 
@@ -1122,19 +1138,19 @@ if (PLOT)
 a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
 printh(summary(a2))
 if (PLOT)
-    plot(a2)
+    plot(a2, nresponse=1)
 a3 <- earth(pclass, age, degree=2, trace=2)        # x=unordered y=numeric
 printh(summary(a3))
 if (PLOT)
-    plot(a3)
+    plot(a3, nresponse=1)
 a4 <- earth(age, pclass, degree=2, trace=2)        # x=numeric y=unordered
 printh(summary(a4))
 if (PLOT)
-    plot(a4)
+    plot(a4, nresponse=1)
 a5 <- earth(etitanic[,c(2:4)], pclass, degree=2, trace=2)  # x=mixed  y=unordered
 printh(summary(a5))
 if (PLOT)
-    plot(a5)
+    plot(a5, nresponse=1)
 a6 <- earth(etitanic[,c(1,3,4,5,6)], survived, degree=2, trace=2)  # x=mixed y=unordered
 printh(summary(a6))
 if (PLOT)
@@ -1142,7 +1158,7 @@ if (PLOT)
 a7 <- earth(etitanic[,c(2,3,5,6)], etitanic[,c(1,4)], degree=2, trace=2)  # x=mixed y=mixed
 printh(summary(a7))
 if (PLOT)
-    plot(a7)
+    plot(a7, nresponse=1)
 
 cat("--- factors with formula interface -------------------------\n")
 # these correspond to the models above (except a7 which is a multiple response model)
@@ -1154,7 +1170,7 @@ if (PLOT)
 a2f <- earth(pclass ~ sex, degree=2, trace=2)        # x=unordered y=unordered
 printh(summary(a2f))
 if (PLOT)
-    plot(a2f)
+    plot(a2f, nresponse=1)
 a3f <- earth(age ~ pclass, degree=2, trace=2)        # x=unordered y=numeric
 printh(summary(a3f))
 if (PLOT)
@@ -1162,11 +1178,11 @@ if (PLOT)
 a4f <- earth(pclass ~ age, degree=2, trace=2)        # x=numeric y=unordered
 printh(summary(a4f))
 if (PLOT)
-    plot(a4f)
+    plot(a4f, nresponse=1)
 a5f <- earth(pclass ~ survived + sex + age, data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
 printh(summary(a5f))
 if (PLOT)
-    plot(a5f)
+    plot(a5f, nresponse=1)
 a6f <- earth(survived ~ ., data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
 printh(summary(a6f))
 if (PLOT)
@@ -1182,10 +1198,10 @@ printh(head(vowels))
 a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
 printh(summary(a8))
 if (PLOT)
-    plot(a8)
+    plot(a8, nresponse=1)
 a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
 if (PLOT)
-    plot(a9)
+    plot(a9, nresponse=1)
 printh(summary(a9))
 
 cat("--- wp argument---------------------------------\n")
@@ -1237,7 +1253,7 @@ e7 <- earth(pclass ~ ., data=etitanic, degree=2, wp=c(1,.001,.001))
 printh(e7)
 printh(summary(e7))
 if (PLOT)
-    plot(e7, col.points=as.numeric(etitanic$pclass)+1)
+    plot(e7, pt.col=as.numeric(etitanic$pclass)+1, nresponse=1)
 
 cat("--- earth.regress ---------------------------------\n")
 
@@ -1423,39 +1439,39 @@ plotmo(a, trace=1, caption="getdata earth test2")
 a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
 se <- NULL
 printh(summary(a))
-plotmo(a, trace=FALSE, caption="getdata earth test3")
+plotmo(a, trace=2, caption="getdata earth test3")
 se <- ozone1
 a <- earth(O3 ~ ., data=se, degree=2, keepxy=0)
 se <- NULL
 printh(summary(a))
-expect.err(try(plotmo(a, trace=2, caption="getdata earth test4")))
+expect.err(try(plotmo(a, trace=0, caption="getdata earth test4")), "cannot get the original model predictors")
 
 # test the way plotmo gets the data with earth with the default interface
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 printh(summary(a))
-plotmo(a, trace=2, caption="getdata earth test5")
+plotmo(a, trace=0, caption="getdata earth test5")
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 printh(summary(a))
-plotmo(a, trace=2, caption="getdata earth test6")
+plotmo(a, trace=0, caption="getdata earth test6")
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 se <- NULL
 printh(summary(a))
-plotmo(a, trace=2, caption="getdata earth test7")
+plotmo(a, trace=0, caption="getdata earth test7")
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 se <- NULL
-expect.err(try(plotmo(a, trace=2, caption="getdata earth test8")))
+expect.err(try(plotmo(a, trace=0, caption="getdata earth test8")), "cannot get the original model predictors")
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 # TODO error message could be improved here
 se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
-expect.err(try(plotmo(a, trace=2, caption="getdata earth test9"))) # get.plotmo.x.default cannot get the x matrix
+expect.err(try(plotmo(a, trace=0, caption="getdata earth test9")), "cannot get the original model predictors") # plotmo.x.default cannot get the x matrix
 se <- ozone1
 a <- earth(se[,2:10], se[,1], degree=2, keepxy=TRUE)
 se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
 printh(summary(a))
-plotmo(a, trace=2, caption="getdata earth test9")
+plotmo(a, trace=0, caption="getdata earth test9")
 
 # test the way plotmo gets the data with lm
 se <- ozone1
@@ -1467,22 +1483,22 @@ printh(summary(a))
 plotmo(a, trace=0, caption="getdata lm test2")
 a <- lm(O3 ~ ., data=se, y=1)
 printh(summary(a))
-plotmo(a, trace=2, caption="getdata lm test3")
+plotmo(a, trace=0, caption="getdata lm test3")
 a <- lm(O3 ~ ., data=se, x=1, y=1)
 printh(summary(a))
-plotmo(a, trace=2, caption="getdata lm test3")
-a <- lm(O3 ~ ., data=se, x=0, y=1)
-se <- NULL
-expect.err(try(plotmo(a, trace=2, caption="getdata lm test4")))
+plotmo(a, trace=0, caption="getdata lm test3")
+a <- lm(O3 ~ ., data=se, x=0, y=1, model=F)
+se <- 99
+expect.err(try(plotmo(a, trace=0, caption="getdata lm test4")), "cannot get the original model predictors")
 se <- ozone1
 a <- lm(O3 ~ ., data=se, x=1, y=1)
-se <- NULL
+se <- 77
 printh(summary(a))
-plotmo(a, trace=2, caption="getdata lm test5")
+plotmo(a, trace=0, caption="getdata lm test5")
 se <- ozone1
-a <- lm(O3 ~ ., data=se)
+a <- lm(O3 ~ ., data=se, model=F)
 se$wind <- NULL
-expect.err(try(plotmo(a, trace=2, caption="getdata lm test6")))
+expect.err(try(plotmo(a, trace=0, caption="getdata lm test6")), "cannot get the original model predictors")
 
 cat("test fixed.point warning in print.summary.earth\n")
 options(digits=3)
@@ -1497,8 +1513,18 @@ cat("--- summary earth with new data ----------------------\n")
 a.trees <- earth(Volume~., data=trees)
 cat("summary(a.trees, newdata=trees)\n")
 print(summary(a.trees, newdata=trees))
-cat("summary(a.trees, newdata=trees[10:20,])\n")
-print(summary(a.trees, newdata=trees[10:20,]))
+cat("summary(a.trees, newdata=trees[1:5,])\n")
+a.trees.summary <- print(summary(a.trees, newdata=trees[1:5,]))
+
+a.xy.trees <- earth(trees[,1:2], trees[,3])
+cat("summary(a.xy.trees, newdata=trees[1:5,])\n")
+a.xy.trees.summary <- print(summary(a.xy.trees, newdata=trees[1:5,]))
+stopifnot(a.xy.trees.summary$newrsq == a.trees.summary$newrsq)
+
+a.xy1.trees <- earth(trees[,1:2], trees$Volume)
+cat("summary(a.xy1.trees, newdata=trees[1:5,])\n")
+a.xy1.trees.summary <- print(summary(a.xy1.trees, newdata=trees[1:5,]))
+stopifnot(a.xy1.trees.summary$newrsq == a.trees.summary$newrsq)
 
 cat("--- ../../tests/test.earth.R -------------------------\n")
 

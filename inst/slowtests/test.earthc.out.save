@@ -1,6 +1,6 @@
 =============================================================================
 TEST 1: noise n=1000 p=1
-Forward pass: minspan 5 endspan 7
+Forward pass:    minspan 5    endspan 7    x is 1000 by 1 (7.81 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -11,9 +11,9 @@ Forward pass: minspan 5 endspan 7
 9     -0.0154 0.0149     0.001125    0     -0.469  6       
 11    -0.0199 0.0155    0.0006418    0     0.9668  7       reject term
 
-RSq changed by less than 0.001 at 11 terms (DeltaRSq 0.00064)
+RSq changed by less than 0.001 at 11 terms, 7 terms used (DeltaRSq 0.00064)
 After forward pass GRSq -0.020 RSq 0.016
-Forward pass complete: 11 terms (7 terms used)
+Forward pass complete: 11 terms, 7 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -46,9 +46,9 @@ TEST 2: x0 n=10 p=1
    8  0.17770  0.17770
    9  0.41900  0.41900
 
-earth.c version 4.2.0
-BetaCache 20.8 kB
-Forward pass: minspan 3 endspan 4
+earth.c version 4.3.0
+BetaCache 20.3 kB
+Forward pass:    minspan 3    endspan 4    x is 10 by 1 (80 B)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -61,9 +61,9 @@ Forward pass: minspan 3 endspan 4
 
 -----------------------------------------------------------------------------
 
-Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
+Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 3 terms (2 terms used)
+Forward pass complete: 3 terms, 2 terms used
 
    nFacs       Beta
 00   0    -7.02e-17 |  . |    .    
@@ -89,15 +89,15 @@ TEST 2: FUNCTION x0 n=10 p=1
 
 =============================================================================
 TEST 3: x0 n=1000 p=1
-Forward pass: minspan 5 endspan 7
+Forward pass:    minspan 5    endspan 7    x is 1000 by 1 (7.81 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
 1      1.0000 1.0000            1    0    -0.9987< 1       
 
-Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
+Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 3 terms (2 terms used)
+Forward pass complete: 3 terms, 2 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -114,15 +114,15 @@ TEST 3: FUNCTION x0 n=1000 p=1
 
 =============================================================================
 TEST 4: x0 + noise n=1000 p=2
-Forward pass: minspan 6 endspan 8
+Forward pass:    minspan 6    endspan 8    x is 1000 by 2 (15.6 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
 1      1.0000 1.0000            1    0    -0.9994< 1       
 
-Reached maximum RSq 0.9990 at 3 terms (RSq 1.0000)
+Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 3 terms (2 terms used)
+Forward pass complete: 3 terms, 2 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -1141,9 +1141,9 @@ TEST 5: x0 + x1 n=1000 p=2
  998  1.57294  0.99760  0.65150
  999  0.77250  0.99800 -0.15910
 
-earth.c version 4.2.0
-BetaCache 1.94 kB
-Forward pass: minspan 6 endspan 8
+earth.c version 4.3.0
+BetaCache 1.89 kB
+Forward pass:    minspan 6    endspan 8    x is 1000 by 2 (15.6 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1257,7 +1257,7 @@ TEST 7: x0 + x1 + x0*x1 n=30 p=2
   28  0.88658  0.59880  0.18000
   29 -0.19086  0.96250 -0.58770
 
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 30 by 2 (480 B)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1294,7 +1294,7 @@ TEST 7: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 8: x0 + x1 + x0*x1 n=1000 p=2
-Forward pass: minspan 6 endspan 8
+Forward pass:    minspan 6    endspan 8    x is 1000 by 2 (15.6 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1334,9 +1334,9 @@ TEST 9: x0 + x1 + x0*x1 n=1000 p=2
 malloc      8  B: nUses			nPreds 2 sizeof(int) 4
 malloc    204  B: nFactorsInTerm	nMaxTerms 51 sizeof(int) 4
 malloc      8 kB: xOrder		nRows 1000 nCols 2 sizeof(int) 4
-malloc     42 kB: BetaCacheGlobal	nMaxTerms 51 nMaxTerms 51 nPreds 2 sizeof(double) 8
-malloc    408 kB: bxOrth		nCases 1000 nMaxTerms 51  sizeof(double) 8
-malloc    408 kB: bxOrthCenteredT	nMaxTerms 51 nCases 1000  sizeof(double) 8
+malloc     41 kB: BetaCacheGlobal	nMaxTerms 51 nMaxTerms 51 nPreds 2 sizeof(double) 8
+malloc    398 kB: bxOrth		nCases 1000 nMaxTerms 51  sizeof(double) 8
+malloc    398 kB: bxOrthCenteredT	nMaxTerms 51 nCases 1000  sizeof(double) 8
 malloc    408  B: bxOrthMean		nMaxTerms 51 nResp 1  sizeof(double) 8
 malloc      8  B: yMean			nResp 1 sizeof(double) 8
 Forward pass term 0
@@ -1370,47 +1370,47 @@ Forward pass term 5
 Reached maximum RSq 0.9990 at 7 terms (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 malloc    204  B: iPivots		nTerms 51 sizeof(int) 4
-malloc     56 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     55 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
 malloc     56  B: qraux			nUsedCols 7 sizeof(double) 8
-malloc     56 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     55 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
 malloc     56  B: RssVec		nMaxTerms 7 sizeof(double) 8
 malloc     49  B: PruneTerms		nMaxTerms 7 nMaxTerms 7 sizeof(bool) 1
 malloc     56  B: Betas			nMaxTerms 7 nResp 1 sizeof(double) 8
 malloc     56  B: Diags			nMaxTerms 7 sizeof(double) 8
 malloc      7  B: WorkingSet		nMaxTerms 7 sizeof(bool) 1
-malloc     56 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     55 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
 malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
 malloc     28  B: iPivots		nUsedCols 7 sizeof(int) 4
 malloc     56  B: qraux			nUsedCols 7 sizeof(double) 8
-malloc     56 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     55 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
 malloc    392  B: R1			nCols 7 nCols 7 sizeof(double) 8
 calloc      8  B: B			nCols 7 nCols 7 sizeof(double) 8
-malloc     48 kB: xUsed			nCases 1000 nUsedCols 6 sizeof(double) 8
+malloc     47 kB: xUsed			nCases 1000 nUsedCols 6 sizeof(double) 8
 malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
 malloc     24  B: iPivots		nUsedCols 6 sizeof(int) 4
 malloc     48  B: qraux			nUsedCols 6 sizeof(double) 8
-malloc     48 kB: work			nCases 1000 nUsedCols 6 sizeof(double) 8
+malloc     47 kB: work			nCases 1000 nUsedCols 6 sizeof(double) 8
 malloc    288  B: R1			nCols 6 nCols 6 sizeof(double) 8
 calloc      8  B: B			nCols 6 nCols 6 sizeof(double) 8
-malloc     40 kB: xUsed			nCases 1000 nUsedCols 5 sizeof(double) 8
+malloc     39 kB: xUsed			nCases 1000 nUsedCols 5 sizeof(double) 8
 malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
 malloc     20  B: iPivots		nUsedCols 5 sizeof(int) 4
 malloc     40  B: qraux			nUsedCols 5 sizeof(double) 8
-malloc     40 kB: work			nCases 1000 nUsedCols 5 sizeof(double) 8
+malloc     39 kB: work			nCases 1000 nUsedCols 5 sizeof(double) 8
 malloc    200  B: R1			nCols 5 nCols 5 sizeof(double) 8
 calloc      8  B: B			nCols 5 nCols 5 sizeof(double) 8
-malloc     32 kB: xUsed			nCases 1000 nUsedCols 4 sizeof(double) 8
+malloc     31 kB: xUsed			nCases 1000 nUsedCols 4 sizeof(double) 8
 malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
 malloc     16  B: iPivots		nUsedCols 4 sizeof(int) 4
 malloc     32  B: qraux			nUsedCols 4 sizeof(double) 8
-malloc     32 kB: work			nCases 1000 nUsedCols 4 sizeof(double) 8
+malloc     31 kB: work			nCases 1000 nUsedCols 4 sizeof(double) 8
 malloc    128  B: R1			nCols 4 nCols 4 sizeof(double) 8
 calloc      8  B: B			nCols 4 nCols 4 sizeof(double) 8
-malloc     24 kB: xUsed			nCases 1000 nUsedCols 3 sizeof(double) 8
+malloc     23 kB: xUsed			nCases 1000 nUsedCols 3 sizeof(double) 8
 malloc      8 kB: Residuals		nCases 1000 nResp 1 sizeof(double) 8
 malloc     12  B: iPivots		nUsedCols 3 sizeof(int) 4
 malloc     24  B: qraux			nUsedCols 3 sizeof(double) 8
-malloc     24 kB: work			nCases 1000 nUsedCols 3 sizeof(double) 8
+malloc     23 kB: work			nCases 1000 nUsedCols 3 sizeof(double) 8
 malloc     72  B: R1			nCols 3 nCols 3 sizeof(double) 8
 calloc      8  B: B			nCols 3 nCols 3 sizeof(double) 8
 malloc     16 kB: xUsed			nCases 1000 nUsedCols 2 sizeof(double) 8
@@ -1428,9 +1428,9 @@ malloc      8 kB: work			nCases 1000 nUsedCols 1 sizeof(double) 8
 malloc      8  B: R1			nCols 1 nCols 1 sizeof(double) 8
 calloc      8  B: B			nCols 1 nCols 1 sizeof(double) 8
 malloc     28  B: iPivots		nTerms 7 sizeof(int) 4
-malloc     56 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     55 kB: xUsed			nCases 1000 nUsedCols 7 sizeof(double) 8
 malloc     56  B: qraux			nUsedCols 7 sizeof(double) 8
-malloc     56 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
+malloc     55 kB: work			nCases 1000 nUsedCols 7 sizeof(double) 8
 RESULT 9: GRSq 1 RSq 1 nTerms 7 of 7 of 51 FUNCTION x0 + x1 + x0*x1 n=1000 p=2 [99.99 secs]
 
 TEST 9: FUNCTION x0 + x1 + x0*x1 n=1000 p=2
@@ -1444,7 +1444,7 @@ TEST 9: FUNCTION x0 + x1 + x0*x1 n=1000 p=2
 
 =============================================================================
 TEST 10: cos(x0) + x1 n=1000 p=2
-Forward pass: minspan 6 endspan 8
+Forward pass:    minspan 6    endspan 8    x is 1000 by 2 (15.6 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1453,9 +1453,9 @@ Forward pass: minspan 6 endspan 8
 5      0.9981 0.9981     0.001254    0     0.5166  5       
 7      0.9998 0.9998     0.001624    0    -0.5167  6       
 
-Reached maximum RSq 0.9990 at 9 terms (RSq 0.9998)
+Reached maximum RSq 0.9990 at 9 terms, 7 terms used (RSq 0.9998)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 9 terms (7 terms used)
+Forward pass complete: 9 terms, 7 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -1482,7 +1482,7 @@ TEST 10: FUNCTION cos(x0) + x1 n=1000 p=2
 
 =============================================================================
 TEST 11: sin(2*x0)+2*x1*.5*x0*x1 n=1000 p=2
-Forward pass: minspan 6 endspan 8
+Forward pass:    minspan 6    endspan 8    x is 1000 by 2 (15.6 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1492,9 +1492,9 @@ Forward pass: minspan 6 endspan 8
 7      0.9980 0.9981     0.002864    0     0.5717  7       
 9      0.9989 0.9989    0.0008662    0    -0.3291  8   9   reject term
 
-RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00087)
+RSq changed by less than 0.001 at 9 terms, 8 terms used (DeltaRSq 0.00087)
 After forward pass GRSq 0.999 RSq 0.999
-Forward pass complete: 9 terms (8 terms used)
+Forward pass complete: 9 terms, 8 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -1523,7 +1523,7 @@ TEST 11: FUNCTION sin(2*x0)+2*x1*.5*x0*x1 n=1000 p=2
 
 =============================================================================
 TEST 12: sin(2*x0)+2*x1*.5*x0*x1 n=1000 p=3
-Forward pass: minspan 6 endspan 8
+Forward pass:    minspan 6    endspan 8    x is 1000 by 3 (23.4 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1533,9 +1533,9 @@ Forward pass: minspan 6 endspan 8
 7      0.9985 0.9986     0.001833    0     0.5775  7       
 9      0.9995 0.9996    0.0009945    0    -0.4112  8       reject term
 
-RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00099)
+RSq changed by less than 0.001 at 9 terms, 8 terms used (DeltaRSq 0.00099)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 9 terms (8 terms used)
+Forward pass complete: 9 terms, 8 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -1583,7 +1583,7 @@ TEST 13: FUNCTION 3rd order, mi=2 ni=11 n=1000 p=6
 
 =============================================================================
 TEST 14: 3rd order, mi=2 ni=51 n=1000 p=6
-Forward pass: minspan 6 endspan 9
+Forward pass:    minspan 6    endspan 9    x is 1000 by 6 (46.9 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1627,7 +1627,7 @@ TEST 14: FUNCTION 3rd order, mi=2 ni=51 n=1000 p=6
 
 =============================================================================
 TEST 15: 3rd order, mi=3 n=1000 p=6
-Forward pass: minspan 6 endspan 9
+Forward pass:    minspan 6    endspan 9    x is 1000 by 6 (46.9 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1708,7 +1708,7 @@ TEST 15: FUNCTION 3rd order, mi=3 n=1000 p=6
 
 =============================================================================
 TEST 16: 5 preds + noise n=200 p=15
-Forward pass: minspan 6 endspan 11
+Forward pass:    minspan 6    endspan 11    x is 200 by 15 (23.4 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1780,7 +1780,7 @@ TEST 16: FUNCTION 5 preds + noise n=200 p=15
 
 =============================================================================
 TEST 17: 5 preds clean n=200 p=15
-Forward pass: minspan 6 endspan 11
+Forward pass:    minspan 6    endspan 11    x is 200 by 15 (23.4 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1852,7 +1852,7 @@ TEST 17: FUNCTION 5 preds clean n=200 p=15
 
 =============================================================================
 TEST 18: 10 preds + noise n=200 p=50
-Forward pass: minspan 7 endspan 12
+Forward pass:    minspan 7    endspan 12    x is 200 by 50 (78.1 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -1953,7 +1953,7 @@ TEST 18: FUNCTION 10 preds + noise n=200 p=50
 
 =============================================================================
 TEST 19: 20 preds + noise, n=100 p=30
-Forward pass: minspan 6 endspan 12
+Forward pass:    minspan 6    endspan 12    x is 100 by 30 (23.4 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2044,7 +2044,7 @@ TEST 19: FUNCTION 20 preds + noise, n=100 p=30
 
 =============================================================================
 TEST 20: 20 preds + noise, n=400 p=30
-Forward pass: minspan 7 endspan 12
+Forward pass:    minspan 7    endspan 12    x is 400 by 30 (93.8 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2214,7 +2214,7 @@ TEST 20: FUNCTION 20 preds + noise, n=400 p=30
 
 =============================================================================
 TEST 21: 3rd order, mi=3 + noise n=1000 p=10
-Forward pass: minspan 7 endspan 10
+Forward pass:    minspan 7    endspan 10    x is 1000 by 10 (78.1 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2289,7 +2289,7 @@ TEST 21: FUNCTION 3rd order, mi=3 + noise n=1000 p=10
 
 =============================================================================
 TEST 22: eqn56 mi=1 n=300 p=6
-Forward pass: minspan 6 endspan 9
+Forward pass:    minspan 6    endspan 9    x is 300 by 6 (14.1 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2318,9 +2318,9 @@ Forward pass: minspan 6 endspan 9
 45    -0.2385 0.1954     0.001295    2     0.3009  29      
 47    -0.2577 0.1964    0.0009965    2     0.7754  30      reject term
 
-RSq changed by less than 0.001 at 47 terms (DeltaRSq 0.001)
+RSq changed by less than 0.001 at 47 terms, 30 terms used (DeltaRSq 0.001)
 After forward pass GRSq -0.258 RSq 0.196
-Forward pass complete: 47 terms (30 terms used)
+Forward pass complete: 47 terms, 30 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2369,7 +2369,7 @@ TEST 22: FUNCTION eqn56 mi=1 n=300 p=6
 
 =============================================================================
 TEST 23: eqn56 mi=2 n=300 p=6
-Forward pass: minspan 6 endspan 9
+Forward pass:    minspan 6    endspan 9    x is 300 by 6 (14.1 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2401,7 +2401,7 @@ Forward pass: minspan 6 endspan 9
 
 Reached maximum number of terms 51
 After forward pass GRSq 0.887 RSq 0.946
-Forward pass complete: 51 terms (38 terms used)
+Forward pass complete: 51 terms, 38 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2483,7 +2483,7 @@ TEST 23: FUNCTION eqn56 mi=2 n=300 p=6
 
 =============================================================================
 TEST 24: eqn56 mi=10 n=300 p=6
-Forward pass: minspan 6 endspan 9
+Forward pass:    minspan 6    endspan 9    x is 300 by 6 (14.1 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2502,9 +2502,9 @@ Forward pass: minspan 6 endspan 9
 25     0.9780 0.9859     0.001086    4     0.2683  23  24  6   
 27     0.9788 0.9867    0.0007986    1     0.5247  25      reject term
 
-RSq changed by less than 0.001 at 27 terms (DeltaRSq 0.0008)
+RSq changed by less than 0.001 at 27 terms, 25 terms used (DeltaRSq 0.0008)
 After forward pass GRSq 0.979 RSq 0.987
-Forward pass complete: 27 terms (25 terms used)
+Forward pass complete: 27 terms, 25 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2558,7 +2558,7 @@ TEST 24: FUNCTION eqn56 mi=10 n=300 p=6
 
 =============================================================================
 TEST 25: x0 + x1 + x0*x1 n=30 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 30 by 2 (480 B)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2595,7 +2595,7 @@ TEST 25: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 26: x0 + x1 + x0*x1 n=30 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 30 by 2 (480 B)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2632,7 +2632,7 @@ TEST 26: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 27: x0 + x1 + x0*x1 n=30 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 30 by 2 (480 B)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2669,16 +2669,16 @@ TEST 27: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 28: x0|x0+x1 degree=1 n=30 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 30 by 2 (480 B)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
 1      0.5789 0.6870        0.687    0    -0.7273  1   2   
 3      1.0000 1.0000        0.313    1     -0.963< 3       
 
-Reached maximum RSq 0.9990 at 5 terms (RSq 1.0000)
+Reached maximum RSq 0.9990 at 5 terms, 4 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 5 terms (4 terms used)
+Forward pass complete: 5 terms, 4 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2705,7 +2705,7 @@ Response 1:
 
 =============================================================================
 TEST 29: x0|x+x1+noise n=100 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 100 by 2 (1.56 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2744,7 +2744,7 @@ Response 1:
 
 =============================================================================
 TEST 30: x0+x1+x0*x1|x0+x1+x0*x1 degree=1 n=100 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 100 by 2 (1.56 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2755,9 +2755,9 @@ Forward pass: minspan 4 endspan 8
 9      0.8052 0.8564     0.001487    0    -0.0415  7       
 11     0.7967 0.8571    0.0007263    0     0.6089  8       reject term
 
-RSq changed by less than 0.001 at 11 terms (DeltaRSq 0.00073)
+RSq changed by less than 0.001 at 11 terms, 8 terms used (DeltaRSq 0.00073)
 After forward pass GRSq 0.797 RSq 0.857
-Forward pass complete: 11 terms (8 terms used)
+Forward pass complete: 11 terms, 8 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2791,7 +2791,7 @@ Response 1:
 
 =============================================================================
 TEST 31: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 n=100 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 100 by 2 (1.56 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2800,9 +2800,9 @@ Forward pass: minspan 4 endspan 8
 5      0.9973 0.9981       0.1509    0     0.1378  5   6   3   
 7      1.0000 1.0000     0.001936    0    -0.9936< 7       4   
 
-Reached maximum RSq 0.9990 at 9 terms (RSq 1.0000)
+Reached maximum RSq 0.9990 at 9 terms, 8 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
-Forward pass complete: 9 terms (8 terms used)
+Forward pass complete: 9 terms, 8 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2842,7 +2842,7 @@ Response 1:
 
 =============================================================================
 TEST 32: x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds n=200 p=10
-Forward pass: minspan 6 endspan 10
+Forward pass:    minspan 6    endspan 10    x is 200 by 10 (15.6 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2852,9 +2852,9 @@ Forward pass: minspan 6 endspan 10
 7      0.9972 0.9977     0.001481    0     0.5189  7       
 9      0.9993 0.9994     0.001742    0    -0.3794  8       
 
-Reached maximum RSq 0.9990 at 11 terms (RSq 0.9994)
+Reached maximum RSq 0.9990 at 11 terms, 9 terms used (RSq 0.9994)
 After forward pass GRSq 0.999 RSq 0.999
-Forward pass complete: 11 terms (9 terms used)
+Forward pass complete: 11 terms, 9 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2891,7 +2891,7 @@ Response 1:
 
 =============================================================================
 TEST 33: x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds n=200 p=11
-Forward pass: minspan 6 endspan 10
+Forward pass:    minspan 6    endspan 10    x is 200 by 11 (17.2 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2901,9 +2901,9 @@ Forward pass: minspan 6 endspan 10
 7      0.9982 0.9985     0.001045    0     0.5752  7       
 9      0.9993 0.9994    0.0008862    0    -0.4534  8       reject term
 
-RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00089)
+RSq changed by less than 0.001 at 9 terms, 8 terms used (DeltaRSq 0.00089)
 After forward pass GRSq 0.999 RSq 0.999
-Forward pass complete: 9 terms (8 terms used)
+Forward pass complete: 9 terms, 8 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -2948,7 +2948,7 @@ Response 2:
 
 =============================================================================
 TEST 34: |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds n=200 p=11
-Forward pass: minspan 6 endspan 10
+Forward pass:    minspan 6    endspan 10    x is 200 by 11 (17.2 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -2958,9 +2958,9 @@ Forward pass: minspan 6 endspan 10
 7      0.9982 0.9985     0.001045    0     0.5752  7       
 9      0.9993 0.9994    0.0008862    0    -0.4534  8       reject term
 
-RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00089)
+RSq changed by less than 0.001 at 9 terms, 8 terms used (DeltaRSq 0.00089)
 After forward pass GRSq 0.999 RSq 0.999
-Forward pass complete: 9 terms (8 terms used)
+Forward pass complete: 9 terms, 8 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -3005,7 +3005,7 @@ Response 2:
 
 =============================================================================
 TEST 35: sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds n=200 p=11
-Forward pass: minspan 6 endspan 10
+Forward pass:    minspan 6    endspan 10    x is 200 by 11 (17.2 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -3015,9 +3015,9 @@ Forward pass: minspan 6 endspan 10
 7      0.9982 0.9985     0.001045    0     0.5752  7       
 9      0.9993 0.9994    0.0008862    0    -0.4534  8       reject term
 
-RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00089)
+RSq changed by less than 0.001 at 9 terms, 8 terms used (DeltaRSq 0.00089)
 After forward pass GRSq 0.999 RSq 0.999
-Forward pass complete: 9 terms (8 terms used)
+Forward pass complete: 9 terms, 8 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -3062,7 +3062,7 @@ Response 2:
 
 =============================================================================
 TEST 36: sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise n=1000 p=6
-Forward pass: minspan 6 endspan 9
+Forward pass:    minspan 6    endspan 9    x is 1000 by 6 (46.9 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -3155,7 +3155,7 @@ Response 1:
 
 =============================================================================
 TEST 37: cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0 n=100 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 100 by 2 (1.56 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -3165,9 +3165,9 @@ Forward pass: minspan 4 endspan 8
 7      0.9123 0.9322     0.005049    0     0.2417  6       
 9      0.9083 0.9324    0.0001538    0     0.6089  7       reject term
 
-RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00015)
+RSq changed by less than 0.001 at 9 terms, 7 terms used (DeltaRSq 0.00015)
 After forward pass GRSq 0.908 RSq 0.932
-Forward pass complete: 9 terms (7 terms used)
+Forward pass complete: 9 terms, 7 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq
@@ -3191,7 +3191,7 @@ TEST 37: FUNCTION cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0 n=100
 
 =============================================================================
 TEST 38: cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0 n=100 p=2
-Forward pass: minspan 4 endspan 8
+Forward pass:    minspan 4    endspan 8    x is 100 by 2 (1.56 kB)
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   ParentTerm
 0      0.0000 0.0000                               0
@@ -3201,9 +3201,9 @@ Forward pass: minspan 4 endspan 8
 7      0.9123 0.9322     0.005049    0     0.2417  6       
 9      0.9083 0.9324    0.0001538    0     0.6089  7       reject term
 
-RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00015)
+RSq changed by less than 0.001 at 9 terms, 7 terms used (DeltaRSq 0.00015)
 After forward pass GRSq 0.908 RSq 0.932
-Forward pass complete: 9 terms (7 terms used)
+Forward pass complete: 9 terms, 7 terms used
 
 Backward pass:
 SubsetSize         GRSq          RSq

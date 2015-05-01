@@ -9,13 +9,13 @@ anova.earth <- function(object, warn=TRUE, ...)
 case.names.earth <- function(object, ...)
 {
     if(is.null(row.names(object$residuals)))
-        paste(1:nrow(object$residuals))
+        paste(seq_len(nrow(object$residuals)))
     else
         row.names(object$residuals)
 }
 coef.earth <- function(object, decomp="none", ...)
 {
-    warn.if.dots.used("coef.earth", ...)
+    warn.if.dots(...)
     coef <- object$coefficients
     if(NCOL(coef) > 1)
         stop0("coef.earth: multiple response models not supported")
@@ -46,7 +46,7 @@ extractAIC.earth <- function(fit, scale = 0, k = 2, warn=TRUE, ...)
         warning0("extractAIC.earth: ignored scale parameter ", scale)
     if(k != 2)
         warning0("extractAIC.earth: ignored k parameter ", k)
-    warn.if.dots.used("extractAIC.earth", ...)
+    warn.if.dots(...)
     nterms <- length(fit$selected.terms)
     c(effective.nbr.of.params(nterms, get.nknots(nterms), fit$penalty), fit$gcv)
 }
@@ -57,13 +57,19 @@ family.earth <- function(object, ...)
 }
 hatvalues.earth <- function(model, ...)
 {
-    stop.if.dots.used("hatvalues.earth", ...)
+    stop.if.dots(...)
     stopifnot(!is.null(model$leverages))
     model$leverages
 }
 fitted.earth <- function(object, ...)
 {
-    stop.if.dots.used("fitted.earth", ...)
+    stop.if.dots(...)
+    stopifnot(!is.null(object$fitted.values))
+    object$fitted.values
+}
+fitted.values.earth <- function(object, ...)
+{
+    stop.if.dots(...)
     stopifnot(!is.null(object$fitted.values))
     object$fitted.values
 }
@@ -74,8 +80,8 @@ fitted.earth <- function(object, ...)
 
 variable.names.earth <- function(object, ..., use.names=TRUE)
 {
-    warn.if.dots.used("variable.names.earth", ...)
-    ipred <- 1:ncol(object$dirs)
+    warn.if.dots(...)
+    ipred <- seq_len(ncol(object$dirs))
     if(length(use.names) != 1)
         stop0("illegal value for use.names")
     if(use.names == TRUE) {
@@ -93,7 +99,7 @@ variable.names.earth <- function(object, ..., use.names=TRUE)
 }
 weights.earth <- function(object, ...)
 {
-    warn.if.dots.used("weights.earth", ...)
+    warn.if.dots(...)
     if(is.null(object$weights)) # weights arg to earth was NULL?
         repl(1, length(object$fitted.values[,1]))
     else

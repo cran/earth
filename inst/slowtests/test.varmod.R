@@ -7,7 +7,7 @@ expect.err <- function(obj) # test that we got an error as expected from a try()
     if(class(obj)[1] == "try-error")
         cat("Got error as expected\n")
     else
-        stop("did not get expected try error")
+        stop("did not get expected error")
 }
 printh <- function(caption)
     cat("===", caption, "\n", sep="")
@@ -37,8 +37,13 @@ multifigure("test predict.earth with pints", 2, 2)
 set.seed(2)
 earth.trees <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth")
 
+old.environment <- attr(earth.trees$varmod, ".Environment")
+stopifnot(is.environment(old.environment))
+# following necessary else print.default prints a different default environment hex address each time
+attr(earth.trees$varmod, ".Environment") <- NULL
 printh("print.default(earth.trees$varmod)")
 print.default(earth.trees$varmod)
+attr(earth.trees$varmod, ".Environment") <- old.environment
 
 printh("summary(earth.trees)")
 print(summary(earth.trees))
@@ -92,7 +97,7 @@ plotmo(a, do.par=FALSE, col.response=1, level=.95, main="earth model: O3~temp")
 
 plot(a, which=1)            # model selection plot, same as ever
 plot(a, which=3, level=.95) # residual plot: note 95% pred and darker conf intervals
-plot(a, which=3, level=.95, student=TRUE) # student resids are approx homoscedastic
+plot(a, which=3, level=.95, standardize=TRUE) # standardize resids are approx homoscedastic
 
 par(par=old.mfrow)
 
@@ -114,22 +119,20 @@ plot(mod.temp.vh.doy, level=.95) # note 95% pred and darker conf intervals in re
 plot(mod.temp.vh.doy$varmod)     # plot the variance model (this calls plot.varmod)
 
 plot(mod.temp.vh.doy, versus="", level=.9, caption="plot.earth versus=\"\"")
-
 plot(mod.temp.vh.doy, versus="v", level=.9, caption="plot.earth versus=\"v\" and versus=\"temp\"", do.par=2)
 plot(mod.temp.vh.doy, versus="temp", level=.9, caption="", main="temp on same page")
 
 # plot.earth will silently not plots it cannot plot below, so 1:9 becomes c(3,5,6)
 plot(mod.temp.vh.doy, which=1:9, versus="v", info=T, caption='which=c(3,5) versus="v" info=T')
 
-# versus="*"
+# versus="b:"
 
-plot(mod.temp.vh.doy, versus="*", level=.9,
-     caption="plot.earth versus=\"*\"")
+plot(mod.temp.vh.doy, versus="b:", level=.9,
+     caption="plot.earth versus=\"b:\"")
 
-# versus="*" and versus=1:4 with info
-
-plot(mod.temp.vh.doy, versus="*", level=.8, info=TRUE,
-     caption="plot.earth versus=\"*\" with info")
+# versus="b:" and versus=1:4 with info
+plot(mod.temp.vh.doy, versus="b:", level=.8, info=TRUE,
+     caption="plot.earth versus=\"b:\" with info")
 
 multifigure("versus=1:4", 3, 3)
 
@@ -150,13 +153,13 @@ expect.err(try(plot(mod.temp.vh.doy, versus=9)))
 expect.err(try(plot(mod.temp.vh.doy, versus=1.2)))
 expect.err(try(plot(mod.temp.vh.doy, versus=2:3)))
 
-# versus="*doy"
+# versus="b:doy"
 
-plot(mod.temp.vh.doy, versus="*doy", level=.9, caption="plot.earth versus=\"*doy\"")
+plot(mod.temp.vh.doy, versus="b:doy", level=.9, caption="plot.earth versus=\"b:doy\"")
 
-# test warnings from plotmor about which
+# test warnings from plotres about which
 options(warn=1) # print warnings as they occur
-plot(mod.temp.vh.doy, which=1, versus="*doy")
+plot(mod.temp.vh.doy, which=1, versus="b:doy")
 options(warn=2)
 
 multifigure("test example in (very old) earth vignette", 2, 2)
@@ -193,59 +196,59 @@ plot(earth.mod$varmod, do.par=F, which=1:2)
 
 cat('head(residuals(earth.mod))\n')
 print(head(residuals(earth.mod)))
-cat('head(residuals(earth.mod, type="student"))\n')
-print(head(residuals(earth.mod, type="student")))
+cat('head(residuals(earth.mod, type="standardize"))\n')
+print(head(residuals(earth.mod, type="standardize")))
 
 multifigure("plot.earth varmod options", 2, 2)
 
-plot(earth.mod, which=3, level=.95, shade.pints=0, main="plot.earth varmod options")
+plot(earth.mod, which=3, level=.95, level.shade=0, main="plot.earth varmod options")
 do.caption()
-plot(earth.mod, which=3, shade.pints="orange", shade.cints="darkgray", level=.99)
-plot(earth.mod, which=3, level=.95, shade.pints=0, shade.cints="mistyrose4")
+plot(earth.mod, which=3, level.shade="orange", level.shade2="darkgray", level=.99)
+plot(earth.mod, which=3, level=.95, level.shade=0, level.shade2="mistyrose4")
 
-multifigure("plot.earth delever and student", 2, 2)
+multifigure("plot.earth delever and standardize", 2, 2)
 
 set.seed(4)
 earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.1)
 plot(earth.mod1, which=3, ylim=c(-16,20), info=TRUE, level=.95)
 do.caption()
 plot(earth.mod1, which=3, ylim=c(-16,20), delever=TRUE, level=.95)
-plot(earth.mod1, which=3, student=TRUE, info=TRUE,    level=.95)
-# the student and delever arguments cannot both be set
-expect.err(try(plot(earth.mod1, which=3, student=TRUE, delever=TRUE, level=.95)))
+plot(earth.mod1, which=3, standardize=TRUE, info=TRUE,    level=.95)
+# the standardize and delever arguments cannot both be set
+expect.err(try(plot(earth.mod1, which=3, standardize=TRUE, delever=TRUE, level=.95)))
 
 multifigure("plot.earth which=5 and which=6", 2, 3)
 plot(earth.mod1, which=5, info=T,            main="which=5, info=T")
-plot(earth.mod1, which=5, student=T, info=T, main="which=5, student=T, info=T")
-plot(earth.mod1, which=5, student=T,         main="which=5, student=T")
+plot(earth.mod1, which=5, standardize=T, info=T, main="which=5, standardize=T, info=T")
+plot(earth.mod1, which=5, standardize=T,         main="which=5, standardize=T")
 do.caption()
 plot(earth.mod1, which=6, info=T,            main="which=6, info=T")
-plot(earth.mod1, which=6, student=T, info=T, main="which=6, student=T, info=T")
-plot(earth.mod1, which=6, student=T,         main="which=6, student=T")
+plot(earth.mod1, which=6, standardize=T, info=T, main="which=6, standardize=T, info=T")
+plot(earth.mod1, which=6, standardize=T,         main="which=6, standardize=T")
 
 multifigure("plot.earth which=7", 2, 3)
 plot(earth.mod1, which=7, info=T,            main="which=7, info=T")
-plot(earth.mod1, which=7, student=T, info=T, main="which=7, student=T, info=T")
-plot(earth.mod1, which=7, student=T,         main="which=7, student=T")
+plot(earth.mod1, which=7, standardize=T, info=T, main="which=7, standardize=T, info=T")
+plot(earth.mod1, which=7, standardize=T,         main="which=7, standardize=T")
 do.caption()
 
 multifigure("plot.earth which=8 and which=9", 2, 3)
 plot(earth.mod1, which=8, info=T,            main="which=8, info=T")
-plot(earth.mod1, which=8, student=T, info=T, main="which=8, student=T, info=T")
-plot(earth.mod1, which=8, student=T,         main="which=8, student=T")
+plot(earth.mod1, which=8, standardize=T, info=T, main="which=8, standardize=T, info=T")
+plot(earth.mod1, which=8, standardize=T,         main="which=8, standardize=T")
 do.caption()
 plot(earth.mod1, which=9, info=T,            main="which=9, info=T")
-plot(earth.mod1, which=9, student=T, info=T, main="which=9, student=T, info=T")
-plot(earth.mod1, which=9, student=T,         main="which=9, student=T")
+plot(earth.mod1, which=9, standardize=T, info=T, main="which=9, standardize=T, info=T")
+plot(earth.mod1, which=9, standardize=T,         main="which=9, standardize=T")
 
 multifigure("plot.earth versus=4, which=3 and which=5", 2, 3)
 plot(earth.mod1, versus=4, which=3,                    main="versus=4, which=3")
-plot(earth.mod1, versus=4, which=3, student=T, info=T, main="versus=4, which=3, student=T, info=T")
-plot(earth.mod1, versus=4, which=3, student=T,         main="versus=4, which=3, student=T")
+plot(earth.mod1, versus=4, which=3, standardize=T, info=T, main="versus=4, which=3, standardize=T, info=T")
+plot(earth.mod1, versus=4, which=3, standardize=T,         main="versus=4, which=3, standardize=T")
 do.caption()
 plot(earth.mod1, versus=4, which=5,                    main="versus=4, which=5")
-plot(earth.mod1, versus=4, which=5, student=T, info=T, main="versus=4, which=5, student=T, info=T")
-plot(earth.mod1, versus=4, which=5, student=T,         main="versus=4, which=5, student=T")
+plot(earth.mod1, versus=4, which=5, standardize=T, info=T, main="versus=4, which=5, standardize=T, info=T")
+plot(earth.mod1, versus=4, which=5, standardize=T,         main="versus=4, which=5, standardize=T")
 
 cat("summary(earth.mod1, newdata=ozone1)\n")
 print(summary(earth.mod1, newdata=ozone1))
@@ -275,9 +278,9 @@ earth.mod2 <- earth(y~x, nfold=10, ncross=5, varmod.method="earth")
 plot(earth.mod2, caption="plot(earth.mod2)", level=.95)
 do.caption()
 
-multifigure("plot(earth.mod2) with student=TRUE", 2, 2)
-plot(earth.mod2, student=TRUE, level=.95,
-     caption="plot(earth.mod2, student=TRUE, level=.95)")
+multifigure("plot(earth.mod2) with standardize=TRUE", 2, 2)
+plot(earth.mod2, standardize=TRUE, level=.95,
+     caption="plot(earth.mod2, standardize=TRUE, level=.95)")
 do.caption()
 
 multifigure("plot.varmod by calling plot(earth.mod2$varmod)", 2, 2)
@@ -331,9 +334,13 @@ for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
     par(mar = c(3, 3, 2, 3)) # space for right margin axis
 
     if(varmod.method %in% c("gam", "x.gam")) {
-        if(use.mgcv.package)
+        if(use.mgcv.package) {
+            # TODO with R 3.2.0 unload(gam) no longer works
+            cat("skipping mgcv tests\n")
+            next                                # NOTE next
+            cat("library(mgcv)\n")
             library(mgcv)
-        else
+        } else
             library(gam)
     }
     set.seed(6)
@@ -377,6 +384,7 @@ for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
     # on second use of gam and y.gam we want to use the mgcv package
     if(varmod.method == "x.gam" && !use.mgcv.package) {
         use.mgcv.package <- TRUE
+        cat("detach(\"package:gam\", unload=TRUE)\n")
         detach("package:gam", unload=TRUE)
     }
 }

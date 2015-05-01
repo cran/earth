@@ -5,10 +5,10 @@
 Estimate variable importances in an \code{\link{earth}} object
 }
 \usage{
-evimp(obj, trim=TRUE, sqrt.=TRUE)
+evimp(object, trim=TRUE, sqrt.=TRUE)
 }
 \arguments{
-  \item{obj}{
+  \item{object}{
     An \code{\link{earth}} object.
   }
   \item{trim}{
@@ -57,7 +57,7 @@ are also non-increasing, except where the
 \code{gcv} or \code{rss} rank differs from the \code{nsubsets} ranking.
 }
 \note{
-There is a chapter on \code{evimp} in the earth package vignette
+There is a chapter on \code{evimp} in the \code{earth} package vignette
 \dQuote{\href{../doc/earth-notes.pdf}{Notes on the earth package}}.
 
 \bold{Acknowledgment}

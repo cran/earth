@@ -3,6 +3,7 @@
 > library(earth)
 Loading required package: plotmo
 Loading required package: plotrix
+Loading required package: TeachingDemos
 > 
 > options(digits=3)
 > options(warn=2) # treat warnings as errors
@@ -73,8 +74,8 @@ Loading required package: plotrix
 +         mtext(caption, outer=TRUE, font=2, line=1, cex=1)
 +         plotmo(mod, trace=-1, do.par=FALSE, col.response=col.response, cex.response=.8,
 +                degree1=0, type2="image", npoints=500)
-+         col.response <- ifelse(mod$leverages<.25, "green", "red")
-+         plot(mod, versus=4, caption="", col.points=col.response, npoints=1000) # leverage plot
++         pt.col <- ifelse(mod$leverages<.25, "green", "red")
++         plot(mod, versus=4, caption="", pt.col=pt.col, npoints=1000) # leverage plot
 +     }
 +     mod
 + }
@@ -164,7 +165,7 @@ Loading required package: plotrix
 +     test.earth(pure.noise, x, xtest, 5, nk=5,  degree=1)
 +     test.earth(pure.noise, x, xtest, 5, nk=5)
 +     test.earth(pure.noise, x, xtest, 5, nk=51, degree=1)
-+ 	# TODO n=100, with weights test.rsq -1.34, without weights test.rsq 0.01
++     # TODO n=100, with weights test.rsq -1.34, without weights test.rsq 0.01
 +     test.earth(pure.noise, x, xtest, 5, nk=51)
 +     printf("\n")
 + 
@@ -177,7 +178,7 @@ Loading required package: plotrix
 +     }
 +     test.earth(five.predictors, x, xtest, 5, degree=1)
 +     test.earth(five.predictors, x, xtest, 5)
-+ 	# TODO n=100, with weights test.rsq 0.69, without weights test.rsq 0.91
++     # TODO n=100, with weights test.rsq 0.69, without weights test.rsq 0.91
 +     test.earth(five.predictors, x, xtest, 5, degree=10)
 +     test.earth(five.predictors, x, xtest, 5, nk=51, degree=1)
 +     test.earth(five.predictors, x, xtest, 5, nk=51)
@@ -434,7 +435,7 @@ TEST 50 n 500 robot.arm                    nk 51  degree 3   nterms 40  grsq  0.
 TEST 51 n 500 robot.arm                    nk 201 degree 3   nterms 44  grsq  0.96 test.rsq  0.94
 TEST 52 n 500 robot.arm                    nk 201 degree 5   nterms 46  grsq  0.96 test.rsq  0.91
 > printf("[total time %.3f]\n", (proc.time() - start.time)[3])
-[total time 6.830]
+[total time 6.210]
 > if(PLOT)
 +     dev.off()
 > if(!interactive())

@@ -1,6 +1,6 @@
 # print.earth.R: functions for summarizing and printing earth objects
 
-# print.earth's 1st arg is actually an obj but called x for consistency with generic
+# print.earth's 1st arg is actually a model object but called x for consistency with generic
 
 print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.point=TRUE, ...)
 {
@@ -10,8 +10,8 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
                 format(if(abs(x) < 1e-20) 0 else x, digits=digits))
     }
     #--- print.earth starts here
-    check.classname(x, deparse(substitute(x)), "earth")
-    warn.if.dots.used("print.earth", ...)
+    check.classname(x, substitute(x), "earth")
+    warn.if.dots(...)
     if(is.null(x$glm.list))     # glm.list is a list of glm models, null if none
         cat("Selected ")
     else
@@ -57,7 +57,7 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
         if(is.cv)
             colnames. <- c(colnames., "CVRSq")
         colnames(a) <- colnames.
-        for(iresp in 1:nresp) {
+        for(iresp in seq_len(nresp)) {
             a[iresp,1:4] <- c(x$gcv.per.response[iresp],
                               x$rss.per.response[iresp],
                               x$grsq.per.response[iresp],
@@ -129,26 +129,10 @@ print.termcond <- function(object) # print reason we terminated the forward pass
     else
         printf("Unknown (termcond %d)\n", termcond) # should never happen
 }
-get.rsq.on.newdata <- function(object, newdata, env)
-{
-    if(is.null(dim(newdata)))
-        stop0("get.rsq.on.newdata: newdata must be a matrix or data.frame")
-
-    get.weighted.rsq(get.response(object, newdata),
-                     predict(object, newdata=newdata))
-}
-print.rsq.on.newdata <- function(object, newdata)
-{
-    if(NROW(newdata) >= 3)
-        printf("RSq %.3f on newdata", get.rsq.on.newdata(object, newdata))
-    else
-        printf("Not enough newdata to calculate RSq")
-    printf(" (%d case%s)\n\n", NROW(newdata), if(NROW(newdata) == 1) "" else "s")
-}
 # The first arg is actually an object but called x for consistency with generic
 
 print.summary.earth <- function(
-    x            = stop("no 'x' arg"),     # "summary.earth" object
+    x            = stop("no 'x' argument"),     # "summary.earth" object
     details      = x$details,
     decomp       = x$decomp,
     digits       = x$digits,
@@ -157,26 +141,27 @@ print.summary.earth <- function(
     ...)
 {
     nresp <- NCOL(x$coefficients)
-    warn.if.dots.used("print.summary.earth", ...)
+    warn.if.dots(...)
     if(!is.null(newdata)) {
         # print short summary on newdata
-        cat("\n")
-        print.rsq.on.newdata(x, newdata)
-        if(!is.null(x$varmod))
+        printf("RSq %.3f on newdata (%d cases)\n", x$newrsq, NROW(newdata))
+        if(!is.null(x$varmod)) {
+            printf("\n")
             print.varmod(x$varmod, newdata=newdata, digits=digits)
+        }
         return(invisible(x))
     }
-    my.print.call("Call: ", x$call)
+    printcall("Call: ", x$call)
     cat("\n")
     is.glm <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
     new.order <- reorder.earth(x, decomp=decomp)
-    response.names <- colnames(x$fitted.values)
+    resp.names <- colnames(x$fitted.values)
 
     # print coefficients
     if(!is.glm || details) {
         if(!is.null(x$strings)) {      # old style expression formatting?
-            for(iresp in 1:nresp) {
-                cat0(response.names[iresp], " =\n")
+            for(iresp in seq_len(nresp)) {
+                cat0(resp.names[iresp], " =\n")
                 cat(x$strings[iresp])
                 cat("\n")
            }
@@ -195,10 +180,10 @@ print.summary.earth <- function(
     }
     if(is.glm) {
         if(!is.null(x$strings)) {      # old style expression formatting?
-           for(iresp in 1:nresp) {
+           for(iresp in seq_len(nresp)) {
                g <- x$glm.list[[iresp]]
                cat("GLM ")
-               cat0(response.names[iresp], " =\n")
+               cat0(resp.names[iresp], " =\n")
                cat(x$strings[nresp+iresp]) # glm strings index is offset by nresp
                cat("\n")
            }
@@ -211,9 +196,9 @@ print.summary.earth <- function(
             print(coef, digits=digits)
             cat("\n")
         }
-        if(details) for(iresp in 1:nresp)
+        if(details) for(iresp in seq_len(nresp))
            print.glm.details(x$glm.list[[iresp]], nresp, digits,
-                             my.fixed.point, response.names[iresp])
+                             my.fixed.point, resp.names[iresp])
     }
     if(details)
         cat0("Number of cases: ", nrow(x$residuals), "\n")
@@ -241,7 +226,7 @@ spaceout <- function(rownames.)
 # TODO Add an inverse.func arg to summary.earth, similar to plotmo.
 
 summary.earth <- function(   # returns a superset, not a summary in the strict sense
-    object       = stop("no 'object' arg"),
+    object       = stop("no 'object' argument"),
     details      = FALSE,
     style        = c("h", "pmax", "max", "C", "bf"),
     decomp       = "anova",
@@ -250,21 +235,24 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
     newdata      = NULL,
     ...) # unused
 {
-    check.classname(object, deparse(substitute(object)), "earth")
+    check.classname(object, substitute(object), "earth")
     details     <- check.boolean(details)
     fixed.point <- check.boolean(fixed.point)
     rval <- object
-    rval$strings <- switch(match.arg1(style),
-        "h"    = { stop.if.dots.used("summary.earth", ...) },
+    rval$strings <- switch(match.arg1(style, "style"),
+        "h"    = { stop.if.dots(...) },
         "pmax" = format.earth(x=object, style=style, decomp=decomp, digits=digits, ...),
         "max"  = format.earth(x=object, style=style, decomp=decomp, digits=digits, ...),
         "C"    = format.earth(x=object, style=style, decomp=decomp, digits=digits, ...),
         "bf"   = format.earth(x=object, style=style, decomp=decomp, digits=digits, ...))
-    rval$details      <- details  # pass details arg on to print.summary.earth
-    rval$decomp       <- decomp
-    rval$digits       <- digits
-    rval$fixed.point  <- fixed.point
-    rval$newdata      <- newdata
-    class(rval)       <- c("summary.earth", "earth")
+    rval$details     <- details  # pass details arg on to print.summary.earth
+    rval$decomp      <- decomp
+    rval$digits      <- digits
+    rval$fixed.point <- fixed.point
+    if(!is.null(newdata)) {
+        rval$newdata <- newdata
+        rval$newrsq  <- plotmo::plotmo_rsq(object, newdata, ...)
+    }
+    class(rval) <- c("summary.earth", "earth")
     rval
 }

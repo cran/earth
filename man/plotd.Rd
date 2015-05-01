@@ -10,7 +10,7 @@ Can be used for \code{\link[earth]{earth}} models, but also for models built by
 etc.
 }
 \usage{
-plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
+plotd(object, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
       trace = FALSE, xlim = NULL, ylim = NULL, jitter = FALSE, main=NULL,
       xlab = "Predicted Value", ylab = if(hist) "Count" else "Density",
       lty = 1, col = c("gray70", 1, "lightblue", "brown", "pink", 2, 3, 4),
@@ -24,11 +24,11 @@ plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
       xaxt = "s", yaxt = "s", xaxis.cex = 1, sd.thresh = 0.01, ...)
 }
 \arguments{
-  To start off, look at the arguments \code{obj}, \code{hist}, \code{type}.\cr
+  To start off, look at the arguments \code{object}, \code{hist}, \code{type}.\cr
   For predict methods with multiple column responses, see the \code{nresponse} argument.\cr
   For factor responses with more than two levels, see the \code{dichot} argument.
 
-  \item{obj}{
+  \item{object}{
     Model object.
     Typically a model which predicts a class or a class discriminant.
   }
@@ -38,16 +38,19 @@ plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
   }
   \item{type}{
     Type parameter passed to \code{\link{predict}}.
-    Default is \code{NULL}, meaning automatically choose a value for the given object.
+    For allowed values see the \code{predict} method for
+    your \code{object} (such as \code{\link[earth]{predict.earth}}).
+    By default, \code{plotd} tries to automatically select a suitable
+    value for the model in question.
     (This is \code{"response"} for all objects except \code{rpart} models, where \code{"vector"}
-    is used --- these choices will often be inappropriate.)
-    See the predict method for your object for legal values;
-    for example see \code{\link[earth]{predict.earth}} or \code{\link{predict.glm}}.
+    is used. The choices will often be inappropriate.)
     Typically you would set \code{hist=TRUE} when \code{type="class"}.
   }
   \item{nresponse}{
-     Column index for predicted responses with multiple columns.
-     The default is \code{NULL}, meaning use all columns of the predicted response.
+    Which column to use when \code{predict} returns multiple columns.
+    This can be a column index or column name
+    (which may be abbreviated, partial matching is used).
+    The default is \code{NULL}, meaning use all columns of the predicted response.
   }
   \item{dichot}{
      Dichotimise the predicted response.
@@ -63,7 +66,7 @@ plotd(obj, hist = FALSE, type = NULL, nresponse = NULL, dichot = FALSE,
      Use \code{TRUE} or \code{1} to trace \code{plotd} ---
      useful to see how \code{plotd}
      partitions the predicted response into classes.
-     Use \code{2} for a full dump of the internal matrices.
+     Use \code{2} for more details.
   }
   \item{xlim}{
     Limits of the x axis.
@@ -354,17 +357,19 @@ plotd(earth.mod, vline.col=1, err.col=c(2,3,4))
   \code{\link[earth]{earth}}, \code{\link[earth]{plot.earth}}
 }
 \examples{
-old.par <- par(no.readonly=TRUE);
-par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
-data(etitanic)
-fit <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
+if (require(earth)) {
+    old.par <- par(no.readonly=TRUE);
+    par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
+    data(etitanic)
+    mod <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
 
-plotd(fit)
+    plotd(mod)
 
-plotd(fit, hist=TRUE, legend.pos=c(.25,220))
+    plotd(mod, hist=TRUE, legend.pos=c(.25,220))
 
-plotd(fit, hist=TRUE, type="class", labels=TRUE, xlab="", xaxis.cex=.8)
+    plotd(mod, hist=TRUE, type="class", labels=TRUE, xlab="", xaxis.cex=.8)
 
-par(old.par)
+    par(old.par)
+}
 }
 \keyword{models}

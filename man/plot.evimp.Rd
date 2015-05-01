@@ -5,13 +5,12 @@
     Plot an \code{\link{evimp}} object.
 }
 \usage{
-\method{plot}{evimp}(x = stop("no 'x' arg"),
+\method{plot}{evimp}(x = stop("no 'x' argument"),
     cex.var = 1,
     type.nsubsets = "l", col.nsubsets = "black", lty.nsubsets = 1,
-    type.gcv = "l", col.gcv = "red", lty.gcv = 1,
+    type.gcv = "l", col.gcv = 2, lty.gcv = 1,
     type.rss = "l", col.rss = "gray60", lty.rss = 1,
     cex.legend = 1, x.legend = nrow(x), y.legend = x[1,"nsubsets"],
-    main = "Variable importance",
     rh.col = 1, do.par = TRUE, \dots)
 }
 \arguments{
@@ -53,10 +52,6 @@
   }
   \item{y.legend}{
       y position of legend.
-  }
-  \item{main}{
-      Main title.
-      Default is "Variable importance".
   }
   \item{rh.col}{
     Color of right hand axis label.  Use \code{rh.col=0} for no label,

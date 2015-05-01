@@ -1,12 +1,11 @@
 @rem test.glm.bat
 
-@echo === test.glm ===============================================
-@"C:\PROGRA~1\R\R-3.1.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.glm.R
+@"C:\PROGRA~1\R\R-3.2.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.glm.R
 @if %errorlevel% equ 0 goto good1
-@echo error: R returned errorlevel %errorlevel%, see test.glm.Rout:
+@echo R returned errorlevel %errorlevel%, see test.glm.Rout:
 @echo.
 @tail test.glm.Rout
-@echo.
+@echo test.glm.R
 @exit /B 1
 :good1
 mks.diff test.glm.Rout test.glm.Rout.save

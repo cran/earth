@@ -5,7 +5,7 @@
 Residuals of an \code{\link{earth}} model.
 }
 \usage{
-\method{residuals}{earth}(object = stop("no 'object' arg"),
+\method{residuals}{earth}(object = stop("no 'object' argument"),
           type = NULL, warn = TRUE, \dots)
 }
 \arguments{
@@ -16,8 +16,8 @@ Residuals of an \code{\link{earth}} model.
   \item{type}{
      One of\cr
         \code{"earth"} (default) Residuals (from the \code{\link{lm}} fit on \code{bx}).\cr
-        \code{"student"} Residuals divided by \code{se * sqrt(1 - h_ii)}.
-See the \code{student} argument of \code{\link{plot.earth}}.\cr
+        \code{"standardize"} Residuals divided by \code{se * sqrt(1 - h_ii)}.
+See the \code{standardize} argument of \code{\link{plot.earth}}.\cr
         \code{"delever"} Residuals divided by \code{sqrt(1 - h_ii)}.
 See the \code{delever} argument of \code{\link{plot.earth}}.\cr
         \code{"deviance"}

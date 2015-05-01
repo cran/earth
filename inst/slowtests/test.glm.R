@@ -9,12 +9,19 @@ data(etitanic)
 source("check.models.equal.R")
 options(warn=1) # print warnings as they occur
 
-expect.err <- function(obj) # test that we got an error as expected from a try() call
+# test that we got an error as expected from a try() call
+expect.err <- function(object, expected.msg="")
 {
-    if(class(obj)[1] == "try-error")
-        cat("Got error as expected\n")
-    else
-        stop("did not get expected try error")
+    if(class(object)[1] == "try-error") {
+        msg <- attr(object, "condition")$message[1]
+        if(length(grep(expected.msg, msg, fixed=TRUE)))
+            cat("Got error as expected from ",
+                deparse(substitute(object)), "\n", sep="")
+        else
+            stop(sprintf("Expected: %s\n  Got:      %s",
+                         expected.msg, substr(msg, 1, 1000)))
+    } else
+        stop("did not get expected error for ", expected.msg)
 }
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
@@ -31,7 +38,7 @@ printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a
 
 count <- 0
 
-show.earth.models <- function(a, nresponse=NA)
+show.earth.models <- function(a, nresponse=NA, ...)
 {
     model.name <- deparse(substitute(a))
     cat("\nPrint", model.name, "\n\n")
@@ -51,7 +58,9 @@ show.earth.models <- function(a, nresponse=NA)
     cat("\nevimp", model.name, "trim=FALSE\n\n")
     ev <- evimp(a, trim=FALSE)
     print(ev)
-    plot(a, caption=model.name)
+    plot(a, nresponse=nresponse,
+         caption=if(is.na(nresponse)) model.name
+                 else paste("Response ", nresponse, ": ", model.name, sep=""))
     plot(ev)
     if (!is.null(a$glm.list)) {
         control <- a$glm.list[[1]]$control
@@ -62,9 +71,9 @@ show.earth.models <- function(a, nresponse=NA)
     }
     cat("\nplotmo", model.name, "\n")
     if(is.na(nresponse))
-        plotmo(a, trace=2)
+        plotmo(a, clip=FALSE)
     else
-        plotmo(a, trace=2, nresponse=nresponse)
+        plotmo(a, nresponse=nresponse, clip=FALSE)
     cat("-------------------------------------------------------------------------------\n\n")
 }
 
@@ -135,7 +144,7 @@ stopifnot(a1h.update1$glm.list[[1]]$control$maxit == 8)
 show.earth.models(a1h.update1)
 a1h.update2 <- update(a1h, glm=list(family=gaussian, maxit=9), degree=1)
 stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
-show.earth.models(a1h.update2, nresponse="numali")
+show.earth.models(a1h.update2, nresponse="numdea")
 
 # basic check with an I in formula
 a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod=PMETHOD, degree=2)
@@ -183,11 +192,11 @@ check.models.equal(a4update, a4d, msg="a4update a4d no keepxy")
 # titanic data, multiple responses (i.e. 3 level factor)
 cat("a5: titanic data, multiple responses (i.e. 3 level factor)\n\n")
 a5 <- earth(pclass ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
-show.earth.models(a5, nresponse=3)
+show.earth.models(a5, nresponse=1)
 printh(a5$levels)
 print.stripped.earth.model(a5, "a5")
 # variance models are not supported for multiple response models
-expect.err(try(earth(pclass ~ ., data=etitanic, ncross=3, nfold=3, varmod.method="lm")))
+expect.err(try(earth(pclass ~ ., data=etitanic, ncross=3, nfold=3, varmod.method="lm")), "variance models are not supported for multiple response models")
 
 a5d <- earth(pclass ~ .-age, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 a5update <- update(a5, form=pclass ~ .-age)
@@ -208,7 +217,7 @@ print.stripped.earth.model(a6, "a6")
 # titanic data, one response which is a two level factor
 cat("a7: titanic data, one response which is a two level factor\n\n")
 a7 <- earth(sex ~ ., data=etitanic, degree=2, glm=list(family="binomial"), trace=1)
-show.earth.models(a7)
+show.earth.models(a7, nresponse=1)
 printh(a7$levels)
 print.stripped.earth.model(a7, "a7")
 
@@ -268,7 +277,7 @@ plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + 
 # two response poisson model
 cat("a10: two response poisson model\n\n")
 a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), trace=1, pmethod=PMETHOD)
-show.earth.models(a10, nresponse="counts2")
+show.earth.models(a10, nresponse="counts")
 
 # compare family=gaussian to standard earth model
 cat("a11: compare family=gaussian to standard earth model\n\n")
@@ -540,11 +549,11 @@ test.predict.with.factors <- function(trace)
 
     cat("A-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex[1], -2)
-    expect.err(try(predict(am, xdata.frame, trace=trace)))
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 3")
 
     cat("A-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex[1], -2)
-    expect.err(try(predict(af, xdata.frame, trace=trace)))
+    expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 3")
 
     cat("A-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
     xdata.frame <- data.frame(-2, sex[1], 0.1)
@@ -583,10 +592,10 @@ test.predict.with.factors <- function(trace)
 
     cat("A-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex[c(1,7)], c(-2,-1))
-    expect.err(try(predict(am, xdata.frame, trace=trace)))
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 3")
 
     cat("A-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)))
+    expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 3")
     stop.if.not.identical("A-57", pm, pf)
 
     cat("A-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -642,7 +651,7 @@ test.predict.with.factors <- function(trace)
 
     cat("A-68 input matrix to formula interface trace=", trace, ", expect error \"could not interpret\"\n", sep="")
     a41 <- earth(my.response~my.input.mat, trace=trace)
-    expect.err(try(predict(a41, c(2.1, 0.6), trace=trace))) #
+    expect.err(try(predict(a41, c(2.1, 0.6), trace=trace)), "could not interpret the data")
 
     cat("A-69 above test but with properly named dataframe trace=", trace, "\n", sep="")
     df <- data.frame(growth=my.response, supp=my.x1, dose=my.x2)
@@ -779,10 +788,10 @@ test.predict.with.factors <- function(trace)
 
     cat("B-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[1], -2)
-    expect.err(try(predict(am, xdata.frame, trace=trace)))
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 4 to match")
 
     cat("B-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)))
+    expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 4 to match")
 
     cat("B-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
@@ -836,10 +845,10 @@ test.predict.with.factors <- function(trace)
 
     cat("B-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
-    expect.err(try(predict(am, xdata.frame, trace=trace)))
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 4 to match")
 
     cat("B-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)))
+    expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 4 to match")
     stop.if.not.identical("B-57", pm, pf)
 
     cat("B-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -941,10 +950,10 @@ test.predict.with.factors <- function(trace)
 
     cat("C-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[1], -2)
-    expect.err(try(predict(am, xdata.frame, trace=trace)))
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 4 to match")
 
     cat("C-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)))
+    expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 4 to match")
 
     cat("C-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
@@ -994,10 +1003,10 @@ test.predict.with.factors <- function(trace)
 
     cat("C-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
-    expect.err(try(predict(am, xdata.frame, trace=trace)))
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 4 to match")
 
     cat("C-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)))
+    expect.err(try(predict(af, xdata.frame, trace=trace)), "has 2 columns")
     stop.if.not.identical("C-57", pm, pf)
 
     cat("C-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -1280,9 +1289,9 @@ printh(resid(a, type="glm.pearson"), max.print=3)
 printh(resid(a, type="glm.working"), max.print=3)
 printh(resid(a, type="glm.response"), max.print=3)
 printh(resid(a, type="glm.partial"), max.print=3)
-expect.err(try(printh(resid(a, type="nonesuch"), max.print=3))) # type="nonesuch" is illegal.
-expect.err(try(printh(resid(a, type="g"), max.print=3))) # type="g" is ambiguous
-expect.err(try(printh(resid(a, type="student"), max.print=3))) # model was not built with varmod.method
+expect.err(try(printh(resid(a, type="nonesuch"), max.print=3)), "Choose one of")
+expect.err(try(printh(resid(a, type="g"), max.print=3)), "ambiguous") # type="g" is ambiguous
+expect.err(try(printh(resid(a, type="standardize"), max.print=3)), "model was not built with varmod.method") # model was not built with varmod.method
 
 # tests based on Gavin Simpson's bug report
 # fit a MARS model allowing one-way interactions

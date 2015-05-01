@@ -71,8 +71,8 @@ test.earth <- function(func, x, xtest, npreds, nk=NULL, degree=2, ...)
         mtext(caption, outer=TRUE, font=2, line=1, cex=1)
         plotmo(mod, trace=-1, do.par=FALSE, col.response=col.response, cex.response=.8,
                degree1=0, type2="image", npoints=500)
-        col.response <- ifelse(mod$leverages<.25, "green", "red")
-        plot(mod, versus=4, caption="", col.points=col.response, npoints=1000) # leverage plot
+        pt.col <- ifelse(mod$leverages<.25, "green", "red")
+        plot(mod, versus=4, caption="", pt.col=pt.col, npoints=1000) # leverage plot
     }
     mod
 }

@@ -2,13 +2,12 @@
 @rem This is the test mentioned in the earth man page "Big Models" section
 @rem Stephen Milborrow Mar 2008 Durban
 
-@echo === test.big ===============================================
-@"C:\PROGRA~1\R\R-3.1.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.big.R
+@"C:\PROGRA~1\R\R-3.2.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.big.R
 @if %errorlevel% equ 0 goto good1
-@echo error: R returned errorlevel %errorlevel%, see test.big.Rout:
+@echo R returned errorlevel %errorlevel%, see test.big.Rout:
 @echo.
 @tail test.big.Rout
-@echo.
+@echo test.big.R
 @exit /B 1
 :good1
 @echo mks.diff -w test.big.Rout test.big.Rout.save

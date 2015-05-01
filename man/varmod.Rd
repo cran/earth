@@ -18,7 +18,7 @@ They get called internally by \code{\link{summary.earth}}.
 }
 \usage{
 \method{summary}{varmod}(
-    object  = stop("no \"object\" arg"),
+    object  = stop("no 'object' argument"),
     level   = .95,
     style   = "standard",
     digits  = 2,
@@ -61,12 +61,13 @@ A \code{"varmod"} object has the following fields:
 
     \item{\code{method}} Copy of the \code{varmod.method} argument to the parent model.
 
-    \item{\code{package}} NULL, unless \code{method="gam"} (in which case either \code{"gam"} or \code{"mgcv"}).
+    \item{\code{package}} NULL, unless \code{method="gam"}, in which case either \code{"gam"} or \code{"mgcv"}.
 
     \item{\code{exponent}} Copy of the \code{varmod.exponent} argument to the parent model.
 
-    \item{\code{lambda}} Copy of the \code{varmod.lambda} parameter.
-    (Currently always 1, absolute residuals.)
+    \item{\code{lambda}} Currently always 1, meaning use absolute residuals.
+
+    \item{\code{rmethod}} Currently always "hc2", meaning correct the residuals with \code{1/(1-h_ii)}.
 
     \item{\code{converged}} Did the residual submodel IRLS converge?
 
@@ -124,7 +125,7 @@ print(summary(earth.mod)) # note additional info on the variance model
 
 old.mfrow <- par(mfrow=c(2,2), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0))
 
-plotmo(earth.mod, do.par=FALSE, col.response=1, level=.90, main="earth model: O3~temp")
+plotmo(earth.mod, do.par=FALSE, response.col=1, level=.90, main="earth model: O3~temp")
 
 plot(earth.mod, which=3, level=.90) # residual plot: note 90% pred and darker conf intervals
 

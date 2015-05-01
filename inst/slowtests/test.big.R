@@ -7,8 +7,19 @@ options(warn=2) # treat warnings as errors
 options(digits = 3)
 printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
 start.time <- proc.time()
-set.seed(777)
-N <- 1e4
+set.seed(2015)
+
+N <- 12000 # big enough to cross ten-thousand-cases barrier in plotres and plotmo
+
+# N <- 2e6 # x matrix 1.5 GB, bx will be much bigger
+#
+# N <- 3e6 # x matrix 2.24 GB, peak memory 15 GB
+#
+# N <- 6e6 # x matrix 4.5GB,
+#          # rterm.exe peak memory under Win7 is 31 GB
+#          # (but with 32GB total memory on the machine, so maybe hitting that limit)
+#
+# N <- 1e7 # Out of memory (could not allocate 15 GB)
 
 ran <- function() runif(N, min=-1, max=1)
 
@@ -41,24 +52,38 @@ func1 <- function(x)
      sin(6 * x[,1]) + x[,2] + 4 * x[,3]^2
 }
 y <- func1(x)
-degree=1
-trace=0
+degree <- 1
+trace <- 4
 cat("test 1: nrow(x)", nrow(x), "ncol(x)", ncol(x), "degree", degree, "trace", trace, "\n")
-a1 <- earth(x, y, degree=degree, minspan=0, trace=trace)
+
+a1 <- earth(x, y, degree=degree, trace=trace)
+
+cat("print(summary(a1)):\n")
 print(summary(a1))
+
+cat("print(a1):\n")
 print(a1)
+
+cat("plot(a1):\n")
 plot(a1)
+
+cat("plotmo(a1):\n")
 plotmo(a1)
 
 func2 <- function(x)
 {
      x[,1] + x[,2] + x[,3] * x[,4]
 }
-cat("test 2: nrow(x)", nrow(x), "ncol(x)", ncol(x), "degree", degree, "trace", trace, "\n")
 y <- func2(x)
-trace=4
-a2 <- earth(x, y, degree=degree, minspan=0, trace=trace)
+degree <- 1
+trace <- 4
+cat("test 2: nrow(x)", nrow(x), "ncol(x)", ncol(x), "degree", degree, "trace", trace, "\n")
+
+a2 <- earth(x, y, degree=degree, trace=trace)
+
+cat("print(summary(a2)):\n")
 print(summary(a2))
+
 printf("[total time %.3f]\n", (proc.time() - start.time)[3])
 if(!interactive()) {
     dev.off()         # finish postscript plot

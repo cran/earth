@@ -5,7 +5,7 @@
 Get the basis matrix of an \code{\link{earth}} object.
 }
 \usage{
-\method{model.matrix}{earth}(object = stop("no 'object' arg"),
+\method{model.matrix}{earth}(object = stop("no 'object' argument"),
     x = NULL, subset = NULL, which.terms = NULL,
     \dots,
     env = parent.frame(),

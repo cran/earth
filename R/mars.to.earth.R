@@ -36,10 +36,10 @@
 #      equal to the number of cols in y (so an all 1s wp argument is
 #      equivalent to no wp argument).
 
-mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
+mars.to.earth <- function(object=stop("no 'object' argument"), trace=TRUE)
 {
-    check.classname(object, deparse(substitute(object)), "mars")
-    trace <- check.trace.arg(trace)
+    check.classname(object, substitute(object), "mars")
+    trace <- as.numeric(check.numeric.scalar(trace, logical.ok=TRUE))
     oldcall <- object$call
     newcall <- object$call
     newcall[[1]] <- as.name("earth")
@@ -63,8 +63,8 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
     }
     if(!is.null(object$call[["w"]]) && !is.null(eval.parent(object$call[["w"]]))) {
 
-        warning0("the \"w\" argument was used in the original call to mda::mars\n",
-                 "although mda::mars actually ignores the \"w\" argument")
+        warning0("the 'w' argument was used in the original call to mda::mars\n",
+                 "although mda::mars actually ignores the 'w' argument")
         newcall$weights <- object$call$w
         weights.used <- TRUE
     }
@@ -99,7 +99,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
 
     rss.per.subset <- repl(NA, length(object$all.terms))
     rss.per.subset[1] <- sum(colSums((y - colMeans(y)) ^ 2)) # null RSS
-    rss.per.subset[nselected] <- ss(residuals)               # RSS of selected model
+    rss.per.subset[nselected] <- sos(residuals)              # RSS of selected model
     rss <- rss.per.subset[nselected]                         # RSS of selected model
 
     gcv.per.subset <- get.gcv(rss.per.subset, ntermsVec, penalty, ncases)
@@ -109,23 +109,23 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
     rsq.per.response  <- vector(mode="numeric", length=nresp)
     gcv.per.response  <- vector(mode="numeric", length=nresp)
     grsq.per.response <- vector(mode="numeric", length=nresp)
-    for(iresp in 1:nresp) {
-        rss.per.response[iresp]  <- ss(residuals[,iresp])
-        tss                      <- ss(y[,iresp] - mean(y[,iresp]))
+    for(iresp in seq_len(nresp)) {
+        rss.per.response[iresp]  <- sos(residuals[,iresp])
+        tss                      <- sos(y[,iresp] - mean(y[,iresp]))
         rsq.per.response[iresp]  <- get.rsq(rss.per.response[iresp], tss)
         gcv.null                 <- get.gcv(tss, 1, penalty, ncases)
         gcv.per.response[iresp]  <- get.gcv(rss.per.response[iresp],
                                             nselected, penalty, ncases)
         grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
     }
-    pred.names <- generate.colnames(object$factor)
-    term.names <- get.earth.term.name(1:nrow(object$factor),
+    pred.names <- gen.colnames(object$factor, "x", "x", trace=0)
+    term.names <- get.earth.term.name(seq_len(nrow(object$factor)),
                                       object$factor, object$cuts, pred.names,
                                       NULL, warn.if.dup=FALSE)
     duplicated <- duplicated(term.names)
     if(any(duplicated)) {
         ndup <- sum(duplicated)
-        term.names[duplicated] <- sprintf("%s.%d", term.names[duplicated], 1:ndup)
+        term.names[duplicated] <- sprintf("%s.%d", term.names[duplicated], seq_len(ndup))
         if(trace > 0)
             printf("Renamed %d duplicated term name%s to %s\n\n",
                    ndup, if(ndup == 1) "" else "s", quote.with.c(term.names[duplicated]))
@@ -134,11 +134,16 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
     dimnames(object$cuts)   <- list(term.names, pred.names)
     colnames(object$x) <- term.names[selected.terms]
     rownames(object$coefficients)  <- term.names[selected.terms]
-    response.names <- generate.colnames(object$fitted.values, is.y.arg=TRUE, xname=NULL)
-    colnames(object$fitted.values) <- response.names
-    colnames(object$residuals)     <- response.names
-    colnames(object$coefficients)  <- response.names
+    resp.names <- gen.colnames(object$fitted.values, "y", "y", trace=0)
+    colnames(object$fitted.values) <- resp.names
+    colnames(object$residuals)     <- resp.names
+    colnames(object$coefficients)  <- resp.names
     dirs <- object$factor[object$all.terms, , drop=FALSE]
+
+    leverages = try(hatvalues.lm.fit(lm.fit(object$x, y, singular.ok=FALSE)),
+                    silent=trace == 0)
+    if(is.try.err(leverages))
+        leverages <- NULL
 
     rval <- structure(list(
         bx                = object$x,
@@ -159,7 +164,7 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
         fitted.values     = object$fitted.values,
         residuals         = residuals,
         coefficients      = object$coefficients,
-        leverages         = hatvalues.lm.fit(lm.fit(object$x, y, singular.ok=FALSE)),
+        leverages         = leverages,
         penalty           = object$penalty,
         namesx            = colnames(dirs),
         namesx.org        = colnames(dirs),
@@ -182,9 +187,9 @@ mars.to.earth <- function(object=stop("no 'object' arg"), trace=TRUE)
                  "but the GCV recalculated for earth is ", rval$gcv, "\n")
 
     if(trace > 0) {
-        my.print.call("Converted ", oldcall)
+        printcall("Converted ", oldcall)
         cat("\n")
-        my.print.call("to        ", newcall)
+        printcall("to        ", newcall)
         cat("\n")
     }
     rval

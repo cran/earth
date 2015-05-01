@@ -17,179 +17,179 @@ C     in free format.
 C
 C     Latest revision - 16 August 1992
 C
-c$$$c     IMPLICIT NONE
-c$$$      integer npmax, dimu
-c$$$      parameter (npmax=50, dimu=npmax*(npmax+1)/2)
-c$$$      DOUBLE PRECISION U(dimu), EL(0:npmax), RHS(0:npmax), X(0:npmax),
-c$$$     +                 WT, ONE, Y, RESSQ
-c$$$      CHARACTER ANS, FNAME*20, VNAME(0:npmax)*8, YNAME*8, TEXT*79
-c$$$      INTEGER LIN, YPOS, IPOS, I, K, ICONST, NCOLS, NOBS, NRBAR, IER,
-c$$$     +        LINE1, LOUT
-c$$$      LOGICAL OK, LSEL
-c$$$      DATA WT/1.D0/, ONE/1.D0/, LSEL/.FALSE./
-c$$$
-c$$$C
-c$$$C     Set unit numbers for I/O in the data statement below.
-c$$$C
-c$$$      DATA LIN/5/, LOUT/6/
-c$$$C
-c$$$C     Ask for details of the data file.
-c$$$C
-c$$$   10 WRITE(LOUT, 900)
-c$$$  900 FORMAT(' Name of data file = ? ')
-c$$$      READ(LIN, *) FNAME
-c$$$C
-c$$$C     Add extension .dat if none has been entered,
-c$$$C     detected by the lack of a '.'
-c$$$C
-c$$$      IF (INDEX(FNAME, '.') .EQ. 0) THEN
-c$$$    IPOS = INDEX(FNAME, ' ')
-c$$$    FNAME = FNAME(1:IPOS-1) // '.dat'
-c$$$      END IF
-c$$$C
-c$$$C     Check that file exists.
-c$$$C
-c$$$      INQUIRE(FILE=FNAME, EXIST=OK)
-c$$$      IF (.NOT. OK) THEN
-c$$$    WRITE(*, 910) FNAME
-c$$$  910   FORMAT(' *** File not found - ', a, ' **')
-c$$$    GO TO 10
-c$$$      END IF
-c$$$C
-c$$$C     Display first part of file.
-c$$$C
-c$$$      OPEN(10, FILE=FNAME, STATUS='OLD')
-c$$$      WRITE(*, *)'Start of your data file follows'
-c$$$      DO 20 I = 1, 12
-c$$$    READ(10, '(A)') TEXT
-c$$$    WRITE(*, '(1X, A)') TEXT
-c$$$   20 CONTINUE
-c$$$      REWIND 10
-c$$$C
-c$$$      WRITE(LOUT, 920)
-c$$$  920 FORMAT(' How many X-variables ? ')
-c$$$      READ(LIN, *) K
-c$$$      WRITE(LOUT, 930)
-c$$$  930 FORMAT('+Do you want a constant in the model ? ')
-c$$$      READ(LIN, *) ANS
-c$$$      ICONST = 0
-c$$$      IF(ANS.EQ.'Y' .OR. ANS .EQ. 'y') ICONST = 1
-c$$$      NCOLS = K + ICONST
-c$$$      NRBAR = NCOLS * (NCOLS - 1) / 2
-c$$$C
-c$$$C     Get position of dependant variable.
-c$$$C
-c$$$      WRITE(*, *)'Is dependant variable at end ? (Y/N): '
-c$$$      READ(*, *) ANS
-c$$$      IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
-c$$$    YPOS = K+1
-c$$$      ELSE
-c$$$    WRITE(*, *)'Enter no. of position of dependant variable: '
-c$$$    READ(*, *) YPOS
-c$$$    IF (YPOS .LT. 1) YPOS = 1
-c$$$    IF (YPOS .GT. K) YPOS = K + 1
-c$$$      END IF
-c$$$C
-c$$$C     Enter variable names, read them from file, or set defaults.
-c$$$C
-c$$$      VNAME(0) = 'Constant'
-c$$$      WRITE(*, *)'Are variable names in data file ? (Y/N): '
-c$$$      READ(*, *) ANS
-c$$$      IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
-c$$$    WRITE(*, *)'Which line do names start on ? '
-c$$$    READ(*, *) LINE1
-c$$$    IF (LINE1 .GT. 1) THEN
-c$$$      DO 30 I = 1, LINE1-1
-c$$$   30     READ(10, *)
-c$$$    END IF
-c$$$    IF (YPOS .GT. K) THEN
-c$$$      READ(10, *) (VNAME(I),I=1,K), YNAME
-c$$$    ELSE IF (YPOS .EQ. 1) THEN
-c$$$      READ(10, *) YNAME, (VNAME(I),I=1,K)
-c$$$    ELSE
-c$$$      READ(10, *) (VNAME(I),I=1,YPOS-1), YNAME,
-c$$$     +                        (VNAME(I),I=YPOS,K)
-c$$$    END IF
-c$$$    REWIND 10
-c$$$      ELSE
-c$$$    WRITE(*, *)'Do you want to name variables ? (Y/N): '
-c$$$    READ(*, '(a)') ANS
-c$$$    IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
-c$$$      WRITE(*, *)'Variable names may contain up to 8 characters'
-c$$$      WRITE(*, *)'Name for dependant (Y) variable = ? '
-c$$$      READ(*, '(a)') YNAME
-c$$$      DO 40 I = 1, K
-c$$$        WRITE(*, *)'Name for variable', I, ' = ? '
-c$$$        READ(*, '(a)') VNAME(I)
-c$$$   40     CONTINUE
-c$$$    ELSE
-c$$$      DO 50 I = 1, K
-c$$$        WRITE(VNAME(I), 940) I
-c$$$  940       FORMAT('XVAR(', I2, ')')
-c$$$   50     CONTINUE
-c$$$      YNAME = 'Dept.var'
-c$$$    END IF
-c$$$      END IF
-c$$$C
-c$$$      WRITE(*, *)'Which line does the data start on ? '
-c$$$      READ(*, *) LINE1
-c$$$      IF (LINE1 .GT. 1) THEN
-c$$$    DO 60 I = 1, LINE1-1
-c$$$   60   READ(10, *)
-c$$$      END IF
-c$$$C
-c$$$C     Read in data and form the upper-triangular factorization.
-c$$$C
-c$$$      IF (ICONST .EQ. 1) THEN
-c$$$    CALL CLEAR(NCOLS, NRBAR, EL, U, RHS, RESSQ, IER)
-c$$$      ELSE
-c$$$    CALL CLEAR(NCOLS, NRBAR, EL(1), U, RHS(1), RESSQ, IER)
-c$$$      END IF
-c$$$      NOBS = 1
-c$$$      X(0) = ONE
-c$$$C
-c$$$C     Case is skipped if spurious characters are found (e.g. for
-c$$$C     missing values).
-c$$$C
-c$$$   70 CONTINUE
-c$$$      IF (YPOS .GT. K) THEN
-c$$$    READ(10, *, ERR=70, END=80) (X(I),I=1,K), Y
-c$$$      ELSE IF (YPOS .EQ. 1) THEN
-c$$$    READ(10, *, ERR=70, END=80) Y, (X(I),I=1,K)
-c$$$      ELSE
-c$$$    READ(10, *, ERR=70, END=80) (X(I),I=1,YPOS-1), Y,
-c$$$     +                              (X(I),I=YPOS,K)
-c$$$      END IF
-c$$$      IF (ICONST .EQ. 1) THEN
-c$$$    CALL INCLUD(NCOLS, NRBAR, WT, X, Y, EL, U, RHS, RESSQ, IER)
-c$$$      ELSE
-c$$$    CALL INCLUD(NCOLS, NRBAR, WT, X(1), Y, EL(1), U, RHS(1), RESSQ,
-c$$$     +              IER)
-c$$$      END IF
-c$$$      NOBS = NOBS + 1
-c$$$      GO TO 70
-c$$$C
-c$$$C     Change extension to .red for output file.
-c$$$C
-c$$$   80 IPOS = INDEX(FNAME, '.')
-c$$$      FNAME(IPOS+1:IPOS+3) = 'red'
-c$$$      NOBS = NOBS - 1
-c$$$C
-c$$$C     Write U, EL, RHS & the residual sum of squares (RESSQ) to disk.
-c$$$C
-c$$$      OPEN(9, FILE=FNAME, STATUS='NEW', ACCESS='SEQUENTIAL',
-c$$$     +          FORM='UNFORMATTED')
-c$$$      WRITE(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
-c$$$      IF (ICONST .EQ. 0) THEN
-c$$$    WRITE(9) YNAME, (VNAME(I),I=1,K)
-c$$$    WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K), RESSQ
-c$$$      ELSE
-c$$$    WRITE(9) YNAME, (VNAME(I),I=0,K)
-c$$$    WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K), RESSQ
-c$$$      END IF
-c$$$      ENDFILE 9
-c$$$C
-c$$$      END
+c___c     IMPLICIT NONE
+c___      integer npmax, dimu
+c___      parameter (npmax=50, dimu=npmax*(npmax+1)/2)
+c___      DOUBLE PRECISION U(dimu), EL(0:npmax), RHS(0:npmax), X(0:npmax),
+c___     +                 WT, ONE, Y, RESSQ
+c___      CHARACTER ANS, FNAME*20, VNAME(0:npmax)*8, YNAME*8, TEXT*79
+c___      INTEGER LIN, YPOS, IPOS, I, K, ICONST, NCOLS, NOBS, NRBAR, IER,
+c___     +        LINE1, LOUT
+c___      LOGICAL OK, LSEL
+c___      DATA WT/1.D0/, ONE/1.D0/, LSEL/.FALSE./
+c___
+c___C
+c___C     Set unit numbers for I/O in the data statement below.
+c___C
+c___      DATA LIN/5/, LOUT/6/
+c___C
+c___C     Ask for details of the data file.
+c___C
+c___   10 WRITE(LOUT, 900)
+c___  900 FORMAT(' Name of data file = ? ')
+c___      READ(LIN, *) FNAME
+c___C
+c___C     Add extension .dat if none has been entered,
+c___C     detected by the lack of a '.'
+c___C
+c___      IF (INDEX(FNAME, '.') .EQ. 0) THEN
+c___    IPOS = INDEX(FNAME, ' ')
+c___    FNAME = FNAME(1:IPOS-1) // '.dat'
+c___      END IF
+c___C
+c___C     Check that file exists.
+c___C
+c___      INQUIRE(FILE=FNAME, EXIST=OK)
+c___      IF (.NOT. OK) THEN
+c___    WRITE(*, 910) FNAME
+c___  910   FORMAT(' *** File not found - ', a, ' **')
+c___    GO TO 10
+c___      END IF
+c___C
+c___C     Display first part of file.
+c___C
+c___      OPEN(10, FILE=FNAME, STATUS='OLD')
+c___      WRITE(*, *)'Start of your data file follows'
+c___      DO 20 I = 1, 12
+c___    READ(10, '(A)') TEXT
+c___    WRITE(*, '(1X, A)') TEXT
+c___   20 CONTINUE
+c___      REWIND 10
+c___C
+c___      WRITE(LOUT, 920)
+c___  920 FORMAT(' How many X-variables ? ')
+c___      READ(LIN, *) K
+c___      WRITE(LOUT, 930)
+c___  930 FORMAT('+Do you want a constant in the model ? ')
+c___      READ(LIN, *) ANS
+c___      ICONST = 0
+c___      IF(ANS.EQ.'Y' .OR. ANS .EQ. 'y') ICONST = 1
+c___      NCOLS = K + ICONST
+c___      NRBAR = NCOLS * (NCOLS - 1) / 2
+c___C
+c___C     Get position of dependant variable.
+c___C
+c___      WRITE(*, *)'Is dependant variable at end ? (Y/N): '
+c___      READ(*, *) ANS
+c___      IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
+c___    YPOS = K+1
+c___      ELSE
+c___    WRITE(*, *)'Enter no. of position of dependant variable: '
+c___    READ(*, *) YPOS
+c___    IF (YPOS .LT. 1) YPOS = 1
+c___    IF (YPOS .GT. K) YPOS = K + 1
+c___      END IF
+c___C
+c___C     Enter variable names, read them from file, or set defaults.
+c___C
+c___      VNAME(0) = 'Constant'
+c___      WRITE(*, *)'Are variable names in data file ? (Y/N): '
+c___      READ(*, *) ANS
+c___      IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
+c___    WRITE(*, *)'Which line do names start on ? '
+c___    READ(*, *) LINE1
+c___    IF (LINE1 .GT. 1) THEN
+c___      DO 30 I = 1, LINE1-1
+c___   30     READ(10, *)
+c___    END IF
+c___    IF (YPOS .GT. K) THEN
+c___      READ(10, *) (VNAME(I),I=1,K), YNAME
+c___    ELSE IF (YPOS .EQ. 1) THEN
+c___      READ(10, *) YNAME, (VNAME(I),I=1,K)
+c___    ELSE
+c___      READ(10, *) (VNAME(I),I=1,YPOS-1), YNAME,
+c___     +                        (VNAME(I),I=YPOS,K)
+c___    END IF
+c___    REWIND 10
+c___      ELSE
+c___    WRITE(*, *)'Do you want to name variables ? (Y/N): '
+c___    READ(*, '(a)') ANS
+c___    IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
+c___      WRITE(*, *)'Variable names may contain up to 8 characters'
+c___      WRITE(*, *)'Name for dependant (Y) variable = ? '
+c___      READ(*, '(a)') YNAME
+c___      DO 40 I = 1, K
+c___        WRITE(*, *)'Name for variable', I, ' = ? '
+c___        READ(*, '(a)') VNAME(I)
+c___   40     CONTINUE
+c___    ELSE
+c___      DO 50 I = 1, K
+c___        WRITE(VNAME(I), 940) I
+c___  940       FORMAT('XVAR(', I2, ')')
+c___   50     CONTINUE
+c___      YNAME = 'Dept.var'
+c___    END IF
+c___      END IF
+c___C
+c___      WRITE(*, *)'Which line does the data start on ? '
+c___      READ(*, *) LINE1
+c___      IF (LINE1 .GT. 1) THEN
+c___    DO 60 I = 1, LINE1-1
+c___   60   READ(10, *)
+c___      END IF
+c___C
+c___C     Read in data and form the upper-triangular factorization.
+c___C
+c___      IF (ICONST .EQ. 1) THEN
+c___    CALL CLEAR(NCOLS, NRBAR, EL, U, RHS, RESSQ, IER)
+c___      ELSE
+c___    CALL CLEAR(NCOLS, NRBAR, EL(1), U, RHS(1), RESSQ, IER)
+c___      END IF
+c___      NOBS = 1
+c___      X(0) = ONE
+c___C
+c___C     Case is skipped if spurious characters are found (e.g. for
+c___C     missing values).
+c___C
+c___   70 CONTINUE
+c___      IF (YPOS .GT. K) THEN
+c___    READ(10, *, ERR=70, END=80) (X(I),I=1,K), Y
+c___      ELSE IF (YPOS .EQ. 1) THEN
+c___    READ(10, *, ERR=70, END=80) Y, (X(I),I=1,K)
+c___      ELSE
+c___    READ(10, *, ERR=70, END=80) (X(I),I=1,YPOS-1), Y,
+c___     +                              (X(I),I=YPOS,K)
+c___      END IF
+c___      IF (ICONST .EQ. 1) THEN
+c___    CALL INCLUD(NCOLS, NRBAR, WT, X, Y, EL, U, RHS, RESSQ, IER)
+c___      ELSE
+c___    CALL INCLUD(NCOLS, NRBAR, WT, X(1), Y, EL(1), U, RHS(1), RESSQ,
+c___     +              IER)
+c___      END IF
+c___      NOBS = NOBS + 1
+c___      GO TO 70
+c___C
+c___C     Change extension to .red for output file.
+c___C
+c___   80 IPOS = INDEX(FNAME, '.')
+c___      FNAME(IPOS+1:IPOS+3) = 'red'
+c___      NOBS = NOBS - 1
+c___C
+c___C     Write U, EL, RHS & the residual sum of squares (RESSQ) to disk.
+c___C
+c___      OPEN(9, FILE=FNAME, STATUS='NEW', ACCESS='SEQUENTIAL',
+c___     +          FORM='UNFORMATTED')
+c___      WRITE(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
+c___      IF (ICONST .EQ. 0) THEN
+c___    WRITE(9) YNAME, (VNAME(I),I=1,K)
+c___    WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K), RESSQ
+c___      ELSE
+c___    WRITE(9) YNAME, (VNAME(I),I=0,K)
+c___    WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K), RESSQ
+c___      END IF
+c___      ENDFILE 9
+c___C
+c___      END
 
 
       SUBROUTINE CLEAR(NP, NRBAR, D, RBAR, THETAB, SSERR, IER)
@@ -226,75 +226,75 @@ C
       END
 
 
-c$$$      SUBROUTINE INCLUD(NP, NRBAR, WEIGHT, XROW, YELEM, D,
-c$$$     +      RBAR, THETAB, SSERR, IER)
-c$$$C
-c$$$C     ALGORITHM AS274  APPL. STATIST. (1992) VOL.41, NO. 2
-c$$$C     Modified from algorithm AS 75.1
-c$$$C
-c$$$C     Calling this routine updates d, rbar, thetab and sserr by the
-c$$$C     inclusion of xrow, yelem with the specified weight.   The number
-c$$$C     of columns (variables) may exceed the number of rows (cases).
-c$$$C
-c$$$C**** WARNING: The elements of XROW are overwritten  ****
-c$$$C
-c$$$      INTEGER NP, NRBAR, IER
-c$$$      DOUBLE PRECISION WEIGHT, XROW(NP), YELEM, D(NP), RBAR(*),
-c$$$     +    THETAB(NP), SSERR
-c$$$C
-c$$$C     Local variables
-c$$$C
-c$$$      INTEGER I, K, NEXTR
-c$$$      DOUBLE PRECISION ZERO, W, Y, XI, DI, WXI, DPI, CBAR, SBAR, XK
-c$$$C
-c$$$      DATA ZERO/0.D0/
-c$$$C
-c$$$C     Some checks.
-c$$$C
-c$$$      IER = 0
-c$$$      IF (NP .LT. 1) IER = 1
-c$$$      IF (NRBAR .LT. NP*(NP-1)/2) IER = IER + 2
-c$$$      IF (IER .NE. 0) RETURN
-c$$$C
-c$$$      W = WEIGHT
-c$$$      Y = YELEM
-c$$$      NEXTR = 1
-c$$$      DO 30 I = 1, NP
-c$$$C
-c$$$C     Skip unnecessary transformations.   Test on exact zeroes must be
-c$$$C     used or stability can be destroyed.
-c$$$C
-c$$$    IF (W .EQ. ZERO) RETURN
-c$$$    XI = XROW(I)
-c$$$    IF (XI .EQ. ZERO) THEN
-c$$$      NEXTR = NEXTR + NP - I
-c$$$      GO TO 30
-c$$$    END IF
-c$$$    DI = D(I)
-c$$$    WXI = W * XI
-c$$$    DPI = DI + WXI*XI
-c$$$    CBAR = DI / DPI
-c$$$    SBAR = WXI / DPI
-c$$$    W = CBAR * W
-c$$$    D(I) = DPI
-c$$$    IF (I .EQ. NP) GO TO 20
-c$$$    DO 10 K = I+1, NP
-c$$$      XK = XROW(K)
-c$$$      XROW(K) = XK - XI * RBAR(NEXTR)
-c$$$      RBAR(NEXTR) = CBAR * RBAR(NEXTR) + SBAR * XK
-c$$$      NEXTR = NEXTR + 1
-c$$$   10   CONTINUE
-c$$$   20   XK = Y
-c$$$    Y = XK - XI * THETAB(I)
-c$$$    THETAB(I) = CBAR * THETAB(I) + SBAR * XK
-c$$$   30 CONTINUE
-c$$$C
-c$$$C     Y * SQRT(W) is now equal to Brown & Durbin's recursive residual.
-c$$$C
-c$$$      SSERR = SSERR + W * Y * Y
-c$$$C
-c$$$      RETURN
-c$$$      END
+c___      SUBROUTINE INCLUD(NP, NRBAR, WEIGHT, XROW, YELEM, D,
+c___     +      RBAR, THETAB, SSERR, IER)
+c___C
+c___C     ALGORITHM AS274  APPL. STATIST. (1992) VOL.41, NO. 2
+c___C     Modified from algorithm AS 75.1
+c___C
+c___C     Calling this routine updates d, rbar, thetab and sserr by the
+c___C     inclusion of xrow, yelem with the specified weight.   The number
+c___C     of columns (variables) may exceed the number of rows (cases).
+c___C
+c___C**** WARNING: The elements of XROW are overwritten  ****
+c___C
+c___      INTEGER NP, NRBAR, IER
+c___      DOUBLE PRECISION WEIGHT, XROW(NP), YELEM, D(NP), RBAR(*),
+c___     +    THETAB(NP), SSERR
+c___C
+c___C     Local variables
+c___C
+c___      INTEGER I, K, NEXTR
+c___      DOUBLE PRECISION ZERO, W, Y, XI, DI, WXI, DPI, CBAR, SBAR, XK
+c___C
+c___      DATA ZERO/0.D0/
+c___C
+c___C     Some checks.
+c___C
+c___      IER = 0
+c___      IF (NP .LT. 1) IER = 1
+c___      IF (NRBAR .LT. NP*(NP-1)/2) IER = IER + 2
+c___      IF (IER .NE. 0) RETURN
+c___C
+c___      W = WEIGHT
+c___      Y = YELEM
+c___      NEXTR = 1
+c___      DO 30 I = 1, NP
+c___C
+c___C     Skip unnecessary transformations.   Test on exact zeroes must be
+c___C     used or stability can be destroyed.
+c___C
+c___    IF (W .EQ. ZERO) RETURN
+c___    XI = XROW(I)
+c___    IF (XI .EQ. ZERO) THEN
+c___      NEXTR = NEXTR + NP - I
+c___      GO TO 30
+c___    END IF
+c___    DI = D(I)
+c___    WXI = W * XI
+c___    DPI = DI + WXI*XI
+c___    CBAR = DI / DPI
+c___    SBAR = WXI / DPI
+c___    W = CBAR * W
+c___    D(I) = DPI
+c___    IF (I .EQ. NP) GO TO 20
+c___    DO 10 K = I+1, NP
+c___      XK = XROW(K)
+c___      XROW(K) = XK - XI * RBAR(NEXTR)
+c___      RBAR(NEXTR) = CBAR * RBAR(NEXTR) + SBAR * XK
+c___      NEXTR = NEXTR + 1
+c___   10   CONTINUE
+c___   20   XK = Y
+c___    Y = XK - XI * THETAB(I)
+c___    THETAB(I) = CBAR * THETAB(I) + SBAR * XK
+c___   30 CONTINUE
+c___C
+c___C     Y * SQRT(W) is now equal to Brown & Durbin's recursive residual.
+c___C
+c___      SSERR = SSERR + W * Y * Y
+c___C
+c___      RETURN
+c___      END
       SUBROUTINE ADD1(NP, NRBAR, D, RBAR, THETAB, FIRST, LAST, TOL, SS,
      +         SXX, SXY, SMAX, JMAX, IER)
 C
@@ -943,118 +943,118 @@ C
 C
       END
 C
-C$$$      SUBROUTINE EFROYM(NP, NRBAR, D, RBAR, THETAB, FIRST, LAST,
-C$$$     *   FIN, FOUT, SIZE, NOBS, VORDER, TOL, RSS, BOUND, NVMAX, RESS,
-C$$$     *   IR, NBEST, LOPT, IL, WK, IWK, IER)
-C$$$C
-C$$$C     Efroymson's stepwise regression from variables in positions FIRST,
-C$$$C     ..., LAST.  If FIRST > 1, variables in positions prior to this are
-C$$$C     forced in.  If LAST < NP, variables in positions after this are
-C$$$C     forced out.
-C$$$C
-C$$$c     IMPLICIT NONE
-C$$$      INTEGER NP, NRBAR, FIRST, LAST, SIZE, NOBS, VORDER(NP), NVMAX, IR,
-C$$$     *   NBEST, IL, LOPT(IL, *), IWK, IER
-C$$$      DOUBLE PRECISION D(NP), RBAR(NRBAR), THETAB(NP), FIN, FOUT,
-C$$$     *   TOL(NP), RSS(NP), BOUND(NVMAX), RESS(IR, *), WK(IWK)
-C$$$C
-C$$$C     Local variables
-C$$$C
-C$$$      INTEGER NEED, J1, J2, JMAX, JMIN, I
-C$$$      DOUBLE PRECISION ONE, EPS, ZERO, SMAX, BASE, VAR, F, SMIN
-C$$$      DATA ONE/1.D0/, EPS/1.D-16/, ZERO/0.D0/
-C$$$C
-C$$$C     Check call arguments
-C$$$C
-C$$$      IER = 0
-C$$$      IF (FIRST .GE. NP) IER = 1
-C$$$      IF (LAST .LE. 1) IER = IER + 2
-C$$$      IF (FIRST .LT. 1) IER = IER + 4
-C$$$      IF (LAST .GT. NP) IER = IER + 8
-C$$$      IF (NRBAR .LT. NP*(NP-1)/2) IER = IER + 16
-C$$$      IF (IWK .LT. 3*LAST) IER = IER + 32
-C$$$      IF (NBEST .GT. 0) THEN
-C$$$               NEED = NVMAX*(NVMAX+1)/2
-C$$$          IF (IR .LT. NVMAX) IER = IER + 64
-C$$$          IF (IL .LT. NEED) IER = IER + 128
-C$$$      END IF
-C$$$      IF (FIN .LT. FOUT .OR. FIN .LE. ZERO) IER = IER + 256
-C$$$      IF (NOBS .LE. NP) IER = IER + 512
-C$$$      IF (IER .NE. 0) RETURN
-C$$$C
-C$$$C     EPS approximates the smallest quantity such that the calculated
-C$$$C     value of (1 + EPS) is > 1.   It is used to test for a perfect fit
-C$$$C     (RSS = 0).
-C$$$C
-C$$$   10 IF (ONE + EPS .LE. ONE) THEN
-C$$$          EPS = EPS + EPS
-C$$$          GO TO 10
-C$$$      END IF
-C$$$C
-C$$$C     SIZE = number of variables in the current subset
-C$$$C
-C$$$      SIZE = FIRST - 1
-C$$$      J1 = LAST + 1
-C$$$      J2 = LAST + J1
-C$$$C
-C$$$C     Find the best variable to add next
-C$$$C
-C$$$   20 CALL ADD1(NP, NRBAR, D, RBAR, THETAB, SIZE+1, LAST, TOL, WK,
-C$$$     *   WK(J1), WK(J2), SMAX, JMAX, IER)
-C$$$      IF (NBEST .GT. 0) CALL EXADD1(SIZE+1, RSS, BOUND, NVMAX, RESS,
-C$$$     *    IR, NBEST, LOPT, IL, VORDER, SMAX, JMAX, WK, WK(J1), LAST)
-C$$$      write(*, *) 'Best variable to add: ', VORDER(JMAX)
-C$$$C
-C$$$C     Calculate 'F-to-enter' value
-C$$$C
-C$$$      IF (SIZE .GT. 0) THEN
-C$$$          BASE = RSS(SIZE)
-C$$$      ELSE
-C$$$          BASE = RSS(1) + WK(1)
-C$$$      END IF
-C$$$      VAR = (BASE - SMAX) / (NOBS - SIZE - 1)
-C$$$      IF (VAR .LT. EPS*BASE) THEN
-C$$$          IER = -1
-C$$$          F = ZERO
-C$$$      ELSE
-C$$$          F = SMAX / VAR
-C$$$      END IF
-C$$$      write(*, 900) F
-C$$$  900 format(' F-to-enter = ', f10.2)
-C$$$C
-C$$$C     Exit if F < FIN or IER < 0 (perfect fit)
-C$$$C
-C$$$      IF (F .LT. FIN .OR. IER .LT. 0) RETURN
-C$$$C
-C$$$C     Add the variable to the subset (in position FIRST).
-C$$$C
-C$$$      SIZE = SIZE + 1
-C$$$      IF (JMAX .GT. FIRST) CALL VMOVE(NP, NRBAR, VORDER, D, RBAR,
-C$$$     *    THETAB, RSS, JMAX, FIRST, TOL, IER)
-C$$$C
-C$$$C     See whether a variable entered earlier can be deleted now.
-C$$$C
-C$$$   30 IF (SIZE .LE. FIRST) GO TO 20
-C$$$      CALL DROP1(NP, NRBAR, D, RBAR, THETAB, FIRST+1, SIZE, TOL, WK,
-C$$$     *    WK(J1), SMIN, JMIN, IER)
-C$$$      VAR = RSS(SIZE) / (NOBS - SIZE)
-C$$$      F = SMIN / VAR
-C$$$      write(*, 910) VORDER(JMIN), F
-C$$$  910 format(' F-to-drop variable: ', i4, ' = ', f10.2)
-C$$$      IF (F .LT. FOUT) THEN
-C$$$        CALL VMOVE(NP, NRBAR, VORDER, D, RBAR, THETAB, RSS, JMIN, SIZE,
-C$$$     *        TOL, IER)
-C$$$        IF (NBEST .GT. 0) THEN
-C$$$          DO 40 I = JMIN, SIZE-1
-C$$$   40     CALL REPORT(I, RSS(I), BOUND, NVMAX, RESS, IR, NBEST, LOPT,
-C$$$     *        IL, VORDER)
-C$$$        END IF
-C$$$        SIZE = SIZE - 1
-C$$$        GO TO 30
-C$$$      END IF
-C$$$C
-C$$$      GO TO 20
-C$$$      END
+C___      SUBROUTINE EFROYM(NP, NRBAR, D, RBAR, THETAB, FIRST, LAST,
+C___     *   FIN, FOUT, SIZE, NOBS, VORDER, TOL, RSS, BOUND, NVMAX, RESS,
+C___     *   IR, NBEST, LOPT, IL, WK, IWK, IER)
+C___C
+C___C     Efroymson's stepwise regression from variables in positions FIRST,
+C___C     ..., LAST.  If FIRST > 1, variables in positions prior to this are
+C___C     forced in.  If LAST < NP, variables in positions after this are
+C___C     forced out.
+C___C
+C___c     IMPLICIT NONE
+C___      INTEGER NP, NRBAR, FIRST, LAST, SIZE, NOBS, VORDER(NP), NVMAX, IR,
+C___     *   NBEST, IL, LOPT(IL, *), IWK, IER
+C___      DOUBLE PRECISION D(NP), RBAR(NRBAR), THETAB(NP), FIN, FOUT,
+C___     *   TOL(NP), RSS(NP), BOUND(NVMAX), RESS(IR, *), WK(IWK)
+C___C
+C___C     Local variables
+C___C
+C___      INTEGER NEED, J1, J2, JMAX, JMIN, I
+C___      DOUBLE PRECISION ONE, EPS, ZERO, SMAX, BASE, VAR, F, SMIN
+C___      DATA ONE/1.D0/, EPS/1.D-16/, ZERO/0.D0/
+C___C
+C___C     Check call arguments
+C___C
+C___      IER = 0
+C___      IF (FIRST .GE. NP) IER = 1
+C___      IF (LAST .LE. 1) IER = IER + 2
+C___      IF (FIRST .LT. 1) IER = IER + 4
+C___      IF (LAST .GT. NP) IER = IER + 8
+C___      IF (NRBAR .LT. NP*(NP-1)/2) IER = IER + 16
+C___      IF (IWK .LT. 3*LAST) IER = IER + 32
+C___      IF (NBEST .GT. 0) THEN
+C___               NEED = NVMAX*(NVMAX+1)/2
+C___          IF (IR .LT. NVMAX) IER = IER + 64
+C___          IF (IL .LT. NEED) IER = IER + 128
+C___      END IF
+C___      IF (FIN .LT. FOUT .OR. FIN .LE. ZERO) IER = IER + 256
+C___      IF (NOBS .LE. NP) IER = IER + 512
+C___      IF (IER .NE. 0) RETURN
+C___C
+C___C     EPS approximates the smallest quantity such that the calculated
+C___C     value of (1 + EPS) is > 1.   It is used to test for a perfect fit
+C___C     (RSS = 0).
+C___C
+C___   10 IF (ONE + EPS .LE. ONE) THEN
+C___          EPS = EPS + EPS
+C___          GO TO 10
+C___      END IF
+C___C
+C___C     SIZE = number of variables in the current subset
+C___C
+C___      SIZE = FIRST - 1
+C___      J1 = LAST + 1
+C___      J2 = LAST + J1
+C___C
+C___C     Find the best variable to add next
+C___C
+C___   20 CALL ADD1(NP, NRBAR, D, RBAR, THETAB, SIZE+1, LAST, TOL, WK,
+C___     *   WK(J1), WK(J2), SMAX, JMAX, IER)
+C___      IF (NBEST .GT. 0) CALL EXADD1(SIZE+1, RSS, BOUND, NVMAX, RESS,
+C___     *    IR, NBEST, LOPT, IL, VORDER, SMAX, JMAX, WK, WK(J1), LAST)
+C___      write(*, *) 'Best variable to add: ', VORDER(JMAX)
+C___C
+C___C     Calculate 'F-to-enter' value
+C___C
+C___      IF (SIZE .GT. 0) THEN
+C___          BASE = RSS(SIZE)
+C___      ELSE
+C___          BASE = RSS(1) + WK(1)
+C___      END IF
+C___      VAR = (BASE - SMAX) / (NOBS - SIZE - 1)
+C___      IF (VAR .LT. EPS*BASE) THEN
+C___          IER = -1
+C___          F = ZERO
+C___      ELSE
+C___          F = SMAX / VAR
+C___      END IF
+C___      write(*, 900) F
+C___  900 format(' F-to-enter = ', f10.2)
+C___C
+C___C     Exit if F < FIN or IER < 0 (perfect fit)
+C___C
+C___      IF (F .LT. FIN .OR. IER .LT. 0) RETURN
+C___C
+C___C     Add the variable to the subset (in position FIRST).
+C___C
+C___      SIZE = SIZE + 1
+C___      IF (JMAX .GT. FIRST) CALL VMOVE(NP, NRBAR, VORDER, D, RBAR,
+C___     *    THETAB, RSS, JMAX, FIRST, TOL, IER)
+C___C
+C___C     See whether a variable entered earlier can be deleted now.
+C___C
+C___   30 IF (SIZE .LE. FIRST) GO TO 20
+C___      CALL DROP1(NP, NRBAR, D, RBAR, THETAB, FIRST+1, SIZE, TOL, WK,
+C___     *    WK(J1), SMIN, JMIN, IER)
+C___      VAR = RSS(SIZE) / (NOBS - SIZE)
+C___      F = SMIN / VAR
+C___      write(*, 910) VORDER(JMIN), F
+C___  910 format(' F-to-drop variable: ', i4, ' = ', f10.2)
+C___      IF (F .LT. FOUT) THEN
+C___        CALL VMOVE(NP, NRBAR, VORDER, D, RBAR, THETAB, RSS, JMIN, SIZE,
+C___     *        TOL, IER)
+C___        IF (NBEST .GT. 0) THEN
+C___          DO 40 I = JMIN, SIZE-1
+C___   40     CALL REPORT(I, RSS(I), BOUND, NVMAX, RESS, IR, NBEST, LOPT,
+C___     *        IL, VORDER)
+C___        END IF
+C___        SIZE = SIZE - 1
+C___        GO TO 30
+C___      END IF
+C___C
+C___      GO TO 20
+C___      END
 
       SUBROUTINE REGCF(NP, NRBAR, D, RBAR, THETAB, TOL, BETA,
      +     NREQ, IER)
@@ -1641,473 +1641,473 @@ C
 C
       RETURN
       END
-c$$$C      PROGRAM SUBSET
-c$$$C
-c$$$C     Interactive program to perform regressions on subsets of
-c$$$C     variables.   Max. no. of variables, excl. constant = 50.
-c$$$C
-c$$$C     Subroutines called:-
-c$$$C     ADD1, BAKWRD, EFROYM, XHAUST, FORWRD, EXADD1, INITR, REGCF,
-c$$$C     REORDR, LSORT, PCORR, REPORT, SEQREP, SHELL, SS, TOLSET.
-c$$$C
-c$$$C     Latest revision - 10 November 1993
-c$$$C
-c$$$C     IMPLICIT NONE
-c$$$      INTEGER MAXCOL, MAXSUB, MAXBST, MAXL, MAXR
-c$$$      PARAMETER (MAXCOL=50, MAXSUB=25, MAXBST=20, MAXL=1000,
-c$$$     +           MAXR=MAXSUB*MAXBST)
-c$$$      INTEGER UDIM, IIW, IW
-c$$$      PARAMETER (UDIM=MAXCOL*(MAXCOL+1)/2, IIW=3*MAXCOL, IW=UDIM+IIW)
-c$$$      CHARACTER FNAME*30, ANS, OPTION(22), VNAME(0:MAXCOL)*8, YNAME*8
-c$$$      LOGICAL LSEL, OK
-c$$$      INTEGER LIN, LOUT, LPR, LOPT(MAXL), IWK(IIW), K, IRTN, LINE,
-c$$$     +        ICONST, NCOLS, I1, IPOS, I, NOBS, VORDER(0:MAXCOL), IL,
-c$$$     +        NRBAR, NVMAX, NVMX, NBEST, IOPT, IER, NDF, J, NV, NB,
-c$$$     +        IPRINT, IR, L, IPROC, FIRST, LAST, SIZE, M, ILNB
-c$$$      DOUBLE PRECISION U(UDIM), EL(0:MAXCOL), RHS(0:MAXCOL), RESSQ,
-c$$$     +        SSQ(0:MAXCOL), TOL(0:MAXCOL), BOUND(MAXSUB), RESS(MAXR),
-c$$$     +        WK(IW), TEMP, FIN, FOUT
-c$$$      REAL VAR
-c$$$      DATA OPTION/'C', 'c', 'F', 'f', 'B', 'b', 'R', 'r', 'E', 'e',
-c$$$     +    'P', 'p', 'I', 'i', 'O', 'o', 'L', 'l', 'X', 'x', 'Q', 'q'/
-c$$$C
-c$$$C     Set unit numbers for I/O in LIN & LOUT below.
-c$$$C
-c$$$      DATA LIN/5/, LOUT/6/
-c$$$C
-c$$$C     Ask for name of the data set.
-c$$$C
-c$$$   10 WRITE(LOUT,9000)
-c$$$ 9000 FORMAT(' Enter name of .RED file for data (e.g. B:myfile): ')
-c$$$      READ(LIN,8000) FNAME
-c$$$ 8000 FORMAT(A)
-c$$$C
-c$$$C     Add the .RED extension if necessary.
-c$$$C
-c$$$      IF (INDEX(FNAME, '.RED') .EQ. 0) THEN
-c$$$    IPOS = INDEX(FNAME, ' ')
-c$$$    IF (IPOS .EQ. 0 .OR. IPOS .GT. 11) THEN
-c$$$      WRITE(LOUT, 9010) FNAME
-c$$$ 9010     FORMAT(' ** Illegal filename entered - ', A, ' **')
-c$$$      GO TO 10
-c$$$    END IF
-c$$$    FNAME(IPOS: IPOS+3) = '.RED'
-c$$$      END IF
-c$$$C
-c$$$C     Check that file exists.
-c$$$C
-c$$$      INQUIRE(FILE=FNAME, EXIST=OK)
-c$$$      IF (.NOT. OK) THEN
-c$$$    WRITE(LOUT, 9020) FNAME
-c$$$ 9020   FORMAT(' ** File not found - ', A, ' **')
-c$$$    GO TO 10
-c$$$      END IF
-c$$$      OPEN(9, FILE=FNAME, STATUS='OLD', ACCESS='SEQUENTIAL',
-c$$$     +        FORM='UNFORMATTED')
-c$$$C
-c$$$C     Read contents of file.
-c$$$C
-c$$$      READ(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
-c$$$      IF (ICONST .EQ. 0) THEN
-c$$$    READ(9) YNAME, (VNAME(I),I=1,K)
-c$$$    READ(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K), RESSQ
-c$$$      ELSE
-c$$$    READ(9) YNAME, (VNAME(I),I=0,K)
-c$$$    READ(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K), RESSQ
-c$$$      END IF
-c$$$      I1 = 1 + ICONST
-c$$$      WRITE(LOUT, 9030) K, NOBS, YNAME
-c$$$ 9030 FORMAT(' No. of predictors = ', I3, 5X, 'No. of cases = ', I5/
-c$$$     +       ' Dependant variable is ', A)
-c$$$      WRITE(LOUT, 9930) (I, VNAME(I),I=1,K)
-c$$$C
-c$$$C     Initially, all variables except the constant (if there is one)
-c$$$C     are considered candidates for either inclusion or exclusion
-c$$$C
-c$$$      FIRST = I1
-c$$$      LAST = NCOLS
-c$$$C
-c$$$C     Set up array VORDER.
-c$$$C
-c$$$      DO 30 I = 0, K
-c$$$    VORDER(I) = I
-c$$$   30 CONTINUE
-c$$$C
-c$$$C     Ask for values of NVMAX & NBEST.
-c$$$C
-c$$$   50 WRITE(LOUT, 9040)
-c$$$ 9040 FORMAT(' Enter max. size of subsets (excl. constant): ')
-c$$$      READ(LIN, 8010) NVMAX
-c$$$ 8010 FORMAT(I3)
-c$$$      NVMX = NVMAX + ICONST
-c$$$      IF(NVMX .LE. MAXBST) GO TO 70
-c$$$   60 WRITE(LOUT, 9050)
-c$$$ 9050 FORMAT(' *** Too many, sorry, try again')
-c$$$      GO TO 50
-c$$$   70 IL = NVMX*(NVMX + 1)/2
-c$$$      L = MIN(MAXL/IL, MAXR/NVMX, MAXBST)
-c$$$      WRITE(LOUT, 9060) L, NVMAX
-c$$$ 9060 FORMAT('+How many subsets of each size to be recorded ?'/
-c$$$     +       ' Max. = ', I4, ' with NVMAX =', I3, ' : ')
-c$$$      READ(LIN, 8010) NBEST
-c$$$      IF(NBEST .GT. L) GO TO 60
-c$$$C
-c$$$C     Call TOLSET, SS & INITR to initialize arrays.
-c$$$C
-c$$$      IF (ICONST .EQ. 1) THEN
-c$$$    CALL TOLSET(NCOLS, NRBAR, EL, U, TOL, WK, IER)
-c$$$    CALL SS(NCOLS, EL, RHS, RESSQ, SSQ, IER)
-c$$$    CALL INITR(NCOLS, NVMX, NBEST, BOUND, RESS, NVMX, LOPT, IL,
-c$$$     +             VORDER, SSQ, IER)
-c$$$      ELSE
-c$$$    CALL TOLSET(NCOLS, NRBAR, EL(1), U, TOL(1), WK, IER)
-c$$$    CALL SS(NCOLS, EL(1), RHS(1), RESSQ, SSQ(1), IER)
-c$$$    CALL INITR(NCOLS, NVMX, NBEST, BOUND, RESS, NVMX, LOPT, IL,
-c$$$     +             VORDER(1), SSQ(1), IER)
-c$$$      END IF
-c$$$      WRITE(LOUT, 9065) NCOLS, RESSQ
-c$$$ 9065 FORMAT(' Initially NCOLS = ', I4,'  RESSQ = ', G13.5)
-c$$$      IF (NOBS .GT. NCOLS) THEN
-c$$$    NDF = NOBS - NCOLS
-c$$$    VAR = RESSQ / NDF
-c$$$    WRITE(*, 9068) VAR, NDF
-c$$$ 9068   FORMAT(' Resid. variance estimate = ', g11.4, ' with ', i4,
-c$$$     +         ' deg. of freedom'/)
-c$$$      END IF
-c$$$      IPROC = 0
-c$$$C
-c$$$C     Display menu & ask for choice.
-c$$$C
-c$$$  100 WRITE(LOUT, 9070)
-c$$$ 9070 FORMAT(' Options:-'/
-c$$$     1 ' C Corrlns. & partial corrlns.    F Forward selection'/
-c$$$     2 ' B Backward elimination           R Sequential replacement'/
-c$$$     3 ' E Efroymson stepwise             P Print summary of subsets'/
-c$$$     4 ' I Specify IN variables           O Specify OUT variables'/
-c$$$     5 ' L Least-squares regn.coeffs.     X Exhaustive search'/
-c$$$     6 ' Q Quit           ENTER YOUR OPTION : ')
-c$$$      READ(LIN, *) ANS
-c$$$C
-c$$$C     Compare ANS with currently available options.
-c$$$C
-c$$$      DO 110 IOPT = 1,22
-c$$$    IF(ANS .EQ. OPTION(IOPT)) GO TO 120
-c$$$  110 CONTINUE
-c$$$      WRITE(LOUT, 9080) ANS
-c$$$ 9080 FORMAT(' Option ', A, ' not available')
-c$$$      GO TO 100
-c$$$  120 L = (IOPT + 1)/2
-c$$$C
-c$$$C             C    F    B    R    E    P    I    O    L    X    Q
-c$$$      GO TO (200, 300, 400, 500, 550, 700, 800, 900, 250, 600, 850), L
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 1. Correlations.
-c$$$C
-c$$$  200 WRITE(LOUT, 9200)
-c$$$ 9200 FORMAT('+Do you want partial correlations ? (Y or N) ')
-c$$$      NV = 0
-c$$$      READ(LIN, *) ANS
-c$$$      IF(ANS .EQ. 'N' .OR. ANS .EQ. 'n') GO TO 210
-c$$$      IF(ANS .NE. 'Y' .AND. ANS .NE. 'y') GO TO 200
-c$$$      ASSIGN 210 TO IRTN
-c$$$      WRITE(LOUT, 9210)
-c$$$ 9210 FORMAT(' Partial corrlns. on how many variables (excl.const.) ? ')
-c$$$      READ(LIN, 8010) NV
-c$$$      IF(NV .GT. 0) GO TO 1000
-c$$$  210 WRITE(LOUT, 9220)
-c$$$ 9220 FORMAT('+Correlations amongst all variables (A) or with Y only',
-c$$$     +       1X,'(Y) ? ')
-c$$$      IOPT = 0
-c$$$      READ(LIN, *) ANS
-c$$$      IF(ANS .EQ. 'A' .OR. ANS .EQ. 'a') IOPT = 1
-c$$$      NB = NV + ICONST
-c$$$      CALL PCORR(NCOLS, NRBAR, EL, U, RHS, RESSQ, NB, WK(UDIM+NCOLS+1),
-c$$$     +           WK, IW, WK(UDIM+1), IER)
-c$$$C
-c$$$C     Display the (partial) correlations.
-c$$$C     Correlations amongst the X-variables start at WK(1); correlations
-c$$$C     with Y start at WK(UDIM+1).
-c$$$C
-c$$$      CALL PRINTC(NCOLS, NB, WK, UDIM, WK(UDIM+1), VORDER, VNAME(1),
-c$$$     +            YNAME, IOPT, LOUT, IER)
-c$$$      GO TO 100
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 9. Least - squares regression coefficients.
-c$$$C
-c$$$  250 WRITE(LOUT, 9850)
-c$$$      READ(LIN, 8010) NV
-c$$$      ASSIGN 260 TO IRTN
-c$$$      GO TO 1000
-c$$$  260 IF (ICONST .EQ. 1) THEN
-c$$$    CALL REGCF(NCOLS, NRBAR, EL, U, RHS, TOL, WK, NV, IER)
-c$$$      ELSE
-c$$$    CALL REGCF(NCOLS, NRBAR, EL(1), U, RHS(1), TOL(1), WK, NV, IER)
-c$$$      END IF
-c$$$      IER = -IER
-c$$$      IF(IER .NE. 0) WRITE(LOUT, 9250) IER
-c$$$ 9250 FORMAT(' Variables linearly dependant, rank deficiency =',I4)
-c$$$      WRITE(LOUT, 9260)(VORDER(I-ICONST),WK(I),I=1,NV)
-c$$$ 9260 FORMAT(' Least-squares regn.coeffs.',
-c$$$     +  7(/1X, I5, G13.5, 2X, I5, G13.5, 2X, I5, G13.5, 2X, I5, G13.5))
-c$$$      WRITE(LOUT, 9270) SSQ(NV-ICONST)
-c$$$ 9270 FORMAT(' Resid. sum of sq. =',G13.5/)
-c$$$      GO TO 100
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 2. Forward selection.
-c$$$C
-c$$$  300 IF (ICONST .EQ. 1) THEN
-c$$$    CALL FORWRD(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
-c$$$     +      SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IER)
-c$$$      ELSE
-c$$$    CALL FORWRD(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
-c$$$     +      VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS, NVMX, NBEST,
-c$$$     +      LOPT, IL, WK, IW, IER)
-c$$$      END IF
-c$$$      NV = NVMX
-c$$$      IF (IPROC .EQ. 2*(IPROC/2)) IPROC = IPROC + 1
-c$$$      GO TO 1100
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 3. Backward elimination.
-c$$$C
-c$$$  400 IF (ICONST .EQ. 1) THEN
-c$$$    CALL BAKWRD(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
-c$$$     +     SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IER)
-c$$$      ELSE
-c$$$    CALL BAKWRD(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
-c$$$     +     VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS, NVMX, NBEST,
-c$$$     +     LOPT, IL, WK, IW, IER)
-c$$$      END IF
-c$$$      NV = LAST
-c$$$      I = IPROC/2
-c$$$      IF (I .EQ. 2*(I/2)) IPROC = IPROC + 2
-c$$$      GO TO 1100
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 4. Sequential replacement.
-c$$$C
-c$$$  500 IF (ICONST .EQ. 1) THEN
-c$$$    CALL SEQREP(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
-c$$$     +     SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IER)
-c$$$      ELSE
-c$$$    CALL SEQREP(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
-c$$$     +     VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS, NVMX, NBEST,
-c$$$     +     LOPT, IL, WK, IW, IER)
-c$$$      END IF
-c$$$      I = IPROC/8
-c$$$      IF (I .EQ. 2*(I/2)) IPROC = IPROC + 8
-c$$$      NV = NVMX
-c$$$      GO TO 1100
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 5. Efroymson (stepwise)
-c$$$C
-c$$$  550 WRITE(LOUT, 9550)
-c$$$ 9550 FORMAT(' Enter F-to-enter value : ')
-c$$$      READ(LIN, 8550) FIN
-c$$$ 8550 FORMAT(F10.0)
-c$$$      WRITE(LOUT, 9560)
-c$$$ 9560 FORMAT(' Enter F-to-remove value : ')
-c$$$      READ(LIN, 8550) FOUT
-c$$$      IF (ICONST .EQ. 1) THEN
-c$$$    CALL EFROYM(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, FIN, FOUT,
-c$$$     +    SIZE, NOBS, VORDER, TOL, SSQ, BOUND, NVMX, RESS, NVMX, NBEST,
-c$$$     +    LOPT, IL, WK, IW, IER)
-c$$$      ELSE
-c$$$    CALL EFROYM(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST, FIN,
-c$$$     +   FOUT, SIZE, NOBS, VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS,
-c$$$     +   NVMX, NBEST, LOPT, IL, WK, IW, IER)
-c$$$      END IF
-c$$$      IF (IER .NE. 0) THEN
-c$$$    WRITE(LOUT, 9570) IER
-c$$$ 9570   FORMAT(' Error code',I4,' returned by EFROYM')
-c$$$    GO TO 100
-c$$$      ELSE
-c$$$    NV = SIZE
-c$$$    I = IPROC/4
-c$$$    IPROC = IPROC + 4
-c$$$    GO TO 1100
-c$$$      END IF
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 10. Exhaustive search.
-c$$$C
-c$$$  600  IF (ICONST .EQ. 1) THEN
-c$$$     CALL XHAUST(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
-c$$$     +      SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IWK,
-c$$$     +      IIW, IER)
-c$$$      ELSE
-c$$$     CALL XHAUST(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
-c$$$     +      VORDER(1), TOL(1), +   SSQ(1), BOUND, NVMX, RESS, NVMX,
-c$$$     +      NBEST, LOPT, IL, WK, IW, IWK, IIW, IER)
-c$$$      END IF
-c$$$      IF (IPROC .LT. 16) IPROC = IPROC + 16
-c$$$      GO TO 100
-c$$$C
-c$$$C-----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 6. Print summary of best subsets found so far.
-c$$$C
-c$$$  700 CALL LSORT(LOPT, IL, NBEST, NVMX)
-c$$$      L = FIRST*(FIRST-1)/2 + 1
-c$$$      LINE = 1
-c$$$      M = FIRST - ICONST
-c$$$      DO 730 NV = FIRST, NVMX
-c$$$    WRITE(LOUT,9700) M
-c$$$ 9700   FORMAT(20X,'Best subsets found of',I3,' variables')
-c$$$    LINE = LINE + 1
-c$$$    DO 720 NB = 1,NBEST
-c$$$      J = (NB-1)*NVMX + NV
-c$$$      TEMP = RESS(J)
-c$$$      IF(TEMP .GT. 1.E+35) GO TO 720
-c$$$      IPOS = L
-c$$$      DO 710 I = 1,NV
-c$$$        J = (NB-1)*IL + IPOS
-c$$$        IWK(I) = LOPT(J)
-c$$$        IPOS = IPOS + 1
-c$$$  710     CONTINUE
-c$$$        WRITE(LOUT,9710) TEMP,(IWK(I),I=FIRST,NV)
-c$$$      LINE = LINE + 1 + (NV-1)/10
-c$$$ 9710     FORMAT(' RSS =',G14.6,3X,'Variables:',10I4,4(/10X,10I4))
-c$$$  720   CONTINUE
-c$$$    IF (LINE .GE. 25 - NB) THEN
-c$$$      PAUSE
-c$$$      LINE = 1
-c$$$    END IF
-c$$$    L = L + NV
-c$$$    M = M + 1
-c$$$  730 CONTINUE
-c$$$      GO TO 100
-c$$$C
-c$$$C----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 7. Force variables into models.
-c$$$C
-c$$$  800 WRITE(LOUT, 9800)
-c$$$ 9800 FORMAT('+How many variables, excl. constant ? ')
-c$$$      READ(LIN, 8010) NV
-c$$$      ASSIGN 810 TO IRTN
-c$$$      GO TO 1000
-c$$$  810 GO TO 1100
-c$$$C
-c$$$C----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 11. Exit.
-c$$$C
-c$$$  850 IF (IPROC .EQ. 0) STOP
-c$$$      WRITE(LOUT, 9860)
-c$$$ 9860 FORMAT(' Do you want to save the best subsets found ? (Y/N) ')
-c$$$      READ(LIN, *) ANS
-c$$$      IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
-c$$$    REWIND(9)
-c$$$    CALL LSORT(LOPT, IL, NBEST, NVMX)
-c$$$    READ(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
-c$$$    IF (ICONST .EQ. 0) THEN
-c$$$      READ(9) YNAME, (VNAME(I),I=1,K)
-c$$$      READ(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K), RESSQ
-c$$$    ELSE
-c$$$      READ(9) YNAME, (VNAME(I),I=0,K)
-c$$$      READ(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K), RESSQ
-c$$$    END IF
-c$$$    LSEL = .TRUE.
-c$$$    REWIND(9)
-c$$$    ILNB = IL*NBEST
-c$$$    IR = NVMX*NBEST
-c$$$    WRITE(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
-c$$$    IF (ICONST .EQ. 0) THEN
-c$$$      WRITE(9) YNAME, (VNAME(I),I=1,K)
-c$$$      WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K),
-c$$$     +              RESSQ
-c$$$    ELSE
-c$$$      WRITE(9) YNAME, (VNAME(I),I=0,K)
-c$$$      WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K),
-c$$$     +              RESSQ
-c$$$    END IF
-c$$$    WRITE(9) NVMAX, NBEST, IL, ILNB, IR, IPROC
-c$$$    WRITE(9) (LOPT(L),L=1,ILNB)
-c$$$    WRITE(9) (RESS(I),I=1,IR)
-c$$$      END IF
-c$$$      STOP
-c$$$C
-c$$$C----------------------------------------------------------------------
-c$$$C
-c$$$C     Simulated subroutine to force variables into starting positions.
-c$$$C     NV = no. of variables to be forced in.
-c$$$C
-c$$$ 1000 WRITE(LOUT, 9930) (I, VNAME(I),I = 1,K)
-c$$$ 9930 FORMAT('+Variables & their numbers:', 10(/1X, 5(I3, 1X, A8, 3X)))
-c$$$      IF(NV .LE. 0) GO TO 100
-c$$$      WRITE(LOUT, 9920)
-c$$$ 9920 FORMAT(' List variable nos. : ')
-c$$$      READ(LIN, *) (IWK(I),I = 1,NV)
-c$$$C
-c$$$C     Find variables in VORDER which are in the input list and move up
-c$$$C     to the next available position.
-c$$$C
-c$$$      IF (ICONST .EQ. 1) THEN
-c$$$    CALL REORDR(NCOLS, NRBAR, VORDER, EL, U, RHS, SSQ, TOL, IWK, NV,
-c$$$     +            2, IER)
-c$$$      ELSE
-c$$$    CALL REORDR(NCOLS, NRBAR, VORDER(1), EL(1), U, RHS(1), SSQ(1),
-c$$$     +              TOL(1), IWK, NV, 1, IER)
-c$$$      END IF
-c$$$      NV = NV + ICONST
-c$$$      FIRST = NV + 1
-c$$$      GO TO IRTN,(210, 260, 810)
-c$$$C
-c$$$C----------------------------------------------------------------------
-c$$$C
-c$$$C     Option 8. Force variables out of models.
-c$$$C
-c$$$  900 WRITE(LOUT, 9850)
-c$$$ 9850 FORMAT('+How many variables ? ')
-c$$$      READ(LIN, 8010) NV
-c$$$      WRITE(LOUT, 9920)
-c$$$      DO 910 I = 1, NV
-c$$$  910 READ(LIN, *) IWK(I)
-c$$$      LAST = NCOLS
-c$$$      J = LAST
-c$$$  920 L = VORDER(J)
-c$$$      DO 930 M = 1, NV
-c$$$    IF(L .EQ. IWK(M)) GO TO 940
-c$$$  930 CONTINUE
-c$$$      GO TO 960
-c$$$  940 IF(J .EQ. LAST) GO TO 950
-c$$$      CALL VMOVE(NCOLS, NRBAR, VORDER, EL, U, RHS, SSQ, J, LAST, TOL,
-c$$$     +    IER)
-c$$$  950 LAST = LAST - 1
-c$$$      IF(J .LT. FIRST) FIRST = FIRST - 1
-c$$$  960 J = J - 1
-c$$$      IF(J .GT. 0) GO TO 920
-c$$$      GO TO 100
-c$$$C
-c$$$C----------------------------------------------------------------------
-c$$$C
-c$$$C     Print current order of the first NV variables and their RSS's.
-c$$$C
-c$$$ 1100 WRITE(LOUT, 9900)
-c$$$ 9900 FORMAT(' Order  Variable   Resid.sumsq.')
-c$$$      DO 1110 I = 1-ICONST, NV-ICONST
-c$$$    J = VORDER(I)
-c$$$    WRITE(LOUT, 9910) I, VNAME(J), SSQ(I)
-c$$$ 9910   FORMAT(I5, 3X, A8, 1X, G14.6)
-c$$$ 1110 CONTINUE
-c$$$      GO TO 100
-c$$$      END
-c$$$C
-c$$$C
-c$$$C
-c$$$C
+c___C      PROGRAM SUBSET
+c___C
+c___C     Interactive program to perform regressions on subsets of
+c___C     variables.   Max. no. of variables, excl. constant = 50.
+c___C
+c___C     Subroutines called:-
+c___C     ADD1, BAKWRD, EFROYM, XHAUST, FORWRD, EXADD1, INITR, REGCF,
+c___C     REORDR, LSORT, PCORR, REPORT, SEQREP, SHELL, SS, TOLSET.
+c___C
+c___C     Latest revision - 10 November 1993
+c___C
+c___C     IMPLICIT NONE
+c___      INTEGER MAXCOL, MAXSUB, MAXBST, MAXL, MAXR
+c___      PARAMETER (MAXCOL=50, MAXSUB=25, MAXBST=20, MAXL=1000,
+c___     +           MAXR=MAXSUB*MAXBST)
+c___      INTEGER UDIM, IIW, IW
+c___      PARAMETER (UDIM=MAXCOL*(MAXCOL+1)/2, IIW=3*MAXCOL, IW=UDIM+IIW)
+c___      CHARACTER FNAME*30, ANS, OPTION(22), VNAME(0:MAXCOL)*8, YNAME*8
+c___      LOGICAL LSEL, OK
+c___      INTEGER LIN, LOUT, LPR, LOPT(MAXL), IWK(IIW), K, IRTN, LINE,
+c___     +        ICONST, NCOLS, I1, IPOS, I, NOBS, VORDER(0:MAXCOL), IL,
+c___     +        NRBAR, NVMAX, NVMX, NBEST, IOPT, IER, NDF, J, NV, NB,
+c___     +        IPRINT, IR, L, IPROC, FIRST, LAST, SIZE, M, ILNB
+c___      DOUBLE PRECISION U(UDIM), EL(0:MAXCOL), RHS(0:MAXCOL), RESSQ,
+c___     +        SSQ(0:MAXCOL), TOL(0:MAXCOL), BOUND(MAXSUB), RESS(MAXR),
+c___     +        WK(IW), TEMP, FIN, FOUT
+c___      REAL VAR
+c___      DATA OPTION/'C', 'c', 'F', 'f', 'B', 'b', 'R', 'r', 'E', 'e',
+c___     +    'P', 'p', 'I', 'i', 'O', 'o', 'L', 'l', 'X', 'x', 'Q', 'q'/
+c___C
+c___C     Set unit numbers for I/O in LIN & LOUT below.
+c___C
+c___      DATA LIN/5/, LOUT/6/
+c___C
+c___C     Ask for name of the data set.
+c___C
+c___   10 WRITE(LOUT,9000)
+c___ 9000 FORMAT(' Enter name of .RED file for data (e.g. B:myfile): ')
+c___      READ(LIN,8000) FNAME
+c___ 8000 FORMAT(A)
+c___C
+c___C     Add the .RED extension if necessary.
+c___C
+c___      IF (INDEX(FNAME, '.RED') .EQ. 0) THEN
+c___    IPOS = INDEX(FNAME, ' ')
+c___    IF (IPOS .EQ. 0 .OR. IPOS .GT. 11) THEN
+c___      WRITE(LOUT, 9010) FNAME
+c___ 9010     FORMAT(' ** Illegal filename entered - ', A, ' **')
+c___      GO TO 10
+c___    END IF
+c___    FNAME(IPOS: IPOS+3) = '.RED'
+c___      END IF
+c___C
+c___C     Check that file exists.
+c___C
+c___      INQUIRE(FILE=FNAME, EXIST=OK)
+c___      IF (.NOT. OK) THEN
+c___    WRITE(LOUT, 9020) FNAME
+c___ 9020   FORMAT(' ** File not found - ', A, ' **')
+c___    GO TO 10
+c___      END IF
+c___      OPEN(9, FILE=FNAME, STATUS='OLD', ACCESS='SEQUENTIAL',
+c___     +        FORM='UNFORMATTED')
+c___C
+c___C     Read contents of file.
+c___C
+c___      READ(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
+c___      IF (ICONST .EQ. 0) THEN
+c___    READ(9) YNAME, (VNAME(I),I=1,K)
+c___    READ(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K), RESSQ
+c___      ELSE
+c___    READ(9) YNAME, (VNAME(I),I=0,K)
+c___    READ(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K), RESSQ
+c___      END IF
+c___      I1 = 1 + ICONST
+c___      WRITE(LOUT, 9030) K, NOBS, YNAME
+c___ 9030 FORMAT(' No. of predictors = ', I3, 5X, 'No. of cases = ', I5/
+c___     +       ' Dependant variable is ', A)
+c___      WRITE(LOUT, 9930) (I, VNAME(I),I=1,K)
+c___C
+c___C     Initially, all variables except the constant (if there is one)
+c___C     are considered candidates for either inclusion or exclusion
+c___C
+c___      FIRST = I1
+c___      LAST = NCOLS
+c___C
+c___C     Set up array VORDER.
+c___C
+c___      DO 30 I = 0, K
+c___    VORDER(I) = I
+c___   30 CONTINUE
+c___C
+c___C     Ask for values of NVMAX & NBEST.
+c___C
+c___   50 WRITE(LOUT, 9040)
+c___ 9040 FORMAT(' Enter max. size of subsets (excl. constant): ')
+c___      READ(LIN, 8010) NVMAX
+c___ 8010 FORMAT(I3)
+c___      NVMX = NVMAX + ICONST
+c___      IF(NVMX .LE. MAXBST) GO TO 70
+c___   60 WRITE(LOUT, 9050)
+c___ 9050 FORMAT(' *** Too many, sorry, try again')
+c___      GO TO 50
+c___   70 IL = NVMX*(NVMX + 1)/2
+c___      L = MIN(MAXL/IL, MAXR/NVMX, MAXBST)
+c___      WRITE(LOUT, 9060) L, NVMAX
+c___ 9060 FORMAT('+How many subsets of each size to be recorded ?'/
+c___     +       ' Max. = ', I4, ' with NVMAX =', I3, ' : ')
+c___      READ(LIN, 8010) NBEST
+c___      IF(NBEST .GT. L) GO TO 60
+c___C
+c___C     Call TOLSET, SS & INITR to initialize arrays.
+c___C
+c___      IF (ICONST .EQ. 1) THEN
+c___    CALL TOLSET(NCOLS, NRBAR, EL, U, TOL, WK, IER)
+c___    CALL SS(NCOLS, EL, RHS, RESSQ, SSQ, IER)
+c___    CALL INITR(NCOLS, NVMX, NBEST, BOUND, RESS, NVMX, LOPT, IL,
+c___     +             VORDER, SSQ, IER)
+c___      ELSE
+c___    CALL TOLSET(NCOLS, NRBAR, EL(1), U, TOL(1), WK, IER)
+c___    CALL SS(NCOLS, EL(1), RHS(1), RESSQ, SSQ(1), IER)
+c___    CALL INITR(NCOLS, NVMX, NBEST, BOUND, RESS, NVMX, LOPT, IL,
+c___     +             VORDER(1), SSQ(1), IER)
+c___      END IF
+c___      WRITE(LOUT, 9065) NCOLS, RESSQ
+c___ 9065 FORMAT(' Initially NCOLS = ', I4,'  RESSQ = ', G13.5)
+c___      IF (NOBS .GT. NCOLS) THEN
+c___    NDF = NOBS - NCOLS
+c___    VAR = RESSQ / NDF
+c___    WRITE(*, 9068) VAR, NDF
+c___ 9068   FORMAT(' Resid. variance estimate = ', g11.4, ' with ', i4,
+c___     +         ' deg. of freedom'/)
+c___      END IF
+c___      IPROC = 0
+c___C
+c___C     Display menu & ask for choice.
+c___C
+c___  100 WRITE(LOUT, 9070)
+c___ 9070 FORMAT(' Options:-'/
+c___     1 ' C Corrlns. & partial corrlns.    F Forward selection'/
+c___     2 ' B Backward elimination           R Sequential replacement'/
+c___     3 ' E Efroymson stepwise             P Print summary of subsets'/
+c___     4 ' I Specify IN variables           O Specify OUT variables'/
+c___     5 ' L Least-squares regn.coeffs.     X Exhaustive search'/
+c___     6 ' Q Quit           ENTER YOUR OPTION : ')
+c___      READ(LIN, *) ANS
+c___C
+c___C     Compare ANS with currently available options.
+c___C
+c___      DO 110 IOPT = 1,22
+c___    IF(ANS .EQ. OPTION(IOPT)) GO TO 120
+c___  110 CONTINUE
+c___      WRITE(LOUT, 9080) ANS
+c___ 9080 FORMAT(' Option ', A, ' not available')
+c___      GO TO 100
+c___  120 L = (IOPT + 1)/2
+c___C
+c___C             C    F    B    R    E    P    I    O    L    X    Q
+c___      GO TO (200, 300, 400, 500, 550, 700, 800, 900, 250, 600, 850), L
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 1. Correlations.
+c___C
+c___  200 WRITE(LOUT, 9200)
+c___ 9200 FORMAT('+Do you want partial correlations ? (Y or N) ')
+c___      NV = 0
+c___      READ(LIN, *) ANS
+c___      IF(ANS .EQ. 'N' .OR. ANS .EQ. 'n') GO TO 210
+c___      IF(ANS .NE. 'Y' .AND. ANS .NE. 'y') GO TO 200
+c___      ASSIGN 210 TO IRTN
+c___      WRITE(LOUT, 9210)
+c___ 9210 FORMAT(' Partial corrlns. on how many variables (excl.const.) ? ')
+c___      READ(LIN, 8010) NV
+c___      IF(NV .GT. 0) GO TO 1000
+c___  210 WRITE(LOUT, 9220)
+c___ 9220 FORMAT('+Correlations amongst all variables (A) or with Y only',
+c___     +       1X,'(Y) ? ')
+c___      IOPT = 0
+c___      READ(LIN, *) ANS
+c___      IF(ANS .EQ. 'A' .OR. ANS .EQ. 'a') IOPT = 1
+c___      NB = NV + ICONST
+c___      CALL PCORR(NCOLS, NRBAR, EL, U, RHS, RESSQ, NB, WK(UDIM+NCOLS+1),
+c___     +           WK, IW, WK(UDIM+1), IER)
+c___C
+c___C     Display the (partial) correlations.
+c___C     Correlations amongst the X-variables start at WK(1); correlations
+c___C     with Y start at WK(UDIM+1).
+c___C
+c___      CALL PRINTC(NCOLS, NB, WK, UDIM, WK(UDIM+1), VORDER, VNAME(1),
+c___     +            YNAME, IOPT, LOUT, IER)
+c___      GO TO 100
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 9. Least - squares regression coefficients.
+c___C
+c___  250 WRITE(LOUT, 9850)
+c___      READ(LIN, 8010) NV
+c___      ASSIGN 260 TO IRTN
+c___      GO TO 1000
+c___  260 IF (ICONST .EQ. 1) THEN
+c___    CALL REGCF(NCOLS, NRBAR, EL, U, RHS, TOL, WK, NV, IER)
+c___      ELSE
+c___    CALL REGCF(NCOLS, NRBAR, EL(1), U, RHS(1), TOL(1), WK, NV, IER)
+c___      END IF
+c___      IER = -IER
+c___      IF(IER .NE. 0) WRITE(LOUT, 9250) IER
+c___ 9250 FORMAT(' Variables linearly dependant, rank deficiency =',I4)
+c___      WRITE(LOUT, 9260)(VORDER(I-ICONST),WK(I),I=1,NV)
+c___ 9260 FORMAT(' Least-squares regn.coeffs.',
+c___     +  7(/1X, I5, G13.5, 2X, I5, G13.5, 2X, I5, G13.5, 2X, I5, G13.5))
+c___      WRITE(LOUT, 9270) SSQ(NV-ICONST)
+c___ 9270 FORMAT(' Resid. sum of sq. =',G13.5/)
+c___      GO TO 100
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 2. Forward selection.
+c___C
+c___  300 IF (ICONST .EQ. 1) THEN
+c___    CALL FORWRD(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
+c___     +      SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IER)
+c___      ELSE
+c___    CALL FORWRD(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
+c___     +      VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS, NVMX, NBEST,
+c___     +      LOPT, IL, WK, IW, IER)
+c___      END IF
+c___      NV = NVMX
+c___      IF (IPROC .EQ. 2*(IPROC/2)) IPROC = IPROC + 1
+c___      GO TO 1100
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 3. Backward elimination.
+c___C
+c___  400 IF (ICONST .EQ. 1) THEN
+c___    CALL BAKWRD(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
+c___     +     SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IER)
+c___      ELSE
+c___    CALL BAKWRD(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
+c___     +     VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS, NVMX, NBEST,
+c___     +     LOPT, IL, WK, IW, IER)
+c___      END IF
+c___      NV = LAST
+c___      I = IPROC/2
+c___      IF (I .EQ. 2*(I/2)) IPROC = IPROC + 2
+c___      GO TO 1100
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 4. Sequential replacement.
+c___C
+c___  500 IF (ICONST .EQ. 1) THEN
+c___    CALL SEQREP(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
+c___     +     SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IER)
+c___      ELSE
+c___    CALL SEQREP(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
+c___     +     VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS, NVMX, NBEST,
+c___     +     LOPT, IL, WK, IW, IER)
+c___      END IF
+c___      I = IPROC/8
+c___      IF (I .EQ. 2*(I/2)) IPROC = IPROC + 8
+c___      NV = NVMX
+c___      GO TO 1100
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 5. Efroymson (stepwise)
+c___C
+c___  550 WRITE(LOUT, 9550)
+c___ 9550 FORMAT(' Enter F-to-enter value : ')
+c___      READ(LIN, 8550) FIN
+c___ 8550 FORMAT(F10.0)
+c___      WRITE(LOUT, 9560)
+c___ 9560 FORMAT(' Enter F-to-remove value : ')
+c___      READ(LIN, 8550) FOUT
+c___      IF (ICONST .EQ. 1) THEN
+c___    CALL EFROYM(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, FIN, FOUT,
+c___     +    SIZE, NOBS, VORDER, TOL, SSQ, BOUND, NVMX, RESS, NVMX, NBEST,
+c___     +    LOPT, IL, WK, IW, IER)
+c___      ELSE
+c___    CALL EFROYM(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST, FIN,
+c___     +   FOUT, SIZE, NOBS, VORDER(1), TOL(1), SSQ(1), BOUND, NVMX, RESS,
+c___     +   NVMX, NBEST, LOPT, IL, WK, IW, IER)
+c___      END IF
+c___      IF (IER .NE. 0) THEN
+c___    WRITE(LOUT, 9570) IER
+c___ 9570   FORMAT(' Error code',I4,' returned by EFROYM')
+c___    GO TO 100
+c___      ELSE
+c___    NV = SIZE
+c___    I = IPROC/4
+c___    IPROC = IPROC + 4
+c___    GO TO 1100
+c___      END IF
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 10. Exhaustive search.
+c___C
+c___  600  IF (ICONST .EQ. 1) THEN
+c___     CALL XHAUST(NCOLS, NRBAR, EL, U, RHS, FIRST, LAST, VORDER, TOL,
+c___     +      SSQ, BOUND, NVMX, RESS, NVMX, NBEST, LOPT, IL, WK, IW, IWK,
+c___     +      IIW, IER)
+c___      ELSE
+c___     CALL XHAUST(NCOLS, NRBAR, EL(1), U, RHS(1), FIRST, LAST,
+c___     +      VORDER(1), TOL(1), +   SSQ(1), BOUND, NVMX, RESS, NVMX,
+c___     +      NBEST, LOPT, IL, WK, IW, IWK, IIW, IER)
+c___      END IF
+c___      IF (IPROC .LT. 16) IPROC = IPROC + 16
+c___      GO TO 100
+c___C
+c___C-----------------------------------------------------------------------
+c___C
+c___C     Option 6. Print summary of best subsets found so far.
+c___C
+c___  700 CALL LSORT(LOPT, IL, NBEST, NVMX)
+c___      L = FIRST*(FIRST-1)/2 + 1
+c___      LINE = 1
+c___      M = FIRST - ICONST
+c___      DO 730 NV = FIRST, NVMX
+c___    WRITE(LOUT,9700) M
+c___ 9700   FORMAT(20X,'Best subsets found of',I3,' variables')
+c___    LINE = LINE + 1
+c___    DO 720 NB = 1,NBEST
+c___      J = (NB-1)*NVMX + NV
+c___      TEMP = RESS(J)
+c___      IF(TEMP .GT. 1.E+35) GO TO 720
+c___      IPOS = L
+c___      DO 710 I = 1,NV
+c___        J = (NB-1)*IL + IPOS
+c___        IWK(I) = LOPT(J)
+c___        IPOS = IPOS + 1
+c___  710     CONTINUE
+c___        WRITE(LOUT,9710) TEMP,(IWK(I),I=FIRST,NV)
+c___      LINE = LINE + 1 + (NV-1)/10
+c___ 9710     FORMAT(' RSS =',G14.6,3X,'Variables:',10I4,4(/10X,10I4))
+c___  720   CONTINUE
+c___    IF (LINE .GE. 25 - NB) THEN
+c___      PAUSE
+c___      LINE = 1
+c___    END IF
+c___    L = L + NV
+c___    M = M + 1
+c___  730 CONTINUE
+c___      GO TO 100
+c___C
+c___C----------------------------------------------------------------------
+c___C
+c___C     Option 7. Force variables into models.
+c___C
+c___  800 WRITE(LOUT, 9800)
+c___ 9800 FORMAT('+How many variables, excl. constant ? ')
+c___      READ(LIN, 8010) NV
+c___      ASSIGN 810 TO IRTN
+c___      GO TO 1000
+c___  810 GO TO 1100
+c___C
+c___C----------------------------------------------------------------------
+c___C
+c___C     Option 11. Exit.
+c___C
+c___  850 IF (IPROC .EQ. 0) STOP
+c___      WRITE(LOUT, 9860)
+c___ 9860 FORMAT(' Do you want to save the best subsets found ? (Y/N) ')
+c___      READ(LIN, *) ANS
+c___      IF (ANS .EQ. 'Y' .OR. ANS .EQ. 'y') THEN
+c___    REWIND(9)
+c___    CALL LSORT(LOPT, IL, NBEST, NVMX)
+c___    READ(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
+c___    IF (ICONST .EQ. 0) THEN
+c___      READ(9) YNAME, (VNAME(I),I=1,K)
+c___      READ(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K), RESSQ
+c___    ELSE
+c___      READ(9) YNAME, (VNAME(I),I=0,K)
+c___      READ(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K), RESSQ
+c___    END IF
+c___    LSEL = .TRUE.
+c___    REWIND(9)
+c___    ILNB = IL*NBEST
+c___    IR = NVMX*NBEST
+c___    WRITE(9) K, ICONST, NCOLS, NOBS, NRBAR, LSEL
+c___    IF (ICONST .EQ. 0) THEN
+c___      WRITE(9) YNAME, (VNAME(I),I=1,K)
+c___      WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=1,K), (RHS(I),I=1,K),
+c___     +              RESSQ
+c___    ELSE
+c___      WRITE(9) YNAME, (VNAME(I),I=0,K)
+c___      WRITE(9) (U(I),I=1,NRBAR), (EL(I),I=0,K), (RHS(I),I=0,K),
+c___     +              RESSQ
+c___    END IF
+c___    WRITE(9) NVMAX, NBEST, IL, ILNB, IR, IPROC
+c___    WRITE(9) (LOPT(L),L=1,ILNB)
+c___    WRITE(9) (RESS(I),I=1,IR)
+c___      END IF
+c___      STOP
+c___C
+c___C----------------------------------------------------------------------
+c___C
+c___C     Simulated subroutine to force variables into starting positions.
+c___C     NV = no. of variables to be forced in.
+c___C
+c___ 1000 WRITE(LOUT, 9930) (I, VNAME(I),I = 1,K)
+c___ 9930 FORMAT('+Variables & their numbers:', 10(/1X, 5(I3, 1X, A8, 3X)))
+c___      IF(NV .LE. 0) GO TO 100
+c___      WRITE(LOUT, 9920)
+c___ 9920 FORMAT(' List variable nos. : ')
+c___      READ(LIN, *) (IWK(I),I = 1,NV)
+c___C
+c___C     Find variables in VORDER which are in the input list and move up
+c___C     to the next available position.
+c___C
+c___      IF (ICONST .EQ. 1) THEN
+c___    CALL REORDR(NCOLS, NRBAR, VORDER, EL, U, RHS, SSQ, TOL, IWK, NV,
+c___     +            2, IER)
+c___      ELSE
+c___    CALL REORDR(NCOLS, NRBAR, VORDER(1), EL(1), U, RHS(1), SSQ(1),
+c___     +              TOL(1), IWK, NV, 1, IER)
+c___      END IF
+c___      NV = NV + ICONST
+c___      FIRST = NV + 1
+c___      GO TO IRTN,(210, 260, 810)
+c___C
+c___C----------------------------------------------------------------------
+c___C
+c___C     Option 8. Force variables out of models.
+c___C
+c___  900 WRITE(LOUT, 9850)
+c___ 9850 FORMAT('+How many variables ? ')
+c___      READ(LIN, 8010) NV
+c___      WRITE(LOUT, 9920)
+c___      DO 910 I = 1, NV
+c___  910 READ(LIN, *) IWK(I)
+c___      LAST = NCOLS
+c___      J = LAST
+c___  920 L = VORDER(J)
+c___      DO 930 M = 1, NV
+c___    IF(L .EQ. IWK(M)) GO TO 940
+c___  930 CONTINUE
+c___      GO TO 960
+c___  940 IF(J .EQ. LAST) GO TO 950
+c___      CALL VMOVE(NCOLS, NRBAR, VORDER, EL, U, RHS, SSQ, J, LAST, TOL,
+c___     +    IER)
+c___  950 LAST = LAST - 1
+c___      IF(J .LT. FIRST) FIRST = FIRST - 1
+c___  960 J = J - 1
+c___      IF(J .GT. 0) GO TO 920
+c___      GO TO 100
+c___C
+c___C----------------------------------------------------------------------
+c___C
+c___C     Print current order of the first NV variables and their RSS's.
+c___C
+c___ 1100 WRITE(LOUT, 9900)
+c___ 9900 FORMAT(' Order  Variable   Resid.sumsq.')
+c___      DO 1110 I = 1-ICONST, NV-ICONST
+c___    J = VORDER(I)
+c___    WRITE(LOUT, 9910) I, VNAME(J), SSQ(I)
+c___ 9910   FORMAT(I5, 3X, A8, 1X, G14.6)
+c___ 1110 CONTINUE
+c___      GO TO 100
+c___      END
+c___C
+c___C
+c___C
+c___C
       SUBROUTINE LSORT(LOPT, IL, NBEST, NVMX)
 C
 C      Sort the variable numbers in LOPT into increasing order.
@@ -2205,89 +2205,89 @@ C
 C
 C
 C
-c$$$      SUBROUTINE PRINTC(NP, IN, CORMAT, DIMC, YCORR, VORDER, VNAME,
-c$$$     +              YNAME, IOPT, LOUT, IER)
-c$$$C
-c$$$C     Print (partial) correlations calculated using PCORR.
-c$$$C     If IOPT = 0, print correlations with the Y-variable only.
-c$$$C
-c$$$C     IMPLICIT NONE
-c$$$      INTEGER NP, IN, DIMC, VORDER(NP), IOPT, LOUT, IER
-c$$$      DOUBLE PRECISION CORMAT(DIMC), YCORR(NP)
-c$$$      CHARACTER VNAME(NP)*8, YNAME*8
-c$$$C
-c$$$C     Local variables.
-c$$$C
-c$$$      INTEGER NROWS, J1, J2, J, I1, I2, I, ROW, UPOS, TPOS, LAST
-c$$$      CHARACTER TEXT*74, EMPTY*65, CHAR1*9
-c$$$
-c$$$      DATA EMPTY/' '/, CHAR1/' 1.0'/
-c$$$C
-c$$$C     Check validity of arguments
-c$$$C
-c$$$      IER = 0
-c$$$      IF (IN .GE. NP) IER = 1
-c$$$      IF (NP .LE. 1) IER = IER + 2
-c$$$      NROWS = NP - IN
-c$$$      IF (DIMC .LE. NROWS*(NROWS-1)/2) IER = IER + 4
-c$$$      IF (IER .NE. 0) RETURN
-c$$$C
-c$$$C     If IOPT.NE.0 output heading
-c$$$C
-c$$$      IF(IOPT .EQ. 0) GO TO 30
-c$$$      WRITE(LOUT, 900)
-c$$$  900 FORMAT(/5X, 'Correlation matrix')
-c$$$      J1 = IN + 1
-c$$$   10 J2 = MIN(J1+6, NP)
-c$$$      I1 = J1 - IN
-c$$$      I2 = J2 - IN
-c$$$      WRITE(LOUT, 910)(VNAME(VORDER(J)), J=J1,J2)
-c$$$  910 FORMAT(11X, 7(A8, 1X))
-c$$$C
-c$$$C     Print correlations for rows 1 to I2, columns I1 to I2.
-c$$$C
-c$$$      DO 20 ROW = 1, I2
-c$$$      TEXT = ' ' // VNAME(VORDER(ROW+IN)) // EMPTY
-c$$$      IF (I1 .GT. ROW) THEN
-c$$$    UPOS = (ROW-1) * (NROWS+NROWS-ROW) /2 + (I1-ROW)
-c$$$    LAST = UPOS + I2 - I1
-c$$$    WRITE(TEXT(12:74), '(7(F8.5,1X))')(CORMAT(I),I=UPOS,LAST)
-c$$$      ELSE
-c$$$    UPOS = (ROW-1) * (NROWS+NROWS-ROW) /2 + 1
-c$$$    TPOS = 12 + 9*(ROW-I1)
-c$$$    TEXT(TPOS:TPOS+8) = CHAR1
-c$$$    LAST = UPOS + I2 - ROW - 1
-c$$$    IF (ROW .LT. I2) WRITE(TEXT(TPOS+9:74), '(6(F8.5, 1X))')
-c$$$     +                 (CORMAT(I),I=UPOS, LAST)
-c$$$      END IF
-c$$$      WRITE(LOUT, '(A)') TEXT
-c$$$   20 CONTINUE
-c$$$C
-c$$$C     Move onto the next block of columns.
-c$$$C
-c$$$      J1 = J2 + 1
-c$$$      IF (J1 .LE. NP) GO TO 10
-c$$$C
-c$$$C     Correlations with the Y-variable.
-c$$$C
-c$$$   30 WRITE(LOUT, 920) YNAME
-c$$$  920 FORMAT(/5X, 'Correlations with the dependent variable: ', A)
-c$$$      J1 = IN + 1
-c$$$   40 J2 = MIN(J1+7, NP)
-c$$$      I1 = J1 - IN
-c$$$      I2 = J2 - IN
-c$$$      WRITE(LOUT, 930)(VNAME(VORDER(J)), J=J1,J2)
-c$$$  930 FORMAT(/1X, 8(A8, 1X))
-c$$$      WRITE(LOUT, 940)(YCORR(I),I=I1,I2)
-c$$$  940 FORMAT(1X, 8(F8.5, 1X))
-c$$$      J1 = J2 + 1
-c$$$      IF (J1 .LE. NP) GO TO 40
-c$$$C
-c$$$C     Put extra blank line into output
-c$$$C
-c$$$      WRITE(LOUT, *)
-c$$$C
-c$$$      RETURN
-c$$$      END
+c___      SUBROUTINE PRINTC(NP, IN, CORMAT, DIMC, YCORR, VORDER, VNAME,
+c___     +              YNAME, IOPT, LOUT, IER)
+c___C
+c___C     Print (partial) correlations calculated using PCORR.
+c___C     If IOPT = 0, print correlations with the Y-variable only.
+c___C
+c___C     IMPLICIT NONE
+c___      INTEGER NP, IN, DIMC, VORDER(NP), IOPT, LOUT, IER
+c___      DOUBLE PRECISION CORMAT(DIMC), YCORR(NP)
+c___      CHARACTER VNAME(NP)*8, YNAME*8
+c___C
+c___C     Local variables.
+c___C
+c___      INTEGER NROWS, J1, J2, J, I1, I2, I, ROW, UPOS, TPOS, LAST
+c___      CHARACTER TEXT*74, EMPTY*65, CHAR1*9
+c___
+c___      DATA EMPTY/' '/, CHAR1/' 1.0'/
+c___C
+c___C     Check validity of arguments
+c___C
+c___      IER = 0
+c___      IF (IN .GE. NP) IER = 1
+c___      IF (NP .LE. 1) IER = IER + 2
+c___      NROWS = NP - IN
+c___      IF (DIMC .LE. NROWS*(NROWS-1)/2) IER = IER + 4
+c___      IF (IER .NE. 0) RETURN
+c___C
+c___C     If IOPT.NE.0 output heading
+c___C
+c___      IF(IOPT .EQ. 0) GO TO 30
+c___      WRITE(LOUT, 900)
+c___  900 FORMAT(/5X, 'Correlation matrix')
+c___      J1 = IN + 1
+c___   10 J2 = MIN(J1+6, NP)
+c___      I1 = J1 - IN
+c___      I2 = J2 - IN
+c___      WRITE(LOUT, 910)(VNAME(VORDER(J)), J=J1,J2)
+c___  910 FORMAT(11X, 7(A8, 1X))
+c___C
+c___C     Print correlations for rows 1 to I2, columns I1 to I2.
+c___C
+c___      DO 20 ROW = 1, I2
+c___      TEXT = ' ' // VNAME(VORDER(ROW+IN)) // EMPTY
+c___      IF (I1 .GT. ROW) THEN
+c___    UPOS = (ROW-1) * (NROWS+NROWS-ROW) /2 + (I1-ROW)
+c___    LAST = UPOS + I2 - I1
+c___    WRITE(TEXT(12:74), '(7(F8.5,1X))')(CORMAT(I),I=UPOS,LAST)
+c___      ELSE
+c___    UPOS = (ROW-1) * (NROWS+NROWS-ROW) /2 + 1
+c___    TPOS = 12 + 9*(ROW-I1)
+c___    TEXT(TPOS:TPOS+8) = CHAR1
+c___    LAST = UPOS + I2 - ROW - 1
+c___    IF (ROW .LT. I2) WRITE(TEXT(TPOS+9:74), '(6(F8.5, 1X))')
+c___     +                 (CORMAT(I),I=UPOS, LAST)
+c___      END IF
+c___      WRITE(LOUT, '(A)') TEXT
+c___   20 CONTINUE
+c___C
+c___C     Move onto the next block of columns.
+c___C
+c___      J1 = J2 + 1
+c___      IF (J1 .LE. NP) GO TO 10
+c___C
+c___C     Correlations with the Y-variable.
+c___C
+c___   30 WRITE(LOUT, 920) YNAME
+c___  920 FORMAT(/5X, 'Correlations with the dependent variable: ', A)
+c___      J1 = IN + 1
+c___   40 J2 = MIN(J1+7, NP)
+c___      I1 = J1 - IN
+c___      I2 = J2 - IN
+c___      WRITE(LOUT, 930)(VNAME(VORDER(J)), J=J1,J2)
+c___  930 FORMAT(/1X, 8(A8, 1X))
+c___      WRITE(LOUT, 940)(YCORR(I),I=I1,I2)
+c___  940 FORMAT(1X, 8(F8.5, 1X))
+c___      J1 = J2 + 1
+c___      IF (J1 .LE. NP) GO TO 40
+c___C
+c___C     Put extra blank line into output
+c___C
+c___      WRITE(LOUT, *)
+c___C
+c___      RETURN
+c___      END
 
 c     include 'subs.for'

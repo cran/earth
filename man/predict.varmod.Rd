@@ -8,7 +8,7 @@ when that function's \code{interval} argument is used.
 }
 \usage{
 \method{predict}{varmod}(
-    object  = stop("no 'object' arg"),
+    object  = stop("no 'object' argument"),
     newdata = NULL,
     type    = c("pint", "cint", "se", "abs.residual"),
     level   = .95,

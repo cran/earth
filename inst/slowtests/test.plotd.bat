@@ -1,13 +1,12 @@
 @rem test.plotd.bat
 @rem Stephen Milborrow Mar 2008 Durban
 
-@echo === test.plotd ===============================================
-@"C:\PROGRA~1\R\R-3.1.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
+@"C:\PROGRA~1\R\R-3.2.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
 @if %errorlevel% equ 0 goto good1
-@echo error: R returned errorlevel %errorlevel%, see test.plotd.Rout:
+@echo R returned errorlevel %errorlevel%, see test.plotd.Rout:
 @echo.
 @tail test.plotd.Rout
-@echo.
+@echo test.plotd.R
 @exit /B 1
 :good1
 mks.diff test.plotd.Rout test.plotd.Rout.save

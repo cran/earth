@@ -49,6 +49,13 @@ lm2 <- lm(y~., data=data, weights=weights)
 a2  <- earth(y~., data=data, linpreds=TRUE, weights=weights)
 check.models.equal(lm2, a2)
 
+# check that we can get the weights from the data as per lm
+lm2.a <- lm(y~xxx, data=data, weights=x) # weights from model frame
+a2.a  <- earth(y~xxx, data=data, linpreds=TRUE, weights=x) # weights from model frame
+a2.b  <- earth(y~xxx, data=data, linpreds=TRUE, weights=xxx) # weights from global env
+check.models.equal(lm2.a, a2.a)
+check.models.equal(a2.b, a2.a)
+
 weights <- c(1, 2, 3, 1, 2, 3, 1, 2, 3)
 lm3 <- lm(y~., data=data, weights=weights)
 a3  <- earth(y~., data=data, linpreds=TRUE, weights=weights, trace=-1)
@@ -75,21 +82,21 @@ par(mar = c(3, 3, 3, 1))
 par(mgp = c(1.5, 0.5, 0))
 a5.noweights <- earth(y~., data=data,
                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-plotmo(a5.noweights, col.response=2, do.par=F, main="a5.noweights", grid="gray")
+plotmo(a5.noweights, col.response=2, do.par=F, main="a5.noweights", grid.col="gray", jitter=0)
 # TODO why does this model differ from the above model?
 a5.noweights.force <- earth(y~., data=data, Force.weights=T,
                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-plotmo(a5.noweights.force, col.response=2, do.par=F, main="a5.noweights.force", grid="gray")
+plotmo(a5.noweights.force, col.response=2, do.par=F, main="a5.noweights.force", grid.col="gray", jitter=0)
 
 cat("=== a6.azeroweight ===\n")
 a6.azeroweight  <- earth(y~., data=data, weights=c(1, 1, 1, 1, 0, 1, 1, 1, 1),
                          minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-plotmo(a6.azeroweight, col.response=2, do.par=F, main="a6.azeroweight", grid="gray")
+plotmo(a6.azeroweight, col.response=2, do.par=F, main="a6.azeroweight", grid.col="gray", jitter=0)
 
 cat("=== a7.asmallweight ===\n") # different set of weights (pick up notch in data, but with different forward pass RSq's)
 a7.asmallweight  <- earth(y~., data=data, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
                           minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-plotmo(a7.asmallweight, col.response=2, do.par=F, main="a7.asmallweight", grid="gray")
+plotmo(a7.asmallweight, col.response=2, do.par=F, main="a7.asmallweight", grid.col="gray", jitter=0)
 
 cat("=== a7.xy.asmallweight ===\n") # x,y interface
 a7.xy.asmallweight  <- earth(xxx, yyy, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
@@ -108,10 +115,10 @@ a8 <- earth(y~., data=data,
             minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 plotmo(a8,
        col.response=2, do.par=F, main="a8 glm no weights\ntype=\"response\"",
-       grid="gray", ylim=c(-.2, 1.2))
+       grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 plotmo(a8, type="earth",
        col.response=2, do.par=F, main="a8 glm no weights\ntype=\"earth\"",
-       grid="gray", ylim=c(-.2, 1.2))
+       grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 glm <- glm(y~., data=data, family=binomial)
 stopifnot(coefficients(a8$glm.list[[1]]) == coefficients(glm))
 
@@ -124,10 +131,10 @@ a8.weights <- earth(y~., data=data,
                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 plotmo(a8.weights, type="response",
        col.response=2, do.par=F, main="a8.weights glm\ntype=\"response\"",
-       grid="gray", ylim=c(-.2, 1.2))
+       grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 plotmo(a8.weights, type="earth",
        col.response=2, do.par=F, main="a8.weights glm\ntype=\"earth\"",
-       grid="gray", ylim=c(-.2, 1.2))
+       grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
 # TODO this fails if a weight is 0 in glm.weights
 stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm))
@@ -141,10 +148,10 @@ a8.azeroweight <- earth(y~., data=data,
                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 plotmo(a8.azeroweight, type="response",
        col.response=2, do.par=F, main="a8.azeroweight glm\ntype=\"response\"",
-       grid="gray", ylim=c(-.2, 1.2))
+       grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 plotmo(a8.azeroweight, type="earth",
        col.response=2, do.par=F, main="a8.azeroweight glm\ntype=\"earth\"",
-       grid="gray", ylim=c(-.2, 1.2))
+       grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 # glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
 # print(coefficients(a8.azeroweight$glm.list[[1]]))
 # print(coefficients(glm))
@@ -152,10 +159,18 @@ plotmo(a8.azeroweight, type="earth",
 # stopifnot(coefficients(a8.azeroweight$glm.list[[1]]) == coefficients(glm))
 
 cat("=== plot.earth with weights ===\n")
-plot(a8)
-plot(a8.weights)
-plot(a8.azeroweight)
-plot(a8.azeroweight, delever=TRUE)
+# we also test id.n=TRUE and id.n=-1 here
+old.par <- par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), oma=c(0,0,3,0), par(cex=1))
+plot(a3, id.n=TRUE, SHOWCALL=TRUE, caption="compare a3 to to lm3", do.par=FALSE,
+     which=c(3,4), caption.cex=1.5)
+plot(lm3, id.n=9, which=c(1,2), sub.caption="")
+par(old.par)
+
+cat("=== plot.earth with earth-glm model and weights ===\n")
+plot(a8, id.n=TRUE, caption="a8")
+plot(a8.weights, id.n=TRUE, caption="a8.weights")
+plot(a8.azeroweight, id.n=TRUE, caption="a8.azeroweight")
+plot(a8.azeroweight, id.n=TRUE, delever=TRUE, caption="a8.azeroweight delever=TRUE")
 
 # multivariate models
 
@@ -172,12 +187,12 @@ check.models.equal(lm20, a20)
 
 a21.noweights <- earth(y~., data=data, # no weights for comparison
                        minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-plotmo(a21.noweights, col.resp=2, trace=-1, caption="a21.noweights")
+plotmo(a21.noweights, col.resp=2, trace=-1, caption="a21.noweights", jitter=0)
 
 weights <- c(1, 1, 1, 1, .5, 1, 1, 1, 1)
 a10  <- earth(y~., data=data, weights=weights,
               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-plotmo(a10, col.resp=2, trace=-1, caption="a10")
+plotmo(a10, col.resp=2, caption="a10", jitter=0)
 
 if(!interactive()) {
     dev.off()         # finish postscript plot

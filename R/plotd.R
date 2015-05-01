@@ -3,10 +3,10 @@
 # TODO: allow newdata so can plot not only with the training data
 # TODO: allow freq arg for histograms
 
-plotd <- function(obj,      # obj is a model object
+plotd <- function(object,   # object is a model object
     hist   = FALSE,         # FALSE to use density(), TRUE to use hist()
     type   = NULL,          # NULL gets changed to a value which is passed on to predict
-    nresponse = NULL,        # which response, for multiple response models, NULL for all
+    nresponse = NULL,       # which response, for multiple response models, NULL for all
     dichot = FALSE,
     trace  = FALSE,
     xlim   = NULL,          # NULL means auto
@@ -44,43 +44,39 @@ plotd <- function(obj,      # obj is a model object
     yaxt = "s",
     xaxis.cex = 1,
     sd.thresh = 0.01,
-    ...)                    # passed on to predict
+    ...)                    # passed to predict
 {
+    init.global.data()
+    on.exit(init.global.data()) # release memory on exit
+    object.name <- short.deparse(substitute(object))
+    trace <- as.numeric(check.integer.scalar(trace, logical.ok=TRUE))
+    # Associate the model environment with the object.
+    # (This is instead of passing it as an argument to plotmo's data access
+    # functions.  It saves a few hundred references to model.env in the code.)
+    attr(object, ".Environment") <- get.model.env(object, object.name, trace)
+    temp <- plotmo::plotmo_prolog(object, object.name, trace, ...)
+        object  <- temp$object
+        my.call <- temp$my.call
     hist         <- check.boolean(hist)
     # dicho      <- check.boolean(dichot) # can't use because we use missing(dichot) below
-    trace        <- check.boolean(trace)
+    trace        <- as.numeric(check.integer.scalar(trace, logical.ok=TRUE))
     jitter       <- check.boolean(jitter)
     labels       <- check.boolean(labels)
     zero.line    <- check.boolean(zero.line)
     legend       <- check.boolean(legend)
     legend.extra <- check.boolean(legend.extra)
 
-    # add histogram labels --- lifted from plot.histogram and
-    # tweaked to (i) use cex and (ii) not draw zero counts
-    add.labels <- function(x, labels, cex)
-    {
-        if((is.logical <- is.logical(labels) && labels) || is.character(labels)) {
-            stopif(is.null(x$counts)) # plotd hist supports only counts, not densities
-            if(is.logical) {
-                labels <- format(x$counts)
-                labels[x$counts == 0] <- ""
-            }
-            text(x$mids, x$counts, labels=labels, adj=c(.5, -.5), cex=cex)
-        }
-    }
-    #--- plotd starts here ---
+    type <- plotmo::plotmo_type(object, trace, "plotmo", type, ...)
 
-    if(typeof(obj) != "list")
-        stop0("\"", deparse(substitute(obj)), "\" is not a model obj")
-    type <- plotmo::get.plotmo.type.wrapper(obj, parent.frame(), type, "plotd")
-    env <- parent.frame() # the environment from which plotd was called
-    yhat.per.class <- get.yhat.per.class(obj, type, nresponse, dichot, trace, env, ...)
+    yhat.per.class <- get.yhat.per.class(object, object.name,
+                            type, nresponse, dichot, trace, ...)
+
     nclasses <- length(yhat.per.class)
 
     # get densities
 
     densities <- NULL
-    for(iclass in 1:nclasses)
+    for(iclass in seq_len(nclasses))
         if(!hist)
             densities[[iclass]] <- density(yhat.per.class[[iclass]],
                                            kernel=kernel, adjust=adjust)
@@ -97,7 +93,7 @@ plotd <- function(obj,      # obj is a model object
     if(is.null(xlim)) {
         min1 <- Inf
         max1 <- -Inf
-        for(iclass in 1:nclasses) {
+        for(iclass in seq_len(nclasses)) {
              min1 <- min(min1, densities[[iclass]]$x)
              max1 <- max(max1, densities[[iclass]]$x)
         }
@@ -110,11 +106,11 @@ plotd <- function(obj,      # obj is a model object
     # sanity check the ranges of each class, issue warnings if need be
 
     degenerate <- logical(nclasses)
-    for(iclass in 1:nclasses) {
+    for(iclass in seq_len(nclasses)) {
         range <- range(yhat.per.class[[iclass]])
         if(sd(yhat.per.class[[iclass]]) < sd.thresh) {
-            warning0("standard deviation of \"", names(yhat.per.class)[iclass],
-                     "\" density is ", sd(yhat.per.class[[iclass]]),
+            warning0("standard deviation of '", names(yhat.per.class)[iclass],
+                     "' density is ", sd(yhat.per.class[[iclass]]),
                      ",  density is degenerate?")
             degenerate[iclass] <- TRUE
         }
@@ -124,7 +120,7 @@ plotd <- function(obj,      # obj is a model object
     ymax <- 1e-6
     if(is.logical(jitter) && jitter)
         jitter <- xspan / 100
-    for(iclass in 1:nclasses) {
+    for(iclass in seq_len(nclasses)) {
         if(jitter) {
             if(hist)
                 densities[[iclass]]$breaks <-
@@ -153,13 +149,18 @@ plotd <- function(obj,      # obj is a model object
         col <- repl(col, nclasses)
 
     if(is.null(main)) { # auto generate main?
-        main <- paste0(deparse(substitute(obj)), " ", paste(type, collapse=" "),
+        main <- paste0(object.name, " ", paste.collapse(type),
                       if(missing(nresponse)) ""
                       else paste0(" nresp=", paste(nresponse, collapse=",")),
                       if(missing(dichot)) ""
                       else paste0(" dichot=", dichot))
-
-        main <- show.caption(main, show=FALSE) # trim caption
+        main <- paste.trunc(main)
+    }
+    if(!is.null(my.call)) {
+        main <- paste0(main, "\n", paste.trunc(my.call))
+        old.cex.main <- par("cex.main")
+        on.exit(par(cex.main=old.cex.main), add=TRUE)
+        par(cex.main=1)
     }
     # we draw our own x axis for type="class"
     # xlims are wrong for histograms if a density is degenerate hence the test
@@ -172,7 +173,7 @@ plotd <- function(obj,      # obj is a model object
     # plot the first graph
 
     ifirst <- 1 # index of first non-degenerate class, 1 if all degenerate
-    for(iclass in 1:nclasses)
+    for(iclass in seq_len(nclasses))
         if(!degenerate[iclass]) {
             ifirst <- iclass
             break
@@ -182,7 +183,7 @@ plotd <- function(obj,      # obj is a model object
              main=main, xlab=xlab, ylab=ylab, lty=lty[ifirst],
              border=col[ifirst], xaxt=xaxt, yaxt=yaxt,
              col=if(ifirst==1) fill else 0) # fill color
-        add.labels(densities[[ifirst]], labels, cex.legend)
+        draw.labels(densities[[ifirst]], labels, cex.legend)
     } else {   # plot.density
         plot(densities[[ifirst]], xlim=xlim, ylim=c(0, ymax), col=col[ifirst],
              main=main, xlab=xlab, ylab=ylab, lty=lty[ifirst],
@@ -199,18 +200,18 @@ plotd <- function(obj,      # obj is a model object
     # optional error region shading
 
     if(!hist && any1(err.col))
-        add.err.col(densities, err.thresh, err.col, err.border, err.lwd)
+        draw.err.col(densities, err.thresh, err.col, err.border, err.lwd)
 
     # overlay the graphs
 
-    for(iclass in 1:nclasses)
+    for(iclass in seq_len(nclasses))
         if(!degenerate[iclass]) {
             if(!hist)  # lines.density
                 lines(densities[[iclass]], col=col[iclass], lty=lty[iclass])
             else {     # lines.histogram
                 lines(densities[[iclass]], col=NULL,
                       border=col[iclass], lty=lty[iclass])
-                add.labels(densities[[iclass]], labels, cex.legend)
+                draw.labels(densities[[iclass]], labels, cex.legend)
             }
         }
     # optional vertical line at vline.thresh
@@ -222,7 +223,7 @@ plotd <- function(obj,      # obj is a model object
     # borders go on top of the other plotted lines.
 
     if(any1(err.border))
-        add.err.col(densities, err.thresh, err.col, err.border, err.lwd)
+        draw.err.col(densities, err.thresh, err.col, err.border, err.lwd)
 
     # optional legend
     if(legend)
@@ -231,216 +232,47 @@ plotd <- function(obj,      # obj is a model object
                     legend.pos, cex.legend, legend.bg, legend.extra)
     invisible(yhat.per.class)
 }
+# add histogram labels --- lifted from plot.histogram and
+# tweaked to (i) use cex and (ii) not draw zero counts
+draw.labels <- function(x, labels, cex)
+{
+    if((is.logical <- is.logical(labels) && labels) || is.character(labels)) {
+        stopifnot(!is.null(x$counts)) # plotd hist supports only counts, not densities
+        if(is.logical) {
+            labels <- format(x$counts)
+            labels[x$counts == 0] <- ""
+        }
+        text(x$mids, x$counts, labels=labels, adj=c(.5, -.5), cex=cex)
+    }
+}
 is.numlog <- function(x)
     is.numeric(x) || is.logical(x)
 
-is.lda.or.qda <- function(obj) # allows hacks for lda and qda specific code
-    inherits(obj, "lda") || inherits(obj, "qda")
+is.lda.or.qda <- function(object) # allows hacks for lda and qda specific code
+    inherits(object, "lda") || inherits(object, "qda")
 
-# Special handling for MASS lda and qda predicted response, which
-# is a data.frame with columns "x", "class", and "posterior".
-# Here we use plotd's type argument to choose a column.
-
-get.lda.yhat <- function(object, yhat, type, trace)
-{
-    yhat1 <- switch(match.choices(type,
-                        c("response", "ld", "class", "posterior")),
-           response  = yhat$x, # default
-           ld        = yhat$x,
-           class     = yhat$class,
-           posterior = yhat$posterior)
-
-    if(is.null(yhat1)) {
-        msg <- paste0(
-            if(!is.null(yhat$x)) "type=\"response\" " else "",
-            if(!is.null(yhat$class)) "type=\"class\" " else "",
-            if(!is.null(yhat$posterior)) "type=\"posterior\" " else "")
-        stop0("type=\"", type, "\" is not allowed for predict.", class(object)[1], ".  ",
-              if(nchar(msg)) paste("Use one of:", msg) else "",
-              "\n")
-    }
-    yhat1
-}
-# get the original observed response (it's needed to determine correct classes)
-
-get.observed.response <- function(obj, env)
-{
-    if(!is.null(obj$call$formula)) {
-        # get y from formula and data used in original call
-        data <- get.update.arg(NULL, "data", obj, FALSE)
-        Call <- obj$call
-        m <- match(c("formula", "data", "na.action", "subset"), names(Call), 0)
-        mf <- Call[c(1, m)]
-        mf[[1]] <- as.name("model.frame")
-        mf <- eval(mf, env)
-        y <- model.response(mf, "any")  # "any" means factors are allowed
-        if(NCOL(y) == 1 && is.numlog(y)) {
-            # turn into a matrix so we have the column name
-            names(y) <- NULL # we don't need row names
-            y <- as.matrix(y)
-            colnames(y) <- colnames(mf)[attr(obj$terms,"response")]
-        }
-    } else if(is.lda.or.qda(obj)) { # hack for lda and qda, get grouping arg
-        y <- eval(obj$call[[3]], env)
-        # sanity check
-        if(NCOL(y) != 1 || length(y) < 3 || (!is.numeric(y) && !is.factor(y)))
-            stop0("cannot get \"grouping\" argument from obj$call")
-    } else
-        y <- get.update.arg(NULL, "y", obj, trace1=FALSE, reeval=FALSE)
-
-    if(is.lda.or.qda(obj))
-        y <- as.factor(y)  # to make plotd handle response appropriately
-    y
-}
 # return the predictions for each class, in a list with each class named
+# nomeclature: y is the observed response, yhat is the predicted response
 
-get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
+get.yhat.per.class <- function(object, object.name, type, nresponse, dichot, trace, ...)
 {
-    check.min <- function(x, ...)
-    {
-        len <- length(x)
-        if(len == 0)
-            warning0("no occurrences of ", paste0(...),
-                     " in the observed response")
-        else if(len < 3) # 3 is arbitrary
-            warning0("only ", len, " occurrences of ", paste0(...),
-                     " in the observed response")
-    }
-    get.binary.class.names <- function(yhat, fitted.values, last.resort)
-    {
-        if(!is.null(colnames(yhat)))
-            c(paste("not", colnames(yhat)), colnames(yhat))
-        else if(!is.null(colnames(fitted.values)))
-            c(paste("not", colnames(fitted.values)), colnames(fitted.values))
-        else
-            last.resort
-    }
-    get.class.names <- function(y, yhat, fitted.values)
-    {
-        ynames <- paste0("response", 1:ncol(yhat))
-        if(length(colnames(yhat)) == ncol(yhat))
-             class.names <- colnames(yhat)
-        else if(length(colnames(y)) == ncol(y))
-            class.names <- colnames(y)
-        else if(length(fitted.values(y)) == fitted.values(y))
-            class.names <- colnames(y)
-        else
-            class.names <- ynames
-        # fill in missing names, if necessary
-        which. <- which(class.names == "")
-        if(length(which.))
-            class.names[which.] <- ynames[which.]
-        class.names
-    }
-    # return names1 but with yhat column names prefixed if necessary
-    get.prefixed.names <- function(names1, yhat, nresponse)
-    {
-        stopifnot(NCOL(yhat) == 1)
-        if(!is.null(colnames(yhat)) && !is.null(nresponse))
-            names1 <- paste(colnames(yhat)[1], names1, sep=": ")
-        names1
-    }
-    # determine the threshold to split classes, a bit of a hack
-    get.thresh <- function(y, yname)
-    {
-        thresh <- 0
-        ymin <- min(y)
-        if(ymin == 1)
-            thresh <- 1
-        if(!is.null(colnames(y)))
-            yname <- colnames(y)[1]
-        if(ymin == thresh) {
-            text.le <- sprintf("%s == %g", yname, thresh)
-            text.gt <- sprintf("%s != %g",  yname, thresh)
-        } else {
-            text.le <- sprintf("%s <= %g", yname, thresh)
-            text.gt <- sprintf("%s > %g",  yname, thresh)
-        }
-        list(thresh=thresh, text.le=text.le, text.gt=text.gt)
-    }
-    trace.yhat.per.class <- function(yhat.per.class, iclass, nchar)
-    {
-        description <- sprintf("predicted.response.per.class[%-*s]",
-                               nchar, names(yhat.per.class)[iclass])
-        if(trace > 1)
-            print.matrix.info(description, yhat.per.class[[iclass]],
-                              details=TRUE, all.rows=TRUE, all.names=TRUE)
-        else {
-            cat0(description, ": ")
-            yhat1 <- yhat.per.class[[iclass]]
-            names(yhat1) <- NULL
-            cat(yhat1[1:min(6,length(yhat))])
-            if(6 < length(yhat))
-                cat(" ...")
-        }
-        cat("\n")
-    }
-    cannot.plot <- function(...)
-        stop0("cannot plot this kind of response with type=\"",
-              type, "\"\n", ...,
-              "Additional information:\n  class(observed)=", class(y)[1],
-              if(nlevs > 0) paste0(" nlevels(observed)=", nlevs) else "",
-              " ncol(observed)=", NCOL(y),
-              if(!is.null(colnames(y)))
-                  sprintf(" colnames(observed) %s", paste(colnames(y), collapse=" "))
-              else
-                  "",
-              "\n  class(predicted)=", class(yhat)[1],
-              " ncol(predicted)=", NCOL(yhat),
-              if(!is.null(colnames(yhat)))
-                  sprintf(" colnames(response) %s", paste(colnames(yhat), collapse=" "))
-              else
-                  "")
+    temp <- get.plotd.data(object, type, nresponse, trace, ...)
+        y             <- temp$y
+        yhat          <- temp$yhat
+        colnames.yhat <- temp$colnames.yhat
+        nresponse     <- temp$nresponse
 
-    trace.response.type <- function(observed, predicted, ...) {
-        if(trace > 0)
-            cat0("\nObserved response: ", observed, "\n",
-                 "Predicted response type=\"", type, "\": ", predicted, "\n",
-                 "Grouping criterion: ", ..., "\n\n")
-    }
-    #--- get.yhat.per.class starts here ---
-    # nomeclature: y is the observed response, yhat is the predicted response
-    y <- get.observed.response(obj, env)
-    if(trace > 0)
-        print.matrix.info("y", y, "\nObserved response",
-                          details=TRUE, all.rows=trace>=2, all.names=trace>=2)
-    if(!is.character(type))
-        stop0("type of \"type\" is not character")
-    if(!is.na(pmatch(type, "terms")))
-        stop0("type=\"terms\" is not allowed by plotd")
-    yhat <- predict(obj, type=type, ...)
-    if(is.lda.or.qda(obj)) {
-        if(trace > 0)
-            cat("\nSpecial handling of \"type\" argument for lda or qda object\n")
-        yhat <- get.lda.yhat(obj, yhat, type, trace)
-    }
-    if(trace > 0)
-        print.matrix.info("yhat", yhat, "\nPredicted response",
-                          details=TRUE, all.rows=trace>1, all.names=trace>=2)
-    if(!is.null(nresponse)) {
-        if(!is.numeric(nresponse) || nresponse < 1 || nresponse > NCOL(yhat))
-            stop0("illegal nresponse argument, ",
-                  "allowed range for this model and type is 1 to ", NCOL(yhat))
-        if(NCOL(yhat) > 1) {
-            row.names(yhat) <- NULL  # needed for fda type="hier" because dup rownames
-            yhat <- yhat[, nresponse, drop=FALSE] # drop=FALSE to retain column name
-            if(is.data.frame(yhat)) # TODO needed for fda type="hier", why?
-                yhat <- as.matrix(yhat)
-            if(trace > 0)
-                print.matrix.info("yhat", yhat,
-                    paste("Predicted response after selecting nresponse", nresponse),
-                    details=TRUE, all.rows=trace>=2, all.names=trace>=2)
-        }
-    }
+    yhat1 <- if(length(dim(yhat)) > 1) yhat[,1] else yhat # TODO could probably delete
     yhat.per.class <- list() # will put per-class predicted vals in here
     ylevs <- levels(y) # null if y is not a factor
     nlevs <- 0
     if(NCOL(yhat) == 1) {
         #---single column yhat--------------------------------------------------
-        if(is.factor(y) && (is.numlog(yhat) || is.factor(yhat))) {
+        trace2(trace, "single column yhat\n")
+        if(is.factor(y) && (is.numlog(yhat1) || is.factor(yhat1))) {
             nlevs <- nlevels(y)
-            if(!is.numlog(yhat) && !is.factor(yhat))
-                cannot.plot()
+            if(!is.numlog(yhat1) && !is.factor(yhat1))
+                cannot.plot.this.response(y, yhat, colnames.yhat, type, nlevs)
             stopifnot(length(ylevs) > 1)
             if(!is.na(pmatch(type, "class")))
                 dichot <- FALSE # no dichot for type="class"
@@ -453,72 +285,84 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
                     other.level.name <- paste("not", ylev1)
                     observed.string <- "multi-level factor, but dichot"
                 }
-                trace.response.type(observed.string, "numeric or logical vector",
+                trace.response.type(trace, type,
+                    observed=observed.string,
+                    predicted="numeric or logical vector",
                     "CLASS1 predicted[observed == ", ylev1,
                     "], CLASS2 predicted[observed == ", other.level.name, "]")
-                yhat.per.class[[1]] <- yhat[y == ylev1]
+                yhat.per.class[[1]] <- yhat1[y == ylev1]
                 check.min(yhat.per.class[[1]], ylev1)
-                yhat.per.class[[2]] <- yhat[y != ylev1]
+                yhat.per.class[[2]] <- yhat1[y != ylev1]
                 check.min(yhat.per.class[[2]], other.level.name)
                 names(yhat.per.class) <- get.prefixed.names(c(ylev1, other.level.name),
-                                                            yhat, nresponse)
+                                                            yhat, colnames.yhat, nresponse)
             } else {
-                trace.response.type("multi-level factor", "numeric or logical vector",
-                                "predicted[observed == level] for ",
-                                length(ylevs), " levels")
+                trace.response.type(trace, type,
+                    observed="multi-level factor",
+                    predicted="numeric or logical vector",
+                    "predicted[observed == level] for ",
+                    length(ylevs), " levels")
                 for(iclass in seq_along(ylevs)) {
                     lev <- ylevs[iclass]
-                    yhat.per.class[[iclass]] <- yhat[y == lev]
+                    yhat.per.class[[iclass]] <- yhat1[y == lev]
                     check.min(yhat.per.class[[iclass]], lev)
                 }
-                names(yhat.per.class) <- get.prefixed.names(ylevs, yhat, nresponse)
+                names(yhat.per.class) <- get.prefixed.names(ylevs, yhat, colnames.yhat, nresponse)
             }
         } else if(NCOL(y) == 2 && is.numlog(y[,1]) && is.numlog(y[,2])) {
-            trace.response.type("numeric or logical vector", "two-column numeric",
-                            "CLASS1 observed[,1] <= observed[,2], ",
-                            "CLASS2 observed[,1] > observed[,2]")
+            trace.response.type(trace, type,
+                observed="numeric or logical vector",
+                predicted="two-column numeric",
+                "CLASS1 observed[,1] <= observed[,2], ",
+                "CLASS2 observed[,1] > observed[,2]")
             # split into two classes based on relative sizes of columns of y
-            yhat.per.class[[1]] <- yhat[y[,1] <= y[,2]]
+            yhat.per.class[[1]] <- yhat1[y[,1] <= y[,2]]
             check.min(yhat.per.class[[1]], "observed[,1] <= observed[,2]")
-            yhat.per.class[[2]] <- yhat[y[,1] > y[,2]]
+            yhat.per.class[[2]] <- yhat1[y[,1] > y[,2]]
             check.min(yhat.per.class[[2]], "observed[,1] > observed[,2]")
             names(yhat.per.class) <-
-                get.binary.class.names(yhat, obj$fitted.values, c("FALSE", "TRUE"))
+                get.binary.class.names(yhat, colnames.yhat, object$fitted.values, c("FALSE", "TRUE"))
         } else if(NCOL(y) == 1 && is.numlog(y)) {
             th <- get.thresh(y, "response")
-            trace.response.type("numeric or logical vector",
-                                "numeric or logical vector",
-                                "CLASS1 ", th$text.le, ", CLASS2 ", th$text.gt)
-            yhat.per.class[[1]] <- yhat[y <= th$thresh]
+            trace.response.type(trace, type,
+                observed="numeric or logical vector",
+                predicted="numeric or logical vector",
+                "CLASS1 ", th$text.le, ", CLASS2 ", th$text.gt)
+            yhat.per.class[[1]] <- yhat1[y <= th$thresh]
             check.min(yhat.per.class[[1]], th$text.le)
-            yhat.per.class[[2]] <- yhat[y > th$thresh]
+            yhat.per.class[[2]] <- yhat1[y > th$thresh]
             check.min(yhat.per.class[[2]], th$text.gt)
             names(yhat.per.class) <- NULL
             if(th$thresh == 0)
                 names(yhat.per.class) <-
-                    get.binary.class.names(yhat, obj$fitted.values,
+                    get.binary.class.names(yhat, colnames.yhat, object$fitted.values,
                                            c(th$text.le, th$text.gt))
             else
                 names(yhat.per.class) <- c(th$text.le, th$text.gt)
         } else
-            cannot.plot()
+            cannot.plot.this.response(y, yhat, colnames.yhat, type, nlevs)
   } else {
         #---multiple column yhat------------------------------------------------
-        if(!is.numeric(yhat))
-            cannot.plot()
+        trace2(trace, "multiple column yhat\n")
+        if(!is.numeric(yhat[,1]))
+            cannot.plot.this.response(y, yhat, colnames.yhat, type, nlevs)
         if(NCOL(y) == 1 && is.null(ylevs))
             ylevs <- as.numeric(names(table(y))) # use numeric levels like a factor
         nlevs <- length(ylevs)
         if(NCOL(y) == 1 && nlevs == NCOL(yhat)) {
             if(is.factor(y))
-                trace.response.type("factor",
-                    "multicolumn numeric, ncol(predicted) == nlevels(observed)",
+                trace.response.type(trace, type,
+                    observed="factor",
+                    predicted=
+"multicolumn numeric, ncol(predicted) == nlevels(observed)",
                     "observed==level for each level in observed response")
             else
-                trace.response.type("factor",
-                    "multicolumn numeric, ncol(predicted) == nbr.of.unique.vals.in.observed",
+                trace.response.type(trace, type,
+                    observed="factor",
+                    predicted=
+"multicolumn numeric, ncol(predicted) == nbr.of.unique.vals.in.observed",
                     "observed==val for each unique val in observed response")
-            for(iclass in 1:ncol(yhat)) {
+            for(iclass in seq_len(ncol(yhat))) {
                 lev <- ylevs[iclass]
                 yhat.per.class[[iclass]] <- yhat[y == lev, iclass]
                 check.min(yhat.per.class[[iclass]], lev)
@@ -526,48 +370,215 @@ get.yhat.per.class <- function(obj, type, nresponse, dichot, trace, env, ...)
                     stop0("no occurrences of ", lev,
                           " in the observed response")
             }
-            if(!is.null(colnames(yhat)))
-                names(yhat.per.class) <- colnames(yhat)
+            if(!is.null(colnames.yhat))
+                names(yhat.per.class) <- colnames.yhat
             else
                 names(yhat.per.class) <- ylevs
 #         } else if(NCOL(y) == 1) { # nlevs != NCOL(yhat))
-#           trace.response.type("factor",
-#                   "multicolumn numeric; ncol(predicted) != nlevels(observed)",
+#           trace.response.type(trace, type,
+#                   observed="factor",
+#                   predicted="multicolumn numeric; ncol(predicted) != nlevels(observed)",
 #                   "each column of predicted response is a group")
-#             for(iclass in 1:ncol(yhat))
+#             for(iclass in seq_len(ncol(yhat)))
 #                 yhat.per.class[[iclass]] <- yhat[, iclass]
-#             if(!is.null(colnames(yhat)))
-#                 names(yhat.per.class) <- colnames(yhat)
+#             if(!is.null(colnames.yhat))
+#                 names(yhat.per.class) <- colnames.yhat
 #             else
-#                 names(yhat.per.class) <-  paste0(type, "[,", 1:ncol(yhat), "]")
+#                 names(yhat.per.class) <-  paste0(type, "[,", seq_len(ncol(yhat)), "]")
         } else if(is.numeric(y) && NCOL(y) == NCOL(yhat)) {
             th <- get.thresh(y, "response")
-            trace.response.type("multicolumn numeric",
-                "multicolumn numeric with same number of columns as observed response",
+            trace.response.type(trace, type,
+                observed="multicolumn numeric",
+                predicted=
+"multicolumn numeric with same number of columns as observed response",
                 th$text.gt, "for each column of observed response")
-            for(iclass in 1:ncol(yhat)) {
+            for(iclass in seq_len(ncol(yhat))) {
                 yhat.per.class[[iclass]] <- yhat[y[,iclass] > th$thresh, iclass]
                 check.min(yhat.per.class[[iclass]], th$text.gt)
                 if(length(yhat.per.class[[iclass]]) == length(yhat[,iclass]))
                     stop0("no occurrences of ", th$text.le,
                           " in the observed response")
             }
-            names(yhat.per.class) <- get.class.names(y, yhat, obj$fitted.values)
+            names(yhat.per.class) <- get.class.names(y, yhat, colnames.yhat, object$fitted.values)
         } else
-            cannot.plot("Remedy: use the \"nresponse\" argument to select ",
+            cannot.plot.this.response(y, yhat, colnames.yhat, type, nlevs,
+                "Remedy: use the \"nresponse\" argument to select ",
                 "just one column of the predicted response\n")
     }
     nchar <- max(nchar(names(yhat.per.class)))
-
     for(iclass in seq_along(yhat.per.class)) {
         # density needs numeric
         yhat.per.class[[iclass]] <- as.numeric(yhat.per.class[[iclass]])
-        if(trace > 0)
-            trace.yhat.per.class(yhat.per.class, iclass, nchar)
+        if(trace >= 1) {
+            trace2(trace, "\n")
+            print_summary(yhat.per.class[[iclass]],
+                          sprintf("predicted.response.per.class[%-*s]",
+                                  nchar, names(yhat.per.class)[iclass]),
+                          trace=max(2, trace), details=if(trace>=2) 2 else 0)
+        }
     }
-    if(trace > 0)
+    if(trace >= 1)
         cat("\n")
     yhat.per.class
+}
+get.plotd.data <- function(object, type, nresponse, trace, ...)
+{
+    # TODO this routine is bit messy
+    #      if it were unified with plotmo_meta we would support more models
+
+    # assignInMyNamespace("trace.call.global", trace)
+    y <- get.observed.response(object)
+    if(trace >= 2) {
+        print_summary(y, "observed response", trace=2)
+        trace2(trace, "\n")
+    }
+    yhat <- plotmo::plotmo_predict(object, newdata=NULL, nresponse=NULL, type,
+                                   expected.levs=NULL, trace, ...)$yhat
+    # assignInMyNamespace("trace.call.global", 0)
+    if(is.character(yhat[,1])) {
+        if(trace >= 1)
+            printf("convert character yhat to factor\n")
+        expected.levs <- plotmo::plotmo_resplevs(object, NULL, y, trace)
+        yhat[,1] <- factor(yhat[,1], levels=expected.levs)
+    }
+    colnames.yhat <- colnames(yhat)
+    if(!is.null(nresponse)) {
+        nresponse <- plotmo::plotmo_nresponse(yhat, object, nresponse, trace,
+                                        sprintf("predict.%s", class(object)[1]))
+        if(NCOL(yhat) > 1) {
+            yhat <- yhat[, nresponse]
+            if(is.data.frame(yhat)) # TODO needed for fda type="hier", why?
+                yhat <- as.matrix(yhat)
+             print_summary(yhat,
+                paste("predict after selecting nresponse", nresponse), trace)
+            trace2(trace, "\n")
+        }
+    }
+    list(y             = y,
+         yhat          = yhat,
+         colnames.yhat = colnames.yhat,
+         nresponse     = nresponse)
+}
+# get the original observed response (it's needed to determine correct classes)
+
+get.observed.response <- function(object)
+{
+    if(!is.null(object$call$formula)) {
+        # get y from formula and data used in original call
+        data <- get.update.arg(NULL, "data", object, FALSE)
+        call <- object$call
+        m <- match(c("formula", "data", "na.action", "subset"), names(call), 0)
+        mf <- call[c(1, m)]
+        mf[[1]] <- as.name("model.frame")
+        mf <- eval(mf, model.env(object))
+        y <- model.response(mf, "any")  # "any" means factors are allowed
+        if(NCOL(y) == 1 && is.numlog(y)) {
+            # turn into a matrix so we have the column name
+            names(y) <- NULL # we don't need row names
+            y <- as.matrix(y)
+            colnames(y) <- colnames(mf)[attr(object$terms,"response")]
+        }
+    } else if(is.lda.or.qda(object)) { # hack for lda and qda, get grouping arg
+        y <- eval(object$call[[3]], model.env(object))
+        # sanity check
+        if(NCOL(y) != 1 || length(y) < 3 || (!is.numeric(y) && !is.factor(y)))
+            stop0("cannot get \"grouping\" argument from object$call")
+    } else
+        y <- get.update.arg(NULL, "y", object, trace1=FALSE, reeval=FALSE)
+
+    if(is.lda.or.qda(object))
+        y <- as.factor(y)  # to make plotd handle response appropriately
+    y
+}
+check.min <- function(x, ...)
+{
+    len <- length(x)
+    if(len == 0)
+        warning0("no occurrences of ", paste0(...),
+                 " in the observed response")
+    else if(len < 3) # 3 is arbitrary
+        warning0("only ", len, " occurrences of ", paste0(...),
+                 " in the observed response")
+}
+get.binary.class.names <- function(yhat, colnames.yhat, fitted.values, last.resort)
+{
+    if(!is.null(colnames.yhat))
+        c(paste("not", colnames.yhat[1]), colnames.yhat[1])
+    else if(!is.null(colnames(fitted.values)))
+        c(paste("not", colnames(fitted.values)), colnames(fitted.values))
+    else
+        last.resort
+}
+get.class.names <- function(y, yhat, colnames.yhat, fitted.values)
+{
+    ynames <- paste0("response", seq_len(ncol(yhat)))
+    if(length(colnames.yhat) == ncol(yhat))
+         class.names <- colnames.yhat
+    else if(length(colnames(y)) == ncol(y))
+        class.names <- colnames(y)
+    else if(length(fitted.values(y)) == fitted.values(y))
+        class.names <- colnames(y)
+    else
+        class.names <- ynames
+    # fill in missing names, if necessary
+    which. <- which(class.names == "")
+    if(length(which.))
+        class.names[which.] <- ynames[which.]
+    class.names
+}
+# return names1 but with yhat column names prefixed if necessary
+get.prefixed.names <- function(names1, yhat, colnames.yhat, nresponse)
+{
+    stopifnot(NCOL(yhat) == 1)
+    if(!is.null(colnames.yhat) && !is.null(nresponse))
+        names1 <- paste(colnames.yhat[nresponse], names1, sep=": ")
+    names1
+}
+# determine the threshold to split classes, a bit of a hack
+get.thresh <- function(y, yname)
+{
+    thresh <- 0
+    ymin <- min(y)
+    if(ymin == 1)
+        thresh <- 1
+    if(!is.null(colnames(y)))
+        yname <- colnames(y)[1]
+    if(ymin == thresh) {
+        text.le <- sprintf("%s == %g", yname, thresh)
+        text.gt <- sprintf("%s != %g",  yname, thresh)
+    } else {
+        text.le <- sprintf("%s <= %g", yname, thresh)
+        text.gt <- sprintf("%s > %g",  yname, thresh)
+    }
+    list(thresh=thresh, text.le=text.le, text.gt=text.gt)
+}
+cannot.plot.this.response <- function(y, yhat, colnames.yhat, type, nlevs, ...)
+{
+    stop0("cannot plot this kind of response (with predict type=\"",
+          type, "\")\n", ...,
+          "Additional information:\n  class(observed)=", class(y[1]),
+          if(nlevs > 0) paste0(" nlevels(observed)=", nlevs) else "",
+          "   ncol(observed)=", NCOL(y),
+          if(!is.null(colnames(y)))
+              sprintf("   colnames(observed) %s", paste.trunc(colnames(y)))
+          else
+              "",
+          "\n  class(predicted)=", class(yhat[,1])[1],
+          "   ncol(predicted)=", NCOL(yhat),
+          if(!is.null(colnames.yhat))
+              sprintf("   colnames(response) %s", paste.trunc(colnames.yhat))
+          else
+              "")
+}
+trace.response.type <- function(trace, type, observed, predicted, ...)
+{
+    if(trace >= 1) {
+        trace2(trace, "\n")
+        cat0("observed response: ", observed, "\n",
+             "predicted response: ", predicted,
+             "   (predict type is \"", type, "\")\n",
+             "grouping criterion: ", ..., "\n")
+    }
 }
 draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
                     hist, xlim, col, fill, lty, legend.names,
@@ -582,7 +593,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
         max.left <- 0
         max.right <- 0
         xmid <- xlim[1] + (xlim[2] - xlim[1])/2
-        for(iclass in 1:nclasses) {
+        for(iclass in seq_len(nclasses)) {
             if(!degenerate[iclass]) {
                 den <- densities[[iclass]]
                 if(hist)
@@ -615,7 +626,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
                  "is less than the number ", nclasses, " of classes")
         legend.names <- repl(legend.names, nclasses)
     }
-    else for(iclass in 1:nclasses)
+    else for(iclass in seq_len(nclasses))
         if(degenerate[iclass])
             legend.names[iclass] <- paste(legend.names[iclass], "(not plotted)")
     lwd <- repl(1, nclasses)
@@ -632,7 +643,7 @@ draw.legend <- function(densities, degenerate, yhat.per.class, ymax,
 }
 # shade the "error areas" of the density plots
 
-add.err.col <- function(densities, thresh, col, border, lwd)
+draw.err.col <- function(densities, thresh, col, border, lwd)
 {
     den1 <- densities[[1]]
     den2 <- densities[[2]]
@@ -640,7 +651,7 @@ add.err.col <- function(densities, thresh, col, border, lwd)
     # set iden=1 if to the left, iden=2 if to the right
     iden <- den1$y[den1$x >= thresh][1] > den2$y[den2$x >= thresh][1]
     if(is.na(iden)) { # no overlap between classes?
-        warning0("no overlap between (first two) classes, ignoring \"err.col\" argument")
+        warning0("no overlap between (first two) classes, ignoring 'err.col' argument")
         return(NULL)
     }
     iden <- if(iden) 2 else 1

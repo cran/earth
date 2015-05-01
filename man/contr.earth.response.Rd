@@ -1,6 +1,6 @@
 \name{contr.earth.response}
 \alias{contr.earth.response}
-\title{Contrasts for the earth response}
+\title{Please ignore}
 \description{
 Contrasts function for factors in the \code{\link{earth}} response.
 For internal use by earth.

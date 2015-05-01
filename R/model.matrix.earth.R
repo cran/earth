@@ -16,6 +16,7 @@
 #
 # get.bx(x, which.terms, dirs, cuts) x arg must be already expanded
 #      Called by model.matrix.earth, pruning.pass
+#
 #-----------------------------------------------------------------------------
 
 # If model.frame can't interpret the data passed to it it silently
@@ -40,12 +41,12 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
 }
 good.colname <- function(name)
 {
-    # The nchar check prevents super long names
+    # The nchar check prevents super long names (60 is arb)
     # that are actually contents of vectors e.g. c(1,2,3,etc.)
     # The grep ensures that there are no more than three commas,
     # also to prevent using the contents of vectors.
 
-    !is.null(name) && nchar(name) <= 60 && length(grep(",.*,.*,", name)) == 0
+    !is.null(name) && nchar(name) <= 60 && !grepany(",.*,.*,", name)
 }
 good.colnames <- function(x)
 {
@@ -56,37 +57,6 @@ good.colnames <- function(x)
         if(!good.colname(colnames[i]))
             return(FALSE)
     return(TRUE)
-}
-# Generate a column name for each column in x.
-# x could be a vector.
-# if xname is specified and x is a vector then use xname
-# else use the existing column names where possible.
-
-generate.colnames <- function(x, is.y.arg=FALSE, xname=NULL)
-{
-    names. <- repl("", NCOL(x))
-
-    if(NCOL(x) == 1 && good.colname(xname[1]))
-        names. <- xname
-    else {
-        # copy valid names in colnames(x) to names.
-
-        colnames <- colnames(x)
-        for(i in 1:NCOL(x))
-            if(good.colname(colnames[i]))
-                names.[i] <- colnames[i]
-    }
-    # if any name is still "", convert it to an "xN" style name
-
-    basename <- if(is.y.arg) "y" else "x"
-    which. <- which(names. == "")
-    if(any(which.))
-        if(length(names.) == 1)
-            names. <- basename
-        else
-            names.[which.] <- paste0(basename, (1:ncol(x))[which.])
-
-    make.unique(strip.white.space(names.))
 }
 # Called from earth.fit just before doing the pruning pass
 # Also called by model.matrix.earth (which returns bx)
@@ -101,14 +71,14 @@ get.bx <- function(x, which.terms, dirs, cuts)
     ibx <- 1
     for(iterm in which.terms) {
         temp1 <- 1
-        for(ipred in 1:ncol(x)) {
+        for(ipred in seq_len(ncol(x))) {
             if(dirs[iterm, ipred] == 2)  # predictor enters linearly?
                 temp1 <- temp1 * x[, ipred]
             else if(dirs[iterm, ipred] == -1 || dirs[iterm, ipred] == 1) {
                 temp2 <- dirs[iterm, ipred] * (x[, ipred] - cuts[iterm, ipred])
                 temp1 <- temp1 * temp2 * (temp2 > 0)
             } else if(dirs[iterm, ipred] != 0)
-                stop0("illegal direction ", dirs[iterm, ipred], " in \"dirs\"")
+                stop0("illegal direction ", dirs[iterm, ipred], " in 'dirs'")
         }
         bx[, ibx] <- temp1
         ibx <- ibx + 1
@@ -119,7 +89,7 @@ get.bx <- function(x, which.terms, dirs, cuts)
 # Called only by model.matrix.earth
 
 get.earth.x <- function(    # returns x expanded for factors
-    object  = stop("no 'object' arg"),
+    object  = stop("no 'object' argument"),
     data    = NULL,         # can be a dataframe, matrix, or vector
     env,                    # environment for evaluation
     trace   = 0,
@@ -140,7 +110,7 @@ get.earth.x <- function(    # returns x expanded for factors
         if(is.null(colnames)) {
             if(trace >= 1)
                 cat0(Callers.name, ": x has no column names, ",
-                     "adding column names: ", paste.with.space(expected.colnames),
+                     "adding column names: ", paste.collapse(expected.colnames),
                      "\n")
             colnames <- expected.colnames
          } else if(ncolnames < nexpected) {
@@ -154,7 +124,7 @@ get.earth.x <- function(    # returns x expanded for factors
                 # in expected.names (tends to happen with expanded factor names)
                 stop0(Callers.name, ": x has ", ncolnames,
                       " columns, expected ", length(expected.colnames),
-                      " to match: ", paste.with.space(expected.colnames))
+                      " to match: ", paste.collapse(expected.colnames))
             }
             # Create a new x, putting the existing cols into their correct positions.
             # Cols that aren't in the original x will end up as all 999s in the
@@ -168,20 +138,20 @@ get.earth.x <- function(    # returns x expanded for factors
             imatch <- pmatch(expected.colnames, colnames, nomatch=0)
             x.original <- x
             x <- matrix(data=999, nrow=nrow(x), ncol=nexpected)
-            for(i in 1:nexpected)
+            for(i in seq_len(nexpected))
                 if(imatch[i])
                     x[,i] <- x.original[,imatch[i]]
             colnames <- expected.colnames
-        } else if(ncolnames > nexpected) {
-            # TODO not sure what to do here (do nothing so old regression tests pass)
-        } else {
+        } else if(ncolnames > nexpected)
+            NULL # TODO not sure what to do here (do nothing so old regression tests pass)
+        else {
             imatch <- pmatch(colnames, expected.colnames, nomatch=0)
             if(all(imatch == 0)) {
                    if(trace >= 1)
                         cat0(Callers.name,
                              ": unexpected x column names, renaming columns\n",
-                             "    Old names: ", paste.with.space(colnames), "\n",
-                             "    New names: ", paste.with.space(expected.colnames),
+                             "    Old names: ", paste.collapse(colnames), "\n",
+                             "    New names: ", paste.collapse(expected.colnames),
                              "\n")
 
                     colnames <- expected.colnames
@@ -197,12 +167,11 @@ get.earth.x <- function(    # returns x expanded for factors
 
                  if(!all(imatch == seq_along(imatch))) {
                    s <- paste0(Callers.name, ": x columns are in the wrong order%s\n",
-                               "    Old columns: ", paste.with.space(colnames), "\n",
-                               "    New columns: ", paste.with.space(expected.colnames),
+                               "    Old columns: ", paste.collapse(colnames), "\n",
+                               "    New columns: ", paste.collapse(expected.colnames),
                                "\n")
                    if(length(imatch) == ncol(x)) {
-                       if(trace >= 1)
-                           cat0(sprintf(s, ", correcting the column order"))
+                       trace1(trace, s, ", correcting the column order")
                        x <- x[,imatch]
                        colnames <- colnames[imatch]
                    } else
@@ -235,7 +204,7 @@ get.earth.x <- function(    # returns x expanded for factors
                       if(is.null(colnames(object$namesx)))
                           "none?"
                       else
-                          paste.with.space(colnames(object$namesx))
+                          paste.collapse(colnames(object$namesx))
                       )
         }
         x
@@ -248,8 +217,8 @@ get.earth.x <- function(    # returns x expanded for factors
                      "(after factor expansion) does not match the number ",
                      NCOL(object$dirs),
                      " of columns of the earth object",
-                     "\n    expanded x:  ", paste.with.space(colnames(x)),
-                     "\n    object$dirs: ", paste.with.space(colnames(object$dirs)),
+                     "\n    expanded x:  ", paste.collapse(colnames(x)),
+                     "\n    object$dirs: ", paste.collapse(colnames(object$dirs)),
                      "\nPossible remedy: check factors in the input data")
         }
     }
@@ -259,16 +228,18 @@ get.earth.x <- function(    # returns x expanded for factors
                             trace1=NULL, Callers.name, print.trace=FALSE)
     if(is.null(trace))
         trace <- 0
-    this.call <- match.call(expand.dots=TRUE)
+    this.call <- match.call()
     if(is.null(object$terms)) {
         # object was created with earth.default, no formula
 
         x <- get.update.arg(data, "x", object, trace, Callers.name)
         x <- my.as.matrix(x)
         x <- fix.x.columns(x, object$namesx)
-        if(trace >= 1)
-            print.matrix.info("x", x, Callers.name, all.names=(trace >= 2))
-        x <- expand.arg(x, env)
+        if(trace >= 1) {
+            print_summary(x, sprintf("%s: x", Callers.name), trace=2)
+            trace2(trace, "\n")
+        }
+        x <- expand.arg(x, env, trace)
     } else {
         # object was created with earth.formula
 
@@ -278,18 +249,23 @@ get.earth.x <- function(    # returns x expanded for factors
         data <- fix.x.columns(data, object$namesx)
         data <- as.data.frame(data)
         expected.nrows <- nrow(data)
-        if(trace >= 1)
-            print.matrix.info("x", data, Callers.name, all.names=(trace >= 2))
+        if(trace >= 1) {
+            print_summary(data, sprintf("%s: x", Callers.name), trace=2)
+            trace2(trace, "\n")
+        }
         data <- model.frame(Terms, data, na.action=na.pass)
-        if(trace >= 1)
-            print.matrix.info("data after call to model.frame", data, Callers.name, all.names=(trace >= 2))
+        if(trace >= 1) {
+            print_summary(data, sprintf("%s: after call to model.frame: data", Callers.name),
+                          trace=2)
+            trace2(trace, "\n")
+        }
         classes <- attr(Terms, "dataClasses")
         if(!is.null(classes)) {
             # use "try" to be lenient, allow numeric to be used for factors etc.
             z <- try(.checkMFClasses(classes, data), silent=FALSE)
-            if(is.try.error(z)) {
+            if(is.try.err(z)) {
                 # error msg already printed by .checkMFClasses
-                cat("Forging on regardless, first few rows of x are\n")
+                cat("Continuing anyway, first few rows of x are\n")
                 print(head(data))
             }
         }
@@ -307,6 +283,37 @@ get.earth.x <- function(    # returns x expanded for factors
     check.expanded.ncols(x, object)
     x
 }
+# Called by predict.earth and can also be called by users directly.
+# Return object$bx if all x, subset, which.terms equal NULL.
+
+model.matrix.earth <- function(     # returns bx
+    object       = stop("no 'object' argument"),
+    x            = NULL,            # x arg must not yet be expanded
+    subset       = NULL,            # not used by the earth code
+    which.terms  = NULL,            # not used by the earth code
+    ...,                            # unused, for generic method comparibility
+    env          = parent.frame(),
+    trace        = 0,
+    Callers.name = "model.matrix.earth") # caller's name for trace messages
+{
+    warn.if.dots(...)
+    check.classname(object, substitute(object), "earth")
+    trace <- as.numeric(check.numeric.scalar(trace, logical.ok=TRUE))
+    if(is.null(x) && is.null(subset) && is.null(which.terms)) {
+        if(trace >= 1)
+            cat0(Callers.name, ": returning object$bx\n")
+        return(object$bx)
+    }
+    x <- get.earth.x(object, data=x, env, trace, paste("get.earth.x from", Callers.name))
+    if(is.null(which.terms))
+        which.terms <- object$selected.terms
+    if(!is.null(subset)) {
+        # duplicates are allowed in subsets so user can specify a bootstrap sample
+        check.index("subset", subset, x, allow.dups=TRUE, allow.zeroes=TRUE)
+        x <- x[subset, , drop=FALSE]
+    }
+    get.bx(x, which.terms, object$dirs, object$cuts)
+}
 # Called by update.earth and get.earth.x
 #
 # Which x should we use? The precedence is [1] the x parameter, if any,
@@ -323,60 +330,29 @@ get.update.arg <- function(arg, argname, object,
     if(!print.trace) # print.trace arg prevents recursion issues with trace
         trace1 = FALSE
     if(is.null(arg)) {
-        temp. <- try(eval.parent(object[[argname, exact=TRUE]], n=2), silent=TRUE)
-        if(!is.null(temp.) && !is.try.error(temp.)) {
+        temp <- try(eval.parent(object[[argname, exact=TRUE]], n=2), silent=TRUE)
+        if(!is.null(temp) && !is.try.err(temp)) {
             if(reeval)
                 arg <- object[[argname, exact=TRUE]]
             else
-                arg <- temp.
+                arg <- temp
             if(trace1 >= 1)
                 cat0(Callers.name, ": using ",
-                     NROW(temp.), " by ", NCOL(temp.), " ", argname,
+                     NROW(temp), " by ", NCOL(temp), " ", argname,
                      " saved by keepxy in original call to earth\n")
         } else {
-            temp. <- try(eval.parent(object$call[[argname, exact=TRUE]], n=2), silent=TRUE)
-            if(!is.null(temp.) && !is.try.error(temp.)) {
+            temp <- try(eval.parent(object$call[[argname, exact=TRUE]], n=2), silent=TRUE)
+            if(!is.null(temp) && !is.try.err(temp)) {
                 if(reeval)
                     arg <- object$call[[argname, exact=TRUE]]
                 else
-                    arg <- temp.
+                    arg <- temp
                 if(trace1 >= 1)
                     cat0(Callers.name, ": using ",
-                         NROW(temp.), " by ", NCOL(temp.), " ", argname,
+                         NROW(temp), " by ", NCOL(temp), " ", argname,
                          " argument from original call to earth\n")
              }
         }
     }
     arg
-}
-# Called by predict.earth and can also be called by users directly.
-# Called object$bx if all x, subset, which.terms equal NULL.
-
-model.matrix.earth <- function(     # returns bx
-    object       = stop("no 'object' arg"),
-    x            = NULL,            # x arg must not yet be expanded
-    subset       = NULL,
-    which.terms  = NULL,
-    ...,                            # unused, for generic method comparibility
-    env          = parent.frame(),
-    trace        = 0,
-    Callers.name = "model.matrix.earth") # caller's name for trace messages
-{
-    warn.if.dots.used("model.matrix.earth", ...)
-    check.classname(object, deparse(substitute(object)), "earth")
-    trace <- check.trace.arg(trace)
-    if(is.null(x) && is.null(subset) && is.null(which.terms)) {
-        if(trace >= 1)
-            cat0(Callers.name, ": returning object$bx\n")
-        return(object$bx)
-    }
-    x <- get.earth.x(object, data=x, env, trace, paste("get.earth.x from", Callers.name))
-    if(is.null(which.terms))
-        which.terms <- object$selected.terms
-    if(!is.null(subset)) {
-        # duplicates are allowed in subsets so user can specify a bootstrap sample
-        plotmo::check.index("subset", subset, x, allow.dups=TRUE, allow.zeroes=TRUE)
-        x <- x[subset, , drop=FALSE]
-    }
-    get.bx(x, which.terms, object$dirs, object$cuts)
 }

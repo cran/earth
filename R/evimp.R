@@ -3,23 +3,23 @@
 # Return a vector of column numbers for predictors that are used
 # in the final model
 
-get.used.preds <- function(obj)   # obj is an earth object
+get.used.preds <- function(object)   # object is an earth object
 {
-    which(apply(obj$dirs[obj$selected.terms,,drop=FALSE],2,any1))
+    which(apply(object$dirs[object$selected.terms,,drop=FALSE],2,any1))
 }
 # Print predictors in order of decreasing estimated importance.
 # A one line summary.  Called by print.summary.earth.
 
-print.one.line.evimp <- function(obj) # obj is an "earth" obj
+print.one.line.evimp <- function(object) # object is an "earth" object
 {
-    if(is.null(obj$prune.terms)) {
-        if(is.null(obj$ifold)) { # not a fold model?
+    if(is.null(object$prune.terms)) {
+        if(is.null(object$ifold)) { # not a fold model?
             # must have been created by mars.to.earth
             cat("Importance: object has no prune.terms, call update() on the model to fix that\n")
         }
         return()
     }
-    evimp <- row.names(evimp(obj, trim=FALSE))
+    evimp <- row.names(evimp(object, trim=FALSE))
     if(length(evimp) == 0)
         cat("Importance: no predictors")
     else if(length(evimp) == 1)
@@ -39,7 +39,7 @@ print.one.line.evimp <- function(obj) # obj is an "earth" obj
     }
     cat("\n")
 }
-evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
+evimp <- function(object, trim=TRUE, sqrt.=TRUE) # see help page for description
 {
     stopifnot(length(sqrt.) == 1)
     sqrt. <- sqrt. != 0 # convert to logical if necessary
@@ -47,18 +47,18 @@ evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
     # convert col numbers in predtab to col numbers in importances
     as.icriti <- function(icrit) c(3,4,6)[icrit]
 
-    check.classname(obj, deparse(substitute(obj)), "earth")
-    if(is.null(obj$prune.terms)) # this occurs on mars.to.earth objects
+    check.classname(object, substitute(object), "earth")
+    if(is.null(object$prune.terms)) # this occurs on mars.to.earth objects
         stop0("object has no prune.terms, cannot get variable importances")
-    nsubsets <- length(obj$selected.terms)
-    dirs <- obj$dirs
-    pred.names <- generate.colnames(dirs)
+    nsubsets <- length(object$selected.terms)
+    dirs <- object$dirs
+    pred.names <- gen.colnames(dirs, "x", "x", trace=0)
 
     # tagged.pred.names is a copy of pred.names but with unused
     # predictors renamed by adding a "-unused" suffix.
     # By unused, we mean unused in the final model.
 
-    used.preds <- to.logical(get.used.preds(obj), len=length(pred.names))
+    used.preds <- to.logical(get.used.preds(object), len=length(pred.names))
     tagged.pred.names <- pred.names
     tagged.pred.names[!used.preds] <-
             paste0(tagged.pred.names[!used.preds], "-unused")
@@ -70,23 +70,23 @@ evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
     deltas <- matrix(nrow=nsubsets-1, ncol=3)
     colnames(deltas) <- c("nsubsets", "gcv", "rss")
     deltas[,"nsubsets"] <- rep(1, times=nsubsets-1)
-    deltas[,"gcv"]      <- -diff(obj$gcv.per.subset[1:nsubsets])
-    deltas[,"rss"]      <- -diff(obj$rss.per.subset[1:nsubsets])
+    deltas[,"gcv"]      <- -diff(object$gcv.per.subset[seq_len(nsubsets)])
+    deltas[,"rss"]      <- -diff(object$rss.per.subset[seq_len(nsubsets)])
 
     # preds.in.each.term[iterm] is the indices of predictors in term iterm
 
-    preds.in.each.term <- apply(obj$dirs, 1, function(row) which(row != 0))
+    preds.in.each.term <- apply(object$dirs, 1, function(row) which(row != 0))
 
     # importances is the matrix we return
 
     importances <- matrix(0, nrow=length(pred.names), ncol=7)
     colnames(importances) <- c("col", "used", "nsubsets", "gcv", "gcv.match", "rss", "rss.match")
     rownames(importances) <- tagged.pred.names
-    importances[, "col"] <- 1:nrow(importances)
+    importances[, "col"] <- seq_len(nrow(importances))
     importances[used.preds, "used"] <- 1
 
     if(nsubsets > 1) for(isubset in 2:nsubsets) {
-        terms.in.this.subset <- obj$prune.terms[isubset,-1]  # -1 drops intercept
+        terms.in.this.subset <- object$prune.terms[isubset,-1]  # -1 drops intercept
         preds.in.this.subset <-
             unique(unlist(preds.in.each.term[terms.in.this.subset]))
 
@@ -136,7 +136,7 @@ evimp <- function(obj, trim=TRUE, sqrt.=TRUE) # see help page for description
     attr(importances, "sqrt") <- sqrt.
     importances
 }
-print.evimp <- function(x = stop("no 'x' arg"), ...) # x is an "evimp" obj
+print.evimp <- function(x = stop("no 'x' argument"), ...) # x is an "evimp" object
 {
     stopifnot(NCOL(x) == 7)
     if(NROW(x) == 0) {
@@ -152,7 +152,7 @@ print.evimp <- function(x = stop("no 'x' arg"), ...) # x is an "evimp" obj
         max.rowname <- max(nchar(rownames))
     }
     printf("%*s nsubsets   gcv    rss\n", max.rowname, " ")
-    for(i in 1:nrow(x))
+    for(i in seq_len(nrow(x)))
         printf("%-*s %8d %5.1f%s %5.1f%s\n",
             max.rowname, rownames[i], x[i, 3],
             x[i, 4], if(x[i, 7]) " " else ">",
@@ -161,34 +161,33 @@ print.evimp <- function(x = stop("no 'x' arg"), ...) # x is an "evimp" obj
 # TODO this would be better if rotated clockwise 90 degrees so could easily read var names
 
 plot.evimp <- function(
-    x = stop("no 'x' arg"),     # an evimp object (called x for consistency with generic)
-    cex.var = 1,                # cex for variable names, make smaller if have lots of vars
+    x = stop("no 'x' argument"),
+    cex.var = 1,
 
-    type.nsubsets = "l",        # plot type for nsubsets graph, "b" is quite nice too, "n" for none
-    col.nsubsets = "black",     # color of nsubsets line
-    lty.nsubsets = 1,           # line type of nsubsets line
+    type.nsubsets = "l",
+    col.nsubsets = "black",
+    lty.nsubsets = 1,
 
-    type.gcv = "l",             # plot type for gcv graph,
-    col.gcv = "red",            # as above but for the gcv plot
+    type.gcv = "l",
+    col.gcv = 2,
     lty.gcv = 1,
 
-    type.rss = "l",             # as above but for the rss plot
+    type.rss = "l",
     col.rss = "gray60",
     lty.rss = 1,
 
-    cex.legend = 1,             # cex for legend strings, use if want the legend to be smaller
-    x.legend = nrow(x),         # x position of legend, use 0 for no legend
-    y.legend = x[1,"nsubsets"], # y position of legend
+    cex.legend = 1,
+    x.legend = nrow(x),
+    y.legend = x[1,"nsubsets"],
 
-    main = "Variable importance", # main title
-    rh.col = 1,                 # color of right hand label
-    do.par = TRUE,              # call par() as appropriate
-    ...)                        # extra args passed to plotting and method funcs
+    rh.col = 1,
+    do.par = TRUE,
+    ...)
 {
-    check.classname(x, deparse(substitute(x)), "evimp")
+    check.classname(x, substitute(x), "evimp")
     # make sure that all evimp columns are present (extra columns are ok)
     if(any(pmatch(c("col", "used", "nsubsets", "gcv"), colnames(x), nomatch=0) == 0))
-        stop("x is not an evimp matrix")
+        stop0("x is not an evimp matrix")
     if(nrow(x) == 0) { # intercept-only model
         max.subsets <- 0
         varlabs <- "intercept"
@@ -209,6 +208,7 @@ plot.evimp <- function(
         mar[4] <- mar[4] + 3                                # right margin
         par(mar=mar) # big bottom and right margins
     }
+    main <- dot("main", DEF="Variable importance", ...)
     if(max.subsets == 0) {
         plot(1, ylim=c(0, 1), type=type.nsubsets, # intercept-only model, dummy plot
              xlab="", xaxt="n", ylab="nsubsets",

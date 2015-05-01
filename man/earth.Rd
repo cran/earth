@@ -16,7 +16,7 @@ See the package vignette
 \dQuote{\href{../doc/earth-notes.pdf}{Notes on the earth package}}.
 }
 \usage{
-\method{earth}{formula}(formula = stop("no 'formula' arg"), data = NULL,
+\method{earth}{formula}(formula = stop("no 'formula' argument"), data = NULL,
    weights = NULL, wp = NULL, subset = NULL,
    na.action = na.fail, keepxy = FALSE, trace = 0, glm = NULL,
    ncross=1, nfold=0, stratify=TRUE,
@@ -24,7 +24,7 @@ See the package vignette
    varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
    Scale.y = (NCOL(y)==1), \dots)
 
-\method{earth}{default}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
+\method{earth}{default}(x = stop("no 'x' argument"), y = stop("no 'y' argument"),
     weights = NULL, wp = NULL, subset = NULL,
     na.action = na.fail, keepxy = FALSE, trace = 0, glm = NULL,
     ncross=1, nfold=0, stratify=TRUE,
@@ -32,7 +32,7 @@ See the package vignette
     varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
     Scale.y = (NCOL(y)==1), \dots)
 
-\method{earth}{fit}(x = stop("no 'x' arg"), y = stop("no 'y' arg"),
+\method{earth}{fit}(x = stop("no 'x' argument"), y = stop("no 'y' argument"),
     weights = NULL, wp = NULL, subset = NULL,
     na.action = na.fail, keepxy = FALSE, trace = 0, glm = NULL,
     degree = 1, penalty = if(degree > 1) 3 else 2,
@@ -62,9 +62,12 @@ plus in some cases
 \code{nprune}.
 \cr
 For Generalized Linear Models, use the \code{glm} argument
-(useful for example when the response is binary).\cr
+(useful when the response is binary or a factor).\cr
 For cross validation, use the \code{nfold} argument.\cr
 For prediction intervals, use the \code{varmod.method} argument.\cr
+\cr
+Unless you are an expert, it's best to avoid subverting the standard
+algorithm by toying with tuning parameters like \code{thresh}.
 
 \item{formula}{
      Model formula.
@@ -87,15 +90,19 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      Default is NULL, meaning no case weights.\cr
      If specified, \code{weights} must have length equal to \code{nrow(x)}
      before applying \code{subset}.\cr
+     % Following the precedent set by \code{lm}, \code{earth} first searches for the
+     % weights in \code{data}, then in the environment in which \code{earth} is called.
      The current implementation of weights is provisional and not fully tested.
      Thus if weights are used a warning will be issued.
-     Supress just this warning with \code{trace=-1} or \code{Force.weights=TRUE}.
+     Suppress this warning by setting \code{trace} to any non-zero value,
+     or by setting \code{Force.weights=TRUE}.
 }
 \item{wp}{
      Response weights.
      Default is NULL, meaning no response weights.
      If specified, \code{wp} must have an element for each column of
-     \code{y} (after \code{\link[=factor]{factors}} in \code{y}, if any, have been expanded).
+     \code{y} (after \code{\link[=factor]{factors}} in
+     \code{y}, if any, have been expanded).
      Zero values are converted to a small nonzero value.
 %  Earth uses \code{wp} as follows:
 %  It normalizes \code{wp} as follows \code{wp <- sqrt(wp / mean(wp))}
@@ -116,6 +123,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      The function \code{\link{update.earth}} and friends will use these
      if present instead of searching for them
      in the environment at the time \code{\link{update.earth}} is invoked.\cr
+     % The \code{subset} if specified will have been applied to the saved \code{x}, \code{y}, and \code{data}).\cr
      When the \code{nfold} argument is used with
      \code{keepxy=TRUE}, \code{earth} keeps more data
      (see \code{cv.list} in the \dQuote{\emph{Value}} section below),
@@ -130,13 +138,13 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
         \code{1} overview\cr
         \code{2} forward pass\cr
         \code{3} pruning\cr
-        \code{4} model mats, pruning details\cr
-        \code{5} internal details of operation\cr
+        \code{4} model mats summary, pruning details\cr
+        \code{5} full model mats, internal details of operation\cr
 }
 \item{glm}{
      NULL (default) or a list of arguments to pass on to \code{\link{glm}}.
      See the documentation of \code{\link{glm}} for a description of these arguments
-     See \dQuote{\emph{Generalized linear models}} in the package vignette.
+     See \dQuote{\emph{Generalized linear models}} in the vignette.
      Example:\cr
      \code{earth(survived~., data=etitanic, degree=2, glm=list(family=binomial))}
 \cr\cr
@@ -149,11 +157,11 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 \item{penalty}{
     Generalized Cross Validation (GCV) penalty per knot.
     Default is \code{if(degree>1) 3 else 2}.
-    A value of \code{0} penalizes only terms, not knots.
-    The value \code{-1} is treated specially to mean no penalty, so GCV=RSS/n.
-    Simulation studies have suggested values in the range of about \code{2}
-    to \code{4}.
-    The FAQ section in the package vignette has some information on GCVs.
+    Simulation studies sugest values in the range of about \code{2} to \code{4}.
+    The FAQ section in the vignette has some information on GCVs.\cr
+    For knowledgeable users only:
+A value of \code{0} penalizes only terms, not knots,
+and the value \code{-1} means no penalty, so GCV=RSS/n.
 }
 \item{nk}{
      Maximum number of model terms before pruning, i.e., the
@@ -162,7 +170,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      The actual number of terms created by the forward pass will often be
      less than \code{nk} because of other stopping conditions.
      See \dQuote{\emph{Termination conditions for the forward pass}}
-     in the package vignette.\cr
+     in the vignette.\cr
      The default is semi-automatically calculated from the number of predictors
      but may need adjusting.
 }
@@ -172,27 +180,35 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      This is one of the arguments used to decide when forward stepping
      should terminate:
      the forward pass terminates if adding a term changes RSq by less than \code{thresh}.
-     See \dQuote{\emph{Termination conditions for the forward pass}} in the package vignette.
+     See \dQuote{\emph{Termination conditions for the forward pass}} in the vignette.
 }
 \item{minspan}{
     Minimum number of observations between knots.
     (This increases resistance to runs of correlated noise in the input data.)\cr
     The default \code{minspan=0} is treated specially and
-    means calculate the \code{minspan} internally as per
+    means calculate the \code{minspan} internally, as per
     Friedman's MARS paper section 3.8 with \eqn{alpha} = 0.05.
     Set \code{trace>=2} to see the calculated value.\cr
     Use \code{minspan=1} and \code{endspan=1} to consider all x values.\cr
     Negative values of \code{minspan} specify the maximum number of knots
-    per predictor.  These will be equally spaced.  Knots that fall in
-    the endzones specified by \code{endspan} will be ignored as usual.
+    per predictor.  These will be equally spaced.  As always, knots that fall in
+    the endzones specified by \code{endspan} will be ignored.
 }
 \item{endspan}{
     Minimum number of observations before the first and after the final knot.\cr
     The default \code{endspan=0} is treated specially and
-    means calculate the \code{minspan} internally as per
+    means calculate the \code{minspan} internally, as per
     the MARS paper equation 45 with \eqn{alpha} = 0.05.
     Set \code{trace>=2} to see the calculated value.
-    See also the \code{Adjust.endspan} argument.
+\cr
+Be wary of reducing \code{endspan}, especially if you plan to make
+predictions beyond or near the limits of the training data.
+Overfitting near the edges of the input matrix \code{x} is much more
+likely with a small \code{endspan}.
+The model's \code{RSq} and \code{GRSq} won't indicate when this
+overfitting is occuring (\code{plotmo} can help detect it:
+look for sharp hinges at the edges of the data).
+See also the \code{Adjust.endspan} argument.
 }
 \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
@@ -238,7 +254,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 \cr
      This does not say that a predictor \emph{must} enter the model;
      only that if it enters, it enters linearly.
-     See \dQuote{\emph{The \code{linpreds} argument}} in the package vignette.
+     See \dQuote{\emph{The \code{linpreds} argument}} in the vignette.
 \cr
      A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
      (after factors have been expanded).
@@ -257,7 +273,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      During the forward pass, \code{earth} calls the \code{allowed} function
      before considering a term for inclusion; the term can go into the
      model only if the \code{allowed} function returns \code{TRUE}.
-     See \dQuote{\emph{The allowed argument}} in the package vignette.
+     See \dQuote{\emph{The allowed argument}} in the vignette.
 \cr\cr
      \bold{The following arguments are for the pruning pass.}
 }
@@ -302,7 +318,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      Use \code{trace=.5} to trace cross-validation.\cr
      Further statistics are calculated if \code{keepxy=TRUE} or
      if a binomial or poisson model (specified with the \code{glm} argument).
-     See \dQuote{\emph{Cross validation}} in the package vignette.
+     See \dQuote{\emph{Cross validation}} in the vignette.
 }
 \item{stratify}{
      Only applies if \code{nfold>1}.
@@ -315,7 +331,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
      And if the response is a multilevel factor, there will be an
      approximately equal number of each factor level in each fold
      (because a multilevel factor response gets expanded to columns of zeros and ones,
-     see \dQuote{\emph{Factors}} in  the package vignette).
+     see \dQuote{\emph{Factors}} in  the vignette).
      We say \dQuote{approximately equal} because the number of occurrences of a factor
      level may not be exactly divisible by the number of folds.
 \cr\cr
@@ -430,10 +446,10 @@ Function to evaluate model subsets --- see notes in source code.
 In interaction terms, \code{endspan} gets multiplied by this value.
 This reduces the possibility of an overfitted interaction term
 supported by just a few cases on the boundary of the predictor space
-(as verified in our simulation studies).\cr
+(as sometimes seen in our simulation studies).\cr
 The default is \code{2}.
-Use \code{Adjust.endspan=1} for compatibility with previous
-version of \code{earth}.
+Use \code{Adjust.endspan=1} for compatibility with old
+versions of \code{earth}.
 }
 \item{Scale.y}{
 \code{\link[=scale]{Scale}} \code{y} in the forward pass for better numeric stability.
@@ -480,7 +496,7 @@ Default \code{1e-10}.
 Applies only when \code{pmethod="exhaustive"}.
 If the reciprocal of the condition number of \code{bx}
 is less than \code{Exhaustive.tol}, \code{earth} forces \code{pmethod="backward"}.
-See \dQuote{\emph{XHAUST returned error code -999}} in the package vignette.
+See \dQuote{\emph{XHAUST returned error code -999}} in the vignette.
 }
 \item{\dots}{
      Dots are passed on to \code{earth.fit}.
@@ -514,7 +530,7 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the package vignette.
      An estimate of the predictive power of the model (calculated over all responses,
 and calculated using the \code{weights} argument if it was supplied).
      \code{gcv.null} is the GCV of an intercept-only model.
-     See \dQuote{\emph{Can \code{GRSq} be negative?}} in the package vignette.
+     See \dQuote{\emph{Can \code{GRSq} be negative?}} in the vignette.
 }
 \item{\code{bx}}{
      Matrix of basis functions applied to \code{x}.
@@ -692,7 +708,7 @@ Only exist if \code{keepxy=TRUE}.
      List of GLM models. Each element is the value returned by \code{earth}'s
      internal call to \code{\link{glm}} for each response.\cr
      Thus if there is a single response (or a single binomial pair, see
-     \dQuote{\emph{Binomial pairs}} in the package vignette)
+     \dQuote{\emph{Binomial pairs}} in the vignette)
      this will be a one element list and you access the GLM model with
      \code{earth.mod$glm.list[[1]]}.
 }
@@ -709,7 +725,7 @@ Only exist if \code{keepxy=TRUE}.
        NULL unless there are paired binomial columns.
        A logical vector, derived internally by \code{earth}, or a copy
        the \code{bpairs} specified by the user in the \code{glm} list.
-       See \dQuote{\emph{Binomial pairs}} in the package vignette.
+       See \dQuote{\emph{Binomial pairs}} in the vignette.
    \cr\cr
    \bold{The following fields appear only if the \code{nfold} argument is greater than 1.}
 }
@@ -794,7 +810,7 @@ mean  0.929 0.955 0.952 0.946
       Calculated with \code{thresh=.5} for binary responses.
       For responses with more than two
       levels, the final row is the overall classification rate.  The other
-      rows are the classification rates for each level (the level versus
+      rows are the classification rates for each level (the level
       versus not-the-level), which are usually higher than the overall
       classification rate (predicting the level versus not-the-level is
       easier than correctly predicting one of many levels).
