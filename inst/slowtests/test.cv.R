@@ -55,7 +55,7 @@ cat("a0a: trees with matrix interface\n\n")
 
 set.seed(23)
 a0a <- earth(trees[,-3], trees[,3], trace=0, nfold=3)
-stopifnot(!identical(a0$cv.rsq.tab,a0a$cv.rsq.tab))
+stopifnot(!identical(a0$cv.rsq.tab, a0a$cv.rsq.tab))
 printh(a0a)
 printh(summary(a0a))
 print.stripped.earth.model(a0a, "a0a")
@@ -64,7 +64,7 @@ cat("a1: trees with trace enabled\n\n")
 
 set.seed(1)
 a1 <- earth(Volume ~ ., data = trees, trace=1, nfold=3)
-stopifnot(!identical(a0$cv.rsq.tab,a1$cv.rsq.tab))
+stopifnot(!identical(a0$cv.rsq.tab, a1$cv.rsq.tab))
 printh(a1)
 printh(summary(a1))
 
@@ -182,11 +182,11 @@ plot(earth.mod.help, which=1, col.oof.rsq=0, col.npreds="gray", lty.npreds=1,
      main="col.oof.rsq=0 col.npreds=gray", do.par=F)
 
 plot(earth.mod.help, which=1, main="col.infold.rsq=lightblue",
-     col.grsq = 0, col.rsq = 0, col.vline = 0, col.oof.vline = 0,
+     col.grsq = 0, col.rsq = NA, col.vline = 0, col.oof.vline = 0,
      col.mean.infold.rsq="blue", col.infold.rsq="lightblue",
      col.mean.oof.rsq="red", col.oof.rsq="pink",
      col.pch.max.oof.rsq="purple", col.pch.cv.rsq=1,
-     do.par=F, legend.pos=c(5,0.28))
+     do.par=F, legend.pos=c(5,0.32))
 
 # expect Warning: cannot plot cross-validation data because keepxy not set in original call to earth
 a0 <- earth(Volume ~ ., data = trees, nfold=2)

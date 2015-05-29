@@ -14,7 +14,7 @@ check.index <- function(index, index.name, object,
     colnames        = NULL,
     is.col.index    = FALSE,
     allow.empty     = FALSE, # if index is char will warn if necessary regardless of allow.empty
-    allow.zeroes    = FALSE,
+    allow.zeros     = FALSE,
     allow.negatives = TRUE,
     allow.dups      = FALSE,
     treat.NA.as.one = FALSE,
@@ -32,7 +32,7 @@ check.index <- function(index, index.name, object,
 
     is.col.index    <- check.boolean(is.col.index)
     allow.empty     <- check.boolean(allow.empty)
-    allow.zeroes    <- check.boolean(allow.zeroes)
+    allow.zeros     <- check.boolean(allow.zeros)
     allow.negatives <- check.boolean(allow.negatives)
     allow.dups      <- check.boolean(allow.dups)
     treat.NA.as.one <- check.boolean(treat.NA.as.one)
@@ -60,7 +60,7 @@ check.index <- function(index, index.name, object,
         check.logical.index(index, index.name, len, allow.empty)
     else if(is.numeric(index))
         check.numeric.index(index, index.name, len, allow.empty,
-            allow.negatives, allow.dups, allow.zeroes, treat.NA.as.one)
+            allow.negatives, allow.dups, allow.zeros, treat.NA.as.one)
     else
         stop0(index.name, " must be an index vector (numeric, logical, or character)")
 }
@@ -147,7 +147,7 @@ check.logical.index <- function(index, index.name, len, allow.empty)
 }
 check.numeric.index <- function(index, index.name, len, allow.empty,
                                 allow.negatives, allow.dups,
-                                allow.zeroes, treat.NA.as.one)
+                                allow.zeros, treat.NA.as.one)
 {
     stopifnot(is.numeric(index))
     if(!allow.empty) {
@@ -157,13 +157,13 @@ check.numeric.index <- function(index, index.name, len, allow.empty,
             if(length(index) == 1)
                 stop0(index.name, " is 0")
             else
-                stop0(index.name, " is all zeroes")
+                stop0(index.name, " is all zeros")
     }
     if(!is.integral(index))
         stop0(index.name, " is not an integer")
     if(any(index < 0) && any(index > 0))
         stop0("mixed negative and positive values in ", index.name)
-    if(!allow.zeroes && any(index == 0) && length(index) != 1)
+    if(!allow.zeros && any(index == 0) && length(index) != 1)
         warning0("zero in ", index.name)
     if(!allow.negatives && any(index < 0))
         stop0("negative value in ", index.name)

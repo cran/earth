@@ -41,15 +41,14 @@ print.one.line.evimp <- function(object) # object is an "earth" object
 }
 evimp <- function(object, trim=TRUE, sqrt.=TRUE) # see help page for description
 {
-    stopifnot(length(sqrt.) == 1)
-    sqrt. <- sqrt. != 0 # convert to logical if necessary
+    trim  <- check.boolean(trim)
+    sqrt. <- check.boolean(sqrt.)
 
     # convert col numbers in predtab to col numbers in importances
     as.icriti <- function(icrit) c(3,4,6)[icrit]
 
     check.classname(object, substitute(object), "earth")
-    if(is.null(object$prune.terms)) # this occurs on mars.to.earth objects
-        stop0("object has no prune.terms, cannot get variable importances")
+    stopifnot(!is.null(object$prune.terms))
     nsubsets <- length(object$selected.terms)
     dirs <- object$dirs
     pred.names <- gen.colnames(dirs, "x", "x", trace=0)

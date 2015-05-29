@@ -501,7 +501,7 @@ if (PLOT)
 set.seed(1)
 if (PLOT) {
     plot(a, caption="plot.earth test 2", which=c(3,4,1), ylim=c(.2,.9),
-         id.n=20, legend.pos=c(10,.4), pch=20, lty.vline=1, cex.legend=1,
+         id.n=20, legend.pos=c(10,.6), pch=20, lty.vline=1, cex.legend=1,
          grid.col="lightblue")
 
     plot(a, caption="plot.earth test 3", which=2, main="test main")
@@ -565,8 +565,8 @@ test.plot.earth.args <- function()
          main="legend.pos=NA, col.npreds=0")
 
     plot(argtest, do.par=FALSE, which=1,
-         legend.pos=NA,
-         main="legend.pos=NA")
+         legend.pos=0,
+         main="legend.pos=0")
 }
 test.plot.earth.args()
 
@@ -1536,9 +1536,21 @@ cat("--- check that spurious warn gone: non-integer #successes in a binomial glm
 library(segmented) # for down data
 data(down)
 fit.e <- earth(cases/births~age, data=down, weights=down$births, glm=list(family="binomial"))
-# with trace=-1, test that no warning: support of weights is provisional in this version of earth
-fit.e <- earth(cases/births~age, data=down, weights=down$births, glm=list(family="binomial"), trace=-1)
 summary(fit.e)
+
+# test nk=1, 2, and 3
+cat("nk=1\n")
+par(mfrow = c(2, 2), mar = c(3, 3, 3, 1), mgp = c(1.5, 0.5, 0))
+a.nk1 <- earth(Volume~., data=trees, nk=1)
+plot(a.nk1, which=1, main="nk=1")
+print(a.nk1)
+cat("nk=2\n")
+a.nk2 <- earth(Volume~., data=trees, nk=2)
+print(summary(a.nk2))
+plot(a.nk2, which=1, main="nk=2")
+cat("nk=3\n")
+a.nk3 <- earth(Volume~., data=trees, nk=3)
+plot(a.nk3, which=1, main="nk=3")
 
 if(!interactive()) {
     dev.off()         # finish postscript plot

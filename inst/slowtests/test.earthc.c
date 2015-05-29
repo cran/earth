@@ -310,7 +310,9 @@ static void TestEarth(char sTestName[],
         nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0, 0,   // MinSpan, EndSpan
         true,   // Prune
-        nFastK, FastBeta, NewVarPenalty, LinPreds, 2 /*AdjustEndSpan*/, true, Trace, NULL);
+        nFastK, FastBeta, NewVarPenalty, LinPreds, 
+        2 /*AdjustEndSpan*/, true /*UseBetaCache*/, 
+        Trace, NULL);
 
     // calc nUsedTerms
 
@@ -386,6 +388,11 @@ int main(void)
                                        // func  nCases     nResp nPreds  nMaxDegree nMaxTerms  Trace Form Thresh K B N s
   TestEarth("noise",                   funcNoise, 1000,        1,     1,          2,       51,     3,true,0.001,20,1,0,99);
   TestEarth("x0",                      func0,       10,        1,     1,          2,       51,     7,true,0.001,20,1,0,99);
+
+  // intercept only models
+  TestEarth("x0",                      func0,       10,        1,     1,          2,        1,     3,true,0.001,20,1,0,99);
+  TestEarth("x0",                      func0,       10,        1,     1,          2,        2,     3,true,0.001,20,1,0,99);
+
   TestEarth("x0",                      func0,     1000,        1,     1,          2,       51,     3,true,0.001,20,1,0,99);
   TestEarth("x0 + noise",              func0,     1000,        1,   1+1,          2,       51,     3,true,0.001,20,1,0,99);
   TestEarth("x0 + x1",                 func1,     1000,        1,     2,          2,       11,     7,true,0.001,20,1,0,99);

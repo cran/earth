@@ -60,11 +60,13 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
     segments2 <- function(x1, y1, dx, dy, lty, lwd, col) {
         x2 <- x1 + dx; if(xlog) { x1 <- 10^x1; x2 <- 10^x2 }
         y2 <- y1 + dy; if(ylog) { y1 <- 10^y1; y2 <- 10^y2 }
-        # explicit loop allows use of char lty's with "1" meaning 1
+        # explicit loop allows use of char lty's with "1" meaning 1 and "NA" meaning NA
         for(i in seq_along(x1)) {
             lt <- lty[i]
             if(lt == "1")
                 lt <- 1
+            else if(is.na(lt) || lt == "NA")
+                lt <- 0
             segments(x1[i], y1[i], x2[i], y2[i], lty=lt, lwd=lwd[i], col=col[i])
         }
     }

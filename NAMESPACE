@@ -2,6 +2,7 @@ useDynLib("earth")
 
 import(stats)
 importFrom(plotmo, plotmo.singles, plotmo.pairs, plotmo.y)
+importFrom(TeachingDemos, spread.labs)
 
 export(contr.earth.response)
 export(earth)

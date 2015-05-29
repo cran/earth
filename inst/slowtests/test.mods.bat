@@ -19,6 +19,14 @@
 @egrep -v "^\[total time" test.mods.Rout.save >test.mods.Rout.save1
 @rem -w to treat \n same as \r\n
 @mks.diff -w test.mods.Rout1 test.mods.Rout.save1
+@if %errorlevel% equ 0 goto good2
+@echo === Files are different ===
+@diffps -s Rplots.ps ..\..\.#\test-reference\test.mods.save.ps
+@exit /B 1
+:good2
+@rem test.mods.save.ps is too big to be included in the release
+@rem so it is stored elsewhere
+diffps Rplots.ps ..\..\.#\test-reference\test.mods.save.ps
 @if %errorlevel% equ 0 goto good3
 @echo === Files are different ===
 @exit /B 1

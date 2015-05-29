@@ -1,15 +1,50 @@
 Changes to Earth Package
 ------------------------
 
+4.4.0  May 29, 2015
+
+    Changes to earth.c. The following changes mean that earth will
+    produce slightly different models from previous releases:
+
+        o For minspan counting in interaction terms, we now only count cases
+          that are supported by the parent term (i.e., cases that are in the zero
+          part of the parent hinge are not counted).  This makes earth more
+          robust against overfitting on the edges of the training predictor space.
+
+        o Modified the code for weighted models, mostly for consistency with
+          non-weighted models.
+
+        o Changed a numerical tolerance in FindKnot for better support of
+          "sawtooth" responses (responses which zigzag up and down as
+          the predictor increases).
+
+        o Other minor updates, particularly to trace prints. Values that
+          are almost zero are now printed as zero, for more consistency
+          in trace prints across different architectures.
+
+    The weights argument has now been comprehensively tested and the
+    warning "support of weights is provisional" is no longer issued.
+
+    Earth now supports pmethod = "cv", which uses cross-validation to
+    select the optimum number of model terms.
+
+    Earth now supports bigger models with less memory thrashing.  It calls
+    gc() internally where necessary.  Leverages are calculated only for
+    non-big models (since memory use peaks when calculating leverages).
+
+    The model selection plot has had various enhancements.
+
+    Various other minor code and documentation updates.
+
 4.3.0  Apr 30, 2015
 
-   We now support data matrices bigger than 2GB.
+    We now support data matrices bigger than 2GB.
 
-   The plot.earth function now invokes plotres in the plotmo package.
-   Reparameterized the argument list of plot.earth, but maintained 
-   back-compatibility by using the "dots" routines.
+    The plot.earth function now invokes plotres in the plotmo package.
+    Reparameterized the argument list of plot.earth, but maintained
+    back-compatibility by using the "dots" routines.
 
-   Numerous minor code clean-ups.
+    Numerous minor code clean-ups.
 
 4.2.0  Jan 12, 2015
 

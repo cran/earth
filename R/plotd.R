@@ -444,7 +444,8 @@ get.plotd.data <- function(object, type, nresponse, trace, ...)
     colnames.yhat <- colnames(yhat)
     if(!is.null(nresponse)) {
         nresponse <- plotmo::plotmo_nresponse(yhat, object, nresponse, trace,
-                                        sprintf("predict.%s", class(object)[1]))
+                                        sprintf("predict.%s", class(object)[1]),
+                                        type)
         if(NCOL(yhat) > 1) {
             yhat <- yhat[, nresponse]
             if(is.data.frame(yhat)) # TODO needed for fda type="hier", why?

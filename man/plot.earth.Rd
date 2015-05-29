@@ -27,8 +27,8 @@ The first arguments are identical to \code{plotres}.
   col.npreds = if(is.null(object$cv.oof.rsq.tab)) 1 else 0, col.oof.labs = 0,
   col.oof.rsq = "mistyrose2", col.oof.vline = col.mean.oof.rsq,
   col.pch.cv.rsq = 0, col.pch.max.oof.rsq = 0, col.vline = col.grsq,
-  col.vseg = 0, lty.grsq = 1, lty.npreds = 2, lty.rsq = 5, lty.vline = 3,
-  \dots)
+  col.vseg = 0, lty.grsq = 1, lty.npreds = 2, lty.rsq = 5, lty.vline = "12",
+  legend.pos = NULL, \dots)
 
 earth_plotmodsel(x,
   col.rsq = 2, col.grsq = 1, col.infold.rsq = 0,
@@ -36,8 +36,9 @@ earth_plotmodsel(x,
   col.npreds = NULL, col.oof.labs = 0, col.oof.rsq = "mistyrose2",
   col.oof.vline = col.mean.oof.rsq, col.pch.cv.rsq = 0,
   col.pch.max.oof.rsq = 0, col.vline = col.grsq, col.vseg = 0,
-  lty.grsq = 1, lty.npreds = 2, lty.rsq = 5, lty.vline = 3,
-  add = FALSE, jitter = 0, max.nterms = length(object$rss.per.subset),
+  lty.grsq = 1, lty.npreds = 2, lty.rsq = 5, lty.vline = "12",
+  legend.pos=NULL, add = FALSE, jitter = 0,
+  max.nterms = length(object$rss.per.subset),
   max.npreds=max(1,get.nused.preds.per.subset(object$dirs,object$prune.terms)),
   ...)
 }
@@ -151,7 +152,12 @@ Default is \code{5}.
 }
 \item{lty.vline}{
 Line type of vertical line at selected model in the Model Selection plot.
-Default is \code{3}.
+Default is \code{"12"}.
+}
+\item{legend.pos}{
+Position of the legend in the Model Selection plot.
+Default is \code{NULL} meaning automatic.
+Use \code{legend.pos=NA} or \code{0} for no legend.
 }
 \item{add, max.nterms, max.npreds}{
 \code{earth_plotmodsel} arguments for internal use by

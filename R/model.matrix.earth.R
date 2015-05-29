@@ -67,23 +67,25 @@ get.bx <- function(x, which.terms, dirs, cuts)
     stopifnot(all(dirs[1,] == 0))   # intercept term dirs must all be 0
     check.which.terms(dirs, which.terms)
     stopifnot(NCOL(x) > 0)
-    bx <- matrix(0, nrow=nrow(x), ncol=length(which.terms))
+    colnames <- rownames(dirs[which.terms,,drop=FALSE])
+    bx <- matrix(0, nrow=nrow(x), ncol=length(which.terms),
+                 dimnames=list(NULL, colnames))
     ibx <- 1
     for(iterm in which.terms) {
         temp1 <- 1
         for(ipred in seq_len(ncol(x))) {
-            if(dirs[iterm, ipred] == 2)  # predictor enters linearly?
+            dir <- dirs[iterm, ipred]
+            if(dir == 2)  # predictor enters linearly?
                 temp1 <- temp1 * x[, ipred]
-            else if(dirs[iterm, ipred] == -1 || dirs[iterm, ipred] == 1) {
-                temp2 <- dirs[iterm, ipred] * (x[, ipred] - cuts[iterm, ipred])
+            else if(dir == -1 || dir == 1) {
+                temp2 <- dir * (x[, ipred] - cuts[iterm, ipred])
                 temp1 <- temp1 * temp2 * (temp2 > 0)
-            } else if(dirs[iterm, ipred] != 0)
-                stop0("illegal direction ", dirs[iterm, ipred], " in 'dirs'")
+            } else if(dir != 0)
+                stop0("illegal direction ", dir, " in 'dirs'")
         }
         bx[, ibx] <- temp1
         ibx <- ibx + 1
     }
-    colnames(bx) <- rownames(dirs[which.terms,,drop=FALSE])
     bx
 }
 # Called only by model.matrix.earth
@@ -309,7 +311,7 @@ model.matrix.earth <- function(     # returns bx
         which.terms <- object$selected.terms
     if(!is.null(subset)) {
         # duplicates are allowed in subsets so user can specify a bootstrap sample
-        check.index("subset", subset, x, allow.dups=TRUE, allow.zeroes=TRUE)
+        check.index("subset", subset, x, allow.dups=TRUE, allow.zeros=TRUE)
         x <- x[subset, , drop=FALSE]
     }
     get.bx(x, which.terms, object$dirs, object$cuts)

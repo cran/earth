@@ -9,7 +9,7 @@ Compare \code{\link{earth}} models by plotting them.
     caption = "", jitter = 0,
     col.grsq = discrete.plot.cols(length(objects)), lty.grsq = 1,
     col.rsq = 0, lty.rsq = 5,
-    col.vline = col.grsq, lty.vline = 3,
+    col.vline = col.grsq, lty.vline = "12",
     col.npreds = 0,  lty.npreds  = 2,
     legend.text = NULL, do.par = NULL, trace = 0,
     \dots)

@@ -261,7 +261,7 @@ c___      Y = YELEM
 c___      NEXTR = 1
 c___      DO 30 I = 1, NP
 c___C
-c___C     Skip unnecessary transformations.   Test on exact zeroes must be
+c___C     Skip unnecessary transformations.   Test on exact zeros must be
 c___C     used or stability can be destroyed.
 c___C
 c___    IF (W .EQ. ZERO) RETURN
@@ -1203,7 +1203,7 @@ C
 C
 C     ALGORITHM AS274  APPL. STATIST. (1992) VOL.41, NO. 2
 C
-C     Sets up array TOL for testing for zeroes in an orthogonal
+C     Sets up array TOL for testing for zeros in an orthogonal
 C     reduction formed using AS75.1.
 C
       INTEGER NP, NRBAR, IER
@@ -1285,7 +1285,7 @@ C
       CALL COR(NP-IN, D(IN1), RBAR(START), THETAB(IN1),
      +  SSERR, WORK, CORMAT, YCORR)
 C
-C     Check for zeroes.
+C     Check for zeros.
 C
       DO 10 I = 1, NP-IN
       IF (WORK(I) .LE. ZERO) IER = -I
@@ -1607,7 +1607,7 @@ C
       NEXTR = 1
       DO 30 I = 1, NP
 C
-C     Skip unnecessary transformations.   Test on exact zeroes must be
+C     Skip unnecessary transformations.   Test on exact zeros must be
 C     used or stability can be destroyed.
 C
       IF (W .EQ. ZERO) RETURN

@@ -41,25 +41,26 @@ void ForwardPassR(              // for use by R
     const int* pnEndSpan,       // in:
     const int* pnFastK,         // in: Fast MARS K
     const double* pFastBeta,    // in: Fast MARS ageing coef
-    const double* pNewVarPenalty, // in: penalty for adding a new variable (default is 0)
-    const int  LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
-    const SEXP Allowed,           // in: constraints function, can be MyNull
-    const int* pnAllowedFuncArgs, // in: number of arguments to Allowed function, 3 or 4
-    const SEXP Env,               // in: environment for Allowed function
-    const double* pAdjustEndSpan, // in:
-    const int* pnUseBetaCache,    // in: 1 to use the beta cache, for speed
-    const double* pTrace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char* sPredNames[],     // in: predictor names in trace printfs, can be MyNull
-    const SEXP MyNull);           // in: trick to avoid R check warnings on passing R_NilValue
+    const double* pNewVarPenalty,  // in: penalty for adding a new variable (default is 0)
+    const int  LinPreds[],         // in: nPreds x 1, 1 if predictor must enter linearly
+    const SEXP Allowed,            // in: constraints function, can be MyNull
+    const int* pnAllowedFuncArgs,  // in: number of arguments to Allowed function, 3 or 4
+    const SEXP Env,                // in: environment for Allowed function
+    const double* pAdjustEndSpan,  // in:
+    const int* pnUseBetaCache,     // in: 1 to use the beta cache, for speed
+    const double* pTrace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    const char* sPredNames[],      // in: predictor names in trace printfs, can be MyNull
+    const SEXP MyNull);            // in: trick to avoid R check warnings on passing R_NilValue
 
 void EvalSubsetsUsingXtxR(      // for use by R
-    double       PruneTerms[],  // out: specifies which cols in bx are in best set
-    double       RssVec[],      // out: nTerms x 1
+    double        PruneTerms[], // out: specifies which cols in bx are in best set
+    double        RssVec[],     // out: nTerms x 1
     const int*    pnCases,      // in
-    const int*    pnResp,       // in: number of cols in yw
+    const int*    pnResp,       // in: number of cols in y
     const int*    pnMaxTerms,   // in
-    const double bx[],          // in: MARS basis matrix, all cols must be indep
-    const double yw[]);         // in: nCases * nResp
+    const double  bx[],         // in: MARS basis matrix, all cols must be indep
+    const double  y[],          // in: nCases * nResp (possibly weighted)
+    const double* pTrace);      // in
 
 void RegressR(                  // for testing earth routine Regress from R
     double       Betas[],       // out: (nUsedCols+1) * nResp, +1 is for intercept
@@ -80,48 +81,48 @@ void RegressR(                  // for testing earth routine Regress from R
 #if STANDALONE
 
 void Earth(
-    double* pBestGcv,           // out: GCV of the best model i.e. BestSet columns of bx
-    int*    pnTerms,            // out: max term nbr in final model, after removing lin dep terms
-    int*    piTermCond,         // out: reason we terminated the foward pass
-    bool    BestSet[],          // out: nMaxTerms x 1, indices of best set of cols of bx
-    double  bx[],               // out: nCases x nMaxTerms
-    int     Dirs[],             // out: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
-    double  Cuts[],             // out: nMaxTerms x nPreds, cut for iTerm, iPred
-    double  Residuals[],        // out: nCases x nResp
-    double  Betas[],            // out: nMaxTerms x nResp
-    const double x[],           // in: nCases x nPreds
-    const double y[],           // in: nCases x nResp
-    const double WeightsArg[],  // in: nCases x 1, can be NULL, not yet supported
-    const size_t nCases,        // in: number of rows in x and elements in y
-    const int nResp,            // in: number of cols in y
-    const int nPreds,           // in: number of cols in x
-    const int nMaxDegree,       // in: Friedman's mi
-    const int nMaxTerms,        // in: includes the intercept term
-    const double Penalty,       // in: GCV penalty per knot
-    const double Thresh,        // in: forward step threshold
-    const int nMinSpan,         // in: set to non zero to override internal calculation
-    const int nEndSpan,         // in: set to non zero to override internal calculation
-    const bool Prune,           // in: do backward pass
-    const int nFastK,           // in: Fast MARS K
-    const double FastBeta,      // in: Fast MARS ageing coef
-    const double NewVarPenalty, // in: penalty for adding a new variable
-    const int LinPreds[],       // in: nPreds x 1, 1 if predictor must enter linearly
-    const double AdjustEndSpan, // in:
-    const bool UseBetaCache,    // in: 1 to use the beta cache, for speed
-    const double Trace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char* sPredNames[]);  // in: predictor names in trace printfs, can be NULL
+    double* pBestGcv,            // out: GCV of the best model i.e. BestSet columns of bx
+    int*    pnTerms,             // out: max term nbr in final model, after removing lin dep terms
+    int*    piTermCond,          // out: reason we terminated the foward pass
+    bool    BestSet[],           // out: nMaxTerms x 1, indices of best set of cols of bx
+    double  bx[],                // out: nCases x nMaxTerms
+    int     Dirs[],              // out: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
+    double  Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm, iPred
+    double  Residuals[],         // out: nCases x nResp
+    double  Betas[],             // out: nMaxTerms x nResp
+    const double x[],            // in: nCases x nPreds
+    const double y[],            // in: nCases x nResp
+    const double WeightsArg[],   // in: nCases x 1, can be NULL, not yet supported
+    const size_t nCases,         // in: number of rows in x and elements in y
+    const int nResp,             // in: number of cols in y
+    const int nPreds,            // in: number of cols in x
+    const int nMaxDegree,        // in: Friedman's mi
+    const int nMaxTerms,         // in: includes the intercept term
+    const double Penalty,        // in: GCV penalty per knot
+    const double Thresh,         // in: forward step threshold
+    const int nMinSpan,          // in: set to non zero to override internal calculation
+    const int nEndSpan,          // in: set to non zero to override internal calculation
+    const bool Prune,            // in: do backward pass
+    const int nFastK,            // in: Fast MARS K
+    const double FastBeta,       // in: Fast MARS ageing coef
+    const double NewVarPenalty,  // in: penalty for adding a new variable
+    const int LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
+    const double AdjustEndSpan,  // in:
+    const bool UseBetaCache,     // in: 1 to use the beta cache, for speed
+    const double Trace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    const char* sPredNames[]);   // in: predictor names in trace printfs, can be NULL
 
 void FormatEarth(
-    const bool   UsedCols[],// in: nMaxTerms x 1, indices of best set of cols of bx
-    const int    Dirs[],    // in: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
-    const double Cuts[],    // in: nMaxTerms x nPreds, cut for iTerm, iPred
-    const double Betas[],   // in: nMaxTerms x nResp
+    const bool   UsedCols[], // in: nMaxTerms x 1, indices of best set of cols of bx
+    const int    Dirs[],     // in: nMaxTerms x nPreds, -1,0,1,2 for iTerm, iPred
+    const double Cuts[],     // in: nMaxTerms x nPreds, cut for iTerm, iPred
+    const double Betas[],    // in: nMaxTerms x nResp
     const int    nPreds,
-    const int    nResp,     // in: number of cols in y
+    const int    nResp,      // in: number of cols in y
     const int    nTerms,
     const int    nMaxTerms,
-    const int    nDigits,   // number of significant digits to print
-    const double MinBeta);  // terms with fabs(betas) less than this are not printed, 0 for all
+    const int    nDigits,    // number of significant digits to print
+    const double MinBeta);   // terms with fabs(betas) less than this are not printed, 0 for all
 
 void PredictEarth(
     double       y[],        // out: vector nResp

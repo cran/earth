@@ -12,6 +12,9 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
     #--- print.earth starts here
     check.classname(x, substitute(x), "earth")
     warn.if.dots(...)
+    nresp <- NCOL(x$coefficients)
+    is.cv <- !is.null(x$cv.list)
+    nselected <- length(x$selected.terms)
     if(is.null(x$glm.list))     # glm.list is a list of glm models, null if none
         cat("Selected ")
     else
@@ -19,18 +22,14 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
 
     cat(length(x$selected.terms), "of", nrow(x$dirs), "terms, and",
         get.nused.preds.per.subset(x$dirs, x$selected.terms),
-        "of", ncol(x$dirs), "predictors ")
+        "of", ncol(x$dirs), "predictors")
 
-    # TODO commented out when I added following line to AddTermPair:
-    #     if(LinPreds[iBestPred] || LinPredIsBest)
-    #
-    # nlinpreds <- sum(x$dirs[x$selected.terms,] == 2)
-    # if(nlinpreds == 1)
-    #     cat0(nlinpreds, " linear predictor")
-    # else if(nlinpreds > 1)
-    #     cat0(nlinpreds, " linear predictors")
-
-    cat("\n")
+    if(x$pmethod == "cv")
+        printf(" using pmethod=\"cv\"\n")
+    else if(x$pmethod == "none")
+        printf(" (pmethod=\"none\")\n")
+    else
+        cat("\n")
 
     print.termcond(x)       # print reason we terminated the forward pass
 
@@ -44,53 +43,87 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
            " (additive model)"),
          "\n")
 
-    nresp <- NCOL(x$coefficients)
-    is.cv <- !is.null(x$cv.list)
-    ilast <- nrow(x$cv.rsq.tab)
-
     if(nresp > 1) {
-        # create a matrix and print that
-
-        a <- matrix(nrow=nresp+1, ncol=4 + is.cv)
-        rownames(a) <- c(colnames(x$fitted.values), "All")
-        colnames. <- c("GCV", "RSS", "GRSq", "RSq")
+        # create a data.frame and print that
+        mat <- matrix(nrow=nresp+1, ncol=4 + is.cv + (x$pmethod == "cv"))
+        rownames(mat) <- c(colnames(x$fitted.values), "All")
+        colnames <- c("GCV", "RSS", "GRSq", "RSq")
         if(is.cv)
-            colnames. <- c(colnames., "CVRSq")
-        colnames(a) <- colnames.
+            colnames <- c(colnames,
+                if(x$pmethod=="cv") c("  mean.oof.RSq", "sd(mean.oof.RSq)")
+                else "CVRSq")
+        colnames(mat) <- colnames
         for(iresp in seq_len(nresp)) {
-            a[iresp,1:4] <- c(x$gcv.per.response[iresp],
-                              x$rss.per.response[iresp],
-                              x$grsq.per.response[iresp],
-                              x$rsq.per.response[iresp])
-            if(is.cv)
-                a[iresp,5] <- x$cv.rsq.tab[ilast,iresp]
+            mat[iresp,1:4] <- c(x$gcv.per.response[iresp],
+                                x$rss.per.response[iresp],
+                                x$grsq.per.response[iresp],
+                                x$rsq.per.response[iresp])
+            if(is.cv) {
+                if(x$pmethod == "cv") {
+                    ilast <- nrow(x$cv.oof.rsq.tab)
+                    mat[iresp,5] <- NA
+                    mat[iresp,6] <- NA
+                } else {
+                    ilast <- nrow(x$cv.rsq.tab)
+                    mat[iresp,5] <- x$cv.rsq.tab[ilast,iresp]
+                }
+            }
         }
         # final row for "All"
-        a[nresp+1,1:4] <- c(x$gcv, x$rss, x$grsq, x$rsq)
-        if(is.cv)
-            a[nresp+1,5] <- x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)]
+        mat[nresp+1,1:4] <- c(x$gcv, x$rss, x$grsq, x$rsq)
+        if(is.cv) {
+            if(x$pmethod == "cv") {
+                mat[nresp+1,5] <- signif(x$cv.oof.rsq.tab[ilast,nselected],
+                                       digits=digits)
+                mat[nresp+1,6] <-
+                    signif(sd(x$cv.oof.rsq.tab[-ilast,nselected], na.rm=TRUE),
+                           digits=digits)
+            } else
+                mat[nresp+1,5] <- x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)]
+        }
         cat("\n")
         if(!is.null(x$glm.list))
             cat("Earth\n") # remind user
         if(fixed.point)
-           a <- my.fixed.point(a, digits)
-        print(a, digits=digits)
+           mat <- my.fixed.point(mat, digits)
+        df <- as.data.frame(mat)
+        # the following converts the matrix from numeric to character
+        df[is.na(df)] <- "" # print NAs as blanks (in mean.oof.RSq column)
+        print(df, digits=digits)
     } else {
+        spacer <- if(is.cv) "  " else "    "
         if(!is.null(x$glm.list))
             cat("Earth ")   # remind user
-        spacer <- if(is.cv) "  " else "    "
-        cat0("GCV ",   format(x$gcv,  digits=digits),
-             spacer, "RSS ",  format(x$rss,  digits=digits),
-             spacer, "GRSq ", format(x$grsq, digits=digits),
-             spacer, "RSq ",  format(x$rsq,  digits=digits))
-        if(is.cv)
-            cat0(spacer, "CVRSq ",
-                 format(x$cv.rsq.tab[ilast,1], digits=digits))
-        cat("\n")
+        if(x$pmethod == "cv") {
+            ilast <- nrow(x$cv.oof.rsq.tab)
+            cat0("GRSq ", format(x$grsq, digits=digits),
+                 spacer, "RSq ",  format(x$rsq,  digits=digits),
+                 spacer, "mean.oof.RSq ",
+                 format(x$cv.oof.rsq.tab[ilast,nselected], digits=digits),
+                 " (sd ",
+                 format(sd(x$cv.oof.rsq.tab[-ilast,nselected], na.rm=TRUE), digits=3),
+                 ")\n")
+        } else {
+            ilast <- nrow(x$cv.rsq.tab)
+            cat0("GCV ",   format(x$gcv,  digits=digits),
+                 spacer, "RSS ",  format(x$rss,  digits=digits),
+                 spacer, "GRSq ", format(x$grsq, digits=digits),
+                 spacer, "RSq ",  format(x$rsq,  digits=digits))
+            if(is.cv)
+                cat0(spacer, "CVRSq ",
+                     format(x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)], digits=digits))
+            cat("\n")
+        }
     }
-    if(print.glm && !is.null(x$glm.list))
-        print.earth.glm(x, digits, fixed.point)
-
+    if(print.glm) {
+        if(!is.null(x$glm.list))
+            print.earth.glm(x, digits, fixed.point)
+        if(x$pmethod == "cv") {
+            # The digits +1 below is an attempt to be compatible with the above prints.
+            # The number of digits won't always match exactly, it's not critical.
+            print.would.have(x, if(nresp > 1) digits+1 else digits)
+        }
+    }
     invisible(x)
 }
 print.termcond <- function(object) # print reason we terminated the forward pass
@@ -205,13 +238,39 @@ print.summary.earth <- function(
     print.earth(x, digits, print.glm=FALSE)
     if(!is.null(x$glm.list))
         print.earth.glm(x, digits, fixed.point)
-    if(!is.null(x$cv.list))
+    if(!is.null(x$cv.list) && x$pmethod != "cv")
         print.cv(x)
+    if(x$pmethod == "cv")
+        print.would.have(x, if(nresp > 1) digits+1 else digits)
     if(!is.null(x$varmod)) {
         printf("\nvarmod: ")
         x$varmod <- print.varmod(x$varmod, digits=digits)
     }
     invisible(x)
+}
+print.would.have <- function(x, digits)
+{
+    form <- function(x) format(x, digits=digits)
+    nselected <- length(x$backward.selected.terms)
+    ilast <- nrow(x$cv.oof.rsq.tab)
+    cat0("\npmethod=\"backward\" would have selected",
+        if(nselected == length(x$selected.terms)) " the same model" else "",
+        ":\n    ",
+        nselected,
+        " terms ",
+        get.nused.preds.per.subset(x$dirs, x$backward.selected.terms),
+        " preds,  GRSq ",
+        form(get.rsq(x$gcv.per.subset[nselected], x$gcv.per.subset[1])),
+        "  RSq ",
+        form(get.rsq(x$rss.per.subset[nselected], x$rss.per.subset[1])),
+        "  mean.oof.RSq ",
+        form(x$cv.oof.rsq.tab[ilast, nselected]),
+        "\n")
+    if(is.na(x$cv.oof.rsq.tab[ilast, nselected]))
+        printf(
+"    (mean.oof.RSq is NA because most fold models have less than %g terms)\n",
+               nselected)
+
 }
 # put some spaces into term names for readability
 #     convert h(x1-5860)*h(x2--15)

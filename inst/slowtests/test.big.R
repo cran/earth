@@ -3,88 +3,78 @@
 library(earth)
 if(!interactive())
     postscript(paper="letter")
-options(warn=2) # treat warnings as errors
-options(digits = 3)
+options(warn=1)
+options(digits=3)
 printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
-start.time <- proc.time()
 set.seed(2015)
 
-N <- 12000 # big enough to cross ten-thousand-cases barrier in plotres and plotmo
+p <- 100
+n <- 20000 # big enough to cross ten-thousand-cases barrier in plotres and plotmo
 
-# N <- 2e6 # x matrix 1.5 GB, bx will be much bigger
-#
-# N <- 3e6 # x matrix 2.24 GB, peak memory 15 GB
-#
-# N <- 6e6 # x matrix 4.5GB,
-#          # rterm.exe peak memory under Win7 is 31 GB
-#          # (but with 32GB total memory on the machine, so maybe hitting that limit)
-#
-# N <- 1e7 # Out of memory (could not allocate 15 GB)
+                      # earth 4.4.0 on windows 64 bit system, 2.9 GHz i7, 32 gig ram, SSD drive:
 
-ran <- function() runif(N, min=-1, max=1)
+# p <- 100; n <- 8e6  # ok
+                      # 51 minutes to build model, additional 1.5 minutes for plotmo and plotres
 
-x <- cbind(
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(),
-    ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran(), ran())
+# p <- 100; n <- 10e6 # Error in forward.pass: Out of memory (could not allocate 15 GB)
+                      # ok with nk=21, 42 minutes to build model
 
-colnames(x) <- c(
-    "x01", "x02", "x03", "x04", "x05", "x06", "x07", "x08", "x09", "x10",
-    "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18", "x19", "x20",
-    "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", "x29", "x30",
-    "x31", "x32", "x33", "x34", "x35", "x36", "x37", "x38", "x39", "x40",
-    "x41", "x42", "x43", "x44", "x45", "x46", "x47", "x48", "x49", "x50",
-    "x51", "x52", "x53", "x54", "x55", "x56", "x57", "x58", "x59", "x60",
-    "x61", "x62", "x63", "x64", "x65", "x66", "x67", "x68", "x69", "x70",
-    "x71", "x72", "x73", "x74", "x75", "x76", "x77", "x78", "x79", "x80",
-    "x81", "x82", "x83", "x84", "x85", "x86", "x87", "x88", "x89", "x90",
-    "x91", "x92", "x93", "x94", "x95", "x96", "x97", "x98", "x99", "x100")
+# p <- 2; n <- 60e6   # ok
 
-func1 <- function(x)
-{
-     sin(6 * x[,1]) + x[,2] + 4 * x[,3]^2
+# p <- 2; n <- 80e6   # ok (but not enough memory to get leverages)
+                      # 18 minutes to build model, additional 8 minutes for plotmo and plotres
+
+# p <- 2; n <- 100e6  # Error in leaps.setup: Reached total allocation of 32673Mb
+                      # ok with memory.limit(size=64000) but lots of mem thrashing, slow (53 mins)
+                      # ok with nk=11 and memory.limit(size=64000), not so much thrashing
+
+cat("creating x\n")
+ran <- function() runif(n, min=-1, max=1)
+set.seed(2015)
+x <- matrix(ran(), ncol=1)
+if(p >= 2)
+    x <- cbind(x, ran())
+if(p >= 3)
+    x <- cbind(x, ran())
+if(p >= 4) {
+    # xran saves time generating x, ok because func uses only columns x1, x2, and x3
+    xran <- ran()
+    x <- cbind(x, matrix(xran, nrow=n, ncol=p-3))
 }
-y <- func1(x)
-degree <- 1
-trace <- 4
-cat("test 1: nrow(x)", nrow(x), "ncol(x)", ncol(x), "degree", degree, "trace", trace, "\n")
-
-a1 <- earth(x, y, degree=degree, trace=trace)
-
+colnames(x) <- paste("x", 1:ncol(x), sep="")
+func <- function(x) # additive, no interactions
+{
+    y <- sin(4 * x[,1])
+    if(p > 1)
+        y <- y + x[,2]
+    if(p > 2)
+        y <- y + 2 * x[,3]^2 - 1
+    y
+}
+cat("creating y\n")
+y <- func(x)
+cat("calling earth\n")
+start.time <- proc.time()
+a <- earth(x, y, degree=1, trace=1.5)
+if(interactive())
+    printf("n %g p %g: earth time %.3f seconds (%.3f minutes)\n",
+        n, p,
+        (proc.time() - start.time)[3],
+        (proc.time() - start.time)[3] / 60)
 cat("print(summary(a1)):\n")
-print(summary(a1))
-
-cat("print(a1):\n")
-print(a1)
-
-cat("plot(a1):\n")
-plot(a1)
-
-cat("plotmo(a1):\n")
-plotmo(a1)
-
-func2 <- function(x)
-{
-     x[,1] + x[,2] + x[,3] * x[,4]
-}
-y <- func2(x)
-degree <- 1
-trace <- 4
-cat("test 2: nrow(x)", nrow(x), "ncol(x)", ncol(x), "degree", degree, "trace", trace, "\n")
-
-a2 <- earth(x, y, degree=degree, trace=trace)
-
-cat("print(summary(a2)):\n")
-print(summary(a2))
-
-printf("[total time %.3f]\n", (proc.time() - start.time)[3])
+print(summary(a))
+invisible(gc())
+cat("calling plotmo\n")
+plotmo(a, trace=-1)
+invisible(gc())
+cat("calling plotres\n")
+set.seed(2015) # TODO this is necessary, why?
+plot(a, trace=1)
+if(interactive())
+    printf("n %g p %g: total time %.3f seconds (%.3f minutes)\n",
+         n, p,
+        (proc.time() - start.time)[3],
+        (proc.time() - start.time)[3] / 60)
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

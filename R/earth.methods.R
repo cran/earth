@@ -58,7 +58,8 @@ family.earth <- function(object, ...)
 hatvalues.earth <- function(model, ...)
 {
     stop.if.dots(...)
-    stopifnot(!is.null(model$leverages))
+    if(is.null(model$leverages))
+        stop0("this earth model does not have leverages")
     model$leverages
 }
 fitted.earth <- function(object, ...)

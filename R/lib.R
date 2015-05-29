@@ -482,8 +482,8 @@ grepany <- function(pattern, x, ignore.case=FALSE, ...)
 }
 # returns an index, choices is a vector of strings
 imatch.choices <- function(arg, choices,
-                           argname=short.deparse(substitute(arg), "function"),
-                           err.msg.has.index=TRUE) # TRUE if integer "arg" is legal elsewhere
+            argname=short.deparse(substitute(arg), "function"),
+            err.msg.has.index=FALSE) # TRUE if integer "arg" is legal elsewhere
 {
     if(!is.character(arg) || length(arg) != 1 || !nzchar(arg))
          stopf("illegal '%s' argument\nChoose%s one of: %s",
@@ -541,7 +541,7 @@ match.arg1 <- function(arg, argname=deparse(substitute(arg)))
 # returns a string, choices is a vector of strings
 match.choices <- function(arg, choices, argname=deparse(substitute(arg)))
 {
-    choices[imatch.choices(arg, choices, argname, FALSE)]
+    choices[imatch.choices(arg, choices, argname)]
 }
 # This uses the object's .Environment attribute, which was
 # pre-assigned to the object via get.model.env
@@ -590,7 +590,7 @@ my.data.frame <- function(x, trace, stringsAsFactors=TRUE)
 }
 my.fixed.point <- function(x, digits)
 {
-    if(NROW(x) > 2) # if only intercept term and one other then don't use fixed point
+    if(NROW(x) > 2) # only use fixed point if more than intercept and one other term
         x <- apply(x, 2, zapsmall, digits+1)
     x
 }

@@ -38,10 +38,11 @@ This is usually much faster for large models.
      nprune
      pmethod
      Eval.model.subsets
-     Adjust.endspan
      Print.pruning.pass
      Force.xtx.prune
      Use.beta.cache
+     Endspan.penalty
+     Get.leverages
 }
 This automatic determination to do a forward pass can be overridden
 with the \code{ponly} argument.

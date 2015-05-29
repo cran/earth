@@ -11,6 +11,8 @@ time /T
                         @if %errorlevel% NEQ 0 goto error
 @call test.mods.bat
                         @if %errorlevel% NEQ 0 goto error
+@call test.incorrect.bat
+                        @if %errorlevel% NEQ 0 goto error
 @call test.big.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.weights.bat
@@ -20,6 +22,8 @@ time /T
 @call test.full.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.cv.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.pmethod.cv.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.varmod.bat
                         @if %errorlevel% NEQ 0 goto error

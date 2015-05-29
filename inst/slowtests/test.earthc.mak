@@ -35,8 +35,10 @@ LIBS=Rdll.lib Rblas.lib
 # -Gr is for fast function calling (can't use because conflicts with GSL lib)
 # No need to define _DEBUG, compiler does it for us if -MTd flag is used
 OUTDIR=Debug
-# TODO using -Mtd causes linker error: LIBCMTD.lib(sprintf.obj) : error LNK2005: _sprintf already defined in Rdll.lib(R.dll)
-CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MT $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
+# TODO We use -MDd instead of -MTd here.  It seems to work just as well.
+#      Using -Mtd causes linker error: LIBCMTD.lib(sprintf.obj) : error LNK2005: _sprintf already defined in Rdll.lib(R.dll)
+# CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MTd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
+CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MDd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo -debug
 # To build Rdll.libs see instructions in gnuwin32\README.packages
 LIBS=Rdll.lib Rblas.lib 
@@ -57,7 +59,7 @@ test.earthc.main.exe: $(OBJ)
 test.earthc.out: test.earthc.main.exe test.earthc.out.save
 	test.earthc.main.exe > $(OUTDIR)\test.earthc.out
 !IF  "$(CFG)" == "Debug"
-	@echo === Following diff may give some differences ===
+	@rem @echo === Following diff may give some differences ===
 !ENDIF
 	mks.diff -w $(OUTDIR)\test.earthc.out test.earthc.out.save 
 

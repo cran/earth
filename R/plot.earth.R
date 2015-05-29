@@ -47,7 +47,9 @@ plot.earth <- function(x = stop("no 'x' argument"),
     lty.grsq            = 1,
     lty.npreds          = 2,
     lty.rsq             = 5,
-    lty.vline           = 3,
+    lty.vline           = "12",
+
+    legend.pos          = NULL,
 
     ...)
 {
@@ -70,7 +72,7 @@ plot.earth <- function(x = stop("no 'x' argument"),
         object.name=object.name,
         # following are passed to plotres via plotres's dots
         col.cv=col.cv,
-        # following are passed to plot.model.selection
+        # following are passed to earth_plotmodsel
         w1.col.grsq            = col.grsq,
         w1.col.rsq             = col.rsq,
         w1.col.infold.rsq      = col.infold.rsq,
@@ -88,6 +90,7 @@ plot.earth <- function(x = stop("no 'x' argument"),
         w1.lty.npreds          = lty.npreds,
         w1.lty.rsq             = lty.rsq,
         w1.lty.vline           = lty.vline,
+        w1.legend.pos          = legend.pos,
         ...)
 }
 # TODO add nresponse to plot.earth.models
@@ -102,7 +105,7 @@ plot.earth.models <- function(
     col.rsq      = 0,
     lty.rsq      = 5,
     col.vline    = col.grsq,
-    lty.vline    = 3,
+    lty.vline    = "12",
     col.npreds   = 0,
     lty.npreds   = 2,
     legend.text  = NULL,
@@ -182,7 +185,7 @@ plot.earth.models <- function(
     }
     legend.col <- dot("legend.col col.legend", EX=c(0,1), DEF=1, NEW=1, ...)
     if(show[1]) {
-        if(is.null(object$residuals)) # probably a model from object$cvlist
+        if(is.null(object$residuals)) # probably a model from object$cv.list
             stop0("earth object has no $residuals field.\n",
                   "       Use keepxy=TRUE in the call to earth.")
         for(imodel in seq_along(objects))
@@ -206,6 +209,7 @@ plot.earth.models <- function(
                 lty.rsq             = lty.rsq,
                 lty.vline           = lty.vline[imodel],
 
+                legend.pos          = NA, # we plot our own legend
                 add                 = (imodel > 1),
                 max.nterms          = max.nterms,
                 max.npreds          = max.npreds,
@@ -213,7 +217,6 @@ plot.earth.models <- function(
 
                 # dots args
                 main                = if(imodel > 1) "" else main,
-                legend.pos          = NA, # we plot our own legend
                 ylim                = ylim)
 
         if(is.specified(legend.col) && length(objects) > 1 && !show[2])
@@ -225,7 +228,7 @@ plot.earth.models <- function(
         multiple.responses <- FALSE
         xlim <- c(0,0)
         for(object in objects) {
-            if(is.null(object$residuals)) # probably a model from object$cvlist
+            if(is.null(object$residuals)) # probably a model from object$cv.list
                 stop0("earth object has no $residuals field.\n",
                       "       Use keepxy=TRUE in the call to earth.")
             if(NCOL(object$residuals) > 1) {
@@ -345,8 +348,9 @@ earth_plotmodsel <- function(
     lty.grsq            = 1,
     lty.npreds          = 2,
     lty.rsq             = 5,
-    lty.vline           = 3,
+    lty.vline           = "12",
 
+    legend.pos          = NULL,
     add        = FALSE,
     jitter     = 0,
     max.nterms = length(object$rss.per.subset),
@@ -408,9 +412,16 @@ earth_plotmodsel <- function(
         if(!is.specified(grid.col))
             return()
         col <- grid.col[1]
-        abline(v=0:nterms.on.horiz.axis, col=col)
-        for(v in seq(-1,1,by=if(abs(ylim[2]-ylim[1]) <= .5) .05 else .1))
-            abline(h=scale1(v, ylim[1], ylim[2]), col=col)
+        abline(v=0:par("usr")[2], col=col) # vertical grid
+        if((ylim[2] - ylim[1]) > .5) # coarse horizontal grid?
+            for(v in seq(-1, 1, by=.05))
+                abline(h=scale1(v, ylim[1], ylim[2]), col=col, lwd=1)
+        else { # fine horizontal grid
+            for(v in seq(-1, 1, by=.01))
+                abline(h=scale1(v, ylim[1], ylim[2]), col=col, lwd=.6)
+            for(v in seq(-1, 1, by=.05))
+                abline(h=scale1(v, ylim[1], ylim[2]), col=col, lwd=1.2)
+        }
     }
     draw.infold.rsqs <- function() # plot rsq's measured on the in-fold data
     {
@@ -430,22 +441,31 @@ earth_plotmodsel <- function(
     {
         if(!is.specified(col.oof.rsq))
             return()
-        # recycle col.oof.rsq so can use different colors for different folds
+        # recycle col.oof.rsq so user can specify different colors for different folds
         col.oof.rsq <- repl(col.oof.rsq, length(object$cv.list))
-        if(is.specified(col.oof.labs))
-            col.oof.labs <- repl(col.oof.labs, length(object$cv.list))
         for(ifold in seq_along(object$cv.list)) {
             oof.rsq <- object$cv.oof.rsq.tab[ifold,]
             if(jitter > 0)
                 oof.rsq  <- jitter(oof.rsq, amount=jitter)
             scaled.rsq <- scale1(oof.rsq,  ylim[1], ylim[2])
             lines(scaled.rsq, col=col.oof.rsq[ifold], lty=1)
-            if(is.specified(col.oof.labs)) {
+        }
+        if(is.specified(col.oof.labs)) {
+            col.oof.labs <- repl(col.oof.labs, length(object$cv.list))
+            x <- y <- labs <- NULL
+            usr <- par("usr") # xmin, xmax, ymin, ymax
+            for(ifold in seq_along(object$cv.list)) {
+                oof.rsq <- object$cv.oof.rsq.tab[ifold,]
                 oof.rsq <- oof.rsq[!is.na(oof.rsq)] # truncate NAs
-                text(length(oof.rsq)+.2, scaled.rsq[length(oof.rsq)],
-                     substr(names(object$cv.list)[ifold], 5, 15),
-                     cex=.6, col=col.oof.labs[ifold], xpd=NA)
+                scaled.rsq <- scale1(oof.rsq,  ylim[1], ylim[2])
+                y <- c(y, scaled.rsq[min(usr[2], length(oof.rsq))])
+                x <- c(x, min(usr[2]-.1, length(oof.rsq)+.2))
+                labs <- c(labs, substr(names(object$cv.list)[ifold], 5, 15))
             }
+            cex <- .6
+            text(x=x, y=TeachingDemos::spread.labs(y,
+                            mindiff=1.2 * strheight("X")),
+                 labels=labs, cex=cex, col=col.oof.labs[ifold], xpd=NA)
         }
         if(is.specified(col.pch.max.oof.rsq) || is.specified(col.pch.cv.rsq)) {
             for(ifold in seq_along(object$cv.list)) {
@@ -458,7 +478,7 @@ earth_plotmodsel <- function(
                 # show the position of the cv.rsq's
                 nterms <- length(object$cv.list[[ifold]]$selected.terms)
                 points(nterms, scale1(oof.rsq,  ylim[1], ylim[2])[nterms],
-                       pch=20, col=col.pch.cv.rsq, cex=.5)
+                       pch=20, col=col.pch.cv.rsq, cex=.7)
             }
         }
     }
@@ -475,20 +495,29 @@ earth_plotmodsel <- function(
         }
         lines(nused.preds.vec, type="l", col=col.npreds, lty=lty.npreds)
     }
-    draw.vertical.line.at.best.mean.oof.rsq <- function()
+    draw.vline.at.max.mean.oof.rsq <- function()
     {
         if(!is.specified(col.mean.oof.rsq) || !is.specified(col.oof.vline))
             return()
-        v <- which.max(mean.oof.rsq.per.subset)
+        x <- xnudge <- which.max(mean.oof.rsq.per.subset)
         # possibly nudge right to prevent overplot of grsq.line
-        if(v == length(object$selected.terms))
-            v <- v + nterms.on.horiz.axis / 150
+        if(x == which.min(object$gcv.per.subset))
+            xnudge <- xnudge + nterms.on.horiz.axis / 150
         # possibly nudge to prevent overplot of grid
         if(is.specified(grid.col))
-            v <- v + nterms.on.horiz.axis / 150
-        # lty="23" with palevioletred subjectively looks about same
-        # as lty=3 with black used for grsq line
-        abline(v=v, col=col.oof.vline, lty="23")
+            xnudge <- xnudge + nterms.on.horiz.axis / 150
+        abline(v=xnudge, col=col.oof.vline, lty="12", lwd=1.2)
+    }
+    show.max.mean.oof.rsq <- function()
+    {
+        if(!is.specified(col.mean.oof.rsq) || !is.specified(col.oof.vline))
+            return()
+        x <- which.max(mean.oof.rsq.per.subset)
+        if(which.min(object$gcv.per.subset) == x)
+            return() # don't overplot (see show.max.grsq)
+        usr <- par("usr")
+        text.on.white(x, usr[3] + strheight("X"), x,
+                      cex=.8, col=col.oof.vline, xmar=.05)
     }
     draw.mean.infold.rsq <- function()
     {
@@ -514,20 +543,65 @@ earth_plotmodsel <- function(
     {
         if(jitter > 0)
             grsq.vec <- jitter(grsq.vec, amount=jitter)
-        lines(scale1(grsq.vec, ylim[1], ylim[2]), col=col.grsq, lwd=lwd)
+        y <- scale1(grsq.vec, ylim[1], ylim[2])
+        lines(y, col=col.grsq, lwd=lwd)
+        # if pmethod=="cv", draw a circle at the selected model
+        if(object$pmethod=="cv" && !is.null(mean.oof.rsq.per.subset)) {
+            x <- length(object$selected.terms)
+            points(x, y[x], col=col.grsq, lwd=lwd, pch=1)
+        }
     }
-    draw.vertical.line.at.best.grsq <- function()
+    draw.vline.at.max.grsq <- function()
     {
         if(!is.specified(col.vline))
             return()
-        v <- length(object$selected.terms)
+        x <- xnudge <- which.min(object$gcv.per.subset)
         # possibly nudge to prevent overplot of grid
         if(is.specified(grid.col))
-            v <- v + nterms.on.horiz.axis / 150
-        abline(v=v, col=col.vline, lty=lty.vline)
+            xnudge <- xnudge + nterms.on.horiz.axis / 150
+        abline(v=xnudge, col=col.vline, lty=lty.vline, lwd=1.2)
         # possibly plot a colored marker at the top of the above line
+        # (this is used by plot.earth.models when plotting multiple models)
         if(is.specified(col.vseg))
-            points(x=v, y=1.02, col=col.vseg, pch=6)
+            points(x=xnudge, y=1.02, col=col.vseg, pch=6)
+    }
+    show.max.grsq <- function()
+    {
+        if(!is.specified(col.vline) || is.specified(col.vseg))
+            return()
+        x <- which.min(object$gcv.per.subset)
+        usr <- par("usr")
+        text.on.white(x, usr[3] + strheight("X"), x,
+                      cex=.8, col=col.vline, xmar=.05)
+    }
+    draw.vline.at.max.nterms <- function()
+    {
+        if(object$pmethod != "none" || !is.specified(col.vline))
+            return()
+        # nrow(object$prune.terms) is nk
+        x <- xnudge <- nrow(object$prune.terms)
+        # possibly nudge to prevent overplot of grid
+        if(is.specified(grid.col))
+            xnudge <- xnudge + nterms.on.horiz.axis / 150
+        # possibly nudge to prevent overplot of max.grsq line
+        if(which.min(object$gcv.per.subset) == x)
+            xnudge <- xnudge + nterms.on.horiz.axis / 150
+        abline(v=xnudge, col=col.vline, lty=2, lwd=1.2)
+    }
+    show.max.nterms <- function()
+    {
+        if(object$pmethod != "none" || !is.specified(col.vline))
+            return()
+        x <- nrow(object$prune.terms)
+        if(which.min(object$gcv.per.subset) == x ||
+           (!is.null(mean.oof.rsq.per.subset) &&
+                which.max(mean.oof.rsq.per.subset) == x)) {
+            # don't overplot (see show.max.grsq and show.max.mean.oof.rsq)
+            return()
+        }
+        usr <- par("usr")
+        text.on.white(x, usr[3] + strheight("X"),
+                      x, cex=.8, col=col.vline, , xmar=.05)
     }
     draw.legend <- function(...)
     {
@@ -542,7 +616,7 @@ earth_plotmodsel <- function(
             nobscured <- sum(abs(under[i] - over[i]) < (ylim[2] - ylim[1]) / 100)
             nobscured > .8 * sum(i)
         }
-        update.legend <- function(text, col=1, lty=1, lwd=1, vert=FALSE)
+        update.legend <- function(text, col=1, lty=1, lwd=1, vert=FALSE, pch=NA)
         {
             if(is.null(legend.text)) { # first time?
                 if(text == "")         # spacer between entries?
@@ -552,30 +626,42 @@ earth_plotmodsel <- function(
                 legend.lty  <<- lty.as.char(lty)
                 legend.lwd  <<- lwd
                 legend.vert <<- vert
+                legend.pch  <<- pch
             } else {
                 legend.text <<- c(legend.text, text)
                 legend.col  <<- c(legend.col, col)
                 legend.lty  <<- c(legend.lty, lty.as.char(lty))
                 legend.lwd  <<- c(legend.lwd, lwd)
                 legend.vert <<- c(legend.vert, vert)
+                legend.pch  <<- c(legend.pch, pch)
             }
         }
         #--- draw.legend starts here
         # The is.obscured code assumes that plot order is rsq, mean.oof.rsq, grsq.
         # Obscuring of or by infold.rsq is not yet handled.
-        legend.pos <- dot("legend.pos", DEF=NULL, ...)
-        if(!is.null(legend.pos) && is.na(legend.pos[1]))
+        if(!is.null(legend.pos) && !is.specified(legend.pos))
             return()
-        legend.text <- legend.col <- legend.lty <- legend.lwd <- legend.vert <- NULL
+        legend.text <- legend.col <- legend.lty <- legend.lwd <- NULL
+        legend.vert <- legend.pch <- NULL
         full.model <- if(show.cv.data) " (full model)" else ""
+        if(is.specified(col.vline) && object$pmethod == "none") {
+            update.legend("selected model (pmethod=none)",
+                col.vline, lty=2, lwd=1.2, vert=TRUE)
+            update.legend("", 0) # dummy entry to leave a vertical space
+        }
         if(is.specified(col.grsq))
             update.legend(paste0("GRSq", full.model), lwd=lwd)
         if(is.specified(col.vline))
-            update.legend("selected model", col.vline, lty.vline, vert=TRUE)
+            update.legend(
+                if(object$pmethod != "none" && object$pmethod != "cv")
+                    "selected model"
+                else
+                    "max GRSq",
+                col.vline, lty.vline, lwd=1.2, vert=TRUE)
         if(is.specified(col.rsq)) {
             RSq.string <- if(show.cv.data) "RSq (full model)" else "RSq"
             if(is.specified(col.grsq) && is.obscured(rsq.vec, grsq.vec))
-                text <- paste0(RSq.string, full.model, " (obscured)")
+                text <- paste0(RSq.string, " (obscured)")
             else if(is.specified(col.mean.oof.rsq) &&
                     is.obscured(rsq.vec, mean.oof.rsq.per.subset))
                 text <- paste0(RSq.string, " (obscured)")
@@ -606,7 +692,8 @@ earth_plotmodsel <- function(
             added.space <- TRUE
             update.legend(text, col.mean.oof.rsq, lwd=lwd)
             if(is.specified(col.oof.vline))
-                update.legend("max mean out-of-fold RSq", col.oof.vline, "23", vert=TRUE)
+                update.legend("max mean out-of-fold RSq", col.oof.vline, lty="12",
+                              lwd=1.2, vert=TRUE)
         }
         if(is.specified(col.oof.rsq)) {
             if(!added.space)
@@ -618,24 +705,45 @@ earth_plotmodsel <- function(
                 update.legend("", 0) # dummy entry to leave a vertical space
             update.legend(paste0("nbr preds", full.model), col.npreds, lty.npreds)
         }
+        if(is.specified(col.oof.vline) && object$pmethod == "cv")
+            update.legend("selected model", col=col.grsq, lty=NA, lwd=lwd, pch=1)
         legend.cex <- get.earth.legend.cex(legend.text, ...)
+        legend.inset <- 0
         if(is.null(legend.pos)) { # auto?
-            legend.x <- if(max.nterms <= 2) "topleft" else "bottomright"
-            elegend(x=legend.x, bg="white", legend=legend.text, col=legend.col,
-                    inset=c(.02, .04), # y offset allows vertical lines to be visible below legend
-                    lty=legend.lty, cex=legend.cex, lwd=legend.lwd, xpd=NA, vert=legend.vert)
-            if(max.nterms == 1)
-                text(.5, .4, "intercept-only model")
+            if(max.nterms == 2) {
+                legend.x <- "topleft"
+                legend.inset <- c(.02, .02)
+            } else {
+                legend.x <- "bottomright"
+                # legend y offset allows vertical lines and text to be visible below legend
+                legend.inset <- c(.02, max(.05, 2 * strheight("X")))
+            }
             legend.y <- NULL
+            usr <- par("usr") # xmin, xmax, ymin, ymax
         } else { # user specified legend position
             legend.x <- legend.pos[1]
-            legend.y <- if(length(legend.pos) > 1) legend.pos[2] else NULL
-            elegend(x=legend.x, y=legend.y, bg="white", legend=legend.text, col=legend.col,
-                    inset=c(.02, .03),
-                    lty=legend.lty, cex=legend.cex, lwd=legend.lwd, xpd=NA, vert=legend.vert)
+            legend.y <- NULL
+            if(length(legend.pos) == 1) # presumably something like "topright"
+                legend.inset <- c(.02, .02)
+            else
+                legend.y <- scale1(legend.pos[2], ylim[1], ylim[2])
         }
+        if(max.nterms == 1)
+            text.on.white(usr[1] + 2 * strwidth("X"),
+                          usr[4] - 2 * strheight("X"),
+                          "intercept-only model",
+                          adj=0)
+        else if(!is.null(object$nprune))
+            text.on.white(usr[1] + .5 * strwidth("X"),
+                          usr[4] - .6 * strheight("X"),
+                          paste0("nprune ", object$nprune),
+                          adj=0, cex=.8 * par("cex"))
+        elegend(x=legend.x, y=legend.y, bg="white", legend=legend.text,
+                col=legend.col, lty=legend.lty, lwd=legend.lwd,
+                vert=legend.vert, pch=legend.pch,
+                cex=legend.cex, xpd=NA, inset=legend.inset)
     }
-    #--- plot.model.selection starts here ---
+    #--- earth_plotmodsel starts here ---
     object <- x
     remove(x) # prevent confusion with the x matrix
     main <- dot("main", ...)
@@ -709,12 +817,16 @@ earth_plotmodsel <- function(
     draw.infold.rsqs()
     draw.oof.rsqs()
     draw.unused.preds()
-    draw.vertical.line.at.best.grsq()
-    draw.vertical.line.at.best.mean.oof.rsq()
+    draw.vline.at.max.grsq()
+    draw.vline.at.max.mean.oof.rsq()
+    draw.vline.at.max.nterms()
     draw.rsq()
     draw.mean.infold.rsq()
     draw.mean.oof.rsq()
     draw.grsq()
+    show.max.grsq()
+    show.max.mean.oof.rsq()
+    show.max.nterms()
     draw.legend(...)
 }
 # Note: there is no string line type corresponding to 1, so this
@@ -724,7 +836,9 @@ earth_plotmodsel <- function(
 lty.as.char <- function(lty)
 {
     char <- lty
-    if(is.numeric(lty)) {
+    if(is.na(lty))
+        char <- "NA"
+    else if(is.numeric(lty)) {
         char <- NULL
         tab <- c("1", "44", "13", "1343", "73", "2262") # from par man page
         stopifnot(length(lty) > 0)
@@ -753,16 +867,16 @@ get.model.selection.xlim <- function(object, xlim,
     mean.oof.rsq.per.subset, col.mean.oof.rsq, col.oof.vline)
 {
     if(!is.specified(xlim)) { # not specified by the user?
-        # length(object$selected.terms) is nbr selected terms
-        # nrow(object$prune.terms) is nk
-        # which.max(mean.oof.rsq.per.subset) is max mean out-of-fold RSq
-        xmax <- 2 * length(object$selected.terms)
+        nk <- nrow(object$dirs)
+        xmax <- 2 * which.min(object$gcv.per.subset) # nbr terms selected by GCV
+        if(object$pmethod == "none")
+            xmax <- max(xmax, nk)
         # if cross-validation vert line is plotted, include that too
-        # following "if" matches that in draw.vertical.line.at.best.mean.oof.rsq
+        # following "if" matches that in draw.vline.at.max.mean.oof.rsq
         if(!is.null(mean.oof.rsq.per.subset) &&
                 is.specified(col.mean.oof.rsq) && is.specified(col.oof.vline))
             xmax <- max(xmax, which.max(mean.oof.rsq.per.subset))
-        xlim <- c(0, min(xmax + 3, nrow(object$prune.terms)))
+        xlim <- c(0, min(xmax + 3, nk))
     }
     xlim
 }

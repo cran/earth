@@ -140,8 +140,8 @@ mars.to.earth <- function(object=stop("no 'object' argument"), trace=TRUE)
     colnames(object$coefficients)  <- resp.names
     dirs <- object$factor[object$all.terms, , drop=FALSE]
 
-    leverages = try(hatvalues.lm.fit(lm.fit(object$x, y, singular.ok=FALSE)),
-                    silent=trace == 0)
+    leverages = try(hatvalues.qr(lm.fit(object$x, y, singular.ok=FALSE)$qr,
+                    maxmem=0, trace=0), silent=trace == 0)
     if(is.try.err(leverages))
         leverages <- NULL
 
@@ -165,6 +165,7 @@ mars.to.earth <- function(object=stop("no 'object' argument"), trace=TRUE)
         residuals         = residuals,
         coefficients      = object$coefficients,
         leverages         = leverages,
+        pmethod           = "backward",
         penalty           = object$penalty,
         namesx            = colnames(dirs),
         namesx.org        = colnames(dirs),

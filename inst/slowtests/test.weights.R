@@ -194,6 +194,180 @@ a10  <- earth(y~., data=data, weights=weights,
               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 plotmo(a10, col.resp=2, caption="a10", jitter=0)
 
+test.zigzag <- function()
+{
+    par(mfrow = c(2, 2), mar = c(3, 3, 3, 1), mgp = c(1.5, 0.5, 0), oma=c(0,0,0,0))
+    TRACE <- 0
+    THRESH <- 0
+    PMETHOD <- "none"
+
+#     # models are identical
+#     x <- 1:21
+#     y <- c(1:3, 2)
+#     y <- rep(y, length.out=length(x))
+#     data <- data.frame(x=x, y=y)
+#     a <- earth(y~x, data=data, minspan=1, endspan=1, trace=TRACE, pmethod=PMETHOD, thresh=THRESH, Scale.y=FALSE, nk=201)
+#     plot(x, y, type="p", pch=20)
+#     lines(x, predict(a), col=3, pch=20)
+#     aw <- earth(y~x, data=data, minspan=1, endspan=1, trace=TRACE, pmethod=PMETHOD, thresh=THRESH, Scale.y=FALSE, nk=201, Force.weights=T)
+#     plot(x, y, type="p", pch=20)
+#     lines(x, predict(aw), col=3, pch=20)
+
+    # models are not identical
+    x <- 1:81
+    y <- c(1:3, 2)
+    y <- rep(y, length.out=length(x))
+    data <- data.frame(x=x, y=y)
+    a <- earth(y~x, data=data, minspan=1, endspan=1, trace=TRACE, pmethod=PMETHOD, thresh=THRESH, Scale.y=FALSE, nk=201)
+    plot(x, y, type="p", pch=20, main="without weights")
+    lines(x, predict(a), col=3, pch=20)
+    aw <- earth(y~x, data=data, minspan=1, endspan=1, trace=TRACE, pmethod=PMETHOD, thresh=THRESH, Scale.y=FALSE, nk=201, Force.weights=T)
+    plot(x, y, type="p", pch=20, main="with weights")
+    lines(x, predict(aw), col=3, pch=20)
+}
+# zigzag
+test.zigzag()
+
+# commented out because too slow and next test essentially covers this
+# # trees
+# a.trees <- earth(Volume~., data=trees, trace=2)
+# aw.trees <- earth(Volume~., data=trees, trace=2, Force.weights=TRUE)
+# plotmo(a.trees, do.par=2, caption="trees: top and bottom should be similar")
+# plotmo(aw.trees, do.par=FALSE)
+
+# bivariate.with.interaction
+set.seed(2015)
+n <- 18
+x <- matrix(runif(2 * n, -1, 1), ncol=2)
+x <- x[order(x[,1]), , drop=FALSE] # sort first column for convenience
+colnames(x) <- paste("x", 1:ncol(x), sep="")
+bivariate.with.interaction <- function(x)
+{
+    x[,1] + x[,2] + x[,1] * x[,2] + .05 * rnorm(nrow(x))
+}
+set.seed(1)
+y <- bivariate.with.interaction(x)
+a.biv  <- earth(x, y, degree=2, trace=2)
+aw.biv <- earth(x, y, degree=2, trace=2, Force.weights=TRUE)
+
+par(mfrow=c(2,3), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8), oma=c(0,0,3,0))
+plotmo(a.biv,  do.par=FALSE, caption="bivariate: top and bottom should be similar")
+plotmo(aw.biv, do.par=FALSE)
+
+# Comparison to glm and rpart
+#
+# The response y is split into two curves, we will weight the second lower
+# curve and see how that affects the earth curve.
+#
+# With weight=1 the earth curve should be half way between the top and
+# bottom curve.  With say weight=10, the bottom curve is given much more
+# weight than the top curve, so the model should be closer to the bottom
+# curve.
+#
+# We also compare the earth curve to to other models that support weights.
+# Each vertical line of plots should be approximately the same.
+
+library(gam)
+library(rpart)
+n <- 100
+x1 <- c((-n:n) / n, (-n:n) / n)
+x2 <- c((n:-n) / n, (-n:n) / n)
+y <- x1 * x1
+y[(2 * n + 2) : (3 * n + 2)] <- -.25 * y[(2 * n + 2): (3 * n + 2)]
+y[(3 * n + 3) : (4 * n + 2)] <- .25 * y[(3 * n + 3) : (4 * n + 2)]
+data <- data.frame(x1=x1, x2=x2, y=y)
+
+par(mfcol = c(3, 5), mar = c(1.5, 4, 3, 2), mgp = c(1.5, 0.5, 0), oma=c(0,0,4,0))
+
+cat("comparison to glm and rpart: unweighted\n")
+a200 <- earth(y~x1, data=data)
+plotmo(a200, do.par=FALSE, pt.col=2, main="unweighted\nearth", cex=.7, pt.cex=.2, grid.col=TRUE)
+mtext("comparison to glm and rpart", outer=TRUE, line=2)
+gam200 <- gam(y~s(x1, 5), data=data)
+plotmo(gam200, do.par=FALSE, pt.col=2, main="gam", cex=.7, pt.cex=.2, grid.col=TRUE)
+rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001))
+plotmo(rpart, do.par=FALSE, pt.col=2, main="rpart", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+
+cat("comparison to glm and rpart: weight=.1\n")
+weight <- .1
+w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
+aw201 <- earth(y~x1, data=data, weights=w)
+plotmo(aw201, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+gamw201 <- gam(y~s(x1, 5), data=data, weights=w)
+plotmo(gamw201, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
+rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
+plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+
+cat("comparison to glm and rpart: weight=1\n")
+weight <- 1
+w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
+aw202 <- earth(y~x1, data=data, weights=w)
+plotmo(aw202, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+gamw202 <- gam(y~s(x1, 5), data=data, weights=w)
+plotmo(gamw202, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
+rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
+plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+
+cat("comparison to glm and rpart: weight=2\n")
+weight <- 2
+w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
+aw203 <- earth(y~x1, data=data, weights=w)
+plotmo(aw203, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+gamw203 <- gam(y~s(x1, 5), data=data, weights=w)
+plotmo(gamw203, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
+rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
+plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+
+cat("comparison to glm and rpart: weight=10\n")
+weight <- 10
+w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
+aw204 <- earth(y~x1, data=data, weights=w)
+plotmo(aw204, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+gamw204 <- gam(y~s(x1, 5), data=data, weights=w)
+plotmo(gamw204, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
+rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
+plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+
+# # TODO the following are meant to do degree2 weight tests,
+# #      but thet are unconvincing either way, so commented out
+#
+# par(mfcol = c(3, 3), mar = c(1.5, 4, 3, 2), mgp = c(1.5, 0.5, 0), oma=c(0,0,6,0))
+#
+# y <- x2 * x2 * y
+# data <- data.frame(x1=x1, x2=x2, y=y)
+#
+# cat("degree2 comparison to glm and rpart: unweighted\n")
+# a200 <- earth(y~x1+x2, data=data, degree=2)
+# plotmo(a200, do.par=FALSE, pt.col=2, cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1, persp.ticktype="d")
+# mtext("comparison to glm and rpart, degree2, unweighted\nleft side earth, right side gam200", outer=TRUE, line=2)
+# gam200 <- gam(y~s(x1, 7)+s(x2, 7)+s(x1, 7)*s(x2, 7), data=data)
+# plotmo(gam200, do.par=FALSE, pt.col=2, cex=.7, pt.cex=.2, grid.col=TRUE, all2=T, trace=-1, persp.ticktype="d")
+# rpart <- rpart(y~x1+x2, data=data, method="anova", control=rpart.control(cp=.001, minbucket=3))
+# plotmo(rpart, do.par=FALSE, pt.col=2, main="rpart", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+# # plotres(rpart)
+#
+# cat("degree2 comparison to glm and rpart: weight=2\n")
+# weight <- 2
+# w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
+# aw201 <- earth(y~x1+x2, data=data, weights=w, degree=2)
+# plotmo(aw201, do.par=FALSE, pt.col=2, cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1, persp.ticktype="d")
+# mtext("comparison to glm and rpart, degree2, weight 2\nleft side earth, right side gam200", outer=TRUE, line=2)
+# gamw201 <- gam(y~s(x1, 7)+s(x2, 7)+s(x1, 7)*s(x2, 7), data=data, weights=w)
+# plotmo(gamw201, do.par=FALSE, pt.col=2, cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1, all2=TRUE, persp.ticktype="d")
+# rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
+# plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+#
+# cat("degree2 comparison to glm and rpart: weight=10\n")
+# weight <- 10
+# w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
+# aw201 <- earth(y~x1+x2, data=data, weights=w, degree=2)
+# plotmo(aw201, do.par=FALSE, pt.col=2, cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1, persp.ticktype="d")
+# mtext("comparison to glm and rpart, degree2, weight 10\nleft side earth, right side gam200", outer=TRUE, line=2)
+# gamw201 <- gam(y~s(x1, 7)+s(x2, 7)+s(x1, 7)*s(x2, 7), data=data, weights=w)
+# plotmo(gamw201, do.par=FALSE, pt.col=2, main="gam200", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1, all2=TRUE, persp.ticktype="d")
+# rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
+# plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
