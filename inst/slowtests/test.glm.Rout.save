@@ -8909,14 +8909,27 @@ After pruning pass GRSq -0.331 RSq 0.865
 > ldose  <- rep(0:5, 2) - 2
 > ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
 > sex2 <- rep(c("male", "female"), times=c(6,6))
-> af <-  earth(sex2, sex2, trace=1, pmethod=PMETHOD, degree=2)
+> # y cannot be a character variable
+> expect.err(try(earth(sex2, sex2, trace=1)), "y is a character variable: ")
+Error : y is a character variable: "male", "male", "male", ...
+Got error as expected from try(earth(sex2, sex2, trace = 1))
+> expect.err(try(earth(sex2~ldose1, trace=1)), "y is a character variable: ")
+Error : y is a character variable: "male", "male", "male", ...
+Got error as expected from try(earth(sex2 ~ ldose1, trace = 1))
+> # but note that this is ok
+> earth(sex2, data.frame(sex2=sex2), trace=1)
 x[12,1] with colname male
-y[12,2] with colnames female male
+y[12,1] with colname sex2
 Forward pass term 1, 2
 Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
-Prune method "none" penalty 3 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
+Selected 2 of 2 terms, and 1 of 1 predictors
+Termination condition: Reached maximum RSq 0.9990 at 2 terms
+Importance: male
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 0    RSS 0    GRSq 1    RSq 1
 > 
 > # test update.earth with a bpairs argument (for now always do forward pass if bpairs used)
 > 

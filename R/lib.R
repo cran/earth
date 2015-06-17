@@ -409,48 +409,6 @@ get.rsq <- function(rss, tss)
     rsq[rsq > -1e-5 & rsq < 1e-5] <- 0
     rsq
 }
-# Called by update.earth and get.earth.x
-#
-# Which x should we use? The precedence is [1] the x parameter, if any,
-# in this call to update [2] the $x in the earth object (which exists
-# if keepxy=TRUE was used the original call to earth) [3] the x found
-# in the original call to earth.
-# Same applies for y, subset, weights, and wp.
-# The "arg" argument is from the current call to update or predict
-
-get.update.arg <- function(arg, argname, object,
-                           trace1, Callers.name="update.earth", print.trace=TRUE,
-                           reeval=TRUE) # TODO hack
-{
-    if(!print.trace) # print.trace arg prevents recursion issues with trace
-        trace1 = FALSE
-    if(is.null(arg)) {
-        temp <- try(eval.parent(object[[argname]], n=2), silent=TRUE)
-        if(!is.null(temp) && !is.try.err(temp)) {
-            if(reeval)
-                arg <- object[[argname]]
-            else
-                arg <- temp
-            if(trace1 >= 1)
-                cat0(Callers.name, ": using ",
-                     NROW(temp), " by ", NCOL(temp), " ", argname,
-                     " saved by keepxy in original call to earth\n")
-        } else {
-            temp <- try(eval.parent(object$call[[argname]], n=2), silent=TRUE)
-            if(!is.null(temp) && !is.try.err(temp)) {
-                if(reeval)
-                    arg <- object$call[[argname]]
-                else
-                    arg <- temp
-                if(trace1 >= 1)
-                    cat0(Callers.name, ": using ",
-                         NROW(temp), " by ", NCOL(temp), " ", argname,
-                         " argument from original call to earth\n")
-             }
-        }
-    }
-    arg
-}
 get.weighted.rsq <- function(y, yhat, w=NULL) # NAs will be dropped before calc
 {
     stopifnot(length(y) > 0, length(y) == length(yhat))

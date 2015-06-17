@@ -58,7 +58,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 4.4.0.
+  Splines. R package version 4.4.1.
   http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -67,7 +67,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 4.4.0},
+    note = {R package version 4.4.1},
     url = {http://CRAN.R-project.org/package=earth},
   }
 
@@ -4528,6 +4528,91 @@ GCV 13.8999    RSS 3828.887    GRSq 0.7840813    RSq 0.8186686
 > check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a")
 check.models.equal identical: "allowed" function a3 a3a
 
+> 
+> #--- no predictor in PREDICTORS is allowed to interact with any predictor in PARENTS
+> #--- but all other interactions are allowed
+> 
+> PREDICTORS <- c("age")
+> PARENTS <- c("survived", "parch")
+> 
+> example4 <- function(degree, pred, parents, namesx)
++ {
++     if (degree > 1) {
++         predictor <- namesx[pred]
++         parents   <- namesx[parents != 0]
++         if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
++            (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
++             return(FALSE)
++         }
++     }
++     TRUE
++ }
+> a4.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example4)
+> printh(summary(a4.allowed))
+===summary(a4.allowed) 
+Call: earth(formula=sex~., data=etitanic, degree=2, allowed=example4)
+
+                        coefficients
+(Intercept)               0.74841883
+pclass3rd                -0.44966704
+survived                 -0.62673470
+h(15-age)                 0.03878154
+pclass2nd * survived     -0.16200218
+pclass3rd * survived      0.31810348
+pclass3rd * h(20-age)    -0.02792432
+pclass3rd * h(4-parch)    0.08607338
+h(3-sibsp) * h(4-parch)   0.01835222
+h(sibsp-3) * h(4-parch)   0.08911862
+
+Selected 10 of 16 terms, and 6 of 6 predictors
+Termination condition: Reached nk 21
+Importance: survived, parch, sibsp, pclass3rd, age, pclass2nd
+Number of terms at each degree of interaction: 1 3 6
+GCV 0.1525303    RSS 152.4583    GRSq 0.3475741    RSq 0.3753665
+> plotmo(a4.allowed, caption="a4.allowed")
+ grid:    pclass survived age sibsp parch
+             1st        0  28     0     0
+> 
+> #--- predictors in PREDICTORS are allowed to interact with predictors in PARENTS
+> #--- but no other interactions are allowed
+> 
+> PREDICTORS <- c("age")
+> PARENTS    <- c("survived", "parch")
+> 
+> example5 <- function(degree, pred, parents, namesx)
++ {
++     if (degree <= 1)
++         return(TRUE)
++     predictor <- namesx[pred]
++     parents   <- namesx[parents != 0]
++     if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
++        (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
++         return(TRUE)
++     }
++     FALSE
++ }
+> a5.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example5)
+> printh(summary(a5.allowed))
+===summary(a5.allowed) 
+Call: earth(formula=sex~., data=etitanic, degree=2, allowed=example5)
+
+                       coefficients
+(Intercept)              0.34721404
+h(2-sibsp)               0.06347988
+h(sibsp-2)               0.10099095
+h(4-parch)               0.11453239
+survived * h(age-15)     0.15093805
+survived * h(age-11.5)  -0.15199742
+h(25-age) * h(4-parch)  -0.00419678
+
+Selected 7 of 17 terms, and 4 of 6 predictors
+Termination condition: Reached nk 21
+Importance: survived, parch, age, sibsp, pclass2nd-unused, ...
+Number of terms at each degree of interaction: 1 3 3
+GCV 0.1561245    RSS 158.3485    GRSq 0.3322006    RSq 0.3512343
+> plotmo(a5.allowed, caption="a5.allowed")
+ grid:    pclass survived age sibsp parch
+             1st        0  28     0     0
 > 
 > # "allowed" function checks, these check error handling by forcing an error
 > 

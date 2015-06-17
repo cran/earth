@@ -213,7 +213,9 @@ earth.default <- function(
     if(keepxy) {
         rv$x <- xkeep
         # following ruse is needed else vector y's lose their name
-        if(is.null(dim(ykeep))) {
+        # Jun 2015: but we don't use it for factors because as.matrix
+        #           converts factors to character variables (!)
+        if(is.null(dim(ykeep)) && !is.factor(ykeep)) {
             ykeep <- as.matrix(ykeep)
             colnames(ykeep) <- colnames(y)[1]
         }
@@ -263,6 +265,7 @@ earth.default <- function(
                                pmethod="cv", nprune=nterms.selected.by.cv,
                                ncross=1, nfold=0,
                                glm=glm, varmod.method="none")
+
             rv$call    <- call
             rv$pmethod <- "cv"
             rv$nprune  <- nprune
@@ -1649,9 +1652,10 @@ update.earth <- function(
         call$formula <- update.formula(formula(object), formula.)
         do.forward.pass <- TRUE
     }
+    env <- parent.frame() # TODO should use model.env(object) here?
     # figure out what trace should be
     this.call <- match.call()
-    trace <- get.update.arg(this.call$trace, "trace", object,
+    trace <- get.update.arg(this.call$trace, "trace", object, env,
                             trace1=NULL, "update.earth", print.trace=FALSE)
     trace <- eval.parent(trace)
     if(is.name(trace))    # TODO needed when called from earth.cv with glm=NULL, why?
@@ -1684,14 +1688,14 @@ update.earth <- function(
         }
     }
     if(is.null(call$formula)) {
-        call$x <- get.update.arg(this.call$x, "x", object, trace)
-        call$y <- get.update.arg(this.call$y, "y", object, trace)
+        call$x <- get.update.arg(this.call$x, "x", object, env, trace)
+        call$y <- get.update.arg(this.call$y, "y", object, env, trace)
     } else
-        call$data <- get.update.arg(this.call$data, "data", object, trace)
+        call$data <- get.update.arg(this.call$data, "data", object, env, trace)
 
-    call$subset  <- get.update.arg(this.call$subset,  "subset",  object, trace)
-    call$weights <- get.update.arg(this.call$weights, "weights", object, trace)
-    call$wp      <- get.update.arg(this.call$wp,      "wp",      object, trace)
+    call$subset  <- get.update.arg(this.call$subset,  "subset",  object, env, trace)
+    call$weights <- get.update.arg(this.call$weights, "weights", object, env, trace)
+    call$wp      <- get.update.arg(this.call$wp,      "wp",      object, env, trace)
     if(check.boolean(ponly))
         do.forward.pass <- FALSE
     call$Object <- if(do.forward.pass) NULL else substitute(object)

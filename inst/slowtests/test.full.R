@@ -1061,6 +1061,50 @@ example3a  <- function(degree, pred, parents, namesx, first)
 a3a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
 check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a")
 
+#--- no predictor in PREDICTORS is allowed to interact with any predictor in PARENTS
+#--- but all other interactions are allowed
+
+PREDICTORS <- c("age")
+PARENTS <- c("survived", "parch")
+
+example4 <- function(degree, pred, parents, namesx)
+{
+    if (degree > 1) {
+        predictor <- namesx[pred]
+        parents   <- namesx[parents != 0]
+        if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
+           (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
+            return(FALSE)
+        }
+    }
+    TRUE
+}
+a4.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example4)
+printh(summary(a4.allowed))
+plotmo(a4.allowed, caption="a4.allowed")
+
+#--- predictors in PREDICTORS are allowed to interact with predictors in PARENTS
+#--- but no other interactions are allowed
+
+PREDICTORS <- c("age")
+PARENTS    <- c("survived", "parch")
+
+example5 <- function(degree, pred, parents, namesx)
+{
+    if (degree <= 1)
+        return(TRUE)
+    predictor <- namesx[pred]
+    parents   <- namesx[parents != 0]
+    if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
+       (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
+        return(TRUE)
+    }
+    FALSE
+}
+a5.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example5)
+printh(summary(a5.allowed))
+plotmo(a5.allowed, caption="a5.allowed")
+
 # "allowed" function checks, these check error handling by forcing an error
 
 expect.err(try(earth(Volume ~ ., data = trees, allowed = 99)), "argument is not a function")

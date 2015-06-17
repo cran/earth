@@ -1384,7 +1384,11 @@ cat("---misc 3---\n")
 ldose  <- rep(0:5, 2) - 2
 ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
 sex2 <- rep(c("male", "female"), times=c(6,6))
-af <-  earth(sex2, sex2, trace=1, pmethod=PMETHOD, degree=2)
+# y cannot be a character variable
+expect.err(try(earth(sex2, sex2, trace=1)), "y is a character variable: ")
+expect.err(try(earth(sex2~ldose1, trace=1)), "y is a character variable: ")
+# but note that this is ok
+earth(sex2, data.frame(sex2=sex2), trace=1)
 
 # test update.earth with a bpairs argument (for now always do forward pass if bpairs used)
 

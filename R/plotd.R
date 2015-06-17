@@ -466,7 +466,7 @@ get.observed.response <- function(object)
 {
     if(!is.null(object$call$formula)) {
         # get y from formula and data used in original call
-        data <- get.update.arg(NULL, "data", object, FALSE)
+        data <- get.update.arg(NULL, "data", object, parent.frame(), FALSE)
         call <- object$call
         m <- match(c("formula", "data", "na.action", "subset"), names(call), 0)
         mf <- call[c(1, m)]
@@ -485,7 +485,8 @@ get.observed.response <- function(object)
         if(NCOL(y) != 1 || length(y) < 3 || (!is.numeric(y) && !is.factor(y)))
             stop0("cannot get \"grouping\" argument from object$call")
     } else
-        y <- get.update.arg(NULL, "y", object, trace1=FALSE, reeval=FALSE)
+        y <- get.update.arg(NULL, "y", object, parent.frame(),
+                            trace1=FALSE, reeval=FALSE)
 
     if(is.lda.or.qda(object))
         y <- as.factor(y)  # to make plotd handle response appropriately

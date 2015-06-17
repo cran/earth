@@ -892,7 +892,7 @@ mean  0.929 0.955 0.952 0.946
   (a representative paper is given below).
 
   The \code{\link{evimp}} function uses ideas from Max Kuhn's \code{caret} package
-  \url{http://cran.r-project.org/web/packages/caret/index.html}.
+  \url{http://cran.r-project.org/package=caret}.
 
   Parts of Thomas Lumley's \code{\link[leaps]{leaps}} package have been
   incorporated into \code{earth}, so \code{earth} can directly access

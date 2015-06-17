@@ -60,7 +60,7 @@ earth.cv <- function(object, x, y,
     ndigits <- ceiling(log10(ncases - ncases/nfold + .1))
     # print pacifier dots if get.fold.rss.per.subset will be slow
     must.print.dots <- trace >= .5 && trace <= 1 &&
-        (get.oof.rsq.per.subset || get.oof.fit.tab) && 
+        (get.oof.rsq.per.subset || get.oof.fit.tab) &&
         nrow(x) * max.nterms > 50e3
     trace.cv.header(object, nresp, trace, must.print.dots)
     n.oof.digits <- ceiling(log10(1.2 * ncases / nfold)) # 1.2 allows for diff sized subsets

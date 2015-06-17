@@ -226,7 +226,7 @@ get.earth.x <- function(    # returns x expanded for factors
     }
     #--- get.earth.x starts here ---
 
-    trace <- get.update.arg(trace, "trace", object,
+    trace <- get.update.arg(trace, "trace", object, env,
                             trace1=NULL, Callers.name, print.trace=FALSE)
     if(is.null(trace))
         trace <- 0
@@ -234,19 +234,19 @@ get.earth.x <- function(    # returns x expanded for factors
     if(is.null(object$terms)) {
         # object was created with earth.default, no formula
 
-        x <- get.update.arg(data, "x", object, trace, Callers.name)
+        x <- get.update.arg(data, "x", object, env, trace, Callers.name)
         x <- my.as.matrix(x)
         x <- fix.x.columns(x, object$namesx)
         if(trace >= 1) {
             print_summary(x, sprintf("%s: x", Callers.name), trace=2)
             trace2(trace, "\n")
         }
-        x <- expand.arg(x, env, trace)
+        x <- expand.arg(x, env, trace, is.y.arg=FALSE)
     } else {
         # object was created with earth.formula
 
         Terms <- delete.response(object$terms)
-        data <- get.update.arg(data, "data", object, trace, Callers.name)
+        data <- get.update.arg(data, "data", object, env, trace, Callers.name)
         data <- my.as.matrix(data)
         data <- fix.x.columns(data, object$namesx)
         data <- as.data.frame(data)
@@ -325,14 +325,14 @@ model.matrix.earth <- function(     # returns bx
 # Same applies for y, subset, weights, and wp.
 # The "arg" argument is from the current call to update or predict
 
-get.update.arg <- function(arg, argname, object,
+get.update.arg <- function(arg, argname, object, env,
                            trace1, Callers.name="update.earth", print.trace=TRUE,
-                           reeval=TRUE) # TODO hack
+                           reeval=TRUE) # TODO hack to re-evaluate
 {
     if(!print.trace) # print.trace arg prevents recursion issues with trace
         trace1 = FALSE
     if(is.null(arg)) {
-        temp <- try(eval.parent(object[[argname, exact=TRUE]], n=2), silent=TRUE)
+        temp <- try(eval(object[[argname, exact=TRUE]], envir=env), silent=TRUE)
         if(!is.null(temp) && !is.try.err(temp)) {
             if(reeval)
                 arg <- object[[argname, exact=TRUE]]
@@ -343,7 +343,7 @@ get.update.arg <- function(arg, argname, object,
                      NROW(temp), " by ", NCOL(temp), " ", argname,
                      " saved by keepxy in original call to earth\n")
         } else {
-            temp <- try(eval.parent(object$call[[argname, exact=TRUE]], n=2), silent=TRUE)
+            temp <- try(eval(object$call[[argname, exact=TRUE]], envir=env), silent=TRUE)
             if(!is.null(temp) && !is.try.err(temp)) {
                 if(reeval)
                     arg <- object$call[[argname, exact=TRUE]]
