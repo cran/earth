@@ -263,10 +263,12 @@ get.earth.x <- function(    # returns x expanded for factors
         }
         classes <- attr(Terms, "dataClasses")
         if(!is.null(classes)) {
-            # use "try" to be lenient, allow numeric to be used for factors etc.
-            z <- try(.checkMFClasses(classes, data), silent=FALSE)
-            if(is.try.err(z)) {
-                # error msg already printed by .checkMFClasses
+            # Use "try" for leniency, to allow numeric to be used for factors etc.
+            # There is special treatment for the following message because it seems to be benign:
+            #   variable 'foo' was fitted with type "nmatrix.1" but type "numeric" was supplied
+            try <- try(.checkMFClasses(classes, data), silent=TRUE)
+            if(is.try.err(try) && !grepl("\"nmatrix.1\" .* \"numeric\"", try[1])) {
+                cat(try)
                 cat("Continuing anyway, first few rows of x are\n")
                 print(head(data))
             }

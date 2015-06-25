@@ -6,6 +6,7 @@ stop.if.dots <- function(...)
     if(length(dots))
         dots.used.err(STOPFUNC=base::stop, MSG=": unrecognized", ...)
 }
+
 warn.if.dots <- function(...)
 {
     dots <- match.call(expand.dots=FALSE)$...

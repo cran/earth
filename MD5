@@ -1,7 +1,7 @@
-7f8a2d0438bcf1a7f10ee4faf5cfdb5c *DESCRIPTION
+68318dd275cf851ddb51837d2d09ae35 *DESCRIPTION
 2fa25d49d783aec0243850d7d70f783e *NAMESPACE
-5eec0aba0bad3eeb70bbfd6a403e6485 *NEWS
-dfa3ff26501f8c3a83c47cad0a731a15 *R/as.char.R
+8e307f67112b3c3c0763998d03ae42ce *NEWS
+3dddaba705e1a9df8978ada269f3dee9 *R/as.char.R
 fb6917a74ff6f4117bfd9e105e507ed2 *R/call.dots.R
 159a5de6b74488f9535e537cd8599146 *R/check.index.R
 d496b7d88dcf7c76f3b601f7f9b56f7e *R/do.par.R
@@ -19,9 +19,9 @@ a434b6c3d2c18d99d84944f1b0860a5e *R/elegend.R
 4926be5741731b3611df7c3a9ce9add0 *R/evimp.R
 abf3dbc354957022afae56c75079f54e *R/expand.arg.R
 49ca5b090cd8b49c5cf828ae9baa7167 *R/format.earth.R
-e15c546db860fc03786f45625a694cab *R/lib.R
+f641c2ab38f967e8d820280127b351a9 *R/lib.R
 c38a21c0ae5ff3eb52a9bbae5c71a8a8 *R/mars.to.earth.R
-6cf6a0e89281ec1263081d25a2b18112 *R/model.matrix.earth.R
+d5ed2b23be1ccb45b8b3f73aa2d25924 *R/model.matrix.earth.R
 df80f0cfa061f68aef9cf24ab2642d1d *R/plot.earth.R
 e568b6c08d8754892aeca3a706a69692 *R/plotd.R
 c6f36e44a297d4e4e4e92844f12b44bd *R/plotmo.methods.earth.R
@@ -29,12 +29,12 @@ c6f36e44a297d4e4e4e92844f12b44bd *R/plotmo.methods.earth.R
 d6fc52ecbbe8b67cffed4ae7b3deb862 *R/print.earth.R
 fdd112263cf79fd103e41e1e41167d53 *R/printcall.R
 7c3b0430886a851919697e05d6c071a6 *R/residuals.earth.R
-cf4ca4a6d564b913ae9068165ba4cc69 *R/stop.if.dots.R
+178615efbc38f5e845c040252a2d52ff *R/stop.if.dots.R
 e4d0c6510174a59be475a2f490fd4dde *R/varmod.R
 ea521b18189dc9e26e3e8953602656de *data/etitanic.rda
 15f5470c6245efd1c6d5e0ed0be996b4 *data/ozone1.rda
-1d32dfdeef20ccf8bc50a30a04af602f *inst/doc/earth-notes.pdf
-fa5fa7c47737fcfb1caa3e5b76d4f030 *inst/doc/earth-varmod.pdf
+c6facbda1b464c5e08a5d6bdab08e5d4 *inst/doc/earth-notes.pdf
+e6327bfb24b57e5d59339f3261342c88 *inst/doc/earth-varmod.pdf
 057d9243d0a988b41dea864129945b6e *inst/doc/index.html
 70e562f9dd3e2563389fc0b74b7906c8 *inst/slowtests/README.txt
 c2999a7978acdb477d9f61764f7c8945 *inst/slowtests/check.models.equal.R
@@ -58,7 +58,7 @@ fe5b79f55826bf29856568f4845b4eba *inst/slowtests/test.earthmain.clang.bat
 71075e9d90376655a0d9347cc49ce742 *inst/slowtests/test.earthmain.out.save
 b9be1ba55699af3060768a59739ad98a *inst/slowtests/test.earthmain.vc.bat
 7ebe304c7e3de94406e845caf875e8f4 *inst/slowtests/test.full.R
-b97d15313fdf80a5d14a12ea9db2f6cd *inst/slowtests/test.full.Rout.save
+d2cc1fa4db282e425e795acb520f3933 *inst/slowtests/test.full.Rout.save
 3728570243a4228e7d470b9d5cb4a908 *inst/slowtests/test.full.bat
 e2ffc3216a2e0de62d247ef7f23fca22 *inst/slowtests/test.glm.R
 f590a107f7c2d025eb8e1b9da40b9a00 *inst/slowtests/test.glm.Rout.save

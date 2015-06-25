@@ -51,11 +51,16 @@ list.as.char <- function(object, maxlen=20)
     for(i in seq_along(object)) {
         if(i != 1)
             s <- sprintf("%s, ", s)
-        if(!is.null(names) && nzchar(names[i]))
-            s <- sprintf("%s%s=", s, names(object)[i])
-        s <- sprintf("%s%s", s, as.char(object[[i]], maxlen=maxlen))
+        name.ok <- length(names) >= i && !is.na(names[i]) && nzchar(names[i])
+        if(name.ok && names[i] == "...")
+            s <- sprintf("%s...", s) # print dots as ... not as ...=pairlist.object
+        else {
+            if(name.ok)
+                s <- sprintf("%s%s=", s, names(object)[i])
+            s <- sprintf("%s%s", s, as.char(object[[i]], maxlen=maxlen))
+        }
     }
-    s    # one element character vector e.g "x=1, y"
+    s    # one element character vector e.g "x=1, 2"
 }
 environment.as.char <- function(env, maxlen=60) # compact description
 {

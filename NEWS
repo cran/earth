@@ -1,6 +1,12 @@
 Changes to Earth Package
 ------------------------
 
+4.4.2  Jun 24, 2015
+
+   In model.matrix.earth we no longer unnecessarily issue the message:
+      variable 'foo' was fitted with type "nmatrix.1" 
+      but type "numeric" was supplied
+
 4.4.1  Jun 17, 2015
 
     Fixed an issue with earth's interaction with caret in certain
