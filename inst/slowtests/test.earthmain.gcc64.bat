@@ -2,15 +2,15 @@
 @rem
 @rem TODO I haven't yet been able to get this to work, need 64 bit Rdll.lib and Rblas.lib
 
-@cp "C:/Program Files/R/R-3.2.0/bin/x64/R.dll" .
+@cp "D:/bin/R320dll/x64/R.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/x64/Rblas.dll" .
+@cp "D:/bin/R320dll/x64/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/x64/Riconv.dll" .
+@cp "D:/bin/R320dll/x64/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/x64/Rgraphapp.dll" .
+@cp "D:/bin/R320dll/x64/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/x64/Rzlib.dll" .
+@cp "D:/bin/R320dll/x64/Rzlib.dll" .
                                 @if %errorlevel% neq 0 goto error
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @cp "../../.#/Rdll.lib" .

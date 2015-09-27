@@ -335,7 +335,7 @@ for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
 
     if(varmod.method %in% c("gam", "x.gam")) {
         if(use.mgcv.package) {
-            # TODO with R 3.2.0 unload(gam) no longer works
+            # TODO with R 3.2.1 unload(gam) no longer works
             cat("skipping mgcv tests\n")
             next                                # NOTE next
             cat("library(mgcv)\n")

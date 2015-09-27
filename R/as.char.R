@@ -125,6 +125,15 @@ print_summary <- function(x, xname=trunc.deparse(substitute(x)),
         printf("%s%s%s:\n%s\n", prefix, xname, msg, s)
         return()
     }
+    if(is.list(x) && !is.data.frame(x)) { # data.frames are lists, hence must check both
+        if(details < 2 && trace < 4) {
+            printf("%s: list with elements %s\n", xname, quotify.trunc(paste(names(x))))
+            return()
+        }
+        printf("%s ", xname)
+        str(x)
+        return()
+    }
     df <- try(my.data.frame(x, trace, stringsAsFactors=FALSE), silent=TRUE)
     if(is.try.err(df)) { # be robust for whatever gets passed to this function
         printf("print_summary: could not convert class \"%s\" to a data.frame\n",

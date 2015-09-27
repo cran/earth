@@ -84,9 +84,9 @@ stopifnot.identifier <- function(s, name=short.deparse(substitute(s)),
         stop0(name, " is an empty string")
     # TODO the following allows integers (no alphabetic characters), it shouldn't
     start <- if(allow.specials) # include , * $
-                 regexpr("[^._[:alnum:],*$]", s)
+                 regexpr("[^._:[:alnum:],*$]", s)
              else
-                 regexpr("[^._[:alnum:]]", s)
+                 regexpr("[^._:[:alnum:]]", s)
     if(start > 0)
         stop0("illegal character \"", substr(s, start, start),
               "\" in ", name, " = \"", s, "\"")

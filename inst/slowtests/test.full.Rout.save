@@ -1,7 +1,7 @@
 > # test.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 3.2.0 (2015-04-16)"
+[1] "R version 3.2.2 (2015-08-14)"
 > 
 > library(earth)
 Loading required package: plotmo
@@ -9,7 +9,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.4-6
+Loaded mda 0.4-7
 
 > source("check.models.equal.R")
 > data(ozone1)
@@ -58,7 +58,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 4.4.2.
+  Splines. R package version 4.4.3.
   http://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -67,7 +67,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 4.4.2},
+    note = {R package version 4.4.3},
     url = {http://CRAN.R-project.org/package=earth},
   }
 
@@ -2548,7 +2548,8 @@ to earth(x=x, y=y, degree=degree, nk=nk)
 > y <- doy
 > # smooth.col is 0 else get loess errors
 > itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, smooth.col=0)
-Warning in storage.mode(tagx) <- "integer" : NAs introduced by coercion
+Warning in storage.mode(tagx) <- "integer" :
+  NAs introduced by coercion to integer range
 Converted mars(x=x, y=y, degree=degree, nk=nk)
 
 to earth(x=x, y=y, degree=degree, nk=nk)
@@ -4013,7 +4014,7 @@ Percent Between-Group Variance Explained:
 
 Training Misclassification Error: 0.25 ( N = 100 )
 
-Deviance: 212.4 
+Deviance: 213.874 
 > printh(a)
 ===a 
 Call:

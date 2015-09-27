@@ -2,15 +2,15 @@
 @rem
 @rem Stephen Milborrow Jan 2008 Durban
 
-@cp "C:/Program Files/R/R-3.2.0/bin/i386/R.dll" .
+@cp "d:/bin/R320dll/i386/R.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/i386/Rblas.dll" .
+@cp "d:/bin/R320dll/i386/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/i386/Riconv.dll" .
+@cp "d:/bin/R320dll/i386/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/i386/Rgraphapp.dll" .
+@cp "d:/bin/R320dll/i386/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "C:/Program Files/R/R-3.2.0/bin/i386/Rzlib.dll" .
+@cp "d:/bin/R320dll/i386/Rzlib.dll" .
                                 @if %errorlevel% neq 0 goto error
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @cp "../../.#/Rdll.lib" .

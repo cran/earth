@@ -11,15 +11,15 @@
 @rem GNU because it knows about the Windows paths (backslash vs forward,
 @rem colon for drives, etc.).
 
-@mks.cp "C:/Program Files/R/R-3.2.0/bin/i386/R.dll" .
+@mks.cp "d:/bin/R320dll/i386/R.dll" .
                                 @if %errorlevel% neq 0 goto error
-@mks.cp "C:/Program Files/R/R-3.2.0/bin/i386/Rblas.dll" .
+@mks.cp "d:/bin/R320dll/i386/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-@mks.cp "C:/Program Files/R/R-3.2.0/bin/i386/Riconv.dll" .
+@mks.cp "d:/bin/R320dll/i386/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-@mks.cp "C:/Program Files/R/R-3.2.0/bin/i386/Rgraphapp.dll" .
+@mks.cp "d:/bin/R320dll/i386/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
-@mks.cp "C:/Program Files/R/R-3.2.0/bin/i386/Rzlib.dll" .
+@mks.cp "d:/bin/R320dll/i386/Rzlib.dll" .
 @rem you may have to create Rdll.lib and Rblas.lib beforehand
 @mks.cp "../../.#/Rdll.lib" .
                                 @if %errorlevel% neq 0 goto error

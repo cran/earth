@@ -52,3 +52,12 @@ S3method(summary, varmod)
 S3method(update, earth)
 S3method(variable.names, earth)
 S3method(weights, earth)
+
+importFrom("grDevices", "as.graphicsAnnot", "heat.colors", "xy.coords")
+
+importFrom("graphics", "abline", "axis", "legend", "lines", "mtext",
+     "par", "plot", "points", "polygon", "rect", "segments",
+     "strheight", "strwidth", "text", "xinch", "yinch")
+
+importFrom("utils", "assignInMyNamespace", "flush.console", "head",
+     "memory.size", "str")

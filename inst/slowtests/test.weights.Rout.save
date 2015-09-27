@@ -6,7 +6,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.4-6
+Loaded mda 0.4-7
 
 > options(warn=1) # print warnings as they occur
 > check.equal <- function(x, y, msg="")

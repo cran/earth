@@ -406,7 +406,7 @@ higher.call.args <- function(..., CALLX, FNAME)
     list.as.char(args)
 }
 # used only for tracing and error messages
-# TODO simplify this and friends when match.call is working (R 3.2.0)
+# TODO simplify this and friends when match.call is working (R 3.2.1)
 higher.caller.to.deprefix <- function(..., FNAME=FNAME)
 {
     # search the stack looking for org caller of prefix e.g. call.plot
