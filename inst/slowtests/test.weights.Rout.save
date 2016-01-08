@@ -6,7 +6,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.4-7
+Loaded mda 0.4-8
 
 > options(warn=1) # print warnings as they occur
 > check.equal <- function(x, y, msg="")
@@ -556,6 +556,62 @@ comparison to glm and rpart: weight=10
 > # plotmo(gamw201, do.par=FALSE, pt.col=2, main="gam200", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1, all2=TRUE, persp.ticktype="d")
 > # rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > # plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
+> 
+> # test bug fix for bug reported by damien georges (required adding check for "(weights)" to get.namesx)
+> set.seed(2016)
+> n <- 100
+> x1 <- factor(sample(c("A", "B", "C"), n, replace = TRUE)) # factorial variable
+> x2 <- runif(n) # continuous variable
+> x3 <- rnorm(n) # continuous variable
+> y <- factor(ifelse((as.numeric(x1) + x2 + x3) / mean(as.numeric(x1) + x2 + x3) > .8, "yes", "no"))
+> dat <- data.frame(y=y, x1=x1, x2=x2, x3=x3)
+> 
+> a <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial))
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+> print(summary(a))
+Call: earth(formula=y~x1+x2+x3, data=dat, glm=list(family=binomial))
+
+GLM coefficients
+                     yes
+(Intercept)     3.790425
+x1B             7.421038
+x1C            16.447160
+h(1.11783-x3)  -7.786156
+h(x3-1.11783) 163.435824
+
+Earth selected 5 of 13 terms, and 3 of 4 predictors
+Termination condition: Reached nk 21
+Importance: x3, x1C, x1B, x2-unused
+Number of terms at each degree of interaction: 1 4 (additive model)
+Earth GCV 0.09601838    RSS 7.951282    GRSq 0.6044237    RSq 0.6657721
+
+GLM null.deviance 133.7496 (99 dof)   deviance 20.55387 (95 dof)   iters 22
+> yhat <- predict(a, dat[, c('x1', 'x2', 'x3')], type='response')
+> 
+> w <- rep(1, n) # vector of equal weights
+> aw <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial), weight=w)
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+> print(summary(aw))
+Call: earth(formula=y~x1+x2+x3, data=dat, weights=w, glm=list(family=binomial))
+
+GLM coefficients
+                     yes
+(Intercept)     3.790425
+x1B             7.421038
+x1C            16.447160
+h(1.11783-x3)  -7.786156
+h(x3-1.11783) 163.435824
+
+Earth selected 5 of 13 terms, and 3 of 4 predictors
+Termination condition: Reached nk 21
+Importance: x3, x1C, x1B, x2-unused
+Number of terms at each degree of interaction: 1 4 (additive model)
+Earth GCV 0.09601838    RSS 7.951282    GRSq 0.6044237    RSq 0.6657721
+
+GLM null.deviance 133.7496 (99 dof)   deviance 20.55387 (95 dof)   iters 22
+> yhatw <- predict(aw, dat[, c('x1', 'x2', 'x3')], type='response')
+> stopifnot(identical(yhat, yhat))
+> check.models.equal(a, aw)
 > 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot

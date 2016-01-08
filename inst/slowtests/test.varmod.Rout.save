@@ -581,10 +581,10 @@ earth(formula = abs.resids ~ ., data = data, weights = weights,
     keepxy = TRUE, trace = trace, degree = ..1, minspan = minspan)
 
 $namesx.org
-[1] "RHS"       "(weights)"
+[1] "RHS"
 
 $namesx
-[1] "RHS"       "(weights)"
+[1] "RHS"
 
 $data
    abs.resids       RHS

@@ -1,6 +1,19 @@
 Changes to Earth Package
 ------------------------
 
+4.4.4  Jan 08, 2016
+
+   Fixed error message when predicting with a weighted model with a factor variable.
+   Thanks to Damien Georges.
+
+   Added a few type casts needed for clang and for matrices bigger than 2GB.
+   Thanks to Todd Rudick.
+
+   Removed a leftover debug call to cat("gc\n").
+   Thanks to Dirk Eddelbuettel.
+
+   Updated some stale web links in the documentation.
+
 4.4.3  Sep 26, 2015
 
    Minor changes to satisfy CRAN checks.

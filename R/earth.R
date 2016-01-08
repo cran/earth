@@ -339,12 +339,12 @@ earth.formula <- function(
         iresp <- attr(t,"response")
         namesx <- character(0)
         for(i in seq_len(ncol(mf)))
-            if(i != iresp)
+            if(i != iresp) {
                 if(!is.null(colnames(mf[[i]])))
                     namesx <- c(namesx, colnames(mf[[i]]))
-                else
+                else if(colnames(mf)[i] != "(weights)")
                     namesx <- c(namesx, colnames(mf)[i])
-
+        }
         namesx
     }
     #--- earth.formula starts here
@@ -420,7 +420,7 @@ earth.formula <- function(
                     Scale.y=Scale.y, ...)
 
     rv$call <- call
-    rv$namesx.org <- get.namesx(mf)         # name chosen not to alias with rv$x
+    rv$namesx.org <- get.namesx(mf)         # rv$namesx name chosen not to alias with rv$x
     rv$namesx <- make.unique(rv$namesx.org) # ditto
     rv$levels <- ylevels
     rv$terms <- terms
@@ -1342,10 +1342,8 @@ possible.gc <- function(maxmem, trace, msg)
     if(maxmem > 1) { # more than 1 GByte of memory required by earth?
         if(trace == 1.5 || trace == 1.6)
             old.memsize <- memory.size()
-cat("gc\n")
         gc()
         if(trace == 1.5 || trace == 1.6) {
-            call.as.char <- call.as.char(call=NULL, all=FALSE, n=2)
             printf("memsize %.1f to %.1f max %.1f GB %s\n",
                 old.memsize / 1024, memory.size() / 1024,
                 memory.size(max=TRUE) / 1024, msg)

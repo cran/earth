@@ -131,7 +131,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 4.4.0"; // change if you modify this file!
+static const char*  VERSION     = "version 4.4.4"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -566,9 +566,9 @@ static void GetOrder(
 // Caller must free the returned array.
 
 static int* GetArrayOrder(
-    const double x[], // in
-    const int nRows,  // in
-    const int nCols)  // in
+    const double x[],   // in
+    const size_t nRows, // in
+    const int    nCols) // in
 {
     int* xOrder = (int*)malloc1(nRows * nCols * sizeof(int),
                             "xOrder\t\tnRows %d nCols %d sizeof(int) %d",
@@ -697,8 +697,8 @@ static void CalcDiags(
     const int nCols)     // in
 {
     #define R_(i,j)     R [(i) + (j) * nCases]
-    #define R1_(i,j)    R1[(i) + (j) * nCols]
-    #define B_(i,j)     B [(i) + (j) * nCols]
+    #define R1_(i,j)    R1[(i) + (const size_t)(j) * nCols]
+    #define B_(i,j)     B [(i) + (const size_t)(j) * nCols]
 
     double* R1 = (double*)malloc1(nCols * nCols * sizeof(double),  // nCols rows of R
                             "R1\t\t\tnCols %d nCols %d sizeof(double) %d",
@@ -1327,7 +1327,7 @@ static int GetNbrUsed(   // Nm in Friedman's notation
 {
     int nUsed = 0;
     if(bx == NULL)
-        nUsed = nCases;
+        nUsed = (const int)nCases;
     else for(int i = 0; i < (const int)nCases; i++)
         if(bx_(i,iParent) > 0)
             nUsed++;
@@ -1353,7 +1353,7 @@ static int GetEndSpan(
     if(nDegree >= 2) // .5 below makes (int) cast act as round
         nEndSpan += (int)(AdjustEndSpanGlobal * nEndSpan + .5);
     if(nEndSpan > (const int)nCases / 2 - 1)  // always at least one knot, so above adjustment
-        nEndSpan = nCases / 2 - 1;            // doesn't completely inhibit degree2 terms
+        nEndSpan = (const int)nCases / 2 - 1; // doesn't completely inhibit degree2 terms
     nEndSpan = max(1, nEndSpan);
     return nEndSpan;
 }
@@ -2721,15 +2721,15 @@ static void ForwardPass(
     InitBetaCache(UseBetaCache, nMaxTerms, nPreds);
 
     bxOrth          = (double*)malloc1(nCases * nMaxTerms * sizeof(double),
-                        "bxOrth\t\tnCases %d nMaxTerms %d  sizeof(double) %d",
+                        "bxOrth\t\tnCases %d nMaxTerms %d sizeof(double) %d",
                         (const int)nCases, nMaxTerms, sizeof(double));
 
     bxOrthCenteredT = (double*)malloc1(nMaxTerms * nCases * sizeof(double),
-                        "bxOrthCenteredT\tnMaxTerms %d nCases %d  sizeof(double) %d",
+                        "bxOrthCenteredT\tnMaxTerms %d nCases %d sizeof(double) %d",
                         nMaxTerms, (const int)nCases, sizeof(double));
 
     bxOrthMean      = (double*)malloc1(nMaxTerms * nResp * sizeof(double),
-                        "bxOrthMean\t\tnMaxTerms %d nResp %d  sizeof(double) %d",
+                        "bxOrthMean\t\tnMaxTerms %d nResp %d sizeof(double) %d",
                         nMaxTerms, nResp, sizeof(double));
 
     yMean           = (double*)malloc1(nResp * sizeof(double),
@@ -2922,7 +2922,7 @@ void ForwardPassR(              // for use by R
 
     //  nDegree is degree of each term, degree of intercept is considered to be 0
     nDegree = (int*)malloc1(nMaxTerms * sizeof(int),
-                        "nDegree\tnMaxTerms %d sizeof(int) %d",
+                        "nDegree\t\tnMaxTerms %d sizeof(int) %d",
                         nMaxTerms, sizeof(int));
 
     iDirs = (int*)calloc1(nMaxTerms * nPreds, sizeof(int),
@@ -3275,7 +3275,7 @@ void Earth(
 
     // nDegree is degree of each term, degree of intercept is considered to be 0
     nDegree = (int*)malloc1(nMaxTerms * sizeof(int),
-                            "nDegree\tnMaxTerms %d sizeof(int) %d",
+                            "nDegree\t\tnMaxTerms %d sizeof(int) %d",
                             nMaxTerms, sizeof(int));
 
     double* yw = NULL;
@@ -3287,7 +3287,7 @@ void Earth(
                         (const int)nCases, nResp, sizeof(double));
         for(int iResp = 0; iResp < nResp; iResp++)
             for(int i = 0; i < (const int)nCases; i++) {
-                const int j = iResp * nCases + i;
+                const int j = iResp * (const int)nCases + i;
                 yw[j] = sqrt(WeightsArg[i]) * y[j];
             }
     }

@@ -1,7 +1,7 @@
 > # test.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 3.2.2 (2015-08-14)"
+[1] "R version 3.2.3 (2015-12-10)"
 > 
 > library(earth)
 Loading required package: plotmo
@@ -9,7 +9,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.4-7
+Loaded mda 0.4-8
 
 > source("check.models.equal.R")
 > data(ozone1)
@@ -58,8 +58,8 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 4.4.3.
-  http://CRAN.R-project.org/package=earth
+  Splines. R package version 4.4.4.
+  https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
 
@@ -67,8 +67,8 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 4.4.3},
-    url = {http://CRAN.R-project.org/package=earth},
+    note = {R package version 4.4.4},
+    url = {https://CRAN.R-project.org/package=earth},
   }
 
 ATTENTION: This citation information has been auto-generated from the
@@ -4893,7 +4893,7 @@ y[101,1]:
  Max.   :9.000  
 
 maxmem 0.0 GB
-earth.c version 4.4.0
+earth.c version 4.4.4
 BetaCache 3.45 kB
 Forward pass: minspan 4 endspan 7    x[101,1] 808 B    bx[101,21] 16.6 kB
 

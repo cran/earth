@@ -13,8 +13,10 @@ Loading required package: TeachingDemos
 > 
 > p <- 100
 > n <- 20000 # big enough to cross ten-thousand-cases barrier in plotres and plotmo
-> 
+>                    
+> # p <- 100; n <- 9e6  # Out of memory (could not allocate 15 GB)
 >                       # earth 4.4.0 on windows 64 bit system, 2.9 GHz i7, 32 gig ram, SSD drive:
+>                       # malloc 14.976 GB: bxOrthCenteredT	nMaxTerms 201 nCases 10000000  sizeof(double) 8
 > 
 > # p <- 100; n <- 8e6  # ok
 >                       # 51 minutes to build model, additional 1.5 minutes for plotmo and plotres
@@ -66,14 +68,14 @@ x[20000,100] with colnames x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x1
 y[20000,1] with colname y
 maxmem 0.1 GB
 malloc    400  B: nUses			*pnPreds 100 sizeof(int)
-malloc    804  B: nDegree	nMaxTerms 201 sizeof(int) 4
+malloc    804  B: nDegree		nMaxTerms 201 sizeof(int) 4
 calloc      4  B: iDirs			nMaxTerms 201 nPreds 100 sizeof(int) 4
 malloc    804  B: BoolFullSet		nMaxTerms 201 sizeof(bool) 4
 malloc      8 MB: xOrder		nRows 20000 nCols 100 sizeof(int) 4
 malloc     31 MB: BetaCacheGlobal	nMaxTerms 201 nMaxTerms 201 nPreds 100 sizeof(double) 8
-malloc     31 MB: bxOrth		nCases 20000 nMaxTerms 201  sizeof(double) 8
-malloc     31 MB: bxOrthCenteredT	nMaxTerms 201 nCases 20000  sizeof(double) 8
-malloc      2 kB: bxOrthMean		nMaxTerms 201 nResp 1  sizeof(double) 8
+malloc     31 MB: bxOrth		nCases 20000 nMaxTerms 201 sizeof(double) 8
+malloc     31 MB: bxOrthCenteredT	nMaxTerms 201 nCases 20000 sizeof(double) 8
+malloc      2 kB: bxOrthMean		nMaxTerms 201 nResp 1 sizeof(double) 8
 malloc      8  B: yMean			nResp 1 sizeof(double) 8
 Forward pass term 1
 malloc      6 kB: Q			nMaxTerms 201 sizeof(tQueue) 32

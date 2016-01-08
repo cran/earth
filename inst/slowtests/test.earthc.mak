@@ -2,7 +2,7 @@
 
 all: test.earthc.out
 
-R_DIR="%ProgramFiles%\r\R-3.2.2alpha"
+R_DIR="%ProgramFiles%\r\R-3.2.3alpha"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -57,7 +57,9 @@ test.earthc.main.exe: $(OBJ)
 
 # we use diff -w below so \r\n is treated the same as \n
 test.earthc.out: test.earthc.main.exe test.earthc.out.save
-	test.earthc.main.exe > $(OUTDIR)\test.earthc.out
+	@rem following is so we can check the compiler version because it can affect the model
+	-cl 1> NUL 2> $(OUTDIR)\test.earthc.out
+	test.earthc.main.exe >> $(OUTDIR)\test.earthc.out
 !IF  "$(CFG)" == "Debug"
 	@rem @echo === Following diff may give some differences ===
 !ENDIF

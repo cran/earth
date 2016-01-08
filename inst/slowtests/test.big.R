@@ -10,8 +10,10 @@ set.seed(2015)
 
 p <- 100
 n <- 20000 # big enough to cross ten-thousand-cases barrier in plotres and plotmo
-
+                   
+# p <- 100; n <- 9e6  # Out of memory (could not allocate 15 GB)
                       # earth 4.4.0 on windows 64 bit system, 2.9 GHz i7, 32 gig ram, SSD drive:
+                      # malloc 14.976 GB: bxOrthCenteredT	nMaxTerms 201 nCases 10000000  sizeof(double) 8
 
 # p <- 100; n <- 8e6  # ok
                       # 51 minutes to build model, additional 1.5 minutes for plotmo and plotres

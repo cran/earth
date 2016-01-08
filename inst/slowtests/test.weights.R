@@ -368,6 +368,26 @@ plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE,
 # rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 # plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
 
+# test bug fix for bug reported by damien georges (required adding check for "(weights)" to get.namesx)
+set.seed(2016)
+n <- 100
+x1 <- factor(sample(c("A", "B", "C"), n, replace = TRUE)) # factorial variable
+x2 <- runif(n) # continuous variable
+x3 <- rnorm(n) # continuous variable
+y <- factor(ifelse((as.numeric(x1) + x2 + x3) / mean(as.numeric(x1) + x2 + x3) > .8, "yes", "no"))
+dat <- data.frame(y=y, x1=x1, x2=x2, x3=x3)
+
+a <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial))
+print(summary(a))
+yhat <- predict(a, dat[, c('x1', 'x2', 'x3')], type='response')
+
+w <- rep(1, n) # vector of equal weights
+aw <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial), weight=w)
+print(summary(aw))
+yhatw <- predict(aw, dat[, c('x1', 'x2', 'x3')], type='response')
+stopifnot(identical(yhat, yhat))
+check.models.equal(a, aw)
+
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
