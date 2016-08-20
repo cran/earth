@@ -240,7 +240,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
         if(plot) {
             # TODO vert handling could be simplified
             xs <- xt[ok.l] + x.off * xchar
-            vert <- as.logical(rep(vert, length.out=length(xt))) # recycle
+            vert <- as.logical(recycle(vert, xt))
             dx <- as.numeric(!vert) * seg.len * xchar
             strheight <- strheight("A", cex=cex)
             ys <- yt[ok.l] - as.numeric(vert) * .9 * strheight

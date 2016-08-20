@@ -249,14 +249,14 @@ observed response[1046,1]:
 calling predict.lm with NULL newdata
 stats::predict(lm.object, NULL, type="response")
 predict returned[1046,1] with no column names:
-           NA
+             
 1    1.392914
 2    1.212219
 3    1.733813
 ...  1.723106
 1309 1.882905
 predict after processing with nresponse=NULL is [1046,1] with no column names:
-           NA
+             
 1    1.392914
 2    1.212219
 3    1.733813
@@ -269,7 +269,7 @@ predicted response: numeric or logical vector   (predict type is "response")
 grouping criterion: CLASS1 as.numeric(sex) == 1, CLASS2 as.numeric(sex) != 1
 
 predicted.response.per.class[as.numeric(sex) == 1][388,1] with no column names:
-          NA
+            
 1   1.392914
 2   1.733813
 3   1.725018
@@ -277,7 +277,7 @@ predicted.response.per.class[as.numeric(sex) == 1][388,1] with no column names:
 388 1.861625
 
 predicted.response.per.class[as.numeric(sex) != 1][658,1] with no column names:
-          NA
+            
 1   1.212219
 2   1.723106
 3   1.385648

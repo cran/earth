@@ -131,7 +131,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 4.4.4"; // change if you modify this file!
+static const char*  VERSION     = "version 4.4.5"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -3169,8 +3169,13 @@ static void BackwardPass(
             iBestModel = iModel;
             BestGcv = Gcv;
         }
+        double GRSq = 1 - BestGcv/GcvNull;
+        // Prevent negative almost-zero issued by some compilers (earth version 4.4.5)
+        // This prints as -0.0000 below and messes up the test scripts.
+        if(GRSq > -1e-12 && GRSq < 0) // -1e-12 is fairly arb
+            GRSq = 0;
         tprintf(3, "%10d %12.4f %12.4f\n", iModel+IOFFSET,
-                1 - BestGcv/GcvNull, 1 - RssVec[iModel]/RssVec[0]);
+                GRSq, 1 - RssVec[iModel]/RssVec[0]);
     }
     tprintf(3, "\nBackward pass complete: selected %d terms of %d, "
             "GRSq %.3f RSq %.3f\n\n",

@@ -1,6 +1,17 @@
 Changes to Earth Package
 ------------------------
 
+4.4.5  Aug 19, 2016
+
+  Fixed issue in earth.c with the latest gcc which calculates a
+  negative almost-zero GRSq (something like -1e-17).
+  This messed up the test scripts because it printed as -0.0000.
+
+  Merged the library source file lib.R with the plotmo and
+  rpart.plot packages's lib.R.
+
+  Updated cross-validation section in vignette.
+
 4.4.4  Jan 08, 2016
 
    Fixed error message when predicting with a weighted model with a factor variable.

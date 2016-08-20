@@ -917,14 +917,12 @@ mean  0.929 0.955 0.952 0.946
 
   Friedman (1991) \emph{Multivariate Adaptive Regression Splines (with discussion)}
   Annals of Statistics 19/1, 1--141
-  \url{https://statistics.stanford.edu/research/multivariate-adaptive-regression-splines}
-
-  %\url{http://www.salfordsystems.com/doc/MARS.pdf}
+  % use \code and not \url below else get libcurl error 35 from cran check
+  \code{https://statistics.stanford.edu/research/multivariate-adaptive-regression-splines}
 
   Friedman (1993) \emph{Fast MARS}
   Stanford University Department of Statistics, Technical Report 110
-  \url{http://www.milbo.users.sonic.net/earth/Friedman-FastMars.pdf},
-  \url{https://statistics.stanford.edu/research/fast-mars}
+  \code{https://statistics.stanford.edu/research/fast-mars}
 
   Friedman and Silverman (1989)
   \emph{Flexible Parsimonious Smoothing and Additive Modeling}
@@ -932,12 +930,12 @@ mean  0.929 0.955 0.952 0.946
   \url{http://links.jstor.org/sici?sici=0040-1706\%28198902\%2931\%3A1\%3C3\%3AFPSAAM\%3E2.0.CO\%3B2-Z}
 
   Hastie, Tibshirani, and Friedman (2009) \emph{The Elements of Statistical Learning (2nd ed.)}
-  \url{http://www-stat.stanford.edu/~hastie/pub.htm}
+  \url{http://web.stanford.edu/~hastie/pub.htm}
 
   Leathwick, J.R., Rowe, D., Richardson, J., Elith, J., & Hastie, T. (2005)
   \emph{Using multivariate adaptive regression splines to predict the distributions
   of New Zealand's freshwater diadromous fish} Freshwater Biology, 50, 2034-2052
-  \url{http://www-stat.stanford.edu/~hastie/pub.htm},
+  \url{http://web.stanford.edu/~hastie/pub.htm},
   \url{http://www.botany.unimelb.edu.au/envisci/about/staff/elith.html}
 
   Miller, Alan (1990, 2nd ed. 2002) \emph{Subset Selection in Regression}

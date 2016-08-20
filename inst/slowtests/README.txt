@@ -2,7 +2,7 @@ earth/inst/slowtests/README
 ---------------------------
 
 The tests in this directory are much more comprehensive than
-tests\test.earth.R but also take much longer to execute (a 
+tests\test.earth.R but also take much longer to execute (a
 few minutes).
 
 Note that the test reference postscript files are not included here

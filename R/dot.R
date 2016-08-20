@@ -85,7 +85,7 @@ process.exact <- function(argname, exact)
     if(length(exact) > length(argname))
         stop0("length(EX)=", length(exact),
               " is greater than length(ARGNAME)=", length(argname))
-    rep(exact, length.out=length(argname)) # recycle
+    recycle(exact, argname)
 }
 process.new <- function(new, argname, defname) # returns NA or a string
 {

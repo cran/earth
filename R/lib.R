@@ -444,13 +444,17 @@ grepany <- function(pattern, x, ignore.case=FALSE, ...)
 # returns an index, choices is a vector of strings
 imatch.choices <- function(arg, choices,
             argname=short.deparse(substitute(arg), "function"),
-            err.msg.has.index=FALSE) # TRUE if integer "arg" is legal elsewhere
+            err.msg.has.index=FALSE, # TRUE if integer "arg" is legal elsewhere
+            err.msg="",              # error message, "" for automatic
+            err.msg.ext="")          # extension to error message
 {
-    if(!is.character(arg) || length(arg) != 1 || !nzchar(arg))
-         stopf("illegal '%s' argument\nChoose%s one of: %s",
-               argname,
+    err.msg.ext <- paste0(
                if(err.msg.has.index) " an integer index or" else "",
-               quotify(choices))
+               if(nchar(err.msg.ext)) paste0(" ", err.msg.ext, " or") else "")
+    if(nchar(err.msg) == 0)
+        err.msg <- sprintf("Choose%s one of: %s", err.msg.ext, quotify(choices))
+    if(!is.character(arg) || length(arg) != 1 || !nzchar(arg))
+         stopf("illegal '%s' argument\n%s", argname, err.msg)
     imatch <- pmatch(arg, choices)
     if(anyNA(imatch)) {
         imatch <- NULL
@@ -460,20 +464,14 @@ imatch.choices <- function(arg, choices,
         if(length(imatch) == 0) {
             if(length(choices) == 1)
                 stopf("%s=\"%s\" is not allowed\n       Only%s %s is allowed",
-                      argname, paste(arg),
-                      if(err.msg.has.index) " 1 or" else "",
-                      quotify(choices))
+                      argname, paste(arg), err.msg.ext, quotify(choices))
             else
-                stopf("%s=\"%s\" is not allowed\nChoose%s one of %s",
-                      argname, paste(arg),
-                      if(err.msg.has.index) " an integer index or" else "",
-                      quotify(choices))
+                stopf("%s=\"%s\" is not allowed\n%s",
+                      argname, paste(arg), err.msg)
         }
         if(length(imatch) > 1)
-            stopf("%s=\"%s\" is ambiguous\nChoose%s one of %s",
-                  argname, paste(arg),
-                  if(err.msg.has.index) " an integer index or" else "",
-                  quotify(choices))
+            stopf("%s=\"%s\" is ambiguous\n%s",
+                  argname, paste(arg), err.msg)
     }
     imatch
 }
@@ -492,6 +490,26 @@ is.try.err <- function(object)
 {
     class(object)[1] == "try-error"
 }
+# Lighten color by amount 0 ... 1 where 1 is white.
+# If amount is negative, then darken the color, -1 is black.
+
+lighten <- function(col, lighten.amount, alpha=1)
+{
+    # stopifnot.scalar(lighten.amount)
+    # stopifnot(lighten.amount >= -1 && lighten.amount <= 1)
+    rgb <- col2rgb(col) / 255
+    # empirically, sqrt makes visual effect of lighten.amount more linear
+    lighten.amount2 <- sqrt(abs(lighten.amount))
+    rgb <-
+        if(lighten.amount > 0)
+            rgb + lighten.amount2 * (c(1,1,1) - rgb) # move each r,g,b towards 1
+        else # darken
+            rgb - lighten.amount2 * rgb              # move each r,g,b towards 0
+    if(alpha == 1)
+        rgb(rgb[1,], rgb[2,], rgb[3,])
+    else
+        rgb(rgb[1,], rgb[2,], rgb[3,], alpha)
+}
 # returns the expanded arg
 match.arg1 <- function(arg, argname=deparse(substitute(arg)))
 {
@@ -500,9 +518,14 @@ match.arg1 <- function(arg, argname=deparse(substitute(arg)))
     formal.argnames[imatch.choices(arg[1], formal.argnames, argname)]
 }
 # returns a string, choices is a vector of strings
-match.choices <- function(arg, choices, argname=deparse(substitute(arg)))
+match.choices <- function(arg,
+            choices,
+            argname=deparse(substitute(arg)),
+            err.msg="",              # error message, "" for automatic
+            err.msg.ext="")          # extension to error message
 {
-    choices[imatch.choices(arg, choices, argname)]
+    choices[imatch.choices(arg, choices, argname,
+                           err.msg=err.msg, err.msg.ext=err.msg.ext)]
 }
 # This uses the object's .Environment attribute, which was
 # pre-assigned to the object via get.model.env
@@ -596,18 +619,6 @@ pastef <- function(s, fmt, ...) # paste the printf style args to s
 {
     paste0(s, sprintf(fmt, ...))
 }
-pt.cex <- function(ncases, npoints=ncases)
-{
-    n <- if(npoints > 0) min(npoints, ncases) else ncases
-
-    if     (n >= 20000) .2
-    else if(n >=  5000) .3
-    else if(n >=  3000) .4
-    else if(n >=  1000) .6
-    else if(n >=  300)  .8
-    else if(n >=  30)   1
-    else                1.2
-}
 print.first.few.elements.of.vector <- function(x, trace, name=NULL)
 {
     try(cat(" min", min(x), "max", max(x)), silent=TRUE)
@@ -660,6 +671,18 @@ printf.wrap <- function(fmt, ..., exdent=NULL, maxlen=2000)
 
     if(nchar(s) > i) for(j in nchar(s):i) # print trailing newlines
         if(substr(s, j, j) == "\n") cat0("\n") else break
+}
+pt.cex <- function(ncases, npoints=ncases)
+{
+    n <- if(npoints > 0) min(npoints, ncases) else ncases
+
+    if     (n >= 20000) .2
+    else if(n >=  5000) .3
+    else if(n >=  3000) .4
+    else if(n >=  1000) .6
+    else if(n >=  300)  .8
+    else if(n >=  30)   1
+    else                1.2
 }
 # like short.deparse but quotify the deparsed obj (unless the alternative is used)
 quote.deparse <- function(object, alternative="object")
@@ -718,8 +741,16 @@ range1 <- function(object, ...)
     else
         range(object, finite=TRUE, ...)
 }
+recycle <- function(object, ref.object)
+{
+    repl(object, length.out=length(ref.object))
+}
 repl <- function(object, length.out)
 {
+    # following "if" added for R-2.15.3 otherwise
+    # get warning: 'x' is NULL so the result will be NULL
+    if(is.null(object))
+        return(NULL)
     check.numeric.scalar(length.out)
     stopifnot(floor(length.out) == length.out)
     stopifnot(length.out > 0)

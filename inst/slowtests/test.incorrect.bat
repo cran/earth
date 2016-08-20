@@ -1,7 +1,7 @@
 @Rem test.incorrect.R: example incorrect model built by earth
 @rem Stephen Milborrow May 2015 Berea
 
-@"C:\PROGRA~1\R\R-3.2.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.incorrect.R
+@"C:\PROGRA~1\R\R-3.3.1\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.incorrect.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.incorrect.Rout:
 @echo.
@@ -11,9 +11,9 @@
 :good1
 @echo mks.diff -w test.incorrect.Rout test.incorrect.Rout.save
 @rem egreps to deal with times
-@\Rtools\bin\echo -n "new "
+@C:\Rtools\bin\echo -n "new "
 @egrep "^\[total time" test.incorrect.Rout
-@\Rtools\bin\echo -n "old "
+@C:\Rtools\bin\echo -n "old "
 @egrep "^\[total time" test.incorrect.Rout.save
 @egrep -v "^\[total time" test.incorrect.Rout      >test.incorrect.Rout1
 @egrep -v "^\[total time" test.incorrect.Rout.save >test.incorrect.Rout.save1

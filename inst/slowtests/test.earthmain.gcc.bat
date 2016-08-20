@@ -1,4 +1,4 @@
-@rem test.earthmain.gcc.bat: test the standalone earth.c with main()
+@rem test.earthmain.gcc.bat: test 32 bit standalone earth.c with main()
 @rem
 @rem Stephen Milborrow Jan 2008 Durban
 
@@ -17,14 +17,16 @@
                                 @if %errorlevel% neq 0 goto error
 @cp "../../.#/Rblas.lib" .
                                 @if %errorlevel% neq 0 goto error
-@rem get iconv.dll from /a/r/ra/src/gnuwin32/unicode
-@cp "../../.#/Rdll.lib" .
-                                @if %errorlevel% neq 0 goto error
 
 @rem modify the path to include gcc, if needed
-@set | egrep -i "path=[^;]*Rtools" >NUL && goto donesetpath
-@echo Modifying path for Rtools
-@set path=D:\Rtools\bin;D:\Rtools\MinGW\bin;%PATH%
+@rem only do it if needed
+@set | egrep -i "PATH=[^;]*Rtools.mingw_32" >NUL && goto :donesetpath
+@echo Modifying path for 32 bit Rtools and R
+@set PATH=C:\Rtools\mingw_32\bin;^
+C:\Rtools\bin;^
+C:\Program Files\R\R-3.3.1\bin\i386;^
+C:\Program Files\gs\gs9.19\bin;^
+%PATH%
 :donesetpath
 
 @gcc -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -O3 -std=gnu99^

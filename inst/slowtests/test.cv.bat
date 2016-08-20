@@ -1,7 +1,7 @@
 @rem test.cv.bat: tests earth cross validation
 @rem Stephen Milborrow Nov 2008 Gardens
 
-@"C:\PROGRA~1\R\R-3.2.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.cv.R
+@"C:\PROGRA~1\R\R-3.3.1\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.cv.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.cv.Rout:
 @tail test.cv.Rout

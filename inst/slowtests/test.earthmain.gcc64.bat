@@ -1,30 +1,34 @@
-@rem test.earthmain.gcc.bat: test the standalone earth.c with main()
+@rem test.earthmain.gcc64.bat: test 64 bit standalone earth.c with main()
 @rem
-@rem TODO I haven't yet been able to get this to work, need 64 bit Rdll.lib and Rblas.lib
+@rem TODO I haven't yet been able to get this to work:
+@rem      Crashes in daxpy_ call in FindKnot, ok with USE_BLAS = 0.
 
-@cp "D:/bin/R320dll/x64/R.dll" .
+cp "C:/Program Files/R/R-3.3.1/bin/x64/R.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "D:/bin/R320dll/x64/Rblas.dll" .
+cp "C:/Program Files/R/R-3.3.1/bin/x64/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "D:/bin/R320dll/x64/Riconv.dll" .
+cp "C:/Program Files/R/R-3.3.1/bin/x64/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "D:/bin/R320dll/x64/Rgraphapp.dll" .
+cp "C:/Program Files/R/R-3.3.1/bin/x64/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "D:/bin/R320dll/x64/Rzlib.dll" .
+@rem cp "C:/Program Files/R/R-3.3.1/bin/x64/Rzlib.dll" .
+@rem                                 @if %errorlevel% neq 0 goto error
+
+@rem you may have to create Rdll_x64.lib and Rblas_x64.lib beforehand
+@cp "../../.#/Rdll_x64.lib" Rdll.lib
                                 @if %errorlevel% neq 0 goto error
-@rem you may have to create Rdll.lib and Rblas.lib beforehand
-@cp "../../.#/Rdll.lib" .
-                                @if %errorlevel% neq 0 goto error
-@cp "../../.#/Rblas.lib" .
-                                @if %errorlevel% neq 0 goto error
-@rem get iconv.dll from /a/r/ra/src/gnuwin32/unicode
-@cp "../../.#/Rdll.lib" .
+@cp "../../.#/Rblas_x64.lib" Rblas.lib
                                 @if %errorlevel% neq 0 goto error
 
 @rem modify the path to include gcc, if needed
-@set | egrep -i "path=[^;]*Rtools" >NUL && goto donesetpath
-@echo Modifying path for Rtools
-@set path=D:\Rtools\bin;D:\Rtools\MinGW\bin;%PATH%
+@rem only do it if needed
+@set | egrep -i "PATH=[^;]*Rtools.mingw_64" >NUL && goto :donesetpath
+@echo Modifying path for 64 bit Rtools and R
+@set PATH=C:\Rtools\mingw_64\bin;^
+C:\Rtools\bin;^
+C:\Program Files\R\R-3.2.2\bin\x64;^
+C:\Program Files\gs\gs9.19\bin;^
+%PATH%
 :donesetpath
 
 gcc -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -O3 -std=gnu99^
@@ -32,7 +36,9 @@ gcc -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -O3 -std=gnu99^
  -I"/a/r/ra/include" -I../../inst/slowtests ../../src/earth.c^
  Rdll.lib Rblas.lib -o earthmain-gcc64.exe
                                 @if %errorlevel% neq 0 goto error
-@earthmain-gcc.exe > test.earthmain-gcc64.out
+@rem earthmain-gcc64.exe > test.earthmain-gcc64.out
+@rem                                 @if %errorlevel% neq 0 goto error
+earthmain-gcc64.exe
                                 @if %errorlevel% neq 0 goto error
 
 @rem we use -w on mks.diff so it treats \r\n the same as \n

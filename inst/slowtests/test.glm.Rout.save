@@ -8246,11 +8246,11 @@ numdead.2      84.92686 11  1.525354  9     4         1
 3    -3.948707    -3.458432    -4.088310
 > expect.err(try(printh(resid(a, type="nonesuch"), max.print=3)), "Choose one of")
 === resid(a, type = "nonesuch")Error : type="nonesuch" is not allowed
-Choose one of "earth" "standardize" "delever" "deviance" "glm.pearson" "glm.working" "glm.response" "glm.partial" "response"
+Choose one of: "earth" "standardize" "delever" "deviance" "glm.pearson" "glm.working" "glm.response" "glm.partial" "response"
 Got error as expected from try(printh(resid(a, type = "nonesuch"), max.print = 3))
 > expect.err(try(printh(resid(a, type="g"), max.print=3)), "ambiguous") # type="g" is ambiguous
 === resid(a, type = "g")Error : type="g" is ambiguous
-Choose one of "earth" "standardize" "delever" "deviance" "glm.pearson" "glm.working" "glm.response" "glm.partial" "response"
+Choose one of: "earth" "standardize" "delever" "deviance" "glm.pearson" "glm.working" "glm.response" "glm.partial" "response"
 Got error as expected from try(printh(resid(a, type = "g"), max.print = 3))
 > expect.err(try(printh(resid(a, type="standardize"), max.print=3)), "model was not built with varmod.method") # model was not built with varmod.method
 === resid(a, type = "standardize")Error : "standardize" is not allowed because

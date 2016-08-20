@@ -42,7 +42,7 @@
 @echo error: errorlevel %errorlevel%
 @exit /B %errorlevel%
 :good
-@mks.rm -f R.dll Rblas.dll Rdll.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll 
+@mks.rm -f R.dll Rblas.dll Rdll.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll
 @mks.rm -f test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
 @mks.rm -rf Debug
 @mks.rm -rf Release

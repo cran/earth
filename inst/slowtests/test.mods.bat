@@ -1,7 +1,7 @@
 @Rem test.mods.R: test earth's ability to build various models
 @rem Stephen Milborrow Jan 2014 Berea
 
-@"C:\PROGRA~1\R\R-3.2.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.mods.R
+@"C:\PROGRA~1\R\R-3.3.1\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.mods.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.mods.Rout:
 @echo.
@@ -11,9 +11,9 @@
 :good1
 @echo mks.diff -w test.mods.Rout test.mods.Rout.save
 @rem egreps to deal with times
-@\Rtools\bin\echo -n "new "
+@C:\Rtools\bin\echo -n "new "
 @egrep "^\[total time" test.mods.Rout
-@\Rtools\bin\echo -n "old "
+@C:\Rtools\bin\echo -n "old "
 @egrep "^\[total time" test.mods.Rout.save
 @egrep -v "^\[total time" test.mods.Rout      >test.mods.Rout1
 @egrep -v "^\[total time" test.mods.Rout.save >test.mods.Rout.save1

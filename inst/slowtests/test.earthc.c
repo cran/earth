@@ -310,8 +310,8 @@ static void TestEarth(char sTestName[],
         nCases, nResponses, nPreds, nMaxDegree, nMaxTerms, Penalty, ForwardStepThresh,
         0, 0,   // MinSpan, EndSpan
         true,   // Prune
-        nFastK, FastBeta, NewVarPenalty, LinPreds, 
-        2 /*AdjustEndSpan*/, true /*UseBetaCache*/, 
+        nFastK, FastBeta, NewVarPenalty, LinPreds,
+        2 /*AdjustEndSpan*/, true /*UseBetaCache*/,
         Trace, NULL);
 
     // calc nUsedTerms
@@ -355,7 +355,7 @@ static void TestEarth(char sTestName[],
                    nTest, iResponse+1, GRSq, RSq,
                    nUsedTerms, nTerms, nMaxTerms);
             if (iResponse == 0)
-                printf(" FUNCTION %s n=%d p=%d [%.2f secs]", 
+                printf(" FUNCTION %s n=%d p=%d [%.2f secs]",
                    sTestName, nCases, nPreds, TimeDelta);
             printf("\n");
         }
