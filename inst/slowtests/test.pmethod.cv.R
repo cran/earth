@@ -3,7 +3,7 @@
 
 library(earth)
 data(etitanic)
-
+set.seed(2016)
 options(digits=4)
 options(warn=1)
 if(!interactive())

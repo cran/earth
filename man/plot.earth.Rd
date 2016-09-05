@@ -30,8 +30,8 @@ The first arguments are identical to \code{plotres}.
   col.vseg = 0, lty.grsq = 1, lty.npreds = 2, lty.rsq = 5, lty.vline = "12",
   legend.pos = NULL, \dots)
 
-earth_plotmodsel(x,
-  col.rsq = 2, col.grsq = 1, col.infold.rsq = 0,
+earth_plotmodsel( # for internal use by plotres
+  x, col.rsq = 2, col.grsq = 1, col.infold.rsq = 0,
   col.mean.infold.rsq = 0, col.mean.oof.rsq = "palevioletred",
   col.npreds = NULL, col.oof.labs = 0, col.oof.rsq = "mistyrose2",
   col.oof.vline = col.mean.oof.rsq, col.pch.cv.rsq = 0,

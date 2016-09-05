@@ -1,7 +1,7 @@
 # test.mods.R: test earth's ability to build various models
 
 library(earth)
-
+set.seed(2016)
 options(digits=4)
 options(warn=1)
 if(!interactive())

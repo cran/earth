@@ -12,6 +12,7 @@ Loading required package: class
 Loaded mda 0.4-9
 
 > source("check.models.equal.R")
+> set.seed(2016)
 > data(ozone1)
 > data(trees)
 > data(etitanic)
@@ -58,7 +59,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 4.4.5.
+  Splines. R package version 4.4.6.
   https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -67,7 +68,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 4.4.5},
+    note = {R package version 4.4.6},
     url = {https://CRAN.R-project.org/package=earth},
   }
 
@@ -85,8 +86,8 @@ package DESCRIPTION file and may need manual editing, see
 earth> earth.mod <- earth(Volume ~ ., data = trees)
 
 earth> plotmo(earth.mod)
- grid:    Girth Height
-           12.9     76
+ plotmo grid:    Girth Height
+                  12.9     76
 
 earth> summary(earth.mod, digits = 2, style = "pmax")
 Call: earth(formula=Volume~., data=trees)
@@ -3127,10 +3128,10 @@ Number of terms at each degree of interaction: 1 8 (additive model)
 func1 0.002626520 0.1809409 0.9969000 0.9978211
 func7 0.007889046 0.5434764 0.9846251 0.9891931
 All   0.010515566 0.7244173 0.9922701 0.9945668
- grid:    x1         x2
- -0.02437858 0.03719751
- grid:    x1         x2
- -0.02437858 0.03719751
+ plotmo grid:    x1         x2
+        -0.02437858 0.03719751
+ plotmo grid:    x1         x2
+        -0.02437858 0.03719751
 
 > printh(summary(a))
 ===summary(a) 
@@ -3242,10 +3243,14 @@ All                                              0.011607392 0.7244173
 func1                                            0.9965782 0.9978211
 a.very.long.in.fact.extremely.long.response.name 0.9830287 0.9891931
 All                                              0.9914675 0.9945668
- grid:    x1.a.very.long.in.fact.extremely.long.predictor.name         x2
-                                                   -0.02437858 0.03719751
- grid:    x1.a.very.long.in.fact.extremely.long.predictor.name         x2
-                                                   -0.02437858 0.03719751
+ plotmo grid:    x1.a.very.long.in.fact.extremely.long.predictor.name
+                                                          -0.02437858
+         x2
+ 0.03719751
+ plotmo grid:    x1.a.very.long.in.fact.extremely.long.predictor.name
+                                                          -0.02437858
+         x2
+ 0.03719751
 
 > printh(summary(a))
 ===summary(a) 
@@ -3360,10 +3365,10 @@ Number of terms at each degree of interaction: 1 11 (additive model)
 data.global[,1:2][1] 0.1186568  7.035159 0.9859153 0.9914796
 neg.eqn56noise       1.0576805 62.709877 0.8846994 0.9302502
 All                  1.1763373 69.745036 0.9331542 0.9595624
- grid:    x1         x2         x3          x4          x5
- -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
- grid:    x1         x2         x3          x4          x5
- -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
+ plotmo grid:    x1         x2         x3          x4          x5
+        -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
+ plotmo grid:    x1         x2         x3          x4          x5
+        -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
 
 > print(evimp(a))
    nsubsets   gcv    rss
@@ -3400,10 +3405,10 @@ Number of terms at each degree of interaction: 1 10 (additive model)
 data.global[,1:2][1] 0.1491246  8.166063 0.9822988 0.9901100
 data.global[,1:2][2] 1.2644713 69.242451 0.8621565 0.9229843
 All                  1.4135959 77.408514 0.9196719 0.9551192
- grid:    x1         x2         x3          x4          x5
- -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
- grid:    x1         x2         x3          x4          x5
- -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
+ plotmo grid:    x1         x2         x3          x4          x5
+        -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
+ plotmo grid:    x1         x2         x3          x4          x5
+        -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
 
 > printh(summary(a70))
 ===summary(a70) 
@@ -3522,10 +3527,10 @@ Number of terms at each degree of interaction: 1 10 (additive model)
 arm   0.06212730 3.877365 0.6674660 0.7882518
 eqn56 0.04559835 2.845793 0.9990475 0.9993935
 All   0.10772566 6.723158 0.9977586 0.9985727
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
 
 Selected 11 of 11 terms, and 5 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 11 terms
@@ -3549,10 +3554,10 @@ Number of terms at each degree of interaction: 1 10 (additive model)
 arm   0.07080652 3.877365 0.6210109 0.7882518
 eqn56 0.05196847 2.845793 0.9989145 0.9993935
 All   0.12277499 6.723158 0.9974454 0.9985727
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
 
 Testing mars.to.earth with a multiple response model
 Converted mars(x=data.global[,c(-1,-2),drop=FALSE], y=data.global[,1:2],
@@ -3600,10 +3605,10 @@ Number of terms at each degree of interaction: 1 11 2
 arm   0.06354264 2.810014 0.6598905 0.8465412
 eqn56 0.02822229 1.248060 0.9994105 0.9997340
 All   0.09176492 4.058074 0.9997770 0.9998994
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
 Selected 11 of 11 terms, and 5 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 11 terms
 Importance: theta1, theta2, l1, phi, l2
@@ -3626,10 +3631,10 @@ Number of terms at each degree of interaction: 1 10 (additive model)
 arm   0.06212730 3.877365 0.6674660 0.7882518
 eqn56 0.04559835 2.845793 0.9990475 0.9993935
 All   0.10772566 6.723158 0.9977586 0.9985727
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
 
 Selected 11 of 11 terms, and 5 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 11 terms
@@ -3653,10 +3658,10 @@ Number of terms at each degree of interaction: 1 10 (additive model)
 arm   0.07080652 3.877365 0.6210109 0.7882518
 eqn56 0.05196847 2.845793 0.9989145 0.9993935
 All   0.12277499 6.723158 0.9974454 0.9985727
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
 
 Selected 11 of 11 terms, and 5 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 11 terms
@@ -3680,10 +3685,10 @@ Number of terms at each degree of interaction: 1 10 (additive model)
 arm   0.07080652 3.877365 0.6210109 0.7882518
 eqn56 0.05196847 2.845793 0.9989145 0.9993935
 All   0.12277499 6.723158 0.9974454 0.9985727
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
- grid:    l1       l2   theta1   theta2         phi
-   0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
+ plotmo grid:    l1       l2   theta1   theta2         phi
+          0.4878107 1.018599 2.375682 2.907589 -0.06541174
 
 Selected 11 of 11 terms, and 5 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 11 terms
@@ -4569,8 +4574,8 @@ Importance: survived, parch, sibsp, pclass3rd, age, pclass2nd
 Number of terms at each degree of interaction: 1 3 6
 GCV 0.1525303    RSS 152.4583    GRSq 0.3475741    RSq 0.3753665
 > plotmo(a4.allowed, caption="a4.allowed")
- grid:    pclass survived age sibsp parch
-             1st        0  28     0     0
+ plotmo grid:    pclass survived age sibsp parch
+                    1st        0  28     0     0
 > 
 > #--- predictors in PREDICTORS are allowed to interact with predictors in PARENTS
 > #--- but no other interactions are allowed
@@ -4610,8 +4615,8 @@ Importance: survived, parch, age, sibsp, pclass2nd-unused, ...
 Number of terms at each degree of interaction: 1 3 3
 GCV 0.1561245    RSS 158.3485    GRSq 0.3322006    RSq 0.3512343
 > plotmo(a5.allowed, caption="a5.allowed")
- grid:    pclass survived age sibsp parch
-             1st        0  28     0     0
+ plotmo grid:    pclass survived age sibsp parch
+                    1st        0  28     0     0
 > 
 > # "allowed" function checks, these check error handling by forcing an error
 > 
@@ -6445,8 +6450,8 @@ graphics::par(mfrow=c(3,3), mgp=c(1.5,0.4,0), tcl=-0.3, font.main=2,
 --get.ylim.by.dummy.plots
 --plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 
 degree1 plot 1 temp
 newdata[50,9]:
@@ -6547,8 +6552,8 @@ stats::predict(earth.object, NULL, type="response")
 stats::fitted(object=earth.object)
 got model response from object$y
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 
 > a <- earth(O3 ~ ., data=se, degree=2, keepxy=1)
 > se <- NULL
@@ -6698,8 +6703,8 @@ graphics::par(mfrow=c(3,3), mgp=c(1.5,0.4,0), tcl=-0.3, font.main=2,
 --get.ylim.by.dummy.plots
 --plot.degree1(draw.plot=FALSE)
 
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 
 degree1 plot 1 temp
 newdata[50,9]:
@@ -6837,8 +6842,8 @@ Importance: temp, humidity, ibt, doy, ibh, dpg, vis, wind, vh
 Number of terms at each degree of interaction: 1 5 6
 GCV 13.40805    RSS 3693.401    GRSq 0.7917216    RSq 0.825085
 > plotmo(a, trace=0, caption="getdata earth test5")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 > printh(summary(a))
 ===summary(a) 
@@ -6864,8 +6869,8 @@ Importance: temp, humidity, ibt, doy, ibh, dpg, vis, wind, vh
 Number of terms at each degree of interaction: 1 5 6
 GCV 13.40805    RSS 3693.401    GRSq 0.7917216    RSq 0.825085
 > plotmo(a, trace=0, caption="getdata earth test6")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=1)
 > se <- NULL
 > printh(summary(a))
@@ -6892,8 +6897,8 @@ Importance: temp, humidity, ibt, doy, ibh, dpg, vis, wind, vh
 Number of terms at each degree of interaction: 1 5 6
 GCV 13.40805    RSS 3693.401    GRSq 0.7917216    RSq 0.825085
 > plotmo(a, trace=0, caption="getdata earth test7")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > se <- ozone1
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 > se <- NULL
@@ -6952,8 +6957,8 @@ Importance: temp, humidity, ibt, doy, ibh, dpg, vis, wind, vh
 Number of terms at each degree of interaction: 1 5 6
 GCV 13.40805    RSS 3693.401    GRSq 0.7917216    RSq 0.825085
 > plotmo(a, trace=0, caption="getdata earth test9")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > 
 > # test the way plotmo gets the data with lm
 > se <- ozone1
@@ -6988,8 +6993,8 @@ Multiple R-squared:  0.7012,	Adjusted R-squared:  0.6927
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=0, caption="getdata lm test1")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > a <- lm(O3 ~ ., data=se, x=1)
 > printh(summary(a))
 ===summary(a) 
@@ -7021,8 +7026,8 @@ Multiple R-squared:  0.7012,	Adjusted R-squared:  0.6927
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=0, caption="getdata lm test2")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > a <- lm(O3 ~ ., data=se, y=1)
 > printh(summary(a))
 ===summary(a) 
@@ -7054,8 +7059,8 @@ Multiple R-squared:  0.7012,	Adjusted R-squared:  0.6927
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=0, caption="getdata lm test3")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > a <- lm(O3 ~ ., data=se, x=1, y=1)
 > printh(summary(a))
 ===summary(a) 
@@ -7087,8 +7092,8 @@ Multiple R-squared:  0.7012,	Adjusted R-squared:  0.6927
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=0, caption="getdata lm test3")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > a <- lm(O3 ~ ., data=se, x=0, y=1, model=F)
 > se <- 99
 > expect.err(try(plotmo(a, trace=0, caption="getdata lm test4")), "cannot get the original model predictors")
@@ -7136,8 +7141,8 @@ Multiple R-squared:  0.7012,	Adjusted R-squared:  0.6927
 F-statistic: 83.42 on 9 and 320 DF,  p-value: < 2.2e-16
 
 > plotmo(a, trace=0, caption="getdata lm test5")
- grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
-        5760    5       64   62 2112.5  24 167.5 120 205.5
+ plotmo grid:    vh wind humidity temp    ibh dpg   ibt vis   doy
+               5760    5       64   62 2112.5  24 167.5 120 205.5
 > se <- ozone1
 > a <- lm(O3 ~ ., data=se, model=F)
 > se$wind <- NULL

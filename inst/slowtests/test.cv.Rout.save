@@ -6,6 +6,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > if(!interactive())
 +     postscript(paper="letter")
+> set.seed(2016)
 > data(ozone1)
 > data(trees)
 > data(etitanic)
@@ -691,8 +692,8 @@ Cross validation:   nterms 8.83 sd 0.75    nvars 5.67 sd 0.52
  CVRSq    sd ClassRate    sd MaxErr sd   AUC    sd MeanDev     sd CalibInt    sd CalibSlope    sd
  0.415 0.026     0.798 0.016 -0.996  1 0.859 0.009   0.888 0.0329   -0.053 0.144       0.91 0.029
 > plotmo(a6)
- grid:    pclass    sex age sibsp parch
-             1st female  28     0     0
+ plotmo grid:    pclass    sex age sibsp parch
+                    1st female  28     0     0
 > printh(a6$cv.list[[2]])
 === a6$cv.list[[2]]
 Earth selected 8 of 16 terms, and 6 of 6 predictors
@@ -8080,8 +8081,8 @@ Cross validation:   nterms 8.67 sd 1.63    nvars 4.67 sd 0.52
 3rd 0.225 0.018     0.683 0.014  0.979 0.9765 0.777 0.016   1.136 0.0319    0.000 0.086      0.867 0.113
 All 0.162 0.017     0.583 0.014  1.000 0.0170 0.727 0.018   1.059 0.0190   -0.179 0.091      0.771 0.083
 > plotmo(a7, nresponse=1)
- grid:    survived    sex age sibsp parch
-                 0 female  28     0     0
+ plotmo grid:    survived    sex age sibsp parch
+                        0 female  28     0     0
 > printh(a7$cv.list[[3]])
 === a7$cv.list[[3]]
 Earth selected 7 of 19 terms, and 4 of 5 predictors

@@ -1,6 +1,7 @@
 # test.plotd.R
 
 library(earth)
+set.seed(2016)
 
 printh <- function(caption)
     cat("===", caption, "\n", sep="")

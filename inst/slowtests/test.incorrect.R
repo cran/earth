@@ -2,7 +2,7 @@
 # Stephen Milborrow May 2015 Berea
 
 library(earth)
-
+set.seed(2016)
 options(digits=4)
 options(warn=1)
 if(!interactive())

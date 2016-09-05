@@ -2,6 +2,7 @@
 
 library(earth)
 library(mda)
+set.seed(2016)
 options(warn=1) # print warnings as they occur
 check.equal <- function(x, y, msg="")
 {

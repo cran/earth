@@ -1,6 +1,6 @@
 # plotmo.rpart.R: plotmo methods for earth objects
 
-plotmo.singles.earth <- function(object, x, nresponse, trace, all1)
+plotmo.singles.earth <- function(object, x, nresponse, trace, all1, ...)
 {
     singles <- NULL
     max.degree <- 1
@@ -68,7 +68,7 @@ plotmo.pairs.earth <- function(object, x, ...)
     }
     pairs
 }
-plotmo.y.earth <- function(object, trace, naked, expected.len)
+plotmo.y.earth <- function(object, trace, naked, expected.len, ...)
 {
     temp <- plotmo::plotmo.y.default(object, trace, naked, expected.len)
 
@@ -90,7 +90,7 @@ plotmo.pairs.bagEarth <- function(object, x, ...) # caret package
         pairs <- rbind(pairs, plotmo.pairs.earth(object$fit[[i]], x))
     pairs[order(pairs[,1], pairs[,2]),]
 }
-plotmo.y.bagEarth <- function(object, trace, naked, expected.len)
+plotmo.y.bagEarth <- function(object, trace, naked, expected.len, ...)
 {
     plotmo.y.earth(object, trace, naked, expected.len)
 }
@@ -99,7 +99,7 @@ get.plotmo.pairs.bagEarth <- function(object, env, x, trace, ...)
 {
     plotmo.pairs.bagEarth(object, x, ...)
 }
-get.plotmo.y.bagEarth <- function(object, env, y.column, expected.len, trace)
+get.plotmo.y.bagEarth <- function(object, env, y.column, expected.len, trace, ...)
 {
     plotmo.y.bagEarth(object, trace)
 }

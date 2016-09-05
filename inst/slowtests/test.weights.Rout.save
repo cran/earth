@@ -8,6 +8,7 @@ Loading required package: TeachingDemos
 Loading required package: class
 Loaded mda 0.4-9
 
+> set.seed(2016)
 > options(warn=1) # print warnings as they occur
 > check.equal <- function(x, y, msg="")
 + {
@@ -331,8 +332,8 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > a10  <- earth(y~., data=data, weights=weights,
 +               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 > plotmo(a10, col.resp=2, caption="a10", jitter=0)
- grid:    x1 x2
-           5  5
+ plotmo grid:    x1 x2
+                  5  5
 > 
 > test.zigzag <- function()
 + {
@@ -428,11 +429,11 @@ After pruning pass GRSq 0.914 RSq 0.985
 > 
 > par(mfrow=c(2,3), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8), oma=c(0,0,3,0))
 > plotmo(a.biv,  do.par=FALSE, caption="bivariate: top and bottom should be similar")
- grid:    x1        x2
-   -0.255094 0.2391128
+ plotmo grid:    x1        x2
+          -0.255094 0.2391128
 > plotmo(aw.biv, do.par=FALSE)
- grid:    x1        x2
-   -0.255094 0.2391128
+ plotmo grid:    x1        x2
+          -0.255094 0.2391128
 > 
 > # Comparison to glm and rpart
 > #

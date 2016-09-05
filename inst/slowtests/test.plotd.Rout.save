@@ -4,6 +4,7 @@
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
+> set.seed(2016)
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")

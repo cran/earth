@@ -17,6 +17,10 @@ C     in free format.
 C
 C     Latest revision - 16 August 1992
 C
+C     Stephen Milborrow 5 Sep 2016: tweaked code to eliminate warnings:
+C       Warning: Obsolescent feature: DO termination statement which is
+C       not END DO or CONTINUE with label
+C
 c___c     IMPLICIT NONE
 c___      integer npmax, dimu
 c___      parameter (npmax=50, dimu=npmax*(npmax+1)/2)
@@ -220,7 +224,8 @@ C
         THETAB(I) = ZERO
    10 CONTINUE
       DO 20 I = 1, NRBAR
-   20 RBAR(I) = ZERO
+      RBAR(I) = ZERO
+   20 END DO
       SSERR = ZERO
       RETURN
       END
@@ -413,8 +418,9 @@ C
      *            TOL, IER)
           IF (NBEST .GT. 0) THEN
             DO 10 I = JMIN, POS-1
-   10       CALL REPORT(I, RSS(I), BOUND, NVMAX, RESS, IR, NBEST, LOPT,
+            CALL REPORT(I, RSS(I), BOUND, NVMAX, RESS, IR, NBEST, LOPT,
      *            IL, VORDER)
+   10       END DO
           END IF
         END IF
    20 CONTINUE
@@ -535,7 +541,8 @@ C
       IF (IVAR .GT. 1) SSBASE= RSS(IVAR-1)
       IF (IVAR .EQ. 1) SSBASE= RSS(IVAR) + SS(1)
       DO 10 J = IVAR, LAST
-   10 WK(J) = SS(J)
+      WK(J) = SS(J)
+   10 END DO
 C
       DO 30 I = 1, NBEST
         TEMP = SSBASE - SM
@@ -721,14 +728,15 @@ C     Record new subset, and move down the other records.
 C
    90 IF (RANK .EQ. NBEST) GO TO 110
       J = NBEST - RANK
-      DO 100 I = 1, J
+      DO 101 I = 1, J
         JJ = NBEST - I
         RESS(POS,JJ+1) = RESS(POS,JJ)
         L = L0
         DO 100 K = 1, POS
           L = L + 1
           LOPT(L,JJ+1) = LOPT(L,JJ)
-  100 CONTINUE
+  100   END DO
+  101 END DO
   110 RESS(POS,RANK) = SSQ
       L = L0
       DO 120 K = 1, POS
@@ -891,7 +899,8 @@ C     I = FIRST, ..., NVMAX-1.
 C     IPT points to the current DO loop.
 C
       DO 20 I = FIRST, NVMAX
-   20 IWK(I) = LAST
+      IWK(I) = LAST
+   20 END DO
 C
 C     Innermost loop.
 C     Find best possible variable for position NVMAX from those in
@@ -918,13 +927,15 @@ C
       CALL VMOVE(NP, NRBAR, VORDER, D, RBAR, THETAB, RSS, IPT, NEWPOS,
      *           TOL, IER)
       DO 50 I = IPT, MIN(NVMAX, NEWPOS-1)
-   50 CALL REPORT(I, RSS(I), BOUND, NVMAX, RESS, IR, NBEST, LOPT, IL,
+      CALL REPORT(I, RSS(I), BOUND, NVMAX, RESS, IR, NBEST, LOPT, IL,
      *             VORDER)
+   50 END DO
 C
 C     Reset all ends of loops for I >= IPT.
 C
       DO 60 I = IPT, NVMAX
-   60 IWK(I) = NEWPOS - 1
+      IWK(I) = NEWPOS - 1
+   60 END DO
 C
 C     If residual sum of squares for all variables above position NEWPOS
 C     is greater than BOUND(I), no better subsets of size I can be found
@@ -1129,7 +1140,8 @@ C
       IF (IER .NE. 0) RETURN
 C
       DO 10 COL = 1, NP
-   10 WORK(COL) = SQRT(D(COL))
+      WORK(COL) = SQRT(D(COL))
+   10 END DO
 C
       DO 40 COL = 1, NP
 C
@@ -1232,7 +1244,8 @@ C     Set TOL(I) = sum of absolute values in column I of RBAR after
 C     scaling each element by the square root of its row multiplier.
 C
       DO 10 ROW = 1, NP
-   10 WORK(ROW) = SQRT(D(ROW))
+      WORK(ROW) = SQRT(D(ROW))
+   10 END DO
       DO 30 COL = 1, NP
       POS = COL - 1
       IF (COL .LE. NP) THEN
@@ -1319,7 +1332,8 @@ C     variable (THETAB).
 C
       SUMY = SSERR
       DO 10 ROW = 1, NP
-   10 SUMY = SUMY + D(ROW) * THETAB(ROW)**2
+      SUMY = SUMY + D(ROW) * THETAB(ROW)**2
+   10 END DO
       SUMY = SQRT(SUMY)
       POS = NP*(NP-1)/2
       DO 70 COL1 = NP, 1, -1

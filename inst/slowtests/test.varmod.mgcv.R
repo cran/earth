@@ -3,6 +3,7 @@
 # Stephen Milborrow Apr 2015 Berea
 
 library(earth)
+set.seed(2016)
 options(warn=2)
 
 printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf

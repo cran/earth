@@ -3,6 +3,7 @@
 library(earth)
 data(ozone1)
 library(mda) # for mars
+set.seed(2016)
 
 test <- function(nk, degree, use.ozone) {
     if (use.ozone) {

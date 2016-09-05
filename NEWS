@@ -1,6 +1,14 @@
 Changes to Earth Package
 ------------------------
 
+4.4.6  Sep 5, 2016
+
+  Added ... to agrument list for all plotmo.* functions
+  for compatibility with plotmo version 3.2.0 and higher.
+
+  Tweaked leaps.f to eliminate gfortran warnings about the
+  deprecated way that DO loops were terminated.
+
 4.4.5  Aug 19, 2016
 
   Fixed issue in earth.c with the latest gcc which calculates a

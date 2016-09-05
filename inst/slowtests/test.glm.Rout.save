@@ -6,6 +6,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > if(!interactive())
 +     postscript(paper="letter")
+> set.seed(2016)
 > data(ozone1)
 > data(trees)
 > data(etitanic)
@@ -255,8 +256,8 @@ ldose1         1 -30.2    8.7
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a1 
- grid:    sex ldose ldose1
-       female   0.5    0.6
+ plotmo grid:    sex ldose ldose1
+              female   0.5    0.6
 -------------------------------------------------------------------------------
 
 > printh(evimp(a1, trim=FALSE, sqrt=FALSE))
@@ -443,8 +444,8 @@ ldose1         1 -30.2    8.7
 glm params: epsilon 1e-08 maxit 2 trace TRUE family binomial link logit 
 
 plotmo a1h 
- grid:    sex ldose ldose1
-       female   0.5    0.6
+ plotmo grid:    sex ldose ldose1
+              female   0.5    0.6
 -------------------------------------------------------------------------------
 
 > check.models.equal(a1, a1g, msg="a1 a1h") # models should still be equal within numeric tolerance
@@ -561,8 +562,8 @@ ldose1         1 -30.2    8.7
 glm params: epsilon 1e-08 maxit 8 trace FALSE family binomial link probit 
 
 plotmo a1h.update1 
- grid:    sex ldose ldose1
-       female   0.5    0.6
+ plotmo grid:    sex ldose ldose1
+              female   0.5    0.6
 -------------------------------------------------------------------------------
 
 > a1h.update2 <- update(a1h, glm=list(family=gaussian, maxit=9), degree=1)
@@ -708,8 +709,8 @@ ldose1         2 -40.1    7.7
 glm params: epsilon 1e-08 maxit 9 trace FALSE family gaussian link identity 
 
 plotmo a1h.update2 
- grid:    sex ldose ldose1
-       female   0.5    0.6
+ plotmo grid:    sex ldose ldose1
+              female   0.5    0.6
 -------------------------------------------------------------------------------
 
 > 
@@ -864,8 +865,8 @@ sexmale:ldose        2 -28.1   10.3
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a2 
- grid:    sex ldose
-       female   0.5
+ plotmo grid:    sex ldose
+              female   0.5
 -------------------------------------------------------------------------------
 
 > # repeat with bpairs arg
@@ -936,8 +937,8 @@ AIC: 43.104
 Number of Fisher Scoring iterations: 4
 
 > plotmo(a3, caption="a3 <- glm(SF ~ sex * ldose, family=\"binomial\")")
- grid:    sex ldose
-       female   0.5
+ plotmo grid:    sex ldose
+              female   0.5
 > cat("-------------------------------------------------------------------------------\n\n")
 -------------------------------------------------------------------------------
 
@@ -1074,8 +1075,8 @@ sexmale:ldose-unused        0   0.0    0.0
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a4 
- grid:    sex ldose
-       female   0.5
+ plotmo grid:    sex ldose
+              female   0.5
 -------------------------------------------------------------------------------
 
 > print.stripped.earth.model(a4, "a4")
@@ -1469,8 +1470,8 @@ sexmale         4  34.4   41.7
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a5 
- grid:    survived    sex age sibsp parch
-                 0 female  28     0     0
+ plotmo grid:    survived    sex age sibsp parch
+                        0 female  28     0     0
 -------------------------------------------------------------------------------
 
 > printh(a5$levels)
@@ -2055,8 +2056,8 @@ sexmale-unused        0   0.0    0.0
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a6 
- grid:    survived    sex age sibsp parch
-                 0 female  28     0     0
+ plotmo grid:    survived    sex age sibsp parch
+                        0 female  28     0     0
 -------------------------------------------------------------------------------
 
 > printh(a6$levels) # expect levels to be NULL
@@ -2597,8 +2598,8 @@ pclass2nd        1  12.1   14.5
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a7 
- grid:    pclass survived age sibsp parch
-             1st        0  28     0     0
+ plotmo grid:    pclass survived age sibsp parch
+                    1st        0  28     0     0
 -------------------------------------------------------------------------------
 
 > printh(a7$levels)
@@ -3229,8 +3230,8 @@ treatment3-unused        0   0.0    0.0
 glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a8p 
- grid:    outcome treatment
-                1         1
+ plotmo grid:    outcome treatment
+                       1         1
 -------------------------------------------------------------------------------
 
 > # build a standard GLM model for comparison
@@ -3271,8 +3272,8 @@ AIC: 56.761
 Number of Fisher Scoring iterations: 4
 
 > plotmo(a9, grid.levels=list(outcome="2"), caption="a9 <- glm(counts ~ outcome + treatment, family=\"poisson\")")
- grid:    outcome treatment
-                2         1
+ plotmo grid:    outcome treatment
+                       2         1
 > 
 > # two response poisson model
 > cat("a10: two response poisson model\n\n")
@@ -3406,8 +3407,8 @@ treatment3-unused        0   0.0    0.0
 glm params: epsilon 1e-08 maxit 25 trace FALSE family poisson link log 
 
 plotmo a10 
- grid:    outcome treatment
-                1         1
+ plotmo grid:    outcome treatment
+                       1         1
 -------------------------------------------------------------------------------
 
 > 
@@ -4013,8 +4014,8 @@ sexmale        1  23.3   22.7
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo aref 
- grid:    sex ldose
-       female   0.5
+ plotmo grid:    sex ldose
+              female   0.5
 -------------------------------------------------------------------------------
 
 > 
@@ -4144,8 +4145,8 @@ sexmale        1  23.3   22.7
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
- grid:    sex ldose
-       female   0.5
+ plotmo grid:    sex ldose
+              female   0.5
 -------------------------------------------------------------------------------
 
 > check.models.equal(aref, a21, msg="aref a21")
@@ -4277,8 +4278,8 @@ sex          1  23.3   22.7
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a21 
- grid:    sex ldose
-          1.5   0.5
+ plotmo grid:    sex ldose
+                 1.5   0.5
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -4411,8 +4412,8 @@ sex          1  23.3   22.7
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a22 
- grid:    sex ldose
-          1.5   0.5
+ plotmo grid:    sex ldose
+                 1.5   0.5
 -------------------------------------------------------------------------------
 
 > # TODO does not match because different conversion of factor with cbind and earth, revisit
@@ -8496,8 +8497,8 @@ ccc-unused        0   0.0    0.0
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a.intercept.only 
- grid:    bbb        ccc
-    0.3547735 0.06386657
+ plotmo grid:    bbb        ccc
+           0.3547735 0.06386657
 -------------------------------------------------------------------------------
 
 > cat("\nsummary(a.intercept.only, details=TRUE)\n\n", sep="")
@@ -8823,8 +8824,8 @@ ccc-unused        0   0.0    0.0
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a.intercept.pruned 
- grid:    bbb        ccc
-    0.3547735 0.06386657
+ plotmo grid:    bbb        ccc
+           0.3547735 0.06386657
 -------------------------------------------------------------------------------
 
 > 

@@ -1,6 +1,7 @@
 # test.varmod.R
 
 library(earth)
+set.seed(2016)
 options(warn=2)
 expect.err <- function(obj) # test that we got an error as expected from a try() call
 {

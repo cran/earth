@@ -4,7 +4,7 @@
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> 
+> set.seed(2016)
 > options(digits=4)
 > options(warn=1)
 > if(!interactive())
@@ -145,7 +145,7 @@ Loading required package: TeachingDemos
 +             # following is to always produce a plot so diffps ok in test.mods.bat
 +             (!interactive() && itest == 1 && nrow(x) == 100)) {
 +         caption <- sprintf("TEST %g%s n %d p %d %-.20s nk %g deg %g grsq %.2f test.rsq %.2f",
-+                     itest, if(collinear.x2) " col.x2" else "", nrow(x), ncol(x), 
++                     itest, if(collinear.x2) " col.x2" else "", nrow(x), ncol(x),
 +                     deparse(substitute(func)), nk, degree, mod$grsq, test.rsq)
 +         # plotmo(mod, trace=-1, pt.col="red", pt.cex=.8, caption=caption,
 +         #        cex.caption=if(npreds<=2) .7 else .9)
@@ -554,7 +554,7 @@ Loading required package: TeachingDemos
 +     }
 +     if(n > 100) { # need many points (Meinshausen paper uses 1000)
 +         sin.sin.noise <- function(x)
-+         {                      
++         {
 +             # we use less noise than the paper because we only have a max of 300 points
 +             sin(pi * x[,1]) * sin(pi * x[,2]) + rnorm(nrow(x), sd=.25)
 +         }

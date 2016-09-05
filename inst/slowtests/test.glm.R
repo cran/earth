@@ -3,6 +3,7 @@
 library(earth)
 if(!interactive())
     postscript(paper="letter")
+set.seed(2016)
 data(ozone1)
 data(trees)
 data(etitanic)

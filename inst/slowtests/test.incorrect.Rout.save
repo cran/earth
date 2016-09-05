@@ -5,7 +5,7 @@
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> 
+> set.seed(2016)
 > options(digits=4)
 > options(warn=1)
 > if(!interactive())
