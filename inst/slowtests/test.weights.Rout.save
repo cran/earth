@@ -451,7 +451,7 @@ After pruning pass GRSq 0.914 RSq 0.985
 > library(gam)
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.12
+Loaded gam 1.14
 
 > library(rpart)
 > n <- 100

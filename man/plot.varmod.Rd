@@ -1,6 +1,6 @@
 \name{plot.varmod}
 \alias{plot.varmod}
-\title{Plot a varmod object}
+\title{Plot a varmod object (created by calling earth with the varmod argument)}
 \description{
 Plot a variance model (a \code{varmod} object).
 

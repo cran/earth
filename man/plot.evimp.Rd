@@ -1,6 +1,6 @@
 \name{plot.evimp}
 \alias{plot.evimp}
-\title{Plot an "evimp" object}
+\title{Plot an evimp object (created by the evimp function)}
 \description{
     Plot an \code{\link{evimp}} object.
 }

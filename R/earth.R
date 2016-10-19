@@ -192,7 +192,7 @@ earth.default <- function(
                                    c("none", VARMOD.METHODS), "varmod.method")
     check.cv.args(ncross, nfold, pmethod, varmod.method)
     pmethod1 <- pmethod
-    update.earth.called.me <- !is.null(dot("Object", DEF=NULL, ...))
+    update.earth.called.me <- !is.null(dota("Object", DEF=NULL, ...))
     if(pmethod == "cv" && !update.earth.called.me) {
         trace1(trace,
 "=== pmethod=\"cv\": Preliminary model with pmethod=\"backward\" ===\n")
@@ -406,7 +406,7 @@ earth.formula <- function(
                                    c("none", VARMOD.METHODS), "varmod.method")
     check.cv.args(ncross, nfold, pmethod, varmod.method)
     pmethod1 <- pmethod
-    update.earth.called.me <- !is.null(dot("Object", DEF=NULL, ...))
+    update.earth.called.me <- !is.null(dota("Object", DEF=NULL, ...))
     if(pmethod == "cv" && !update.earth.called.me) {
         trace1(trace,
 "=== pmethod=\"cv\": Preliminary model with pmethod=\"backward\" ===\n")

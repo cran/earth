@@ -1,19 +1,5 @@
 # dotlib.R: miscellaneous functions for the dots routines
 
-is.try.err <- function(object) class(object)[1] == "try-error"
-
-# collapse, and truncate if strings in ... are too long
-paste.trunc <- function(..., sep=" ", collapse=" ", maxlen=60)
-{
-    s <- paste(..., sep=sep, collapse=collapse)
-    if(nchar(s) > maxlen) {
-        stopifnot(maxlen > 3)
-        s <- paste0(substr(s, 1, maxlen-3),
-                    if(substr(s, maxlen-3, maxlen-3) == ".") ".." # avoid 4 dots
-                    else                                     "...")
-    }
-    s
-}
 # Add the elements of the extra list to the original list.  Elements of the
 # original list that have the same names as extra elements get overwritten.
 #

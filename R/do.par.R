@@ -17,7 +17,7 @@ do.par <- function(..., nfigs, caption, main1, xlab1, ylab1, trace,
     # cex=1 to plotmo causes no changes, and cex=.8 always makes things smaller).
     # TODO cex.axis etc. should be treated in the same way
     # TODO consider moving this into the dotargs functions, also extend for cex.axis, cex.main
-    plain.old.cex <- dot("cex", DEF=1, ...)
+    plain.old.cex <- dota("cex", DEF=1, ...)
     check.numeric.scalar(plain.old.cex)
     cex <- if(nrows == 1)      1
            else if(nrows == 2) .83
@@ -26,15 +26,15 @@ do.par <- function(..., nfigs, caption, main1, xlab1, ylab1, trace,
 
     # set oma to make space for caption if necessary
     stopifnot.string(caption, allow.empty=TRUE, null.ok=TRUE)
-    def.oma <- dot("oma", ...)
+    def.oma <- dota("oma", ...)
     if(!is.specified(def.oma)) {
         def.oma <- par("oma")
         def.oma[3] <- max(def.oma[3], # .333 to limit cex adjustmment
                           2 + (plain.old.cex^.333 * nlines(caption)))
     }
-    cex.lab <- dot("cex.lab",
-                   # make the labels small if multiple figures
-                   DEF=if(def.cex.main < 1) .8 * def.cex.main else 1, ...)
+    cex.lab <- dota("cex.lab",
+                    # make the labels small if multiple figures
+                    DEF=if(def.cex.main < 1) .8 * def.cex.main else 1, ...)
 
     mgp <- # compact title and axis annotations
         if(cex.lab < .6)      c(1,   0.2,  0)
@@ -88,7 +88,7 @@ do.par.dots <- function(..., trace=0)
         arg <- list(par(dotname))
         names(arg) <- dotname
         oldpar <- append(oldpar, arg)
-        dot.org <- dot(dotname, ...)
+        dot.org <- dota(dotname, ...)
         dot <- try(eval(dot.org, envir=env, enclos=env), silent=TRUE)
         if(is.try.err(dot))
             dot <- dot.org
@@ -152,10 +152,10 @@ draw.caption <- function(caption, ...)
 {
     if(!is.null(caption) && any(nzchar(caption))) {
         # allow use of dot args for caption specs
-        cex  <- dot("caption.cex  cex.caption",  DEF=1, NEW=1, ...)
-        font <- dot("caption.font font.caption", DEF=1, NEW=1, ...)
-        col  <- dot("caption.col  col.caption",  DEF=1, NEW=1, ...)
-        line <- dot("caption.line", DEF=1, ...)
+        cex  <- dota("caption.cex  cex.caption",  DEF=1, NEW=1, ...)
+        font <- dota("caption.font font.caption", DEF=1, NEW=1, ...)
+        col  <- dota("caption.col  col.caption",  DEF=1, NEW=1, ...)
+        line <- dota("caption.line", DEF=1, ...)
         # trim so caption fits
         # strwidth doesn't have units of device coords so work with usr coords
         # TODO the algorithm below is not quite correct

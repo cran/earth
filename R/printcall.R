@@ -91,9 +91,9 @@ fname.from.call <- function(call) # call was obtained using sys.call() or simila
         caller <- format(caller)
     }
     if(grepl("function (", substr(caller[1], 1, 10), fixed=TRUE))
-        paste0("function(", paste.trunc(strip.space(substring(caller, 11))), ")")
+        paste0("function(", paste.trunc(strip.space.collapse(substring(caller, 11))), ")")
     else
-        paste.trunc(strip.space(caller))
+        paste.trunc(strip.space.collapse(caller))
 }
 # if EVAL is FALSE this will print something like xlim=..1, ylim=..2
 # TODO add n arg when match.call is fixed (R version 3.2.1)

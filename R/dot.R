@@ -1,10 +1,44 @@
 # dot.R: functions to access dot arguments
 # Stephen Milborrow Mar 2015 Durban
 #
-# TODO when match.call is fixed (R 3.2.1), remove the dots arg in all these funcs
-#      i.e. use the parent's dots
+# TODO when match.call is fixed (R 3.2.1), remove the dots arg in all
+#      these funcs i.e. use the parent's dots
+#-----------------------------------------------------------------------------
 
-dot <- function(ARGNAME, ..., DEF=NA, EX=TRUE, NEW=NA)
+# dota() returns the value of the arg in dots that matches ARGNAME.
+# Returns DEF if no match (default is NA).
+# Issues an error message if multiple dot arguments match ARGNAME.
+#
+# ARGNAME must specify the full argument name (not abbreviated).
+# ARGNAME can be a vector of argument names.  Example:
+#     dotarg(c("name1", "name2"), ...)
+# First we look for a dot arg matching the first name in the ARGNAME vector.
+# If that fails we look for a match against the second name.  And so on
+# for further names in ARGNAME.  If nothing matches, DEFAULT is returned.
+# EXACT can also be a vector, with elements corresponding to the elements
+# of ARGNAME.  Example:
+#     dotarg(c("name1", "name2"), ..., EXACT=c(FALSE, TRUE))
+#
+# Common mistake: Using dotarg(xlab, ...) instead of dotarg("xlab", ...).
+# The former usually causes the error message: object 'xlab' not found.
+#
+# If EX is TRUE then the name in dots must match ARGNAME exactly.
+# If EX is FALSE match partial names in dots against ARGNAME following the
+# standard R argname matching rules ("Argument Matching" in the R Language
+# Definition).  But here were are matching against only a single "formal"
+# argument name, instead of all formal argnames simultaneously.
+#
+# NEW is currently unused (but will be for processing deprecated args).
+# "NEW" is used instead of say "DEP" (for deprecated) so it is easily
+# distinguishable from "DEF".
+#
+# Note that this function invokes eval to force the argument promise.
+# The uppercase formal argnames prevent aliasing with names in dots.
+#
+# TODO I wanted to call this function dot but in base R there is
+#      already a function dot (plotmath).
+
+dota <- function(ARGNAME, ..., DEF=NA, EX=TRUE, NEW=NA)
 {
     dots <- drop.unnamed.dots(match.call(expand.dots=FALSE)$...)
     argname <- process.argname(ARGNAME)
@@ -16,32 +50,29 @@ dot <- function(ARGNAME, ..., DEF=NA, EX=TRUE, NEW=NA)
             if(is.try.err(argval))
                 stop0("cannot evaluate '", argname[i], "'")
             dotname <- names(dots)[idot]
-
             # TODO following commented out until we want to start
             #      issuing deprecated messages for earth and plotmo
-            #
-            # # the grepl prevents a warning if user uses say a dot arg of
-            # # plain 'col' when ARGNAME="pt.col col.pt col"
-            # if(is.specified(new) && argname[i] != new && grepl("\\.", dotname))
-            #     warning0("'", dotname,
-            #              "' is deprecated,  please use '", new, "' instead")
-
+            # maybe.deprecate.arg(dotname, new, argname[i])
             return(argval)
         }
     DEF
 }
-# Like dot() but default is existing value of ARGNAME.
-# For example, dotd("xlab", ...) is equivalent to dot("xlab", DEF=xlab, ...).
+# Like dota() but default is existing value of ARGNAME.
+# For example, dotd("xlab", ...) is equivalent to dota("xlab", DEF=xlab, ...).
 # TODO add to test suite
+
 dotd <- function(ARGNAME, ..., EX=TRUE)
 {
     if(is.dot("DEF", ...))
         stop0("'DEF' cannot be used with dotd")
     if(is.dot(ARGNAME, ..., EX=EX))
-        dot(ARGNAME, ..., EX=EX)
+        dota(ARGNAME, ..., EX=EX)
     else # use the current value of ARGNAME as the default
         eval(as.name(ARGNAME), parent.frame(1))
 }
+# Does a dot argument match ARGNAME?  Return TRUE or FALSE, never NA.
+# Issue an error message if there are multiple matches.
+
 is.dot <- function(ARGNAME, ..., EX=TRUE)
 {
     dots <- drop.unnamed.dots(match.call(expand.dots=FALSE)$...)
@@ -52,6 +83,10 @@ is.dot <- function(ARGNAME, ..., EX=TRUE)
             return(TRUE)
     FALSE
 }
+# Return the index of the dot argname that matches ARGNAME.
+# Return NA if no dot argument matches ARGNAME.
+# Issue an error message if there are multiple matches.
+
 dotindex <- function(ARGNAME, ..., EX=TRUE)
 {
     dots <- drop.unnamed.dots(match.call(expand.dots=FALSE)$...)
@@ -153,4 +188,15 @@ dotindex.aux <- function(argname, dots, exact=FALSE) # workhorse
     # e.g. arguments 'a' and 'ab' both match 'abc' in foo()
     stop0("arguments '", name1, "' and '", name2,
          "' both match '", argname, "' in ", caller)
+}
+maybe.deprecate.arg <- function(dotname, new, argname)
+{
+    if(is.specified(new) && argname != new) {
+        # require.period prevents a warning if user uses say a
+        # dot arg of plain 'col' when ARGNAME="pt.col col.pt col"
+        require.period <- grepl("\\.", argname)
+        if(!require.period || grepl("\\.", dotname))
+            warning0("'", dotname,
+                     "' is deprecated, please use '", new, "' instead")
+    }
 }

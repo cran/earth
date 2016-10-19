@@ -3,6 +3,8 @@
 \title{Format earth objects}
 \description{
 Return a string representing an \code{\link{earth}} expression.
+(\code{\link{summary.earth}} calls this function internally to
+display the terms of the \code{earth} model).
 }
 \usage{
 \method{format}{earth}(x = stop("no 'x' argument"),
@@ -99,7 +101,7 @@ cat(format(lm.mod, colon.char="*"))
 }
 }
 \seealso{
-  \code{\link{earth}},
+  \code{\link{summary.earth}},
   \code{\link{pmax}},
 }
 \examples{

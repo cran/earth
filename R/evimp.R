@@ -207,7 +207,7 @@ plot.evimp <- function(
         mar[4] <- mar[4] + 3                                # right margin
         par(mar=mar) # big bottom and right margins
     }
-    main <- dot("main", DEF="Variable importance", ...)
+    main <- dota("main", DEF="Variable importance", ...)
     if(max.subsets == 0) {
         plot(1, ylim=c(0, 1), type=type.nsubsets, # intercept-only model, dummy plot
              xlab="", xaxt="n", ylab="nsubsets",

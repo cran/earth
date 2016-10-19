@@ -1,15 +1,31 @@
 # call.dots.R: functions to handle prefixed dot arguments
+#
+# This file provides support for "prefixed" dot arguments.  For example in
+# plotmo(), the user can specify predict.foo=3 as a dots argument.  From
+# the prefix, plotmo recognizes that the argument is for predict, and
+# passes the argument to predict as foo=3.
+#-----------------------------------------------------------------------------
+
+# call.dots calls function FUNC with special processing of the dot arguments.
+#
+# It drops all args in dots matching DROP except those matching
+# PREFIX and FORMALS, then passes the remaining dot args to function FUNC.
+# By default FORMALS is the formal arguments of FUNC.
+#
+# If argname is prefixed with "force." then ignore any such arg in dots.
+# Any argname prefixed with "def." can be overridden by a user arg in dots.
 
 call.dots <- function(
-    FUNC     = NULL,
+    FUNC     = NULL,  # the function to call
     ...,
-    PREFIX   = NULL,
-    DROP     = "*",
+    PREFIX   = NULL,  # default NULL means no prefix
+    DROP     = "*",   # default drops everything except args matching PREFIX
     KEEP     = "PREFIX",
-    TRACE    = 0,
+    TRACE    = 0,     # for debugging
     FNAME    = if(is.character(FUNC)) FUNC
                else trunc.deparse(substitute(FUNC)),
-    FORMALS  = NULL,  # formal args of FUNC (needed because CRAN doesn't allow :::)
+    FORMALS  = NULL,  # formal args of FUNC (NULL means get automatically, but
+                      # can't always do that because because CRAN doesn't allow :::)
     SCALAR   = FALSE, # see argument "scalar" in eval.dotlist
     CALLARGS = NULL,
     CALLER   = NULL)
@@ -30,13 +46,16 @@ call.dots <- function(
 
     do.call.trace(FUNC, args, FNAME, trace=TRACE)
 }
+# A version of call.dots specialized for calling plotting functions.
+# This drops all args in dots except those matching PREFIX and PLOT.ARGS.
+
 call.plot <- function(
-    FUNC    = NULL,
+    FUNC    = NULL,  # same as call.dots
     ...,
-    PREFIX  = NULL,
-    TRACE   = 0,
-    FORMALS = NULL,
-    SCALAR  = FALSE)
+    PREFIX  = NULL,  # if not specified, match only PLOT.ARGS
+    TRACE   = 0,     # same as call.dots
+    FORMALS = NULL,  # same as call.dots
+    SCALAR  = FALSE) # same as call.dots
 {
     fname <- trunc.deparse(substitute(FUNC))
     callargs <- callargs(call.plot)
@@ -75,7 +94,7 @@ deprefix <- function(
                         callargs=CALLARGS, include.standard.prefixes=TRUE)
     dots <- match.call(expand.dots=FALSE)$...
     trace.prolog(TRACE, PREFIX, DROP, KEEP, dots, higher.caller)
-    stopif.unamed.dot(dots, higher.caller, ...)
+    stopif.unnamed.dot(dots, higher.caller, ...)
     org.dots <- dots
     if(!is.null(DROP))
         dots[grep(DROP, names(dots))] <- NULL
@@ -406,7 +425,7 @@ higher.call.args <- function(..., CALLX, FNAME)
     list.as.char(args)
 }
 # used only for tracing and error messages
-# TODO simplify this and friends when match.call is working (R 3.2.1)
+# TODO simplify this and friends when match.call is working (R 3.2.0)
 higher.caller.to.deprefix <- function(..., FNAME=FNAME)
 {
     # search the stack looking for org caller of prefix e.g. call.plot
@@ -531,7 +550,7 @@ paste.drop <- function(prefix, s, drop) {
     else
         paste0(prefix, ",", drop)
 }
-stopif.unamed.dot <- function(dots, higher.caller, ...) # called from deprefix()
+stopif.unnamed.dot <- function(dots, higher.caller, ...) # called from deprefix()
 {
     which <- which(names(dots) == "")
     if(length(which)) {

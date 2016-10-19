@@ -603,7 +603,7 @@ test.two.responses <- function(itest, func1, func2,
     cat("itest", sprintf("%-3d", itest), funcnames,
         " degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk), "\n\n")
     gc()
-    fite <- earth(data.global[,c(-1,-2), drop=FALSE], data.global[,1:2],
+    fite <- earth(x=data.global[,c(-1,-2), drop=FALSE], y=data.global[,1:2],
                 degree=degree, trace=trace, nk=nk, pmethod=pmethod, minspan=minspan)
     printh(fite)
     caption <- paste("itest ", itest, ": ", funcnames, " degree=", degree, " nk=", nk, sep="")

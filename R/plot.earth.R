@@ -58,8 +58,8 @@ plot.earth <- function(x = stop("no 'x' argument"),
     remove(x) # prevent confusion with the x matrix
     check.classname(object, substitute(object), "earth")
 
-    npoints  <- dot("nresiduals", DEF=npoints,  ...) # back compat
-    col.rsq  <- dot("col.line",   DEF=col.rsq,  ...)
+    npoints  <- dota("nresiduals", DEF=npoints,  ...) # back compat
+    col.rsq  <- dota("col.line",   DEF=col.rsq,  ...)
 
     plotmo::plotres(object=object, which=which, info=info, versus=versus,
         standardize=standardize, delever=delever, level=level,
@@ -135,7 +135,7 @@ plot.earth.models <- function(
         col.rsq <- if(is.null(col.grsq)) col.rsq else col.grsq
     if(is.null(col.npreds))
         col.npreds <- if(is.null(col.grsq)) col.rsq else col.grsq
-    cum.col1 <- dot("cum.col col.cum pt.col col", ...)
+    cum.col1 <- dota("cum.col col.cum pt.col col", ...)
     if(!is.specified(cum.col1))
         cum.col1 <- if(!is.specified(col.grsq)) col.rsq else col.grsq
     if(show[1] && col.grsq[1] == 0 && col.rsq[1] == 0)
@@ -157,7 +157,7 @@ plot.earth.models <- function(
     # can only display it later after at least one plot
     if(is.null(caption))
         caption <- ""
-    main <- dot("main", DEF="Model Comparison", ...)
+    main <- dota("main", DEF="Model Comparison", ...)
     if(do.par) {
         oldpar <- par(no.readonly=TRUE)
         do.par(nfigs=length(which), caption=caption, main1=main,
@@ -172,7 +172,7 @@ plot.earth.models <- function(
     }
     max.npreds <- 1
     max.nterms <- 1
-    ylim <- dot("ylim", DEF=c(0,1), ...)
+    ylim <- dota("ylim", DEF=c(0,1), ...)
     for(imodel in seq_along(objects)) {
         object <- objects[[imodel]]
         check.classname(object, objects[[imodel]], "earth")
@@ -183,7 +183,7 @@ plot.earth.models <- function(
                           get.nused.preds.per.subset(object$dirs, object$prune.terms))
         max.nterms <- max(max.nterms, length(object$rss.per.subset))
     }
-    legend.col <- dot("legend.col col.legend", EX=c(0,1), DEF=1, NEW=1, ...)
+    legend.col <- dota("legend.col col.legend", EX=c(0,1), DEF=1, NEW=1, ...)
     if(show[1]) {
         if(is.null(object$residuals)) # probably a model from object$cv.list
             stop0("earth object has no $residuals field.\n",
@@ -315,7 +315,7 @@ draw.earth.models.legend <- function(
         if(col.rsq[1] != 0)
             legend.text <- c(legend1, paste("GRSq", legend.text))
     }
-    legend.pos <- dot("legend.pos", DEF=NULL, ...)
+    legend.pos <- dota("legend.pos", DEF=NULL, ...)
     if(is.null(legend.pos)) { # auto?
         legend.x <- "bottomright"
         legend.y <- NULL
@@ -746,7 +746,7 @@ earth_plotmodsel <- function(
     #--- earth_plotmodsel starts here ---
     object <- x
     remove(x) # prevent confusion with the x matrix
-    main <- dot("main", ...)
+    main <- dota("main", ...)
     if(!is.specified(main))
         main <- if(NCOL(object$residuals) > 1) "Model Selection (all responses)"
                 else                           "Model Selection"
@@ -766,9 +766,9 @@ earth_plotmodsel <- function(
     if(!is.specified(lty.rsq))    col.rsq <- 0
     if(!is.specified(lty.npreds)) col.npreds <- 0
     if(!is.specified(lty.vline))  col.vline <- 0
-    grid.col <- dot("grid.col col.sel.grid", ...)
+    grid.col <- dota("grid.col col.sel.grid", ...)
     ylim <- get.model.selection.ylim(object,
-                ylim=dot("ylim", DEF=NULL, ...), col.grsq=1, col.rsq,
+                ylim=dota("ylim", DEF=NULL, ...), col.grsq=1, col.rsq,
                 col.mean.oof.rsq, col.oof.rsq, col.mean.infold.rsq, col.infold.rsq)
     possibly.issue.cv.warning()
     if(is.null(object$cv.oof.rsq.tab)) # if no cv data available, force no display of cv data
@@ -801,7 +801,7 @@ earth_plotmodsel <- function(
             on.exit(par(mar=old.mar))
             par(mar=c(old.mar[1:3], 3.5))
         }
-        xlim <- get.model.selection.xlim(object, dot("xlim", ...),
+        xlim <- get.model.selection.xlim(object, dota("xlim", ...),
                     mean.oof.rsq.per.subset, col.mean.oof.rsq, col.oof.vline)
         # set up so vertical scale is 0..1, horizontal is 0..nterms.on.horiz.axis
         plot(0:nterms.on.horiz.axis,
@@ -851,7 +851,7 @@ lty.as.char <- function(lty)
 }
 get.earth.legend.cex <- function(legend.text, min.width=.4, min.cex=.4, ...)
 {
-    cex <- dot("legend.cex cex.legend", EX=c(0,1), NEW=1, ...)
+    cex <- dota("legend.cex cex.legend", EX=c(0,1), NEW=1, ...)
     if(is.na(cex)) {
         longest.text <- legend.text[which.max(strwidth(legend.text))]
         longest.text <- paste0("AAAAAA ", longest.text) # incorporate line on left of legend

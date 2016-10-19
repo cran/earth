@@ -1311,7 +1311,7 @@ plot.varmod <- function(
     if(length(which) > 1 && do.par && is.null(caption)) # auto caption?
         caption <- sprintf("Variance Model  method=\"%s\"\nParentMod: %s",
                            object$method, strip.deparse(object$parent$call))
-    main <- dot("main", ...)
+    main <- dota("main", ...)
     if(do.par) {
         oldpar <- par(no.readonly=TRUE)
         do.par(nfigs=length(which), caption=caption, main1=main,
