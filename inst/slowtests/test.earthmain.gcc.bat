@@ -24,7 +24,7 @@
 @echo Modifying path for 32 bit Rtools and R
 @set PATH=C:\Rtools\mingw_32\bin;^
 C:\Rtools\bin;^
-C:\Program Files\R\R-3.3.1\bin\i386;^
+C:\Program Files\R\R-3.3.2\bin\i386;^
 C:\Program Files\gs\gs9.19\bin;^
 %PATH%
 :donesetpath

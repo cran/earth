@@ -46,8 +46,8 @@ predict.earth <- function(
                     fit[,i] = predict.glm(object$glm.list[[i]], type=type)
             }
         } else { # user supplied newdata
-            bx <- model.matrix.earth(object, newdata, env=parent.frame(),
-                    trace=trace,
+            bx <- model.matrix.earth(object, newdata, trace=trace,
+                    Env=parent.frame(),
                     Callers.name="model.matrix.earth from predict.earth")
             if(trace >= 1) {
                 print_summary(bx, "predict.earth: bx", trace=2)
@@ -62,7 +62,7 @@ predict.earth <- function(
                 fit <- matrix(0, nrow=nrow(bx),
                                  ncol=ncol(object$fitted.values))
                 colnames(fit) <- colnames(object$fitted.values)
-                bx <- eval(bx[,-1, drop=FALSE], env) # -1 to drop intercept
+                bx <- eval(bx[,-1, drop=FALSE], envir=parent.frame()) # -1 to drop intercept
                 bx.data.frame <- as.data.frame(bx)
                 for(i in seq_along(object$glm.list)) {
                     fit[,i] = predict.glm(object$glm.list[[i]],
@@ -82,8 +82,8 @@ predict.earth <- function(
     {
         if(!is.null(object$glm.list))
             warning0("predict.earth: returning the earth (not glm) terms")
-        bx <- model.matrix.earth(object, x=newdata, env=env,
-                                 trace=trace, Callers.name="predict.earth")
+        bx <- model.matrix.earth(object, x=newdata, trace=trace,
+                                 Env=env, Callers.name="predict.earth")
         dirs <- object$dirs[object$selected.terms, , drop=FALSE]
         # retain only additive terms
         additive.terms <- get.degrees.per.term(dirs) == 1
@@ -108,6 +108,13 @@ predict.earth <- function(
     warn.if.dots(...)
     trace <- as.numeric(check.numeric.scalar(trace, logical.ok=TRUE))
     env <- parent.frame() # the environment from which predict.earth was called
+
+    # if(!missing(type) && length(type) > 1)
+    #     # TODO hack for pdp
+    #     if(type[1] == "prob") {
+    #         type <- "response"
+    #         cat("changed type from \"prob\" to \"response\"\n")
+    #     }
     fit <- switch(match.arg1(type, "type"),
         "link"     = get.predicted.response(object, newdata, "link"),
         "response" = get.predicted.response(object, newdata, "response"),

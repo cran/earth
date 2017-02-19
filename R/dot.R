@@ -159,7 +159,7 @@ dotindex.aux <- function(argname, dots, exact=FALSE) # workhorse
 
     caller <- callers.name(n=2)
     index <- which(argname == names(dots))
-    if (length(index) > 1)  # multiple exact matches?
+    if(length(index) > 1)  # multiple exact matches?
         stop0("argument '", argname, "' for ", caller, "() is duplicated")
     if(length(index) == 0)  # no exact match
         index <- NA

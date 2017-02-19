@@ -50,7 +50,8 @@ void ForwardPassR(              // for use by R
     const int* pnUseBetaCache,     // in: 1 to use the beta cache, for speed
     const double* pTrace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char* sPredNames[],      // in: predictor names in trace printfs, can be MyNull
-    const SEXP MyNull);            // in: trick to avoid R check warnings on passing R_NilValue
+    const double* MyNullDouble,    // in: trick to avoid R check warnings on passing R_NilValue
+    const SEXP MyNullFunc);        // in: ditto
 
 void EvalSubsetsUsingXtxR(      // for use by R
     double        PruneTerms[], // out: specifies which cols in bx are in best set

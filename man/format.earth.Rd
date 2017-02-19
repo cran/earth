@@ -2,7 +2,7 @@
 \alias{format.earth}
 \title{Format earth objects}
 \description{
-Return a string representing an \code{\link{earth}} expression.
+Return a string representing an \code{\link{earth}} expression
 (\code{\link{summary.earth}} calls this function internally to
 display the terms of the \code{earth} model).
 }
@@ -19,7 +19,7 @@ display the terms of the \code{earth} model).
   \item{style}{
     Formatting style. One of\cr
 \code{"h"} (default) more compact\cr
-\code{"pmax"} for those who prefer it and for compatibility with old versions of earth\cr
+\code{"pmax"} for those who prefer it\cr
 \code{"max"} is the same as \code{"pmax"} but prints \code{max} rather than \code{pmax}\cr
 \code{"C"} C style expression with zero based indexing\cr
 \code{"bf"} basis function format
@@ -114,7 +114,7 @@ cat(format(earth.mod))
 #    +   7.4 * h(Girth-16)
 #    + 0.484 * h(Height-75)
 
-cat(format(earth.mod, style="pmax")) # default formatting style prior to earth version 1.4
+cat(format(earth.mod, style="pmax"))
 
 # yields:
 #    37.9

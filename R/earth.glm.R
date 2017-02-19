@@ -192,7 +192,7 @@ get.glm.family <- function(family, env)
         family <- get(family, mode="function", envir=env)
     if(is.function(family))
         family <- family()
-    if(is.null(family$family))
+    if(!inherits(family, "family") || is.null(family$family))
         stop0("earth: illegal 'family' in 'glm' argument\n",
               try.something.like)
     family

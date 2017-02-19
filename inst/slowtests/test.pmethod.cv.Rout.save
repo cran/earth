@@ -79,7 +79,7 @@ pmethod="backward" would have selected:
 print(summary(a101.form))
 > print(summary(a101.form))
 Call: earth(formula=survived~., data=etitanic, pmethod="cv", trace=1, degree=2,
-            ncross=3, nfold=2)
+            nfold=2, ncross=3)
 
                        coefficients
 (Intercept)                 1.02230
@@ -271,7 +271,7 @@ pmethod="backward" would have selected:
 print(summary(a101.xy)
 > print(summary(a101.xy))
 Call: earth(x=etitanic.except.survived, y=survived, pmethod="cv", trace=1,
-            degree=2, ncross=2, nfold=2)
+            degree=2, nfold=2, ncross=2)
 
                        coefficients
 (Intercept)                 1.02510

@@ -43,7 +43,7 @@ Loading required package: TeachingDemos
 > 
 > library(mgcv)
 Loading required package: nlme
-This is mgcv 1.8-15. For overview type 'help("mgcv-package")'.
+This is mgcv 1.8-16. For overview type 'help("mgcv-package")'.
 > 
 > for(varmod.method in c("gam", "x.gam")) {
 + 
@@ -83,7 +83,7 @@ This is mgcv 1.8-15. For overview type 'help("mgcv-package")'.
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -163,7 +163,7 @@ response values in prediction interval   77     90     97     97
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764

@@ -21,7 +21,7 @@ See the package vignette
    na.action = na.fail,
    pmethod = c("backward", "none", "exhaustive", "forward", "seqrep", "cv"),
    keepxy = FALSE, trace = 0, glm = NULL, degree = 1, nprune = NULL,
-   ncross=1, nfold=0, stratify=TRUE,
+   nfold=0, ncross=1, stratify=TRUE,
    varmod.method = "none", varmod.exponent = 1,
    varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
    Scale.y = (NCOL(y)==1), \dots)
@@ -31,7 +31,7 @@ See the package vignette
     na.action = na.fail,
     pmethod = c("backward", "none", "exhaustive", "forward", "seqrep", "cv"),
     keepxy = FALSE, trace = 0, glm = NULL, degree = 1, nprune = NULL,
-    ncross=1, nfold=0, stratify=TRUE,
+    nfold=0, ncross=1, stratify=TRUE,
     varmod.method = "none", varmod.exponent = 1,
     varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
     Scale.y = (NCOL(y)==1), \dots)
@@ -68,7 +68,7 @@ For prediction intervals, use the \code{varmod.method} argument.\cr
 \cr
 Most users will find that the above arguments are all they need,
 plus in some cases \code{keepxy} and \code{nprune}.
-Unless you are a knowledgeable use, it's best not subvert the
+Unless you are a knowledgeable user, it's best not subvert the
 standard algorithm by toying with tuning parameters such as \code{thresh},
 \code{penalty}, and \code{endspan}.
 \cr
@@ -134,8 +134,8 @@ standard algorithm by toying with tuning parameters such as \code{thresh},
      It therefore makes cross-validation significantly slower.
 }
 \item{trace}{
-     Trace \code{earth}'s execution.  Default is \code{0}.  Values:\cr
-        \code{0} no tracing\cr
+     Trace \code{earth}'s execution.  Values:\cr
+        \code{0} (default) no tracing\cr
         \code{.3} variance model (the \code{varmod.method} arg)\cr
         \code{.5} cross validation (the \code{nfold} arg)\cr
         \code{1} overview\cr
@@ -201,7 +201,7 @@ The value \code{-1} means no penalty, so GCV = RSS/n.
 \item{endspan}{
     Minimum number of observations before the first and after the final knot.\cr
     The default \code{endspan=0} is treated specially and
-    means calculate the \code{minspan} internally, as per
+    means calculate the \code{endspan} internally, as per
     the MARS paper equation 45 with \eqn{alpha} = 0.05.
     Set \code{trace>=2} to see the calculated value.
 \cr
@@ -285,7 +285,6 @@ edges of the data).  See also the \code{Adjust.endspan} argumen.
      Pruning method.
      One of: \code{backward none exhaustive forward seqrep cv}.\cr
      Default is \code{"backward"}.\cr
-     \bold{New in version 4.4.0:}
      Specify \code{pmethod="cv"} to use cross-validation to select the number of terms.
      This selects the number of terms that gives the maximum
      mean out-of-fold RSq on the fold models.
@@ -309,11 +308,6 @@ edges of the data).  See also the \code{Adjust.endspan} argumen.
 \cr\cr
      \bold{The following arguments are for cross validation.}
 }
-\item{ncross}{
-    Only applies if \code{nfold>1}.
-    Number of cross-validations.  Each cross-validation has \code{nfold} folds.
-    Default \code{1}.
-}
 \item{nfold}{
      Number of cross-validation folds.
      Default is \code{0}, no cross validation.
@@ -328,6 +322,11 @@ edges of the data).  See also the \code{Adjust.endspan} argumen.
      Further statistics are calculated if \code{keepxy=TRUE} or
      if a binomial or poisson model (specified with the \code{glm} argument).
      See \dQuote{\emph{Cross validation}} in the vignette.
+}
+\item{ncross}{
+    Only applies if \code{nfold>1}.
+    Number of cross-validations.  Each cross-validation has \code{nfold} folds.
+    Default \code{1}.
 }
 \item{stratify}{
      Only applies if \code{nfold>1}.
@@ -344,8 +343,7 @@ edges of the data).  See also the \code{Adjust.endspan} argumen.
      We say \dQuote{approximately equal} because the number of occurrences of a factor
      level may not be exactly divisible by the number of folds.
 \cr\cr
-     \bold{The following arguments are for variance models
-     (new in version 4.0.0).}
+     \bold{The following arguments are for variance models.}
 }
 \item{varmod.method}{
 Construct a variance model.
@@ -457,7 +455,6 @@ i.e., scale \code{y} unless \code{y} has multiple columns.
 
 }
 \item{Adjust.endspan}{
-\bold{New in version 4.2.0.}
 In interaction terms, \code{endspan} gets multiplied by this value.
 This reduces the possibility of an overfitted interaction term
 supported by just a few cases on the boundary of the predictor space
@@ -500,7 +497,6 @@ Setting \code{Force.xtx.prune=TRUE} forces use of \code{EvalSubsetsUsingXtx}, ev
 if \code{y} has a single column.
 }
 \item{Get.leverages}{
-New in version 4.4.0.
 Default is \code{TRUE} unless the model has more than 100 thousand cases.
 The leverages are the diagonal hat values for the linear regression of
 \code{y} on \code{bx}.
@@ -564,11 +560,14 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the vignette.
 
   Friedman (1991) \emph{Multivariate Adaptive Regression Splines (with discussion)}
   Annals of Statistics 19/1, 1--141
-  % use \code and not \url below else get libcurl error 35 from cran check
-  \code{https://statistics.stanford.edu/research/multivariate-adaptive-regression-splines}
+  % \code{https://statistics.stanford.edu/research/multivariate-adaptive-regression-splines}\cr
+  \url{http://projecteuclid.org/euclid.aos/1176347963}\cr
+  \doi{10.1214/aos/1176347963}
 
   Friedman (1993) \emph{Fast MARS}
   Stanford University Department of Statistics, Technical Report 110
+  % use \code and not \url below else get libcurl error 35 from cran check
+  % note also that there is no DOI for this paper as far as I can tell
   \code{https://statistics.stanford.edu/research/fast-mars}
 
   Friedman and Silverman (1989)

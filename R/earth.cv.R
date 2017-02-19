@@ -3,7 +3,7 @@
 
 earth.cv <- function(object, x, y,
     subset, weights, na.action, pmethod, keepxy, trace, glm, degree, nprune,
-    ncross, nfold, stratify, get.oof.fit.tab, get.oof.rsq.per.subset,
+    nfold, ncross, stratify, get.oof.fit.tab, get.oof.rsq.per.subset,
     Scale.y, env, ...)
 {
     get.fold.rsq.per.subset <- function(foldmod, oof.y, max.nterms, trace, must.print.dots)
@@ -39,11 +39,11 @@ earth.cv <- function(object, x, y,
              infold.rsq.per.subset = infold.rsq.per.subset)
     }
     #--- earth.cv starts here ---
-    # We called check.cv.args(ncross, nfold, varmod.method, pmethod)
+    # We called check.cv.args(nfold, ncross, varmod.method, pmethod)
     # earlier so it's safe to use those args here
     # Likewise, subset arg was already checked in earth.fit.
     stratify <- check.boolean(stratify)
-    stopifnot(ncross >= 1, nfold > 1)
+    stopifnot(nfold > 1, ncross >= 1)
     trace1(trace, "\n")
     if(nfold > nrow(x))
         nfold <- nrow(x)
@@ -144,7 +144,7 @@ earth.cv <- function(object, x, y,
                 wp=wp, Scale.y=Scale.y, subset=subset,
                 trace=trace, glm=glm, degree=degree,
                 pmethod=if(pmethod == "cv") "backward" else pmethod,
-                ncross=0, nfold=0, varmod.method="none",
+                nfold=0, ncross=0, varmod.method="none",
                 ...)
             foldmod$icross <- icross
             foldmod$ifold <- ifold
@@ -285,15 +285,15 @@ col.means.with.special.na.handling <- function(tab)
     means[nna > nrow(tab) / 2] <- NA
     means # a vector of column means, some entries may be NA
 }
-check.cv.args <- function(ncross, nfold, pmethod, varmod.method)
+check.cv.args <- function(nfold, ncross, pmethod, varmod.method)
 {
-    check.integer.scalar(ncross, min=0)
-    if(ncross > 1000) # 1000 is arbitrary
-        stop0("ncross ", ncross, " is too big")
-
     check.integer.scalar(nfold, min=0)
     # if(nfold > 10000) # 10000 is arbitrary
     #     stop0("nfold ", nfold, " is too big")
+
+    check.integer.scalar(ncross, min=0)
+    if(ncross > 1000) # 1000 is arbitrary
+        stop0("ncross ", ncross, " is too big (max allowed is 1000)")
 
     if(ncross > 1 && nfold < 2)
         stop0("ncross=", ncross, " yet nfold=", nfold)

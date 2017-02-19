@@ -67,6 +67,7 @@
     #include "R.h"
     #include "Rinternals.h" // needed for Allowed function handling
     #include "allowed.h"
+    #include "R_ext/Rdynload.h"
     #define printf Rprintf
     #define FINITE(x) R_FINITE(x)
 #else
@@ -131,7 +132,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 4.4.5"; // change if you modify this file!
+static const char*  VERSION     = "version 4.4.8"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -183,7 +184,7 @@ static char* sFormatMemSize(const size_t MemSize, const bool Align);
 // DON'T USE free, malloc, and calloc in this file.
 // Use free1, malloc1, and calloc1 instead.
 //
-// malloc and its friends are redefined (a) so under Microsoft C using
+// malloc and its friends are redefined (a) so under microsoft C using
 // crtdbg.h we can easily track alloc errors and (b) so FreeR() doesn't
 // re-free any freed blocks and (c) so out of memory conditions are
 // immediately detected.
@@ -2881,7 +2882,7 @@ void ForwardPassR(              // for use by R
     const double x[],           // in: nCases x nPreds, unweighted x
     const double y[],           // in: nCases x nResp, unweighted but scaled y
     const double yw[],          // in: nCases x nResp, weighted and scaled y
-    const double WeightsArg[],  // in: nCases x 1, never MyNull
+    const double WeightsArg[],  // in: nCases x 1, never MyNullDouble
     const int* pnCases,         // in: number of rows in x and elements in y
     const int* pnResp,          // in: number of cols in y
     const int* pnPreds,         // in: number of cols in x
@@ -2895,14 +2896,15 @@ void ForwardPassR(              // for use by R
     const double* pFastBeta,    // in: Fast MARS ageing coef
     const double* pNewVarPenalty,  // in: penalty for adding a new variable (default is 0)
     const int  LinPreds[],         // in: nPreds x 1, 1 if predictor must enter linearly
-    const SEXP Allowed,            // in: constraints function, can be MyNull
+    const SEXP Allowed,            // in: constraints function, can be MyNullFunc
     const int* pnAllowedFuncArgs,  // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,                // in: environment for Allowed function
-    const double* pAdjustEndSpan, // in:
+    const double* pAdjustEndSpan,  // in:
     const int* pnUseBetaCache,     // in: 1 to use the beta cache, for speed
     const double* pTrace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char* sPredNames[],      // in: predictor names in trace printfs, can be MyNull
-    const SEXP MyNull)             // in: trick to avoid R check warnings on passing R_NilValue
+    const char* sPredNames[],      // in: predictor names in trace printfs
+    const double* MyNullDouble,    // in: trick to avoid R check warnings on passing R_NilValue
+    const SEXP MyNullFunc)         // in: trick to avoid R check warnings on passing R_NilValue
 {
     TraceGlobal = *pTrace;
     nMinSpanGlobal = *pnMinSpan;
@@ -2941,15 +2943,13 @@ void ForwardPassR(              // for use by R
     // convert R my.null to C NULL
 
 #if !WEIGHTS
-    ASSERT(*(int*)yw == *(int*)MyNull);
+    ASSERT(*(double*)yw == *(double*)MyNullDouble);
 #endif
-    if(*(int*)yw == *(int*)MyNull)
+    if(*(double*)yw == *(double*)MyNullDouble)
         yw = NULL;
-    if(*(int*)sPredNames == *(int*)MyNull)
-        sPredNames = NULL;
-    ASSERT(*(int*)WeightsArg != *(int*)MyNull);
+    ASSERT(*(double*)WeightsArg != *(double*)MyNullDouble);
 
-    InitAllowedFunc(*(int*)Allowed == *(int*)MyNull? NULL: Allowed,
+    InitAllowedFunc(*(int*)Allowed == *(int*)MyNullFunc? NULL: Allowed,
                     *pnAllowedFuncArgs, Env, sPredNames, nPreds);
 
     int nTerms;

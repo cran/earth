@@ -62,7 +62,7 @@ earth.regress <- function(
         as.integer(ncases),     # const int*   pnCases     in: number of rows in x and in y
         as.integer(nresp),      # const int*   pnResp      in: number of cols in y
         as.integer(ncols),      # int*         pnCols      in: number of columns in x
-        as.integer(used.cols),  # const bool   UsedCols[]) in: specifies used columns in x
+        as.logical(used.cols),  # const bool   UsedCols[]) in: specifies used columns in x
         PACKAGE="earth")
 
     rval$fitted.values <- y - rval$residuals

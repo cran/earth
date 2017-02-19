@@ -214,7 +214,7 @@ leaps.backward<-function(leaps.obj){
                  nbest=as.integer(leaps.obj$nbest),
                  lopt=matrix(as.integer(leaps.obj$lopt),ncol=nbest),
                  il=as.integer(leaps.obj$il),wk=numeric(dimwk),
-                 dimwk=as.integer(dimwk),ier=as.integer(0), PACKAGE="earth")
+                 iwk=as.integer(dimwk),ier=as.integer(0), PACKAGE="earth")
   rval$dimwk<-rval$wk<-NULL
   rval$xnames<-leaps.obj$xnames
   rval$method<-c("backward",leaps.obj$method)
@@ -251,7 +251,7 @@ leaps.forward<-function(leaps.obj){
                  nbest=as.integer(leaps.obj$nbest),
                  lopt=matrix(as.integer(leaps.obj$lopt),ncol=nbest),
                  il=as.integer(leaps.obj$il),wk=numeric(dimwk),
-                 dimwk=as.integer(dimwk),ier=as.integer(0), PACKAGE="earth")
+                 iwk=as.integer(dimwk),ier=as.integer(0), PACKAGE="earth")
   rval$dimwk<-rval$wk<-NULL
   rval$xnames<-leaps.obj$xnames
   rval$method<-c("forward",leaps.obj$method)
@@ -289,11 +289,11 @@ leaps.seqrep<-function(leaps.obj){
                    nbest=as.integer(leaps.obj$nbest),
                    lopt=matrix(as.integer(leaps.obj$lopt),
                    ncol=nbest),il=as.integer(leaps.obj$il),
-                   wk=numeric(dimwk),dimwk=as.integer(dimwk),
+                   wk=numeric(dimwk),iwk=as.integer(dimwk),
                    ier=as.integer(0), PACKAGE="earth")
   rval$dimwk<-rval$wk<-NULL
   rval$xnames<-leaps.obj$xnames
-  rval$method<-c("'sequential replacement'",leaps.obj$method)
+  rval$method<-c("seqrep",leaps.obj$method)
   rval$force.in<-leaps.obj$force.in
   rval$force.out<-leaps.obj$force.out
   rval$sserr<-leaps.obj$sserr

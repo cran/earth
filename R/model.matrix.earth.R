@@ -19,45 +19,6 @@
 #
 #-----------------------------------------------------------------------------
 
-# If model.frame can't interpret the data passed to it it silently
-# returns the fitted values.  This routine makes that not silent.
-# Note: model.frame is a standard R library function (it's in stats/R/models.R).
-
-check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name)
-{
-    if(actual.nrows != expected.nrows) {
-        if(actual.nrows == fitted.nrows)
-            stop0("model.frame.default could not interpret the data passed to ",
-                  Callers.name,
-                  "\n        (actual.nrows=", actual.nrows,
-                  " expected.nrows=", expected.nrows,
-                  " fitted.nrows=", fitted.nrows, ")")
-        else  # can probably never get here
-            warning0(Callers.name, " returned a number ", actual.nrows,
-                     " of rows that was different from the number ",
-                     expected.nrows,
-                     " of rows in the data")
-    }
-}
-good.colname <- function(name)
-{
-    # The nchar check prevents super long names (60 is arb)
-    # that are actually contents of vectors e.g. c(1,2,3,etc.)
-    # The grep ensures that there are no more than three commas,
-    # also to prevent using the contents of vectors.
-
-    !is.null(name) && nchar(name) <= 60 && !grepany(",.*,.*,", name)
-}
-good.colnames <- function(x)
-{
-    colnames <- colnames(x)
-    if(is.null(colnames))
-        return(FALSE)
-    for(i in seq_along(colnames))
-        if(!good.colname(colnames[i]))
-            return(FALSE)
-    return(TRUE)
-}
 # Called from earth.fit just before doing the pruning pass
 # Also called by model.matrix.earth (which returns bx)
 # The x arg must be already expanded
@@ -97,120 +58,6 @@ get.earth.x <- function(    # returns x expanded for factors
     trace   = 0,
     Callers.name)           # caller's name for trace messages
 {
-    # Given an x mat, return an x mat with column names equal to
-    # expected.colnames and with the columns in their correct order
-    # So the user can hand us an x mat without column names,
-    # or with named columns but in the wrong order, or an xmat containing
-    # only a needed subset of all the columns, etc.
-    # This code is a mess and doesn't handle all cases, just the common ones.
-
-    fix.x.columns <- function(x, expected.colnames)
-    {
-        colnames <- colnames(x)
-        ncolnames <- length(colnames)
-        nexpected <- length(expected.colnames)
-        if(is.null(colnames)) {
-            if(trace >= 1)
-                cat0(Callers.name, ": x has no column names, ",
-                     "adding column names: ", paste.collapse(expected.colnames),
-                     "\n")
-            colnames <- expected.colnames
-         } else if(ncolnames < nexpected) {
-            # CHANGED Oct 2008: allow user to specify less than the expected
-            # nbr of columns -- which is ok if he specifies all predictors
-            # actually used by the model.
-
-            imatch <- pmatch(colnames, expected.colnames, nomatch=0)
-            if(any(imatch == 0)) {
-                # can't repair the error because there are colnames in x that aren't
-                # in expected.names (tends to happen with expanded factor names)
-                stop0(Callers.name, ": x has ", ncolnames,
-                      " columns, expected ", length(expected.colnames),
-                      " to match: ", paste.collapse(expected.colnames))
-            }
-            # Create a new x, putting the existing cols into their correct positions.
-            # Cols that aren't in the original x will end up as all 999s in the
-            # the recreated x; that doesn't matter if they are for predictors
-            # that are unused in the earth model.
-            # We use 999 instead of NA else the model matrix routines fail incorrectly
-            # because they don't like NAs when doing predictions.
-            if(trace >= 1)
-                cat0(Callers.name, ": x has missing columns, ",
-                     "creating a new x with all cols\n")
-            imatch <- pmatch(expected.colnames, colnames, nomatch=0)
-            x.original <- x
-            x <- matrix(data=999, nrow=nrow(x), ncol=nexpected)
-            for(i in seq_len(nexpected))
-                if(imatch[i])
-                    x[,i] <- x.original[,imatch[i]]
-            colnames <- expected.colnames
-        } else if(ncolnames > nexpected)
-            NULL # TODO not sure what to do here (do nothing so old regression tests pass)
-        else {
-            imatch <- pmatch(colnames, expected.colnames, nomatch=0)
-            if(all(imatch == 0)) {
-                   if(trace >= 1)
-                        cat0(Callers.name,
-                             ": unexpected x column names, renaming columns\n",
-                             "    Old names: ", paste.collapse(colnames), "\n",
-                             "    New names: ", paste.collapse(expected.colnames),
-                             "\n")
-
-                    colnames <- expected.colnames
-            } else {
-                 # replace indices for non-found predictor names with their value
-                 # i.e. assume columns with unknown names are in their right position
-                 for(i in seq_along(imatch))
-                     if(imatch[i] == 0)
-                         imatch[i] = i
-
-                 # if any columns are in the wrong order then fix their order
-                 # (imatch will be 1,2,3,... if columns are in the right order)
-
-                 if(!all(imatch == seq_along(imatch))) {
-                   s <- paste0(Callers.name, ": x columns are in the wrong order%s\n",
-                               "    Old columns: ", paste.collapse(colnames), "\n",
-                               "    New columns: ", paste.collapse(expected.colnames),
-                               "\n")
-                   if(length(imatch) == ncol(x)) {
-                       trace1(trace, s, ", correcting the column order")
-                       x <- x[,imatch]
-                       colnames <- colnames[imatch]
-                   } else
-                       warnf(s, "")
-                }
-            }
-        }
-        colnames(x) <- colnames
-        x
-    }
-    # Return x with matrix dimensions.
-    # If x is already a matrix this does nothing.
-    # Else allow x to be a vector if its length is an integer multiple
-    # of the number of columns in the original x
-
-    my.as.matrix <- function(x)
-    {
-        if(is.null(ncol(x))) {
-            nrows <- length(x) / length(object$namesx)
-            if(floor(nrows) == nrows)
-                dim(x) <- c(nrow=nrows, ncol=length(x) / nrows)
-            else
-                stop0(Callers.name, ":\n",
-                      "       could not convert vector x to matrix because ",
-                      "length(x) ", length(x), "\n",
-                      "       is not a multiple of the number ",
-                      if(length(ncol(object$namesx))) ncol(object$namesx) else 0,
-                      " of predictors ",
-                      "\n       Expected predictors: ",
-                      if(is.null(colnames(object$namesx)))
-                          "none?"
-                      else
-                          paste.collapse(colnames(object$namesx))
-                      )
-        }
-        x
-    }
     check.expanded.ncols <- function(x, object)
     {
         if(NCOL(x) != NCOL(object$dirs)) {
@@ -235,8 +82,8 @@ get.earth.x <- function(    # returns x expanded for factors
         # object was created with earth.default, no formula
 
         x <- get.update.arg(data, "x", object, env, trace, Callers.name)
-        x <- my.as.matrix(x)
-        x <- fix.x.columns(x, object$namesx)
+        x <- possibly.convert.vector.to.matrix(x, object$namesx, Callers.name)
+        x <- fix.x.columns(x, object$namesx, trace, Callers.name)
         if(trace >= 1) {
             print_summary(x, sprintf("%s: x", Callers.name), trace=2)
             trace2(trace, "\n")
@@ -247,8 +94,8 @@ get.earth.x <- function(    # returns x expanded for factors
 
         Terms <- delete.response(object$terms)
         data <- get.update.arg(data, "data", object, env, trace, Callers.name)
-        data <- my.as.matrix(data)
-        data <- fix.x.columns(data, object$namesx)
+        data <- possibly.convert.vector.to.matrix(data, object$namesx, Callers.name)
+        data <- fix.x.columns(data, object$namesx, trace, Callers.name)
         data <- as.data.frame(data)
         expected.nrows <- nrow(data)
         if(trace >= 1) {
@@ -293,11 +140,11 @@ get.earth.x <- function(    # returns x expanded for factors
 model.matrix.earth <- function(     # returns bx
     object       = stop("no 'object' argument"),
     x            = NULL,            # x arg must not yet be expanded
-    subset       = NULL,            # not used by the earth code
-    which.terms  = NULL,            # not used by the earth code
-    ...,                            # unused, for generic method comparibility
-    env          = parent.frame(),
+    subset       = NULL,
+    which.terms  = NULL,
     trace        = 0,
+    ...,                            # unused, for generic method comparibility
+    Env          = parent.frame(),
     Callers.name = "model.matrix.earth") # caller's name for trace messages
 {
     warn.if.dots(...)
@@ -308,7 +155,7 @@ model.matrix.earth <- function(     # returns bx
             cat0(Callers.name, ": returning object$bx\n")
         return(object$bx)
     }
-    x <- get.earth.x(object, data=x, env, trace, paste("get.earth.x from", Callers.name))
+    x <- get.earth.x(object, data=x, Env, trace, paste("get.earth.x from", Callers.name))
     if(is.null(which.terms))
         which.terms <- object$selected.terms
     if(!is.null(subset)) {
@@ -359,4 +206,130 @@ get.update.arg <- function(arg, argname, object, env,
         }
     }
     arg
+}
+# If model.frame can't interpret the data passed to it it silently
+# returns the fitted values.  This routine makes that not silent.
+# Note: model.frame is a standard R library function (it's in stats/R/models.R).
+
+check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name)
+{
+    if(actual.nrows != expected.nrows) {
+        if(actual.nrows == fitted.nrows)
+            stop0("model.frame.default could not interpret the data passed to ",
+                  Callers.name,
+                  "\n        (actual.nrows=", actual.nrows,
+                  " expected.nrows=", expected.nrows,
+                  " fitted.nrows=", fitted.nrows, ")")
+        else  # can probably never get here
+            warning0(Callers.name, " returned a number ", actual.nrows,
+                     " of rows that was different from the number ",
+                     expected.nrows,
+                     " of rows in the data")
+    }
+}
+# If x is already a matrix or data.frame this does nothing.
+# Else if x is a vector, return a matrix with length(colnames) columns.
+
+possibly.convert.vector.to.matrix <- function(x, colnames, Callers.name)
+{
+    if(is.null(ncol(x))) {
+        nrows <- length(x) / length(colnames)
+        if(floor(nrows) == nrows)
+            dim(x) <- c(nrow=nrows, ncol=length(colnames))
+        else
+            stop0(Callers.name, ":\n",
+                  "       could not convert vector x to matrix because ",
+                  "length(x) ", length(x), "\n",
+                  "       is not a multiple of the number ",
+                  length(colnames),
+                  " of predictors ",
+                  "\n       Expected predictors: ",
+                  paste.collapse(colnames))
+    }
+    x
+}
+# Given an x matrix or data.frame, return an x with column names equal to
+# expected.colnames and with the columns in their correct order
+# So the user can hand us an x without column names,
+# or with named columns but in the wrong order, or an x containing
+# only a needed subset of all the columns, etc.
+# This code is a mess and doesn't handle all cases, just the common ones.
+
+fix.x.columns <- function(x, namesx, trace, Callers.name)
+{
+    colnames <- colnames(x)
+    ncolnames <- length(colnames)
+    nexpected <- length(namesx)
+    if(is.null(colnames)) {
+        if(trace >= 1)
+            cat0(Callers.name, ": x has no column names, ",
+                 "adding column names: ", paste.collapse(namesx),
+                 "\n")
+        colnames <- namesx
+     } else if(ncolnames < nexpected) {
+        # CHANGED Oct 2008: allow user to specify less than the expected
+        # nbr of columns -- which is ok if he specifies all predictors
+        # actually used by the model.
+
+        imatch <- pmatch(colnames, namesx, nomatch=0)
+        if(any(imatch == 0)) {
+            # can't repair the error because there are colnames in x that aren't
+            # in expected.names (tends to happen with expanded factor names)
+            stop0(Callers.name, ": x has ", ncolnames,
+                  " columns, expected ", length(namesx),
+                  " to match: ", paste.collapse(namesx))
+        }
+        # Create a new x, putting the existing cols into their correct positions.
+        # Cols that aren't in the original x will end up as all NAs in the
+        # the recreated x; that doesn't matter for predict.earth if they are
+        # for predictors that are unused in the earth model.
+        if(trace >= 1)
+            cat0(Callers.name, ": x has missing columns, ",
+                 "creating a new x with all cols\n")
+        imatch <- pmatch(namesx, colnames, nomatch=0)
+        x.original <- x
+        x <- matrix(data=NA_real_, nrow=nrow(x), ncol=nexpected)
+        for(i in seq_len(nexpected))
+            if(imatch[i])
+                x[,i] <- x.original[,imatch[i]]
+        colnames <- namesx
+    } else if(ncolnames > nexpected) {
+        NULL # TODO not sure what to do here (do nothing so old regression tests pass)
+    } else {
+        imatch <- pmatch(colnames, namesx, nomatch=0)
+        if(all(imatch == 0)) {
+               if(trace >= 1)
+                    cat0(Callers.name,
+                         ": unexpected x column names, renaming columns\n",
+                         "    Old names: ", paste.collapse(colnames), "\n",
+                         "    New names: ", paste.collapse(namesx),
+                         "\n")
+
+                colnames <- namesx
+        } else {
+             # replace indices for non-found predictor names with their value
+             # i.e. assume columns with unknown names are in their right position
+             for(i in seq_along(imatch))
+                 if(imatch[i] == 0)
+                     imatch[i] = i
+
+             # if any columns are in the wrong order then fix their order
+             # (imatch will be 1,2,3,... if columns are in the right order)
+
+             if(!all(imatch == seq_along(imatch))) {
+               s <- paste0(Callers.name, ": x columns are in the wrong order%s\n",
+                           "    Old columns: ", paste.collapse(colnames), "\n",
+                           "    New columns: ", paste.collapse(namesx),
+                           "\n")
+               if(length(imatch) == ncol(x)) {
+                   trace1(trace, s, ", correcting the column order")
+                   x <- x[, imatch, drop=FALSE]
+                   colnames <- colnames[imatch]
+               } else
+                   warnf(s, "")
+            }
+        }
+    }
+    colnames(x) <- colnames
+    x
 }

@@ -135,8 +135,8 @@ earth.default <- function(
     glm             = NULL,
     degree          = 1, # max degree of interaction (1=additive model) (Friedman's mi)
     nprune          = NULL,         # max nbr of terms (including intercept) in pruned subset
-    ncross          = 1,            # number of cross-validations, ignored unless nfold>0
     nfold           = 0,            # number of folds per cross-validation
+    ncross          = 1,            # number of cross-validations, ignored unless nfold>0
     stratify        = TRUE,         # stratify levels in cross-validation folds
     varmod.method   = "none",       # estimate cross-validation pred intervals
     varmod.exponent = 1,            # power transform applied to fitted response
@@ -190,13 +190,13 @@ earth.default <- function(
     # we need the diag of the hat matrix if varmod.method != "none"
     varmod.method <- match.choices(varmod.method,
                                    c("none", VARMOD.METHODS), "varmod.method")
-    check.cv.args(ncross, nfold, pmethod, varmod.method)
+    check.cv.args(nfold, ncross, pmethod, varmod.method)
     pmethod1 <- pmethod
     update.earth.called.me <- !is.null(dota("Object", DEF=NULL, ...))
     if(pmethod == "cv" && !update.earth.called.me) {
         trace1(trace,
 "=== pmethod=\"cv\": Preliminary model with pmethod=\"backward\" ===\n")
-        if(ncross < 1 || nfold <= 1)
+        if(nfold <= 1 || ncross < 1)
             stop0("the nfold argument must be specified when pmethod=\"cv\"")
         pmethod1 <- "backward"
     }
@@ -224,7 +224,7 @@ earth.default <- function(
         # TODO consider doing the following
         # rv$.Environment <- parent.frame()
     }
-    if(ncross >= 1 && nfold > 1) {
+    if(nfold > 1 && ncross >= 1) {
         cv <- earth.cv(object=rv,
                 x=if(is.null(subset)) x else x[subset,,drop=FALSE],
                 y=if(is.null(subset)) y else y[subset,,drop=FALSE],
@@ -232,7 +232,7 @@ earth.default <- function(
                 pmethod=pmethod, keepxy=keepxy,
                 trace=if(trace >= 4.1) trace else if(trace) .5 else 0,
                 glm=glm, degree=degree, nprune=nprune,
-                ncross=ncross, nfold=nfold, stratify=stratify,
+                nfold=nfold, ncross=ncross, stratify=stratify,
                 get.oof.fit.tab = varmod.method != "none",
                 get.oof.rsq.per.subset = keepxy || pmethod == "cv",
                 Scale.y=Scale.y, env=env, ...)
@@ -263,7 +263,7 @@ earth.default <- function(
             trace2(trace, "\n")
             rv <- update.earth(rv, ponly=TRUE, trace=trace,
                                pmethod="cv", nprune=nterms.selected.by.cv,
-                               ncross=1, nfold=0,
+                               nfold=0, ncross=1,
                                glm=glm, varmod.method="none")
 
             rv$call    <- call
@@ -320,8 +320,8 @@ earth.formula <- function(
     glm             = NULL,
     degree          = 1,    # max degree of interaction (1=additive model) (Friedman's mi)
     nprune          = NULL, # max nbr of terms (including intercept) in pruned subset
-    ncross          = 1,
     nfold           = 0,
+    ncross          = 1,
     stratify        = TRUE,
     varmod.method   = "none",
     varmod.exponent = 1,
@@ -404,13 +404,13 @@ earth.formula <- function(
     # we need the diag of the hat matrix if varmod.method != "none"
     varmod.method <- match.choices(varmod.method,
                                    c("none", VARMOD.METHODS), "varmod.method")
-    check.cv.args(ncross, nfold, pmethod, varmod.method)
+    check.cv.args(nfold, ncross, pmethod, varmod.method)
     pmethod1 <- pmethod
     update.earth.called.me <- !is.null(dota("Object", DEF=NULL, ...))
     if(pmethod == "cv" && !update.earth.called.me) {
         trace1(trace,
 "=== pmethod=\"cv\": Preliminary model with pmethod=\"backward\" ===\n")
-        if(ncross < 1 || nfold <= 1)
+        if(nfold <= 1 || ncross < 1)
             stop0("the nfold argument must be specified when pmethod=\"cv\"")
         pmethod1 <- "backward"
     }
@@ -440,7 +440,7 @@ earth.formula <- function(
         rv$subset <- subset
     }
     # TODO make the following code a subroutine, it's identical to code in earth.default
-    if(ncross >= 1 && nfold > 1) {
+    if(nfold > 1 && ncross >= 1) {
         cv <- earth.cv(object=rv,
                 x=if(is.null(subset)) x else x[subset,,drop=FALSE],
                 y=if(is.null(subset)) y else y[subset,,drop=FALSE],
@@ -448,7 +448,7 @@ earth.formula <- function(
                 pmethod=pmethod, keepxy=keepxy,
                 trace=if(trace >= 4.1) trace else if(trace) .5 else 0,
                 glm=glm, degree=degree, nprune=nprune,
-                ncross=ncross, nfold=nfold, stratify=stratify,
+                nfold=nfold, ncross=ncross, stratify=stratify,
                 get.oof.fit.tab = varmod.method != "none",
                 get.oof.rsq.per.subset = keepxy || pmethod == "cv",
                 Scale.y=Scale.y, env=env, ...)
@@ -479,7 +479,7 @@ earth.formula <- function(
             trace2(trace, "\n")
             rv <- update.earth(rv, ponly=TRUE, trace=trace,
                                pmethod="cv", nprune=nterms.selected.by.cv,
-                               ncross=1, nfold=0,
+                               nfold=0, ncross=1,
                                glm=glm, varmod.method="none")
             rv$call    <- call
             rv$pmethod <- "cv"
@@ -1054,13 +1054,15 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
             yw.scaled <- yw
     }
     # Mar 2012: R cmd check now complains if you pass R NULL via .C, so
-    # we gyp this by passing a special value in my.null.
-    # TODO is this reliable and safe?
-
-    my.null = 999999L
+    # we gyp this by passing special values in my.null.double and my.null.func.
+    # TODO We could get rid if this by using .Call instead of .C
+    my.null.double <- 999999.0
+    my.null.func   <- function() { FALSE }
 
     if(is.null(allowed))
-        allowed <- my.null
+        allowed <- my.null.func
+
+    stopifnot(!is.null(colnames(x)))
 
     termcond <- integer(length=1) # reason we terminated the forward pass
 
@@ -1074,7 +1076,7 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
         termcond = termcond,                     # out: int*
         x,                                       # in: const double x[]
         y.scaled,                                # in: const double y[]
-        if(is.null(yw)) my.null else yw.scaled,  # in: const double yw[]
+        if(is.null(yw)) my.null.double else yw.scaled,  # in: const double yw[]
         weights,                        # in: const double WeightsArg[]
         as.integer(nrow(x)),            # in: const int* pnCases
         as.integer(ncol(y)),            # in: const int* pnResp
@@ -1096,7 +1098,8 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
         as.integer(Use.beta.cache),     # in: const int* pnUseBetaCache
         as.double(max(trace, 0)),       # in: const double* pTrace
         colnames(x),                    # in: const char* sPredNames[]
-        my.null,                        # in: const SEXP MyNull
+        my.null.double,                 # in: const double* MyNullDouble
+        my.null.func,                   # in: const double* MyNullFunc
         NAOK = TRUE, # we check for NAs etc. internally in C ForwardPass
         PACKAGE="earth")
 
@@ -1304,6 +1307,25 @@ get.ylevels <- function(y, glm)
             return(c(range[1], range[2]))
     }
     NULL
+}
+good.colname <- function(name)
+{
+    # The nchar check prevents super long names (60 is arb)
+    # that are actually contents of vectors e.g. c(1,2,3,etc.)
+    # The grep ensures that there are no more than three commas,
+    # also to prevent using the contents of vectors.
+
+    !is.null(name) && nchar(name) <= 60 && !grepany(",.*,.*,", name)
+}
+good.colnames <- function(x)
+{
+    colnames <- colnames(x)
+    if(is.null(colnames))
+        return(FALSE)
+    for(i in seq_along(colnames))
+        if(!good.colname(colnames[i]))
+            return(FALSE)
+    return(TRUE)
 }
 # this wrapper is because when n >> p we run out of memory in qr.qy
 hatvalues.qr.wrapper <- function(qr, maxmem, trace)

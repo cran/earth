@@ -98,7 +98,7 @@ do.par.dots <- function(..., trace=0)
         if(substr(dotname, 1, 3) == "cex") {
             olddot <- par(dotname)
             dot <- dot[[1]] * olddot
-        } else if (!(dotname %in% PAR.VEC) && length(dot) != 1)
+        } else if(!(dotname %in% PAR.VEC) && length(dot) != 1)
             dot <- dot[[1]] # similar to handling of argument "scalar" in eval.dotlist
         arg <- list(dot)
         names(arg) <- dotname

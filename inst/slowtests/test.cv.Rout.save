@@ -664,7 +664,7 @@ Earth GCV 0.1404529  RSS 141.7629  GRSq 0.4197106  RSq 0.4389834  CVRSq 0.41454
 GLM null.deviance 1414.62 (1045 dof)   deviance 892.794 (1038 dof)   iters 5
 > printh(summary(a6))
 === summary(a6)
-Call: earth(formula=survived.~., data=etitanic[,-2], trace=0.5, glm=list(family="binomial"), degree=2, ncross=2, nfold=3)
+Call: earth(formula=survived.~., data=etitanic[,-2], trace=0.5, glm=list(family="binomial"), degree=2, nfold=3, ncross=2)
 
 GLM coefficients
                         survived.
@@ -704,7 +704,7 @@ Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
 GLM null.deviance 934.5004 (688 dof)   deviance 585.7064 (681 dof)   iters 5
 > printh(summary(a6$cv.list[[2]]))
 === summary(a6$cv.list[[2]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm, degree=degree, ncross=0, nfold=0,
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm, degree=degree, nfold=0, ncross=0,
             varmod.method="none", Scale.y=Scale.y)
 
 GLM coefficients
@@ -946,8 +946,7 @@ h(age-32)            -0.03757149
 
 $call
 earth(formula = survived. ~ ., data = etitanic[, -2], trace = 0.5, 
-    glm = list(family = "binomial"), degree = 2, ncross = 2, 
-    nfold = 3)
+    glm = list(family = "binomial"), degree = 2, nfold = 3, ncross = 2)
 
 $namesx.org
 [1] "pclass" "sex"    "age"    "sibsp"  "parch" 
@@ -3586,8 +3585,7 @@ h(1-sibsp)*h(1-parch) -1.02162885 -0.219024356  1.12490799
 
 $call
 earth(formula = pclass ~ ., data = etitanic, keepxy = TRUE, trace = 1, 
-    glm = list(family = "binomial"), degree = 2, ncross = 2, 
-    nfold = 3)
+    glm = list(family = "binomial"), degree = 2, nfold = 3, ncross = 2)
 
 $namesx.org
 [1] "survived" "sex"      "age"      "sibsp"    "parch"   
@@ -8039,7 +8037,7 @@ attr(,"class")
 
 > printh(summary(a7))
 === summary(a7)
-Call: earth(formula=pclass~., data=etitanic, keepxy=TRUE, trace=1, glm=list(family="binomial"), degree=2, ncross=2, nfold=3)
+Call: earth(formula=pclass~., data=etitanic, keepxy=TRUE, trace=1, glm=list(family="binomial"), degree=2, nfold=3, ncross=2)
 
 GLM coefficients
                                 1st         2nd         3rd
@@ -8104,7 +8102,7 @@ GLM (family binomial, link logit)
 3rd      966.3437 697 775.0717 691     4         1
 > printh(summary(a7$cv.list[[3]]))
 === summary(a7$cv.list[[3]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm, degree=degree, ncross=0, nfold=0,
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm, degree=degree, nfold=0, ncross=0,
             varmod.method="none", Scale.y=Scale.y)
 
 GLM coefficients

@@ -17,12 +17,12 @@ Predict with an \code{\link{earth}} model.
   }
   \item{newdata}{
     Make predictions using \code{newdata}, which
-    can be a data frame, a matrix, or a vector with length equal to a multiple of the number of columns
-    of the original input matrix \code{x}.
-    Note that this is more flexible than the predict methods for most R models.\cr
-    NAs are allowed (and the predicted value will be NA unless the NAs are in variables
-    that are unused in the earth model).\cr
-    Default is NULL, meaning return values predicted from the training set.
+    can be a data frame, a matrix, or a vector with length equal to a
+    multiple of the number of columns
+    of the original input matrix \code{x}.\cr
+    Default is NULL, meaning return values predicted from the training set.\cr
+    NAs are allowed in \code{newdata} (and the predicted value will be NA
+    unless the NAs are in variables that are unused in the earth model).
   }
   \item{type}{
      Type of prediction.
@@ -41,13 +41,13 @@ Predict with an \code{\link{earth}} model.
   }
   \item{level}{
     Confidence level for the \code{interval} argument.
-    Default is \code{.95}, meaning construct 95\% confidence bands
+    Default is \code{0.95}, meaning construct 95\% confidence bands
     (estimate the 2.5\% and 97.5\% levels).
   }
   \item{thresh}{
     Threshold, a value between 0 and 1 when predicting a probability.
     Only applies when \code{type="class"}.
-    Default is .5.
+    Default is 0.5.
     See the \bold{Note} below.
   }
   \item{trace}{
@@ -110,7 +110,7 @@ If \code{interval="se"}, the standard errors.
 
     (iii) When the response is a \emph{two level factor},
     predict the second level if its probability is more than \code{thresh}.
-    In other words, with the default \code{thresh=.5} predict the most probable level.
+    In other words, with the default \code{thresh=0.5} predict the most probable level.
 
     (iv) When the response is a \emph{three or more level factor},
     predict the most probable level (and \code{thresh} is ignored).

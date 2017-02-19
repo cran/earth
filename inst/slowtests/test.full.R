@@ -1597,6 +1597,256 @@ cat("nk=3\n")
 a.nk3 <- earth(Volume~., data=trees, nk=3)
 plot(a.nk3, which=1, main="nk=3")
 
+cat("\ntest model.matrix.earth\n")
+
+check.model.matrix <- function(msg, xnew, bx1, bx2)
+{
+    cat("check.model.matrix", msg, ":\n")
+    print(xnew)
+    if(!identical(bx1, bx2)) {
+       cat("\nnot identical\n")
+       cat(deparse(substitute(bx1)), ":\n", sep="")
+       print(bx1)
+       cat(deparse(substitute(bx2)), ":\n", sep="")
+       print(bx2)
+       stop("check.model.matrix ", msg, " failed")
+    }
+}
+
+data(trees)
+earth.trees.formula <- earth(Volume ~ ., data=trees, subset=1:20)
+bx <- model.matrix(earth.trees.formula)
+check.model.matrix("earth.trees.formula formula 1", NULL, bx, earth.trees.formula$bx)
+
+# nprune so only Girth is used, not Height
+earth.girth.formula <- earth(Volume ~ ., data=trees, nprune=3)
+
+# model.matrix where xnew is a data.frame
+
+xnew <- trees[,1:2]
+bx <- model.matrix(earth.girth.formula, xnew)
+lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
+stopifnot(coef(earth.girth.formula) == coef(lm.mod))
+
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.formula, xnew)
+lm.mod2 <- lm(trees$Volume ~ bx[,-1])
+stopifnot(coef(earth.girth.formula) == coef(lm.mod2))
+
+xnew <- data.frame(Girth=c(8.3, 8.6), Height=c(70, 65))
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 2", xnew, bx, earth.girth.formula$bx[1:2,])
+
+# test what happens when variables are missing
+predict.girth.height <- predict(earth.girth.formula, xnew)
+predict.girth  <- predict(earth.girth.formula, newdata=data.frame(Girth=c(8.3, 8.6)))
+stopifnot(all.equal(predict.girth.height, predict.girth))
+predict.height <- predict(earth.girth.formula, newdata=data.frame(Height=c(70, 65)))
+stopifnot(all(is.na(predict.height)))
+
+xnew <- trees[1:2,]
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 3", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- trees[1:2,1:2] # exclude Volume column
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 4", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- trees[1:2,3:1] # change order of columns
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 5", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- trees[1:2,1,drop=FALSE]  # include only Girth
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 6", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- trees[1,2:1]
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 7", xnew, bx, earth.girth.formula$bx[1,,drop=FALSE])
+
+xnew <- trees[1,1:2]
+names(xnew) <- NULL
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 8", xnew, bx, earth.girth.formula$bx[1,,drop=FALSE])
+
+# model.matrix where xnew is a matrix (same as above code but with as.matrix)
+
+xnew <- as.matrix(trees[,1:2])
+bx <- model.matrix(earth.girth.formula, xnew)
+lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
+stopifnot(coef(earth.girth.formula) == coef(lm.mod))
+
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.formula, xnew)
+lm.mod2 <- lm(trees$Volume ~ bx[,-1])
+stopifnot(coef(earth.girth.formula) == coef(lm.mod2))
+
+xnew <- as.matrix(data.frame(Girth=c(8.3, 8.6), Height=c(70, 65)))
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 9", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- as.matrix(trees[1:2,])
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 10", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- as.matrix(trees[1:2,1:2]) # exclude Volume column
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 11", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- as.matrix(trees[1:2,3:1]) # change order of columns
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 12", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- as.matrix(trees[1:2,1,drop=FALSE]) # include only Girth
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 13", xnew, bx, earth.girth.formula$bx[1:2,])
+
+xnew <- as.matrix(trees[1,2:1])
+bx <- model.matrix(earth.girth.formula, xnew, trace=2)
+check.model.matrix("earth.girth.formula formula 14", xnew, bx, earth.girth.formula$bx[1,,drop=FALSE])
+
+xnew <- as.matrix(trees[3,1:2])
+names(xnew) <- NULL
+bx <- model.matrix(earth.girth.formula, xnew)
+check.model.matrix("earth.girth.formula formula 15", xnew, bx, earth.girth.formula$bx[3,,drop=FALSE])
+
+#--- model.matrix with an x,y model
+
+data(trees)
+earth.trees.xy.subset <- earth(trees[,1:2], trees[,3], subset=1:20)
+bx <- model.matrix(earth.trees.xy.subset)
+check.model.matrix("earth.trees.xy.subset x,y 1", NULL, bx, earth.trees.xy.subset$bx)
+
+# nprune so only Girth is used, not Height
+earth.girth.xy <- earth(trees[,1:2], trees[,3], nprune=3)
+
+# model.matrix where xnew is a data.frame
+
+xnew <- trees[,1:2]
+bx <- model.matrix(earth.girth.xy, xnew)
+lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
+stopifnot(coef(earth.girth.xy) == coef(lm.mod))
+
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.xy, xnew)
+lm.mod2 <- lm(trees$Volume ~ bx[,-1])
+stopifnot(coef(earth.girth.xy) == coef(lm.mod2))
+
+xnew <- data.frame(Girth=c(8.3, 8.6), Height=c(70, 65))
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 2", xnew, bx, earth.girth.xy$bx[1:2,])
+
+# test what happens when variables are missing
+predict.girth.height <- predict(earth.girth.xy, xnew)
+predict.girth  <- predict(earth.girth.xy, newdata=data.frame(Girth=c(8.3, 8.6)))
+stopifnot(all.equal(predict.girth.height, predict.girth))
+predict.height <- predict(earth.girth.xy, newdata=data.frame(Height=c(70, 65)))
+stopifnot(all(is.na(predict.height)))
+
+xnew <- trees[1:2,]
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 3", xnew, bx, earth.girth.xy$bx[1:2,])
+
+xnew <- trees[1:2,1:2] # exclude Volume column
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 4", xnew, bx, earth.girth.xy$bx[1:2,])
+
+# # TODO fails
+# xnew <- trees[1:2,3:1] # change order of columns
+# bx <- model.matrix(earth.girth.xy, xnew)
+# check.model.matrix("earth.girth.xy x,y 5", xnew, bx, earth.girth.xy$bx[1:2,])
+
+xnew <- trees[1:2,1,drop=FALSE]  # include only Girth
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 6", xnew, bx, earth.girth.xy$bx[1:2,])
+
+xnew <- trees[1,2:1]
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 7", xnew, bx, earth.girth.xy$bx[1,,drop=FALSE])
+
+xnew <- trees[1,1:2]
+names(xnew) <- NULL
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 8", xnew, bx, earth.girth.xy$bx[1,,drop=FALSE])
+
+# model.matrix where xnew is a matrix (same as above code but with as.matrix)
+
+xnew <- as.matrix(trees[,1:2])
+bx <- model.matrix(earth.girth.xy, xnew)
+lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
+stopifnot(coef(earth.girth.xy) == coef(lm.mod))
+
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.xy, xnew)
+lm.mod2 <- lm(trees$Volume ~ bx[,-1])
+stopifnot(coef(earth.girth.xy) == coef(lm.mod2))
+
+xnew <- as.matrix(data.frame(Girth=c(8.3, 8.6), Height=c(70, 65)))
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 9", xnew, bx, earth.girth.xy$bx[1:2,])
+
+xnew <- as.matrix(trees[1:2,])
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 10", xnew, bx, earth.girth.xy$bx[1:2,])
+
+xnew <- as.matrix(trees[1:2,1:2]) # exclude Volume column
+colnames(xnew) <- NULL
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 11", xnew, bx, earth.girth.xy$bx[1:2,])
+
+# # TODO fails
+# xnew <- as.matrix(trees[1:2,3:1]) # change order of columns
+# bx <- model.matrix(earth.girth.xy, xnew)
+# check.model.matrix("earth.girth.xy x,y 12", xnew, bx, earth.girth.xy$bx[1:2,])
+
+xnew <- as.matrix(trees[1:2,1,drop=FALSE]) # include only Girth
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 13", xnew, bx, earth.girth.xy$bx[1:2,])
+
+xnew <- as.matrix(trees[1,2:1])
+bx <- model.matrix(earth.girth.xy, xnew, trace=2)
+check.model.matrix("earth.girth.xy x,y 14", xnew, bx, earth.girth.xy$bx[1,,drop=FALSE])
+
+xnew <- as.matrix(trees[3,1:2])
+names(xnew) <- NULL
+bx <- model.matrix(earth.girth.xy, xnew)
+check.model.matrix("earth.girth.xy x,y 15", xnew, bx, earth.girth.xy$bx[3,,drop=FALSE])
+
+cat("--- compare backward, none, exhaustive, forward, seqrep ---------------------\n")
+data(ozone1)
+oz <- ozone1[1:50,]
+cat("--mod.none\n")
+mod.none <- earth(O3~., data=oz, degree=2, trace=4, pmethod="none")
+print(summary(mod.none))
+cat("--mod.backward\n")
+mod.backward <- earth(O3~., data=oz, degree=2, trace=4, pmethod="backward")
+print(summary(mod.backward))
+cat("--mod.forward\n")
+mod.forward <- earth(O3~., data=oz, degree=2, trace=4, pmethod="forward")
+print(summary(mod.forward))
+cat("--mod.exhaustive\n")
+mod.exhaustive <- earth(O3~., data=oz, degree=2, trace=4, pmethod="exhaustive")
+print(summary(mod.exhaustive))
+cat("--mod.seqrep\n")
+mod.seqrep <- earth(O3~., data=oz, degree=2, trace=4, pmethod="seqrep")
+print(summary(mod.seqrep))
+tab <- data.frame(pmethod=c("none", "backward", "forward", "exhaustive", "seqrep"),
+                  grsq=c(mod.none$grsq,
+                         mod.backward$grsq,
+                         mod.forward$grsq,
+                         mod.exhaustive$grsq,
+                         mod.seqrep$grsq),
+                  nterms=c(length(mod.none$selected.terms),
+                           length(mod.backward$selected.terms),
+                           length(mod.forward$selected.terms),
+                           length(mod.exhaustive$selected.terms),
+                           length(mod.seqrep$selected.terms)))
+cat("\n")
+print(tab)
+
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

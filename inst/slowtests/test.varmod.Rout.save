@@ -239,7 +239,7 @@ attr(,"class")
 > printh("summary(earth.trees)")
 ===summary(earth.trees)
 > print(summary(earth.trees))
-Call: earth(formula=Volume~Girth, data=trees, ncross=3, nfold=3,
+Call: earth(formula=Volume~Girth, data=trees, nfold=3, ncross=3,
             varmod.method="earth")
 
               coefficients
@@ -669,7 +669,7 @@ attr(,"class")
 > a <- earth(O3~temp, data=ozone1, nfold=10, ncross=3, varmod.method="earth")
 > 
 > print(summary(a)) # note additional info on the variance model
-Call: earth(formula=O3~temp, data=ozone1, ncross=3, nfold=10,
+Call: earth(formula=O3~temp, data=ozone1, nfold=10, ncross=3,
             varmod.method="earth")
 
             coefficients
@@ -728,7 +728,7 @@ response values in prediction interval   70     82     94     97
 > mod.temp.vh.doy <- earth(O3~temp+vh+vis+doy, data=ozone1, nfold=5, ncross=3, varmod.method="x.earth")
 > 
 > print(summary(mod.temp.vh.doy))  # note additional info on the variance model
-Call: earth(formula=O3~temp+vh+vis+doy, data=ozone1, ncross=3, nfold=5,
+Call: earth(formula=O3~temp+vh+vis+doy, data=ozone1, nfold=5, ncross=3,
             varmod.method="x.earth")
 
             coefficients
@@ -1027,7 +1027,7 @@ newdata in prediction interval   78     85     92     95
 > cat("summary(earth.default)\n")
 summary(earth.default)
 > print(summary(earth.default))
-Call: earth(x=temp, y=O3, ncross=3, nfold=5, varmod.method="lm")
+Call: earth(x=temp, y=O3, nfold=5, ncross=3, varmod.method="lm")
 
             coefficients
 (Intercept)    7.5768304
@@ -1307,7 +1307,7 @@ varmod method="const" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -1354,7 +1354,7 @@ response values in prediction interval   81     94     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "const"    min.sd 0.4
 
@@ -1458,7 +1458,7 @@ varmod method="power" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -1509,7 +1509,7 @@ response values in prediction interval   81     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "power"    min.sd 0.4    iter.rsq 0.373
 
@@ -1589,7 +1589,7 @@ Achieved convergence tolerance: 2.588e-10
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -1638,7 +1638,7 @@ response values in prediction interval   81     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "power0"    min.sd 0.403    iter.rsq 0.329
 
@@ -1739,7 +1739,7 @@ varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -1788,7 +1788,7 @@ response values in prediction interval   77     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "lm"    min.sd 0.408    iter.rsq 0.321
 
@@ -1872,7 +1872,7 @@ F-statistic:  13.7 on 1 and 29 DF,  p-value: 0.0008945
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -1921,7 +1921,7 @@ response values in prediction interval   74     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "rlm"    min.sd 0.374    iter.rsq 0.308
 
@@ -2001,7 +2001,7 @@ Residual standard error: 1.324 on 29 degrees of freedom
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -2051,7 +2051,7 @@ response values in prediction interval   77     94     94     100
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "earth"    min.sd 0.4    iter.rsq 0.441
 
@@ -2130,7 +2130,7 @@ Loaded gam 1.14
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -2179,7 +2179,7 @@ response values in prediction interval   84     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "gam" (gam package)    min.sd 0.395    iter.rsq 0.403
 
@@ -2265,7 +2265,7 @@ s(RHS)            3 0.71485 0.552
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -2314,7 +2314,7 @@ response values in prediction interval   81     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "x.lm"    min.sd 0.398    iter.rsq 0.391
 
@@ -2398,7 +2398,7 @@ F-statistic: 18.65 on 1 and 29 DF,  p-value: 0.0001677
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -2447,7 +2447,7 @@ response values in prediction interval   81     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "x.rlm"    min.sd 0.376    iter.rsq 0.385
 
@@ -2527,7 +2527,7 @@ Residual standard error: 1.31 on 29 degrees of freedom
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -2575,7 +2575,7 @@ response values in prediction interval   81     90     97     97
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "x.earth"    min.sd 0.4    iter.rsq 0.401
 
@@ -2648,7 +2648,7 @@ GCV 3.306152    RSS 83.61366    GRSq 0.3123124    RSq 0.4009477
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
             trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-            ncross=3, nfold=3, varmod.method=varmod.method)
+            nfold=3, ncross=3, varmod.method=varmod.method)
 
               coefficients
 (Intercept)      28.766764
@@ -2697,7 +2697,7 @@ response values in prediction interval   84     90     97     100
 ===summary(earth.mod$varmod)
 Parent model: earth(formula=Volume~Girth, data=trees,
                     trace=if(varmod.method%in%c("const","lm","power"))0.3els...),
-                    ncross=3, nfold=3, varmod.method=varmod.method)
+                    nfold=3, ncross=3, varmod.method=varmod.method)
 
 method "x.gam" (gam package)    min.sd 0.395    iter.rsq 0.410
 
@@ -2790,7 +2790,7 @@ skipping mgcv tests
 > printh("summary(earth.exponent)")
 ===summary(earth.exponent)
 > print(summary(earth.exponent))
-Call: earth(formula=Volume~Girth, data=trees, ncross=3, nfold=3,
+Call: earth(formula=Volume~Girth, data=trees, nfold=3, ncross=3,
             varmod.method="lm", varmod.exponent=0.5)
 
               coefficients
