@@ -4,10 +4,12 @@
 #include "Rinternals.h"
 #define printf Rprintf
 
+#ifndef _MSC_VER // microsoft
 #ifndef bool
     typedef int bool;
     #define false 0
     #define true  1
+#endif
 #endif
 
 #define Dirs_(iTerm,iPred) Dirs[(iTerm) + (iPred)*(nMaxTerms)]
@@ -107,13 +109,13 @@ static bool EvalAllowedFunc(void)
     bool allowed;
     switch(TYPEOF(s)) {         // be fairly permissive with return type
         case LGLSXP:
-            allowed = (bool)(LOGICAL(s)[0]);
+            allowed = (bool)(LOGICAL(s)[0] != 0);
             break;
         case INTSXP:
-            allowed = INTEGER(s)[0];
+            allowed = INTEGER(s)[0] != 0;
             break;
         case REALSXP:
-            allowed = (bool)(REAL(s)[0]);
+            allowed = (bool)(REAL(s)[0] != 0.);
             break;
         default:
             error("the \"allowed\" function returned a %s instead of a logical",

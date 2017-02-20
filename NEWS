@@ -1,6 +1,11 @@
 Changes to Earth Package
 ------------------------
 
+4.4.9  Feb 19, 2017
+
+  Fixed missing terminal entry in rentries.c:fortranEntries.
+  Minor tweaks to C and Fortran files for clang and vcc warnings.
+
 4.4.8  Feb 18, 2017
 
   Minor updates to model.matrix.earth:
@@ -9,10 +14,10 @@ Changes to Earth Package
     Extended the tests for model.matrix.earth in the slowtests directory.
 
   We now call R_init_earth (to quieten CRAN check complaints).
-  TO do that, added the file rentries.c and made changes to ForwardPassR.
+  To do that, added the file rentries.c and made changes to ForwardPassR.
 
-  Minor documentation updates.  Added DOI references in the help
-  pages to Friedman's papers as requested by Uwe Ligges.
+  Minor documentation updates.  Added DOI references to Friedman's papers 
+  in the help pages as requested by Uwe Ligges.
 
 4.4.7  Oct 18, 2016
 

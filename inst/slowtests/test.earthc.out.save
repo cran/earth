@@ -49,7 +49,7 @@ TEST 2: x0 n=10 p=1
    8  0.17770  0.17770
    9  0.41900  0.41900
 
-earth.c version 4.4.8
+earth.c version 4.4.9
 BetaCache 20.3 kB
 Forward pass: minspan 3 endspan 4    x[10,1] 80 B    bx[10,51] 3.98 kB
 
@@ -1193,7 +1193,7 @@ TEST 7: x0 + x1 n=1000 p=2
  998  1.57294  0.99760  0.65150
  999  0.77250  0.99800 -0.15910
 
-earth.c version 4.4.8
+earth.c version 4.4.9
 BetaCache 1.89 kB
 Forward pass: minspan 6 endspan 8    x[1000,2] 15.6 kB    bx[1000,11] 85.9 kB
 

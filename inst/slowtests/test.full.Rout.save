@@ -59,7 +59,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 4.4.8.
+  Splines. R package version 4.4.9.
   https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -68,7 +68,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 4.4.8},
+    note = {R package version 4.4.9},
     url = {https://CRAN.R-project.org/package=earth},
   }
 
@@ -4896,7 +4896,7 @@ y[101,1]:
  Max.   :9.000  
 
 maxmem 0.0 GB
-earth.c version 4.4.8
+earth.c version 4.4.9
 BetaCache 3.45 kB
 Forward pass: minspan 4 endspan 7    x[101,1] 808 B    bx[101,21] 16.6 kB
 

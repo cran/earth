@@ -5,8 +5,10 @@
 #include "R.h"
 #include "Rinternals.h" // for REALSXP etc.
 #include "R_ext/Rdynload.h"
+#ifndef _MSC_VER // microsoft
 #ifndef bool
     typedef int bool;
+#endif
 #endif
 #include "earth.h"
 
@@ -363,7 +365,8 @@ static R_FortranMethodDef fortranEntries[] = {
     { "sing",    (DL_FUNC)&F77_SUB(sing),    10, sing_t,    NULL},
     { "ssleaps", (DL_FUNC)&F77_SUB(ssleaps),  6, ssleaps_t, NULL},
     { "tolset",  (DL_FUNC)&F77_SUB(tolset),   7, tolset_t,  NULL},
-    { "makeqr",  (DL_FUNC)&F77_SUB(makeqr),  10, makeqr_t,  NULL}
+    { "makeqr",  (DL_FUNC)&F77_SUB(makeqr),  10, makeqr_t,  NULL},
+    {NULL,       NULL,                        0, NULL,      NULL}
 };
 void R_init_earth(DllInfo *dll) // called by R after R loads the earth package
 {

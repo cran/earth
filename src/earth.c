@@ -132,7 +132,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 4.4.8"; // change if you modify this file!
+static const char*  VERSION     = "version 4.4.9"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -576,7 +576,7 @@ static int* GetArrayOrder(
                             nRows, nCols, sizeof(int));
 
     for(int iCol = 0; iCol < nCols; iCol++) {
-        GetOrder(xOrder + iCol*nRows, x + iCol*nRows, nRows);
+        GetOrder(xOrder + iCol*nRows, x + iCol*nRows, (int)nRows);
 #if USING_R
         if(nRows > (int)1e4)
             ServiceR();
@@ -1799,7 +1799,7 @@ static INLINE void FindPredGivenParent(
         } // else
     } // for iPred
     free1(ybxSum);
-    if(UpdatedBestRssDelta && NewVarPenalty && nUses[*piBestPred] == 0) {
+    if(UpdatedBestRssDelta && NewVarPenalty != 0. && nUses[*piBestPred] == 0) {
         // we applied NewVarPenalty earlier, now un-apply it
         *pBestRssDeltaForTerm *= 1 + NewVarPenalty;
     }
@@ -2932,13 +2932,13 @@ void ForwardPassR(              // for use by R
                         nMaxTerms, nPreds, sizeof(int));
 
     // convert int to bool (may be redundant, depending on compiler)
-    BoolFullSet = (int*)malloc1(nMaxTerms * sizeof(bool),
+    BoolFullSet = (bool*)malloc1(nMaxTerms * sizeof(bool),
                         "BoolFullSet\t\tnMaxTerms %d sizeof(bool) %d",
                         nMaxTerms, sizeof(bool));
 
     int iTerm;
     for(iTerm = 0; iTerm < nMaxTerms; iTerm++)
-        BoolFullSet[iTerm] = FullSet[iTerm];
+        BoolFullSet[iTerm] = FullSet[iTerm] != 0;
 
     // convert R my.null to C NULL
 
@@ -2957,7 +2957,7 @@ void ForwardPassR(              // for use by R
             BoolFullSet, bx, iDirs, Cuts, nDegree, nUses,
             x, y, yw, WeightsArg, nCases, nResp, nPreds, *pnMaxDegree, nMaxTerms,
             *pPenalty, *pThresh, *pnFastK, *pFastBeta, *pNewVarPenalty,
-            LinPreds, *pAdjustEndSpan, (bool)(*pnUseBetaCache), sPredNames);
+            LinPreds, *pAdjustEndSpan, (bool)(*pnUseBetaCache != 0), sPredNames);
 
     FreeAllowedFunc();
 
@@ -3094,7 +3094,7 @@ void EvalSubsetsUsingXtxR(      // for use by R
     TraceGlobal = *pTrace;
 
     const int nMaxTerms = *pnMaxTerms;
-    bool* BoolPruneTerms = (int*)malloc1(nMaxTerms * nMaxTerms * sizeof(bool),
+    bool* BoolPruneTerms = (bool*)malloc1(nMaxTerms * nMaxTerms * sizeof(bool),
                                 "BoolPruneTerms\tMaxTerms %d nMaxTerms %d sizeof(bool) %d",
                                 nMaxTerms, nMaxTerms, sizeof(bool));
 

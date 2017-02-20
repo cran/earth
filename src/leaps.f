@@ -693,7 +693,7 @@ C
 C     If residual sum of squares (SSQ) for the new subset > the
 C     appropriate bound, return.
 C
-   20 IF (POS .GT. NVMAX) RETURN
+      IF (POS .GT. NVMAX) RETURN
       IF (SSQ .GE. BOUND(POS)) RETURN
 C
 C     Find rank of the new subset
