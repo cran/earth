@@ -1,4 +1,4 @@
-beb7ba1c51f46a048bd947789b6bc86f *DESCRIPTION
+a772f7a889f5eaf93470f17774c0b4bf *DESCRIPTION
 b4cf5fa0ab2b2c39036ba6309b152ddf *NAMESPACE
 5722e55304d6225cbc92aa7756cb0ab5 *NEWS
 d33619923af44f1a2e1851daabeb0cfb *R/as.char.R
@@ -31,7 +31,7 @@ d6fc52ecbbe8b67cffed4ae7b3deb862 *R/print.earth.R
 7c3b0430886a851919697e05d6c071a6 *R/residuals.earth.R
 7b64c367db716552ebe4676c36f931f1 *R/stop.if.dots.R
 21c89eaf5c7e8fae318b058ff5c7272f *R/varmod.R
-3448a7c983761aee88fd22eec36d3020 *build/partial.rdb
+66f7ca77f8f2b604ccb417609e39c35a *build/partial.rdb
 ea521b18189dc9e26e3e8953602656de *data/etitanic.rda
 15f5470c6245efd1c6d5e0ed0be996b4 *data/ozone1.rda
 1ec1bf08fd2e54fdd72571511aebb78a *inst/doc/earth-notes.pdf
@@ -112,7 +112,7 @@ b927c06ad64d2197e0498e4fcf0de041 *src/allowed.c
 652bd9a04b9071bd6596d6e5ae7e7971 *src/earth.h
 7764e2b86c36e64303bff2c60c5368a9 *src/leaps.f
 f7b979854bdd049cda5b1e7c1e8ce5c4 *src/leapshdr.f
-2e11158000c115f0fbfdbf0788cf03d3 *src/rentries.c
+80e7505add96541494cbae0f0ca22c45 *src/rentries.c
 55bf72c7cea4d7dd4337f7a65f240965 *tests/README.txt
 9909e925a48d4683a71570ed356ea942 *tests/test.earth.R
 a4cd5a129a8063ad40274b71c8a7b56b *tests/test.earth.Rout.save

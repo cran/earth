@@ -71,11 +71,11 @@ static R_NativePrimitiveArgType ForwardPassR_t[] = {
     CLOSXP      // 31 const double* MyNullFunc
 };
 static R_CMethodDef cEntries[] = {
-  {"FreeR",                (DL_FUNC)&FreeR,                 0, FreeR_t,                NULL},
-  {"EvalSubsetsUsingXtxR", (DL_FUNC)&EvalSubsetsUsingXtxR,  8, EvalSubsetsUsingXtxR_t, NULL},
-  {"RegressR",             (DL_FUNC)&RegressR,             12, RegressR_t,             NULL},
-  {"ForwardPassR",         (DL_FUNC)&ForwardPassR,         31, ForwardPassR_t,         NULL},
-  {NULL,                   NULL,                            0, NULL,                   NULL}
+  {"FreeR",                (DL_FUNC)&FreeR,                 0, FreeR_t},
+  {"EvalSubsetsUsingXtxR", (DL_FUNC)&EvalSubsetsUsingXtxR,  8, EvalSubsetsUsingXtxR_t},
+  {"RegressR",             (DL_FUNC)&RegressR,             12, RegressR_t},
+  {"ForwardPassR",         (DL_FUNC)&ForwardPassR,         31, ForwardPassR_t},
+  {NULL,                   NULL,                            0, NULL}
 };
 extern void F77_SUB(bakwrd)(
     int    *NP,
@@ -357,16 +357,16 @@ static R_NativePrimitiveArgType makeqr_t[] = {
     INTSXP,     // 03 INTEGER IER
 };
 static R_FortranMethodDef fortranEntries[] = {
-    { "bakwrd",  (DL_FUNC)&F77_SUB(bakwrd),  20, bakwrd_t,  NULL},
-    { "forwrd",  (DL_FUNC)&F77_SUB(forwrd),  20, forwrd_t,  NULL},
-    { "seqrep",  (DL_FUNC)&F77_SUB(seqrep),  20, seqrep_t,  NULL},
-    { "xhaust",  (DL_FUNC)&F77_SUB(xhaust),  22, xhaust_t,  NULL},
-    { "initr",   (DL_FUNC)&F77_SUB(initr),   11, initr_t,   NULL},
-    { "sing",    (DL_FUNC)&F77_SUB(sing),    10, sing_t,    NULL},
-    { "ssleaps", (DL_FUNC)&F77_SUB(ssleaps),  6, ssleaps_t, NULL},
-    { "tolset",  (DL_FUNC)&F77_SUB(tolset),   7, tolset_t,  NULL},
-    { "makeqr",  (DL_FUNC)&F77_SUB(makeqr),  10, makeqr_t,  NULL},
-    {NULL,       NULL,                        0, NULL,      NULL}
+    { "bakwrd",  (DL_FUNC)&F77_SUB(bakwrd),  20, bakwrd_t},
+    { "forwrd",  (DL_FUNC)&F77_SUB(forwrd),  20, forwrd_t},
+    { "seqrep",  (DL_FUNC)&F77_SUB(seqrep),  20, seqrep_t},
+    { "xhaust",  (DL_FUNC)&F77_SUB(xhaust),  22, xhaust_t},
+    { "initr",   (DL_FUNC)&F77_SUB(initr),   11, initr_t},
+    { "sing",    (DL_FUNC)&F77_SUB(sing),    10, sing_t},
+    { "ssleaps", (DL_FUNC)&F77_SUB(ssleaps),  6, ssleaps_t},
+    { "tolset",  (DL_FUNC)&F77_SUB(tolset),   7, tolset_t},
+    { "makeqr",  (DL_FUNC)&F77_SUB(makeqr),  10, makeqr_t},
+    {NULL,       NULL,                        0, NULL}
 };
 void R_init_earth(DllInfo *dll) // called by R after R loads the earth package
 {
