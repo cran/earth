@@ -3,15 +3,15 @@
 @rem TODO I haven't yet been able to get this to work:
 @rem      Crashes in daxpy_ call in FindKnot, ok with USE_BLAS = 0.
 
-cp "C:/Program Files/R/R-3.3.2/bin/x64/R.dll" .
+cp "C:/Program Files/R/R-3.3.3/bin/x64/R.dll" .
                                 @if %errorlevel% neq 0 goto error
-cp "C:/Program Files/R/R-3.3.2/bin/x64/Rblas.dll" .
+cp "C:/Program Files/R/R-3.3.3/bin/x64/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-cp "C:/Program Files/R/R-3.3.2/bin/x64/Riconv.dll" .
+cp "C:/Program Files/R/R-3.3.3/bin/x64/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-cp "C:/Program Files/R/R-3.3.2/bin/x64/Rgraphapp.dll" .
+cp "C:/Program Files/R/R-3.3.3/bin/x64/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
-@rem cp "C:/Program Files/R/R-3.3.2/bin/x64/Rzlib.dll" .
+@rem cp "C:/Program Files/R/R-3.3.3/bin/x64/Rzlib.dll" .
 @rem                                 @if %errorlevel% neq 0 goto error
 
 @rem you may have to create Rdll_x64.lib and Rblas_x64.lib beforehand

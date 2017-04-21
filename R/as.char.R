@@ -3,7 +3,7 @@
 
 as.char <- function(object, maxlen=20)
 {
-    stopifnot(is.numeric(maxlen), length(maxlen) == 1, maxlen > 0)
+    check.integer.scalar(maxlen, min=1)
 
     if(is.null(object))
         "NULL"
@@ -98,7 +98,7 @@ environment.as.char <- function(env, maxlen=60) # compact description
 print_summary <- function(x, xname=trunc.deparse(substitute(x)),
                           trace=2, msg="", prefix="", details=2)
 {
-    stopifnot(is.numeric(trace))
+    check.numeric.scalar(trace)
     if(trace < 2)
         return()
     if(is.null(x)) {

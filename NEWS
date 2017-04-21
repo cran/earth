@@ -1,6 +1,11 @@
 Changes to Earth Package
 ------------------------
 
+4.5.0  Apr 20, 2017
+
+  Removed trailing NULL entries in R_CMethodDef and R_FortranMethodDef to
+  match changes to Rdynload.c in R core source code above version 3.3.3.
+
 4.4.9  Feb 19, 2017
 
   Fixed missing terminal entry in rentries.c:fortranEntries.
@@ -16,7 +21,7 @@ Changes to Earth Package
   We now call R_init_earth (to quieten CRAN check complaints).
   To do that, added the file rentries.c and made changes to ForwardPassR.
 
-  Minor documentation updates.  Added DOI references to Friedman's papers 
+  Minor documentation updates.  Added DOI references to Friedman's papers
   in the help pages as requested by Uwe Ligges.
 
 4.4.7  Oct 18, 2016

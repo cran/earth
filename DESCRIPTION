@@ -1,11 +1,11 @@
 Package: earth
-Version: 4.4.9.1
+Version: 4.5.0
 Title: Multivariate Adaptive Regression Splines
 Author: Stephen Milborrow.  Derived from mda:mars by Trevor Hastie and
     Rob Tibshirani.  Uses Alan Miller's Fortran utilities
     with Thomas Lumley's leaps wrapper.
 Maintainer: Stephen Milborrow <milbo@sonic.net>
-Depends: plotmo (>= 3.1.5), TeachingDemos (>= 2.10)
+Depends: R (>= 3.2.0), plotmo (>= 3.3.0), TeachingDemos (>= 2.10)
 Suggests: gam (>= 1.12), mgcv (>= 1.8-14), mda (>= 0.4-9), MASS (>=
         7.3-45)
 Description: Build regression models using the techniques in Friedman's
@@ -14,8 +14,8 @@ Description: Build regression models using the techniques in Friedman's
     the name of the package.)
 License: GPL-3
 URL: http://www.milbo.users.sonic.net/earth
-Packaged: 2017-03-16 07:01:13 UTC; ripley
+Packaged: 2017-04-21 17:37:31 UTC; milbo
 Repository: CRAN
-Date/Publication: 2017-03-21 06:47:56 UTC
+Date/Publication: 2017-04-21 18:38:25 UTC
 RoxygenNote: 5.0.1
 NeedsCompilation: yes

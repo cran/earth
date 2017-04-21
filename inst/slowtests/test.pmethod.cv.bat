@@ -1,7 +1,7 @@
 @Rem test.pmethod.cv.R: example pmethod.cv model built by earth
 @rem Stephen Milborrow May 2015 Berea
 
-@"C:\PROGRA~1\R\R-3.3.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.pmethod.cv.R
+@"C:\PROGRA~1\R\R-3.3.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.pmethod.cv.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.pmethod.cv.Rout:
 @echo.
