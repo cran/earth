@@ -39,7 +39,6 @@ call.dots <- function(
     }
     if(is.null(CALLARGS))
         CALLARGS <- callargs(call.dots)
-
     args <- deprefix(FUNC=FUNC, PREFIX=PREFIX, ..., DROP=DROP, KEEP=KEEP,
                      TRACE=TRACE, FNAME=FNAME, FORMALS=FORMALS,
                      SCALAR=SCALAR, CALLARGS=CALLARGS)
@@ -435,7 +434,7 @@ higher.caller.to.deprefix <- function(..., FNAME=FNAME)
     higher.fname <- "FUNC"
     try.was.used <- FALSE
     for(i in max(ncalls-10, 1) : ncalls) {
-        fname <- paste(sys.calls[[i]])[1]
+        fname <- paste(sys.calls[[i]][1]) # TODO is [1] in the correct position?
         if(grepl("^call\\.|^deprefix", fname))
             break
         if(grepl("^doTry|^try", fname))

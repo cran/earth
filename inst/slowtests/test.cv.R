@@ -234,6 +234,165 @@ cat("\nnterms selected by GCV (standard earth model):", length(mod$selected.term
 
 mod.cv <- earth(y~., data=data, nprune=nterms.selected.by.cv, penalty=-1)
 
+# Test cross validation when calling earth from within a function
+
+formula.global <- Volume ~ .
+data.global <- trees
+weights.global <- rep(1, length.out=nrow(trees))
+weights.global[1] <- 2
+
+lm.weights.local1 <- function() {
+   weights.local <- rep(1, length.out=nrow(trees))
+   weights.local[1] <- 2
+   lm(formula=Volume ~ ., data=trees, weights=weights.local)
+}
+cat("\n--lm.weights.local1\n")
+print(summary(lm.weights.local1()))
+
+earth.weights.local2 <- function() {
+   weights.local <- rep(1, length.out=nrow(trees))
+   weights.local[1] <- 2
+   earth(formula=Volume ~ ., data=trees, linpreds=TRUE, weights=weights.local)
+}
+cat("\n--earth.weights.local2\n")
+print(summary(earth.weights.local2()))
+
+lm.weights.local2 <- function(){
+   weights.local <- rep(1, length.out=nrow(trees))
+   weights.local[1] <- 2
+   lm(formula=formula.global, data=data.global, weights=weights.local)
+}
+cat("\n--lm.weights.local2\n")
+try(lm.weights.local2()) # fails: object 'weights.local' not found
+
+earth.weights.local2 <- function(){
+   weights.local <- rep(1, length.out=nrow(trees))
+   weights.local[1] <- 2
+   earth(formula=formula.global, data=data.global, linpreds=TRUE, weights=weights.local)
+}
+cat("\n--earth.weights.local2\n")
+try(earth.weights.local2()) # fails: object 'weights.local' not found, so does lm (see lm.weights.local2 above)
+
+#--- cross validation tests
+
+earth.cv.1 <- function() {
+    set.seed(2017)
+    earth(formula=Volume ~ ., data=trees, weights=weights.global, linpreds=TRUE,
+         nfold=3)
+}
+cat("\n--earth.cv.1\n")
+print(earth.cv.1())
+earth.cv.2 <- function() {
+    weights.local <- rep(1, length.out=nrow(trees))
+    weights.local[1] <- 2
+    set.seed(2017)
+    earth(formula=Volume ~ ., data=trees, weights=weights.local, linpreds=TRUE,
+          nfold=3)
+}
+cat("\n--earth.cv.2\n")
+print(earth.cv.2())
+earth.cv.3 <- function(){
+    set.seed(2017)
+    earth(formula=formula.global, data=data.global, weights=weights.global, linpreds=TRUE,
+          nfold=3)
+}
+cat("\n--earth.cv.3\n")
+print(earth.cv.3())
+
+# earth.cv.4 <- function(){ # fails: object 'weights.local' not found, cf earth.weights.local2 above for simpler example
+#    weights.local <- rep(1, length.out=nrow(trees))
+#    weights.local[1] <- 2
+#    set.seed(2017)
+#    earth(formula=formula.global, data=data.global, weights=weights.local, linpreds=TRUE,
+#          nfold=3)
+# }
+# cat("\n--earth.cv.4\n")
+# printt(earth.cv.4())
+
+thresh.global <- .002
+earth.cv.1 <- function() {
+    set.seed(2017)
+    earth(formula=Volume ~ ., data=trees, thresh=thresh.global,
+         nfold=3)
+}
+cat("\n--earth.cv.1\n")
+print(earth.cv.1())
+earth.cv.2 <- function() {
+    thresh.local <- .002
+    set.seed(2017)
+    earth(formula=Volume ~ ., data=trees, thresh=thresh.local,
+          nfold=3)
+}
+cat("\n--earth.cv.2\n")
+print(earth.cv.2())
+earth.cv.3 <- function(){
+    set.seed(2017)
+    earth(formula=formula.global, data=data.global, thresh=thresh.global,
+          nfold=3)
+}
+cat("\n--earth.cv.3\n")
+print(earth.cv.3())
+earth.cv.4 <- function(){
+    thresh.local <- .002
+    set.seed(2017)
+    earth(formula=formula.global, data=data.global, thresh=thresh.local,
+          nfold=3)
+}
+cat("\n--earth.cv.4\n")
+print(earth.cv.4())
+earth.cv.5 <- function(){
+    thresh <- .002
+    set.seed(2017)
+    earth(formula=formula.global, data=data.global, thresh=thresh,
+          nfold=3)
+}
+cat("\n--earth.cv.5\n")
+print(earth.cv.5())
+
+thresh.global <- .002
+earth.cv.1 <- function() {
+    set.seed(2017)
+    earth(formula=Volume ~ ., data=trees, thresh=thresh.global,
+          pmethod="cv", nfold=3)
+}
+cat("\n--earth.cv.1\n")
+print(earth.cv.1())
+earth.cv.2 <- function() { # fails
+    thresh.local <- .002
+    set.seed(2017)
+    a <- earth(formula=Volume ~ ., data=trees, thresh=thresh.local,
+          pmethod="cv", ncross=3, nfold=3, keepxy=TRUE)
+    # plot(a, which=1, ylim=c(.7, 1))
+    # print(a)
+    a
+}
+cat("\n--earth.cv.2\n")
+print(earth.cv.2())
+a <- earth.cv.2()
+earth.cv.3 <- function(){
+    set.seed(2017)
+    earth(formula=formula.global, data=data.global, thresh=thresh.global,
+          pmethod="cv", nfold=3)
+}
+cat("\n--earth.cv.3\n")
+print(earth.cv.3())
+earth.cv.4 <- function(){ # fails
+    thresh.local <- .002
+    set.seed(2017)
+    earth(formula=formula.global, data=data.global, thresh=thresh.local,
+          pmethod="cv", nfold=3)
+}
+cat("\n--earth.cv.4\n")
+print(earth.cv.4())
+earth.cv.5 <- function(){ # fails
+    thresh <- .002
+    set.seed(2017)
+    earth(formula=formula.global, data=data.global, thresh=thresh,
+          pmethod="cv", nfold=3)
+}
+cat("\n--earth.cv.5\n")
+print(earth.cv.5())
+
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

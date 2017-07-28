@@ -260,7 +260,7 @@ After pruning pass GRSq 1 RSq 1
 +                     linpreds=TRUE, glm=list(family=binomial),
 +                     weights=glm.weights,
 +                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-Warning in eval(expr, envir, enclos) :
+Warning in eval(family$initialize) :
   non-integer #successes in a binomial glm!
 > plotmo(a8.weights, type="response",
 +        col.response=2, do.par=F, main="a8.weights glm\ntype=\"response\"",
@@ -269,7 +269,7 @@ Warning in eval(expr, envir, enclos) :
 +        col.response=2, do.par=F, main="a8.weights glm\ntype=\"earth\"",
 +        grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 > glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
-Warning in eval(expr, envir, enclos) :
+Warning in eval(family$initialize) :
   non-integer #successes in a binomial glm!
 > # TODO this fails if a weight is 0 in glm.weights
 > stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm))
@@ -451,7 +451,7 @@ After pruning pass GRSq 0.914 RSq 0.985
 > library(gam)
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.14
+Loaded gam 1.14-4
 
 > library(rpart)
 > n <- 100

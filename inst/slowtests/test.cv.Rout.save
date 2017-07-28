@@ -13987,6 +13987,313 @@ nterms selected by CV:                         5
 > 
 > mod.cv <- earth(y~., data=data, nprune=nterms.selected.by.cv, penalty=-1)
 > 
+> # Test cross validation when calling earth from within a function
+> 
+> formula.global <- Volume ~ .
+> data.global <- trees
+> weights.global <- rep(1, length.out=nrow(trees))
+> weights.global[1] <- 2
+> 
+> lm.weights.local1 <- function() {
++    weights.local <- rep(1, length.out=nrow(trees))
++    weights.local[1] <- 2
++    lm(formula=Volume ~ ., data=trees, weights=weights.local)
++ }
+> cat("\n--lm.weights.local1\n")
+
+--lm.weights.local1
+> print(summary(lm.weights.local1()))
+
+Call:
+lm(formula = Volume ~ ., data = trees, weights = weights.local)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-6.5173 -2.4335 -0.6085  1.9793  8.9436 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -56.4763     8.8306  -6.396 6.36e-07 ***
+Girth         4.6307     0.2658  17.420  < 2e-16 ***
+Height        0.3349     0.1342   2.496   0.0187 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.003 on 28 degrees of freedom
+Multiple R-squared:  0.9471,	Adjusted R-squared:  0.9434 
+F-statistic: 250.9 on 2 and 28 DF,  p-value: < 2.2e-16
+
+> 
+> earth.weights.local2 <- function() {
++    weights.local <- rep(1, length.out=nrow(trees))
++    weights.local[1] <- 2
++    earth(formula=Volume ~ ., data=trees, linpreds=TRUE, weights=weights.local)
++ }
+> cat("\n--earth.weights.local2\n")
+
+--earth.weights.local2
+> print(summary(earth.weights.local2()))
+Call: earth(formula=Volume~., data=trees, weights=weights.local, linpreds=TRUE)
+
+            coefficients
+(Intercept)   -56.476323
+Girth           4.630708
+Height          0.334945
+
+Selected 3 of 3 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 20.5747    RSS 448.6613    GRSq 0.9296315    RSq 0.9471454
+> 
+> lm.weights.local2 <- function(){
++    weights.local <- rep(1, length.out=nrow(trees))
++    weights.local[1] <- 2
++    lm(formula=formula.global, data=data.global, weights=weights.local)
++ }
+> cat("\n--lm.weights.local2\n")
+
+--lm.weights.local2
+> try(lm.weights.local2()) # fails: object 'weights.local' not found
+Error in eval(extras, data, env) : object 'weights.local' not found
+> 
+> earth.weights.local2 <- function(){
++    weights.local <- rep(1, length.out=nrow(trees))
++    weights.local[1] <- 2
++    earth(formula=formula.global, data=data.global, linpreds=TRUE, weights=weights.local)
++ }
+> cat("\n--earth.weights.local2\n")
+
+--earth.weights.local2
+> try(earth.weights.local2()) # fails: object 'weights.local' not found, so does lm (see lm.weights.local2 above)
+Error in eval(extras, data, env) : object 'weights.local' not found
+> 
+> #--- cross validation tests
+> 
+> earth.cv.1 <- function() {
++     set.seed(2017)
++     earth(formula=Volume ~ ., data=trees, weights=weights.global, linpreds=TRUE,
++          nfold=3)
++ }
+> cat("\n--earth.cv.1\n")
+
+--earth.cv.1
+> print(earth.cv.1())
+Selected 3 of 3 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 20.5747  RSS 448.6613  GRSq 0.9296315  RSq 0.9471454  CVRSq 0.8929115
+> earth.cv.2 <- function() {
++     weights.local <- rep(1, length.out=nrow(trees))
++     weights.local[1] <- 2
++     set.seed(2017)
++     earth(formula=Volume ~ ., data=trees, weights=weights.local, linpreds=TRUE,
++           nfold=3)
++ }
+> cat("\n--earth.cv.2\n")
+
+--earth.cv.2
+> print(earth.cv.2())
+Selected 3 of 3 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 20.5747  RSS 448.6613  GRSq 0.9296315  RSq 0.9471454  CVRSq 0.8929115
+> earth.cv.3 <- function(){
++     set.seed(2017)
++     earth(formula=formula.global, data=data.global, weights=weights.global, linpreds=TRUE,
++           nfold=3)
++ }
+> cat("\n--earth.cv.3\n")
+
+--earth.cv.3
+> print(earth.cv.3())
+Selected 3 of 3 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 20.5747  RSS 448.6613  GRSq 0.9296315  RSq 0.9471454  CVRSq 0.8929115
+> 
+> # earth.cv.4 <- function(){ # fails: object 'weights.local' not found, cf earth.weights.local2 above for simpler example
+> #    weights.local <- rep(1, length.out=nrow(trees))
+> #    weights.local[1] <- 2
+> #    set.seed(2017)
+> #    earth(formula=formula.global, data=data.global, weights=weights.local, linpreds=TRUE,
+> #          nfold=3)
+> # }
+> # cat("\n--earth.cv.4\n")
+> # printt(earth.cv.4())
+> 
+> thresh.global <- .002
+> earth.cv.1 <- function() {
++     set.seed(2017)
++     earth(formula=Volume ~ ., data=trees, thresh=thresh.global,
++          nfold=3)
++ }
+> cat("\n--earth.cv.1\n")
+
+--earth.cv.1
+> print(earth.cv.1())
+Selected 4 of 5 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.25439  RSS 209.1139  GRSq 0.959692  RSq 0.9742029  CVRSq 0.9504197
+> earth.cv.2 <- function() {
++     thresh.local <- .002
++     set.seed(2017)
++     earth(formula=Volume ~ ., data=trees, thresh=thresh.local,
++           nfold=3)
++ }
+> cat("\n--earth.cv.2\n")
+
+--earth.cv.2
+> print(earth.cv.2())
+Selected 4 of 5 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.25439  RSS 209.1139  GRSq 0.959692  RSq 0.9742029  CVRSq 0.9504197
+> earth.cv.3 <- function(){
++     set.seed(2017)
++     earth(formula=formula.global, data=data.global, thresh=thresh.global,
++           nfold=3)
++ }
+> cat("\n--earth.cv.3\n")
+
+--earth.cv.3
+> print(earth.cv.3())
+Selected 4 of 5 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.25439  RSS 209.1139  GRSq 0.959692  RSq 0.9742029  CVRSq 0.9504197
+> earth.cv.4 <- function(){
++     thresh.local <- .002
++     set.seed(2017)
++     earth(formula=formula.global, data=data.global, thresh=thresh.local,
++           nfold=3)
++ }
+> cat("\n--earth.cv.4\n")
+
+--earth.cv.4
+> print(earth.cv.4())
+Selected 4 of 5 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.25439  RSS 209.1139  GRSq 0.959692  RSq 0.9742029  CVRSq 0.9504197
+> earth.cv.5 <- function(){
++     thresh <- .002
++     set.seed(2017)
++     earth(formula=formula.global, data=data.global, thresh=thresh,
++           nfold=3)
++ }
+> cat("\n--earth.cv.5\n")
+
+--earth.cv.5
+> print(earth.cv.5())
+Selected 4 of 5 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.25439  RSS 209.1139  GRSq 0.959692  RSq 0.9742029  CVRSq 0.9504197
+> 
+> thresh.global <- .002
+> earth.cv.1 <- function() {
++     set.seed(2017)
++     earth(formula=Volume ~ ., data=trees, thresh=thresh.global,
++           pmethod="cv", nfold=3)
++ }
+> cat("\n--earth.cv.1\n")
+
+--earth.cv.1
+> print(earth.cv.1())
+Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+GRSq 0.948644  RSq 0.9614259  mean.oof.RSq 0.9531341 (sd 0.0122)
+
+pmethod="backward" would have selected:
+    4 terms 2 preds,  GRSq 0.959692  RSq 0.9742029  mean.oof.RSq 0.9504197
+> earth.cv.2 <- function() { # fails
++     thresh.local <- .002
++     set.seed(2017)
++     a <- earth(formula=Volume ~ ., data=trees, thresh=thresh.local,
++           pmethod="cv", ncross=3, nfold=3, keepxy=TRUE)
++     # plot(a, which=1, ylim=c(.7, 1))
++     # print(a)
++     a
++ }
+> cat("\n--earth.cv.2\n")
+
+--earth.cv.2
+> print(earth.cv.2())
+Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+GRSq 0.948644  RSq 0.9614259  mean.oof.RSq 0.9454595 (sd 0.0203)
+
+pmethod="backward" would have selected:
+    4 terms 2 preds,  GRSq 0.959692  RSq 0.9742029  mean.oof.RSq 0.9376948
+> a <- earth.cv.2()
+> earth.cv.3 <- function(){
++     set.seed(2017)
++     earth(formula=formula.global, data=data.global, thresh=thresh.global,
++           pmethod="cv", nfold=3)
++ }
+> cat("\n--earth.cv.3\n")
+
+--earth.cv.3
+> print(earth.cv.3())
+Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+GRSq 0.948644  RSq 0.9614259  mean.oof.RSq 0.9531341 (sd 0.0122)
+
+pmethod="backward" would have selected:
+    4 terms 2 preds,  GRSq 0.959692  RSq 0.9742029  mean.oof.RSq 0.9504197
+> earth.cv.4 <- function(){ # fails
++     thresh.local <- .002
++     set.seed(2017)
++     earth(formula=formula.global, data=data.global, thresh=thresh.local,
++           pmethod="cv", nfold=3)
++ }
+> cat("\n--earth.cv.4\n")
+
+--earth.cv.4
+> print(earth.cv.4())
+Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+GRSq 0.948644  RSq 0.9614259  mean.oof.RSq 0.9531341 (sd 0.0122)
+
+pmethod="backward" would have selected:
+    4 terms 2 preds,  GRSq 0.959692  RSq 0.9742029  mean.oof.RSq 0.9504197
+> earth.cv.5 <- function(){ # fails
++     thresh <- .002
++     set.seed(2017)
++     earth(formula=formula.global, data=data.global, thresh=thresh,
++           pmethod="cv", nfold=3)
++ }
+> cat("\n--earth.cv.5\n")
+
+--earth.cv.5
+> print(earth.cv.5())
+Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+GRSq 0.948644  RSq 0.9614259  mean.oof.RSq 0.9531341 (sd 0.0122)
+
+pmethod="backward" would have selected:
+    4 terms 2 preds,  GRSq 0.959692  RSq 0.9742029  mean.oof.RSq 0.9504197
+> 
 > if(!interactive()) {
 +     dev.off()         # finish postscript plot
 +     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

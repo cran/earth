@@ -381,8 +381,17 @@ get.model.env <- function(object, object.name="object", trace=0)
     terms <- try(terms(object), silent=trace < 3)
     if(!is.try.err(terms) && !is.null(terms)) {
         model.env <- attr(terms, ".Environment")
-        if(is.null(model.env))
+        if(is.null(model.env)) {
+            if(inherits(object, "glmnet.formula") ||  # glmnetUtils package
+               inherits(object, "cv.glmnet.formula"))
+                if(inherits(object, "glmnet.formula"))
+                    stop0(
+"for this plot, glmnet.formula must be called with use.model.frame=TRUE")
+                if(inherits(object, "cv.glmnet.formula"))
+                    stop0(
+"for this plot, cv.glmnet.formula must be called with use.model.frame=TRUE")
             stop0("attr(terms, \".Environment\") is NULL")
+        }
         if(!is.environment(model.env))
             stop0("attr(terms, \".Environment\") is not an environment")
         else {

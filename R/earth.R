@@ -261,10 +261,46 @@ earth.default <- function(
 "=== pmethod=\"cv\": Calling update.earth internally for nterms.selected.by.cv=%g ===\n",
                 nterms.selected.by.cv)
             trace2(trace, "\n")
+            # July 2017 TODO following necessary for eval.parent(call) in update.earth
+            penalty         <- dota("penalty",         DEF=if(degree > 1) 3 else 2, ...)
+            nk              <- dota("nk",              DEF=min(200, max(20, 2 * ncol(x))) + 1, ...)
+            thresh          <- dota("thresh",          DEF=0.001, ...)
+            minspan         <- dota("minspan",         DEF=0, ...)
+            endspan         <- dota("endspan",         DEF=0, ...)
+            newvar.penalty  <- dota("newvar.penalty",  DEF=0, ...)
+            fast.k          <- dota("fast.k",          DEF=20, ...)
+            fast.beta       <- dota("fast.beta",       DEF=1, ...)
+            linpreds        <- dota("linpreds",        DEF=FALSE, ...)
+            allowed         <- dota("allowed",         DEF=NULL, ...)
+            Object          <- dota("Object ",         DEF=NULL, ...)
+            Adjust.endspan  <- dota("Adjust.endspan",  DEF=2, ...)
+            Force.weights   <- dota("Force.weights",   DEF=FALSE, ...)
+            Use.beta.cache  <- dota("Use.beta.cache",  DEF=TRUE, ...)
+            Force.xtx.prune <- dota("Force.xtx.prune", DEF=FALSE, ...)
+            Get.leverages   <- dota("Get.leverages",   DEF=NROW(x) < 1e5, ...)
+            Exhaustive.tol  <- dota("Exhaustive.tol",  DEF=1e-10, ...)
             rv <- update.earth(rv, ponly=TRUE, trace=trace,
                                pmethod="cv", nprune=nterms.selected.by.cv,
                                nfold=0, ncross=1,
-                               glm=glm, varmod.method="none")
+                               glm=glm, varmod.method="none",
+                               # July 2017 TODO following necessary for eval.parent(call) in update.earth
+                               penalty=penalty,
+                               nk=nk,
+                               thresh=thresh,
+                               minspan=minspan,
+                               endspan=endspan,
+                               newvar.penalty=newvar.penalty,
+                               fast.k=fast.k,
+                               fast.beta=fast.beta,
+                               linpreds=linpreds,
+                               allowed=allowed,
+                               Object=Object,
+                               Adjust.endspan=Adjust.endspan,
+                               Force.weights=Force.weights,
+                               Use.beta.cache=Use.beta.cache,
+                               Force.xtx.prune=Force.xtx.prune,
+                               Get.leverages=Get.leverages,
+                               Exhaustive.tol=Exhaustive.tol)
 
             rv$call    <- call
             rv$pmethod <- "cv"
@@ -477,10 +513,47 @@ earth.formula <- function(
 "=== pmethod=\"cv\": Calling update.earth internally for nterms.selected.by.cv=%g ===\n",
                 nterms.selected.by.cv)
             trace2(trace, "\n")
+            # July 2017 TODO following necessary for eval.parent(call) in update.earth
+            penalty         <- dota("penalty",         DEF=if(degree > 1) 3 else 2, ...)
+            nk              <- dota("nk",              DEF=min(200, max(20, 2 * ncol(x))) + 1, ...)
+            thresh          <- dota("thresh",          DEF=0.001, ...)
+            minspan         <- dota("minspan",         DEF=0, ...)
+            endspan         <- dota("endspan",         DEF=0, ...)
+            newvar.penalty  <- dota("newvar.penalty",  DEF=0, ...)
+            fast.k          <- dota("fast.k",          DEF=20, ...)
+            fast.beta       <- dota("fast.beta",       DEF=1, ...)
+            linpreds        <- dota("linpreds",        DEF=FALSE, ...)
+            allowed         <- dota("allowed",         DEF=NULL, ...)
+            Object          <- dota("Object ",         DEF=NULL, ...)
+            Adjust.endspan  <- dota("Adjust.endspan",  DEF=2, ...)
+            Force.weights   <- dota("Force.weights",   DEF=FALSE, ...)
+            Use.beta.cache  <- dota("Use.beta.cache",  DEF=TRUE, ...)
+            Force.xtx.prune <- dota("Force.xtx.prune", DEF=FALSE, ...)
+            Get.leverages   <- dota("Get.leverages",   DEF=NROW(x) < 1e5, ...)
+            Exhaustive.tol  <- dota("Exhaustive.tol",  DEF=1e-10, ...)
+
             rv <- update.earth(rv, ponly=TRUE, trace=trace,
                                pmethod="cv", nprune=nterms.selected.by.cv,
                                nfold=0, ncross=1,
-                               glm=glm, varmod.method="none")
+                               glm=glm, varmod.method="none",
+                               # July 2017 TODO following necessary for eval.parent(call) in update.earth
+                               penalty=penalty,
+                               nk=nk,
+                               thresh=thresh,
+                               minspan=minspan,
+                               endspan=endspan,
+                               newvar.penalty=newvar.penalty,
+                               fast.k=fast.k,
+                               fast.beta=fast.beta,
+                               linpreds=linpreds,
+                               allowed=allowed,
+                               Object=Object,
+                               Adjust.endspan=Adjust.endspan,
+                               Force.weights=Force.weights,
+                               Use.beta.cache=Use.beta.cache,
+                               Force.xtx.prune=Force.xtx.prune,
+                               Get.leverages=Get.leverages,
+                               Exhaustive.tol=Exhaustive.tol)
             rv$call    <- call
             rv$pmethod <- "cv"
             rv$nprune  <- nprune

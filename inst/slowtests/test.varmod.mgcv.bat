@@ -2,7 +2,7 @@
 @rem mgcv has to be tested separately because of clashes between library(gam) and library(mgcv)
 @rem Stephen Milborrow Apr 2015 Berea
 
-@"C:\PROGRA~1\R\R-3.3.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.varmod.mgcv.R
+@"C:\PROGRA~1\R\R-3.4.1\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.varmod.mgcv.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.varmod.mgcv.Rout:
 @echo.
