@@ -64,17 +64,18 @@ static R_NativePrimitiveArgType ForwardPassR_t[] = {
     INTSXP,     // 24 const int* pnAllowedFuncArgs
     ENVSXP,     // 25 const SEXP Env
     REALSXP,    // 26 const double* pAdjustEndSpan
-    INTSXP,     // 27 const int* pnUseBetaCache
-    REALSXP,    // 28 const double* pTrace
-    STRSXP,     // 29 const char* sPredNames[]
-    REALSXP,    // 30 const double* MyNullDouble
-    CLOSXP      // 31 const double* MyNullFunc
+    INTSXP,     // 27 const int* pnAutoLinPreds
+    INTSXP,     // 28 const int* pnUseBetaCache
+    REALSXP,    // 29 const double* pTrace
+    STRSXP,     // 30 const char* sPredNames[]
+    REALSXP,    // 31 const double* MyNullDouble
+    CLOSXP      // 32 const double* MyNullFunc
 };
 static R_CMethodDef cEntries[] = {
   {"FreeR",                (DL_FUNC)&FreeR,                 0, FreeR_t},
   {"EvalSubsetsUsingXtxR", (DL_FUNC)&EvalSubsetsUsingXtxR,  8, EvalSubsetsUsingXtxR_t},
   {"RegressR",             (DL_FUNC)&RegressR,             12, RegressR_t},
-  {"ForwardPassR",         (DL_FUNC)&ForwardPassR,         31, ForwardPassR_t},
+  {"ForwardPassR",         (DL_FUNC)&ForwardPassR,         32, ForwardPassR_t},
   {NULL,                   NULL,                            0, NULL}
 };
 extern void F77_SUB(bakwrd)(

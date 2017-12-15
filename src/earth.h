@@ -47,6 +47,7 @@ void ForwardPassR(              // for use by R
     const int* pnAllowedFuncArgs,  // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,                // in: environment for Allowed function
     const double* pAdjustEndSpan,  // in:
+    const int* pnAutoLinPreds,      // in: assume predictor linear if knot is min predictor value
     const int* pnUseBetaCache,     // in: 1 to use the beta cache, for speed
     const double* pTrace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char* sPredNames[],      // in: predictor names in trace printfs, can be MyNull
@@ -108,7 +109,8 @@ void Earth(
     const double FastBeta,       // in: Fast MARS ageing coef
     const double NewVarPenalty,  // in: penalty for adding a new variable
     const int LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
-    const double AdjustEndSpan,  // in:
+    const double AdjustEndSpan,  // in: for adjusting endspan for interaction terms
+    const bool AutoLinPreds,      // in: assume predictor linear if knot is max predictor value
     const bool UseBetaCache,     // in: 1 to use the beta cache, for speed
     const double Trace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char* sPredNames[]);   // in: predictor names in trace printfs, can be NULL

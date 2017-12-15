@@ -132,7 +132,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 4.4.9"; // change if you modify this file!
+static const char*  VERSION     = "version 4.6.0"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -1251,7 +1251,6 @@ static void AddTermPair(
     Dirs_(nTerms, iBestPred) = DirEntry;
     Dirs_(nTerms1,iBestPred) = -1; // will be ignored if adding only one hinge
 
-    ASSERT(LinPredIsBest || iBestCase != 0);
     const double BestCut = GetCut(iBestCase, iBestPred, nCases, x, xOrder);
 
     Cuts_(nTerms, iBestPred) = Cuts_(nTerms1,iBestPred) = BestCut;
@@ -1266,9 +1265,9 @@ static void AddTermPair(
 #endif
     int i;
     if(DirEntry == 2) { // linpred?
-        for(i = 0; i < (const int)nCases; i++)
+        for(i = 0; i < (const int)nCases; i++)      // add single term
             bx_(i,nTerms) = bx_(i,iBestParent) * x_(i,iBestPred);
-    } else for(i = 0; i < (const int)nCases; i++) {
+    } else for(i = 0; i < (const int)nCases; i++) { // add term pair
         const int iOrdered = xOrder_(i, iBestPred);
         const double xi = x_(iOrdered, iBestPred);
         if(i > iBestCase)
@@ -2360,8 +2359,7 @@ static void PrintForwardStep(
     const size_t nCases,
     const int xOrder[],
     const double x[],
-    const bool LinPredIsBest,   // in: true if pred should enter linearly (no knot)
-    const bool IsNewForm,
+    const bool IsTermPair,
     const char* sPredNames[])   // in: predictor names, can be NULL
 {
     if(TraceGlobal == 6)
@@ -2393,8 +2391,8 @@ static void PrintForwardStep(
             else
                 printf("% 11.5g%c ",
                     GetCut(iBestCase, iBestPred, nCases, x, xOrder),
-                        (LinPredIsBest? '<': ' '));
-            if(!LinPredIsBest && IsNewForm) // two new used terms?
+                        (iBestCase==0? '<': ' ')); // print '<' if knot is at min
+            if(IsTermPair) // two new used terms?
                 printf("%-3d %-3d ", nUsedTerms-2+IOFFSET, nUsedTerms-1+IOFFSET);
             else
                 printf("%-3d     ", nUsedTerms-1+IOFFSET);
@@ -2594,6 +2592,7 @@ static void CheckForwardPassArgs(
     const double NewVarPenalty,
     const int  LinPreds[],
     const double AdjustEndSpan,
+    const bool AutoLinPreds,
     const bool UseBetaCache)
 {
     const int nCases1 = (const int)nCases; // type convert from size_t
@@ -2646,6 +2645,8 @@ static void CheckForwardPassArgs(
         warning("newvar.penalty %g is greater than 100", NewVarPenalty);
     if(AdjustEndSpan < 0 || AdjustEndSpan > 10)
         error("Endspan.penalty is %g but should be between 0 and 10", AdjustEndSpan);
+    if(AutoLinPreds != 0 && AutoLinPreds != 1)
+        error("Auto.linpreds  is neither TRUE nor FALSE");
     if(UseBetaCache != 0 && UseBetaCache != 1)
         warning("Use.Beta.Cache is neither TRUE nor FALSE");
 
@@ -2705,13 +2706,14 @@ static void ForwardPass(
     const double NewVarPenalty,  // in: penalty for adding a new variable (default is 0)
     const int  LinPreds[],       // in: nPreds x 1, 1 if predictor must enter linearly
     const double AdjustEndSpan,  // in:
+    const bool AutoLinPreds,     // in: assume predictor linear if knot is min predictor value
     const bool UseBetaCache,     // in: true to use the beta cache, for speed
     const char* sPredNames[])    // in: predictor names, can be NULL
 {
     tprintf(5, "earth.c %s\n", VERSION);
     CheckForwardPassArgs(x, y, yw, WeightsArg, nCases, nResp, nPreds,
         nMaxDegree, nMaxTerms, Penalty, Thresh, FastBeta, NewVarPenalty,
-        LinPreds, AdjustEndSpan, UseBetaCache);
+        LinPreds, AdjustEndSpan, AutoLinPreds, UseBetaCache);
 
     if(nFastK <= 0)
         nFastK = 10000+1;   // bigger than any nMaxTerms
@@ -2795,15 +2797,23 @@ static void ForwardPass(
             yMean, Rss, MaxLegalRssDelta, FullSet, xOrder, nDegree,
             nUses, Dirs, nFastK, NewVarPenalty, LinPreds);
 
+        // following code added for Auto.linpreds (earth version 4.6.0, Dec 2017)
+        if((LinPredIsBest && iBestCase != 0) || // paranoia, should never happen
+           (!LinPredIsBest && iBestCase == 0))
+            printf("\nLinPredIsBest %d yet iBestCase%-5d\n", LinPredIsBest, iBestCase);
+        if(!AutoLinPreds && !LinPreds[iBestPred])
+            LinPredIsBest = false;
+
         if(iBestCase >= 0)
             AddTermPair(Dirs, Cuts, bx, bxOrth, bxOrthCenteredT, bxOrthMean,
                 FullSet, &IsNewForm, nDegree, nUses,
                 nTerms, iBestParent, iBestCase, iBestPred, nPreds, nCases,
                 nMaxTerms, LinPredIsBest, LinPreds, x, xOrder, yw != NULL);
 
+        const bool IsTermPair = iBestCase > 0 && IsNewForm;
         nUsedTerms++;
-        if(!LinPredIsBest && IsNewForm) // add paired term too?
-            nUsedTerms++;
+        if(IsTermPair)
+            nUsedTerms++;     // add paired term
         Rss -= RssDelta;
         Rss = MaybeZero(Rss); // RSS can go slightly neg due to numerical error
         Gcv = GetGcv(nUsedTerms, nCases, Rss, Penalty);
@@ -2814,7 +2824,7 @@ static void ForwardPass(
         PrintForwardStep(nTerms, nUsedTerms, iBestCase, iBestPred,
             iBestParent, iBestParent < 0? 0: nDegree[iBestParent]+1,
             RSq, RSqDelta, Gcv, GcvNull,
-            nCases, xOrder, x, LinPredIsBest, IsNewForm, sPredNames);
+            nCases, xOrder, x, IsTermPair, sPredNames);
 
         // note the possible breaks in the code below
 
@@ -2900,6 +2910,7 @@ void ForwardPassR(              // for use by R
     const int* pnAllowedFuncArgs,  // in: number of arguments to Allowed function, 3 or 4
     const SEXP Env,                // in: environment for Allowed function
     const double* pAdjustEndSpan,  // in:
+    const int* pnAutoLinPreds,     // in: assume predictor linear if knot is min predictor value
     const int* pnUseBetaCache,     // in: 1 to use the beta cache, for speed
     const double* pTrace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char* sPredNames[],      // in: predictor names in trace printfs
@@ -2957,7 +2968,8 @@ void ForwardPassR(              // for use by R
             BoolFullSet, bx, iDirs, Cuts, nDegree, nUses,
             x, y, yw, WeightsArg, nCases, nResp, nPreds, *pnMaxDegree, nMaxTerms,
             *pPenalty, *pThresh, *pnFastK, *pFastBeta, *pNewVarPenalty,
-            LinPreds, *pAdjustEndSpan, (bool)(*pnUseBetaCache != 0), sPredNames);
+            LinPreds, *pAdjustEndSpan, *pnAutoLinPreds,
+            (bool)(*pnUseBetaCache != 0), sPredNames);
 
     FreeAllowedFunc();
 
@@ -3261,6 +3273,7 @@ void Earth(
     const double NewVarPenalty,  // in: penalty for adding a new variable
     const int LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
     const double AdjustEndSpan,  // in:
+    const bool AutoLinPreds,     // in: assume predictor linear if knot is min predictor value
     const bool UseBetaCache,     // in: 1 to use the beta cache, for speed
     const double Trace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char* sPredNames[])    // in: predictor names in trace printfs, can be NULL
@@ -3306,7 +3319,7 @@ void Earth(
         x, y, yw, WeightsArg,
         nCases, nResp, nPreds, nMaxDegree, nMaxTerms,
         Penalty, Thresh, nFastK, FastBeta, NewVarPenalty,
-        LinPreds, AdjustEndSpan, UseBetaCache, sPredNames);
+        LinPreds, AdjustEndSpan, AutoLinPreds, UseBetaCache, sPredNames);
 
     // ensure bx is full rank by updating BestSet, and get Residuals and Betas
 
@@ -3564,6 +3577,7 @@ int main(void)
     const double NewVarPenalty = 0;
     int*         LinPreds = (int*)calloc1(nPreds, sizeof(int), NULL); // "linpreds" in R code
     const double AdjustEndSpan = 2.0;
+    const bool   AutoLinPreds = true;
     const bool   UseBetaCache = true;
     const double Trace = 3;
     const char** sPredNames = NULL;
@@ -3591,8 +3605,8 @@ int main(void)
     Earth(&BestGcv, &nTerms, &iTermCond, BestSet, bx, Dirs, Cuts, Residuals, Betas,
         x, y, NULL /*WeightsArg*/, nCases, nResp, nPreds,
         nMaxDegree, nMaxTerms, Penalty, Thresh, nMinSpan, nEndSpan, Prune,
-        nFastK, FastBeta, NewVarPenalty, LinPreds, AdjustEndSpan, UseBetaCache,
-        Trace, sPredNames);
+        nFastK, FastBeta, NewVarPenalty, LinPreds,
+        AdjustEndSpan, AutoLinPreds, UseBetaCache, Trace, sPredNames);
 
     printf("Expression:\n");
     FormatEarth(BestSet, Dirs, Cuts, Betas, nPreds, nResp, nTerms, nMaxTerms, 3, 0);

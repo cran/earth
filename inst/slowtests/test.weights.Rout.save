@@ -6,7 +6,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.4-9
+Loaded mda 0.4-10
 
 > set.seed(2016)
 > options(warn=1) # print warnings as they occur

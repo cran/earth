@@ -95,8 +95,10 @@ void InitAllowedFunc(
 
 void FreeAllowedFunc(void)
 {
-     if(AllowedFunc != NULL)
-         UNPROTECT(1);          // matches PROTECT in InitAllowedFunc
+    if(AllowedFunc != NULL) {
+        UNPROTECT(1);          // matches PROTECT in InitAllowedFunc
+        AllowedFunc = NULL;
+    }
 }
 
 static bool EvalAllowedFunc(void)

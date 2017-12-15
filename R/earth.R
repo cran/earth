@@ -274,6 +274,7 @@ earth.default <- function(
             allowed         <- dota("allowed",         DEF=NULL, ...)
             Object          <- dota("Object ",         DEF=NULL, ...)
             Adjust.endspan  <- dota("Adjust.endspan",  DEF=2, ...)
+            Auto.linpreds   <- dota("Auto.linpreds",   DEF=TRUE, ...)
             Force.weights   <- dota("Force.weights",   DEF=FALSE, ...)
             Use.beta.cache  <- dota("Use.beta.cache",  DEF=TRUE, ...)
             Force.xtx.prune <- dota("Force.xtx.prune", DEF=FALSE, ...)
@@ -296,6 +297,7 @@ earth.default <- function(
                                allowed=allowed,
                                Object=Object,
                                Adjust.endspan=Adjust.endspan,
+                               Auto.linpreds=Auto.linpreds,
                                Force.weights=Force.weights,
                                Use.beta.cache=Use.beta.cache,
                                Force.xtx.prune=Force.xtx.prune,
@@ -526,11 +528,16 @@ earth.formula <- function(
             allowed         <- dota("allowed",         DEF=NULL, ...)
             Object          <- dota("Object ",         DEF=NULL, ...)
             Adjust.endspan  <- dota("Adjust.endspan",  DEF=2, ...)
+            Auto.linpreds   <- dota("Auto.linpreds",   DEF=TRUE, ...)
             Force.weights   <- dota("Force.weights",   DEF=FALSE, ...)
             Use.beta.cache  <- dota("Use.beta.cache",  DEF=TRUE, ...)
             Force.xtx.prune <- dota("Force.xtx.prune", DEF=FALSE, ...)
             Get.leverages   <- dota("Get.leverages",   DEF=NROW(x) < 1e5, ...)
             Exhaustive.tol  <- dota("Exhaustive.tol",  DEF=1e-10, ...)
+
+            # July 2017 TODO necessary when form is a local var in function calling earth.formula
+            rv$call$formula <- formula
+            rv$call$data <- data
 
             rv <- update.earth(rv, ponly=TRUE, trace=trace,
                                pmethod="cv", nprune=nterms.selected.by.cv,
@@ -549,6 +556,7 @@ earth.formula <- function(
                                allowed=allowed,
                                Object=Object,
                                Adjust.endspan=Adjust.endspan,
+                               Auto.linpreds=Auto.linpreds,
                                Force.weights=Force.weights,
                                Use.beta.cache=Use.beta.cache,
                                Force.xtx.prune=Force.xtx.prune,
@@ -652,6 +660,7 @@ earth.fit <- function(
 
     Scale.y            = (NCOL(y)==1), # TRUE to scale y in the forward pass
     Adjust.endspan     = 2,     # for adjusting endspan for interaction terms
+    Auto.linpreds      = TRUE,  # assume predictor linear if knot is min predictor value
     Force.weights      = FALSE, # TRUE to force use of weight code in earth.c
     Use.beta.cache     = TRUE,  # TRUE to use beta cache, for speed
     Force.xtx.prune    = FALSE, # TRUE to always call EvalSubsetsUsingXtx rather than leaps
@@ -719,6 +728,7 @@ earth.fit <- function(
     check.integer.scalar(nprune, null.ok=TRUE)
     check.boolean(Scale.y)
     check.numeric.scalar(Adjust.endspan)
+    check.boolean(Auto.linpreds)
     check.boolean(Force.weights)
     check.boolean(Use.beta.cache)
     check.boolean(Force.xtx.prune)
@@ -779,7 +789,8 @@ earth.fit <- function(
         rv <- forward.pass(x, y, yw, weights,
                     trace, degree, penalty, nk, thresh,
                     minspan, endspan, newvar.penalty, fast.k, fast.beta,
-                    linpreds, allowed, Scale.y, Adjust.endspan, Use.beta.cache,
+                    linpreds, allowed,
+                    Scale.y, Adjust.endspan, Auto.linpreds, Use.beta.cache,
                     n.allowedfunc.args, env, maxmem)
         termcond <- rv$termcond
         bx       <- rv$bx
@@ -796,6 +807,14 @@ earth.fit <- function(
     }
     possible.gc(maxmem, trace, "after forward.pass") # this particular gc doesn't seem to do much
     penalty1 <- penalty
+
+    # add column names to bx (necessary for possible err msg in pruning.pass)
+    pred.names <- colnames(x)
+    possible.gc(maxmem, trace, "after pruning.pass") # apply(range) in get.earth.term.name uses much mem
+    term.names <- get.earth.term.name(seq_len(nrow(dirs)), dirs, cuts, pred.names, x)
+    possible.gc(maxmem, trace, "after get.earth.term.name") # release memory used by get.earth.term.name
+    colnames(bx) <- term.names
+
     rv <- pruning.pass(if(use.weights) sqrt(weights) * x else x,
                        if(use.weights) yw else y, bx,
                        pmethod, penalty, nprune,
@@ -811,11 +830,6 @@ earth.fit <- function(
     bx <- bx / sqrt(weights) # unweight bx
 
     # add names for returned values
-
-    pred.names <- colnames(x)
-    possible.gc(maxmem, trace, "after pruning.pass") # apply(range) in get.earth.term.name uses much mem
-    term.names <- get.earth.term.name(seq_len(nrow(dirs)), dirs, cuts, pred.names, x)
-    possible.gc(maxmem, trace, "after get.earth.term.name") # release memory used by get.earth.term.name
     colnames(bx) <- term.names[selected.terms]
     dimnames(dirs) <- list(term.names, pred.names)
     dimnames(cuts) <- list(term.names, pred.names)
@@ -1100,7 +1114,8 @@ eval.subsets.xtx <- function(
 forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
                          trace, degree, penalty, nk, thresh,
                          minspan, endspan, newvar.penalty, fast.k, fast.beta,
-                         linpreds, allowed, Scale.y, Adjust.endspan, Use.beta.cache,
+                         linpreds, allowed,
+                         Scale.y, Adjust.endspan, Auto.linpreds, Use.beta.cache,
                          n.allowedfunc.args, env, maxmem)
 {
     if(nrow(x) < 2)
@@ -1139,7 +1154,8 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
 
     termcond <- integer(length=1) # reason we terminated the forward pass
 
-    on.exit(.C("FreeR",PACKAGE="earth")) # frees memory if user interrupts
+    # if user interrupts, free memory and call UNPROTECT in FreeAllowedFunc
+    on.exit(.C("FreeR",PACKAGE="earth"))
 
     rv <- .C("ForwardPassR",
         fullset = as.integer(fullset),           # out: int FullSet[]
@@ -1167,7 +1183,8 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
         allowed,                        # in: const SEXP Allowed
         as.integer(n.allowedfunc.args), # in: const int* pnAllowedFuncArgs
         env,                            # in: const SEXP Env for Allowed
-        as.double(Adjust.endspan),      # in: const double EndspanAdjust
+        as.double(Adjust.endspan),      # in: const double AdjustEndSpan
+        as.integer(Auto.linpreds),      # in: const int* pnAutoLinPred
         as.integer(Use.beta.cache),     # in: const int* pnUseBetaCache
         as.double(max(trace, 0)),       # in: const double* pTrace
         colnames(x),                    # in: const char* sPredNames[]
@@ -1785,7 +1802,6 @@ update.earth <- function(
         call$y <- get.update.arg(this.call$y, "y", object, env, trace)
     } else
         call$data <- get.update.arg(this.call$data, "data", object, env, trace)
-
     call$subset  <- get.update.arg(this.call$subset,  "subset",  object, env, trace)
     call$weights <- get.update.arg(this.call$weights, "weights", object, env, trace)
     call$wp      <- get.update.arg(this.call$wp,      "wp",      object, env, trace)

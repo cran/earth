@@ -1,10 +1,18 @@
 Changes to Earth Package
 ------------------------
 
+4.6.0 Dec 14, 2017
+
+  Added the Auto.linpreds argument. See the earth help page for details.
+  Thanks to Ceyda Yazici for help on this.
+
+  Further extensions to argument handling with pmethod="cv"
+  (necessary when formula is a local variable in function calling earth.formula).
+
 4.5.1  Jul 26, 2017
 
-  With pmethod="cv", you can now use arguments like "thresh" when earth 
-  is called in a function for which "thresh" is a local variable.  
+  With pmethod="cv", you can now use arguments like "thresh" when earth
+  is called in a function for which "thresh" is a local variable.
   Thanks to Matthew Watkins for help on this.
 
 4.5.0  Apr 20, 2017

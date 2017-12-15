@@ -311,7 +311,7 @@ static void TestEarth(char sTestName[],
         0, 0,   // MinSpan, EndSpan
         true,   // Prune
         nFastK, FastBeta, NewVarPenalty, LinPreds,
-        2 /*AdjustEndSpan*/, true /*UseBetaCache*/,
+        2 /*AdjustEndSpan*/, true /*AutoLinPred*/, true /*UseBetaCache*/,
         Trace, NULL);
 
     // calc nUsedTerms

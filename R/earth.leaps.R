@@ -117,7 +117,7 @@ leaps.setup<-function(x,y,wt=rep(1,length(y)),force.in=NULL,
       if (lastsafe<min(nvmax,last)) {
           if (warn.dep)
               warning0("nvmax reduced from ", nvmax, " to ",
-                       lastsafe-intercept, " because of linearly dependencies")
+                       lastsafe-intercept, " because of linear dependencies")
           nvmax<-lastsafe
       }
   }

@@ -32,6 +32,10 @@ expect.err <- function(object, expected.msg="")
     } else
         stop("did not get expected error for ", expected.msg)
 }
+dummy.plot <- function()
+{
+    plot(0, 0, col=0, bty="n", xaxt="n", yaxt="n", xlab="", ylab="", main="")
+}
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
     cat("===", deparse(substitute(x)), " ", sep="")
@@ -471,7 +475,9 @@ cat("--Expect warning from mda::mars: NAs introduced by coercion\n") # why do we
 x.global <- cbind(wind, exp(humidity))
 y <- doy
 # smooth.col is 0 else get loess errors
-itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, smooth.col=0)
+# trace==2 so we print the "Fixed rank deficient bx by removing 2 terms, 7 terms remain" message
+# TODO why are we getting the rank deficient message?
+itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, smooth.col=0, trace=2)
 
 x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 y <- O3
@@ -829,6 +835,168 @@ printh(all.equal(a.updated$bx, a.backwards$bx))
 a <- earth(O3 ~ ., data=ozone1, nk=31, nprune=10, pmethod="b", degree=2)
 printh(a)
 printh(all.equal(a$bx, a.backwards$bx))
+
+cat("--- Auto.linpreds -----------------------------\n")
+
+set.seed(2017)
+x1 <- runif(10)
+x2 <- runif(10)
+y <- x1 + x2
+data=data.frame(x1=x1, x2=x2, y=y)
+OLD.PAR <- par(no.readonly=TRUE)
+par(mfrow = c(6, 4), mar = c(3, 3, 3, 1), mgp = c(1.5, 0.5, 0))
+
+expect.err(try(earth(y~., data=data, Auto.linpr=99)), "Auto.linpreds=99 but it should be FALSE, TRUE, 0, or 1")
+
+a <- earth(y~., data=data, trace=2) # default Auto.linpreds=TRUE
+print(summary(a, style="pmax"))
+plotmo(a, extend=.3, ylim=c(.2, 1.7),
+      do.par=FALSE, pt.col=2, jitter=0,
+      main=c("default Auto.linpreds=T", ""))
+dummy.plot()
+dummy.plot()
+
+a1 <- earth(y~., data=data, trace=2, Auto.linpreds=FALSE)
+print(summary(a1, style="pmax"))
+plotmo(a1, extend=.3, ylim=c(.2, 1.7),
+      do.par=FALSE, pt.col=2, jitter=0,
+      main=c("Auto.linpreds=F", ""))
+dummy.plot()
+dummy.plot()
+stopifnot(isTRUE(all.equal(predict(a), predict(a1))))
+
+a2 <- earth(y~., data=data, trace=2, linpreds=TRUE, Auto.linpreds=FALSE)
+print(summary(a2, style="pmax"))
+plotmo(a2, extend=.3, ylim=c(.2, 1.7),
+      do.par=FALSE, pt.col=2, jitter=0,
+      main=c("linpreds=T, Auto.linpreds=F", ""))
+dummy.plot()
+dummy.plot()
+stopifnot(isTRUE(all.equal(predict(a), predict(a2))))
+
+a3 <- earth(y~., data=data, linpreds="x1", Auto.linpreds=FALSE)
+print(summary(a3, style="pmax"))
+plotmo(a3, extend=.3, ylim=c(.2, 1.7),
+      do.par=FALSE, pt.col=2, jitter=0,
+      main=c("linpreds=x1, Auto.linpreds=F", ""))
+dummy.plot()
+dummy.plot()
+stopifnot(isTRUE(all.equal(predict(a), predict(a3))))
+
+a4 <- earth(y~., data=data, linpreds="x2", Auto.linpreds=FALSE)
+print(summary(a4, style="pmax"))
+plotmo(a4, extend=.3, ylim=c(.2, 1.7),
+      do.par=FALSE, pt.col=2, jitter=0,
+      main=c("linpreds=x2, Auto.linpreds=F", ""))
+dummy.plot()
+dummy.plot()
+stopifnot(isTRUE(all.equal(predict(a), predict(a4))))
+
+# x,y interface
+a5 <- earth(data[,1:2], data[,3], Auto.linpreds=FALSE)
+print(summary(a5, style="pmax"))
+plotmo(a5, extend=.3, ylim=c(.2, 1.7),
+      do.par=FALSE, pt.col=2, jitter=0,
+      main=c("x,y interface", ""))
+dummy.plot()
+dummy.plot()
+stopifnot(isTRUE(all.equal(as.vector(predict(a1)), as.vector(predict(a5)))))
+par(OLD.PAR)
+
+# more complicated example (with Auto.linpreds=TRUE, vh enters linearly in a degree2 term)
+data(ozone1)
+oz <- ozone1[1:50,]
+mod.none1 <- earth(O3~., data=oz, degree=2, nk=15, pmethod="none") # default Auto.linpreds=TRUE
+print(summary(mod.none1))
+mod.none2 <- earth(O3~., data=oz, degree=2, nk=15, pmethod="none", Auto.linpreds=FALSE)
+print(summary(mod.none2))
+stopifnot(all.equal(predict(mod.none1), predict(mod.none2)))
+
+# example figure in inst/doc
+OLD.PAR <- par(no.readonly=TRUE)
+par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.7))
+set.seed(2017)
+offset <- 98
+data.autolin <- data.frame(x=offset+(1:10), y=offset+(1:10))
+autolinFALSE <- earth(y~x, data=data.autolin, Auto.linpreds=FALSE)
+print(summary(autolinFALSE, style="max"))
+set.seed(2017) # for same jitter on this and previous graph
+plotmo(autolinFALSE, extend=.3, do.par=FALSE, pt.col="red", lwd=2,
+       main="Auto.linpreds = FALSE",
+       xaxt="n", yaxt="n", jitter=1, cex.main=1,
+       xlim=offset+c(-2,13), ylim=offset+c(-3,13))
+legend(x="topleft", legend=c("data", "earth model"),
+       lty=c(0, 1), lwd=c(0, 2), pch=c(20, NA), col=c("red", 1))
+text(x=offset+3.8, y=offset-1.2, cex=.9, "The knot happens to be at the")
+text(x=offset+4,   y=offset-2.4, cex=.9, "minimum value of the predictor")
+
+autolinTRUE <- earth(y~x, data=data.autolin) # default Auto.linpreds=TRUE
+print(summary(autolinTRUE, style="max"))
+set.seed(2017) # for same jitter on this and next graph
+plotmo(autolinTRUE, extend=.3, do.par=FALSE, pt.col="red", lwd=2,
+       main="Auto.linpreds = TRUE   (default)",
+       xaxt="n", yaxt="n", jitter=1, cex.main=1,
+       xlim=offset+c(-2,13), ylim=offset+c(-3,13))
+legend(x="topleft", legend=c("data", "earth model"),
+       lty=c(0, 1), lwd=c(0, 2), pch=c(20, NA), col=c("red", 1))
+text(x=offset+4, y=offset-2.4, cex=.9, "Same data as previous graph")
+stopifnot(isTRUE(all.equal(predict(autolinTRUE), predict(autolinFALSE))))
+par(OLD.PAR)
+
+# test Auto.linpreds with data sent in by a user
+ndata <- matrix(data=c(
+-0.0781, -0.6109, -0.216, -1.5172, 0.8184, -1.1242,
+-0.0781, -0.5885, -0.216, -1.3501, 0.8184, -0.8703,
+-0.0781, -0.5885, -0.216, -1.3501, 0.8184, -0.9549,
+-0.0781, -0.5885, -0.216, -1.3501, 1.4136, -0.8703,
+-2.5759, -0.5885, 1.1665, -1.3501, 2.0089, -0.9549,
+-2.5759, -0.5885, 1.1665, -1.3501, 2.0089, -0.8703,
+-0.0781, -0.4937, -0.216, -0.9949, -0.372, -1.0396,
+-0.0781, -0.4463, -0.216, -0.8278, -0.372, -0.447,
+-0.0781, -0.4463, -0.216, -0.8278, -0.372, -0.701,
+-0.0781, -0.4463, -0.216, -0.8278, -0.372, -0.6163,
+-0.0781, -0.4463, -0.216, -0.8278, 0.8184, -0.447,
+-0.0781, -0.4463, -0.216, -0.8278, 0.8184, -0.6163,
+-0.0781, -0.4463, 1.1665, -0.8278, 0.8184, -0.447,
+-0.0781, -0.4379, 1.1665, 0.2585, -0.372, -0.1085,
+-0.0781, -0.2147, 1.1665, 0.0496, -0.372, -0.1085,
+-0.0781, -0.2147, -0.216, 0.2585, -0.372, -0.0238,
+-0.0781, -0.1589, -0.216, 0.2585, -0.372, -0.1931,
+-0.0781, -0.1589, -0.216, 0.2585, -0.372, -0.1085,
+-0.0781, -0.1589, 1.1665, 0.2585, -0.372, -0.1931,
+-0.0781, -0.1589, -0.216, 0.2585, 0.8184, -0.1085,
+-0.0781, -0.1589, -0.216, 0.2585, 0.8184, 0.0608,
+-0.0781, -0.1589, -0.216, 1.0942, 0.8184, -0.0238,
+-0.0781, 0.0643, 1.1665, 1.0942, -0.372, 0.2301,
+-0.0781, 0.0643, -0.216, 1.0942, -1.5624, 0.3148,
+-0.0781, 0.0643, -0.216, 1.0942, -0.9672, 0.1455,
+-0.0781, 0.0643, 1.1665, 1.4284, 0.2232, 0.4841,
+-0.0781, 0.1563, -0.216, 1.0942, -0.372, 0.5687,
+2.4197, 0.3432, -0.216, 1.0942, -1.5624, 1.0766,
+-0.0781, 0.3432, -0.216, 1.0942, -1.5624, 1.1613,
+-0.0781, 0.3432, 1.1665, 1.0942, 0.2232, 0.738,
+2.4197, 2.7145, -2.9811, 1.0942, -1.5624, 2.5156,
+2.4197, 4.3884, -2.9811, 1.0942, -1.5624, 3.5314),
+ncol=6)
+colnames(ndata) <- c("x1", "x2", "x3", "x4", "x5", "y")
+ndata <- as.data.frame(ndata)
+
+cat("Auto.linpreds=TRUE pmethod=\"none\":\n")
+auto.linpreds.true.pmethod.none <- earth(y~., data=ndata, degree=2, nk=21, trace=2, pmethod="none")
+print(summary(auto.linpreds.true.pmethod.none, decomp="none"))
+cat("\nAuto.linpreds=FALSE pmethod=\"none\":\n")
+auto.linpreds.false.pmethod.none <- earth(y~., data=ndata, degree=2, nk=21, trace=2, Auto.linpreds=FALSE, pmethod="none")
+print(summary(auto.linpreds.false.pmethod.none, decomp="none"))
+stopifnot(isTRUE(all.equal(predict(auto.linpreds.true.pmethod.none), predict(auto.linpreds.false.pmethod.none))))
+
+cat("\nAuto.linpreds=TRUE:\n")
+auto.linpreds.true <- earth(y~., data=ndata, degree=2, nk=21, trace=2)
+print(summary(auto.linpreds.true, decomp="none"))
+cat("\nAuto.linpreds=FALSE:\n")
+auto.linpreds.false <- earth(y~., data=ndata, degree=2, nk=21, trace=2, Auto.linpreds=FALSE)
+print(summary(auto.linpreds.false, decomp="none"))
+# following fails because of different pruning because of different term count
+# stopifnot(isTRUE(all.equal(predict(auto.linpreds.true), predict(auto.linpreds.false))))
 
 cat("--- Force.xtx.prune -----------------------------\n")
 

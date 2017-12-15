@@ -47,8 +47,8 @@ See the package vignette
     newvar.penalty = 0, fast.k = 20, fast.beta = 1,
     linpreds = FALSE, allowed = NULL,
     nprune = NULL, Object = NULL,
-    Scale.y = (NCOL(y)==1), Adjust.endspan = 2, Force.weights = FALSE,
-    Use.beta.cache = TRUE, Force.xtx.prune = FALSE,
+    Scale.y = (NCOL(y)==1), Adjust.endspan = 2, Auto.linpreds = TRUE,
+    Force.weights = FALSE, Use.beta.cache = TRUE, Force.xtx.prune = FALSE,
     Get.leverages = NROW(x) < 1e5, Exhaustive.tol = 1e-10, \dots)
 }
 \arguments{
@@ -463,6 +463,32 @@ The default is \code{2}.
 Use \code{Adjust.endspan=1} for compatibility with old
 versions of \code{earth}.
 }
+\item{Auto.linpreds}{
+Default is \code{TRUE}, which works as follows
+(see \href{../doc/Auto.linpreds.example.pdf}{example}):\cr
+At any step in the forward pass, if earth discovers that the best knot
+for the best predictor is at the predictor minimum (in the
+training data),
+then earth adds the predictor to the model as a linear \dQuote{basis
+function} (with no hinge).
+Compare the following basis functions (printed in bold)
+for an example such predictor \code{x}:\cr
+\code{Auto.linpreds=TRUE} (default): \bold{\code{x}}\cr
+\code{Auto.linpreds=FALSE}: \bold{\code{max(x-99, 0)}} where
+\code{99} is the minimum \code{x} in the training data.\cr
+Using \code{Auto.linpreds=FALSE} always forces a knot, even when the
+knot is at the minimum value of the variable.
+This ensures that the basis functions are always expressed as hinge functions
+(and will always be non-negative).\cr
+Note that \code{Auto.linpreds} affects only how the model behaves \emph{outside}
+the training data.
+Thus \code{predict.earth} will
+make the same predictions from the training data, regardless
+of whether the earth model was built with \code{Auto.linpreds} set
+\code{TRUE} or \code{FALSE}
+(up to possible differences in the size of the model caused by
+different GCVs because of the different forms of the terms).
+}
 \item{Force.weights}{
 Default is \code{FALSE}.
 For testing the \code{weights} argument.
@@ -500,7 +526,7 @@ if \code{y} has a single column.
 Default is \code{TRUE} unless the model has more than 100 thousand cases.
 The leverages are the diagonal hat values for the linear regression of
 \code{y} on \code{bx}.
-The leverages are needed only for certain model checks, for example
+(The leverages are needed only for certain model checks, for example
 when \code{plotres} is called with \code{versus=4}).
 \cr
 Details:
