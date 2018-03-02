@@ -1,4 +1,4 @@
-# lib.R: miscellaneous functions for both earth and plotmo
+# lib.R: miscellaneous functions for plotmo and related packages
 #        functions in this file are in alphabetical order
 
 any1 <- function(x)

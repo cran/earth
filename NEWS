@@ -1,6 +1,13 @@
 Changes to Earth Package
 ------------------------
 
+4.6.1 Mar 1, 2018
+
+  Added support for package gam version 1.15 and higher (the S3 class of
+  gam objects changed from "gam" to "Gam" to prevent clashes with the
+  mgcv package).  Earth variance models now work with both the old and
+  new versions of gam.
+
 4.6.0 Dec 14, 2017
 
   Added the Auto.linpreds argument. See the earth help page for details.

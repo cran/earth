@@ -155,7 +155,11 @@ get.iter.stderr <- function(object, trace) # return if NULL if can't get stderr
         coef <- summary(residmod)$coefficients
         stopifnot(!is.null(coef[,"Std. Error"]))
         coef[,"Std. Error"]
-    } else if(class(residmod)[1] == "gam" && object$package == "gam") {
+    } else if(class(residmod)[1] == "Gam") { # package gam version 1.15 or higher
+        coef <- coefficients(summary.glm(residmod))
+        stopifnot(!is.null(coef[,"Std. Error"]))
+        coef[,"Std. Error"]
+    } else if(class(residmod)[1] == "gam" && object$package == "gam") { # package gam version less than 1.15
         coef <- coefficients(summary.glm(residmod))
         stopifnot(!is.null(coef[,"Std. Error"]))
         coef[,"Std. Error"]
