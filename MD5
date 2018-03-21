@@ -1,6 +1,6 @@
-9a40fe2a237ad505d73d0367056391c0 *DESCRIPTION
+7c653bd791f26fcc7d2c2eb0b01fcf7b *DESCRIPTION
 b4cf5fa0ab2b2c39036ba6309b152ddf *NAMESPACE
-1b34d95da0c7fbd48f194b4939d2e5fd *NEWS
+c46b4b54f981922dd4f75fb095055ddb *NEWS
 d8c74f0400a25d5a9878bd0f76804206 *R/as.char.R
 7c0133d17732518e473dce827c46508f *R/call.dots.R
 159a5de6b74488f9535e537cd8599146 *R/check.index.R
@@ -31,12 +31,12 @@ d6fc52ecbbe8b67cffed4ae7b3deb862 *R/print.earth.R
 7c3b0430886a851919697e05d6c071a6 *R/residuals.earth.R
 7b64c367db716552ebe4676c36f931f1 *R/stop.if.dots.R
 a4305dccd145307614d2cb4a9ddd009b *R/varmod.R
-e7beebc6f1776b787571f269be90fc23 *build/partial.rdb
+0c3ba138156ab85dc7a0cb5abe7383b3 *build/partial.rdb
 ea521b18189dc9e26e3e8953602656de *data/etitanic.rda
 15f5470c6245efd1c6d5e0ed0be996b4 *data/ozone1.rda
-b7465b43d9c6fcc2b0d84c09e7c053a7 *inst/doc/Auto.linpreds.example.pdf
-a770f9adfb925f7309662c0737a7ef12 *inst/doc/earth-notes.pdf
-03d583ee7898430b398489f2f8f1ab52 *inst/doc/earth-varmod.pdf
+80c701f6d86dff4e6d5dab3cab33ae9a *inst/doc/Auto-linpreds-example.pdf
+a7472f3f4389df1b56b942f42d6a0ab7 *inst/doc/earth-notes.pdf
+e38063616b7b2a22dfebe46e7f2ccbdc *inst/doc/earth-varmod.pdf
 8ace3b54aa5b3cf62b0f7df1938de8cd *inst/doc/index.html
 7a6119f6de51fd65cb0a1a8686153a2c *inst/slowtests/README.txt
 c2999a7978acdb477d9f61764f7c8945 *inst/slowtests/check.models.equal.R
@@ -60,7 +60,7 @@ e1749b41d657c2c4fe1024e253799487 *inst/slowtests/test.earthmain.gcc64.bat
 71075e9d90376655a0d9347cc49ce742 *inst/slowtests/test.earthmain.out.save
 c4ec401865882d1ee6e02c900fceedbc *inst/slowtests/test.earthmain.vc.bat
 fbb45a2359d4d18248e07aafc31f72e7 *inst/slowtests/test.full.R
-45f566c35adfa9cd44f8b95619461920 *inst/slowtests/test.full.Rout.save
+030233a8b2337d46fd38ebda058b11a1 *inst/slowtests/test.full.Rout.save
 9f275def3c978311dc065cd7eac9202c *inst/slowtests/test.full.bat
 e1f2c9a3190c0aefcf4f1c2145a5e4ad *inst/slowtests/test.glm.R
 e75ec0f373fe4a6001cca2a331663a04 *inst/slowtests/test.glm.Rout.save
@@ -87,7 +87,7 @@ c8f1ab01a9f45e417cb1b85c4e976513 *inst/slowtests/test.varmod.mgcv.bat
 0e62241fb3eeb2ea9aa2dd7719651054 *inst/slowtests/test.weights.Rout.save
 7764f6607e8b051413a9b60ebc40c775 *inst/slowtests/test.weights.bat
 5e8f2c2936cb04affe73d49102b2a151 *man/contr.earth.response.Rd
-1f28afaa71224cd986f602370774a5d0 *man/earth.Rd
+b056b7c76c96d40f6ecf68c377ef99b1 *man/earth.Rd
 0ff3a3a25bf621e0863a6ed0aa77a3ae *man/earth.object.Rd
 694715ee325a1f520bc15ace58baaebf *man/etitanic.Rd
 af099acb1ba78cbbb9ab6550e76f737e *man/evimp.Rd

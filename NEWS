@@ -1,6 +1,10 @@
 Changes to Earth Package
 ------------------------
 
+4.6.2 Mar 20, 2018
+
+  Minor documentation updates for the Auto.linpreds argument.
+
 4.6.1 Mar 1, 2018
 
   Added support for package gam version 1.15 and higher (the S3 class of

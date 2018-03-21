@@ -253,19 +253,27 @@ edges of the data).  See also the \code{Adjust.endspan} argumen.
 }
 \item{linpreds}{
      Index vector specifying which predictors should enter linearly, as in \code{\link{lm}}.
-     The default is \code{FALSE}, meaning all predictors enter
+     The default is \code{FALSE}, meaning predictors enter
      in the standard MARS fashion, i.e., in hinge functions.
 \cr
-     This does not say that a predictor \emph{must} enter the model;
-     only that if it enters, it enters linearly.
-     See \dQuote{\emph{The \code{linpreds} argument}} in the vignette.
 \cr
+     The linpreds argument does not specifiy that a predictor
+     \emph{must} enter the model; only that if it enters, it enters
+     linearly.  See \dQuote{\emph{The linpreds argument}} in the
+     \href{../doc/earth-notes.pdf}{vignette}.
+\cr
+     See also the \code{Auto.linpreds} argument below (which describes how
+     \code{earth} will \emph{automatically} treat a predictor as linear
+     under certain conditions).
+\cr
+\cr
+     Details:
      A predictor's index in \code{linpreds} is the column number in the input matrix \code{x}
      (after factors have been expanded).
 \cr
      \code{linpreds=TRUE} makes all predictors enter linearly (the \code{TRUE} gets recycled).
 \cr
-     \code{linpreds} may also be a character vector e.g.
+     \code{linpreds} may be a character vector e.g.
      \code{linpreds=c("wind", "vis")}.  Note: \code{\link{grep}} is used
      for matching. Thus \code{"wind"} will match all variables that have
      \code{"wind"} in their names. Use \code{"^wind$"} to match only the
@@ -465,7 +473,7 @@ versions of \code{earth}.
 }
 \item{Auto.linpreds}{
 Default is \code{TRUE}, which works as follows
-(see \href{../doc/Auto.linpreds.example.pdf}{example}):\cr
+(see \href{../doc/Auto-linpreds-example.pdf}{example}):\cr
 At any step in the forward pass, if earth discovers that the best knot
 for the best predictor is at the predictor minimum (in the
 training data),
