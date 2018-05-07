@@ -37,46 +37,15 @@ static R_NativePrimitiveArgType RegressR_t[] = {
     INTSXP,     // 11 int*         pnCols
     LGLSXP      // 12 const bool   UsedCols[]
 };
-static R_NativePrimitiveArgType ForwardPassR_t[] = {
-    INTSXP,     // 01 int    FullSet[]
-    REALSXP,    // 02 double bx[]
-    REALSXP,    // 03 double Dirs[]
-    REALSXP,    // 04 double Cuts[]
-    INTSXP,     // 05 int*   piTermCond
-    REALSXP,    // 06 const double x[]
-    REALSXP,    // 07 const double y[]
-    REALSXP,    // 08 const double yw[]
-    REALSXP,    // 09 const double WeightsArg[]
-    INTSXP,     // 10 const int* pnCases
-    INTSXP,     // 11 const int* pnResp
-    INTSXP,     // 12 const int* pnPreds
-    INTSXP,     // 13 const int* pnMaxDegree
-    REALSXP,    // 14 const double* pPenalty
-    INTSXP,     // 15 const int* pnMaxTerms
-    REALSXP,    // 16 const double* pThresh
-    INTSXP,     // 17 const int* pnMinSpan
-    INTSXP,     // 18 const int* pnEndSpan
-    INTSXP,     // 19 const int* pnFastK
-    REALSXP,    // 20 const double* pFastBeta
-    REALSXP,    // 21 const double* pNewVarPenalty
-    INTSXP,     // 22 const int  LinPreds[]
-    CLOSXP,     // 23 const SEXP Allowed
-    INTSXP,     // 24 const int* pnAllowedFuncArgs
-    ENVSXP,     // 25 const SEXP Env
-    REALSXP,    // 26 const double* pAdjustEndSpan
-    INTSXP,     // 27 const int* pnAutoLinPreds
-    INTSXP,     // 28 const int* pnUseBetaCache
-    REALSXP,    // 29 const double* pTrace
-    STRSXP,     // 30 const char* sPredNames[]
-    REALSXP,    // 31 const double* MyNullDouble
-    CLOSXP      // 32 const double* MyNullFunc
-};
 static R_CMethodDef cEntries[] = {
   {"FreeR",                (DL_FUNC)&FreeR,                 0, FreeR_t},
   {"EvalSubsetsUsingXtxR", (DL_FUNC)&EvalSubsetsUsingXtxR,  8, EvalSubsetsUsingXtxR_t},
   {"RegressR",             (DL_FUNC)&RegressR,             12, RegressR_t},
-  {"ForwardPassR",         (DL_FUNC)&ForwardPassR,         32, ForwardPassR_t},
   {NULL,                   NULL,                            0, NULL}
+};
+static R_CallMethodDef callEntries[] = {
+  {"ForwardPassR", (DL_FUNC)&ForwardPassR, 31},
+  {NULL,           NULL,                    0}
 };
 extern void F77_SUB(bakwrd)(
     int    *NP,
@@ -371,6 +340,6 @@ static R_FortranMethodDef fortranEntries[] = {
 };
 void R_init_earth(DllInfo *dll) // called by R after R loads the earth package
 {
-    R_registerRoutines(dll, cEntries, NULL, fortranEntries, NULL);
+    R_registerRoutines(dll, cEntries, callEntries, fortranEntries, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

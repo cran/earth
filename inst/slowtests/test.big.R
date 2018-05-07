@@ -11,24 +11,25 @@ set.seed(2015)
 p <- 100
 n <- 20000 # big enough to cross ten-thousand-cases barrier in plotres and plotmo
 
-# p <- 100; n <- 9e6  # Out of memory (could not allocate 15 GB)
-                      # earth 4.4.0 on windows 64 bit system, 2.9 GHz i7, 32 gig ram, SSD drive:
-                      # malloc 14.976 GB: bxOrthCenteredT   nMaxTerms 201 nCases 10000000  sizeof(double) 8
-
-# p <- 100; n <- 8e6  # ok
-                      # 51 minutes to build model, additional 1.5 minutes for plotmo and plotres
-
-# p <- 100; n <- 10e6 # Error in forward.pass: Out of memory (could not allocate 15 GB)
+# p <- 100; n <- 10e6 # earth 4.4.0: Error in forward.pass: Out of memory (could not allocate 15 GB)
                       # ok with nk=21, 42 minutes to build model
+                      # earth 4.6.3: Stopped after two hours, much memory paging
+
+# p <- 100; n <- 9e6  # windows 64 bit system, 2.9 GHz i7, 32 gig ram, SSD drive:
+                      # earth 4.4.0: Out of memory (could not allocate 15 GB)
+                      # earth 4.6.3: ok (earth now uses .Call instead of .C to invoke ForwardPassR)
+                      #              55 mins to build model
+
+# p <- 100; n <- 8e6  # 51 minutes to build model, additional 1.5 minutes for plotmo and plotres
 
 # p <- 2; n <- 60e6   # ok
 
 # p <- 2; n <- 80e6   # ok (but not enough memory to get leverages)
-                      # 18 minutes to build model, additional 8 minutes for plotmo and plotres
-
-# p <- 2; n <- 100e6  # Error in leaps.setup: Reached total allocation of 32673Mb
-                      # ok with memory.limit(size=64000) but lots of mem thrashing, slow (53 mins)
-                      # ok with nk=11 and memory.limit(size=64000), not so much thrashing
+#                     # 18 minutes to build model, additional 8 minutes for plotmo and plotres
+#
+# p <- 2; n <- 100e6  # earth 4.6.3: thrashes, interupted after a few hours
+#                     # earth 4.4.0 Error in leaps.setup: Reached total allocation of 32673Mb
+#                     # ok with nk=11, not so much thrashing, 10 minutes
 
 cat("creating x\n")
 ran <- function() runif(n, min=-1, max=1)
@@ -72,11 +73,14 @@ invisible(gc())
 cat("calling plotres\n")
 set.seed(2015) # TODO this is necessary, why?
 plot(a, trace=1)
-if(interactive())
+if(interactive()) {
     printf("n %g p %g: total time %.3f seconds (%.3f minutes)\n",
          n, p,
         (proc.time() - start.time)[3],
         (proc.time() - start.time)[3] / 60)
+    x <- y <- 0 # free memory by reducing size of large matrices
+    gc()        # release memory back to operating system
+}
 if(!interactive()) {
     dev.off()         # finish postscript plot
     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs

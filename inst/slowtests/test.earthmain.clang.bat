@@ -27,10 +27,15 @@
 @set path=C:\Program Files (x86)\LLVM\bin;%PATH%
 :donesetpath
 
-@rem flags same as gcc, except 2nd and 3rd lines (starting with -Weverything) are new here
+@rem Flags same as gcc where possible.
+@rem -U_MSC_VER is needed because some clang executables define this inherently https://stackoverflow.com/questions/38499462/how-to-tell-clang-to-stop-pretending-to-be-other-compilers
+@rem Some of these warning suppressions are necessary because we use R and BLAS routines.
 clang -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -Weverything -O3 -std=gnu99^
- -Wno-missing-noreturn -Wno-float-equal -Wno-format-nonliteral^
- -Wno-padded -Wno-shadow -Wno-sign-conversion -Wno-undef^
+ -U_MSC_VER^
+ -Wno-strict-prototypes -Wno-reserved-id-macro -Wno-cast-qual -Wno-unknown-pragmas^
+ -Wno-float-equal -Wno-format-nonliteral -Wno-padded -Wno-sign-conversion -Wno-undef^
+ -Wno-shadow -Wno-missing-prototypes -Wno-deprecated-declarations -Wno-implicit-function-declaration^
+ -Wno-missing-noreturn^
  -I"/a/r/ra/include" -I../../inst/slowtests ../../src/earth.c^
  Rdll.lib Rblas.lib -o earthmain-clang.exe
                                 @if %errorlevel% neq 0 goto error

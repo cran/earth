@@ -716,7 +716,7 @@ earth.fit <- function(
     } else if(!identical(na.action, na.fail))
         stop0("illegal 'na.action', only na.action=na.fail is allowed")
     na.action <- na.fail
-    n.allowedfunc.args <- check.allowed.arg(allowed)
+    n.allowed.args <- check.allowed.arg(allowed)
     check.integer.scalar(degree, min=0, max=10)
     check.numeric.scalar(penalty)
     check.numeric.scalar(thresh)
@@ -791,7 +791,7 @@ earth.fit <- function(
                     minspan, endspan, newvar.penalty, fast.k, fast.beta,
                     linpreds, allowed,
                     Scale.y, Adjust.endspan, Auto.linpreds, Use.beta.cache,
-                    n.allowedfunc.args, env, maxmem)
+                    n.allowed.args, env, maxmem)
         termcond <- rv$termcond
         bx       <- rv$bx
         dirs     <- rv$dirs
@@ -805,7 +805,7 @@ earth.fit <- function(
         termcond <- Object$termcond
         bx       <- get.bx(x, seq_len(nrow(dirs)), dirs, cuts) * sqrt(weights) # weight bx
     }
-    possible.gc(maxmem, trace, "after forward.pass") # this particular gc doesn't seem to do much
+    possible.gc(maxmem, trace, "after forward.pass")
     penalty1 <- penalty
 
     # add column names to bx (necessary for possible err msg in pruning.pass)
@@ -1116,7 +1116,7 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
                          minspan, endspan, newvar.penalty, fast.k, fast.beta,
                          linpreds, allowed,
                          Scale.y, Adjust.endspan, Auto.linpreds, Use.beta.cache,
-                         n.allowedfunc.args, env, maxmem)
+                         n.allowed.args, env, maxmem)
 {
     if(nrow(x) < 2)
         stop0("the x matrix must have at least two rows")
@@ -1141,76 +1141,62 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
         if(!is.null(yw))
             yw.scaled <- yw
     }
-    # Mar 2012: R cmd check now complains if you pass R NULL via .C, so
-    # we gyp this by passing special values in my.null.double and my.null.func.
-    # TODO We could get rid if this by using .Call instead of .C
-    my.null.double <- 999999.0
-    my.null.func   <- function() { FALSE }
-
-    if(is.null(allowed))
-        allowed <- my.null.func
-
-    stopifnot(!is.null(colnames(x)))
-
+    # we are careful to initialize the "out" variables for ForwardPassR here
+    # in a way that does not require them to be duplicated in ForwardPassR
+    fullset  <- as.integer(fullset)
+    bx       <- matrix(0, nrow=nrow(x), ncol=nk)
+    dirs     <- matrix(0, nrow=nk, ncol=npreds)
+    cuts     <- matrix(0, nrow=nk, ncol=npreds)
     termcond <- integer(length=1) # reason we terminated the forward pass
+
+    stopifnot(!is.null(colnames(x))) # ensure we have predictor names
+    stopifnot(is.double(x)) # no typecast in .Call below
+    stopifnot(is.double(y.scaled))
+    stopifnot(is.null(weights) || is.double(weights))
 
     # if user interrupts, free memory and call UNPROTECT in FreeAllowedFunc
     on.exit(.C("FreeR",PACKAGE="earth"))
 
-    rv <- .C("ForwardPassR",
-        fullset = as.integer(fullset),           # out: int FullSet[]
-        bx   = matrix(0, nrow=nrow(x), ncol=nk), # out: double bx[]
-        dirs = matrix(0, nrow=nk, ncol=npreds),  # out: double Dirs[]
-        cuts = matrix(0, nrow=nk, ncol=npreds),  # out: double Cuts[]
-        termcond = termcond,                     # out: int*
-        x,                                       # in: const double x[]
-        y.scaled,                                # in: const double y[]
-        if(is.null(yw)) my.null.double else yw.scaled,  # in: const double yw[]
-        weights,                        # in: const double WeightsArg[]
-        as.integer(nrow(x)),            # in: const int* pnCases
-        as.integer(ncol(y)),            # in: const int* pnResp
-        as.integer(npreds),             # in: const int* pnPreds
-        as.integer(degree),             # in: const int* pnMaxDegree
-        as.double(penalty),             # in: const double* pPenalty
-        as.integer(nk),                 # in: const int* pnMaxTerms
-        as.double(thresh),              # in: double* pThresh
-        as.integer(minspan),            # in: const int* pnMinSpan
-        as.integer(endspan),            # in: const int* pnEndSpan
-        as.integer(fast.k),             # in: const int* pnFastK
-        as.double(fast.beta),           # in: const double* pFastBeta
-        as.double(newvar.penalty),      # in: const double* pNewVarPenalty
-        as.integer(linpreds),           # in: const int LinPreds[]
-        allowed,                        # in: const SEXP Allowed
-        as.integer(n.allowedfunc.args), # in: const int* pnAllowedFuncArgs
-        env,                            # in: const SEXP Env for Allowed
-        as.double(Adjust.endspan),      # in: const double AdjustEndSpan
-        as.integer(Auto.linpreds),      # in: const int* pnAutoLinPred
-        as.integer(Use.beta.cache),     # in: const int* pnUseBetaCache
-        as.double(max(trace, 0)),       # in: const double* pTrace
-        colnames(x),                    # in: const char* sPredNames[]
-        my.null.double,                 # in: const double* MyNullDouble
-        my.null.func,                   # in: const double* MyNullFunc
+    .Call("ForwardPassR",
+        fullset,                           # out: int FullSet[]
+        bx,                                # out: double bx[]
+        dirs,                              # out: double Dirs[]
+        cuts,                              # out: double Cuts[]
+        termcond,                          # out: int*
+        x,                                 # in: double x[]
+        y.scaled,                          # in: double y[]
+        if(is.null(yw)) yw else yw.scaled, # in: double yw[]
+        weights,                           # in: double WeightsArg[]
+        as.integer(nrow(x)),               # in: int* nCases
+        as.integer(ncol(y)),               # in: int* nResp
+        as.integer(npreds),                # in: int* nPreds
+        as.integer(degree),                # in: int* nMaxDegree
+        as.double(penalty),                # in: double* Penalty
+        as.integer(nk),                    # in: int* nMaxTerms
+        as.double(thresh),                 # in: double* Thresh
+        as.integer(minspan),               # in: int* nMinSpan
+        as.integer(endspan),               # in: int* nEndSpan
+        as.integer(fast.k),                # in: int* nFastK
+        as.double(fast.beta),              # in: double* FastBeta
+        as.double(newvar.penalty),         # in: double* NewVarPenalty
+        as.integer(linpreds),              # in: int LinPreds[]
+        allowed,                           # in: SEXP Allowed
+        as.integer(n.allowed.args),        # in: int* nAllowedArgs
+        env,                               # in: SEXP Env
+        as.double(Adjust.endspan),         # in: double AdjustEndSpan
+        as.integer(Auto.linpreds),         # in: int* nAutoLinPred
+        as.integer(Use.beta.cache),        # in: int* nUseBetaCache
+        as.double(max(trace, 0)),          # in: double* Trace
+        colnames(x),                       # in: char* sPredNames[]
         NAOK = TRUE, # we check for NAs etc. internally in C ForwardPass
         PACKAGE="earth")
 
-    fullset  <- as.logical(rv$fullset)
+    fullset  <- as.logical(fullset)
 
-    # we do the following in two steps to reduce memory (which peaks right here)
-
-    rv <- list(termcond = rv$termcond,
-               bx       = rv$bx,
-               dirs     = rv$dirs,
-               cuts     = rv$cuts)
-
-    possible.gc(maxmem, trace, "near end of forward.pass") # release old rv
-
-    rv$bx   <- rv$bx[, fullset, drop=FALSE]
-    rv$dirs <- rv$dirs[fullset, , drop=FALSE]
-    rv$cuts <- rv$cuts[fullset, , drop=FALSE]
-
-    possible.gc(maxmem, trace, "end of forward.pass") # release stale rv$bx etc.
-
-    rv
+    list(termcond = termcond,
+         bx       = bx[, fullset, drop=FALSE],
+         dirs     = dirs[fullset, , drop=FALSE],
+         cuts     = cuts[fullset, , drop=FALSE])
 }
 # Return a vec which specifies the degree of each term in dirs.
 # Each row of dirs specifies one term so we work row-wise in dirs.

@@ -2,7 +2,7 @@
 
 void InitAllowedFunc(
         SEXP Allowed, // can be NULL
-        int nAllowedFuncArgs, SEXP Env,
+        int nAllowedArgs, SEXP Env,
         const char* sPredNames[], int nPreds);
 
 void FreeAllowedFunc(void);

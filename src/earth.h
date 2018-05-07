@@ -20,39 +20,37 @@
 
 void FreeR(void);
 
-void ForwardPassR(              // for use by R
-    int    FullSet[],           // out: nMaxTerms x 1, bool vec of lin indep cols of bx
-    double bx[],                // out: MARS basis matrix, nCases x nMaxTerms
-    double Dirs[],              // out: nMaxTerms x nPreds, elements are -1,0,1,2
-    double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
-    int*   piTermCond,          // out: reason we terminated the forward pass
-    const double x[],           // in: nCases x nPreds, unweighted x
-    const double y[],           // in: nCases x nResp, unweighted but scaled y
-    const double yw[],          // in: nCases x nResp, weighted and scaled y
-    const double WeightsArg[],  // in: nCases x 1, never MyNull
-    const int* pnCases,         // in: number of rows in x and elements in y
-    const int* pnResp,          // in: number of cols in y
-    const int* pnPreds,         // in: number of cols in x
-    const int* pnMaxDegree,     // in:
-    const double* pPenalty,     // in:
-    const int* pnMaxTerms,      // in:
-    const double* pThresh,      // in: forward step threshold
-    const int* pnMinSpan,       // in:
-    const int* pnEndSpan,       // in:
-    const int* pnFastK,         // in: Fast MARS K
-    const double* pFastBeta,    // in: Fast MARS ageing coef
-    const double* pNewVarPenalty,  // in: penalty for adding a new variable (default is 0)
-    const int  LinPreds[],         // in: nPreds x 1, 1 if predictor must enter linearly
-    const SEXP Allowed,            // in: constraints function, can be MyNull
-    const int* pnAllowedFuncArgs,  // in: number of arguments to Allowed function, 3 or 4
-    const SEXP Env,                // in: environment for Allowed function
-    const double* pAdjustEndSpan,  // in:
-    const int* pnAutoLinPreds,      // in: assume predictor linear if knot is min predictor value
-    const int* pnUseBetaCache,     // in: 1 to use the beta cache, for speed
-    const double* pTrace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char* sPredNames[],      // in: predictor names in trace printfs, can be MyNull
-    const double* MyNullDouble,    // in: trick to avoid R check warnings on passing R_NilValue
-    const SEXP MyNullFunc);        // in: ditto
+SEXP ForwardPassR(              // for use by R
+    SEXP SEXP_FullSet,          // out: nMaxTerms x 1, bool vec of lin indep cols of bx
+    SEXP SEXP_bx,               // out: MARS basis matrix, nCases x nMaxTerms
+    SEXP SEXP_Dirs,             // out: nMaxTerms x nPreds, elements are -1,0,1,2
+    SEXP SEXP_Cuts,             // out: nMaxTerms x nPreds, cut for iTerm,iPred
+    SEXP SEXP_iTermCond,        // out: reason we terminated the forward pass
+    SEXP SEXP_x,                // in: nCases x nPreds, unweighted x
+    SEXP SEXP_y,                // in: nCases x nResp, unweighted but scaled y
+    SEXP SEXP_yw,               // in: nCases x nResp, weighted and scaled y
+    SEXP SEXP_WeightsArg,       // in: nCases x 1, never R_NilValue
+    SEXP SEXP_nCases,           // in: number of rows in x and elements in y
+    SEXP SEXP_nResp,            // in: number of cols in y
+    SEXP SEXP_nPreds,           // in: number of cols in x
+    SEXP SEXP_nMaxDegree,       // in:
+    SEXP SEXP_Penalty,          // in:
+    SEXP SEXP_nMaxTerms,        // in:
+    SEXP SEXP_Thresh,           // in: forward step threshold
+    SEXP SEXP_nMinSpan,         // in:
+    SEXP SEXP_nEndSpan,         // in:
+    SEXP SEXP_nFastK,           // in: Fast MARS K
+    SEXP SEXP_FastBeta,         // in: Fast MARS ageing coef
+    SEXP SEXP_NewVarPenalty,    // in: penalty for adding a new variable (default is 0)
+    SEXP SEXP_LinPreds,         // in: nPreds x 1, 1 if predictor must enter linearly
+    SEXP SEXP_Allowed,          // in: constraints function, can be MyNullFunc
+    SEXP SEXP_nAllowedArgs,     // in: number of arguments to Allowed function, 3 or 4
+    SEXP SEXP_Env,              // in: environment for Allowed function
+    SEXP SEXP_AdjustEndSpan,    // in:
+    SEXP SEXP_nAutoLinPreds,    // in: assume predictor linear if knot is min predictor value
+    SEXP SEXP_nUseBetaCache,    // in: 1 to use the beta cache, for speed
+    SEXP SEXP_Trace,            // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    SEXP SEXP_sPredNames);      // in: predictor names in trace printfs
 
 void EvalSubsetsUsingXtxR(      // for use by R
     double        PruneTerms[], // out: specifies which cols in bx are in best set

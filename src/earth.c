@@ -49,7 +49,7 @@
 #include <string.h>
 #include <float.h>
 #include <math.h>
-#if _MSC_VER            // microsoft
+#if _MSC_VER         // microsoft
     #include <crtdbg.h> // microsoft malloc debugging library
     #define _C_ "C"
     // disable warning: 'vsprintf': This function or variable may be unsafe
@@ -132,7 +132,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 4.6.0"; // change if you modify this file!
+static const char*  VERSION     = "version 4.6.3"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -412,7 +412,7 @@ static void PrintSortedQ(int nFastK)     // for debugging
 
 static int CompareQ(const void* p1, const void* p2)     // for qsort
 {
-    double Diff = ((tQueue*)p2)->RssDelta - ((tQueue*)p1)->RssDelta;
+    double Diff = ((const tQueue*)p2)->RssDelta - ((const tQueue*)p1)->RssDelta;
     if(Diff < 0)
         return -1;
     else if(Diff > 0)
@@ -420,7 +420,7 @@ static int CompareQ(const void* p1, const void* p2)     // for qsort
 
     // Diff is 0, so sort now on iParent
 
-    int iDiff = ((tQueue*)p1)->iParent - ((tQueue*)p2)->iParent;
+    int iDiff = ((const tQueue*)p1)->iParent - ((const tQueue*)p2)->iParent;
     if(iDiff < 0)
         return -1;
     else if(iDiff > 0)
@@ -433,7 +433,7 @@ static int CompareQ(const void* p1, const void* p2)     // for qsort
 
 static int CompareAgedQ(const void* p1, const void* p2) // for qsort
 {
-    double Diff = ((tQueue*)p1)->AgedRank - ((tQueue*)p2)->AgedRank;
+    double Diff = ((const tQueue*)p1)->AgedRank - ((const tQueue*)p2)->AgedRank;
     if(Diff < 0)
         return -1;
     else if(Diff > 0)
@@ -441,7 +441,7 @@ static int CompareAgedQ(const void* p1, const void* p2) // for qsort
 
     // Diff is 0, so sort now on RssDelta
 
-    Diff = ((tQueue*)p2)->RssDelta - ((tQueue*)p1)->RssDelta;
+    Diff = ((const tQueue*)p2)->RssDelta - ((const tQueue*)p1)->RssDelta;
     if(Diff < 0)
         return -1;
     else if(Diff > 0)
@@ -449,7 +449,7 @@ static int CompareAgedQ(const void* p1, const void* p2) // for qsort
 
     // Diff is still 0, so sort now on iParent
 
-    int iDiff = ((tQueue*)p1)->iParent - ((tQueue*)p2)->iParent;
+    int iDiff = ((const tQueue*)p1)->iParent - ((const tQueue*)p2)->iParent;
     if(iDiff < 0)
         return -1;
     else if(iDiff > 0)
@@ -531,13 +531,13 @@ static INLINE double MaybeZero(double x)
 // but is defined here to minimize R dependencies.
 // Informal tests show that this is faster than rsort_with_index().
 
-static const double* pxGlobal;
+static const double* pxGlobal; // needed because of the way qsort works
 
 static int Compare(const void* p1, const void* p2)  // for qsort
 {
-    const int i1 = *(int*)p1;
-    const int i2 = *(int*)p2;
-    double Diff = pxGlobal[i1] - pxGlobal[i2];
+    const int i1 = *(const int*)p1;
+    const int i2 = *(const int*)p2;
+    const double Diff = pxGlobal[i1] - pxGlobal[i2];
     if(Diff < 0)
         return -1;
     else if(Diff > 0)
@@ -575,6 +575,7 @@ static int* GetArrayOrder(
                             "xOrder\t\tnRows %d nCols %d sizeof(int) %d",
                             nRows, nCols, sizeof(int));
 
+    // following can be quite slow if nRows is big (requires qsort for each colun)
     for(int iCol = 0; iCol < nCols; iCol++) {
         GetOrder(xOrder + iCol*nRows, x + iCol*nRows, (int)nRows);
 #if USING_R
@@ -2319,7 +2320,7 @@ static void PrintForwardProlog(
         GetSpanParams(&nMinSpan, &nEndSpan, &nStartSpan,
                       nCases, nPreds, 1 /*nDegree*/, 0 /*iParent*/, NULL /*bx*/);
         char sx[100];
-        strcpy(sx,  sFormatMemSize(nCases * nPreds    * sizeof(double), false));
+        strcpy(sx, sFormatMemSize(nCases * nPreds    * sizeof(double), false));
         char sbx[100];
         strcpy(sbx, sFormatMemSize(nCases * nMaxTerms * sizeof(double), false));
         printf("Forward pass: minspan %d endspan %d    x[%d,%d] %s    bx[%d,%d] %s%s\n\n",
@@ -2428,7 +2429,7 @@ static int ForwardEpilog( // returns reason we stopped adding terms
     const int nUsed = GetNbrUsedCols(FullSet, nMaxTerms);
     if(nUsed != nTerms)
         sprintf(sUsed, ", %d term%s used", nUsed, nUsed == 1? "": "s");
-    char sTerms[100];
+    char sTerms[200]; // May 2018: changed 100 to 200 for specious CRAN warning: '%s' directive writing up to 99 bytes into a region of size between 84 and 94 [-Wformat-overflow=]
     sprintf(sTerms, "%d term%s%s", nTerms, nTerms == 1? "": "s", sUsed);
 
     // NOTE 1: this code must match the loop termination conditions in ForwardPass
@@ -2721,6 +2722,7 @@ static void ForwardPass(
         nFastK = 3;
 
     xOrder = GetArrayOrder(x, nCases, nPreds);
+
     InitBetaCache(UseBetaCache, nMaxTerms, nPreds);
 
     bxOrth          = (double*)malloc1(nCases * nMaxTerms * sizeof(double),
@@ -2883,55 +2885,52 @@ static void ForwardPass(
 // This is an interface from R to the C routine ForwardPass
 
 #if USING_R
-void ForwardPassR(              // for use by R
-    int    FullSet[],           // out: nMaxTerms x 1, bool vec of lin indep cols of bx
-    double bx[],                // out: MARS basis matrix, nCases x nMaxTerms
-    double Dirs[],              // out: nMaxTerms x nPreds, elements are -1,0,1,2
-    double Cuts[],              // out: nMaxTerms x nPreds, cut for iTerm,iPred
-    int*   piTermCond,          // out: reason we terminated the forward pass
-    const double x[],           // in: nCases x nPreds, unweighted x
-    const double y[],           // in: nCases x nResp, unweighted but scaled y
-    const double yw[],          // in: nCases x nResp, weighted and scaled y
-    const double WeightsArg[],  // in: nCases x 1, never MyNullDouble
-    const int* pnCases,         // in: number of rows in x and elements in y
-    const int* pnResp,          // in: number of cols in y
-    const int* pnPreds,         // in: number of cols in x
-    const int* pnMaxDegree,     // in:
-    const double* pPenalty,     // in:
-    const int* pnMaxTerms,      // in:
-    const double* pThresh,      // in: forward step threshold
-    const int* pnMinSpan,       // in:
-    const int* pnEndSpan,       // in:
-    const int* pnFastK,         // in: Fast MARS K
-    const double* pFastBeta,    // in: Fast MARS ageing coef
-    const double* pNewVarPenalty,  // in: penalty for adding a new variable (default is 0)
-    const int  LinPreds[],         // in: nPreds x 1, 1 if predictor must enter linearly
-    const SEXP Allowed,            // in: constraints function, can be MyNullFunc
-    const int* pnAllowedFuncArgs,  // in: number of arguments to Allowed function, 3 or 4
-    const SEXP Env,                // in: environment for Allowed function
-    const double* pAdjustEndSpan,  // in:
-    const int* pnAutoLinPreds,     // in: assume predictor linear if knot is min predictor value
-    const int* pnUseBetaCache,     // in: 1 to use the beta cache, for speed
-    const double* pTrace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    const char* sPredNames[],      // in: predictor names in trace printfs
-    const double* MyNullDouble,    // in: trick to avoid R check warnings on passing R_NilValue
-    const SEXP MyNullFunc)         // in: trick to avoid R check warnings on passing R_NilValue
+SEXP ForwardPassR(           // for use by R
+    SEXP SEXP_FullSet,       // out: nMaxTerms x 1, bool vec of lin indep cols of bx
+    SEXP SEXP_bx,            // out: MARS basis matrix, nCases x nMaxTerms
+    SEXP SEXP_Dirs,          // out: nMaxTerms x nPreds, elements are -1,0,1,2
+    SEXP SEXP_Cuts,          // out: nMaxTerms x nPreds, cut for iTerm,iPred
+    SEXP SEXP_iTermCond,     // out: reason we terminated the forward pass
+    SEXP SEXP_x,             // in: nCases x nPreds, unweighted x
+    SEXP SEXP_y,             // in: nCases x nResp, unweighted but scaled y
+    SEXP SEXP_yw,            // in: nCases x nResp, weighted and scaled y
+    SEXP SEXP_WeightsArg,    // in: nCases x 1, never R_NilValue
+    SEXP SEXP_nCases,        // in: number of rows in x and elements in y
+    SEXP SEXP_nResp,         // in: number of cols in y
+    SEXP SEXP_nPreds,        // in: number of cols in x
+    SEXP SEXP_nMaxDegree,    // in:
+    SEXP SEXP_Penalty,       // in:
+    SEXP SEXP_nMaxTerms,     // in:
+    SEXP SEXP_Thresh,        // in: forward step threshold
+    SEXP SEXP_nMinSpan,      // in:
+    SEXP SEXP_nEndSpan,      // in:
+    SEXP SEXP_nFastK,        // in: Fast MARS K
+    SEXP SEXP_FastBeta,      // in: Fast MARS ageing coef
+    SEXP SEXP_NewVarPenalty, // in: penalty for adding a new variable (default is 0)
+    SEXP SEXP_LinPreds,      // in: nPreds x 1, 1 if predictor must enter linearly
+    SEXP SEXP_Allowed,       // in: constraints function, can be MyNullFunc
+    SEXP SEXP_nAllowedArgs,  // in: number of arguments to Allowed function, 3 or 4
+    SEXP SEXP_Env,           // in: environment for Allowed function
+    SEXP SEXP_AdjustEndSpan, // in:
+    SEXP SEXP_nAutoLinPreds, // in: assume predictor linear if knot is min predictor value
+    SEXP SEXP_nUseBetaCache, // in: 1 to use the beta cache, for speed
+    SEXP SEXP_Trace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    SEXP SEXP_sPredNames)    // in: predictor names in trace printfs
 {
-    TraceGlobal = *pTrace;
-    nMinSpanGlobal = *pnMinSpan;
-    nEndSpanGlobal = *pnEndSpan;
-    AdjustEndSpanGlobal = *pAdjustEndSpan;
+    const size_t nCases = (size_t)(INTEGER(SEXP_nCases)[0]);
+    const int nResp     = INTEGER(SEXP_nResp)[0];
+    const int nPreds    = INTEGER(SEXP_nPreds)[0];
+    const int nMaxTerms = INTEGER(SEXP_nMaxTerms)[0];
 
-    size_t nCases = *pnCases; // type convert
-
-    const int nResp = *pnResp;
-    const int nPreds = *pnPreds;
-    const int nMaxTerms = *pnMaxTerms;
+    nMinSpanGlobal       = INTEGER(SEXP_nMinSpan)[0];
+    nEndSpanGlobal       = INTEGER(SEXP_nEndSpan)[0];
+    AdjustEndSpanGlobal  = REAL(SEXP_AdjustEndSpan)[0];
+    TraceGlobal          = REAL(SEXP_Trace)[0];
 
     // nUses is the number of time each predictor is used in the model
-    nUses = (int*)malloc1(*pnPreds * sizeof(int),
-                    "nUses\t\t\t*pnPreds %d sizeof(int)",
-                    *pnPreds, sizeof(int));
+    nUses = (int*)malloc1(nPreds * sizeof(int),
+                    "nUses\t\t\tnPreds %d sizeof(int) %d",
+                    nPreds, sizeof(int));
 
     //  nDegree is degree of each term, degree of intercept is considered to be 0
     nDegree = (int*)malloc1(nMaxTerms * sizeof(int),
@@ -2942,54 +2941,67 @@ void ForwardPassR(              // for use by R
                         "iDirs\t\t\tnMaxTerms %d nPreds %d sizeof(int) %d",
                         nMaxTerms, nPreds, sizeof(int));
 
-    // convert int to bool (may be redundant, depending on compiler)
+    // convert FullSet int to bool (may be redundant, depending on compiler)
     BoolFullSet = (bool*)malloc1(nMaxTerms * sizeof(bool),
                         "BoolFullSet\t\tnMaxTerms %d sizeof(bool) %d",
                         nMaxTerms, sizeof(bool));
-
     int iTerm;
     for(iTerm = 0; iTerm < nMaxTerms; iTerm++)
-        BoolFullSet[iTerm] = FullSet[iTerm] != 0;
+        BoolFullSet[iTerm] = INTEGER(SEXP_FullSet)[iTerm] != 0;
 
-    // convert R my.null to C NULL
+    // copy predictor names from SEXP_sPredNames to sPredNames
+    ASSERT(LENGTH(SEXP_sPredNames) == nPreds);
+    const char** sPredNames = (const char**)malloc1(
+                    LENGTH(SEXP_sPredNames) * sizeof(char*),
+                    "sPredNames\t\tLENGTH(SEXP_sPredNames) %d sizeof(char*) %d",
+                    nPreds, sizeof(char*));
+    for(int i = 0; i < nPreds; i++)
+        sPredNames[i] = (char*)CHAR(STRING_ELT(SEXP_sPredNames, i));
 
 #if !WEIGHTS
-    ASSERT(*(double*)yw == *(double*)MyNullDouble);
+    ASSERT(SEXP_yw == R_NilValue);
 #endif
-    if(*(double*)yw == *(double*)MyNullDouble)
-        yw = NULL;
-    ASSERT(*(double*)WeightsArg != *(double*)MyNullDouble);
+    ASSERT(SEXP_WeightsArg != R_NilValue);
 
-    InitAllowedFunc(*(int*)Allowed == *(int*)MyNullFunc? NULL: Allowed,
-                    *pnAllowedFuncArgs, Env, sPredNames, nPreds);
+    InitAllowedFunc(SEXP_Allowed, INTEGER(SEXP_nAllowedArgs)[0], SEXP_Env,
+                   sPredNames, nPreds);
 
     int nTerms;
-    ForwardPass(&nTerms, piTermCond,
-            BoolFullSet, bx, iDirs, Cuts, nDegree, nUses,
-            x, y, yw, WeightsArg, nCases, nResp, nPreds, *pnMaxDegree, nMaxTerms,
-            *pPenalty, *pThresh, *pnFastK, *pFastBeta, *pNewVarPenalty,
-            LinPreds, *pAdjustEndSpan, *pnAutoLinPreds,
-            (bool)(*pnUseBetaCache != 0), sPredNames);
+    ForwardPass(&nTerms, INTEGER(SEXP_iTermCond),
+            BoolFullSet, REAL(SEXP_bx), iDirs, REAL(SEXP_Cuts), nDegree, nUses,
+            REAL(SEXP_x), REAL(SEXP_y),
+            (SEXP_yw == R_NilValue)? NULL: REAL(SEXP_yw),
+            REAL(SEXP_WeightsArg), nCases, nResp, nPreds,
+            INTEGER(SEXP_nMaxDegree)[0], nMaxTerms, REAL(SEXP_Penalty)[0],
+            REAL(SEXP_Thresh)[0], INTEGER(SEXP_nFastK)[0],
+            REAL(SEXP_FastBeta)[0], REAL(SEXP_NewVarPenalty)[0],
+            INTEGER(SEXP_LinPreds), REAL(SEXP_AdjustEndSpan)[0],
+            INTEGER(SEXP_nAutoLinPreds)[0], INTEGER(SEXP_nUseBetaCache)[0] != 0,
+            sPredNames);
 
     FreeAllowedFunc();
 
     // remove linearly independent columns if necessary -- this updates BoolFullSet
-
     RegressAndFix(NULL, NULL, NULL, BoolFullSet,
-        bx, yw? yw: y, nCases, nResp, nMaxTerms);
+        REAL(SEXP_bx),
+        (SEXP_yw == R_NilValue)? REAL(SEXP_y): REAL(SEXP_yw),
+        nCases, nResp, nMaxTerms);
 
+    double* p = REAL(SEXP_Dirs);
     for(iTerm = 0; iTerm < nMaxTerms; iTerm++)      // convert int to double
         for(int iPred = 0; iPred < nPreds; iPred++)
-            Dirs[iTerm + iPred * nMaxTerms] =
-                iDirs[iTerm + iPred * nMaxTerms];
+            p[iTerm + iPred * nMaxTerms] = iDirs[iTerm + iPred * nMaxTerms];
 
     for(iTerm = 0; iTerm < nMaxTerms; iTerm++)      // convert bool to int
-        FullSet[iTerm] = BoolFullSet[iTerm];
+        INTEGER(SEXP_FullSet)[iTerm] = BoolFullSet[iTerm];
 
+    free1(sPredNames);
     free1(BoolFullSet);
     free1(iDirs);
     free1(nDegree);
     free1(nUses);
+
+    return R_NilValue;
 }
 #endif // USING_R
 
