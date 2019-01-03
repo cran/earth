@@ -43,7 +43,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
                            "right", "center"))
         else NA
 
-    if (is.na(auto)) {
+    if(anyNA(auto)) {
         xy <- xy.coords(x, y); x <- xy$x; y <- xy$y
         nx <- length(x)
         if (nx < 1 || nx > 2) stop("invalid coordinate lengths")
@@ -145,7 +145,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
         if(!is.character(pch)) pch <- as.integer(pch)
     }
 
-    if (is.na(auto)) {
+    if (anyNA(auto)) {
         ##- Adjust (x,y) :
         if (xlog) x <- log10(x)
         if (ylog) y <- log10(y)
@@ -181,7 +181,7 @@ elegend <- function(x, y = NULL, legend, fill=NULL, col = par("col"), border="bl
 
         ##-- (w,h) are now the final box width/height.
 
-        if (is.na(auto)) {
+        if (anyNA(auto)) {
             left <- x - xjust * w
             top  <- y + (1 - yjust) * h
         } else {

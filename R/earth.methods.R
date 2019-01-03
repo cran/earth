@@ -62,17 +62,13 @@ hatvalues.earth <- function(model, ...)
         stop0("this earth model does not have leverages")
     model$leverages
 }
-fitted.earth <- function(object, ...)
+fitted.earth <- function(object, type="response", ...)
 {
-    stop.if.dots(...)
-    stopifnot(!is.null(object$fitted.values))
-    object$fitted.values
+    predict.earth(object, newdata=NULL, type=type, ...)
 }
-fitted.values.earth <- function(object, ...)
+fitted.values.earth <- function(object, type="response", ...)
 {
-    stop.if.dots(...)
-    stopifnot(!is.null(object$fitted.values))
-    object$fitted.values
+    predict.earth(object, newdata=NULL, type=type, ...)
 }
 # use.names can have the following values:
 #   TRUE:  return name if possible, else return x[,i] or x[i-1].
@@ -87,7 +83,7 @@ variable.names.earth <- function(object, ..., use.names=TRUE)
         stop0("illegal value for use.names")
     if(use.names == TRUE) {
         varname <- colnames(object$dirs)[ipred]
-        if(!is.null(varname) && !is.na(varname))
+        if(!is.null(varname) && !anyNA(varname))
             varname
         else
             paste0("x[,", ipred, "]")

@@ -1,11 +1,8 @@
 # test.mods.R: test earth's ability to build various models
 
+source("test.prolog.R")
 library(earth)
-set.seed(2016)
 options(digits=4)
-options(warn=1)
-if(!interactive())
-    postscript(paper="letter")
 
 SHORTTEST <- TRUE # use TRUE for production testing against test.mods.Rout.save
 TRACE <- 0
@@ -38,7 +35,7 @@ test.rsqs.global <- nterms.global <- delta.rsqs.global <- nknots.global <- NULL
 other.rsqs.global <- NULL
 mars.rsqs.global <- mars.nterms.global <- NULL
 
-printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
+printf <- function(format, ...) cat(sprint(format, ...)) # like c printf
 
 sq <- function(x) x * x
 
@@ -66,7 +63,7 @@ test.mod <- function(func, x, xtest, collinear.x2, npreds, nk=NULL, degree=2, ..
         # system.time adds quite a lot of time overhead (because of its calls to gc)
         earth.time <- system.time(mod <- earth(x, y, nk=nk, degree=degree,
                                   trace=TRACE, Force.weights=FORCE.WEIGHTS, ...))
-        time.string <- sprintf(" [time %5.3f]", earth.time[3])
+        time.string <- sprint(" [time %5.3f]", earth.time[3])
     } else {
         mod <- earth(x, y, nk=nk, degree=degree,
                      trace=TRACE, Force.weights=FORCE.WEIGHTS, ...)
@@ -93,7 +90,7 @@ test.mod <- function(func, x, xtest, collinear.x2, npreds, nk=NULL, degree=2, ..
         fittedw <- predict(modw, xtest)
         test.rsqw <- 1 - sos(ytest - fittedw) / sos(ytest - mean(ytest))
         deltaw <- test.rsq - test.rsqw
-        extra.msg <- sprintf("%s grsqw % 4.2f test.rsqw % 4.2f deltaw % 4.2f%s",
+        extra.msg <- sprint("%s grsqw % 4.2f test.rsqw % 4.2f deltaw % 4.2f%s",
                         extra.msg, modw$grsq, test.rsqw, deltaw,
                         if(abs(deltaw) > .5) "!" else "")
     }
@@ -104,7 +101,7 @@ test.mod <- function(func, x, xtest, collinear.x2, npreds, nk=NULL, degree=2, ..
         rsq.rf <- 1 - sos(ytest - fitted.rf) / sos(ytest - mean(ytest))
         other.rsqs.global  <<- c(other.rsqs.global, rsq.rf)
         delta <- test.rsq - rsq.rf
-        extra.msg <- sprintf("%s rsq.rf % 4.2f delta % 4.2f%s",
+        extra.msg <- sprint("%s rsq.rf % 4.2f delta % 4.2f%s",
                                extra.msg, rsq.rf, delta,
                                if(abs(delta) > .5) "!" else "")
     }
@@ -117,7 +114,7 @@ test.mod <- function(func, x, xtest, collinear.x2, npreds, nk=NULL, degree=2, ..
         mars.rsqs.global   <<- c(mars.rsqs.global, rsq.mars)
         mars.nterms.global <<- c(mars.nterms.global, length(mars$selected.terms))
         delta <- test.rsq - rsq.mars
-        extra.msg <- sprintf("%s rsq.mars % 4.2f delta % 4.2f%s",
+        extra.msg <- sprint("%s rsq.mars % 4.2f delta % 4.2f%s",
                                extra.msg, rsq.mars, delta,
                                if(abs(delta) > .5) "!" else "")
     }
@@ -141,7 +138,7 @@ test.mod <- function(func, x, xtest, collinear.x2, npreds, nk=NULL, degree=2, ..
     if(PLOT ||
             # following is to always produce a plot so diffps ok in test.mods.bat
             (!interactive() && itest == 1 && nrow(x) == 100)) {
-        caption <- sprintf("TEST %g%s n %d p %d %-.20s nk %g deg %g grsq %.2f test.rsq %.2f",
+        caption <- sprint("TEST %g%s n %d p %d %-.20s nk %g deg %g grsq %.2f test.rsq %.2f",
                     itest, if(collinear.x2) " col.x2" else "", nrow(x), ncol(x),
                     deparse(substitute(func)), nk, degree, mod$grsq, test.rsq)
         # plotmo(mod, trace=-1, pt.col="red", pt.cex=.8, caption=caption,
@@ -565,7 +562,7 @@ my.summary <- function(x)
 {
     q <- stats::quantile(x, probs = c(0, .01, .05, .1, .5, .9, 1))
     q <- c(q[1:4], mean(x), q[5:7])
-    q <- as.numeric(sprintf("%.3f", q))
+    q <- as.numeric(sprint("%.3f", q))
     names(q) <- c("min", "1%", "5%", "10%", "mean", "median", "95%", "max")
     q
 }
@@ -610,7 +607,4 @@ if(!is.null(mars.rsqs.global)) {
 }
 if(TIME)
     printf("[testn time %.3f]\n", (proc.time() - start.time)[3])
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

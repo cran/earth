@@ -38,7 +38,7 @@ See the package vignette
 
 \method{earth}{fit}(x = stop("no 'x' argument"), y = stop("no 'y' argument"),
     weights = NULL, wp = NULL, subset = NULL,
-    na.action = na.fail,
+    na.action = na.fail, offset = NULL,
     pmethod = c("backward", "none", "exhaustive", "forward", "seqrep", "cv"),
     keepxy = FALSE, trace = 0, glm = NULL, degree = 1,
     penalty = if(degree > 1) 3 else 2,
@@ -117,6 +117,9 @@ standard algorithm by toying with tuning parameters such as \code{thresh},
 }
 \item{na.action}{
      NA action. Default is \code{na.fail}, and only \code{na.fail} is supported.
+}
+\item{offset}{
+     Offset term passed from the formula in \code{earth.formula}.
 }
 \item{keepxy}{
      Default is \code{FALSE}.
@@ -577,10 +580,10 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the vignette.
   in the \code{leaps} package.
 }
 \references{
-  The primary references are the Friedman papers.
-  Readers may find the MARS section in Hastie, Tibshirani,
-  and Friedman a more accessible introduction.
   The Wikipedia article is recommended for an elementary introduction.
+  The primary references are the Friedman papers, but
+  readers may find the MARS section in Hastie, Tibshirani,
+  and Friedman a more accessible introduction.
   Faraway takes a hands-on approach,
   using the \code{\link[=ozone1]{ozone}} data to compare \code{mda::mars} with other techniques.
   (If you use Faraway's examples with \code{earth} instead of \code{mars}, use \code{$bx}
@@ -607,7 +610,8 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the vignette.
   Friedman and Silverman (1989)
   \emph{Flexible Parsimonious Smoothing and Additive Modeling}
   Technometrics, Vol. 31, No. 1.
-  \url{http://links.jstor.org/sici?sici=0040-1706\%28198902\%2931\%3A1\%3C3\%3AFPSAAM\%3E2.0.CO\%3B2-Z}
+  \url{https://www.tandfonline.com/doi/abs/10.1080/00401706.1989.10488470}
+  % \url{https://www.jstor.org/stable/1270359} % CRAN check fails with "Message: Forbidden"
 
   Hastie, Tibshirani, and Friedman (2009) \emph{The Elements of Statistical Learning (2nd ed.)}
   \url{http://web.stanford.edu/~hastie/pub.htm}

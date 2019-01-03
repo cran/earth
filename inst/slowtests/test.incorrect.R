@@ -1,14 +1,11 @@
 # test.incorrect.R: example incorrect model built by earth
 # Stephen Milborrow May 2015 Berea
 
+source("test.prolog.R")
 library(earth)
-set.seed(2016)
 options(digits=4)
-options(warn=1)
-if(!interactive())
-    postscript(paper="letter")
 
-printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
+printf <- function(format, ...) cat(sprint(format, ...)) # like c printf
 
 sos <- function(x) sum(as.vector(x^2)) # sum of squares
 
@@ -48,7 +45,4 @@ plotmo(mod, degree1=0, do.par=FALSE, main="incorrect model")
 plotmo(mod, degree1=0, do.par=FALSE, main="incorrect model", pt.col=2, type2="im")
 points(xtest[,1], xtest[,2], col=3, pch=20, cex=.05)
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

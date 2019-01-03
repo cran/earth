@@ -87,8 +87,8 @@ If \code{interval="se"}, the standard errors.
     The \code{"link"} and \code{"response"} options:
     see \code{\link{predict.glm}} for a description of these.
     In brief: for logistic models
-    use \code{type="link"} to get log-odds and
-    \code{type="response"} to get probabilities.
+    use \code{type="response"} to get probabilities,
+    and \code{type="link"} to get log-odds.
 
     Use option \code{"earth"} to get the linear fit (this gives the prediction you would get
     if your original call to earth had no \code{glm} argument).
@@ -100,7 +100,7 @@ If \code{interval="se"}, the standard errors.
     \code{type="response"} and then assigns the predicted values to classes as follows:
 
     (i) When the response is a \emph{logical}, predict \code{TRUE} if
-    the predicted probability is greater than \code{thresh}.
+    the predicted probability is greater than \code{thresh} (default \code{0.5}).
 
     (ii) When the response is a \emph{numeric}, predict \code{TRUE} if
     the predicted value is greater than \code{thresh}.

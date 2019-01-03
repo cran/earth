@@ -127,7 +127,7 @@ auto.caption <- function(caption, resp.name, type,
 {
     sresponse <- stype <- smodel <- scaption <- smy.call <- ""
     if(!is.null(caption))
-        scaption <- sprintf("%s     ", caption)
+        scaption <- sprint("%s     ", caption)
     # the test against "y" is because "y" may just be a fabricated
     # name created because the actual name was not available
     if(!is.null(resp.name) && resp.name != "y")

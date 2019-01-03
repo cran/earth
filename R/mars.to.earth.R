@@ -125,7 +125,7 @@ mars.to.earth <- function(object=stop("no 'object' argument"), trace=TRUE)
     duplicated <- duplicated(term.names)
     if(any(duplicated)) {
         ndup <- sum(duplicated)
-        term.names[duplicated] <- sprintf("%s.%d", term.names[duplicated], seq_len(ndup))
+        term.names[duplicated] <- sprint("%s.%d", term.names[duplicated], seq_len(ndup))
         if(trace > 0)
             printf("Renamed %d duplicated term name%s to %s\n\n",
                    ndup, if(ndup == 1) "" else "s", quote.with.c(term.names[duplicated]))

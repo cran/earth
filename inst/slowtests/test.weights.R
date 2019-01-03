@@ -1,9 +1,8 @@
 # test.weights.R
 
+source("test.prolog.R")
 library(earth)
 library(mda)
-set.seed(2016)
-options(warn=1) # print warnings as they occur
 check.equal <- function(x, y, msg="")
 {
     diff <- x - y
@@ -21,16 +20,13 @@ check.models.equal <- function(lm.mod, earth.mod)
 {
     lm.mod.name <- deparse(substitute(lm.mod))
     earth.mod.name <- deparse(substitute(earth.mod))
-    msg <- sprintf("%s vs %s", lm.mod.name, earth.mod.name)
-    check.equal(lm.mod$coefficients,       earth.mod$coefficients,       msg=sprintf("%s coefficients", msg))
-    check.equal(lm.mod$rss,                earth.mod$rss,                msg=sprintf("%s rss", msg))
-    check.equal(lm.mod$residuals,          earth.mod$residuals,          msg=sprintf("%s residuals", msg))
-    check.equal(summary(lm.mod)$r.squared, earth.mod$rsq,                msg=sprintf("%s rsq", msg))
-    check.equal(summary(lm.mod)$r.squared, earth.mod$rsq.per.reponse[1], msg=sprintf("%s rsq.per.response", msg))
+    msg <- sprint("%s vs %s", lm.mod.name, earth.mod.name)
+    check.equal(lm.mod$coefficients,       earth.mod$coefficients,       msg=sprint("%s coefficients", msg))
+    check.equal(lm.mod$rss,                earth.mod$rss,                msg=sprint("%s rss", msg))
+    check.equal(lm.mod$residuals,          earth.mod$residuals,          msg=sprint("%s residuals", msg))
+    check.equal(summary(lm.mod)$r.squared, earth.mod$rsq,                msg=sprint("%s rsq", msg))
+    check.equal(summary(lm.mod)$r.squared, earth.mod$rsq.per.reponse[1], msg=sprint("%s rsq.per.response", msg))
 }
-if(!interactive())
-    postscript(paper="letter")
-
 # artifical data
 xxx <- 1:9
 yyy <- 1:9
@@ -65,6 +61,8 @@ check.models.equal(lm3, a3)
 lm4 <- lm(y~., data=data, weights=.1 * weights)
 a4  <- earth(y~., data=data, linpreds=TRUE, weights=.1 * weights,
              minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+cat("a4:\n")
+print(a4)
 check.models.equal(lm4, a4)
 
 # We want to see the effect only on the forward pass, so disable the
@@ -87,11 +85,15 @@ plotmo(a5.noweights, col.response=2, do.par=F, main="a5.noweights", grid.col="gr
 # TODO why does this model differ from the above model?
 a5.noweights.force <- earth(y~., data=data, Force.weights=T,
                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
+cat("a5.noweights.force:\n")
+print(a5.noweights.force)
 plotmo(a5.noweights.force, col.response=2, do.par=F, main="a5.noweights.force", grid.col="gray", jitter=0)
 
 cat("=== a6.azeroweight ===\n")
 a6.azeroweight  <- earth(y~., data=data, weights=c(1, 1, 1, 1, 0, 1, 1, 1, 1),
                          minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
+cat("a6.azeroweight:\n")
+print(a6.azeroweight)
 plotmo(a6.azeroweight, col.response=2, do.par=F, main="a6.azeroweight", grid.col="gray", jitter=0)
 
 cat("=== a7.asmallweight ===\n") # different set of weights (pick up notch in data, but with different forward pass RSq's)
@@ -120,8 +122,8 @@ plotmo(a8,
 plotmo(a8, type="earth",
        col.response=2, do.par=F, main="a8 glm no weights\ntype=\"earth\"",
        grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
-glm <- glm(y~., data=data, family=binomial)
-stopifnot(coefficients(a8$glm.list[[1]]) == coefficients(glm))
+glm.a8 <- glm(y~., data=data, family=binomial)
+stopifnot(coefficients(a8$glm.list[[1]]) == coefficients(glm.a8))
 
 cat("=== a8.weights ===\n")
 # now glm models with weights
@@ -130,18 +132,19 @@ a8.weights <- earth(y~., data=data,
                     linpreds=TRUE, glm=list(family=binomial),
                     weights=glm.weights,
                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+cat("a8.weights:\n")
+print(a8.weights)
 plotmo(a8.weights, type="response",
        col.response=2, do.par=F, main="a8.weights glm\ntype=\"response\"",
        grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 plotmo(a8.weights, type="earth",
        col.response=2, do.par=F, main="a8.weights glm\ntype=\"earth\"",
        grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
-glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
-# TODO this fails if a weight is 0 in glm.weights
-stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm))
+glm.a8.weights <- glm(y~., data=data, weights=glm.weights, family=binomial)
+stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm.a8.weights))
 
-cat("=== a8.weights ===\n")
-# now glm models with weights
+cat("=== a8.weights including a zero weight ===\n")
+# now glm models with weights including a zero weight
 glm.weights <- c(.8,1,1,0,1,1,1,1,1)
 a8.azeroweight <- earth(y~., data=data,
                     linpreds=TRUE, glm=list(family=binomial),
@@ -153,11 +156,11 @@ plotmo(a8.azeroweight, type="response",
 plotmo(a8.azeroweight, type="earth",
        col.response=2, do.par=F, main="a8.azeroweight glm\ntype=\"earth\"",
        grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
-# glm <- glm(y~., data=data, weights=glm.weights, family=binomial)
+glm.a8.azeroweight <- glm(y~., data=data, weights=glm.weights, family=binomial)
+# # TODO this fails because a weight is 0 in glm.weights
 # print(coefficients(a8.azeroweight$glm.list[[1]]))
-# print(coefficients(glm))
-# # TODO this fails if a weight is 0 in glm.weights
-# stopifnot(coefficients(a8.azeroweight$glm.list[[1]]) == coefficients(glm))
+# print(coefficients(glm.a8.azeroweight))
+# stopifnot(coefficients(a8.azeroweight$glm.list[[1]]) == coefficients(glm.a8.azeroweight))
 
 cat("=== plot.earth with weights ===\n")
 # we also test id.n=TRUE and id.n=-1 here
@@ -170,8 +173,21 @@ par(old.par)
 cat("=== plot.earth with earth-glm model and weights ===\n")
 plot(a8, id.n=TRUE, caption="a8")
 plot(a8.weights, id.n=TRUE, caption="a8.weights")
-plot(a8.azeroweight, id.n=TRUE, caption="a8.azeroweight")
-plot(a8.azeroweight, id.n=TRUE, delever=TRUE, caption="a8.azeroweight delever=TRUE")
+plotres(glm.a8.weights, id.n=TRUE, caption="plotres: glm.a8.weights")
+plot(a8.weights, id.n=TRUE, delever=TRUE, caption="a8.weights delever=TRUE")
+
+set.seed(2018)
+plotmo(a8.weights,     pt.col=2, caption="plotmo: a8.weights")
+set.seed(2018)
+plotmo(glm.a8.weights, pt.col=2, caption="plotmo: glm.a8.weights")
+
+cat("=== plot.earth with earth-glm model and weights including a zero weight ===\n")
+set.seed(2018)
+plotmo(a8.azeroweight,     pt.col=2, caption="plotmo: a8.azeroweight")
+set.seed(2018)
+plotmo(glm.a8.azeroweight, pt.col=2, caption="plotmo: glm.a8.azeroweight")
+
+cat("=== plot.earth with earth-glm model, weights, and offset ===\n")
 
 # multivariate models
 
@@ -250,6 +266,8 @@ set.seed(1)
 y <- bivariate.with.interaction(x)
 a.biv  <- earth(x, y, degree=2, trace=2)
 aw.biv <- earth(x, y, degree=2, trace=2, Force.weights=TRUE)
+cat("aw.biv:\n")
+print(aw.biv)
 
 par(mfrow=c(2,3), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8), oma=c(0,0,3,0))
 plotmo(a.biv,  do.par=FALSE, caption="bivariate: top and bottom should be similar")
@@ -293,7 +311,7 @@ cat("comparison to glm and rpart: weight=.1\n")
 weight <- .1
 w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
 aw201 <- earth(y~x1, data=data, weights=w)
-plotmo(aw201, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+plotmo(aw201, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 gamw201 <- gam(y~s(x1, 5), data=data, weights=w)
 plotmo(gamw201, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
@@ -303,7 +321,7 @@ cat("comparison to glm and rpart: weight=1\n")
 weight <- 1
 w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
 aw202 <- earth(y~x1, data=data, weights=w)
-plotmo(aw202, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+plotmo(aw202, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 gamw202 <- gam(y~s(x1, 5), data=data, weights=w)
 plotmo(gamw202, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
@@ -313,7 +331,7 @@ cat("comparison to glm and rpart: weight=2\n")
 weight <- 2
 w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
 aw203 <- earth(y~x1, data=data, weights=w)
-plotmo(aw203, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+plotmo(aw203, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 gamw203 <- gam(y~s(x1, 5), data=data, weights=w)
 plotmo(gamw203, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
@@ -323,7 +341,7 @@ cat("comparison to glm and rpart: weight=10\n")
 weight <- 10
 w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
 aw204 <- earth(y~x1, data=data, weights=w)
-plotmo(aw204, do.par=FALSE, pt.col=2, main=sprintf("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
+plotmo(aw204, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 gamw204 <- gam(y~s(x1, 5), data=data, weights=w)
 plotmo(gamw204, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
@@ -389,7 +407,4 @@ yhatw <- predict(aw, dat[, c('x1', 'x2', 'x3')], type='response')
 stopifnot(identical(yhat, yhat))
 check.models.equal(a, aw)
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

@@ -108,11 +108,11 @@ format.one.response <- function( # called by format.earth
         coef <- coefs[iterm]
         if(coef < 0)
             s <- pastef(s, "  - %s ",
-            format(-coef, justify="left",w=coef.width,digits=digits,format="%g"))
+            format(-coef, justify="left",width=coef.width,digits=digits,format="%g"))
         else
             s <- pastef(s, "  + %s ",
                         format(coef, justify="left",
-                               w=coef.width,digits=digits,format="%g"))
+                               width=coef.width,digits=digits,format="%g"))
         s <- pastef(s, "* %s", term.names[iterm])
         s <- pastef(s, "\n")
         iterm <- iterm + 1
@@ -268,7 +268,7 @@ get.table.of.basis.functions <- function(object, new.order)
     bfs <- get.bfs(names)
     s <- ""
     if(nrow(bfs) > 1) for(i in 2:nrow(bfs)) # start at 2 to skip intercept
-        s <- paste0(s, sprintf("%6s  %s\n", bfs[i,2], bfs[i,1]))
+        s <- paste0(s, sprint("%6s  %s\n", bfs[i,2], bfs[i,1]))
     s
 }
 # Return a string representing the linear model.
@@ -292,7 +292,7 @@ format.lm <- function(
 {
     format1 <- function(coef)
     {
-        format(coef, justify="left", w=coef.width, digits=digits, format="%g")
+        format(coef, justify="left", width=coef.width, digits=digits, format="%g")
     }
     check.classname(x, substitute(x), "lm")
     use.names <- check.boolean(use.names)
@@ -326,7 +326,7 @@ format.lm <- function(
         pred.names <- pred.names[-1] # drop intercept
         coefs <- coefs[-1]
     }
-    s <- sprintf("  %.*g\n", digits=digits, intercept)
+    s <- sprint("  %.*g\n", digits=digits, intercept)
     coef.width <- get.coef.width(coefs, digits)
     for(ipred in seq_along(coefs)) {
         coef <- coefs[ipred]

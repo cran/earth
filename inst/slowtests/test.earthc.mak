@@ -1,8 +1,9 @@
 # test.earthc.mak: makefile for test.earthc.main.exe with Microsoft Visual C 6.0
+# This builds the executable, runs it, then diffs the results against the reference.
 
 all: test.earthc.out
 
-R_DIR="%ProgramFiles%\r\R-3.5.0"
+R_DIR="%ProgramFiles%\r\R-3.5.2"
 
 INCL=-I$(R_DIR)\src\include -I.
 

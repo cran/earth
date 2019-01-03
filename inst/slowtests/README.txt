@@ -1,19 +1,14 @@
-earth/inst/slowtests/README
----------------------------
+earth/inst/slowtests/README.txt
+-------------------------------
 
-The tests in this directory are much more comprehensive than
-tests\test.earth.R but also take much longer to execute (a
-few minutes).
+The tests in this directory must be run manually before submitting a
+new version of this package to CRAN.
 
-Note that the test reference postscript files are not included here
-(and are not included with the earth release), because they are very
-big (over 35 MBytes in total).
+They are much more comprehensive than the standard CRAN checks in
+tests/tests.earth.R, but take several minutes to run.
 
-None of these tests do much testing of appropriate behaviour for bad
-arguments.
-
-For some OLD timing test results: see timing-tests.txt
-
-For timing tests (as shown on the earth web page): run earth.times.bat
-
-Stephen Milborrow Apr 2007 Petaluma
+Also they compare postscript files, and there are sometimes arbitrary
+changes to the format of those postscript files due to changes in the
+postscript driver across R releases.  Such changes must be manually
+checked by comparing the files in a postscript viewer.  Complete
+automation isn't possible.

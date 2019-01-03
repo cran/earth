@@ -181,11 +181,12 @@ earth.default <- function(
     # the "if" saves memory when x is already in canonical form
     if(!is.matrix(x) || !is.double(x[,1]) || !good.colnames(x)) {
         # expand factors, convert to double matrix with column names
-        x <- expand.arg(x, env, trace=0, FALSE, xname=xname)
+        x <- expand.arg(x, env, trace=0, is.y.arg=FALSE, xname=xname,
+                        is.earth.default=TRUE)
         rownames(x) <- possibly.delete.rownames(x)
     }
     ylevels <- get.ylevels(y, glm)
-    y <- expand.arg(y, env, trace=0, is.y.arg=TRUE, trunc.deparse(substitute(y)))
+    y <- expand.arg(y, env, trace=0, is.y.arg=TRUE, xname=trunc.deparse(substitute(y)))
     rownames(y) <- possibly.delete.rownames(y)
     # we need the diag of the hat matrix if varmod.method != "none"
     varmod.method <- match.choices(varmod.method,
@@ -201,9 +202,9 @@ earth.default <- function(
         pmethod1 <- "backward"
     }
     rv <- earth.fit(x=x, y=y, weights=weights, wp=wp, subset=subset,
-                    na.action=na.action, pmethod=pmethod1, keepxy=keepxy,
-                    trace=trace, glm=glm, degree=degree, nprune=nprune,
-                    Scale.y=Scale.y, ...)
+                    na.action=na.action, offset=NULL, pmethod=pmethod1,
+                    keepxy=keepxy, trace=trace, glm=glm, degree=degree,
+                    nprune=nprune, Scale.y=Scale.y, ...)
 
     rv$call <- call
     rv$namesx.org <- namesx.org # name chosen not to alias with rv$x
@@ -401,7 +402,7 @@ earth.formula <- function(
     # subset is handled in earth.fit so it isn't included here
     # we handle weights here in the same way as source code of lm (so
     # weights are first searched for in the data passed to the formula)
-    m <- match(c("formula", "data", "weights", "na.action"), names(call2), 0)
+    m <- match(c("formula", "data", "weights", "na.action", "offset"), names(call2), 0)
     mf <- call2[c(1, m)]
     mf[[1]] <- quote(stats::model.frame)
     if(!is.null(mf$na.action))
@@ -437,6 +438,11 @@ earth.formula <- function(
     # as.vector to avoid problems with Nx1 weights (same as lm source code)
     weights <- as.vector(model.weights(mf))
 
+    offset <- as.vector(model.offset(mf))
+    if(!is.null(offset)) {
+        check.offset.var.is.in.data(terms, data)
+        check.vec(offset, "formula offset", expected.len=NROW(y), logical.ok=FALSE)
+    }
     keepxy <- check.boolean(keepxy)
     pmethod <- match.arg1(pmethod, "pmethod")
     # we need the diag of the hat matrix if varmod.method != "none"
@@ -453,15 +459,15 @@ earth.formula <- function(
         pmethod1 <- "backward"
     }
     rv <- earth.fit(x=x, y=y, weights=weights, wp=wp, subset=subset,
-                    na.action=na.action, pmethod=pmethod1, keepxy=keepxy,
-                    trace=trace, glm=glm, degree=degree, nprune=nprune,
-                    Scale.y=Scale.y, ...)
+                    na.action=na.action, offset=offset, pmethod=pmethod1,
+                    keepxy=keepxy, trace=trace, glm=glm, degree=degree,
+                    nprune=nprune, Scale.y=Scale.y, ...)
 
     rv$call <- call
     rv$namesx.org <- get.namesx(mf)         # rv$namesx name chosen not to alias with rv$x
     rv$namesx <- make.unique(rv$namesx.org) # ditto
-    rv$levels <- ylevels
     rv$terms <- terms
+    rv$levels <- ylevels
     rv$wp <- wp
     if(keepxy) {
         if(!is.null(data))
@@ -613,6 +619,7 @@ earth.fit <- function(
     wp      = NULL,         # response weights (column weights)
     subset  = NULL,         # which rows in x to use
     na.action = na.fail,    # only legal value is na.fail
+    offset  = NULL,         # offset term in formula
     pmethod = c("backward", "none", "exhaustive", "forward", "seqrep", "cv"),
     keepxy  = FALSE,
     trace = 0,              # 0 none 1 overview 2 forward 3 pruning
@@ -651,7 +658,7 @@ earth.fit <- function(
 
     allowed        = NULL,  # constraint function specifying allowed interactions
 
-    nprune  = NULL,         # max nbr of terms (including intercept) in pruned subset
+    nprune          = NULL, # max nbr of terms (including intercept) in pruned subset
 
                             # Following will not usually be used by the user
 
@@ -681,6 +688,8 @@ earth.fit <- function(
     Get.leverages   <- check.boolean(Get.leverages)
     env <- parent.frame()
     y.org <- y
+    if(!is.null(offset))
+        y <- y - offset # apply offset before weights, like stats::lm.wfit
     pmethod <- match.arg1(pmethod, "pmethod")
     # For binomial glms we have to drop paired y cols before passing y to
     # to the C earth routines.  The logical vector glm.bpairs keeps track
@@ -790,8 +799,8 @@ earth.fit <- function(
                     trace, degree, penalty, nk, thresh,
                     minspan, endspan, newvar.penalty, fast.k, fast.beta,
                     linpreds, allowed,
-                    Scale.y, Adjust.endspan, Auto.linpreds, Use.beta.cache,
-                    n.allowed.args, env, maxmem)
+                    Scale.y, Adjust.endspan, Auto.linpreds,
+                    Use.beta.cache, n.allowed.args, env, maxmem)
         termcond <- rv$termcond
         bx       <- rv$bx
         dirs     <- rv$dirs
@@ -814,7 +823,6 @@ earth.fit <- function(
     term.names <- get.earth.term.name(seq_len(nrow(dirs)), dirs, cuts, pred.names, x)
     possible.gc(maxmem, trace, "after get.earth.term.name") # release memory used by get.earth.term.name
     colnames(bx) <- term.names
-
     rv <- pruning.pass(if(use.weights) sqrt(weights) * x else x,
                        if(use.weights) yw else y, bx,
                        pmethod, penalty, nprune,
@@ -852,7 +860,10 @@ earth.fit <- function(
     colnames(fitted.values) <- resp.names
     colnames(residuals)     <- resp.names
     colnames(coefficients)  <- resp.names
-
+    if(!is.null(offset)) {
+        stopifnot(NROW(offset) == NROW(fitted.values))
+        fitted.values <- fitted.values + offset
+    }
     leverages <- NULL
     if(Get.leverages) {
         # when n >> p, memory use peaks here
@@ -876,7 +887,7 @@ earth.fit <- function(
         y.glm <- y.org
         if(!is.null(subset))
             y.glm <- y.glm[subset, , drop=FALSE]
-        glm.list <- earth.glm(bx, y.glm, weights, na.action, glm,
+        glm.list <- earth.glm(bx, y.glm, weights, na.action, offset, glm,
                               trace, glm.bpairs, resp.names[1], env)
         glm.coefs <- get.glm.coefs(glm.list, ncol(coefficients),
                                    selected.terms, term.names, resp.names)
@@ -896,16 +907,19 @@ earth.fit <- function(
     gcv.per.response  <- vector(mode="numeric", length=nresp)
     grsq.per.response <- vector(mode="numeric", length=nresp)
     tss.per.response  <- vector(mode="numeric", length=nresp)
-    if(nresp == 1) { # special case to save memory
+    offset.fitted.values <- if(is.null(offset)) fitted.values else fitted.values - offset
+    if(nresp == 1 && !use.weights) { # special case to save memory
         rss.per.response[1] <- sos(residuals)
-        rsq.per.response[1] <- get.weighted.rsq(y, fitted.values, weights)
+        rsq.per.response[1] <- get.weighted.rsq(y, offset.fitted.values, weights)
         gcv.per.response[1] <- get.gcv(rss.per.response[1], nselected, penalty, nrow(x))
         tss.per.response[1] <- sos(y - mean(y))
-    } else for(iresp in seq_len(nresp)) {
-        rss.per.response[iresp] <- sos(residuals[,iresp])
-        rsq.per.response[iresp] <- get.weighted.rsq(y[,iresp], fitted.values[,iresp], weights)
+    } else for(iresp in seq_len(nresp)) { # multiple response or weighted model
+        y1 <- y[,iresp]
+        offset.fitted.values1 <- offset.fitted.values[,iresp]
+        rss.per.response[iresp] <- sos(y1 - offset.fitted.values1, weights)
+        rsq.per.response[iresp] <- get.weighted.rsq(y1, offset.fitted.values1, weights)
         gcv.per.response[iresp] <- get.gcv(rss.per.response[iresp], nselected, penalty, nrow(x))
-        tss.per.response[iresp] <- sos(y[,iresp] - mean(y[,iresp]))
+        tss.per.response[iresp] <- sos(y1 - weighted.mean(y1, weights), weights)
     }
     for(iresp in seq_len(nresp)) {
         gcv.null <- get.gcv(tss.per.response[iresp], 1, penalty, nrow(x))
@@ -917,7 +931,7 @@ earth.fit <- function(
             else # TODO grsq is wrong when weights and multiple responses
                 get.rsq(gcv.per.response[iresp], gcv.null)
     }
-    rv <- structure(list(     # term 1 is the intercept in all returned data
+    rv <- structure(list(   # term 1 is the intercept in all returned data
         rss            = rss,   # RSS, across all responses if y has multiple cols
         rsq            = rsq,   # R-Squared, across all responses
         gcv            = gcv,   # GCV, across all responses
@@ -949,7 +963,11 @@ earth.fit <- function(
         thresh         = thresh,           # copy of thresh argument
         termcond       = termcond,         # reason we terminated the forward pass
         weights        = if(use.weights) weights else NULL),
+
     class = "earth")
+
+    if(!is.null(offset))
+        rv$offset <- offset
 
     if(!is.null(glm.list)) {
         rv$glm.list         <- glm.list   # list of glm models, NULL if none
@@ -1115,7 +1133,8 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
                          trace, degree, penalty, nk, thresh,
                          minspan, endspan, newvar.penalty, fast.k, fast.beta,
                          linpreds, allowed,
-                         Scale.y, Adjust.endspan, Auto.linpreds, Use.beta.cache,
+                         Scale.y, Adjust.endspan, Auto.linpreds,
+                         Use.beta.cache,
                          n.allowed.args, env, maxmem)
 {
     if(nrow(x) < 2)
@@ -1192,7 +1211,6 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
         PACKAGE="earth")
 
     fullset  <- as.logical(fullset)
-
     list(termcond = termcond,
          bx       = bx[, fullset, drop=FALSE],
          dirs     = dirs[fullset, , drop=FALSE],
@@ -1225,7 +1243,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x, warn.if.du
         get.name <- function(ipred) # return "name" if possible, else "x[,i]"
         {
             pred.name <- pred.names[ipred]
-            if(is.null(pred.name) || is.na(pred.name))
+            if(is.null(pred.name) || anyNA(pred.name))
                 paste0("x[,", ipred, "]")
             else
                 pred.name
@@ -1263,14 +1281,14 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x, warn.if.du
     if(!is.null(x))
         xrange <- apply(x, 2, range) # for simplifying "h(ldose-0)" to "ldose"
 
-    # Get format strings for sprintf later
+    # Get format strings for sprint later
     ndigits <- getOption("digits")
     if(ndigits <= 7) {      # for back compat with previous versions of earth
         form1 <- "h(%g-%s)" # let %g figure out the nbr of digits
         form2 <- "h(%s-%g)"
     } else {
-        form1 <- sprintf("h(%%.%dg-%%s)", ndigits) # e.g. "h(%.9g-%s)"
-        form2 <- sprintf("h(%%s-%%.%dg)", ndigits) # e.g. "h(%s-%.9g)"
+        form1 <- sprint("h(%%.%dg-%%s)", ndigits) # e.g. "h(%.9g-%s)"
+        form2 <- sprint("h(%%s-%%.%dg)", ndigits) # e.g. "h(%s-%.9g)"
     }
     term.names <- sapply(seq_along(ntermsVec), get.term.name1, dirs, cuts,
                          pred.names, xrange, form1, form2)
@@ -1541,10 +1559,10 @@ print.pruning.pass <- function(trace, pmethod, penalty, nprune, selected.terms,
             cat0(if(iterm==nselected) "chosen "
                  else                 "       ",
                  format(iterm, width=4),
-                 sprintf("%12.4f ", grsq),
-                 sprintf("%7.4f",   get.rsq(rss.per.subset[iterm], rss.per.subset[1])),
-                 sprintf("%11.4f ", delta.grsq),
-                 sprintf("%6d",     get.nused.preds.per.subset(dirs, selected)),
+                 sprint("%12.4f ", grsq),
+                 sprint("%7.4f",   get.rsq(rss.per.subset[iterm], rss.per.subset[1])),
+                 sprint("%11.4f ", delta.grsq),
+                 sprint("%6d",     get.nused.preds.per.subset(dirs, selected)),
                  "  ")
             if(trace >= 4)
                 cat(selected)

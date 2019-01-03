@@ -337,7 +337,7 @@ expand.dotnames <- function(
         }
         match <- charmatch(raw.dotname, formals)
 
-        if(is.na(match)) {
+        if(anyNA(match)) {
             # No match, not necessarily a problem assuming FUNC has a dots formal arg.
             # We will allow FUNC to check for itself later (if someone calls it).
             NULL
@@ -449,8 +449,8 @@ higher.caller.to.deprefix <- function(..., FNAME=FNAME)
     # use try here for paranoia
     args <- try(higher.call.args(..., CALLX=call, FNAME=FNAME), silent=TRUE)
     if(is.try.err(args))
-        args <- sprintf("%s, ...", FNAME)
-    sprintf("%s called %s(%s)", higher.fname, fname, args)
+        args <- sprint("%s, ...", FNAME)
+    sprint("%s called %s(%s)", higher.fname, fname, args)
 }
 init.fname <- function(FNAME, FUNC, TRACE)
 {
@@ -553,7 +553,7 @@ stopif.unnamed.dot <- function(dots, higher.caller, ...) # called from deprefix(
 {
     which <- which(names(dots) == "")
     if(length(which)) {
-        call <- sprintf("\n       %s\n",
+        call <- sprint("\n       %s\n",
             paste0(strwrap(higher.caller, width=getOption("width"), exdent=10),
                    collapse="\n"))
         dot <- dots[[ which[1] ]]

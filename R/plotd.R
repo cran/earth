@@ -165,7 +165,7 @@ plotd <- function(object,   # object is a model object
     # we draw our own x axis for type="class"
     # xlims are wrong for histograms if a density is degenerate hence the test
     # TODO weird behaviour in hist? hist gives a 0 lower x val if density degenerate
-    draw.own.axis <- hist && xaxt != "n" && !is.na(pmatch(type, "class")) &&
+    draw.own.axis <- hist && xaxt != "n" && !anyNA(pmatch(type, "class")) &&
                      !any(degenerate)
     if(draw.own.axis)
         xaxt <- "n"
@@ -274,7 +274,7 @@ get.yhat.per.class <- function(object, object.name, type, nresponse, dichot, tra
             if(!is.numlog(yhat1) && !is.factor(yhat1))
                 cannot.plot.this.response(y, yhat, colnames.yhat, type, nlevs)
             stopifnot(length(ylevs) > 1)
-            if(!is.na(pmatch(type, "class")))
+            if(!anyNA(pmatch(type, "class")))
                 dichot <- FALSE # no dichot for type="class"
             if(length(ylevs) == 2 || dichot) {
                 ylev1 <- ylevs[1]
@@ -412,7 +412,7 @@ get.yhat.per.class <- function(object, object.name, type, nresponse, dichot, tra
         if(trace >= 1) {
             trace2(trace, "\n")
             print_summary(yhat.per.class[[iclass]],
-                          sprintf("predicted.response.per.class[%-*s]",
+                          sprint("predicted.response.per.class[%-*s]",
                                   nchar, names(yhat.per.class)[iclass]),
                           trace=max(2, trace), details=if(trace>=2) 2 else 0)
         }
@@ -444,7 +444,7 @@ get.plotd.data <- function(object, type, nresponse, trace, ...)
     colnames.yhat <- colnames(yhat)
     if(!is.null(nresponse)) {
         nresponse <- plotmo::plotmo_nresponse(yhat, object, nresponse, trace,
-                                        sprintf("predict.%s", class(object)[1]),
+                                        sprint("predict.%s", class(object)[1]),
                                         type)
         if(NCOL(yhat) > 1) {
             yhat <- yhat[, nresponse]
@@ -464,15 +464,17 @@ get.plotd.data <- function(object, type, nresponse, trace, ...)
 
 get.observed.response <- function(object)
 {
+    offset <- NULL
     if(!is.null(object$call$formula)) {
         # get y from formula and data used in original call
         data <- get.update.arg(NULL, "data", object, parent.frame(), FALSE)
         call <- object$call
-        m <- match(c("formula", "data", "na.action", "subset"), names(call), 0)
+        m <- match(c("formula", "data", "na.action", "offset", "subset"), names(call), 0)
         mf <- call[c(1, m)]
         mf[[1]] <- as.name("model.frame")
         mf <- eval(mf, model.env(object))
         y <- model.response(mf, "any")  # "any" means factors are allowed
+        offset <- model.offset(mf)
         if(NCOL(y) == 1 && is.numlog(y)) {
             # turn into a matrix so we have the column name
             names(y) <- NULL # we don't need row names
@@ -487,6 +489,9 @@ get.observed.response <- function(object)
     } else
         y <- get.update.arg(NULL, "y", object, parent.frame(),
                             trace1=FALSE, reeval=FALSE)
+
+    if(!is.null(offset))
+        stop0("'offset' in formula is not yet supported by plotd")
 
     if(is.lda.or.qda(object))
         y <- as.factor(y)  # to make plotd handle response appropriately
@@ -546,11 +551,11 @@ get.thresh <- function(y, yname)
     if(!is.null(colnames(y)))
         yname <- colnames(y)[1]
     if(ymin == thresh) {
-        text.le <- sprintf("%s == %g", yname, thresh)
-        text.gt <- sprintf("%s != %g",  yname, thresh)
+        text.le <- sprint("%s == %g", yname, thresh)
+        text.gt <- sprint("%s != %g",  yname, thresh)
     } else {
-        text.le <- sprintf("%s <= %g", yname, thresh)
-        text.gt <- sprintf("%s > %g",  yname, thresh)
+        text.le <- sprint("%s <= %g", yname, thresh)
+        text.gt <- sprint("%s > %g",  yname, thresh)
     }
     list(thresh=thresh, text.le=text.le, text.gt=text.gt)
 }
@@ -562,13 +567,13 @@ cannot.plot.this.response <- function(y, yhat, colnames.yhat, type, nlevs, ...)
           if(nlevs > 0) paste0(" nlevels(observed)=", nlevs) else "",
           "   ncol(observed)=", NCOL(y),
           if(!is.null(colnames(y)))
-              sprintf("   colnames(observed) %s", paste.trunc(colnames(y)))
+              sprint("   colnames(observed) %s", paste.trunc(colnames(y)))
           else
               "",
           "\n  class(predicted)=", class(yhat[,1])[1],
           "   ncol(predicted)=", NCOL(yhat),
           if(!is.null(colnames.yhat))
-              sprintf("   colnames(response) %s", paste.trunc(colnames.yhat))
+              sprint("   colnames(response) %s", paste.trunc(colnames.yhat))
           else
               "")
 }
@@ -652,7 +657,7 @@ draw.err.col <- function(densities, thresh, col, border, lwd)
     # is reducible error area to the left or to the right?
     # set iden=1 if to the left, iden=2 if to the right
     iden <- den1$y[den1$x >= thresh][1] > den2$y[den2$x >= thresh][1]
-    if(is.na(iden)) { # no overlap between classes?
+    if(anyNA(iden)) { # no overlap between classes?
         warning0("no overlap between (first two) classes, ignoring 'err.col' argument")
         return(NULL)
     }

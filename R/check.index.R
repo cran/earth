@@ -12,7 +12,7 @@
 
 check.index <- function(index, index.name, object,
     colnames        = NULL,
-    is.col.index    = FALSE,
+    is.col.index    = 0,     # 0=row index, 1=col index, 2=exact non-regex col name if char
     allow.empty     = FALSE, # if index is char will warn if necessary regardless of allow.empty
     allow.zeros     = FALSE,
     allow.negatives = TRUE,
@@ -30,7 +30,7 @@ check.index <- function(index, index.name, object,
     if(is.try.err(try))
         stop0("illegal ", quotify.short(object, quote="'"))
 
-    is.col.index    <- check.boolean(is.col.index)
+    is.col.index    <- check.integer.scalar(is.col.index, min=0, max=2)
     allow.empty     <- check.boolean(allow.empty)
     allow.zeros     <- check.boolean(allow.zeros)
     allow.negatives <- check.boolean(allow.negatives)
@@ -93,12 +93,13 @@ matchmult <- function(x, tab) # like match but return multiple matches if presen
 # This does regex matching of index and returns an integer vector
 
 check.character.index <- function(index, index.name, object, names, len,
-                                  is.col.index, allow.empty, is.degree.spec)
+    is.col.index, # 0=row index, 1=col index, 2=exact non-regex col name if char
+    allow.empty, is.degree.spec)
 {
     stopifnot(is.character(index))
-    if(!is.character(index))
+    is.col.index <- check.integer.scalar(is.col.index, min=0, max=2)
     # certain regular expressions match everything, even if names not avail
-    if(length(index) == 1 && index %in% c("", ".", ".*"))
+    if(is.col.index != 2 && length(index) == 1 && index %in% c("", ".", ".*"))
         return(1:len)
     if(is.col.index && is.null(names))
         names <- colnames(object)
@@ -108,7 +109,10 @@ check.character.index <- function(index, index.name, object, names, len,
     matches <- integer(0)
     warning.names <- integer(0) # these regexs don't match any column names
     for(name in index) {
-        igrep <- grep(name, names)
+        igrep <- if(is.col.index == 2) # exact match, not a regular exp?
+                    which(name == names)
+                 else
+                    grep(name, names)
         if(length(igrep))
             matches <- c(matches, igrep)
         else
@@ -124,7 +128,8 @@ check.character.index <- function(index, index.name, object, names, len,
     }
     new.index <- unique(matches[!is.na(matches)])
     for(name in warning.names)
-        warning0("\"", name, "\" in ", unquote(index.name), " does not match any names\n",
+        warning0("\"", name, "\" in ", unquote(index.name),
+                " does not match any names\n",
                  "         Available names are ", paste.trunc(quotify(names)))
     new.index
 }

@@ -25,7 +25,8 @@ expand.arg <- function(x,              # "x" is x or y arg to earth
                        env,            # evironment for evaluation
                        trace,          # passed to gen.colnames
                        is.y.arg=FALSE, # is.y.arg is TRUE if y arg to earth
-                       xname=NULL)     # used for colnames when x has no name
+                       xname=NULL,     # used for colnames when x has no name
+                       is.earth.default=FALSE) # TRUE if called for x arg of earth.default
 {
     if(is.null(xname))
         xname <- sub(".*\\$", "", trunc.deparse(substitute(x))) # temp$y becomes y
@@ -49,6 +50,7 @@ expand.arg <- function(x,              # "x" is x or y arg to earth
         on.exit(options(contrasts=old.contrasts))
         options(contrasts=c("contr.earth.response", "contr.earth.response"))
     }
+    ncol.x <- NCOL(x)
     is.data.frame <- is.data.frame(x)
     if(is.data.frame)
         mf <- call("model.frame", formula = ~., data=x, na.action=na.pass)
@@ -63,11 +65,15 @@ expand.arg <- function(x,              # "x" is x or y arg to earth
 
     # If !is.data.frame, model.matrix prepends "x" to the column names,
     # so remove the "x", but only if x had column names to begin with.
-
-    if(!is.data.frame && mf.has.colnames)
+    # Dec 2018: included !is.earth.default to prevent plotmo mistaking the following
+    # model as an intercept-only model: earth(x=Insurance$Age, y=Insurance$Claims)
+    # where Insurance$Age is a factor which gets expanded to x.L, x.Q, x.C
+    colnames.x <- colnames(x)
+    if(!is.earth.default && !is.data.frame && mf.has.colnames)
         colnames(x) <- substr(colnames(x), 2, 61) # strip 1st char of each colname
-    colnames(x) <-
-        gen.colnames(x, xname, if(is.y.arg) "y" else "x", trace, xname)
+
+    # ensure all columns are named
+    colnames(x) <- gen.colnames(x, xname, if(is.y.arg) "y" else "x", trace, xname)
 
     x   # all columns are now double with column names
 }

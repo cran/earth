@@ -2,15 +2,13 @@
 
 print(R.version.string)
 
+source("test.prolog.R")
+source("check.models.equal.R")
 library(earth)
 library(mda)
-source("check.models.equal.R")
-set.seed(2016)
 data(ozone1)
 data(trees)
 data(etitanic)
-if(!interactive())
-    postscript(paper="letter")
 
 PRINT.TIME <- FALSE         # FALSE for no time results (for diff against reference)
 PLOT <- TRUE                # TRUE to do plots too, FALSE for speed
@@ -18,24 +16,6 @@ options.old <- options()
 options(warn=1) # print warnings as they occur
 # options(digits=5) # removed because want to check against default
 
-# test that we got an error as expected from a try() call
-expect.err <- function(object, expected.msg="")
-{
-    if(class(object)[1] == "try-error") {
-        msg <- attr(object, "condition")$message[1]
-        if(length(grep(expected.msg, msg, fixed=TRUE)))
-            cat("Got error as expected from ",
-                deparse(substitute(object)), "\n", sep="")
-        else
-            stop(sprintf("Expected: %s\n  Got:      %s",
-                         expected.msg, substr(msg, 1, 1000)))
-    } else
-        stop("did not get expected error for ", expected.msg)
-}
-dummy.plot <- function()
-{
-    plot(0, 0, col=0, bty="n", xaxt="n", yaxt="n", xlab="", ylab="", main="")
-}
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
     cat("===", deparse(substitute(x)), " ", sep="")
@@ -105,9 +85,10 @@ a3 <- earth(pair ~ sex + ldose, trace=1, pmethod="none",
             glm=list(family=binomial(link=probit), maxit=100))
 printh(a3)
 
-numdead2 <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
+numdead2.verylongname <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
 doublepair <- cbind(numdead, numalive=20-numdead,
-                    numdead2=numdead2, numalive2=30-numdead2)
+                    numdead2.verylongname=numdead2.verylongname,
+                    numalive2.verylongname=30-numdead2.verylongname)
 
 a4 <- earth(doublepair ~ sex + ldose, trace=1, pmethod="none",
             glm=list(family="binomial"))
@@ -130,7 +111,7 @@ remove(ldose)
 remove(sex)
 remove(numdead)
 remove(pair)
-remove(numdead2)
+remove(numdead2.verylongname)
 remove(doublepair)
 remove(counts)
 remove(outcome)
@@ -214,7 +195,7 @@ example(mars.to.earth)
 library(mda)
 a <- mars(trees[,-3], trees[,3])
 a <- mars.to.earth(a)
-summary(a, digits = 2)
+print(summary(a, digits = 2))
 printh(summary(a, digits=2))
 printh(summary(a, digits=2, style="bf"))
 cat("--- plot.earth.models.Rd ----------------------\n")
@@ -230,6 +211,8 @@ if (PLOT) {
 }
 cat("--- predict.earth.Rd ----------------------\n")
 example(predict.earth)
+cat("--- residuals.earth.Rd --------------------\n")
+example(residuals.earth)
 cat("--- update.earth.Rd ----------------------\n")
 example(update.earth)
 
@@ -355,6 +338,8 @@ xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
 colnames(xpredict) <- c("Height", "Girth")
 cat("6 predict(a, xpredict with reversed columns and colnames)\n")
 printh(predict(a, xpredict, trace=1))
+expect.err(try(predict(a, interval="pin")), "no prediction intervals because the earth model was not built with varmod.method")
+expect.err(try(earth(cbind(Volume, Volume + 100) ~ ., data = trees, nfold=3, ncross=3, varmod.method="lm")), "variance models are not supported for multiple response models")
 
 # repeat but with x,y (not formula) call to earth
 
@@ -436,12 +421,12 @@ ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
     fitm <- mars(x, y, degree=degree, nk=nk)
 
     cat("itest",
-        sprintf("%-3d", itest),
-        sprintf("%-32s", sModel),
-        "degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk),
-        "nTerms",  sprintf("%-2d", sum(fite$selected.terms != 0)),
-        "of", sprintf("%-3d", nrow(fite$dirs)),
-        "GRSq", sprintf("%4.2g", fite$grsq),
+        sprint("%-3d", itest),
+        sprint("%-32s", sModel),
+        "degree", sprint("%-2d", degree), "nk", sprint("%-3g", nk),
+        "nTerms",  sprint("%-2d", sum(fite$selected.terms != 0)),
+        "of", sprint("%-3d", nrow(fite$dirs)),
+        "GRSq", sprint("%4.2g", fite$grsq),
         "GRSq ratio", fite$grsq/mars.to.earth(fitm)$grsq,
         "\n")
     caption <- paste("itest ", itest, ": ", sModel, " degree=", degree, " nk=", nk, sep="")
@@ -556,14 +541,14 @@ test.plot.earth.args <- function()
     plot(argtest, do.par=FALSE, which=1,
          col.rsq=3, col.grsq=2,
          col.npreds="blue", grid.col="lightblue",
-         main=sprintf("%s\n%s",
+         main=sprint("%s\n%s",
             "col.rsq=3, col.grsq=2, ",
             "col.npreds=\"lightblue\", col.sel.grid=\"gray\""))
 
     plot(argtest, do.par=FALSE, which=1,
          col.vline="pink", legend.pos="topleft",
          lty.grsq=2, lty.npreds=1, lty.vline=1,
-         main=sprintf("%s\n%s",
+         main=sprint("%s\n%s",
             "col.vline=\"pink\", legend.pos=\"topleft\", ",
             "lty.grsq=2, lty.npreds=1, lty.vline=1"))
 
@@ -606,8 +591,8 @@ test.two.responses <- function(itest, func1, func2,
         funcnames <- paste("multiple responses", func1, func2)
     else
         funcnames <- paste("multiple responses", deparse(substitute(func1)), deparse(substitute(func2)))
-    cat("itest", sprintf("%-3d", itest), funcnames,
-        " degree", sprintf("%-2d", degree), "nk", sprintf("%-3g", nk), "\n\n")
+    cat("itest", sprint("%-3d", itest), funcnames,
+        " degree", sprint("%-2d", degree), "nk", sprint("%-3g", nk), "\n\n")
     gc()
     fite <- earth(x=data.global[,c(-1,-2), drop=FALSE], y=data.global[,1:2],
                 degree=degree, trace=trace, nk=nk, pmethod=pmethod, minspan=minspan)
@@ -853,16 +838,16 @@ print(summary(a, style="pmax"))
 plotmo(a, extend=.3, ylim=c(.2, 1.7),
       do.par=FALSE, pt.col=2, jitter=0,
       main=c("default Auto.linpreds=T", ""))
-dummy.plot()
-dummy.plot()
+empty.plot()
+empty.plot()
 
 a1 <- earth(y~., data=data, trace=2, Auto.linpreds=FALSE)
 print(summary(a1, style="pmax"))
 plotmo(a1, extend=.3, ylim=c(.2, 1.7),
       do.par=FALSE, pt.col=2, jitter=0,
       main=c("Auto.linpreds=F", ""))
-dummy.plot()
-dummy.plot()
+empty.plot()
+empty.plot()
 stopifnot(isTRUE(all.equal(predict(a), predict(a1))))
 
 a2 <- earth(y~., data=data, trace=2, linpreds=TRUE, Auto.linpreds=FALSE)
@@ -870,8 +855,8 @@ print(summary(a2, style="pmax"))
 plotmo(a2, extend=.3, ylim=c(.2, 1.7),
       do.par=FALSE, pt.col=2, jitter=0,
       main=c("linpreds=T, Auto.linpreds=F", ""))
-dummy.plot()
-dummy.plot()
+empty.plot()
+empty.plot()
 stopifnot(isTRUE(all.equal(predict(a), predict(a2))))
 
 a3 <- earth(y~., data=data, linpreds="x1", Auto.linpreds=FALSE)
@@ -879,8 +864,8 @@ print(summary(a3, style="pmax"))
 plotmo(a3, extend=.3, ylim=c(.2, 1.7),
       do.par=FALSE, pt.col=2, jitter=0,
       main=c("linpreds=x1, Auto.linpreds=F", ""))
-dummy.plot()
-dummy.plot()
+empty.plot()
+empty.plot()
 stopifnot(isTRUE(all.equal(predict(a), predict(a3))))
 
 a4 <- earth(y~., data=data, linpreds="x2", Auto.linpreds=FALSE)
@@ -888,8 +873,8 @@ print(summary(a4, style="pmax"))
 plotmo(a4, extend=.3, ylim=c(.2, 1.7),
       do.par=FALSE, pt.col=2, jitter=0,
       main=c("linpreds=x2, Auto.linpreds=F", ""))
-dummy.plot()
-dummy.plot()
+empty.plot()
+empty.plot()
 stopifnot(isTRUE(all.equal(predict(a), predict(a4))))
 
 # x,y interface
@@ -898,8 +883,8 @@ print(summary(a5, style="pmax"))
 plotmo(a5, extend=.3, ylim=c(.2, 1.7),
       do.par=FALSE, pt.col=2, jitter=0,
       main=c("x,y interface", ""))
-dummy.plot()
-dummy.plot()
+empty.plot()
+empty.plot()
 stopifnot(isTRUE(all.equal(as.vector(predict(a1)), as.vector(predict(a5)))))
 par(OLD.PAR)
 
@@ -1412,6 +1397,7 @@ a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
 printh(summary(a8))
 if (PLOT)
     plot(a8, nresponse=1)
+plotmo(a8, caption="a8", pt.col=3)
 a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
 if (PLOT)
     plot(a9, nresponse=1)
@@ -1484,9 +1470,9 @@ if (is.null(dim(a.lm$coefficients)))
     dim(a.lm$coefficients) <- c(length(a.lm$coefficients), 1)
 a <- earth:::earth.regress(x, y)
 rownames(a.lm$coefficients) <- rownames(a$coefficients)
-check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]"))
-check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"))
+check.almost.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+check.almost.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]"))
+check.almost.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"))
 
 msg = "earth.regress with ozone1 data, multiple responses, no weights"
 cat("Test:", msg, "\n")
@@ -1501,9 +1487,9 @@ a.lm <- lm(y ~ x)
 a.lm.rss <- sum((a.lm$fitted.values - y)^2)
 a <- earth:::earth.regress(x, y)
 rownames(a.lm$coefficients) <- rownames(a$coefficients)
-check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]"))
-check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
+check.almost.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]"))
+check.almost.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+check.almost.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
 
 # msg = "earth.regress with ozone1 data, multiple responses with case weights"
 # cat("Test:", msg, "\n")
@@ -1520,9 +1506,9 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # a.lm.rss <- sum(a.lm$residuals^2)
 # a <- earth:::earth.regress(x, y, weights=weights.)
 # rownames(a.lm$coefficients) <- rownames(a$coefficients)
-# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
+# check.almost.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.almost.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.almost.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]", sep=""))
 
 # msg = "earth.regress case weights with zero weights 1"
 # cat("Test:", msg, "\n")
@@ -1536,9 +1522,9 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # a <- earth:::earth.regress(x, y, weights=weights.)
 # rownames(a.lm$coefficients) <- rownames(a$coefficients)
 # # options(digits=10)
-# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# check.almost.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.almost.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.almost.equal(a.lm$residuals, a$residuals, max=1e-6, msg=paste("residuals [", msg, "]", sep=""))
 #
 # msg = "earth.regress case weights with zero weights 2"
 # cat("Test:", msg, "\n")
@@ -1558,9 +1544,9 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # a.lm.rss <- sum(a.lm$residuals^2)
 # a <- earth:::earth.regress(x, y, weights=weights.)
 # rownames(a.lm$coefficients) <- rownames(a$coefficients)
-# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# check.almost.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.almost.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.almost.equal(a.lm$residuals, a$residuals, max=1e-6, msg=paste("residuals [", msg, "]", sep=""))
 #
 # msg = "earth.regress case weights with zero weights and missing columns 1"
 # cat("Test:", msg, "\n")
@@ -1584,9 +1570,9 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # a.lm.rss <- sum(a.lm$residuals^2)
 # a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
 # rownames(a.lm$coefficients) <- rownames(a$coefficients)
-# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# check.almost.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.almost.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.almost.equal(a.lm$residuals, a$residuals, max=1e-6, msg=paste("residuals [", msg, "]", sep=""))
 #
 # msg = "earth.regress case weights with zero weights and missing columns 2"
 # cat("Test:", msg, "\n")
@@ -1604,9 +1590,9 @@ check.fuzzy.equal(a.lm$residuals, a$residuals, msg=paste("residuals [", msg, "]"
 # a.lm.rss <- sum(a.lm$residuals^2)
 # a <- earth:::earth.regress(x, y, weights=weights., used.cols=used.cols)
 # rownames(a.lm$coefficients) <- rownames(a$coefficients)
-# check.fuzzy.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
-# check.fuzzy.equal(a.lm$residuals, a$residuals, fuzz=1e-6, msg=paste("residuals [", msg, "]", sep=""))
+# check.almost.equal(a.lm$coefficients, a$coefficients, msg=paste("coefficients [", msg, "]", sep=""))
+# check.almost.equal(a.lm.rss, a$rss, msg=paste("rss [", msg, "]", sep=""))
+# check.almost.equal(a.lm$residuals, a$residuals, max=1e-6, msg=paste("residuals [", msg, "]", sep=""))
 
 cat("---standard method functions ------------------------\n")
 
@@ -1749,7 +1735,7 @@ cat("--- check that spurious warn gone: non-integer #successes in a binomial glm
 library(segmented) # for down data
 data(down)
 fit.e <- earth(cases/births~age, data=down, weights=down$births, glm=list(family="binomial"))
-summary(fit.e)
+print(summary(fit.e))
 
 # test nk=1, 2, and 3
 cat("nk=1\n")
@@ -2015,7 +2001,4 @@ tab <- data.frame(pmethod=c("none", "backward", "forward", "exhaustive", "seqrep
 cat("\n")
 print(tab)
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

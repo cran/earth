@@ -45,7 +45,7 @@ dota <- function(ARGNAME, ..., DEF=NA, EX=TRUE, NEW=NA)
     exact <- process.exact(argname, EX)
     new <- process.new(NEW, argname, deparse(substitute(DEF)))
     for(i in seq_along(argname))
-        if(!is.na(idot <- dotindex.aux(argname[i], dots, exact[i]))) {
+        if(!anyNA(idot <- dotindex.aux(argname[i], dots, exact[i]))) {
             argval <- try(eval(dots[[idot]], parent.frame(1)))
             if(is.try.err(argval))
                 stop0("cannot evaluate '", argname[i], "'")
@@ -79,7 +79,7 @@ is.dot <- function(ARGNAME, ..., EX=TRUE)
     argname <- process.argname(ARGNAME)
     exact <- process.exact(argname, EX)
     for(i in seq_along(argname))
-        if(!is.na(dotindex.aux(argname[i], dots, exact[i])))
+        if(!anyNA(dotindex.aux(argname[i], dots, exact[i])))
             return(TRUE)
     FALSE
 }
@@ -93,7 +93,7 @@ dotindex <- function(ARGNAME, ..., EX=TRUE)
     argname <- process.argname(ARGNAME)
     exact <- process.exact(argname, EX)
     for(i in seq_along(argname))
-        if(!is.na(idot <- dotindex.aux(argname[i], dots, exact[i])))
+        if(!anyNA(idot <- dotindex.aux(argname[i], dots, exact[i])))
             return(idot)
     NA
 }
@@ -163,7 +163,7 @@ dotindex.aux <- function(argname, dots, exact=FALSE) # workhorse
         stop0("argument '", argname, "' for ", caller, "() is duplicated")
     if(length(index) == 0)  # no exact match
         index <- NA
-    if(!is.na(index) || exact)
+    if(!anyNA(index) || exact)
         return(index)
 
     # look for a partial match

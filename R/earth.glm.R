@@ -44,7 +44,7 @@ check.yarg.for.binomial.glm <- function(yarg, mustart, more.y.columns)
 # Note that on entry get.glm.arg has already checked the glm argument
 # Most args are direct copies of args to earth.fit.
 
-earth.glm <- function(bx, y, weights, na.action, glm,
+earth.glm <- function(bx, y, weights, na.action, offset, glm,
                       trace, glm.bpairs, resp.name, env)
 {
     hack.intercept.only.glm.model <- function(g)
@@ -162,7 +162,7 @@ earth.glm <- function(bx, y, weights, na.action, glm,
         # TODO if weights are used, glm gives warning "non-integer #successes in a binomial glm"
 
         g <- glm(yarg ~ ., family=family, data=bx.data.frame,
-                weights=weights, na.action=na.action,
+                weights=weights, na.action=na.action, offset=offset,
                 control=control, model=TRUE, trace=(trace>=2),
                 method="glm.fit", x=TRUE, y=TRUE, contrasts=NULL)
 
@@ -173,8 +173,13 @@ earth.glm <- function(bx, y, weights, na.action, glm,
             cat0("earth glm ", resp.name,
                  ": did not converge after ", g$iter," iterations\n")
         if(trace >= 1) {
-            cat0("GLM ", colnames(yarg)[1], ": ")
-            print.one.earth.glm(g, digits=getOption("digits"))
+            devratio <- (g$null.deviance - g$deviance) / g$null.deviance
+            if(devratio < 1e-4) devratio <- 0 # prevent e.g. -0.0
+            printf("GLM %s devratio %.2f dof %d/%d iters %d %s\n",
+                colnames(yarg)[1],
+                devratio,
+                g$df.residual, g$df.null, g$iter,
+                if(!g$converged) " did not converge" else "")
         }
         check.glm.model(g, colnames(yarg)[1])
         glm.list[[imodel]] <- g
@@ -208,7 +213,7 @@ get.glm.family <- function(family, env)
 
 get.glm.arg <- function(glm)    # glm arg is earth's glm arg
 {
-   # return glm but with abbreviated names expanded to their full name.
+    # return glm but with abbreviated names expanded to their full name.
 
     match.glm.arg <- function(glm)
     {
@@ -300,7 +305,7 @@ get.glm.bpairs <- function(y, glm)
         if(!is.binomial(glm$family))
             stop0("'bpairs' argument is not allowed because the family ",
                   "is not binomial or quasibinomial")
-        bpairs <- check.index(bpairs, "bpairs", y, is.col.index=TRUE)
+        bpairs <- check.index(bpairs, "bpairs", y, is.col.index=2)
         bpairs <- to.logical(bpairs, NCOL(y))
     } else {
         bpairs <- repl(TRUE, ncol(y))
@@ -365,27 +370,44 @@ print.earth.glm <- function(object, digits, fixed.point)    # object is an earth
 {
     glm.list <- object$glm.list
     nresp <- length(glm.list)
+    cat0("\nGLM (family ", glm.list[[1]]$family$family, ", link ",
+         glm.list[[1]]$family$link, "):\n",
+         if(nresp > 1) "\n" else "")
+    # not sure if all glm models have an aic field, so play safe with aic field
+    aic <- glm.list[[1]]$aic[1]
+    has.aic <- !is.null(aic) && !anyNA(aic)
 
-    cat("\nGLM ")
+    stats <- matrix(nrow=nresp, ncol=7+has.aic)
+
+    colnames <- c("nulldev", "df", "dev", "df", "devratio")
+    if(has.aic)
+        colnames <- c(colnames, "AIC")
+    colnames(stats) <- c(colnames, "iters", "converged")
+
     if(nresp == 1)
-        print.one.earth.glm(glm.list[[1]], digits)
-    else {                                  # create a matrix and print that
-        cat0("(family ", glm.list[[1]]$family$family, ", link ",
-             glm.list[[1]]$family$link, ")\n")
+        rownames(stats) <- ""
+    else
+        rownames(stats) <- colnames(object$fitted.values)
 
-        a <- matrix(nrow=nresp, ncol=6)
-        colnames(a) <- c("null.deviance", "df", "deviance", "df", "iters", "converged")
-        rownames(a) <- colnames(object$fitted.values)
-        for(iresp in seq_len(nresp)) {
-            g <- glm.list[[iresp]]
-            a[iresp,] <- c(g$null.deviance, g$df.null,
-                           g$deviance, g$df.residual,
-                           g$iter, g$converged)
-        }
-        if(fixed.point)
-            a <- my.fixed.point(a, digits)
-        print(a, digits=digits)
+    for(iresp in seq_len(nresp)) {
+        g <- glm.list[[iresp]]
+        devratio <- (g$null.deviance - g$deviance) / g$null.deviance
+        if(devratio < 1e-4) devratio <- 0 # avoid unsightly things like "3.45e-6"
+        devratio <- signif(devratio, max(2, getOption("digits")-4))
+        if(has.aic)
+            stats[iresp,] <- c(g$null.deviance, g$df.null,
+                               g$deviance, g$df.residual, devratio,
+                               # signif() matches code in stats::print.glm
+                               signif(g$aic, max(3, getOption("digits")-3)),
+                               g$iter, g$converged)
+        else
+            stats[iresp,] <- c(g$null.deviance, g$df.null,
+                               g$deviance, g$df.residual, devratio,
+                               g$iter, g$converged)
     }
+    if(fixed.point)
+        stats <- my.fixed.point(stats, digits)
+    print(stats, digits=digits)
 }
 # Called from print.summary.earth
 # g is a glm object
@@ -420,17 +442,7 @@ print.glm.details <- function(g, nresp, digits, fixed.point, resp.name)
     printCoefmat(coefs, digits=digits, signif.stars=FALSE, na.print="NA")
     if(sumg$dispersion != 1) # only show dispersion if it is not 1
         cat0("\n", prefix, " dispersion parameter for ", sumg$family$family,
-             " family taken to be ", format(sumg$dispersion), "\n")
+             " family taken to be ", sumg$dispersion, "\n")
     cat("\n")
     NULL
-}
-print.one.earth.glm <- function(g, digits)
-{
-    cat0("null.deviance ",  format(g$null.deviance, digits=digits),
-         " (",             g$df.null, " dof)",
-         "   deviance ",   format(g$deviance, digits=digits),
-         " (",             g$df.residual, " dof)",
-         "   iters ",      g$iter,
-         if(!g$converged) " did not converge" else "",
-         "\n")
 }

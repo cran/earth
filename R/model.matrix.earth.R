@@ -85,7 +85,7 @@ get.earth.x <- function(    # returns x expanded for factors
         x <- possibly.convert.vector.to.matrix(x, object$namesx, Callers.name)
         x <- fix.x.columns(x, object$namesx, trace, Callers.name)
         if(trace >= 1) {
-            print_summary(x, sprintf("%s: x", Callers.name), trace=2)
+            print_summary(x, sprint("%s: x", Callers.name), trace=2)
             trace2(trace, "\n")
         }
         x <- expand.arg(x, env, trace, is.y.arg=FALSE)
@@ -99,12 +99,15 @@ get.earth.x <- function(    # returns x expanded for factors
         data <- as.data.frame(data)
         expected.nrows <- nrow(data)
         if(trace >= 1) {
-            print_summary(data, sprintf("%s: x", Callers.name), trace=2)
+            print_summary(data, sprint("%s: x", Callers.name), trace=2)
             trace2(trace, "\n")
         }
-        data <- model.frame(Terms, data, na.action=na.pass)
+        if(!is.null(attr(Terms, "offset")))
+            check.offset.var.is.in.data(Terms, data)
+        data <- model.frame(Terms, data=data, na.action=na.pass)
         if(trace >= 1) {
-            print_summary(data, sprintf("%s: after call to model.frame: data", Callers.name),
+            print_summary(data,
+                          sprint("%s: after call to model.frame: data", Callers.name),
                           trace=2)
             trace2(trace, "\n")
         }
@@ -155,7 +158,8 @@ model.matrix.earth <- function(     # returns bx
             cat0(Callers.name, ": returning object$bx\n")
         return(object$bx)
     }
-    x <- get.earth.x(object, data=x, Env, trace, paste("get.earth.x from", Callers.name))
+    x <- get.earth.x(object, data=x, Env, trace,
+                     paste("get.earth.x from", Callers.name))
     if(is.null(which.terms))
         which.terms <- object$selected.terms
     if(!is.null(subset)) {

@@ -2,12 +2,15 @@
 
 plotmo.singles.earth <- function(object, x, nresponse, trace, all1, ...)
 {
+    if(all1) # user wants all used predictors, not just those in degree1 terms?
+        return(seq_len(NCOL(x)))
     singles <- NULL
     max.degree <- 1
-    if(all1) # user wants all used predictors, not just those in degree1 terms?
-        max.degree <- 99
     selected <- object$selected.terms[
                     reorder.earth(object, degree=max.degree, min.degree=1)]
+    if(trace >= 0 && !is.null(attr(object$terms, "offset")))
+        cat0("note: the offset in the formula is not plotted\n",
+             "      (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)\n\n")
     if(length(selected) > 0) {
         prednames <- object$namesx.org
         degree1.dirs <- object$dirs[selected, , drop=FALSE]

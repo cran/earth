@@ -1,15 +1,12 @@
 # test.pmethod.cv.R: example pmethod.cv model built by earth
 # Stephen Milborrow May 2015 Berea
 
+source("test.prolog.R")
 library(earth)
 data(etitanic)
-set.seed(2016)
 options(digits=4)
-options(warn=1)
-if(!interactive())
-    postscript(paper="letter")
 
-printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
+printf <- function(format, ...) cat(sprint(format, ...)) # like c printf
 
 cat("\npmethod=cv with formula interface\n\n")
 
@@ -114,7 +111,4 @@ cat("\nprint(a104.xy)\n")
 print(a104.xy)
 plot(a104.xy, which=1, nresponse=1, grid=T, main="a104.xy: pmethod=\"cv\" nprune=10", cex.main=.8)
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

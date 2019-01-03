@@ -1,10 +1,11 @@
 > # test.plotd.R
 > 
+> source("test.prolog.R")
 > library(earth)
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> set.seed(2016)
+> data(etitanic)
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -22,9 +23,6 @@ Loading required package: TeachingDemos
 + }
 > do.caption <- function(caption)
 +     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
-> data(etitanic)
-> if(!interactive())
-+     postscript(paper="letter")
 > old.par <- par(no.readonly=TRUE)
 > 
 > # test plotd basic functionality on a numeric response
@@ -236,9 +234,11 @@ plotd+ }
 > library(earth); data(etitanic)
 > lm.model <- lm(as.numeric(sex) ~ ., data=etitanic)
 > plotd(lm.model, trace=2)
-using the environment saved with the lm model: R_GlobalEnv
 plotd trace 2: plotd(object=lm.model, trace=2)
-object$call is lm(formula=as.numeric(sex)~., data=etitanic)
+object call is lm(formula=as.numeric(sex)~., data=etitanic)
+--get.model.env for lm object
+using the environment saved with the lm model: R_GlobalEnv
+--plotmo_prolog for lm object lm.model
 observed response[1046,1]:
      as.numeric(sex)
 1                  1
@@ -285,7 +285,7 @@ predicted.response.per.class[as.numeric(sex) != 1][658,1] with no column names:
 ... 1.911098
 658 1.882905
 
-> plot(1,1) # dummy plot
+> plot(1,1) # empty.plot
 > plot(1,1)
 > 
 > # test with rpart (also test nresponse with a character value)
@@ -565,7 +565,4 @@ grouping criterion: CLASS1 predicted[observed == female], CLASS2 predicted[obser
 > 
 > par(old.par)
 > 
-> if(!interactive()) {
-+     dev.off()         # finish postscript plot
-+     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-+ }
+> source("test.epilog.R")

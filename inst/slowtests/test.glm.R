@@ -1,29 +1,12 @@
 # test.glm.R: tests glm and factors added for earth release 2.0
 
+source("test.prolog.R")
 library(earth)
-if(!interactive())
-    postscript(paper="letter")
-set.seed(2016)
 data(ozone1)
 data(trees)
 data(etitanic)
 source("check.models.equal.R")
-options(warn=1) # print warnings as they occur
 
-# test that we got an error as expected from a try() call
-expect.err <- function(object, expected.msg="")
-{
-    if(class(object)[1] == "try-error") {
-        msg <- attr(object, "condition")$message[1]
-        if(length(grep(expected.msg, msg, fixed=TRUE)))
-            cat("Got error as expected from ",
-                deparse(substitute(object)), "\n", sep="")
-        else
-            stop(sprintf("Expected: %s\n  Got:      %s",
-                         expected.msg, substr(msg, 1, 1000)))
-    } else
-        stop("did not get expected error for ", expected.msg)
-}
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
     cat("===", deparse(substitute(x)))
@@ -122,11 +105,7 @@ a1c <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial()), trace=1, p
 check.models.equal(a1, a1c, msg="a1 a1c")
 a1d <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), trace=1, pmethod=PMETHOD, degree=2)
 check.models.equal(a1, a1d, msg="a1 a1d")
-# Removed for earth 2.3.3 because offset is no longer supported
-# a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod=PMETHOD, degree=2)
-# check.models.equal(a1, a1e, msg="a1 a1e")
-# a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod=PMETHOD, degree=2)
-# check.models.equal(a1, a1f, msg="a1 a1f")
+expect.err(try(earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod=PMETHOD, degree=2)), "earth: 'offset' is not supported in glm argument to earth")
 a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod=PMETHOD, degree=2)
 check.models.equal(a1, a1g, msg="a1 a1g")
 # following should cause a "did not converge warning" because maxit=2
@@ -138,6 +117,10 @@ stopifnot(a1h$glm.list[[1]]$control$maxit == 2)
 a1h2 <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control(epsilon=1e-8),maxit=2), pmethod=PMETHOD, degree=2)
 check.models.equal(a1h, a1h2, msg="a1h a1h2")
 stopifnot(a1h2$glm.list[[1]]$control$maxit == 2)
+
+plotres(a1h,                  caption="a1h: default type")
+plotres(a1h, type="response", caption="a1h: type=\"response\" (same as default type)")
+plotres(a1h, type="earth",    caption="a1h: type=\"earth\"")
 
 # check update, also check params are carried forward properly with update
 a1h.update1 <- update(a1h, glm=list(family=binomial(link="probit"), maxit=8))
@@ -1060,16 +1043,16 @@ c1ag <- glm(SF ~ sex + ldose, family="binomial") # use this as a reference
 
 c1a.predict <- predict(c1a, trace=1)
 c1ag.predict <- predict(c1ag, trace=1)
-check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=default link, keepxy=0", verbose=TRUE)
+check.almost.equal(c1a.predict, c1ag.predict, max=1e-10, msg="c1a fitted values, type=default link, keepxy=0", verbose=TRUE)
 c1a.predict <- predict(c1a, type="link", trace=1)
 c1ag.predict <- predict(c1ag, type="li", trace=1)
-check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=link, keepxy=0", verbose=TRUE)
+check.almost.equal(c1a.predict, c1ag.predict, max=1e-10, msg="c1a fitted values, type=link, keepxy=0", verbose=TRUE)
 c1a.predict <- predict(c1a, type="response", trace=1)
 c1ag.predict <- predict(c1ag, type="resp", trace=1)
-check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=response, keepxy=0", verbose=TRUE)
+check.almost.equal(c1a.predict, c1ag.predict, max=1e-10, msg="c1a fitted values, type=response, keepxy=0", verbose=TRUE)
 c1a.predict <- predict(c1a, type="e", trace=1)
 c1ae.predict <- predict(c1ae, trace=1)
-check.fuzzy.equal(c1a.predict, c1ae.predict, fuzz=1e-10, msg="c1a fitted values, type=earth, keepxy=0", verbose=TRUE)
+check.almost.equal(c1a.predict, c1ae.predict, max=1e-10, msg="c1a fitted values, type=earth, keepxy=0", verbose=TRUE)
 
 cat("c1b: single response glm model with a binomial pair of y columns\n")
 c1b <-  earth(SF ~ sex + ldose, glm=list(family="binomial"), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
@@ -1079,32 +1062,32 @@ c1bg <- glm(SF ~ sex + ldose, family="binomial") # use this as a reference
 newdata <- data.frame(sex=sex[1], ldose=2)
 c1b.predict <- predict(c1b, newdata, trace=1)
 stopifnot(dim(c1b.predict) == c(1,1))
-check.fuzzy.equal(c1b.predict, predict(c1bg, newdata), fuzz=1e-10, msg="c1b", verbose=TRUE)
+check.almost.equal(c1b.predict, predict(c1bg, newdata), max=1e-10, msg="c1b", verbose=TRUE)
 
 c1b.link.predict <- predict(c1b, newdata, type="link", trace=1) # should be same as above because default is link
-check.fuzzy.equal(c1b.link.predict, c1b.predict, fuzz=1e-10, msg="c1b link", verbose=TRUE)
+check.almost.equal(c1b.link.predict, c1b.predict, max=1e-10, msg="c1b link", verbose=TRUE)
 
 c1b.predict <- predict(c1b, newdata, type="r")
 stopifnot(dim(c1b.predict) == c(1,1))
-check.fuzzy.equal(c1b.predict, predict(c1bg, newdata, type="response"), fuzz=1e-10, msg="c1b type=response", verbose=TRUE)
+check.almost.equal(c1b.predict, predict(c1bg, newdata, type="response"), max=1e-10, msg="c1b type=response", verbose=TRUE)
 
 c1b.predict <- predict(c1b, newdata, type="earth")
 stopifnot(dim(c1b.predict) == c(1,1))
-check.fuzzy.equal(c1b.predict, predict(c1be, newdata), fuzz=1e-10, msg="c1b type=earth", verbose=TRUE)
+check.almost.equal(c1b.predict, predict(c1be, newdata), max=1e-10, msg="c1b type=earth", verbose=TRUE)
 
 newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 c1b.predict <- predict(c1b, newdata, trace=1)
 stopifnot(dim(c1b.predict) == c(4,1))
-check.fuzzy.equal(c1b.predict, predict(c1bg, newdata), fuzz=1e-10, msg="c1b multiple rows", verbose=TRUE)
+check.almost.equal(c1b.predict, predict(c1bg, newdata), max=1e-10, msg="c1b multiple rows", verbose=TRUE)
 
 c1b.predict <- predict(c1b, newdata, type="response", trace=1)
 stopifnot(dim(c1b.predict) == c(4,1))
-check.fuzzy.equal(c1b.predict, predict(c1bg, newdata, type="response"), fuzz=1e-10, msg="c1b multiple rows type=response", verbose=TRUE)
+check.almost.equal(c1b.predict, predict(c1bg, newdata, type="response"), max=1e-10, msg="c1b multiple rows type=response", verbose=TRUE)
 
 c1b.predict <- predict(c1b, newdata, type="terms", trace=0)
 c1be.predict <- predict(c1be, newdata, type="terms")
 c1bg.predict <- predict(c1bg, newdata, type="terms")
-check.fuzzy.equal(c1b.predict, c1be.predict, fuzz=1e-10, msg="c1b multiple rows type=terms", verbose=TRUE)
+check.almost.equal(c1b.predict, c1be.predict, max=1e-10, msg="c1b multiple rows type=terms", verbose=TRUE)
 
 cat("c2: double response glm model with two y binomial pairs\n")
 SF2 <- cbind(numdead, numalive=20 - numdead, numdead2=numdead, numalive2=20 - numdead)
@@ -1115,30 +1098,30 @@ c2g <- glm(SF ~ sex + ldose, family="binomial") # use this as a reference
 newdata <- data.frame(sex=sex[1], ldose=2)
 c2.predict <- predict(c2, newdata, trace=1)
 stopifnot(dim(c2.predict) == c(1,2))
-check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata), fuzz=1e-10, msg="c2", verbose=TRUE)
+check.almost.equal(c2.predict[,1], predict(c2g, newdata), max=1e-10, msg="c2", verbose=TRUE)
 
 c2.link.predict <- predict(c2, newdata, type="link", trace=1) # should be same as above because default is link
-check.fuzzy.equal(c2.link.predict, c2.predict, fuzz=1e-10, msg="c2 link", verbose=TRUE)
+check.almost.equal(c2.link.predict, c2.predict, max=1e-10, msg="c2 link", verbose=TRUE)
 
 c2.predict <- predict(c2, newdata, type="response")
 stopifnot(dim(c2.predict) == c(1,2))
-check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata, type="response"), fuzz=1e-10, msg="c2 multiple rows type=response", verbose=TRUE)
+check.almost.equal(c2.predict[,1], predict(c2g, newdata, type="response"), max=1e-10, msg="c2 multiple rows type=response", verbose=TRUE)
 
 newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 c2.predict <- predict(c2, newdata)
 stopifnot(dim(c2.predict) == c(4,2))
-check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata), fuzz=1e-10, msg="c2 column1", verbose=TRUE)
-check.fuzzy.equal(c2.predict[,2], predict(c2g, newdata), fuzz=1e-10, msg="c2 column2", verbose=TRUE)
+check.almost.equal(c2.predict[,1], predict(c2g, newdata), max=1e-10, msg="c2 column1", verbose=TRUE)
+check.almost.equal(c2.predict[,2], predict(c2g, newdata), max=1e-10, msg="c2 column2", verbose=TRUE)
 
 c2.predict <- predict(c2, newdata, type="response")
 stopifnot(dim(c2.predict) == c(4,2))
-check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata, type="response"), fuzz=1e-10, msg="c2 column1 multiple rows type=response", verbose=TRUE)
-check.fuzzy.equal(c2.predict[,2], predict(c2g, newdata, type="response"), fuzz=1e-10, msg="c2 column2 multiple rows type=response", verbose=TRUE)
+check.almost.equal(c2.predict[,1], predict(c2g, newdata, type="response"), max=1e-10, msg="c2 column1 multiple rows type=response", verbose=TRUE)
+check.almost.equal(c2.predict[,2], predict(c2g, newdata, type="response"), max=1e-10, msg="c2 column2 multiple rows type=response", verbose=TRUE)
 
 c2.predict <- predict(c2, newdata, type="earth", trace=1)
 stopifnot(dim(c2.predict) == c(4,2))
-check.fuzzy.equal(c2.predict[,1], predict(c2e, newdata, trace=1), fuzz=1e-10, msg="c2 column1 multiple rows type=earth", verbose=TRUE)
-check.fuzzy.equal(c2.predict[,2], predict(c2e, newdata, trace=1), fuzz=1e-10, msg="c2 column2 multiple rows type=earth", verbose=TRUE)
+check.almost.equal(c2.predict[,1], predict(c2e, newdata, trace=1), max=1e-10, msg="c2 column1 multiple rows type=earth", verbose=TRUE)
+check.almost.equal(c2.predict[,2], predict(c2e, newdata, trace=1), max=1e-10, msg="c2 column2 multiple rows type=earth", verbose=TRUE)
 
 cat("c3a: single response glm model with a boolean response, fitted values, keepxy=0\n")
 
@@ -1150,17 +1133,17 @@ c3ae <- earth(mybool ~ sex + ldose, data=data1, linpreds=TRUE, pmethod=PMETHOD, 
 
 c3a.predict <- predict(c3a, trace=1)
 c3ag.predict <- predict(c3ag, trace=1)
-# TODO why does fuzz have to be big here?
-check.fuzzy.equal(c3a.predict, c3ag.predict, fuzz=1e-7, msg="c3a fitted values, type=default link, keepxy=0", verbose=TRUE)
+# TODO why does max have to be big here?
+check.almost.equal(c3a.predict, c3ag.predict, max=1e-7, msg="c3a fitted values, type=default link, keepxy=0", verbose=TRUE)
 c3a.predict <- predict(c3a, type="link", trace=1)
 c3ag.predict <- predict(c3ag, type="link", trace=1)
-check.fuzzy.equal(c3a.predict, c3ag.predict, fuzz=1e-7, msg="c3a fitted values, type=link, keepxy=0", verbose=TRUE)
+check.almost.equal(c3a.predict, c3ag.predict, max=1e-7, msg="c3a fitted values, type=link, keepxy=0", verbose=TRUE)
 c3a.predict <- predict(c3a, type="response", trace=1)
 c3ag.predict <- predict(c3ag, type="response", trace=1)
-check.fuzzy.equal(c3a.predict, c3ag.predict, fuzz=1e-10, msg="c3a fitted values, type=response, keepxy=0", verbose=TRUE)
+check.almost.equal(c3a.predict, c3ag.predict, max=1e-10, msg="c3a fitted values, type=response, keepxy=0", verbose=TRUE)
 c3a.predict <- predict(c3a, type="earth", trace=1)
 c3ae.predict <- predict(c3ae, trace=1)
-check.fuzzy.equal(c3a.predict, c3ae.predict, fuzz=1e-10, msg="c3a fitted values, type=earth, keepxy=0", verbose=TRUE)
+check.almost.equal(c3a.predict, c3ae.predict, max=1e-10, msg="c3a fitted values, type=earth, keepxy=0", verbose=TRUE)
 
 c3a.response.predict <- predict(c3a, type="response")
 c3a.class.predict <- predict(c3a,type="class")
@@ -1174,19 +1157,19 @@ c3be <- earth(mybool ~ sex + ldose, linpreds=TRUE, pmethod=PMETHOD, degree=1, ke
 
 c3b.predict <- predict(c3b, trace=1) # fitted values
 c3bg.predict <- predict(c3bg, trace=1)
-check.fuzzy.equal(c3b.predict, c3bg.predict, fuzz=1e-7, msg="c3b fitted values, type=default link, keepxy=0", verbose=TRUE)
+check.almost.equal(c3b.predict, c3bg.predict, max=1e-7, msg="c3b fitted values, type=default link, keepxy=0", verbose=TRUE)
 c3b.predict <- predict(c3b, type="link", trace=1)
 c3bg.predict <- predict(c3bg, type="link", trace=1)
-check.fuzzy.equal(c3b.predict, c3bg.predict, fuzz=1e-7, msg="c3b fitted values, type=link, keepxy=0", verbose=TRUE)
+check.almost.equal(c3b.predict, c3bg.predict, max=1e-7, msg="c3b fitted values, type=link, keepxy=0", verbose=TRUE)
 c3b.predict <- predict(c3b, type="response", trace=1)
 c3bg.predict <- predict(c3bg, type="response", trace=1)
-check.fuzzy.equal(c3b.predict, c3bg.predict, fuzz=1e-10, msg="c3b fitted values, type=response, keepxy=0", verbose=TRUE)
+check.almost.equal(c3b.predict, c3bg.predict, max=1e-10, msg="c3b fitted values, type=response, keepxy=0", verbose=TRUE)
 c3b.predict <- predict(c3b, type="earth", trace=1)
 c3be.predict <- predict(c3be, trace=1)
-check.fuzzy.equal(c3b.predict, c3be.predict, fuzz=1e-10, msg="c3b fitted values, type=earth, keepxy=0", verbose=TRUE)
+check.almost.equal(c3b.predict, c3be.predict, max=1e-10, msg="c3b fitted values, type=earth, keepxy=0", verbose=TRUE)
 
 c3b.response.predict <- predict(c3b, type="response")
-c3b.class.predict <- predict(c3b,type="class")
+c3b.class.predict <- predict(c3b,type="cla")
 stopifnot(c3b.class.predict == (c3b.response.predict > .5))
 
 cat("c3c: single response glm model with a boolean response\n")
@@ -1198,24 +1181,24 @@ c3ce <- earth(mybool ~ sex + ldose, data=data1, linpreds=TRUE, pmethod=PMETHOD, 
 newdata <- data.frame(sex=sex[1], ldose=2)
 c3c.predict <- predict(c3c, newdata)
 stopifnot(dim(c3c.predict) == c(1,1))
-check.fuzzy.equal(c3c.predict, predict(c3cg, newdata), fuzz=1e-10, msg="c3c", verbose=TRUE)
+check.almost.equal(c3c.predict, predict(c3cg, newdata), max=1e-10, msg="c3c", verbose=TRUE)
 
 c3c.predict <- predict(c3c, newdata, type="response")
 stopifnot(dim(c3c.predict) == c(1,1))
-check.fuzzy.equal(c3c.predict, predict(c3cg, newdata, type="response"), fuzz=1e-10, msg="c3c type=response", verbose=TRUE)
+check.almost.equal(c3c.predict, predict(c3cg, newdata, type="response"), max=1e-10, msg="c3c type=response", verbose=TRUE)
 
 newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 c3c.predict <- predict(c3c, newdata)
 stopifnot(dim(c3c.predict) == c(4,1))
-# TODO why does the fuzz have to be bigger on this?
-check.fuzzy.equal(c3c.predict, predict(c3cg, newdata), fuzz=1e-7, msg="c3c multiple rows", verbose=TRUE)
+# TODO why does the max have to be bigger on this?
+check.almost.equal(c3c.predict, predict(c3cg, newdata), max=1e-7, msg="c3c multiple rows", verbose=TRUE)
 
 c3c.predict <- predict(c3c, newdata, type="response")
 stopifnot(dim(c3c.predict) == c(4,1))
-check.fuzzy.equal(c3c.predict, predict(c3cg, newdata, type="response"), fuzz=1e-10, msg="c3c multiple rows type=response", verbose=TRUE)
+check.almost.equal(c3c.predict, predict(c3cg, newdata, type="response"), max=1e-10, msg="c3c multiple rows type=response", verbose=TRUE)
 
 c3c.response.predict <- predict(c3c, type="response")
-c3c.class.predict <- predict(c3c,type="class")
+c3c.class.predict <- predict(c3c,type="cl")
 stopifnot(c3c.class.predict == (c3c.response.predict > .5))
 
 cat("c3d: single response glm model with a two level factor response\n")
@@ -1235,16 +1218,16 @@ newdata <- data.frame(sex=sex[1], ldose=2)
 c4.predict <- predict(c4, newdata)
 stopifnot(dim(c4.predict) == c(1,3))
 # minus needed on predict because of different handling of factors
-check.fuzzy.equal(c4.predict[1,1], -predict(c4g, newdata), fuzz=1e-8, msg="c4", verbose=TRUE)
+check.almost.equal(c4.predict[1,1], -predict(c4g, newdata), max=1e-8, msg="c4", verbose=TRUE)
 
 newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 c4.predict <- predict(c4, newdata)
 stopifnot(dim(c4.predict) == c(4,3))
-check.fuzzy.equal(c4.predict[,1], -predict(c4g, newdata), fuzz=1e-8, msg="c4 multiple rows", verbose=TRUE)
+check.almost.equal(c4.predict[,1], -predict(c4g, newdata), max=1e-8, msg="c4 multiple rows", verbose=TRUE)
 
 c4.predict <- predict(c4, newdata, type="response")
 stopifnot(dim(c4.predict) == c(4,3))
-check.fuzzy.equal(1-c4.predict[,1], predict(c4g, newdata, type="response"), fuzz=1e-10, msg="c4 multiple rows type=response", verbose=TRUE)
+check.almost.equal(1-c4.predict[,1], predict(c4g, newdata, type="response"), max=1e-10, msg="c4 multiple rows type=response", verbose=TRUE)
 
 cat("c5: multiple response glm model with two multi level factor responses\n")
 
@@ -1401,7 +1384,4 @@ update(a, trace=1, glm=list(family=binomial))
 a <- earth(x1, cbind(volumei, 100-volumei), glm=list(family=binomial))
 update(a, trace=1, glm=list(family=binomial, bpairs=c(TRUE,FALSE)))
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

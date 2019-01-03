@@ -1,7 +1,7 @@
 Timing Test Results On Earth Version 4.6.2  May 2018
 ----------------------------------------------------
 
-Tested on Dell 2.90 GHz i7 laptop running Win7, computer quiet, internet disconnected.
+Tested on Dell M6800 2.90 GHz i7 laptop running Win7, computer quiet, internet disconnected.
 
 ==== ozone 330 x 9 ============
 

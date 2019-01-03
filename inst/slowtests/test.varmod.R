@@ -1,15 +1,8 @@
 # test.varmod.R
 
+source("test.prolog.R")
 library(earth)
-set.seed(2016)
 options(warn=2)
-expect.err <- function(obj) # test that we got an error as expected from a try() call
-{
-    if(class(obj)[1] == "try-error")
-        cat("Got error as expected\n")
-    else
-        stop("did not get expected error")
-}
 printh <- function(caption)
     cat("===", caption, "\n", sep="")
 
@@ -29,8 +22,6 @@ multifigure <- function(caption, nrow=3, ncol=3)
 }
 do.caption <- function() # must be called _after_ first plot on new page
     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
-if(!interactive())
-    postscript(paper="letter")
 old.par <- par(no.readonly=TRUE)
 
 multifigure("test predict.earth with pints", 2, 2)
@@ -72,6 +63,10 @@ print(cints)
 printh("predict(earth.trees, interval=\"pin\", level=.80)")
 news <- predict(earth.trees, interval="pin", level=.80)
 print(news)
+expect.err(try(predict(earth.trees, interval="none", level=.80)), "predict.earth: level=0.8 was specified but interval=\"none\"")
+expect.err(try(predict(earth.trees, interval="pin", type="class")), "predict.earth: the interval argument is not allowed with type=\"class\"")
+expect.err(try(predict(earth.trees, interval="pin", type="cl")), "predict.earth: the interval argument is not allowed with type=\"class\"")
+expect.err(try(predict(earth.trees, interval="pin", type="ter")), "predict.earth: the interval argument is not allowed with type=\"terms\"")
 
 printh("print.default(earth.trees$varmod$residmod)")
 # have to modify earth.trees because terms field stores the environment
@@ -180,7 +175,7 @@ predict <- predict[order,]
 
 inconf <- y >= predict$lwr & y <= predict$upr
 
-plot(x, y, pch=20, col=ifelse(inconf, 1, 2), main=sprintf(
+plot(x, y, pch=20, col=ifelse(inconf, 1, 2), main=sprint(
     "Prediction intervals\n%.0f%% of the points are in the estimated band",
     100 * sum(inconf) / length(y)))
 do.caption()
@@ -331,7 +326,7 @@ use.mgcv.package <- FALSE
 
 for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
 
-    multifigure(sprintf("varmod.method=\"%s\"", varmod.method), 2, 3)
+    multifigure(sprint("varmod.method=\"%s\"", varmod.method), 2, 3)
     par(mar = c(3, 3, 2, 3)) # space for right margin axis
 
     if(varmod.method %in% c("gam", "x.gam")) {
@@ -348,7 +343,7 @@ for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
                        varmod.method=varmod.method,
                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
-    printh(sprintf("varmod.method %s: summary(earth.mod)", varmod.method))
+    printh(sprint("varmod.method %s: summary(earth.mod)", varmod.method))
     printh("summary(earth.mod)")
     print(summary(earth.mod))
 
@@ -365,7 +360,7 @@ for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
         printh("summary(earth.mod$varmod$residmod)")
         print(summary(earth.mod$varmod$residmod))
     }
-    printh(sprintf("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
+    printh(sprint("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
     pints <- predict(earth.mod, interval="pint")
     print(pints)
 
@@ -398,7 +393,4 @@ print(summary(earth.exponent))
 
 par(old.par)
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

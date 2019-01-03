@@ -84,7 +84,7 @@ earth.cv <- function(object, x, y,
         fold.names <- paste0(rep(paste0("fold", seq_len(ncross), "."), each=nfold),
                              rep(seq_len(nfold), times=ncross))
     else
-        fold.names <- sprintf("fold%d", seq_len(nfold))
+        fold.names <- sprint("fold%d", seq_len(nfold))
     fold.names.plus.mean <- c(fold.names, "mean")
     fold.names.plus.all  <- c(fold.names, "all")
     fold.names.plus.max  <- c(fold.names, "max")
@@ -203,8 +203,8 @@ earth.cv <- function(object, x, y,
             if(get.oof.rsq.per.subset) {
                 temp <-
                     get.fold.rsq.per.subset(foldmod, oof.y, max.nterms, trace, must.print.dots)
-                oof.rsq.tab[icross.fold,]    <- temp$oof.rsq
-                infold.rsq.tab[icross.fold,] <- temp$infold.rsq
+                oof.rsq.tab[icross.fold,]    <- temp$oof.rsq.per.subset
+                infold.rsq.tab[icross.fold,] <- temp$infold.rsq.per.subset
             }
             # init last column of summary tables
             ilast.col <- nresp+1 # index of final (summary) column in tables
@@ -370,7 +370,7 @@ trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncros
         printf("%s%s", "CV all     ", icross)
     } else if(trace >= 1) {
         if(ncross > 1)
-            icross <- sprintf("%2d.", icross)
+            icross <- sprint("%2d.", icross)
         else
             icross <- ""
         printf("CV fold %s%-2d ", icross, ifold)

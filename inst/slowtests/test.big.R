@@ -1,12 +1,8 @@
 # test.big: test earth with a biggish model
 
+source("test.prolog.R")
 library(earth)
-if(!interactive())
-    postscript(paper="letter")
-options(warn=1)
 options(digits=3)
-printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
-set.seed(2015)
 
 p <- 100
 n <- 20000 # big enough to cross ten-thousand-cases barrier in plotres and plotmo
@@ -33,7 +29,6 @@ n <- 20000 # big enough to cross ten-thousand-cases barrier in plotres and plotm
 
 cat("creating x\n")
 ran <- function() runif(n, min=-1, max=1)
-set.seed(2015)
 x <- matrix(ran(), ncol=1)
 if(p >= 2)
     x <- cbind(x, ran())
@@ -81,7 +76,4 @@ if(interactive()) {
     x <- y <- 0 # free memory by reducing size of large matrices
     gc()        # release memory back to operating system
 }
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

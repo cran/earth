@@ -1,7 +1,8 @@
 # test.plotd.R
 
+source("test.prolog.R")
 library(earth)
-set.seed(2016)
+data(etitanic)
 
 printh <- function(caption)
     cat("===", caption, "\n", sep="")
@@ -19,9 +20,6 @@ multifigure <- function(caption)
 }
 do.caption <- function(caption)
     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
-data(etitanic)
-if(!interactive())
-    postscript(paper="letter")
 old.par <- par(no.readonly=TRUE)
 
 # test plotd basic functionality on a numeric response
@@ -191,7 +189,7 @@ printh("lm.model example from man page")
 library(earth); data(etitanic)
 lm.model <- lm(as.numeric(sex) ~ ., data=etitanic)
 plotd(lm.model, trace=2)
-plot(1,1) # dummy plot
+plot(1,1) # empty.plot
 plot(1,1)
 
 # test with rpart (also test nresponse with a character value)
@@ -394,7 +392,4 @@ plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"),
 
 par(old.par)
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

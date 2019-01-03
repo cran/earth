@@ -1,21 +1,12 @@
 # test.cv.R: test earth cross validation
 
+source("test.prolog.R")
 library(earth)
-if(!interactive())
-    postscript(paper="letter")
-set.seed(2016)
 data(ozone1)
 data(trees)
 data(etitanic)
-options(warn=1)
 options(width=200)
-expect.err <- function(obj) # test that we got an error as expected from a try() call
-{
-    if(class(obj)[1] == "try-error")
-        cat("Got error as expected\n")
-    else
-        stop("did not get expected error")
-}
+
 printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 {
     cat("===", deparse(substitute(x)))
@@ -393,7 +384,4 @@ earth.cv.5 <- function(){ # fails
 cat("\n--earth.cv.5\n")
 print(earth.cv.5())
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

@@ -22,7 +22,7 @@ plot.earth <- function(x = stop("no 'x' argument"),
     npoints     = 3000,
     center      = TRUE,
 
-    type        = NULL, # passed to predict
+    type        = NULL, # passed to predict and residuals
     nresponse   = NA,
 
     # following are passed to plotres via plotres's dots
@@ -67,7 +67,7 @@ plot.earth <- function(x = stop("no 'x' argument"),
         grid.col=grid.col, jitter=jitter,
         do.par=do.par, caption=caption, trace=trace,
         npoints=npoints, center=center,
-        # type is passed in dots, it's not really a plot.earth arg
+        type=type, # dec 2018 (was previously passed in dots)
         nresponse=nresponse,
         object.name=object.name,
         # following are passed to plotres via plotres's dots
@@ -361,13 +361,13 @@ earth_plotmodsel <- function(
 {
     possibly.issue.cv.warning <- function()
     {
-        if((!identical(col.mean.oof.rsq, "palevioletred") && !identical(col.mean.oof.rsq, 0)) ||
-           (!identical(col.oof.rsq, "mistyrose2")         && !identical(col.oof.rsq, 0))      ||
-           !identical(col.oof.labs, 0)        ||
-           !identical(col.pch.max.oof.rsq, 0) ||
-           !identical(col.pch.cv.rsq, 0)      ||
-           !identical(col.mean.infold.rsq, 0) ||
-           !identical(col.infold.rsq, 0)) {
+        if((!identical(col.mean.oof.rsq, "palevioletred") && !is.zero(col.mean.oof.rsq)) ||
+           (!identical(col.oof.rsq, "mistyrose2") && !is.zero(col.oof.rsq)) ||
+           !is.zero(col.oof.labs)        ||
+           !is.zero(col.pch.max.oof.rsq) ||
+           !is.zero(col.pch.cv.rsq)      ||
+           !is.zero(col.mean.infold.rsq) ||
+           !is.zero(col.infold.rsq)) {
             # user specifed a cross-validation argument, check that data is available
             if(is.null(object$cv.list))
                 warning0("no cross-validation data because nfold not used in original call to earth")
@@ -836,7 +836,7 @@ earth_plotmodsel <- function(
 lty.as.char <- function(lty)
 {
     char <- lty
-    if(is.na(lty))
+    if(anyNA(lty))
         char <- "NA"
     else if(is.numeric(lty)) {
         char <- NULL
@@ -852,7 +852,7 @@ lty.as.char <- function(lty)
 get.earth.legend.cex <- function(legend.text, min.width=.4, min.cex=.4, ...)
 {
     cex <- dota("legend.cex cex.legend", EX=c(0,1), NEW=1, ...)
-    if(is.na(cex)) {
+    if(anyNA(cex)) {
         longest.text <- legend.text[which.max(strwidth(legend.text))]
         longest.text <- paste0("AAAAAA ", longest.text) # incorporate line on left of legend
         # reduce cex until legend fits, but not more than min.cex

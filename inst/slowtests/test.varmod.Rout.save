@@ -1,18 +1,11 @@
 > # test.varmod.R
 > 
+> source("test.prolog.R")
 > library(earth)
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> set.seed(2016)
 > options(warn=2)
-> expect.err <- function(obj) # test that we got an error as expected from a try() call
-+ {
-+     if(class(obj)[1] == "try-error")
-+         cat("Got error as expected\n")
-+     else
-+         stop("did not get expected error")
-+ }
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
 > 
@@ -32,8 +25,6 @@ Loading required package: TeachingDemos
 + }
 > do.caption <- function() # must be called _after_ first plot on new page
 +     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
-> if(!interactive())
-+     postscript(paper="letter")
 > old.par <- par(no.readonly=TRUE)
 > 
 > multifigure("test predict.earth with pints", 2, 2)
@@ -276,7 +267,7 @@ response values in prediction interval   71     90     97     97
 > # level arg not allowed with interval="se"
 > expect.err(try(predict(earth.trees, interval="se", level=.8)))
 Error : predict.varmod: the level argument is not allowed with type="se"
-Got error as expected
+Got error as expected from try(predict(earth.trees, interval = "se", level = 0.8))
 > 
 > printh("predict(earth.trees, interval=\"se\")")
 ===predict(earth.trees, interval="se")
@@ -291,7 +282,7 @@ Got error as expected
 > # level arg not allowed with interval="abs.residual"
 > expect.err(try(predict(earth.trees, interval="abs.res", level=.8)))
 Error : predict.varmod: the level argument is not allowed with type="abs.residual"
-Got error as expected
+Got error as expected from try(predict(earth.trees, interval = "abs.res", level = 0.8))
 > 
 > printh("predict(earth.trees, interval=\"abs.residual\")")
 ===predict(earth.trees, interval="abs.residual")
@@ -305,7 +296,7 @@ Got error as expected
 > 
 > expect.err(try(predict(earth.trees, newdata=trees, interval="cint")))
 Error : predict.varmod: newdata is not allowed with interval="cint"
-Got error as expected
+Got error as expected from try(predict(earth.trees, newdata = trees, interval = "cint"))
 > 
 > printh("predict(earth.trees, interval=\"cint\")")
 ===predict(earth.trees, interval="cint")
@@ -380,6 +371,18 @@ Got error as expected
 29 56.363903 50.035745 62.69206
 30 56.363903 50.035745 62.69206
 31 73.447846 67.119688 79.77600
+> expect.err(try(predict(earth.trees, interval="none", level=.80)), "predict.earth: level=0.8 was specified but interval=\"none\"")
+Error : predict.earth: level=0.8 was specified but interval="none"
+Got error as expected from try(predict(earth.trees, interval = "none", level = 0.8))
+> expect.err(try(predict(earth.trees, interval="pin", type="class")), "predict.earth: the interval argument is not allowed with type=\"class\"")
+Error : predict.earth: the interval argument is not allowed with type="class"
+Got error as expected from try(predict(earth.trees, interval = "pin", type = "class"))
+> expect.err(try(predict(earth.trees, interval="pin", type="cl")), "predict.earth: the interval argument is not allowed with type=\"class\"")
+Error : predict.earth: the interval argument is not allowed with type="class"
+Got error as expected from try(predict(earth.trees, interval = "pin", type = "cl"))
+> expect.err(try(predict(earth.trees, interval="pin", type="ter")), "predict.earth: the interval argument is not allowed with type=\"terms\"")
+Error : predict.earth: the interval argument is not allowed with type="terms"
+Got error as expected from try(predict(earth.trees, interval = "pin", type = "ter"))
 > 
 > printh("print.default(earth.trees$varmod$residmod)")
 ===print.default(earth.trees$varmod$residmod)
@@ -814,7 +817,7 @@ Error : versus must be an integer or a string:
   4    leverages
   ""   predictors
   "b:" basis functions
-Got error as expected
+Got error as expected from try(plot(mod.temp.vh.doy, versus = 9))
 > expect.err(try(plot(mod.temp.vh.doy, versus=1.2)))
 Error : versus must be an integer or a string:
   1    fitted (default)
@@ -823,10 +826,10 @@ Error : versus must be an integer or a string:
   4    leverages
   ""   predictors
   "b:" basis functions
-Got error as expected
+Got error as expected from try(plot(mod.temp.vh.doy, versus = 1.2))
 > expect.err(try(plot(mod.temp.vh.doy, versus=2:3)))
 Error : illegal 'versus' argument (length of 'versus' must be 1 when 'versus' is numeric)
-Got error as expected
+Got error as expected from try(plot(mod.temp.vh.doy, versus = 2:3))
 > 
 > # versus="b:doy"
 > 
@@ -890,7 +893,7 @@ CV all        CVRSq 0.617                 n.infold.nz 330 100%
 > 
 > inconf <- y >= predict$lwr & y <= predict$upr
 > 
-> plot(x, y, pch=20, col=ifelse(inconf, 1, 2), main=sprintf(
+> plot(x, y, pch=20, col=ifelse(inconf, 1, 2), main=sprint(
 +     "Prediction intervals\n%.0f%% of the points are in the estimated band",
 +     100 * sum(inconf) / length(y)))
 > do.caption()
@@ -964,7 +967,7 @@ CV all        CVRSq 0.630                 n.infold.nz 330 100%
 > # the standardize and delever arguments cannot both be set
 > expect.err(try(plot(earth.mod1, which=3, standardize=TRUE, delever=TRUE, level=.95)))
 Error : the standardize and delever arguments cannot both be set
-Got error as expected
+Got error as expected from try(plot(earth.mod1, which = 3, standardize = TRUE, delever = TRUE,     level = 0.95))
 > 
 > multifigure("plot.earth which=5 and which=6", 2, 3)
 ===plot.earth which=5 and which=6
@@ -1227,7 +1230,7 @@ varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 > 
 > for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
 + 
-+     multifigure(sprintf("varmod.method=\"%s\"", varmod.method), 2, 3)
++     multifigure(sprint("varmod.method=\"%s\"", varmod.method), 2, 3)
 +     par(mar = c(3, 3, 2, 3)) # space for right margin axis
 + 
 +     if(varmod.method %in% c("gam", "x.gam")) {
@@ -1244,7 +1247,7 @@ varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 +     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
 +                        varmod.method=varmod.method,
 +                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
-+     printh(sprintf("varmod.method %s: summary(earth.mod)", varmod.method))
++     printh(sprint("varmod.method %s: summary(earth.mod)", varmod.method))
 +     printh("summary(earth.mod)")
 +     print(summary(earth.mod))
 + 
@@ -1261,7 +1264,7 @@ varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 +         printh("summary(earth.mod$varmod$residmod)")
 +         print(summary(earth.mod$varmod$residmod))
 +     }
-+     printh(sprintf("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
++     printh(sprint("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
 +     pints <- predict(earth.mod, interval="pint")
 +     print(pints)
 + 
@@ -2124,7 +2127,7 @@ GCV 3.578019    RSS 78.0239    GRSq 0.2557634    RSq 0.4409956
 ===varmod.method="gam"
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.15
+Loaded gam 1.16
 
 ===varmod.method gam: summary(earth.mod)
 ===summary(earth.mod)
@@ -2826,7 +2829,4 @@ response values in prediction interval   81     94     97     97
 > 
 > par(old.par)
 > 
-> if(!interactive()) {
-+     dev.off()         # finish postscript plot
-+     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-+ }
+> source("test.epilog.R")

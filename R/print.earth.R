@@ -1,12 +1,12 @@
 # print.earth.R: functions for summarizing and printing earth objects
 
-# print.earth's 1st arg is actually a model object but called x for consistency with generic
+# print.earth's first arg is actually a model object but called x for consistency with generic
 
 print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.point=TRUE, ...)
 {
     form <- function(x, pad)
     {
-        sprintf("%-*s", digits+pad,
+        sprint("%-*s", digits+pad,
                 format(if(abs(x) < 1e-20) 0 else x, digits=digits))
     }
     #--- print.earth starts here
@@ -31,9 +31,11 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
     else
         cat("\n")
 
-    print.termcond(x)       # print reason we terminated the forward pass
-
-    print.one.line.evimp(x) # print estimated var importances on a single line
+    print.termcond(x)             # print reason we terminated the forward pass
+    print.one.line.evimp(x)       # print estimated var importances on a single line
+    # "try" below is paranoia so don't completely blow out if problem in print.offset
+    try(print.offset(x, digits))  # print offset term in formula, if any
+    try(print.weights(x, digits)) # print case weights, if any
 
     nterms.per.degree <- get.nterms.per.degree(x, x$selected.terms)
     cat("Number of terms at each degree of interaction:", nterms.per.degree)
@@ -41,80 +43,13 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
     cat0(switch(length(nterms.per.degree),
            " (intercept only model)",
            " (additive model)"),
-         "\n")
+           "\n")
 
-    if(nresp > 1) {
-        # create a data.frame and print that
-        mat <- matrix(nrow=nresp+1, ncol=4 + is.cv + (x$pmethod == "cv"))
-        rownames(mat) <- c(colnames(x$fitted.values), "All")
-        colnames <- c("GCV", "RSS", "GRSq", "RSq")
-        if(is.cv)
-            colnames <- c(colnames,
-                if(x$pmethod=="cv") c("  mean.oof.RSq", "sd(mean.oof.RSq)")
-                else "CVRSq")
-        colnames(mat) <- colnames
-        for(iresp in seq_len(nresp)) {
-            mat[iresp,1:4] <- c(x$gcv.per.response[iresp],
-                                x$rss.per.response[iresp],
-                                x$grsq.per.response[iresp],
-                                x$rsq.per.response[iresp])
-            if(is.cv) {
-                if(x$pmethod == "cv") {
-                    ilast <- nrow(x$cv.oof.rsq.tab)
-                    mat[iresp,5] <- NA
-                    mat[iresp,6] <- NA
-                } else {
-                    ilast <- nrow(x$cv.rsq.tab)
-                    mat[iresp,5] <- x$cv.rsq.tab[ilast,iresp]
-                }
-            }
-        }
-        # final row for "All"
-        mat[nresp+1,1:4] <- c(x$gcv, x$rss, x$grsq, x$rsq)
-        if(is.cv) {
-            if(x$pmethod == "cv") {
-                mat[nresp+1,5] <- signif(x$cv.oof.rsq.tab[ilast,nselected],
-                                       digits=digits)
-                mat[nresp+1,6] <-
-                    signif(sd(x$cv.oof.rsq.tab[-ilast,nselected], na.rm=TRUE),
-                           digits=digits)
-            } else
-                mat[nresp+1,5] <- x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)]
-        }
-        cat("\n")
-        if(!is.null(x$glm.list))
-            cat("Earth\n") # remind user
-        if(fixed.point)
-           mat <- my.fixed.point(mat, digits)
-        df <- as.data.frame(mat)
-        # the following converts the matrix from numeric to character
-        df[is.na(df)] <- "" # print NAs as blanks (in mean.oof.RSq column)
-        print(df, digits=digits)
-    } else {
-        spacer <- if(is.cv) "  " else "    "
-        if(!is.null(x$glm.list))
-            cat("Earth ")   # remind user
-        if(x$pmethod == "cv") {
-            ilast <- nrow(x$cv.oof.rsq.tab)
-            cat0("GRSq ", format(x$grsq, digits=digits),
-                 spacer, "RSq ",  format(x$rsq,  digits=digits),
-                 spacer, "mean.oof.RSq ",
-                 format(x$cv.oof.rsq.tab[ilast,nselected], digits=digits),
-                 " (sd ",
-                 format(sd(x$cv.oof.rsq.tab[-ilast,nselected], na.rm=TRUE), digits=3),
-                 ")\n")
-        } else {
-            ilast <- nrow(x$cv.rsq.tab)
-            cat0("GCV ",   format(x$gcv,  digits=digits),
-                 spacer, "RSS ",  format(x$rss,  digits=digits),
-                 spacer, "GRSq ", format(x$grsq, digits=digits),
-                 spacer, "RSq ",  format(x$rsq,  digits=digits))
-            if(is.cv)
-                cat0(spacer, "CVRSq ",
-                     format(x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)], digits=digits))
-            cat("\n")
-        }
-    }
+    if(nresp > 1)
+        print.earth.multiple.response(x, digits=digits, fixed.point=fixed.point, ...)
+    else
+        print.earth.single.response(x, digits=digits, fixed.point=fixed.point, ...)
+
     if(print.glm) {
         if(!is.null(x$glm.list))
             print.earth.glm(x, digits, fixed.point)
@@ -125,6 +60,87 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
         }
     }
     invisible(x)
+}
+print.earth.single.response <- function(x, digits, fixed.point, ...)
+{
+    is.cv <- !is.null(x$cv.list)
+    spacer <- if(is.cv) "  " else "    "
+    nselected <- length(x$selected.terms)
+    if(!is.null(x$glm.list))
+        cat("Earth ")   # remind user
+    if(x$pmethod == "cv") {
+        ilast <- nrow(x$cv.oof.rsq.tab)
+        cat0("GRSq ", format(x$grsq, digits=digits),
+             spacer, "RSq ",  format(x$rsq,  digits=digits),
+             spacer, "mean.oof.RSq ",
+             format(x$cv.oof.rsq.tab[ilast,nselected], digits=digits),
+             " (sd ",
+             format(sd(x$cv.oof.rsq.tab[-ilast,nselected], na.rm=TRUE), digits=3),
+             ")\n")
+    } else {
+        ilast <- nrow(x$cv.rsq.tab)
+        cat0("GCV ",   format(x$gcv,  digits=digits),
+             spacer, "RSS ",  format(x$rss,  digits=digits),
+             spacer, "GRSq ", format(x$grsq, digits=digits),
+             spacer, "RSq ",  format(x$rsq,  digits=digits))
+        if(is.cv)
+            cat0(spacer, "CVRSq ",
+                 format(x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)], digits=digits))
+        cat("\n")
+    }
+}
+print.earth.multiple.response <- function(x, digits, fixed.point, ...)
+{
+    nresp <- NCOL(x$coefficients)
+    stopifnot(nresp > 1)
+    is.cv <- !is.null(x$cv.list)
+    nselected <- length(x$selected.terms)
+    # create a data.frame and print that
+    mat <- matrix(nrow=nresp+1, ncol=4 + is.cv + (x$pmethod == "cv"))
+    rownames(mat) <- c(colnames(x$fitted.values), "All")
+    colnames <- c("GCV", "RSS", "GRSq", "RSq")
+    if(is.cv)
+        colnames <- c(colnames,
+            if(x$pmethod=="cv") c("  mean.oof.RSq", "sd(mean.oof.RSq)")
+            else "CVRSq")
+    colnames(mat) <- colnames
+    for(iresp in seq_len(nresp)) {
+        mat[iresp,1:4] <- c(x$gcv.per.response[iresp],
+                            x$rss.per.response[iresp],
+                            x$grsq.per.response[iresp],
+                            x$rsq.per.response[iresp])
+        if(is.cv) {
+            if(x$pmethod == "cv") {
+                ilast <- nrow(x$cv.oof.rsq.tab)
+                mat[iresp,5] <- NA
+                mat[iresp,6] <- NA
+            } else {
+                ilast <- nrow(x$cv.rsq.tab)
+                mat[iresp,5] <- x$cv.rsq.tab[ilast,iresp]
+            }
+        }
+    }
+    # final row for "All"
+    mat[nresp+1,1:4] <- c(x$gcv, x$rss, x$grsq, x$rsq)
+    if(is.cv) {
+        if(x$pmethod == "cv") {
+            mat[nresp+1,5] <- signif(x$cv.oof.rsq.tab[ilast,nselected],
+                                   digits=digits)
+            mat[nresp+1,6] <-
+                signif(sd(x$cv.oof.rsq.tab[-ilast,nselected], na.rm=TRUE),
+                       digits=digits)
+        } else
+            mat[nresp+1,5] <- x$cv.rsq.tab[ilast,ncol(x$cv.rsq.tab)]
+    }
+    cat("\n")
+    if(!is.null(x$glm.list))
+        cat("Earth\n") # remind user
+    if(fixed.point)
+       mat <- my.fixed.point(mat, digits)
+    df <- as.data.frame(mat)
+    # the following converts the matrix from numeric to character
+    df[is.na(df)] <- "" # print NAs as blanks (in mean.oof.RSq column)
+    print(df, digits=digits)
 }
 print.termcond <- function(object) # print reason we terminated the forward pass
 {
@@ -188,51 +204,11 @@ print.summary.earth <- function(
     cat("\n")
     is.glm <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
     new.order <- reorder.earth(x, decomp=decomp)
-    resp.names <- colnames(x$fitted.values)
 
-    # print coefficients
-    if(!is.glm || details) {
-        if(!is.null(x$strings)) {      # old style expression formatting?
-            for(iresp in seq_len(nresp)) {
-                cat0(resp.names[iresp], " =\n")
-                cat(x$strings[iresp])
-                cat("\n")
-           }
-        } else {
-            rownames(x$coefficients) <- spaceout(rownames(x$coefficients))
-            coef <- x$coefficients[new.order, , drop=FALSE]
-            if(fixed.point)
-                coef <- my.fixed.point(coef, digits)
-            if(is.glm)
-                cat("Earth coefficients\n") # remind user what these are
-            else if(nresp == 1)
-                colnames(coef) = "coefficients"
-            print(coef, digits=digits)
-            cat("\n")
-        }
-    }
-    if(is.glm) {
-        if(!is.null(x$strings)) {      # old style expression formatting?
-           for(iresp in seq_len(nresp)) {
-               g <- x$glm.list[[iresp]]
-               cat("GLM ")
-               cat0(resp.names[iresp], " =\n")
-               cat(x$strings[nresp+iresp]) # glm strings index is offset by nresp
-               cat("\n")
-           }
-        } else {
-            cat("GLM coefficients\n")
-            rownames(x$glm.coefficients) <- spaceout(rownames(x$glm.coefficients))
-            coef <- x$glm.coefficients[new.order, , drop=FALSE]
-            if(fixed.point)
-                coef <- my.fixed.point(coef, digits)
-            print(coef, digits=digits)
-            cat("\n")
-        }
-        if(details) for(iresp in seq_len(nresp))
-           print.glm.details(x$glm.list[[iresp]], nresp, digits,
-                             my.fixed.point, resp.names[iresp])
-    }
+    if(!is.glm || details)
+        print.earth.coefficients(x, digits, fixed.point, new.order)
+    if(is.glm)
+        print.summary.earth.glm(x, details, digits, fixed.point, new.order)
     if(details)
         cat0("Number of cases: ", nrow(x$residuals), "\n")
     print.earth(x, digits, print.glm=FALSE)
@@ -247,6 +223,54 @@ print.summary.earth <- function(
         x$varmod <- print.varmod(x$varmod, digits=digits)
     }
     invisible(x)
+}
+print.offset <- function(object, digits)
+{
+    # currently only earth.formula objects can have an offset
+    terms <- object$terms
+    if(is.null(terms))
+        return()
+    offset.index <- attr(terms, "offset")
+    if(is.null(offset.index) || is.null(object$offset))
+        return()
+    varnames <- rownames(attr(terms, "factors"))
+    if(is.null(varnames) || offset.index < 1 || offset.index > length(varnames))
+        return()
+    offset.term <- varnames[offset.index]
+    # convert "offset(foo)" to "foo"
+    offset.term.name <- substring(offset.term, 8, nchar(offset.term)-1)
+    print.values("Offset", offset.term.name, object$offset, digits)
+}
+print.weights <- function(object, digits)
+{
+    if(is.null(object$weights))
+        return()
+    print.values("Weights", NULL, object$weights, digits)
+}
+print.values <- function(name, term.name, values, digits)
+{
+    s <- if(is.null(term.name))
+            paste0(name, ": ")
+         else
+            paste0(name, ": ", strip.space.collapse(term.name), " with values ")
+    cat0(s)
+    n <- min(30, length(values)) # save time by formatting a max of only 30 values
+    stopifnot(n > 0)
+    svalues <- character(n)
+    maxlen <- max(25, getOption("width") - nchar(s) - 5) # -5 for ", ..."
+    s <- if(!is.null(term.name) && substring(term.name, 1, 4) == "log(") { # common case
+            # format each value individually (not aggregrated like format on a vector)
+            # this is nice for example if just one weight is very small
+            for(i in seq_along(svalues))
+                svalues[i] <- strip.space(format(exp(values[i]), digits=digits))
+            paste.trunc("log(", svalues, ")",
+                        sep="", collapse=", ", maxlen=maxlen)
+         } else {
+            for(i in seq_along(svalues))
+                svalues[i] <- strip.space(format(values[i], digits=digits))
+            paste.trunc(svalues, sep="", collapse=", ", maxlen=maxlen)
+        }
+    cat0(s, "\n")
 }
 print.would.have <- function(x, digits)
 {
@@ -266,11 +290,60 @@ print.would.have <- function(x, digits)
         "  mean.oof.RSq ",
         form(x$cv.oof.rsq.tab[ilast, nselected]),
         "\n")
-    if(is.na(x$cv.oof.rsq.tab[ilast, nselected]))
+    if(anyNA(x$cv.oof.rsq.tab[ilast, nselected]))
         printf(
 "    (mean.oof.RSq is NA because most fold models have less than %g terms)\n",
                nselected)
 
+}
+print.earth.coefficients <- function(x, digits, fixed.point, new.order)
+{
+    nresp <- NCOL(x$coefficients)
+    if(!is.null(x$strings)) {       # old style expression formatting?
+        resp.names <- colnames(x$fitted.values)
+        for(iresp in seq_len(nresp)) {
+            cat0(resp.names[iresp], " =\n")
+            cat(x$strings[iresp])
+            cat("\n")
+       }
+    } else {
+        rownames(x$coefficients) <- spaceout(rownames(x$coefficients))
+        coef <- x$coefficients[new.order, , drop=FALSE]
+        if(fixed.point)
+            coef <- my.fixed.point(coef, digits)
+        if(!is.null(x$glm.list))        # embedded GLM model(s)?
+            cat("Earth coefficients\n") # remind user what these are
+        else if(nresp == 1)
+            colnames(coef) = "coefficients"
+        print(coef, digits=digits)
+        cat("\n")
+    }
+}
+print.summary.earth.glm <- function(x, details, digits, fixed.point, new.order)
+{
+    nresp <- NCOL(x$coefficients)
+    resp.names <- colnames(x$fitted.values)
+    if(!is.null(x$strings)) {      # old style expression formatting?
+       for(iresp in seq_len(nresp)) {
+           g <- x$glm.list[[iresp]]
+           cat("GLM ")
+           cat0(resp.names[iresp], " =\n")
+           cat(x$strings[nresp+iresp]) # glm strings index is offset by nresp
+           cat("\n")
+       }
+    } else {
+        cat("GLM coefficients\n")
+        rownames(x$glm.coefficients) <- spaceout(rownames(x$glm.coefficients))
+        coef <- x$glm.coefficients[new.order, , drop=FALSE]
+        if(fixed.point)
+            coef <- my.fixed.point(coef, digits)
+        print(coef, digits=digits)
+        cat("\n")
+    }
+    if(details)
+        for(iresp in seq_len(nresp))
+            print.glm.details(x$glm.list[[iresp]], nresp, digits,
+                              my.fixed.point, resp.names[iresp])
 }
 # put some spaces into term names for readability
 #     convert h(x1-5860)*h(x2--15)

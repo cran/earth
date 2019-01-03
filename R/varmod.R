@@ -437,7 +437,7 @@ draw.residmod.weights <- function(w, main, min=NA, max=NA, median=NA) # for debu
         abline(h=median, col=2)
     }
     else
-        legend("topright", sprintf("max/min %.0f", max(w) / min(w)))
+        legend("topright", sprint("max/min %.0f", max(w) / min(w)))
     lines(w) # replot over other annotations
 }
 # clamp to prevent extreme weights after squaring and inverse in get.residmod.weights
@@ -450,7 +450,7 @@ clamp.se <- function(se, iter, trace)
     max <- max.ratio * median
 
     if(trace == TRACE.VARMOD.DETAILS)
-        draw.residmod.weights(se, main=sprintf("iter %d: se", iter), min, max, median)
+        draw.residmod.weights(se, main=sprint("iter %d: se", iter), min, max, median)
 
     se[se < min] <- min
     se[se > max] <- max
@@ -596,7 +596,7 @@ apply.exponent <- function(yhat, exponent, yname=colnames(yhat))
     # exponents of neg numbers are allowed only for integer exponents
     if(floor(exponent) != exponent) {
         check.that.most.are.positive(
-            yhat, yname, sprintf("exponent=%g", exponent), "nonpositive")
+            yhat, yname, sprint("exponent=%g", exponent), "nonpositive")
         yhat[yhat < 0] <- 0 # don't want to take say sqrt of a neg number
     }
     yhat ^ exponent
@@ -628,7 +628,7 @@ estimate.power.start.values <- function(prev.residmod, abs.resids, data, weights
         coefs <- coef(lm)
         if(trace == TRACE.VARMOD.DETAILS) {
             plotmo::plotmo(lm, pt.col=2, do.par=FALSE, trace=-1,
-                main=sprintf("iter 1: lm for start vals\nvarmod.method=\"power\""))
+                main=sprint("iter 1: lm for start vals\nvarmod.method=\"power\""))
             plot(lm, which=1)
             blank.plot()
         }
@@ -645,7 +645,7 @@ estimate.power.start.values <- function(prev.residmod, abs.resids, data, weights
     }
     names(start) <- c("(Intercept)", "coef", "exponent")
     if(trace == TRACE.VARMOD.DETAILS)
-        cat(sprintf("iter %d  RSS:   ", iter), names(start), "\n")
+        cat(sprint("iter %d  RSS:   ", iter), names(start), "\n")
     start
 }
 residmod.power <- function(exponent, parent.x, parent.y, abs.resids,
@@ -673,7 +673,7 @@ estimate.power0.start.values <- function(prev.residmod, abs.resids,
         coefs <- coef(lm)
         if(trace == TRACE.VARMOD.DETAILS) {
             plotmo::plotmo(lm, pt.col=2, do.par=FALSE, trace=-1,
-                main=sprintf("iter 1: lm for start vals\nvarmod.method=\"power0\""))
+                main=sprint("iter 1: lm for start vals\nvarmod.method=\"power0\""))
             plot(lm, which=1)
             blank.plot()
         }
@@ -690,7 +690,7 @@ estimate.power0.start.values <- function(prev.residmod, abs.resids,
     }
     names(start) <- c("coef", "exponent")
     if(trace == TRACE.VARMOD.DETAILS)
-        cat(sprintf("iter %d  RSS:   ", iter), names(start), "\n")
+        cat(sprint("iter %d  RSS:   ", iter), names(start), "\n")
     start
 }
 residmod.power0 <- function(exponent, parent.x, parent.y, abs.resids,
@@ -961,7 +961,7 @@ dot.star.to.digits <- function(s, digits)
     check.integer.scalar(digits, min=1)
     stopifnot(floor(digits) == digits)
     stopifnot(digits > 0, digits < 20)
-    gsub(".*", sprintf(".%d", digits), s, fixed=TRUE)
+    gsub(".*", sprint(".%d", digits), s, fixed=TRUE)
 }
 # Example:
 #       fix.coef.names(coef.names=h(y-123), resp.name="y", exponent=.5)
@@ -976,15 +976,15 @@ fix.coef.names <- function(coef.names, resp.name, exponent)
     stopifnot(exponent > 0)
     new.resp.name <-
         if(exponent > .33 && exponent < .34)
-            sprintf("cbrt(%s)", resp.name)
+            sprint("cbrt(%s)", resp.name)
         else if(exponent == .5)
-            sprintf("sqrt(%s)", resp.name)
+            sprint("sqrt(%s)", resp.name)
         else if(exponent == 1)
             resp.name
         else if(exponent == 2)
-            sprintf("sq(%s)", resp.name)
+            sprint("sq(%s)", resp.name)
         else
-            sprintf("%s^%.3g", resp.name, exponent)
+            sprint("%s^%.3g", resp.name, exponent)
     coef.names <- gsub("RHS", resp.name, coef.names, fixed=TRUE)
     if(exponent == 1)
         coef.names
@@ -1092,7 +1092,7 @@ get.interval.tab <- function(object, level)
         " ", "smallest",
         " ", "largest",
         " ", "ratio")
-    rownames(tab) <- sprintf("%g%% prediction interval", 100*level)
+    rownames(tab) <- sprint("%g%% prediction interval", 100*level)
     tab
 }
 percent.inconf <- function(object, level, parent.y, newdata)
@@ -1118,10 +1118,10 @@ print.inconf.tab <- function(object, parent.y, newdata)
     lt <- function(x, level) if(x < level-.5) "<" else " "
 
     tab <- data.frame(
-        " ", sprintf("%.0f%s ", inconf68, lt(inconf68, 68)),
-        " ", sprintf("%.0f%s ", inconf80, lt(inconf80, 80)),
-        " ", sprintf("%.0f%s ", inconf90, lt(inconf90, 90)),
-        " ", sprintf("%.0f%s ", inconf95, lt(inconf95, 95)))
+        " ", sprint("%.0f%s ", inconf68, lt(inconf68, 68)),
+        " ", sprint("%.0f%s ", inconf80, lt(inconf80, 80)),
+        " ", sprint("%.0f%s ", inconf90, lt(inconf90, 90)),
+        " ", sprint("%.0f%s ", inconf95, lt(inconf95, 95)))
 
     colnames(tab) <- c(
         " ", "68% ",
@@ -1184,11 +1184,11 @@ print.varmod <- function(
         object$coef.tab <- tab # for return value of this function
     }
     tab$coefficients <- zapsmall(tab$coefficients, digits+1)
-    # sprintf below so print "NA" not "<NA>"
-    tab$iter.stderr  <- sprintf("%g", zapsmall(tab$iter.stderr, digits))
+    # sprint below so print "NA" not "<NA>"
+    tab$iter.stderr  <- sprint("%g", zapsmall(tab$iter.stderr, digits))
 
     # convert iter.stderr.percent to character and print "big" if appropriate
-    tab$iter.stderr.percent.as.char <- sprintf("%.0f", tab$iter.stderr.percent)
+    tab$iter.stderr.percent.as.char <- sprint("%.0f", tab$iter.stderr.percent)
     tab$iter.stderr.percent.as.char[tab$iter.stderr.percent >= 1e3] <- "big"
     tab$iter.stderr.percent <- NULL
     colnames(tab) <- c("coefficients", "iter.stderr", "iter.stderr%")
@@ -1262,15 +1262,15 @@ summary.varmod <- function(
 get.resids.name <- function(object)
 {
     if(object$lambda == 1)
-        sprintf("Abs Residuals")
+        sprint("Abs Residuals")
     else if(object$lambda == 2)
-        sprintf("Squared Residuals")
+        sprint("Squared Residuals")
     else
-        sprintf("(Squared Residuals) ^ %.2g", object$lambda / 2)
+        sprint("(Squared Residuals) ^ %.2g", object$lambda / 2)
 }
 get.varmod.ylab <- function(object, as.sd)
 {
-    sprintf("ParentMod %s", if(as.sd) "StdDev" else get.resids.name(object))
+    sprint("ParentMod %s", if(as.sd) "StdDev" else get.resids.name(object))
 }
 min.sd.line <- function(object, min.sd.col, lwd) # draw horizontal line at min.sd
 {
@@ -1313,7 +1313,7 @@ plot.varmod <- function(
     # can only display it later after at least one plot
     stopifnot.string(caption, allow.empty=TRUE, null.ok=TRUE)
     if(length(which) > 1 && do.par && is.null(caption)) # auto caption?
-        caption <- sprintf("Variance Model  method=\"%s\"\nParentMod: %s",
+        caption <- sprint("Variance Model  method=\"%s\"\nParentMod: %s",
                            object$method, strip.deparse(object$parent$call))
     main <- dota("main", ...)
     if(do.par) {
@@ -1343,7 +1343,7 @@ plot.varmod <- function(
         if(which[iwhich] == 1) {            #--- fitted vs parent fitted ---
             plot(parent.fitted[order], object$abs.resids[order],
                  main=if(!is.specified(main))
-                        sprintf("%s vs Fitted", get.resids.name(object))
+                        sprint("%s vs Fitted", get.resids.name(object))
                       else
                         main[iwhich],
                  ylim=ylim, pch=20, cex=cex, xlab="Fitted",
@@ -1368,7 +1368,7 @@ plot.varmod <- function(
                 degree1.lwd=lwd, smooth.col=smooth.col,
                 ylab=get.varmod.ylab(object, as.sd=FALSE),
                 main=if(!is.specified(main))
-                        sprintf("%s vs First Predictor", get.resids.name(object))
+                        sprint("%s vs First Predictor", get.resids.name(object))
                      else
                         main[iwhich])
             min.sd.line(object, min.sd.col, lwd) # horizontal line at min.sd
@@ -1386,8 +1386,8 @@ plot.varmod <- function(
                            main=if(!is.specified(main)) "VarMod Model Selection"
                                 else                    main[iwhich])
         } else
-            stop0("plot.varmod: illegal value %g in 'which' argument",
-                   which[iwhich])
+            stopf("plot.varmod: illegal value %g in 'which' argument",
+                  which[iwhich])
     }
     draw.caption(caption, ...)
     invisible()

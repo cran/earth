@@ -21,7 +21,7 @@ print.one.line.evimp <- function(object) # object is an "earth" object
     }
     evimp <- row.names(evimp(object, trim=FALSE))
     if(length(evimp) == 0)
-        cat("Importance: no predictors")
+        cat0("Importance: no predictors")
     else if(length(evimp) == 1)
         cat0("Importance: ", evimp[1])
     else {
@@ -145,9 +145,9 @@ print.evimp <- function(x = stop("no 'x' argument"), ...) # x is an "evimp" obje
     # truncate rownames if necessary so each entry requires only one line on the screen
     rownames <- rownames(x)
     max.rowname <- max(nchar(rownames))
-    width <- getOption("width")
+    width <- max(30, getOption("width"))
     if(max.rowname > width-25)  { # width of stuff to right of rowname is slighty less than 25
-        rownames <- substr(rownames, 1, max(20, width-25))
+        rownames <- substr(rownames, 1, width-25)
         max.rowname <- max(nchar(rownames))
     }
     printf("%*s nsubsets   gcv    rss\n", max.rowname, " ")
@@ -192,7 +192,7 @@ plot.evimp <- function(
         varlabs <- "intercept"
     } else {
         max.subsets <- x[1, "nsubsets"]
-        varlabs <- paste(rownames(x), sprintf("%3d", x[,"col"]))
+        varlabs <- paste(rownames(x), sprint("%3d", x[,"col"]))
     }
     sqrt. <- if(attr(x, "sqrt", exact=TRUE)) TRUE else FALSE
     par <- par("mar", "cex")

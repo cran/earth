@@ -1,5 +1,40 @@
-Changes to Earth Package
-------------------------
+Changes to the earth package
+----------------------------
+
+4.7.0 Jan 2, 2019
+
+  Earth no longer ignores the offset term in formulas.
+  Thanks to Dag Johan Steinskog for help on this.
+
+  The names of factor arguments are now handled slightly differently in
+  the x argument for earth.default. This prevents a problem where plotmo
+  mistakenly mistook certain models for an intercept-only model.  (The
+  models in question are those built with earth.default with a factor
+  as the only column in the x matrix.)
+
+  The type arguments for residuals.earth and fitted.earth were tweaked.
+  For earth-glm models, plot.earth now plots the "response" residuals.
+  For the behaviour of previous versions with earth-glm models, pass
+  type="earth" to plot.earth to plot the earth (linear) residuals.
+
+  Added some extra information to summary(glm.model).
+  It now prints the AIC and the deviance ratio (defined analogously
+  to RSquared as 1 - deviance / null.deviance).
+
+  The print.earth function now includes summary of the weights and
+  offsets, if any.
+
+  For multiple-response models with weights, the weights are now
+  accounted for when calculating the per-response GRSq (and not
+  just for the overall GRSq).
+
+  With plotmo(earth.model, all1=TRUE) now really plots all variables,
+  (including variables that aren't used in the model).
+
+  Added "LazyData: yes" to the DESCRIPTION file.
+
+  Touch ups to documentation, code, and test scripts.  Minor changes
+  to prevent warnings when options(warnPartialMatchArgs=TRUE).
 
 4.6.3 May 7, 2018
 
@@ -8,7 +43,7 @@ Changes to Earth Package
   internally in earth invoking .Call("ForwardPassR") instead of .C("ForwardPassR").
 
   The vignettes are now compressed with gs and qpdf as in tools::compactPDF,
-  (but that happens outside the standard earth build system).  It does mean
+  (but that happens outside the standard CRAN build system).  It does mean
   that the tar.gz file for earth is a little smaller (now 1342 kByte).
 
   Made some internal changes to earth.c to quieten minor clang warnings.

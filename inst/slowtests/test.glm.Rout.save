@@ -1,32 +1,15 @@
 > # test.glm.R: tests glm and factors added for earth release 2.0
 > 
+> source("test.prolog.R")
 > library(earth)
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> if(!interactive())
-+     postscript(paper="letter")
-> set.seed(2016)
 > data(ozone1)
 > data(trees)
 > data(etitanic)
 > source("check.models.equal.R")
-> options(warn=1) # print warnings as they occur
 > 
-> # test that we got an error as expected from a try() call
-> expect.err <- function(object, expected.msg="")
-+ {
-+     if(class(object)[1] == "try-error") {
-+         msg <- attr(object, "condition")$message[1]
-+         if(length(grep(expected.msg, msg, fixed=TRUE)))
-+             cat("Got error as expected from ",
-+                 deparse(substitute(object)), "\n", sep="")
-+         else
-+             stop(sprintf("Expected: %s\n  Got:      %s",
-+                          expected.msg, substr(msg, 1, 1000)))
-+     } else
-+         stop("did not get expected error for ", expected.msg)
-+ }
 > printh <- function(x, expect.warning=FALSE, max.print=0) # like print but with a header
 + {
 +     cat("===", deparse(substitute(x)))
@@ -163,7 +146,7 @@ y arg to glm()[12,2]:
 ...      13        7
 12       16        4
 
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > show.earth.models(a1)
 
 Print a1 
@@ -174,7 +157,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.210308    RSS 0.6841923    GRSq 0.835821    RSq 0.9986431
 
-GLM null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 4.902229  7    0.961 45.01     4         1
 
 Summary a1 
 
@@ -195,7 +180,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.210308    RSS 0.6841923    GRSq 0.835821    RSq 0.9986431
 
-GLM null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 4.902229  7    0.961 45.01     4         1
 
 Summary a1 digits=3, details=TRUE
 
@@ -237,7 +224,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.21    RSS 0.684    GRSq 0.836    RSq 0.999
 
-GLM null.deviance 125 (11 dof)   deviance 4.9 (7 dof)   iters 4
+GLM (family binomial, link logit):
+ nulldev df dev df devratio AIC iters converged
+     125 11 4.9  7    0.961  45     4         1
 
 evimp a1 
 
@@ -285,7 +274,7 @@ GRSq -Inf at 9 terms, 5 terms used
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.836 RSq 0.999
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > check.models.equal(a1a, a1, msg="a1 a1a")
 check.models.equal not identical: a1 a1a [but within numerical tolerances]
 > a1b <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial), trace=1, pmethod=PMETHOD, degree=2)
@@ -296,7 +285,7 @@ GRSq -Inf at 9 terms, 5 terms used
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.836 RSq 0.999
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > check.models.equal(a1, a1b, msg="a1 a1b")
 check.models.equal not identical: a1 a1b [but within numerical tolerances]
 > a1c <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial()), trace=1, pmethod=PMETHOD, degree=2)
@@ -307,7 +296,7 @@ GRSq -Inf at 9 terms, 5 terms used
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.836 RSq 0.999
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > check.models.equal(a1, a1c, msg="a1 a1c")
 check.models.equal not identical: a1 a1c [but within numerical tolerances]
 > a1d <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), trace=1, pmethod=PMETHOD, degree=2)
@@ -318,14 +307,12 @@ GRSq -Inf at 9 terms, 5 terms used
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.836 RSq 0.999
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > check.models.equal(a1, a1d, msg="a1 a1d")
 check.models.equal not identical: a1 a1d [but within numerical tolerances]
-> # Removed for earth 2.3.3 because offset is no longer supported
-> # a1e <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod=PMETHOD, degree=2)
-> # check.models.equal(a1, a1e, msg="a1 a1e")
-> # a1f <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=rep(0,nrow(SF))), trace=1, pmethod=PMETHOD, degree=2)
-> # check.models.equal(a1, a1f, msg="a1 a1f")
+> expect.err(try(earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),offset=NULL), trace=1, pmethod=PMETHOD, degree=2)), "earth: 'offset' is not supported in glm argument to earth")
+Error : earth: 'offset' is not supported in glm argument to earth
+Got error as expected from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     offset = NULL), trace = 1, pmethod = PMETHOD, degree = 2))
 > a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod=PMETHOD, degree=2)
 x[12,3] with colnames sexmale ldose ldose1
 y[12,2] with colnames numdead numalive
@@ -334,7 +321,7 @@ GRSq -Inf at 9 terms, 5 terms used
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.836 RSq 0.999
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > check.models.equal(a1, a1g, msg="a1 a1g")
 check.models.equal not identical: a1 a1g [but within numerical tolerances]
 > # following should cause a "did not converge warning" because maxit=2
@@ -349,7 +336,7 @@ After pruning pass GRSq 0.836 RSq 0.999
 Deviance = 4.921104 Iterations - 1
 Deviance = 4.902235 Iterations - 2
 Warning: glm.fit: algorithm did not converge
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902235 (7 dof)   iters 2 did not converge
+GLM numdead devratio 0.96 dof 7/11 iters 2  did not converge
 > show.earth.models(a1h) # check "did not converge" and also that maxit is retained in glm.list$control
 
 Print a1h 
@@ -360,7 +347,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.210308    RSS 0.6841923    GRSq 0.835821    RSq 0.9986431
 
-GLM null.deviance 124.8756 (11 dof)   deviance 4.902235 (7 dof)   iters 2 did not converge
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 4.902235  7    0.961 45.01     2         0
 
 Summary a1h 
 
@@ -382,7 +371,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.210308    RSS 0.6841923    GRSq 0.835821    RSq 0.9986431
 
-GLM null.deviance 124.8756 (11 dof)   deviance 4.902235 (7 dof)   iters 2 did not converge
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 4.902235  7    0.961 45.01     2         0
 
 Summary a1h decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -425,7 +416,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.2103    RSS 0.68419    GRSq 0.83582    RSq 0.99864
 
-GLM null.deviance 124.88 (11 dof)   deviance 4.9022 (7 dof)   iters 2 did not converge
+GLM (family binomial, link logit):
+ nulldev df    dev df devratio   AIC iters converged
+  124.88 11 4.9022  7    0.961 45.01     2         0
 
 evimp a1h 
 
@@ -459,6 +452,10 @@ earth glm numdead: did not converge after 2 iterations
 check.models.equal not identical: a1h a1h2 [but within numerical tolerances]
 > stopifnot(a1h2$glm.list[[1]]$control$maxit == 2)
 > 
+> plotres(a1h,                  caption="a1h: default type")
+> plotres(a1h, type="response", caption="a1h: type=\"response\" (same as default type)")
+> plotres(a1h, type="earth",    caption="a1h: type=\"earth\"")
+> 
 > # check update, also check params are carried forward properly with update
 > a1h.update1 <- update(a1h, glm=list(family=binomial(link="probit"), maxit=8))
 x[12,3] with colnames sexmale ldose ldose1
@@ -466,7 +463,7 @@ y[12,2] with colnames numdead numalive
 Skipped forward pass
 Prune method "none" penalty 3 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.836 RSq 0.999
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 3.682296 (7 dof)   iters 5
+GLM numdead devratio 0.97 dof 7/11 iters 5 
 > stopifnot(a1h.update1$glm.list[[1]]$control$maxit == 8)
 > show.earth.models(a1h.update1)
 
@@ -478,7 +475,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.210308    RSS 0.6841923    GRSq 0.835821    RSq 0.9986431
 
-GLM null.deviance 124.8756 (11 dof)   deviance 3.682296 (7 dof)   iters 5
+GLM (family binomial, link probit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 3.682296  7    0.971 43.79     5         1
 
 Summary a1h.update1 
 
@@ -500,7 +499,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.210308    RSS 0.6841923    GRSq 0.835821    RSq 0.9986431
 
-GLM null.deviance 124.8756 (11 dof)   deviance 3.682296 (7 dof)   iters 5
+GLM (family binomial, link probit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 3.682296  7    0.971 43.79     5         1
 
 Summary a1h.update1 digits=3, details=TRUE
 
@@ -543,7 +544,9 @@ Importance: ldose, sexmale, ldose1
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.21    RSS 0.684    GRSq 0.836    RSq 0.999
 
-GLM null.deviance 125 (11 dof)   deviance 3.68 (7 dof)   iters 5
+GLM (family binomial, link probit):
+ nulldev df  dev df devratio  AIC iters converged
+     125 11 3.68  7    0.971 43.8     5         1
 
 evimp a1h.update1 
 
@@ -574,8 +577,8 @@ RSq changed by less than 0.001 at 7 terms, 5 terms used (DeltaRSq 0)
 After forward pass GRSq -0.617 RSq 0.987
 Prune method "none" penalty 2 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.82 RSq 0.987
-GLM numdead: null.deviance 504.25 (11 dof)   deviance 6.739359 (7 dof)   iters 2
-GLM numalive: null.deviance 504.25 (11 dof)   deviance 6.739359 (7 dof)   iters 2
+GLM numdead devratio 0.99 dof 7/11 iters 2 
+GLM numalive devratio 0.99 dof 7/11 iters 2 
 > stopifnot(a1h.update2$glm.list[[1]]$control$maxit == 9)
 > show.earth.models(a1h.update2, nresponse="numdea")
 
@@ -592,10 +595,11 @@ numdead   8.985812  6.739359 0.8203135 0.9866349
 numalive  8.985812  6.739359 0.8203135 0.9866349
 All      17.971623 13.478717 0.8203135 0.9866349
 
-GLM (family gaussian, link identity)
-         null.deviance df deviance df iters converged
-numdead         504.25 11 6.739359  7     2         1
-numalive        504.25 11 6.739359  7     2         1
+GLM (family gaussian, link identity):
+
+         nulldev df      dev df devratio   AIC iters converged
+numdead   504.25 11 6.739359  7    0.987 39.13     2         1
+numalive  504.25 11 6.739359  7    0.987 39.13     2         1
 
 Summary a1h.update2 
 
@@ -621,10 +625,11 @@ numdead   8.985812  6.739359 0.8203135 0.9866349
 numalive  8.985812  6.739359 0.8203135 0.9866349
 All      17.971623 13.478717 0.8203135 0.9866349
 
-GLM (family gaussian, link identity)
-         null.deviance df deviance df iters converged
-numdead         504.25 11 6.739359  7     2         1
-numalive        504.25 11 6.739359  7     2         1
+GLM (family gaussian, link identity):
+
+         nulldev df      dev df devratio   AIC iters converged
+numdead   504.25 11 6.739359  7    0.987 39.13     2         1
+numalive  504.25 11 6.739359  7    0.987 39.13     2         1
 
 Summary a1h.update2 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -687,10 +692,11 @@ numdead   8.9858  6.7394 0.82031 0.98664
 numalive  8.9858  6.7394 0.82031 0.98664
 All      17.9716 13.4787 0.82031 0.98664
 
-GLM (family gaussian, link identity)
-         null.deviance df deviance df iters converged
-numdead         504.25 11   6.7394  7     2         1
-numalive        504.25 11   6.7394  7     2         1
+GLM (family gaussian, link identity):
+
+         nulldev df    dev df devratio   AIC iters converged
+numdead   504.25 11 6.7394  7    0.987 39.13     2         1
+numalive  504.25 11 6.7394  7    0.987 39.13     2         1
 
 evimp a1h.update2 
 
@@ -723,7 +729,7 @@ GRSq -Inf at 9 terms, 5 terms used
 After forward pass GRSq -in RSq 0.999
 Prune method "none" penalty 3 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.836 RSq 0.999
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > print(summary(a1i))
 Call: earth(formula=SF~sex+ldose+I(ldose1-3), pmethod=PMETHOD, trace=1,
             glm=list(family="binomial"), degree=2)
@@ -742,7 +748,9 @@ Importance: ldose, sexmale, I(ldose1-3)
 Number of terms at each degree of interaction: 1 2 2
 Earth GCV 8.210308    RSS 0.6841923    GRSq 0.835821    RSq 0.9986431
 
-GLM null.deviance 124.8756 (11 dof)   deviance 4.902229 (7 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 4.902229  7    0.961 45.01     4         1
 > 
 > cat("a2: single response glm model but with a binomial pair of y columns, degree=1\n\n")
 a2: single response glm model but with a binomial pair of y columns, degree=1
@@ -774,7 +782,7 @@ chosen    5      0.8826  0.9913    -0.0576      3
 Prune method "none" penalty 2 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.883 RSq 0.991
 
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.960016 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > show.earth.models(a2)
 
 Print a2 
@@ -785,7 +793,9 @@ Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 5.872348    RSS 4.404261    GRSq 0.8825725    RSq 0.9912657
 
-GLM null.deviance 124.8756 (11 dof)   deviance 4.960016 (7 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 4.960016  7     0.96 45.07     4         1
 
 Summary a2 
 
@@ -805,7 +815,9 @@ Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 5.872348    RSS 4.404261    GRSq 0.8825725    RSq 0.9912657
 
-GLM null.deviance 124.8756 (11 dof)   deviance 4.960016 (7 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 124.8756 11 4.960016  7     0.96 45.07     4         1
 
 Summary a2 digits=3, details=TRUE
 
@@ -846,7 +858,9 @@ Importance: ldose, sexmale, sexmale:ldose
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 5.87    RSS 4.4    GRSq 0.883    RSq 0.991
 
-GLM null.deviance 125 (11 dof)   deviance 4.96 (7 dof)   iters 4
+GLM (family binomial, link logit):
+ nulldev df  dev df devratio  AIC iters converged
+     125 11 4.96  7     0.96 45.1     4         1
 
 evimp a2 
 
@@ -897,7 +911,7 @@ chosen    5      0.8826  0.9913    -0.0576      3
 Prune method "none" penalty 2 nprune null: selected 5 of 5 terms, and 3 of 3 preds
 After pruning pass GRSq 0.883 RSq 0.991
 
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 4.960016 (7 dof)   iters 4
+GLM numdead devratio 0.96 dof 7/11 iters 4 
 > stopifnot(identical(a2$glm.list[[1]]$coefficients, a2a$glm.list[[1]]$coefficients))
 > 
 > a2c <- earth(SF ~ sex, glm=list(family="binomial", bpairs=c(TRUE,FALSE)), trace=0, pmethod=PMETHOD)
@@ -956,8 +970,8 @@ RSq changed by less than 0.001 at 7 terms, 4 terms used (DeltaRSq 0)
 After forward pass GRSq 0.783 RSq 0.984
 Prune method "backward" penalty 2 nprune null: selected 3 of 4 terms, and 2 of 3 preds
 After pruning pass GRSq 0.939 RSq 0.975
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.93 dof 9/11 iters 4 
 > show.earth.models(a4, nresponse="numdead")
 
 Print a4 
@@ -973,10 +987,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a4 
 
@@ -1000,10 +1015,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a4 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -1054,10 +1070,11 @@ numdead  2.3761  9.7024 0.95249 0.98076
 numdead2 3.7901 15.4762 0.92646 0.97022
 All      6.1662 25.1786 0.93928 0.97541
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead         124.88 11   6.7571  9     4         1
-numdead2        128.03 11   8.5725  9     4         1
+GLM (family binomial, link logit):
+
+         nulldev df    dev df devratio   AIC iters converged
+numdead   124.88 11 6.7571  9    0.946 42.87     4         1
+numdead2  128.03 11 8.5725  9    0.933 44.60     4         1
 
 evimp a4 
 
@@ -1170,9 +1187,9 @@ $glm.list
 $glm.list[[1]]
 
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
-    weights = weights, na.action = na.action, control = control, 
-    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
-    trace = (trace >= 2))
+    weights = weights, na.action = na.action, offset = offset, 
+    control = control, model = TRUE, method = "glm.fit", x = TRUE, 
+    y = TRUE, contrasts = NULL, trace = (trace >= 2))
 
 Coefficients:
 (Intercept)        ldose      sexmale  
@@ -1185,9 +1202,9 @@ Residual Deviance: 6.757 	AIC: 42.87
 $glm.list[[2]]
 
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
-    weights = weights, na.action = na.action, control = control, 
-    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
-    trace = (trace >= 2))
+    weights = weights, na.action = na.action, offset = offset, 
+    control = control, model = TRUE, method = "glm.fit", x = TRUE, 
+    y = TRUE, contrasts = NULL, trace = (trace >= 2))
 
 Coefficients:
 (Intercept)        ldose      sexmale  
@@ -1255,8 +1272,8 @@ RSq changed by less than 0.001 at 7 terms, 4 terms used (DeltaRSq 0)
 After forward pass GRSq 0.783 RSq 0.984
 Prune method "backward" penalty 2 nprune null: selected 3 of 4 terms, and 2 of 3 preds
 After pruning pass GRSq 0.939 RSq 0.975
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.93 dof 9/11 iters 4 
 > stopifnot(identical(a4$glm.list[[1]]$coefficients, a4a$glm.list[[1]]$coefficients))
 > stopifnot(identical(a4$glm.list[[2]]$coefficients, a4a$glm.list[[2]]$coefficients))
 > a4update <- update(a4a, trace=0)
@@ -1272,8 +1289,8 @@ RSq changed by less than 0.001 at 7 terms, 4 terms used (DeltaRSq 0)
 After forward pass GRSq 0.783 RSq 0.984
 Prune method "backward" penalty 2 nprune null: selected 3 of 4 terms, and 2 of 3 preds
 After pruning pass GRSq 0.939 RSq 0.975
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.93 dof 9/11 iters 4 
 > check.models.equal(a4aa, a4a, msg="a4aa a4a")
 check.models.equal not identical: a4aa a4a [but within numerical tolerances]
 > 
@@ -1286,8 +1303,8 @@ RSq changed by less than 0.001 at 3 terms, 2 terms used (DeltaRSq 0)
 After forward pass GRSq 0.815 RSq 0.925
 Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 0.888 RSq 0.925
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 16.98403 (10 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 15.90252 (10 dof)   iters 4
+GLM numdead devratio 0.86 dof 10/11 iters 4 
+GLM numdead2 devratio 0.88 dof 10/11 iters 4 
 > check.models.equal(a4update, a4d, msg="a4update a4d no keepxy")
 check.models.equal not identical: a4update a4d no keepxy [but within numerical tolerances]
 > 
@@ -1312,11 +1329,12 @@ Earth
 3rd 0.1895587 190.3968 0.241872961 0.27061448
 All 0.5244105 526.7293 0.175229617 0.20649767
 
-GLM (family binomial, link logit)
-    null.deviance   df  deviance   df iters converged
-1st      1223.308 1045  894.8141 1037     5         1
-2nd      1175.305 1045 1126.9441 1037     5         1
-3rd      1448.213 1045 1118.9411 1037     5         1
+GLM (family binomial, link logit):
+
+     nulldev   df       dev   df devratio    AIC iters converged
+1st 1223.308 1045  894.8141 1037   0.2690  912.8     5         1
+2nd 1175.305 1045 1126.9441 1037   0.0411 1145.0     5         1
+3rd 1448.213 1045 1118.9411 1037   0.2270 1137.0     5         1
 
 Summary a5 
 
@@ -1347,11 +1365,12 @@ Earth
 3rd 0.1895587 190.3968 0.241872961 0.27061448
 All 0.5244105 526.7293 0.175229617 0.20649767
 
-GLM (family binomial, link logit)
-    null.deviance   df  deviance   df iters converged
-1st      1223.308 1045  894.8141 1037     5         1
-2nd      1175.305 1045 1126.9441 1037     5         1
-3rd      1448.213 1045 1118.9411 1037     5         1
+GLM (family binomial, link logit):
+
+     nulldev   df       dev   df devratio    AIC iters converged
+1st 1223.308 1045  894.8141 1037   0.2690  912.8     5         1
+2nd 1175.305 1045 1126.9441 1037   0.0411 1145.0     5         1
+3rd 1448.213 1045 1118.9411 1037   0.2270 1137.0     5         1
 
 Summary a5 digits=3, details=TRUE
 
@@ -1443,11 +1462,12 @@ Earth
 3rd 0.190 190 0.24187 0.2706
 All 0.524 527 0.17523 0.2065
 
-GLM (family binomial, link logit)
-    null.deviance   df deviance   df iters converged
-1st          1223 1045      895 1037     5         1
-2nd          1175 1045     1127 1037     5         1
-3rd          1448 1045     1119 1037     5         1
+GLM (family binomial, link logit):
+
+    nulldev   df  dev   df devratio  AIC iters converged
+1st    1223 1045  895 1037   0.2690  913     5         1
+2nd    1175 1045 1127 1037   0.0411 1145     5         1
+3rd    1448 1045 1119 1037   0.2270 1137     5         1
 
 evimp a5 
 
@@ -1470,8 +1490,8 @@ sexmale         4  34.4   41.7
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a5 
- plotmo grid:    survived    sex age sibsp parch
-                        0 female  28     0     0
+ plotmo grid:    survived  sex age sibsp parch
+                        0 male  28     0     0
 -------------------------------------------------------------------------------
 
 > printh(a5$levels)
@@ -1808,9 +1828,9 @@ $glm.list
 $glm.list[[1]]
 
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
-    weights = weights, na.action = na.action, control = control, 
-    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
-    trace = (trace >= 2))
+    weights = weights, na.action = na.action, offset = offset, 
+    control = control, model = TRUE, method = "glm.fit", x = TRUE, 
+    y = TRUE, contrasts = NULL, trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1827,9 +1847,9 @@ Residual Deviance: 894.8 	AIC: 912.8
 $glm.list[[2]]
 
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
-    weights = weights, na.action = na.action, control = control, 
-    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
-    trace = (trace >= 2))
+    weights = weights, na.action = na.action, offset = offset, 
+    control = control, model = TRUE, method = "glm.fit", x = TRUE, 
+    y = TRUE, contrasts = NULL, trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1846,9 +1866,9 @@ Residual Deviance: 1127 	AIC: 1145
 $glm.list[[3]]
 
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
-    weights = weights, na.action = na.action, control = control, 
-    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
-    trace = (trace >= 2))
+    weights = weights, na.action = na.action, offset = offset, 
+    control = control, model = TRUE, method = "glm.fit", x = TRUE, 
+    y = TRUE, contrasts = NULL, trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived             `h(sibsp-1)`  
@@ -1885,9 +1905,6 @@ $namesx.org
 $namesx
 [1] "survived" "sex"      "age"      "sibsp"    "parch"   
 
-$levels
-[1] "1st" "2nd" "3rd"
-
 $terms
 pclass ~ survived + sex + age + sibsp + parch
 attr(,"variables")
@@ -1915,6 +1932,9 @@ list(pclass, survived, sex, age, sibsp, parch)
 attr(,"dataClasses")
    pclass  survived       sex       age     sibsp     parch 
  "factor" "numeric"  "factor" "numeric" "numeric" "numeric" 
+
+$levels
+[1] "1st" "2nd" "3rd"
 
 attr(,"class")
 [1] "earth"
@@ -1948,7 +1968,7 @@ Reached nk 21
 After forward pass GRSq 0.253 RSq 0.309
 Prune method "backward" penalty 3 nprune null: selected 8 of 17 terms, and 4 of 5 preds
 After pruning pass GRSq 0.27 RSq 0.294
-GLM pclass1: null.deviance 1223.308 (1045 dof)   deviance 902.3064 (1038 dof)   iters 5
+GLM pclass1 devratio 0.26 dof 1038/1045 iters 5 
 > show.earth.models(a6)
 
 Print a6 
@@ -1959,7 +1979,9 @@ Importance: age, survived, parch, sibsp, sexmale-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1446768    RSS 146.0263    GRSq 0.2699404    RSq 0.2941874
 
-GLM null.deviance 1223.308 (1045 dof)   deviance 902.3064 (1038 dof)   iters 5
+GLM (family binomial, link logit):
+  nulldev   df      dev   df devratio   AIC iters converged
+ 1223.308 1045 902.3064 1038    0.262 918.3     5         1
 
 Summary a6 
 
@@ -1983,7 +2005,9 @@ Importance: age, survived, parch, sibsp, sexmale-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1446768    RSS 146.0263    GRSq 0.2699404    RSq 0.2941874
 
-GLM null.deviance 1223.308 (1045 dof)   deviance 902.3064 (1038 dof)   iters 5
+GLM (family binomial, link logit):
+  nulldev   df      dev   df devratio   AIC iters converged
+ 1223.308 1045 902.3064 1038    0.262 918.3     5         1
 
 Summary a6 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -2034,7 +2058,9 @@ Importance: age, survived, parch, sibsp, sexmale-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.14468    RSS 146.03    GRSq 0.26994    RSq 0.29419
 
-GLM null.deviance 1223.3 (1045 dof)   deviance 902.31 (1038 dof)   iters 5
+GLM (family binomial, link logit):
+ nulldev   df    dev   df devratio   AIC iters converged
+  1223.3 1045 902.31 1038    0.262 918.3     5         1
 
 evimp a6 
 
@@ -2056,8 +2082,8 @@ sexmale-unused        0   0.0    0.0
 glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit 
 
 plotmo a6 
- plotmo grid:    survived    sex age sibsp parch
-                        0 female  28     0     0
+ plotmo grid:    survived  sex age sibsp parch
+                        0 male  28     0     0
 -------------------------------------------------------------------------------
 
 > printh(a6$levels) # expect levels to be NULL
@@ -2393,9 +2419,9 @@ $glm.list
 $glm.list[[1]]
 
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
-    weights = weights, na.action = na.action, control = control, 
-    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
-    trace = (trace >= 2))
+    weights = weights, na.action = na.action, offset = offset, 
+    control = control, model = TRUE, method = "glm.fit", x = TRUE, 
+    y = TRUE, contrasts = NULL, trace = (trace >= 2))
 
 Coefficients:
             (Intercept)                 survived     `survived*h(52-age)`  
@@ -2431,9 +2457,6 @@ $namesx.org
 $namesx
 [1] "survived" "sex"      "age"      "sibsp"    "parch"   
 
-$levels
-[1] FALSE  TRUE
-
 $terms
 pclass1 ~ survived + sex + age + sibsp + parch
 attr(,"variables")
@@ -2462,6 +2485,9 @@ attr(,"dataClasses")
   pclass1  survived       sex       age     sibsp     parch 
 "logical" "numeric"  "factor" "numeric" "numeric" "numeric" 
 
+$levels
+[1] FALSE  TRUE
+
 attr(,"class")
 [1] "earth"
 -------------------------------------------------------------------------------
@@ -2479,7 +2505,7 @@ Reached nk 21
 After forward pass GRSq 0.340 RSq 0.384
 Prune method "backward" penalty 3 nprune null: selected 10 of 15 terms, and 6 of 6 preds
 After pruning pass GRSq 0.352 RSq 0.38
-GLM male: null.deviance 1379.574 (1045 dof)   deviance 941.1673 (1036 dof)   iters 5
+GLM male devratio 0.32 dof 1036/1045 iters 5 
 > show.earth.models(a7, nresponse=1)
 
 Print a7 
@@ -2490,7 +2516,9 @@ Importance: survived, parch, age, pclass3rd, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 1 8
 Earth GCV 0.1513968    RSS 151.3254    GRSq 0.3524225    RSq 0.3800084
 
-GLM null.deviance 1379.574 (1045 dof)   deviance 941.1673 (1036 dof)   iters 5
+GLM (family binomial, link logit):
+  nulldev   df      dev   df devratio   AIC iters converged
+ 1379.574 1045 941.1673 1036    0.318 961.2     5         1
 
 Summary a7 
 
@@ -2516,7 +2544,9 @@ Importance: survived, parch, age, pclass3rd, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 1 8
 Earth GCV 0.1513968    RSS 151.3254    GRSq 0.3524225    RSq 0.3800084
 
-GLM null.deviance 1379.574 (1045 dof)   deviance 941.1673 (1036 dof)   iters 5
+GLM (family binomial, link logit):
+  nulldev   df      dev   df devratio   AIC iters converged
+ 1379.574 1045 941.1673 1036    0.318 961.2     5         1
 
 Summary a7 digits=3, details=TRUE
 
@@ -2573,7 +2603,9 @@ Importance: survived, parch, age, pclass3rd, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 1 8
 Earth GCV 0.151    RSS 151    GRSq 0.352    RSq 0.38
 
-GLM null.deviance 1380 (1045 dof)   deviance 941 (1036 dof)   iters 5
+GLM (family binomial, link logit):
+ nulldev   df dev   df devratio AIC iters converged
+    1380 1045 941 1036    0.318 961     5         1
 
 evimp a7 
 
@@ -2599,7 +2631,7 @@ glm params: epsilon 1e-08 maxit 25 trace FALSE family binomial link logit
 
 plotmo a7 
  plotmo grid:    pclass survived age sibsp parch
-                    1st        0  28     0     0
+                    3rd        0  28     0     0
 -------------------------------------------------------------------------------
 
 > printh(a7$levels)
@@ -2928,9 +2960,9 @@ $glm.list
 $glm.list[[1]]
 
 Call:  glm(formula = yarg ~ ., family = family, data = bx.data.frame, 
-    weights = weights, na.action = na.action, control = control, 
-    model = TRUE, method = "glm.fit", x = TRUE, y = TRUE, contrasts = NULL, 
-    trace = (trace >= 2))
+    weights = weights, na.action = na.action, offset = offset, 
+    control = control, model = TRUE, method = "glm.fit", x = TRUE, 
+    y = TRUE, contrasts = NULL, trace = (trace >= 2))
 
 Coefficients:
             (Intercept)     `survived*h(age-15)`     `pclass3rd*survived`  
@@ -2970,9 +3002,6 @@ $namesx.org
 $namesx
 [1] "pclass"   "survived" "age"      "sibsp"    "parch"   
 
-$levels
-[1] "female" "male"  
-
 $terms
 sex ~ pclass + survived + age + sibsp + parch
 attr(,"variables")
@@ -3001,6 +3030,9 @@ attr(,"dataClasses")
       sex    pclass  survived       age     sibsp     parch 
  "factor"  "factor" "numeric" "numeric" "numeric" "numeric" 
 
+$levels
+[1] "female" "male"  
+
 attr(,"class")
 [1] "earth"
 -------------------------------------------------------------------------------
@@ -3016,7 +3048,7 @@ Reached nk 21
 After forward pass GRSq 0.310 RSq 0.368
 Prune method "backward" penalty 3 nprune null: selected 8 of 19 terms, and 4 of 4 preds
 After pruning pass GRSq 0.335 RSq 0.357
-GLM male: null.deviance 1379.574 (1045 dof)   deviance 970.6521 (1038 dof)   iters 4
+GLM male devratio 0.30 dof 1038/1045 iters 4 
 > check.models.equal(a7dupdate, a7d, msg="a7update a7d")
 check.models.equal not identical: a7update a7d [but within numerical tolerances]
 > printh(a7d$levels)
@@ -3033,7 +3065,7 @@ Reached nk 21
 After forward pass GRSq 0.310 RSq 0.368
 Prune method "backward" penalty 3 nprune null: selected 8 of 19 terms, and 4 of 4 preds
 After pruning pass GRSq 0.335 RSq 0.357
-GLM male: null.deviance 1379.574 (1045 dof)   deviance 970.6521 (1038 dof)   iters 4
+GLM male devratio 0.30 dof 1038/1045 iters 4 
 > check.models.equal(a7dupdate, a7d, msg="a7update a7d with keepxy")
 check.models.equal not identical: a7update a7d with keepxy [but within numerical tolerances]
 > 
@@ -3050,7 +3082,7 @@ Reached nk 21
 After forward pass GRSq 0.345 RSq 0.389
 Prune method "backward" penalty 3 nprune null: selected 11 of 15 terms, and 6 of 6 preds
 After pruning pass GRSq 0.358 RSq 0.389
-GLM male: null.deviance 1365.015 (1035 dof)   deviance 919.2619 (1025 dof)   iters 5
+GLM male devratio 0.33 dof 1025/1035 iters 5 
 > check.models.equal(a7eupdate, a7e, msg="a7update a7e")
 check.models.equal not identical: a7update a7e [but within numerical tolerances]
 > 
@@ -3066,7 +3098,7 @@ Reached nk 21
 After forward pass GRSq 0.345 RSq 0.389
 Prune method "backward" penalty 3 nprune null: selected 11 of 15 terms, and 6 of 6 preds
 After pruning pass GRSq 0.358 RSq 0.389
-GLM male: null.deviance 1365.015 (1035 dof)   deviance 919.2619 (1025 dof)   iters 5
+GLM male devratio 0.33 dof 1025/1035 iters 5 
 > check.models.equal(a7eeupdate, a7e, msg="a7update a7e with alternative subset")
 check.models.equal not identical: a7update a7e with alternative subset [but within numerical tolerances]
 > 
@@ -3078,7 +3110,7 @@ y[1046,1] with colname male
 Skipped forward pass
 Prune method "backward" penalty 3 nprune null: selected 10 of 15 terms, and 6 of 6 preds
 After pruning pass GRSq 0.352 RSq 0.38
-GLM male: null.deviance 1379.574 (1045 dof)   deviance 940.1086 (1036 dof)   iters 5
+GLM male devratio 0.32 dof 1036/1045 iters 5 
 > check.models.equal(a7fupdate, a7f, msg="a7update a7f with link=probit")
 check.models.equal not identical: a7update a7f with link=probit [but within numerical tolerances]
 > 
@@ -3091,7 +3123,7 @@ y[1046,1] with colname male
 Skipped forward pass
 Prune method "backward" penalty 3 nprune null: selected 10 of 15 terms, and 6 of 6 preds
 After pruning pass GRSq 0.352 RSq 0.38
-GLM male: null.deviance 1379.574 (1045 dof)   deviance 940.1086 (1036 dof)   iters 5
+GLM male devratio 0.32 dof 1036/1045 iters 5 
 > check.models.equal(a7gupdate, a7g, msg="a7update a7g with link=probit and keepxy")
 check.models.equal not identical: a7update a7g with link=probit and keepxy [but within numerical tolerances]
 > 
@@ -3105,7 +3137,7 @@ Reached nk 21
 After forward pass GRSq 0.345 RSq 0.409
 Prune method "backward" penalty 3 nprune null: selected 9 of 17 terms, and 6 of 6 preds
 After pruning pass GRSq 0.369 RSq 0.4
-GLM male: null.deviance 1053.094 (800 dof)   deviance 696.2505 (792 dof)   iters 5
+GLM male devratio 0.34 dof 792/800 iters 5 
 > check.models.equal(a8gupdate, a8g, msg="a8update a8g with new data")
 check.models.equal not identical: a8update a8g with new data [but within numerical tolerances]
 > 
@@ -3145,7 +3177,7 @@ chosen    3     -0.8939  0.5265    -0.6212      2
 Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 4 preds
 After pruning pass GRSq -0.894 RSq 0.527
 
-GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
+GLM counts devratio 0.52 dof 6/8 iters 4 
 > show.earth.models(a8p)
 
 Print a8p 
@@ -3156,7 +3188,9 @@ Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 Earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
-GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
+GLM (family poisson, link log):
+  nulldev df      dev df devratio   AIC iters converged
+ 10.58145  8 5.129141  6    0.515 52.76     4         1
 
 Summary a8p 
 
@@ -3175,7 +3209,9 @@ Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 Earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
 
-GLM null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
+GLM (family poisson, link log):
+  nulldev df      dev df devratio   AIC iters converged
+ 10.58145  8 5.129141  6    0.515 52.76     4         1
 
 Summary a8p decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -3211,7 +3247,9 @@ Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 Earth GCV 46.875    RSS 83.333    GRSq -0.89394    RSq 0.52652
 
-GLM null.deviance 10.581 (8 dof)   deviance 5.1291 (6 dof)   iters 4
+GLM (family poisson, link log):
+ nulldev df    dev df devratio   AIC iters converged
+  10.581  8 5.1291  6    0.515 52.76     4         1
 
 evimp a8p 
 
@@ -3287,8 +3325,8 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq -6.576 RSq 0.527
 Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 4 preds
 After pruning pass GRSq -0.894 RSq 0.527
-GLM counts: null.deviance 10.58145 (8 dof)   deviance 5.129141 (6 dof)   iters 4
-GLM counts2: null.deviance 105.166 (8 dof)   deviance 50.96448 (6 dof)   iters 4
+GLM counts devratio 0.52 dof 6/8 iters 4 
+GLM counts2 devratio 0.52 dof 6/8 iters 4 
 > show.earth.models(a10, nresponse="counts")
 
 Print a10 
@@ -3304,10 +3342,11 @@ counts    46.875   83.3333 -0.8939394 0.5265152
 counts2 4687.500 8333.3333 -0.8939394 0.5265152
 All     4734.375 8416.6667 -0.8939394 0.5265152
 
-GLM (family poisson, link log)
-        null.deviance df  deviance df iters converged
-counts       10.58145  8  5.129141  6     4         1
-counts2     105.16600  8 50.964475  6     4         1
+GLM (family poisson, link log):
+
+          nulldev df       dev df devratio    AIC iters converged
+counts   10.58145  8  5.129141  6    0.515  52.76     4         1
+counts2 105.16600  8 50.964475  6    0.515 119.30     4         1
 
 Summary a10 
 
@@ -3331,10 +3370,11 @@ counts    46.875   83.3333 -0.8939394 0.5265152
 counts2 4687.500 8333.3333 -0.8939394 0.5265152
 All     4734.375 8416.6667 -0.8939394 0.5265152
 
-GLM (family poisson, link log)
-        null.deviance df  deviance df iters converged
-counts       10.58145  8  5.129141  6     4         1
-counts2     105.16600  8 50.964475  6     4         1
+GLM (family poisson, link log):
+
+          nulldev df       dev df devratio    AIC iters converged
+counts   10.58145  8  5.129141  6    0.515  52.76     4         1
+counts2 105.16600  8 50.964475  6    0.515 119.30     4         1
 
 Summary a10 digits=3, details=TRUE
 
@@ -3385,10 +3425,11 @@ counts    47   83 -0.894 0.526
 counts2 4688 8333 -0.894 0.526
 All     4734 8417 -0.894 0.526
 
-GLM (family poisson, link log)
-        null.deviance df deviance df iters converged
-counts           10.6  8     5.13  6     4         1
-counts2         105.2  8    50.96  6     4         1
+GLM (family poisson, link log):
+
+        nulldev df   dev df devratio   AIC iters converged
+counts     10.6  8  5.13  6    0.515  52.8     4         1
+counts2   105.2  8 50.96  6    0.515 119.3     4         1
 
 evimp a10 
 
@@ -3483,7 +3524,7 @@ y arg to glm()[1046,1]:
 ...     1
 1046    1
 
-GLM male: null.deviance 244.0765 (1045 dof)   deviance 151.3254 (1036 dof)   iters 2
+GLM male devratio 0.38 dof 1036/1045 iters 2 
 > cat("\nsummary(a11, details=TRUE)\n\n", sep="")
 
 summary(a11, details=TRUE)
@@ -3544,7 +3585,9 @@ Importance: survived, parch, age, pclass3rd, sibsp, pclass2nd
 Number of terms at each degree of interaction: 1 1 8
 Earth GCV 0.1513968    RSS 151.3254    GRSq 0.3524225    RSq 0.3800084
 
-GLM null.deviance 244.0765 (1045 dof)   deviance 151.3254 (1036 dof)   iters 2
+GLM (family gaussian, link identity):
+  nulldev   df      dev   df devratio   AIC iters converged
+ 244.0765 1045 151.3254 1036     0.38 968.2     2         1
 > stopifnot(identical(a11$coefficients, a11$glm.coefficients))
 > cat("-------------------------------------------------------------------------------\n\n")
 -------------------------------------------------------------------------------
@@ -3742,7 +3785,7 @@ y arg to glm()[1046,1]:
 ...   2
 1046  2
 
-GLM y1: null.deviance 244.0765 (1045 dof)   deviance 166.313 (1036 dof)   iters 2
+GLM y1 devratio 0.32 dof 1036/1045 iters 2 
 y arg to glm()[1046,1]:
       y2
 1    841
@@ -3751,7 +3794,7 @@ y arg to glm()[1046,1]:
 ...  900
 1046 841
 
-GLM y2: null.deviance 1022962131 (1045 dof)   deviance 753596300 (1036 dof)   iters 2
+GLM y2 devratio 0.26 dof 1036/1045 iters 2 
 > cat("\nsummary(a12, details=TRUE)\n\n", sep="")
 
 summary(a12, details=TRUE)
@@ -3836,10 +3879,11 @@ y1       0.17       166 0.2882848 0.3186029
 y2  753952.19 753596300 0.2305416 0.2633195
 All 753952.36 753596466 0.2305416 0.2633195
 
-GLM (family gaussian, link identity)
-   null.deviance   df     deviance   df iters converged
-y1  2.440765e+02 1045 1.663130e+02 1036     2         1
-y2  1.022962e+09 1045 7.535963e+08 1036     2         1
+GLM (family gaussian, link identity):
+
+        nulldev   df          dev   df devratio   AIC iters converged
+y1 2.440765e+02 1045 1.663130e+02 1036    0.319  1067     2         1
+y2 1.022962e+09 1045 7.535963e+08 1036    0.263 17100     2         1
 > stopifnot(identical(a12$coefficients, a12$glm.coefficients))
 > 
 > # test to see how standard model.matrix does column numbering with formula
@@ -3898,8 +3942,8 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.939 RSq 0.975
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.93 dof 9/11 iters 4 
 > show.earth.models(aref, nresponse=1)
 
 Print aref 
@@ -3915,10 +3959,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary aref 
 
@@ -3941,10 +3986,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary aref decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -3994,10 +4040,11 @@ numdead  2.3761  9.7024 0.95249 0.98076
 numdead2 3.7901 15.4762 0.92646 0.97022
 All      6.1662 25.1786 0.93928 0.97541
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead         124.88 11   6.7571  9     4         1
-numdead2        128.03 11   8.5725  9     4         1
+GLM (family binomial, link logit):
+
+         nulldev df    dev df devratio   AIC iters converged
+numdead   124.88 11 6.7571  9    0.946 42.87     4         1
+numdead2  128.03 11 8.5725  9    0.933 44.60     4         1
 
 evimp aref 
 
@@ -4027,8 +4074,8 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.939 RSq 0.975
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.93 dof 9/11 iters 4 
 > show.earth.models(a21, nresponse="numdead2")
 
 Print a21 
@@ -4044,10 +4091,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a21 
 
@@ -4071,10 +4119,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a21 digits=3, details=TRUE
 
@@ -4125,10 +4174,11 @@ numdead  2.38  9.7 0.953 0.981
 numdead2 3.79 15.5 0.926 0.970
 All      6.17 25.2 0.939 0.975
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead            125 11     6.76  9     4         1
-numdead2           128 11     8.57  9     4         1
+GLM (family binomial, link logit):
+
+         nulldev df  dev df devratio  AIC iters converged
+numdead      125 11 6.76  9    0.946 42.9     4         1
+numdead2     128 11 8.57  9    0.933 44.6     4         1
 
 evimp a21 
 
@@ -4160,8 +4210,8 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.939 RSq 0.975
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.93 dof 9/11 iters 4 
 > show.earth.models(a21, nresponse="numdead")
 
 Print a21 
@@ -4177,10 +4227,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a21 
 
@@ -4204,10 +4255,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a21 decomp="none", digits=5, fixed.point=FALSE, details=TRUE
 
@@ -4258,10 +4310,11 @@ numdead  2.3761  9.7024 0.95249 0.98076
 numdead2 3.7901 15.4762 0.92646 0.97022
 All      6.1662 25.1786 0.93928 0.97541
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead         124.88 11   6.7571  9     4         1
-numdead2        128.03 11   8.5725  9     4         1
+GLM (family binomial, link logit):
+
+         nulldev df    dev df devratio   AIC iters converged
+numdead   124.88 11 6.7571  9    0.946 42.87     4         1
+numdead2  128.03 11 8.5725  9    0.933 44.60     4         1
 
 evimp a21 
 
@@ -4294,8 +4347,8 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.881 RSq 0.975
 Prune method "backward" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.939 RSq 0.975
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 128.0299 (11 dof)   deviance 8.572466 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.93 dof 9/11 iters 4 
 > show.earth.models(a22, nresponse=1)
 
 Print a22 
@@ -4311,10 +4364,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a22 
 
@@ -4338,10 +4392,11 @@ numdead  2.376093  9.702381 0.9524860 0.9807588
 numdead2 3.790087 15.476190 0.9264592 0.9702190
 All      6.166181 25.178571 0.9392766 0.9754095
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead       124.8756 11 6.757064  9     4         1
-numdead2      128.0299 11 8.572466  9     4         1
+GLM (family binomial, link logit):
+
+          nulldev df      dev df devratio   AIC iters converged
+numdead  124.8756 11 6.757064  9    0.946 42.87     4         1
+numdead2 128.0299 11 8.572466  9    0.933 44.60     4         1
 
 Summary a22 digits=3, details=TRUE
 
@@ -4392,10 +4447,11 @@ numdead  2.38  9.7 0.953 0.981
 numdead2 3.79 15.5 0.926 0.970
 All      6.17 25.2 0.939 0.975
 
-GLM (family binomial, link logit)
-         null.deviance df deviance df iters converged
-numdead            125 11     6.76  9     4         1
-numdead2           128 11     8.57  9     4         1
+GLM (family binomial, link logit):
+
+         nulldev df  dev df devratio  AIC iters converged
+numdead      125 11 6.76  9    0.946 42.9     4         1
+numdead2     128 11 8.57  9    0.933 44.6     4         1
 
 evimp a22 
 
@@ -7323,7 +7379,7 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.952 RSq 0.981
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
 > c1ae <- earth(numdead ~ sex + ldose, trace=1, linpreds=TRUE, pmethod=PMETHOD, degree=1, keepxy=0)
 x[12,2] with colnames sexmale ldose
 y[12,1] with colname numdead
@@ -7337,23 +7393,23 @@ After pruning pass GRSq 0.952 RSq 0.981
 > c1a.predict <- predict(c1a, trace=1)
 predict.earth: returning glm fitted.values
 > c1ag.predict <- predict(c1ag, trace=1)
-> check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=default link, keepxy=0", verbose=TRUE)
+> check.almost.equal(c1a.predict, c1ag.predict, max=1e-10, msg="c1a fitted values, type=default link, keepxy=0", verbose=TRUE)
 c1a fitted values, type=default link, keepxy=0 OK
 > c1a.predict <- predict(c1a, type="link", trace=1)
 predict.earth: returning glm fitted.values
 > c1ag.predict <- predict(c1ag, type="li", trace=1)
-> check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=link, keepxy=0", verbose=TRUE)
+> check.almost.equal(c1a.predict, c1ag.predict, max=1e-10, msg="c1a fitted values, type=link, keepxy=0", verbose=TRUE)
 c1a fitted values, type=link, keepxy=0 OK
 > c1a.predict <- predict(c1a, type="response", trace=1)
 predict.earth: returning glm fitted.values
 > c1ag.predict <- predict(c1ag, type="resp", trace=1)
-> check.fuzzy.equal(c1a.predict, c1ag.predict, fuzz=1e-10, msg="c1a fitted values, type=response, keepxy=0", verbose=TRUE)
+> check.almost.equal(c1a.predict, c1ag.predict, max=1e-10, msg="c1a fitted values, type=response, keepxy=0", verbose=TRUE)
 c1a fitted values, type=response, keepxy=0 OK
 > c1a.predict <- predict(c1a, type="e", trace=1)
 predict.earth: returning earth (not glm) fitted.values 
 > c1ae.predict <- predict(c1ae, trace=1)
 predict.earth: returning earth fitted.values 
-> check.fuzzy.equal(c1a.predict, c1ae.predict, fuzz=1e-10, msg="c1a fitted values, type=earth, keepxy=0", verbose=TRUE)
+> check.almost.equal(c1a.predict, c1ae.predict, max=1e-10, msg="c1a fitted values, type=earth, keepxy=0", verbose=TRUE)
 c1a fitted values, type=earth, keepxy=0 OK
 > 
 > cat("c1b: single response glm model with a binomial pair of y columns\n")
@@ -7366,7 +7422,7 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.952 RSq 0.981
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
 Warning: No 'data' argument to earth so 'keepxy' is limited
 
 > c1be <-  earth(numdead ~ sex + ldose, linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
@@ -7396,7 +7452,7 @@ predict.earth: bx[1,3]:
 1           1     2       1
 predict.earth: returning glm link predictions
 > stopifnot(dim(c1b.predict) == c(1,1))
-> check.fuzzy.equal(c1b.predict, predict(c1bg, newdata), fuzz=1e-10, msg="c1b", verbose=TRUE)
+> check.almost.equal(c1b.predict, predict(c1bg, newdata), max=1e-10, msg="c1b", verbose=TRUE)
 c1b OK
 > 
 > c1b.link.predict <- predict(c1b, newdata, type="link", trace=1) # should be same as above because default is link
@@ -7412,17 +7468,17 @@ predict.earth: bx[1,3]:
   (Intercept) ldose sexmale
 1           1     2       1
 predict.earth: returning glm link predictions
-> check.fuzzy.equal(c1b.link.predict, c1b.predict, fuzz=1e-10, msg="c1b link", verbose=TRUE)
+> check.almost.equal(c1b.link.predict, c1b.predict, max=1e-10, msg="c1b link", verbose=TRUE)
 c1b link OK
 > 
 > c1b.predict <- predict(c1b, newdata, type="r")
 > stopifnot(dim(c1b.predict) == c(1,1))
-> check.fuzzy.equal(c1b.predict, predict(c1bg, newdata, type="response"), fuzz=1e-10, msg="c1b type=response", verbose=TRUE)
+> check.almost.equal(c1b.predict, predict(c1bg, newdata, type="response"), max=1e-10, msg="c1b type=response", verbose=TRUE)
 c1b type=response OK
 > 
 > c1b.predict <- predict(c1b, newdata, type="earth")
 > stopifnot(dim(c1b.predict) == c(1,1))
-> check.fuzzy.equal(c1b.predict, predict(c1be, newdata), fuzz=1e-10, msg="c1b type=earth", verbose=TRUE)
+> check.almost.equal(c1b.predict, predict(c1be, newdata), max=1e-10, msg="c1b type=earth", verbose=TRUE)
 c1b type=earth OK
 > 
 > newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
@@ -7449,7 +7505,7 @@ predict.earth: bx[4,3]:
 4           1     0       0
 predict.earth: returning glm link predictions
 > stopifnot(dim(c1b.predict) == c(4,1))
-> check.fuzzy.equal(c1b.predict, predict(c1bg, newdata), fuzz=1e-10, msg="c1b multiple rows", verbose=TRUE)
+> check.almost.equal(c1b.predict, predict(c1bg, newdata), max=1e-10, msg="c1b multiple rows", verbose=TRUE)
 c1b multiple rows OK
 > 
 > c1b.predict <- predict(c1b, newdata, type="response", trace=1)
@@ -7475,14 +7531,14 @@ predict.earth: bx[4,3]:
 4           1     0       0
 predict.earth: returning glm response predictions
 > stopifnot(dim(c1b.predict) == c(4,1))
-> check.fuzzy.equal(c1b.predict, predict(c1bg, newdata, type="response"), fuzz=1e-10, msg="c1b multiple rows type=response", verbose=TRUE)
+> check.almost.equal(c1b.predict, predict(c1bg, newdata, type="response"), max=1e-10, msg="c1b multiple rows type=response", verbose=TRUE)
 c1b multiple rows type=response OK
 > 
 > c1b.predict <- predict(c1b, newdata, type="terms", trace=0)
 Warning: predict.earth: returning the earth (not glm) terms
 > c1be.predict <- predict(c1be, newdata, type="terms")
 > c1bg.predict <- predict(c1bg, newdata, type="terms")
-> check.fuzzy.equal(c1b.predict, c1be.predict, fuzz=1e-10, msg="c1b multiple rows type=terms", verbose=TRUE)
+> check.almost.equal(c1b.predict, c1be.predict, max=1e-10, msg="c1b multiple rows type=terms", verbose=TRUE)
 c1b multiple rows type=terms OK
 > 
 > cat("c2: double response glm model with two y binomial pairs\n")
@@ -7496,8 +7552,8 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
 Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.952 RSq 0.981
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
-GLM numdead2: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
+GLM numdead2 devratio 0.95 dof 9/11 iters 4 
 Warning: No 'data' argument to earth so 'keepxy' is limited
 
 > c2e <-  earth(data.frame(sex, ldose), data.frame(numdead,numdead), linpreds=TRUE, trace=1, pmethod=PMETHOD, degree=1, keepxy=1)
@@ -7525,7 +7581,7 @@ predict.earth: bx[1,3]:
 1           1     2       1
 predict.earth: returning glm link predictions
 > stopifnot(dim(c2.predict) == c(1,2))
-> check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata), fuzz=1e-10, msg="c2", verbose=TRUE)
+> check.almost.equal(c2.predict[,1], predict(c2g, newdata), max=1e-10, msg="c2", verbose=TRUE)
 c2 OK
 > 
 > c2.link.predict <- predict(c2, newdata, type="link", trace=1) # should be same as above because default is link
@@ -7541,27 +7597,27 @@ predict.earth: bx[1,3]:
   (Intercept) ldose sexmale
 1           1     2       1
 predict.earth: returning glm link predictions
-> check.fuzzy.equal(c2.link.predict, c2.predict, fuzz=1e-10, msg="c2 link", verbose=TRUE)
+> check.almost.equal(c2.link.predict, c2.predict, max=1e-10, msg="c2 link", verbose=TRUE)
 c2 link OK
 > 
 > c2.predict <- predict(c2, newdata, type="response")
 > stopifnot(dim(c2.predict) == c(1,2))
-> check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata, type="response"), fuzz=1e-10, msg="c2 multiple rows type=response", verbose=TRUE)
+> check.almost.equal(c2.predict[,1], predict(c2g, newdata, type="response"), max=1e-10, msg="c2 multiple rows type=response", verbose=TRUE)
 c2 multiple rows type=response OK
 > 
 > newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 > c2.predict <- predict(c2, newdata)
 > stopifnot(dim(c2.predict) == c(4,2))
-> check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata), fuzz=1e-10, msg="c2 column1", verbose=TRUE)
+> check.almost.equal(c2.predict[,1], predict(c2g, newdata), max=1e-10, msg="c2 column1", verbose=TRUE)
 c2 column1 OK
-> check.fuzzy.equal(c2.predict[,2], predict(c2g, newdata), fuzz=1e-10, msg="c2 column2", verbose=TRUE)
+> check.almost.equal(c2.predict[,2], predict(c2g, newdata), max=1e-10, msg="c2 column2", verbose=TRUE)
 c2 column2 OK
 > 
 > c2.predict <- predict(c2, newdata, type="response")
 > stopifnot(dim(c2.predict) == c(4,2))
-> check.fuzzy.equal(c2.predict[,1], predict(c2g, newdata, type="response"), fuzz=1e-10, msg="c2 column1 multiple rows type=response", verbose=TRUE)
+> check.almost.equal(c2.predict[,1], predict(c2g, newdata, type="response"), max=1e-10, msg="c2 column1 multiple rows type=response", verbose=TRUE)
 c2 column1 multiple rows type=response OK
-> check.fuzzy.equal(c2.predict[,2], predict(c2g, newdata, type="response"), fuzz=1e-10, msg="c2 column2 multiple rows type=response", verbose=TRUE)
+> check.almost.equal(c2.predict[,2], predict(c2g, newdata, type="response"), max=1e-10, msg="c2 column2 multiple rows type=response", verbose=TRUE)
 c2 column2 multiple rows type=response OK
 > 
 > c2.predict <- predict(c2, newdata, type="earth", trace=1)
@@ -7587,7 +7643,7 @@ predict.earth: bx[4,3]:
 4           1     0       0
 predict.earth: returning earth (not glm) predictions 
 > stopifnot(dim(c2.predict) == c(4,2))
-> check.fuzzy.equal(c2.predict[,1], predict(c2e, newdata, trace=1), fuzz=1e-10, msg="c2 column1 multiple rows type=earth", verbose=TRUE)
+> check.almost.equal(c2.predict[,1], predict(c2e, newdata, trace=1), max=1e-10, msg="c2 column1 multiple rows type=earth", verbose=TRUE)
 get.earth.x from model.matrix.earth from predict.earth: x[4,2]:
      sex ldose
 1   male    -2
@@ -7603,7 +7659,7 @@ predict.earth: bx[4,3]:
 4           1     0       0
 predict.earth: returning earth predictions 
 c2 column1 multiple rows type=earth OK
-> check.fuzzy.equal(c2.predict[,2], predict(c2e, newdata, trace=1), fuzz=1e-10, msg="c2 column2 multiple rows type=earth", verbose=TRUE)
+> check.almost.equal(c2.predict[,2], predict(c2e, newdata, trace=1), max=1e-10, msg="c2 column2 multiple rows type=earth", verbose=TRUE)
 get.earth.x from model.matrix.earth from predict.earth: x[4,2]:
      sex ldose
 1   male    -2
@@ -7633,31 +7689,31 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Prune method "none" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
-GLM mybool: null.deviance 16.63553 (11 dof)   deviance 5.144045e-10 (10 dof)   iters 23
+GLM mybool devratio 1.00 dof 10/11 iters 23 
 > c3ag <- glm(mybool ~ sex + ldose, family="binomial") # use this as a reference
 > c3ae <- earth(mybool ~ sex + ldose, data=data1, linpreds=TRUE, pmethod=PMETHOD, degree=1, keepxy=1)
 > 
 > c3a.predict <- predict(c3a, trace=1)
 predict.earth: returning glm fitted.values
 > c3ag.predict <- predict(c3ag, trace=1)
-> # TODO why does fuzz have to be big here?
-> check.fuzzy.equal(c3a.predict, c3ag.predict, fuzz=1e-7, msg="c3a fitted values, type=default link, keepxy=0", verbose=TRUE)
+> # TODO why does max have to be big here?
+> check.almost.equal(c3a.predict, c3ag.predict, max=1e-7, msg="c3a fitted values, type=default link, keepxy=0", verbose=TRUE)
 c3a fitted values, type=default link, keepxy=0 OK
 > c3a.predict <- predict(c3a, type="link", trace=1)
 predict.earth: returning glm fitted.values
 > c3ag.predict <- predict(c3ag, type="link", trace=1)
-> check.fuzzy.equal(c3a.predict, c3ag.predict, fuzz=1e-7, msg="c3a fitted values, type=link, keepxy=0", verbose=TRUE)
+> check.almost.equal(c3a.predict, c3ag.predict, max=1e-7, msg="c3a fitted values, type=link, keepxy=0", verbose=TRUE)
 c3a fitted values, type=link, keepxy=0 OK
 > c3a.predict <- predict(c3a, type="response", trace=1)
 predict.earth: returning glm fitted.values
 > c3ag.predict <- predict(c3ag, type="response", trace=1)
-> check.fuzzy.equal(c3a.predict, c3ag.predict, fuzz=1e-10, msg="c3a fitted values, type=response, keepxy=0", verbose=TRUE)
+> check.almost.equal(c3a.predict, c3ag.predict, max=1e-10, msg="c3a fitted values, type=response, keepxy=0", verbose=TRUE)
 c3a fitted values, type=response, keepxy=0 OK
 > c3a.predict <- predict(c3a, type="earth", trace=1)
 predict.earth: returning earth (not glm) fitted.values 
 > c3ae.predict <- predict(c3ae, trace=1)
 predict.earth: returning earth fitted.values 
-> check.fuzzy.equal(c3a.predict, c3ae.predict, fuzz=1e-10, msg="c3a fitted values, type=earth, keepxy=0", verbose=TRUE)
+> check.almost.equal(c3a.predict, c3ae.predict, max=1e-10, msg="c3a fitted values, type=earth, keepxy=0", verbose=TRUE)
 c3a fitted values, type=earth, keepxy=0 OK
 > 
 > c3a.response.predict <- predict(c3a, type="response")
@@ -7675,7 +7731,7 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Prune method "none" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
-GLM mybool: null.deviance 16.63553 (11 dof)   deviance 5.144045e-10 (10 dof)   iters 23
+GLM mybool devratio 1.00 dof 10/11 iters 23 
 Warning: No 'data' argument to earth so 'keepxy' is limited
 
 > c3bg <- glm(mybool ~ sex + ldose, family="binomial") # use this as a reference
@@ -7684,27 +7740,27 @@ Warning: No 'data' argument to earth so 'keepxy' is limited
 > c3b.predict <- predict(c3b, trace=1) # fitted values
 predict.earth: returning glm fitted.values
 > c3bg.predict <- predict(c3bg, trace=1)
-> check.fuzzy.equal(c3b.predict, c3bg.predict, fuzz=1e-7, msg="c3b fitted values, type=default link, keepxy=0", verbose=TRUE)
+> check.almost.equal(c3b.predict, c3bg.predict, max=1e-7, msg="c3b fitted values, type=default link, keepxy=0", verbose=TRUE)
 c3b fitted values, type=default link, keepxy=0 OK
 > c3b.predict <- predict(c3b, type="link", trace=1)
 predict.earth: returning glm fitted.values
 > c3bg.predict <- predict(c3bg, type="link", trace=1)
-> check.fuzzy.equal(c3b.predict, c3bg.predict, fuzz=1e-7, msg="c3b fitted values, type=link, keepxy=0", verbose=TRUE)
+> check.almost.equal(c3b.predict, c3bg.predict, max=1e-7, msg="c3b fitted values, type=link, keepxy=0", verbose=TRUE)
 c3b fitted values, type=link, keepxy=0 OK
 > c3b.predict <- predict(c3b, type="response", trace=1)
 predict.earth: returning glm fitted.values
 > c3bg.predict <- predict(c3bg, type="response", trace=1)
-> check.fuzzy.equal(c3b.predict, c3bg.predict, fuzz=1e-10, msg="c3b fitted values, type=response, keepxy=0", verbose=TRUE)
+> check.almost.equal(c3b.predict, c3bg.predict, max=1e-10, msg="c3b fitted values, type=response, keepxy=0", verbose=TRUE)
 c3b fitted values, type=response, keepxy=0 OK
 > c3b.predict <- predict(c3b, type="earth", trace=1)
 predict.earth: returning earth (not glm) fitted.values 
 > c3be.predict <- predict(c3be, trace=1)
 predict.earth: returning earth fitted.values 
-> check.fuzzy.equal(c3b.predict, c3be.predict, fuzz=1e-10, msg="c3b fitted values, type=earth, keepxy=0", verbose=TRUE)
+> check.almost.equal(c3b.predict, c3be.predict, max=1e-10, msg="c3b fitted values, type=earth, keepxy=0", verbose=TRUE)
 c3b fitted values, type=earth, keepxy=0 OK
 > 
 > c3b.response.predict <- predict(c3b, type="response")
-> c3b.class.predict <- predict(c3b,type="class")
+> c3b.class.predict <- predict(c3b,type="cla")
 > stopifnot(c3b.class.predict == (c3b.response.predict > .5))
 > 
 > cat("c3c: single response glm model with a boolean response\n")
@@ -7718,35 +7774,35 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Prune method "none" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
-GLM mybool: null.deviance 16.63553 (11 dof)   deviance 5.144045e-10 (10 dof)   iters 23
+GLM mybool devratio 1.00 dof 10/11 iters 23 
 > c3cg <- glm(mybool ~ sex + ldose, data=data1, family="binomial") # use this as a reference
 > c3ce <- earth(mybool ~ sex + ldose, data=data1, linpreds=TRUE, pmethod=PMETHOD, degree=1, keepxy=0)
 > 
 > newdata <- data.frame(sex=sex[1], ldose=2)
 > c3c.predict <- predict(c3c, newdata)
 > stopifnot(dim(c3c.predict) == c(1,1))
-> check.fuzzy.equal(c3c.predict, predict(c3cg, newdata), fuzz=1e-10, msg="c3c", verbose=TRUE)
+> check.almost.equal(c3c.predict, predict(c3cg, newdata), max=1e-10, msg="c3c", verbose=TRUE)
 c3c OK
 > 
 > c3c.predict <- predict(c3c, newdata, type="response")
 > stopifnot(dim(c3c.predict) == c(1,1))
-> check.fuzzy.equal(c3c.predict, predict(c3cg, newdata, type="response"), fuzz=1e-10, msg="c3c type=response", verbose=TRUE)
+> check.almost.equal(c3c.predict, predict(c3cg, newdata, type="response"), max=1e-10, msg="c3c type=response", verbose=TRUE)
 c3c type=response OK
 > 
 > newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 > c3c.predict <- predict(c3c, newdata)
 > stopifnot(dim(c3c.predict) == c(4,1))
-> # TODO why does the fuzz have to be bigger on this?
-> check.fuzzy.equal(c3c.predict, predict(c3cg, newdata), fuzz=1e-7, msg="c3c multiple rows", verbose=TRUE)
+> # TODO why does the max have to be bigger on this?
+> check.almost.equal(c3c.predict, predict(c3cg, newdata), max=1e-7, msg="c3c multiple rows", verbose=TRUE)
 c3c multiple rows OK
 > 
 > c3c.predict <- predict(c3c, newdata, type="response")
 > stopifnot(dim(c3c.predict) == c(4,1))
-> check.fuzzy.equal(c3c.predict, predict(c3cg, newdata, type="response"), fuzz=1e-10, msg="c3c multiple rows type=response", verbose=TRUE)
+> check.almost.equal(c3c.predict, predict(c3cg, newdata, type="response"), max=1e-10, msg="c3c multiple rows type=response", verbose=TRUE)
 c3c multiple rows type=response OK
 > 
 > c3c.response.predict <- predict(c3c, type="response")
-> c3c.class.predict <- predict(c3c,type="class")
+> c3c.class.predict <- predict(c3c,type="cl")
 > stopifnot(c3c.class.predict == (c3c.response.predict > .5))
 > 
 > cat("c3d: single response glm model with a two level factor response\n")
@@ -7774,11 +7830,11 @@ Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 pre
 After pruning pass GRSq -0.145 RSq 0.536
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM A: null.deviance 15.27634 (11 dof)   deviance 9.406236e-10 (9 dof)   iters 25 did not converge
-GLM B: null.deviance 13.49604 (11 dof)   deviance 12.68403 (9 dof)   iters 4
+GLM A devratio 1.00 dof 9/11 iters 25  did not converge
+GLM B devratio 0.06 dof 9/11 iters 4 
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM C: null.deviance 16.30064 (11 dof)   deviance 1.037213e-09 (9 dof)   iters 25 did not converge
+GLM C devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: No 'data' argument to earth so 'keepxy' is limited
 
 > c4g <- glm(fac3 ~ sex + ldose, family="binomial") # use this as a reference
@@ -7789,18 +7845,18 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > c4.predict <- predict(c4, newdata)
 > stopifnot(dim(c4.predict) == c(1,3))
 > # minus needed on predict because of different handling of factors
-> check.fuzzy.equal(c4.predict[1,1], -predict(c4g, newdata), fuzz=1e-8, msg="c4", verbose=TRUE)
+> check.almost.equal(c4.predict[1,1], -predict(c4g, newdata), max=1e-8, msg="c4", verbose=TRUE)
 c4 OK
 > 
 > newdata <- data.frame(sex=sex[c(1,3,7,9)], ldose=ldose[c(1,3,7,9)])
 > c4.predict <- predict(c4, newdata)
 > stopifnot(dim(c4.predict) == c(4,3))
-> check.fuzzy.equal(c4.predict[,1], -predict(c4g, newdata), fuzz=1e-8, msg="c4 multiple rows", verbose=TRUE)
+> check.almost.equal(c4.predict[,1], -predict(c4g, newdata), max=1e-8, msg="c4 multiple rows", verbose=TRUE)
 c4 multiple rows OK
 > 
 > c4.predict <- predict(c4, newdata, type="response")
 > stopifnot(dim(c4.predict) == c(4,3))
-> check.fuzzy.equal(1-c4.predict[,1], predict(c4g, newdata, type="response"), fuzz=1e-10, msg="c4 multiple rows type=response", verbose=TRUE)
+> check.almost.equal(1-c4.predict[,1], predict(c4g, newdata, type="response"), max=1e-10, msg="c4 multiple rows type=response", verbose=TRUE)
 c4 multiple rows type=response OK
 > 
 > cat("c5: multiple response glm model with two multi level factor responses\n")
@@ -7851,41 +7907,41 @@ RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.874 RSq 0.974
 Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.936 RSq 0.974
-GLM numdead: null.deviance 124.8756 (11 dof)   deviance 6.757064 (9 dof)   iters 4
+GLM numdead devratio 0.95 dof 9/11 iters 4 
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac3A: null.deviance 15.27634 (11 dof)   deviance 9.406236e-10 (9 dof)   iters 25 did not converge
-GLM fac3B: null.deviance 13.49604 (11 dof)   deviance 12.68403 (9 dof)   iters 4
+GLM fac3A devratio 1.00 dof 9/11 iters 25  did not converge
+GLM fac3B devratio 0.06 dof 9/11 iters 4 
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac3C: null.deviance 16.30064 (11 dof)   deviance 1.037213e-09 (9 dof)   iters 25 did not converge
+GLM fac3C devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4P: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
+GLM fac4P devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4Q: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
+GLM fac4Q devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4R: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
+GLM fac4R devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4S: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
-GLM numdead.1: null.deviance 105.9173 (11 dof)   deviance 2.709378 (9 dof)   iters 4
-GLM sex: null.deviance 16.63553 (11 dof)   deviance 5.144045e-10 (9 dof)   iters 23
+GLM fac4S devratio 1.00 dof 9/11 iters 25  did not converge
+GLM numdead.1 devratio 0.97 dof 9/11 iters 4 
+GLM sex devratio 1.00 dof 9/11 iters 23 
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1P: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
+GLM fac4.1P devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1Q: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
+GLM fac4.1Q devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1R: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
+GLM fac4.1R devratio 1.00 dof 9/11 iters 25  did not converge
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM fac4.1S: null.deviance 13.49604 (11 dof)   deviance 9.190018e-10 (9 dof)   iters 25 did not converge
-GLM numdead.2: null.deviance 84.92686 (11 dof)   deviance 1.525354 (9 dof)   iters 4
+GLM fac4.1S devratio 1.00 dof 9/11 iters 25  did not converge
+GLM numdead.2 devratio 0.98 dof 9/11 iters 4 
 > print(summary(c7))
 Call: earth(x=data.frame(sex,ldose), y=big.dataframe2, pmethod=PMETHOD,
             keepxy=1, trace=1, glm=list(family="binomial"), degree=1)
@@ -7928,23 +7984,24 @@ fac4.1S   0.2256560  0.921429 -0.01127308 0.59047619
 numdead.2 2.3760933  9.702381  0.95248599 0.98075879
 All       9.8233236 40.111905  0.93574668 0.97398006
 
-GLM (family binomial, link logit)
-          null.deviance df  deviance df iters converged
-numdead       124.87559 11  6.757064  9     4         1
-fac3A          15.27634 11  0.000000  9    25         0
-fac3B          13.49604 11 12.684034  9     4         1
-fac3C          16.30064 11  0.000000  9    25         0
-fac4P          13.49604 11  0.000000  9    25         0
-fac4Q          13.49604 11  0.000000  9    25         0
-fac4R          13.49604 11  0.000000  9    25         0
-fac4S          13.49604 11  0.000000  9    25         0
-numdead.1     105.91731 11  2.709378  9     4         1
-sex            16.63553 11  0.000000  9    23         1
-fac4.1P        13.49604 11  0.000000  9    25         0
-fac4.1Q        13.49604 11  0.000000  9    25         0
-fac4.1R        13.49604 11  0.000000  9    25         0
-fac4.1S        13.49604 11  0.000000  9    25         0
-numdead.2      84.92686 11  1.525354  9     4         1
+GLM (family binomial, link logit):
+
+            nulldev df       dev df devratio   AIC iters converged
+numdead   124.87559 11  6.757064  9   0.9460 42.87     4         1
+fac3A      15.27634 11  0.000000  9   1.0000  6.00    25         0
+fac3B      13.49604 11 12.684034  9   0.0602 18.68     4         1
+fac3C      16.30064 11  0.000000  9   1.0000  6.00    25         0
+fac4P      13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4Q      13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4R      13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4S      13.49604 11  0.000000  9   1.0000  6.00    25         0
+numdead.1 105.91731 11  2.709378  9   0.9740 44.85     4         1
+sex        16.63553 11  0.000000  9   1.0000  6.00    23         1
+fac4.1P    13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4.1Q    13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4.1R    13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4.1S    13.49604 11  0.000000  9   1.0000  6.00    25         0
+numdead.2  84.92686 11  1.525354  9   0.9820 48.36     4         1
 > print(summary(c7, details=1))
 Call: earth(x=data.frame(sex,ldose), y=big.dataframe2, pmethod=PMETHOD,
             keepxy=1, trace=1, glm=list(family="binomial"), degree=1)
@@ -8152,23 +8209,24 @@ fac4.1S   0.2256560  0.921429 -0.01127308 0.59047619
 numdead.2 2.3760933  9.702381  0.95248599 0.98075879
 All       9.8233236 40.111905  0.93574668 0.97398006
 
-GLM (family binomial, link logit)
-          null.deviance df  deviance df iters converged
-numdead       124.87559 11  6.757064  9     4         1
-fac3A          15.27634 11  0.000000  9    25         0
-fac3B          13.49604 11 12.684034  9     4         1
-fac3C          16.30064 11  0.000000  9    25         0
-fac4P          13.49604 11  0.000000  9    25         0
-fac4Q          13.49604 11  0.000000  9    25         0
-fac4R          13.49604 11  0.000000  9    25         0
-fac4S          13.49604 11  0.000000  9    25         0
-numdead.1     105.91731 11  2.709378  9     4         1
-sex            16.63553 11  0.000000  9    23         1
-fac4.1P        13.49604 11  0.000000  9    25         0
-fac4.1Q        13.49604 11  0.000000  9    25         0
-fac4.1R        13.49604 11  0.000000  9    25         0
-fac4.1S        13.49604 11  0.000000  9    25         0
-numdead.2      84.92686 11  1.525354  9     4         1
+GLM (family binomial, link logit):
+
+            nulldev df       dev df devratio   AIC iters converged
+numdead   124.87559 11  6.757064  9   0.9460 42.87     4         1
+fac3A      15.27634 11  0.000000  9   1.0000  6.00    25         0
+fac3B      13.49604 11 12.684034  9   0.0602 18.68     4         1
+fac3C      16.30064 11  0.000000  9   1.0000  6.00    25         0
+fac4P      13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4Q      13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4R      13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4S      13.49604 11  0.000000  9   1.0000  6.00    25         0
+numdead.1 105.91731 11  2.709378  9   0.9740 44.85     4         1
+sex        16.63553 11  0.000000  9   1.0000  6.00    23         1
+fac4.1P    13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4.1Q    13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4.1R    13.49604 11  0.000000  9   1.0000  6.00    25         0
+fac4.1S    13.49604 11  0.000000  9   1.0000  6.00    25         0
+numdead.2  84.92686 11  1.525354  9   0.9820 48.36     4         1
 > stopifnot(colnames(c7$coef) == c("numdead", "fac3A", "fac3B", "fac3C",
 +                                  "fac4P", "fac4Q", "fac4R", "fac4S",
 +                                   "numdead.1", "sex",
@@ -8247,11 +8305,11 @@ numdead.2      84.92686 11  1.525354  9     4         1
 3    -3.948707    -3.458432    -4.088310
 > expect.err(try(printh(resid(a, type="nonesuch"), max.print=3)), "Choose one of")
 === resid(a, type = "nonesuch")Error : type="nonesuch" is not allowed
-Choose one of: "earth" "standardize" "delever" "deviance" "glm.pearson" "glm.working" "glm.response" "glm.partial" "response"
+Choose one of: "earth" "deviance" "response" "standardize" "delever" "pearson" "working" "partial" "glm.response" "glm.pearson" "glm.working" "glm.partial"
 Got error as expected from try(printh(resid(a, type = "nonesuch"), max.print = 3))
 > expect.err(try(printh(resid(a, type="g"), max.print=3)), "ambiguous") # type="g" is ambiguous
 === resid(a, type = "g")Error : type="g" is ambiguous
-Choose one of: "earth" "standardize" "delever" "deviance" "glm.pearson" "glm.working" "glm.response" "glm.partial" "response"
+Choose one of: "earth" "deviance" "response" "standardize" "delever" "pearson" "working" "partial" "glm.response" "glm.pearson" "glm.working" "glm.partial"
 Got error as expected from try(printh(resid(a, type = "g"), max.print = 3))
 > expect.err(try(printh(resid(a, type="standardize"), max.print=3)), "model was not built with varmod.method") # model was not built with varmod.method
 === resid(a, type = "standardize")Error : "standardize" is not allowed because
@@ -8400,7 +8458,7 @@ After forward pass GRSq -3.791 RSq 0.188
 Prune method "backward" penalty 2 nprune null: selected 1 of 5 terms, and 0 of 2 preds
 After pruning pass GRSq 0 RSq 0
 earth.glm: intercept-only earth model, faking the glm model
-GLM aaa: null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+GLM aaa devratio 0.00 dof 17/17 iters 4 
 Full model GRSq 0.000 RSq 0.000, starting cross validation
 CV fold 1  Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 CVRSq -1.076 n.oof  8 56%  n.infold.nz 6 75%  n.oof.nz 6 60%  
@@ -8417,7 +8475,9 @@ Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.5982021
 
-GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 22.91451 17 22.91451 17        0 24.91     4         1
 
 Summary a.intercept.only 
 
@@ -8434,7 +8494,9 @@ Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.5982021
 
-GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 22.91451 17 22.91451 17        0 24.91     4         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -8473,7 +8535,9 @@ Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 Earth GCV 0.24913  RSS 4  GRSq 0  RSq 0  CVRSq -0.5982
 
-GLM null.deviance 22.915 (17 dof)   deviance 22.915 (17 dof)   iters 4
+GLM (family binomial, link logit):
+ nulldev df    dev df devratio   AIC iters converged
+  22.915 17 22.915 17        0 24.91     4         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -8532,7 +8596,9 @@ Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.5982021
 
-GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 22.91451 17 22.91451 17        0 24.91     4         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -8751,7 +8817,7 @@ nprune=1
 Prune method "backward" penalty 2 nprune 1: selected 1 of 5 terms, and 0 of 2 preds
 After pruning pass GRSq 0 RSq 0
 earth.glm: intercept-only earth model, faking the glm model
-GLM aaa: null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+GLM aaa devratio 0.00 dof 17/17 iters 4 
 > show.earth.models(a.intercept.pruned)
 
 Print a.intercept.pruned 
@@ -8762,7 +8828,9 @@ Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
 
-GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 22.91451 17 22.91451 17        0 24.91     4         1
 
 Summary a.intercept.pruned 
 
@@ -8779,7 +8847,9 @@ Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 Earth GCV 0.2491349    RSS 4    GRSq 0    RSq 0
 
-GLM null.deviance 22.91451 (17 dof)   deviance 22.91451 (17 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 22.91451 17 22.91451 17        0 24.91     4         1
 
 Summary a.intercept.pruned digits=3, details=TRUE
 
@@ -8809,7 +8879,9 @@ Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
 Earth GCV 0.249    RSS 4    GRSq 0    RSq 0
 
-GLM null.deviance 22.9 (17 dof)   deviance 22.9 (17 dof)   iters 4
+GLM (family binomial, link logit):
+ nulldev df  dev df devratio  AIC iters converged
+    22.9 17 22.9 17        0 24.9     4         1
 
 evimp a.intercept.pruned 
 
@@ -8919,7 +8991,7 @@ Error : y is a character variable: "male", "male", "male", ...
 Got error as expected from try(earth(sex2 ~ ldose1, trace = 1))
 > # but note that this is ok
 > earth(sex2, data.frame(sex2=sex2), trace=1)
-x[12,1] with colname male
+x[12,1] with colname xmale
 y[12,1] with colname sex2
 Forward pass term 1, 2
 Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
@@ -8928,7 +9000,7 @@ Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1
 After pruning pass GRSq 1 RSq 1
 Selected 2 of 2 terms, and 1 of 1 predictors
 Termination condition: Reached maximum RSq 0.9990 at 2 terms
-Importance: male
+Importance: xmale
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 0    RSS 0    GRSq 1    RSq 1
 > 
@@ -8950,14 +9022,16 @@ RSq changed by less than 0.001 at 7 terms, 5 terms used (DeltaRSq 0.00058)
 After forward pass GRSq -0.354 RSq 0.398
 Prune method "backward" penalty 2 nprune null: selected 2 of 5 terms, and 1 of 1 preds
 After pruning pass GRSq 0.239 RSq 0.338
-GLM volumei: null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
+GLM volumei devratio 0.33 dof 29/30 iters 4 
 Earth selected 2 of 5 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
 Earth GCV 213.2819    RSS 5393.967    GRSq 0.2394863    RSq 0.337508
 
-GLM null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 382.4328 30 255.0788 29    0.333 405.1     4         1
 > a <- earth(x1, cbind(volumei, 100-volumei), glm=list(family=binomial))
 > update(a, trace=1, glm=list(family=binomial, bpairs=c(TRUE,FALSE)))
 update.earth: forcing forward pass because bpairs argument used
@@ -8970,16 +9044,15 @@ RSq changed by less than 0.001 at 7 terms, 5 terms used (DeltaRSq 0.00058)
 After forward pass GRSq -0.354 RSq 0.398
 Prune method "backward" penalty 2 nprune null: selected 2 of 5 terms, and 1 of 1 preds
 After pruning pass GRSq 0.239 RSq 0.338
-GLM volumei: null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
+GLM volumei devratio 0.33 dof 29/30 iters 4 
 Earth selected 2 of 5 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: x1
 Number of terms at each degree of interaction: 1 1 (additive model)
 Earth GCV 213.2819    RSS 5393.967    GRSq 0.2394863    RSq 0.337508
 
-GLM null.deviance 382.4328 (30 dof)   deviance 255.0788 (29 dof)   iters 4
+GLM (family binomial, link logit):
+  nulldev df      dev df devratio   AIC iters converged
+ 382.4328 30 255.0788 29    0.333 405.1     4         1
 > 
-> if(!interactive()) {
-+     dev.off()         # finish postscript plot
-+     q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-+ }
+> source("test.epilog.R")

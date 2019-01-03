@@ -20,8 +20,8 @@ printcall <- function(prefix="", call=NULL, all=FALSE, n=1)
 # all=TRUE to include all formal args (not always avail e.g. for primitives)
 #
 # TODO Does not expand the dots (just prints "..."), need fixed version of match.call
-#      To expand the dots see e.g. higher.call.to.deprefix (but that would only work
-#      here if dots for caller at n where the same as the dots to printcall
+#      to expand the dots see e.g. higher.call.to.deprefix (but that would only work
+#      here if dots for caller at n where the same as the dots to printcall).
 
 call.as.char <- function(call=NULL, all=FALSE, n=1)
 {
@@ -39,9 +39,9 @@ call.as.char <- function(call=NULL, all=FALSE, n=1)
         call <- merge.list(formals, call)
     } else
         call[[1]] <- NULL               # delete func name from call, leave args
-    rv <- paste(fname, "(", list.as.char(call, maxlen=50), ")", sep="")
-    attr(rv, "fname") <- fname # needed for alignment with nchar in printcall
-    rv
+    ret <- paste(fname, "(", list.as.char(call, maxlen=50), ")", sep="")
+    attr(ret, "fname") <- fname # needed for alignment with nchar in printcall
+    ret
 }
 # Similar to match.call but with args "all" and "n".
 # Also, this always returns a call, even if it is merely "unknown()".
@@ -99,7 +99,7 @@ fname.from.call <- function(call) # call was obtained using sys.call() or simila
 # TODO add n arg when match.call is fixed (R version 3.2.1)
 # TODO also then make this callable as printdots() instead of printdots(...)
 
-printdots <- function(..., EVAL=TRUE, PREFIX=sprintf("%s dots: ", callers.name))
+printdots <- function(..., EVAL=TRUE, PREFIX=sprint("%s dots: ", callers.name))
 {
     sys.call <- as.list(sys.call())
     ensure.dots.present(sys.call)

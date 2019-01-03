@@ -31,6 +31,8 @@ time /T
                         @if %errorlevel% NEQ 0 goto error
 @call test.plotd.bat
                         @if %errorlevel% NEQ 0 goto error
+@call test.offset.bat
+                        @if %errorlevel% NEQ 0 goto error
 @goto done
 :error
 @echo ==== ERROR ====

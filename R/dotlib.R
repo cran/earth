@@ -1,5 +1,10 @@
 # dotlib.R: miscellaneous functions for the dots routines
 
+# Arguments for par() which take a vector value (i.e. length of value is not one).
+
+PAR.VEC <- c("fig", "fin", "lab", "mai", "mar", "mfcol", "mfg", "mfrow", "mgp",
+             "oma", "omd", "omi", "pin", "plt", "usr", "xaxp", "yaxp")
+
 # Add the elements of the extra list to the original list.  Elements of the
 # original list that have the same names as extra elements get overwritten.
 #
@@ -62,7 +67,7 @@ stopifnot.identifier <- function(s, name=short.deparse(substitute(s)),
 {
     if(!is.character(s))
         stop0(name, " is not a character variable (class(",
-              name, ") is \"", class(s), "\")")
+              name, ") is \"", class(s)[1], "\")")
     if(length(s) != 1)
         stop0(name, " has more than one element\n       ",
               name, " = c(", paste.trunc("\"", s, "\"", sep=""), ")")

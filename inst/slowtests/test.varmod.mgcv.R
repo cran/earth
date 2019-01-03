@@ -2,19 +2,10 @@
 # mgcv has to be tested separately because of clashes between library(gam) and library(mgcv)
 # Stephen Milborrow Apr 2015 Berea
 
+source("test.prolog.R")
 library(earth)
-set.seed(2016)
 options(warn=2)
 
-printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
-
-expect.err <- function(obj) # test that we got an error as expected from a try() call
-{
-    if(class(obj)[1] == "try-error")
-        cat("Got error as expected\n")
-    else
-        stop("did not get expected error")
-}
 printh <- function(caption)
     cat("===", caption, "\n", sep="")
 
@@ -34,29 +25,27 @@ multifigure <- function(caption, nrow=3, ncol=3)
 }
 do.caption <- function() # must be called _after_ first plot on new page
     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
-if(!interactive())
-    postscript(paper="letter")
 old.par <- par(no.readonly=TRUE)
 
 library(mgcv)
 
 for(varmod.method in c("gam", "x.gam")) {
 
-    multifigure(sprintf("varmod.method=\"%s\"", varmod.method), 2, 3)
+    multifigure(sprint("varmod.method=\"%s\"", varmod.method), 2, 3)
     par(mar = c(3, 3, 2, 3)) # space for right margin axis
 
     set.seed(6)
     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
                        varmod.method=varmod.method,
                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
-    printh(sprintf("varmod.method %s: summary(earth.mod)", varmod.method))
+    printh(sprint("varmod.method %s: summary(earth.mod)", varmod.method))
     printh("summary(earth.mod)")
     print(summary(earth.mod))
 
     # summary(mgcv) prints environment as hex address which messes up the diffs
     printh("skipping summary(mgcv::gam) etc.\n")
 
-    printh(sprintf("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
+    printh(sprint("varmod.method %s: predict(earth.mod, interval=\"pint\")", varmod.method))
     pints <- predict(earth.mod, interval="pint")
     print(pints)
 
@@ -75,7 +64,4 @@ for(varmod.method in c("gam", "x.gam")) {
 }
 par(old.par)
 
-if(!interactive()) {
-    dev.off()         # finish postscript plot
-    q(runLast=FALSE)  # needed else R prints the time on exit (R2.5 and higher) which messes up the diffs
-}
+source("test.epilog.R")

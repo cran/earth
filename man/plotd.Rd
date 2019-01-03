@@ -2,7 +2,7 @@
 \alias{plotd}
 \title{Plot the distribution of predictions for each class}
 \description{
-Draw a plot of the distribution of the predicted values for each class.
+Plot the distribution of the predicted values for each class.
 Can be used for \code{\link[earth]{earth}} models, but also for models built by
 \code{\link{lm}},
 \code{\link{glm}},
