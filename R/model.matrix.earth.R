@@ -49,100 +49,199 @@ get.bx <- function(x, which.terms, dirs, cuts)
     }
     bx
 }
-# Called only by model.matrix.earth
-
-get.earth.x <- function(    # returns x expanded for factors
-    object  = stop("no 'object' argument"),
-    data    = NULL,         # can be a dataframe, matrix, or vector
-    env,                    # environment for evaluation
-    trace   = 0,
-    Callers.name)           # caller's name for trace messages
+# returns x expanded for factors
+# data can be a dataframe, matrix, or vector
+get.earth.x <- function(object, data=NULL, env, trace=0, Callers.name)
 {
-    check.expanded.ncols <- function(x, object)
-    {
-        if(NCOL(x) != NCOL(object$dirs)) {
-            stop0(Callers.name,
-                     ": the number ", NCOL(x), " of columns of x\n",
-                     "(after factor expansion) does not match the number ",
-                     NCOL(object$dirs),
-                     " of columns of the earth object",
-                     "\n    expanded x:  ", paste.collapse(colnames(x)),
-                     "\n    object$dirs: ", paste.collapse(colnames(object$dirs)),
-                     "\nPossible remedy: check factors in the input data")
-        }
-    }
-    #--- get.earth.x starts here ---
-
     trace <- get.update.arg(trace, "trace", object, env,
                             trace1=NULL, Callers.name, print.trace=FALSE)
     if(is.null(trace))
         trace <- 0
     this.call <- match.call()
-    if(is.null(object$terms)) {
-        # object was created with earth.default, no formula
-
-        x <- get.update.arg(data, "x", object, env, trace, Callers.name)
-        x <- possibly.convert.vector.to.matrix(x, object$namesx, Callers.name)
-        x <- fix.x.columns(x, object$namesx, trace, Callers.name)
-        if(trace >= 1) {
-            print_summary(x, sprint("%s: x", Callers.name), trace=2)
-            trace2(trace, "\n")
-        }
-        x <- expand.arg(x, env, trace, is.y.arg=FALSE)
-    } else {
-        # object was created with earth.formula
-
-        Terms <- delete.response(object$terms)
-        data <- get.update.arg(data, "data", object, env, trace, Callers.name)
-        data <- possibly.convert.vector.to.matrix(data, object$namesx, Callers.name)
-        data <- fix.x.columns(data, object$namesx, trace, Callers.name)
-        data <- as.data.frame(data)
-        expected.nrows <- nrow(data)
-        if(trace >= 1) {
-            print_summary(data, sprint("%s: x", Callers.name), trace=2)
-            trace2(trace, "\n")
-        }
-        if(!is.null(attr(Terms, "offset")))
-            check.offset.var.is.in.data(Terms, data)
-        data <- model.frame(Terms, data=data, na.action=na.pass)
-        if(trace >= 1) {
-            print_summary(data,
-                          sprint("%s: after call to model.frame: data", Callers.name),
-                          trace=2)
-            trace2(trace, "\n")
-        }
-        classes <- attr(Terms, "dataClasses")
-        if(!is.null(classes)) {
-            # Use "try" for leniency, to allow numeric to be used for factors etc.
-            # There is special treatment for the following message because it seems to be benign:
-            #   variable 'foo' was fitted with type "nmatrix.1" but type "numeric" was supplied
-            try <- try(.checkMFClasses(classes, data), silent=TRUE)
-            if(is.try.err(try) && !grepl("\"nmatrix.1\" .* \"numeric\"", try[1])) {
-                cat(try)
-                cat("Continuing anyway, first few rows of x are\n")
-                print(head(data))
-            }
-        }
-        x <- model.matrix(Terms, data)
-        check.nrows(expected.nrows, nrow(x), nrow(object$fitted.values), Callers.name)
-        intercept <- match("(Intercept)", colnames(x), nomatch=0)
-        if(intercept)
-            x <- x[, -intercept, drop=FALSE]    # silently discard intercept
-    }
-    if(nrow(x) == 0)
+    if(is.null(object$terms)) # model was created with earth.default, no formula?
+        x <- get.earth.x.default(object, data, env, trace, Callers.name)
+    else                      # model was created with earth.formula
+        x <- get.earth.x.formula(object, data, env, trace, Callers.name)
+    if(NROW(x) == 0)
         stop0("empty model matrix")
     # Fix: April 2010, allow earth to play nicely with fda with factors in x
-    if(ncol(x) > ncol(object$dirs))                      # too many columns?
+    if(ncol(x) > ncol(object$dirs)) # too many columns?
         x <- x[, colnames(x) %in% colnames(object$dirs), drop=FALSE] # select only the columns in dirs
-    check.expanded.ncols(x, object)
+    check.expanded.ncols(x, object, Callers.name)
     x
+}
+# object was created with earth.default, no formula
+get.earth.x.default <- function(object, data, env, trace, Callers.name)
+{
+    x <- get.update.arg(data, "x", object, env, trace, Callers.name)
+    x <- possibly.convert.vector.to.matrix(x, object$namesx, Callers.name)
+    # following allows data to be a list e.g. newdata=etitanic[1,,drop=TRUE]
+    x <- possibly.convert.list.to.data.frame(x)
+    x <- fix.x.columns(x, object$namesx, trace, Callers.name)
+    if(trace >= 1) {
+        print_summary(x, sprint("%s: x", Callers.name), trace=2)
+        trace2(trace, "\n")
+    }
+    expand.arg(x, env, trace, is.y.arg=FALSE)
+}
+# object was created with earth.formula
+get.earth.x.formula <- function(object, data, env, trace, Callers.name)
+{
+    terms.without.response <- delete.Response(object$terms)
+    data <- get.update.arg(data, "data", object, env, trace, Callers.name)
+    data <- possibly.convert.vector.to.matrix(data, object$namesx, Callers.name)
+    # following allows data to be a list e.g. newdata=etitanic[1,,drop=TRUE]
+    data <- possibly.convert.list.to.data.frame(data)
+    data <- fix.x.columns(data, object$namesx, trace, Callers.name)
+    data <- as.data.frame(data)
+    expected.nrows <- nrow(data)
+    if(trace >= 1) {
+        print_summary(data, sprint("%s: x", Callers.name), trace=2)
+        trace2(trace, "\n")
+    }
+    if(!is.null(attr(terms.without.response, "offset")))
+        check.offset.var.is.in.data(terms.without.response, data)
+
+    # March 2019: added xlev to match what lm does (and also linmod.R in the plotmo tests)
+    # necessary for: mod <- earth(Sepal.Length~Species, data=iris);
+    #                predict(mod, newdata=data.frame(Species="setosa")) # used to fail
+    mf <- model.frame(terms.without.response, data=data, na.action=na.pass, xlev=object$xlevels)
+    if(trace >= 1) {
+        print_summary(mf,
+                      sprint("%s: after call to model.frame: mf", Callers.name),
+                      trace=2)
+        trace2(trace, "\n")
+    }
+    classes <- attr(terms.without.response, "dataClasses")
+    if(!is.null(classes)) {
+        # Use "try" for leniency, to allow numeric to be used for factors etc.
+        # There is special treatment for the following message because it seems to be benign:
+        #   variable 'foo' was fitted with type "nmatrix.1" but type "numeric" was supplied
+        try <- try(.checkMFClasses(classes, mf), silent=TRUE)
+        if(is.try.err(try) && !grepl("\"nmatrix.1\" .* \"numeric\"", try[1])) {
+            cat(try)
+            cat("Continuing anyway, first few rows of modelframe are\n")
+            print(head(mf))
+        }
+    }
+    x <- model.matrix(terms.without.response, mf)
+    check.nrows(expected.nrows, nrow(x), nrow(object$fitted.values), Callers.name)
+    intercept <- match("(Intercept)", colnames(x), nomatch=0)
+    if(intercept)
+        x <- x[, -intercept, drop=FALSE]    # silently discard intercept
+    x
+}
+# Like stats::delete.response but can handle multiple-response
+# Formula objects with a "Response" attr.
+# Can also handle conventional formula objects with a "response" attr.
+delete.Response <- function (termobj, issue.warning=TRUE)
+{
+    a <- attributes(termobj)
+    y <- a$response # response index
+    if(is.null(y) || y[1] == 0)
+        y <- a$Response # multiple resp termobj built with Formula
+    if(is.null(y) || y[1] == 0) {
+        if(issue.warning) {
+            formula <- termobj
+            attributes(formula) <- NULL
+            warning0("formula has no response: ",
+                     quotify(paste(formula, collapse=" ")))
+        }
+        return(termobj)
+    }
+    # following copied from stats::delete.response, R version 3.5.3 (March 2019)
+    a$response <- 0
+    a$variables <- a$variables[-(1+y)]
+    a$predvars <- a$predvars[-(1+y)]
+    if(length(a$factors))
+       a$factors <- a$factors[-y, , drop = FALSE]
+    if(length(a$offset))
+        a$offset <- ifelse(a$offset > y, a$offset-1, a$offset)
+    if(length(a$specials)) {
+        for(i in seq_along(a$specials)) {
+            b <- a$specials[[i]]
+            a$specials[[i]] <- ifelse(b > y, b-1, b)
+        }
+    }
+    if(length(y) == 1)       # conventional formula object?
+        termobj[[2]] <- NULL # termobj is list(~, response, rhs)
+    else {                   # multiple response Formula object
+        check.ymax <- function(len) {
+            if(len < ymax) {
+                attributes(termobj) <- NULL # for paste in error message
+                stop0("Cannot delete response from ",
+                      quotify(paste(termobj, collapse=" ")),
+                      "\n       because ", deparse(substitute(len)),
+                      " is ", len, ", expected length at least ", ymax)
+            }
+        }
+        termobj <- strip_multiple_response_from_Formula(termobj)
+        ymax <- max(y) # for error checking
+        if(length(a$factors)) {
+            check.ymax(NCOL(a$factors))
+            a$factors <- a$factors[, -y, drop = FALSE]
+        }
+        check.ymax(length(a$term.labels))
+        a$term.labels <- a$term.labels[-y]
+        # TODO do we need the following?
+        # check.ymax(length(a$order))
+        # a$term.order <- a$order[-y]
+        a$Response <- 0
+    }
+    attributes(termobj) <- a
+    termobj
+}
+# Returns modified formula (the modified termobj) without attributes.
+# TODO Is there are simpler way of doing this?
+strip_multiple_response_from_Formula <- function(termobj) # termobj created by Formula
+{
+    check.class <- function(element, classes) {
+        if(!class(element)[1] %in% classes)
+            stop0("Cannot delete response from ",
+                  quotify(paste(Formula, collapse=" ")),
+                  "\n       because class(", deparse(substitute(element)),
+                  ") is ", quotify(class(element)), " which is not in ", quotify(classes))
+    }
+    check.index <- function(element, i) {
+        if(length(element) < i) {
+            stop0("Cannot delete response from ",
+                  quotify(paste(Formula, collapse=" ")),
+                  "\n       because length(", deparse(substitute(element)),
+                  ") is ", length(element), ", expected length at least ", i)
+        }
+    }
+    Formula <- termobj # termobj is list(~,  list(     +, response,    rhs))
+                       # index:          [1]  [2]  [2][1]    [2][2]  [2][3]
+
+    attributes(Formula) <- NULL # converts class c("terms","formula") to "call"
+    check.class(Formula, "call")
+    check.index(Formula, 2)
+    check.class(Formula[[2]], c("name", "call"))
+    check.index(Formula[[2]], 3)
+    check.class(Formula[[2]][[3]], c("name", "call"))
+    Formula[[2]] <- Formula[[2]][[3]]  # extract rhs into 2nd elem of Formula
+    Formula
+}
+# Called only by model.matrix.earth
+
+check.expanded.ncols <- function(x, object, Callers.name)
+{
+    if(NCOL(x) != NCOL(object$dirs))
+        stop0(Callers.name,
+                 ": the number ", NCOL(x), " of columns of x\n",
+                 "(after factor expansion) does not match the number ",
+                 NCOL(object$dirs),
+                 " of columns of the earth object",
+                 "\n    expanded x:  ", paste.collapse(colnames(x)),
+                 "\n    object$dirs: ", paste.collapse(colnames(object$dirs)),
+                 "\nPossible remedy: check factors in the input data")
 }
 # Called by predict.earth and can also be called by users directly.
 # Return object$bx if all x, subset, which.terms equal NULL.
 
 model.matrix.earth <- function(     # returns bx
     object       = stop("no 'object' argument"),
-    x            = NULL,            # x arg must not yet be expanded
+    x            = NULL,            # x arg (not yet expanded)
     subset       = NULL,
     which.terms  = NULL,
     trace        = 0,
@@ -158,8 +257,7 @@ model.matrix.earth <- function(     # returns bx
             cat0(Callers.name, ": returning object$bx\n")
         return(object$bx)
     }
-    x <- get.earth.x(object, data=x, Env, trace,
-                     paste("get.earth.x from", Callers.name))
+    x <- get.earth.x(object, data=x, Env, trace, paste("get.earth.x from", Callers.name))
     if(is.null(which.terms))
         which.terms <- object$selected.terms
     if(!is.null(subset)) {
@@ -236,7 +334,7 @@ check.nrows <- function(expected.nrows, actual.nrows, fitted.nrows, Callers.name
 
 possibly.convert.vector.to.matrix <- function(x, colnames, Callers.name)
 {
-    if(is.null(ncol(x))) {
+    if(is.null(ncol(x)) && !is.list(x)) {
         nrows <- length(x) / length(colnames)
         if(floor(nrows) == nrows)
             dim(x) <- c(nrow=nrows, ncol=length(colnames))
@@ -250,6 +348,12 @@ possibly.convert.vector.to.matrix <- function(x, colnames, Callers.name)
                   "\n       Expected predictors: ",
                   paste.collapse(colnames))
     }
+    x
+}
+possibly.convert.list.to.data.frame <- function(x)
+{
+    if(is.list(x) && !is.data.frame(x))
+        x <- as.data.frame(x)
     x
 }
 # Given an x matrix or data.frame, return an x with column names equal to
@@ -280,8 +384,9 @@ fix.x.columns <- function(x, namesx, trace, Callers.name)
             # can't repair the error because there are colnames in x that aren't
             # in expected.names (tends to happen with expanded factor names)
             stop0(Callers.name, ": x has ", ncolnames,
-                  " columns, expected ", length(namesx),
-                  " to match: ", paste.collapse(namesx))
+                  " columns but expected ", length(namesx),
+                  "\n       column names: ", paste.collapse(colnames),
+                  "\n       expected column names: ", paste.collapse(namesx))
         }
         # Create a new x, putting the existing cols into their correct positions.
         # Cols that aren't in the original x will end up as all NAs in the

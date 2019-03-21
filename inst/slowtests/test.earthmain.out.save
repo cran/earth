@@ -1,4 +1,4 @@
-Forward pass: minspan 4 endspan 7    x[100,1] 800 B    bx[100,21] 16.4 kB
+Forward pass: minspan 4 endspan 7   x[100,1] 800 Bytes   bx[100,21] 16.4 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0

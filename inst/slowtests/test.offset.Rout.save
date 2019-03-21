@@ -2,6 +2,7 @@
 > 
 > source("test.prolog.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -96,7 +97,7 @@ Loading required package: TeachingDemos
 +     if(is.null(earth$weights))
 +         stopifnot(almost.equal(earth$rss.per.response, earth$rss, max=1e-10))
 + }
-> # check that earth model matches lm model in all essential details
+> # check that earth-glm model matches glm model in all essential details
 > check.earth.matches.glm <- function(earth, glm, newdata=data[c(3,1,9),],
 +                                    check.coef.names=TRUE,
 +                                    check.casenames=FALSE,
@@ -263,7 +264,6 @@ Call: earth(formula=y~x1+offset(myoffset), data=data, linpreds=TRUE, thresh=0,
 (Intercept)   -0.0949532
 x1             2.0994281
 
-Number of cases: 100
 Selected 2 of 2 terms, and 1 of 1 predictors
 Termination condition: No new term increases RSq at 2 terms
 Importance: x1
@@ -364,6 +364,19 @@ Got error as expected from try(earth(y ~ x1 + offset(offset0) + offset(offset1),
 > earth.pois.linpreds <- earth(Claims ~ offset(log(Holders)) + Group + Age + day,
 +                              data = Ins, glm=list(family = poisson),
 +                              linpreds=TRUE, thresh=0, penalty=-1)
+> 
+> stopifnot(isTRUE(all.equal(coef(earth.pois.linpreds), coefficients(earth.pois.linpreds))))
+> stopifnot(isTRUE(all.equal(coef(earth.pois.linpreds, type="glm"), coefficients(earth.pois.linpreds, type="glm"))))
+> stopifnot(isTRUE(all.equal(coef(earth.pois.linpreds, type="earth"), coefficients(earth.pois.linpreds, type="earth"))))
+> stopifnot(identical(names(coef(earth.pois.linpreds)), rownames(earth.pois.linpreds$coefficients)))
+> stopifnot(identical(names(coef(earth.pois.linpreds)), rownames(earth.pois.linpreds$glm.coefficients)))
+> stopifnot(identical(names(coef(earth.pois.linpreds, type="glm")), rownames(earth.pois.linpreds$glm.coefficients)))
+> stopifnot(max(abs(coef(earth.pois.linpreds) - earth.pois.linpreds$glm.coefficients)) == 0)
+> stopifnot(max(abs(coef(earth.pois.linpreds, type="response") - earth.pois.linpreds$glm.coefficients)) == 0)
+> stopifnot(max(abs(coef(earth.pois.linpreds, type="earth") - earth.pois.linpreds$coefficients)) == 0)
+> stopifnot(max(abs(coef(earth.pois.linpreds) - earth.pois.linpreds$glm.list[[1]]$coefficients)) == 0)
+> stopifnot(max(abs(coef(earth.pois.linpreds, type="glm") - earth.pois.linpreds$coefficients)) > 99)
+> 
 > check.earth.matches.glm(earth.pois.linpreds, pois, newdata=Ins[4:6,])
 check earth.pois.linpreds vs pois
 > earth.pois <- earth(Claims ~ Group + Age  + day + offset(log(Holders)),
@@ -371,16 +384,16 @@ check earth.pois.linpreds vs pois
 > cat("==print(earth.pois)==\n")
 ==print(earth.pois)==
 > print(earth.pois)
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 1935.72 63   462.414 58      0.761   753.7     5         1
+
 Earth selected 6 of 14 terms, and 3 of 7 predictors
 Termination condition: Reached nk 21
 Importance: day, Age.L, Group.L, Group.Q-unused, Group.C-unused, ...
 Offset: log(Holders) with values log(197), log(264), log(246), log(1680)...
 Number of terms at each degree of interaction: 1 5 (additive model)
 Earth GCV 1037.405    RSS 45532.35    GRSq 0.6401826    RSq 0.7453446
-
-GLM (family poisson, link log):
-  nulldev df      dev df devratio   AIC iters converged
- 1935.717 63 462.4144 58    0.761 753.7     5         1
 > cat("==summary(earth.pois)==\n")
 ==summary(earth.pois)==
 > print(summary(earth.pois))
@@ -396,16 +409,16 @@ h(Age.L-0.223607)      -2.1045753
 h(day-0.421875)       -10.3890623
 h(day-0.578125)        12.8123676
 
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 1935.72 63   462.414 58      0.761   753.7     5         1
+
 Earth selected 6 of 14 terms, and 3 of 7 predictors
 Termination condition: Reached nk 21
 Importance: day, Age.L, Group.L, Group.Q-unused, Group.C-unused, ...
 Offset: log(Holders) with values log(197), log(264), log(246), log(1680)...
 Number of terms at each degree of interaction: 1 5 (additive model)
 Earth GCV 1037.405    RSS 45532.35    GRSq 0.6401826    RSq 0.7453446
-
-GLM (family poisson, link log):
-  nulldev df      dev df devratio   AIC iters converged
- 1935.717 63 462.4144 58    0.761 753.7     5         1
 > cat("==summary(earth.pois, details=TRUE)==\n")
 ==summary(earth.pois, details=TRUE)==
 > print(summary(earth.pois, details=TRUE))
@@ -443,17 +456,16 @@ h(-0.223607-Group.L)    0.65919622   0.11236250   5.86669 4.4457e-09
 h(day-0.421875)       -10.38906233   0.65640911 -15.82711 < 2.22e-16
 h(day-0.578125)        12.81236762   1.02262981  12.52884 < 2.22e-16
 
-Number of cases: 64
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 1935.72 63   462.414 58      0.761   753.7     5         1
+
 Earth selected 6 of 14 terms, and 3 of 7 predictors
 Termination condition: Reached nk 21
 Importance: day, Age.L, Group.L, Group.Q-unused, Group.C-unused, ...
 Offset: log(Holders) with values log(197), log(264), log(246), log(1680)...
 Number of terms at each degree of interaction: 1 5 (additive model)
 Earth GCV 1037.405    RSS 45532.35    GRSq 0.6401826    RSq 0.7453446
-
-GLM (family poisson, link log):
-  nulldev df      dev df devratio   AIC iters converged
- 1935.717 63 462.4144 58    0.761 753.7     5         1
 > earth.pois.no.penalty <- earth(Claims ~ Group + Age  + day + offset(log(Holders)),
 +                                data = Ins, glm=list(family = poisson),
 +                                thresh=0, penalty=-1)
@@ -702,21 +714,26 @@ All    114.12936 3538.0101 0.8039118 0.8039118
 +           glm=list(family = poisson), weights=weights)
 x[64,3] with colnames x.L x.Q x.C
 y[64,2] with colnames y1 y2
-weights[64,1] with no column names
+earth and glm weights[64]: 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 12...
 Forward pass term 1, 2, 4
 RSq changed by less than 0.001 at 3 terms (DeltaRSq 5.7e-05)
 After forward pass GRSq 0.175 RSq 0.325
-Prune method "backward" penalty 2 nprune null: selected 2 of 3 terms, and 1 of 3 preds
+Prune backward penalty 2 nprune null: selected 2 of 3 terms, and 1 of 3 preds
 After pruning pass GRSq 0.278 RSq 0.323
-GLM y1 devratio 0.58 dof 62/63 iters 5 
-GLM y2 devratio 0.57 dof 62/63 iters 6 
+GLM y1 devratio 0.58 dof 60/61 iters 5
+GLM y2 devratio 0.57 dof 60/61 iters 6
 > cat("earth.pois.multiple.response:\n")
 earth.pois.multiple.response:
 > print(earth.pois.multiple.response)
+GLM (family poisson, link log):
+     nulldev df       dev df   devratio     AIC iters converged
+y1   94934.7 61     39830 60      0.580   49300     5         1
+y2 1613415.0 61    698038 60      0.567  710400     6         1
+
 Earth selected 2 of 3 terms, and 1 of 3 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
 Importance: x.L, x.Q-unused, x.C-unused
-Weights: 1, 2, 3, 3.23125e-07, 5, 6, 7, 3.23125e-07, 9, 10, 11, 12, 13, ...
+Weights: 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, ...
 Number of terms at each degree of interaction: 1 1 (additive model)
 
 Earth
@@ -724,12 +741,6 @@ Earth
 y1     45124.4   2623560 0.4258811 0.4617544
 y2  12454506.9 724112813 0.2772184 0.3223809
 All 12499631.2 726736372 0.2778934 0.3230137
-
-GLM (family poisson, link log):
-
-     nulldev df       dev df devratio    AIC iters converged
-y1   94934.7 63  39830.03 62    0.580  49300     5         1
-y2 1613414.9 63 698038.19 62    0.567 710400     6         1
 > cat("summary(earth.pois.multiple.response:\n")
 summary(earth.pois.multiple.response:
 > print(summary(earth.pois.multiple.response))
@@ -741,10 +752,15 @@ GLM coefficients
 (Intercept)     2.693536 4.327129
 h(x.L-0.223607) 4.045294 5.791490
 
+GLM (family poisson, link log):
+     nulldev df       dev df   devratio     AIC iters converged
+y1   94934.7 61     39830 60      0.580   49300     5         1
+y2 1613415.0 61    698038 60      0.567  710400     6         1
+
 Earth selected 2 of 3 terms, and 1 of 3 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
 Importance: x.L, x.Q-unused, x.C-unused
-Weights: 1, 2, 3, 3.23125e-07, 5, 6, 7, 3.23125e-07, 9, 10, 11, 12, 13, ...
+Weights: 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, ...
 Number of terms at each degree of interaction: 1 1 (additive model)
 
 Earth
@@ -752,12 +768,6 @@ Earth
 y1     45124.4   2623560 0.4258811 0.4617544
 y2  12454506.9 724112813 0.2772184 0.3223809
 All 12499631.2 726736372 0.2778934 0.3230137
-
-GLM (family poisson, link log):
-
-     nulldev df       dev df devratio    AIC iters converged
-y1   94934.7 63  39830.03 62    0.580  49300     5         1
-y2 1613414.9 63 698038.19 62    0.567 710400     6         1
 > plotmo(earth.pois.multiple.response, nresponse=1, pt.col=2)
 > 
 > # test update.earth with weights and offset
@@ -809,7 +819,7 @@ Selected 2 of 2 terms, and 1 of 1 predictors
 Termination condition: No new term increases RSq at 2 terms
 Importance: Girth
 Offset: log(Height) with values log(70), log(65), log(63), log(72), log(...
-Weights: 1, 2, 1.590323e-07, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1...
+Weights: 1, 2, 0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, ...
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 292.7582    RSS 9075.505    GRSq 0.9339319    RSq 0.9339319
 > 

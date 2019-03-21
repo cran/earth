@@ -17,6 +17,7 @@ get.poisson.deviance <- function(yhat, y)
 }
 get.auc <- function(yhat, y) # area under ROC curve
 {
+    y <- y > .5 # necessary when is.bpairs (y is converted to glm.yfrac)
     nx <- length(y[y == 0])
     ny <- length(y[y == 1])
     xy <- c(yhat[y == 0], yhat[y == 1])

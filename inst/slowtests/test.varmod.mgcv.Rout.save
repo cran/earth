@@ -4,6 +4,7 @@
 > 
 > source("test.prolog.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -32,7 +33,7 @@ Loading required package: TeachingDemos
 > 
 > library(mgcv)
 Loading required package: nlme
-This is mgcv 1.8-26. For overview type 'help("mgcv-package")'.
+This is mgcv 1.8-27. For overview type 'help("mgcv-package")'.
 > 
 > for(varmod.method in c("gam", "x.gam")) {
 + 

@@ -93,7 +93,7 @@ check.earth.matches.lm <- function(earth, lm, newdata=data[c(3,1,9),],
     if(is.null(earth$weights))
         stopifnot(almost.equal(earth$rss.per.response, earth$rss, max=1e-10))
 }
-# check that earth model matches lm model in all essential details
+# check that earth-glm model matches glm model in all essential details
 check.earth.matches.glm <- function(earth, glm, newdata=data[c(3,1,9),],
                                    check.coef.names=TRUE,
                                    check.casenames=FALSE,
@@ -281,6 +281,19 @@ pois <- glm(Claims ~ Group + Age + day + offset(log(Holders)),
 earth.pois.linpreds <- earth(Claims ~ offset(log(Holders)) + Group + Age + day,
                              data = Ins, glm=list(family = poisson),
                              linpreds=TRUE, thresh=0, penalty=-1)
+
+stopifnot(isTRUE(all.equal(coef(earth.pois.linpreds), coefficients(earth.pois.linpreds))))
+stopifnot(isTRUE(all.equal(coef(earth.pois.linpreds, type="glm"), coefficients(earth.pois.linpreds, type="glm"))))
+stopifnot(isTRUE(all.equal(coef(earth.pois.linpreds, type="earth"), coefficients(earth.pois.linpreds, type="earth"))))
+stopifnot(identical(names(coef(earth.pois.linpreds)), rownames(earth.pois.linpreds$coefficients)))
+stopifnot(identical(names(coef(earth.pois.linpreds)), rownames(earth.pois.linpreds$glm.coefficients)))
+stopifnot(identical(names(coef(earth.pois.linpreds, type="glm")), rownames(earth.pois.linpreds$glm.coefficients)))
+stopifnot(max(abs(coef(earth.pois.linpreds) - earth.pois.linpreds$glm.coefficients)) == 0)
+stopifnot(max(abs(coef(earth.pois.linpreds, type="response") - earth.pois.linpreds$glm.coefficients)) == 0)
+stopifnot(max(abs(coef(earth.pois.linpreds, type="earth") - earth.pois.linpreds$coefficients)) == 0)
+stopifnot(max(abs(coef(earth.pois.linpreds) - earth.pois.linpreds$glm.list[[1]]$coefficients)) == 0)
+stopifnot(max(abs(coef(earth.pois.linpreds, type="glm") - earth.pois.linpreds$coefficients)) > 99)
+
 check.earth.matches.glm(earth.pois.linpreds, pois, newdata=Ins[4:6,])
 earth.pois <- earth(Claims ~ Group + Age  + day + offset(log(Holders)),
                     data = Ins, glm=list(family = poisson))

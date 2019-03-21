@@ -719,7 +719,6 @@ earth_plotmodsel <- function(
                 legend.inset <- c(.02, max(.05, 2 * strheight("X")))
             }
             legend.y <- NULL
-            usr <- par("usr") # xmin, xmax, ymin, ymax
         } else { # user specified legend position
             legend.x <- legend.pos[1]
             legend.y <- NULL
@@ -728,6 +727,7 @@ earth_plotmodsel <- function(
             else
                 legend.y <- scale1(legend.pos[2], ylim[1], ylim[2])
         }
+        usr <- par("usr") # xmin, xmax, ymin, ymax
         if(max.nterms == 1)
             text.on.white(usr[1] + 2 * strwidth("X"),
                           usr[4] - 2 * strheight("X"),
@@ -806,8 +806,13 @@ earth_plotmodsel <- function(
         # set up so vertical scale is 0..1, horizontal is 0..nterms.on.horiz.axis
         plot(0:nterms.on.horiz.axis,
              (0:nterms.on.horiz.axis)/nterms.on.horiz.axis,
-             type="n", main=main,
-             xlab="Number of terms", ylab="", yaxt="n", xlim=xlim)
+             type="n", main=main, xlab="Number of terms",
+             xaxt="n", ylab="", yaxt="n", xlim=xlim)
+        # bottom axis (use xaxp to limit the number of ticks to avoid ".5" ticks)
+        if(xlim[2] < 5)
+            axis(1, xaxp=c(xlim[1], xlim[2], xlim[2]))
+        else
+            axis(1)
         left.axis()
         if(is.specified(col.npreds))
             right.axis()

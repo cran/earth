@@ -229,11 +229,14 @@ Only exist if \code{keepxy=TRUE}.
     column of \code{y} on \code{bx}.
     This duplicates, for convenience, information buried in \code{glm.list}.
 }
+\item{\code{glm.stats}}{
+       GLM summary statistics such as \code{devratio}, \code{AIC}, and \code{iters}.
+}
 \item{\code{glm.bpairs}}{
-       NULL unless there are paired binomial columns.
-       A logical vector, derived internally by \code{earth}, or a copy
-       the \code{bpairs} specified by the user in the \code{glm} list.
+       Is \code{NULL} unless there are paired binomial columns.
+       Else a logical vector \code{c(TRUE, FALSE)}.
        See \dQuote{\emph{Binomial pairs}} in the vignette.
+       Retained for backwards compatibility with old versions of earth.
    \cr\cr
    \bold{The following fields appear only if the \code{nfold} argument is greater than 1.}
 }

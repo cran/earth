@@ -9,7 +9,7 @@
 @echo test.mods.R
 @exit /B 1
 :good1
-@echo mks.diff -w test.mods.Rout test.mods.Rout.save
+@echo mks.diff test.mods.Rout test.mods.Rout.save
 @rem egreps to deal with times
 @C:\Rtools\bin\echo -n "new "
 @egrep "^\[total time" test.mods.Rout

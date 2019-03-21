@@ -2,6 +2,7 @@
 > 
 > source("test.prolog.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos

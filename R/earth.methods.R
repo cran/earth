@@ -13,12 +13,21 @@ case.names.earth <- function(object, ...)
     else
         row.names(object$residuals)
 }
-coef.earth <- function(object, decomp="none", ...)
+coef.earth <- function(object, type  = c("response", "earth", "glm"), decomp="none", ...)
 {
     warn.if.dots(...)
-    coef <- object$coefficients
-    if(NCOL(coef) > 1)
-        stop0("coef.earth: multiple response models not supported")
+    type <- match.arg1(type, "type")
+    coef <- object$glm.coefficients
+    if(is.null(coef)) { # not a glm model?
+        if(type == "glm")
+            stop0("coef.earth: type == \"glm\" is not allowed because this is not an earth-glm model")
+        coef <- object$coefficients
+    } else if(type == "earth")
+        coef <- object$coefficients
+    if(NCOL(coef) > 1) {
+        warning0("coef.earth: multiple response model: returning coefficients for just the first response")
+        coef <- coef[,1,drop=FALSE]
+    }
     new.order <- reorder.earth(object, decomp=decomp)
     names <- spaceout(rownames(coef))
     coef <- coef[new.order,]

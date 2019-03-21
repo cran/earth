@@ -129,7 +129,8 @@ If \code{interval="se"}, the standard errors.
 \examples{
 data(trees)
 earth.mod <- earth(Volume ~ ., data = trees)
-predict(earth.mod)           # same as earth.mod$fitted.values
-predict(earth.mod, c(10,80)) # yields 16.8
+predict(earth.mod) # same as earth.mod$fitted.values
+predict(earth.mod, data.frame(Girth=10, Height=80)) # yields 17.6
+predict(earth.mod, c(10,80))                        # equivalent
 }
 \keyword{models}

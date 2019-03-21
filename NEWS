@@ -1,6 +1,38 @@
 Changes to the earth package
 ----------------------------
 
+5.0.0 March 20, 2019
+
+  Two-column binomial pair responses are now handled in a way that is more
+  consistent with glm() i.e. regression on the fraction_true, weighted by
+  the response rowsums.  We now support cross-validation of binomial
+  pair models.  The function expand.bpairs was added.  We no longer
+  supports multiple-response binomial-pair models, and the bpairs
+  argument is thus no longer necessary (i.e. we support a maximum of
+  one binomial-pair response; the fact that the response is a
+  binomial pair is automatically detected when family=binomial).
+
+  We now save some additional GLM stats with earth-glm models. Some error
+  message have been improved.  For earth-glm models coef.earth() now returns
+  the earth-glm coefficients (for these models, use coef.earth(mod,
+  type="earth") to get the internal earth model coefficients).
+
+  We now support "+" on the left side of formulas to specify multiple responses.
+  Scale.y now works as documented for multiple response models.
+
+  Fixed a bug where predict.earth issued an incorrect error message under
+  certain conditions when a factor was passed as a string in the newdata.
+  (This was the same as the old predict.lm "xlevels" bug.)
+  Thanks to Meleksen Akin for help here.
+
+  Fixed a bug where sometimes logical variables weren't displayed by plotmo if
+  there were also factors in the model (you had to use all1=TRUE in plotmo).
+
+  The model plot now avoids displaying ".5" in the Number Of Terms axis.
+
+  Changes to some prints (mostly whitespace), for clarity.
+  Updates to the documentation and shared libraries.
+
 4.7.0 Jan 2, 2019
 
   Earth no longer ignores the offset term in formulas.

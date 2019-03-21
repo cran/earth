@@ -9,7 +9,7 @@
 @echo test.incorrect.R
 @exit /B 1
 :good1
-@echo mks.diff -w test.incorrect.Rout test.incorrect.Rout.save
+@echo mks.diff test.incorrect.Rout test.incorrect.Rout.save
 @rem egreps to deal with times
 @C:\Rtools\bin\echo -n "new "
 @egrep "^\[total time" test.incorrect.Rout

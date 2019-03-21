@@ -43,7 +43,7 @@ clang -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -Weverything -O3 -std=gnu99^
                                 @if %errorlevel% neq 0 goto error
 
 @rem we use -w on mks.diff so it treats \r\n the same as \n
-mks.diff -w test.earthmain-clang.out test.earthmain.out.save
+mks.diff test.earthmain-clang.out test.earthmain.out.save
                                 @if %errorlevel% neq 0 goto error
 
 @rm -f R.dll Rblas.dll Riconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll Rdll.lib Rblas.lib earthmain-clang.* test.earthmain-clang.* *.o

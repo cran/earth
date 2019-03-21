@@ -2,6 +2,7 @@
 > 
 > source("test.prolog.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -41,8 +42,8 @@ Loading required package: TeachingDemos
 observed response: numeric or logical vector
 predicted response: numeric or logical vector   (predict type is "response")
 grouping criterion: CLASS1 survived == 0, CLASS2 survived != 0
-        predicted.response.per.class[not survived][619,1] with no column names
-        predicted.response.per.class[survived    ][427,1] with no column names
+        predicted.response.per.class[not survived][619,1] with no column names, and values 0.9485, 0.4324, 0.9485, 0.369...
+        predicted.response.per.class[survived    ][427,1] with no column names, and values 0.9485, 0.9669, 0.2946, 0.851...
 
 > 
 > plotd(a1, main="earth-glm, numeric, type=earth, params",
@@ -447,8 +448,8 @@ Proportion of trace:
 observed response: two-level factor
 predicted response: numeric or logical vector   (predict type is "class")
 grouping criterion: CLASS1 predicted[observed == female], CLASS2 predicted[observed == male]
-        predicted.response.per.class[female][388,1] with no column names
-        predicted.response.per.class[male  ][658,1] with no column names
+        predicted.response.per.class[female][388,1] with no column names, and values 1, 2, 2, 1, 1, 1, 1, 1, 1, 1,...
+        predicted.response.per.class[male  ][658,1] with no column names, and values 1, 2, 1, 2, 2, 2, 1, 2, 2, 1,...
 
 > do.caption("lda1")
 > plotd(lda1, main="lda1, 2 lev fac, hist=TRUE", type="response", hist=TRUE)

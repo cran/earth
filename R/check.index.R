@@ -7,8 +7,8 @@
 # This returns a vector suitable for indexing into object (will
 # be identical to index unless index is a character vector).
 #
-# If index is a character vector, then regex matching is used against
-# the names in the object, and an integer vector is returned.
+# If index is a character vector, then matching (regex if is.col.index != 2)
+# is used against the names in the object, and an integer vector is returned.
 
 check.index <- function(index, index.name, object,
     colnames        = NULL,
@@ -108,10 +108,13 @@ check.character.index <- function(index, index.name, object, names, len,
               " specifies names but the names are unavailable")
     matches <- integer(0)
     warning.names <- integer(0) # these regexs don't match any column names
-    for(name in index) {
-        igrep <- if(is.col.index == 2) # exact match, not a regular exp?
+    for(i in seq_along(index)) {
+        name <- index[i]
+        igrep <- if(is.col.index == 2) { # exact match, not a regular exp?
+                    if(nchar(name) == 0)
+                        warning0(unquote(index.name), "[", i, "] is an empty string \"\"")
                     which(name == names)
-                 else
+                 } else
                     grep(name, names)
         if(length(igrep))
             matches <- c(matches, igrep)

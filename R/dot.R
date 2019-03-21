@@ -44,8 +44,9 @@ dota <- function(ARGNAME, ..., DEF=NA, EX=TRUE, NEW=NA)
     argname <- process.argname(ARGNAME)
     exact <- process.exact(argname, EX)
     new <- process.new(NEW, argname, deparse(substitute(DEF)))
-    for(i in seq_along(argname))
-        if(!anyNA(idot <- dotindex.aux(argname[i], dots, exact[i]))) {
+    for(i in seq_along(argname)) {
+        idot <- dotindex.aux(argname[i], dots, exact[i])
+        if(!anyNA(idot)) {
             argval <- try(eval(dots[[idot]], parent.frame(1)))
             if(is.try.err(argval))
                 stop0("cannot evaluate '", argname[i], "'")
@@ -55,6 +56,7 @@ dota <- function(ARGNAME, ..., DEF=NA, EX=TRUE, NEW=NA)
             # maybe.deprecate.arg(dotname, new, argname[i])
             return(argval)
         }
+    }
     DEF
 }
 # Like dota() but default is existing value of ARGNAME.
@@ -92,9 +94,11 @@ dotindex <- function(ARGNAME, ..., EX=TRUE)
     dots <- drop.unnamed.dots(match.call(expand.dots=FALSE)$...)
     argname <- process.argname(ARGNAME)
     exact <- process.exact(argname, EX)
-    for(i in seq_along(argname))
-        if(!anyNA(idot <- dotindex.aux(argname[i], dots, exact[i])))
+    for(i in seq_along(argname)) {
+        idot <- dotindex.aux(argname[i], dots, exact[i])
+        if(!anyNA(idot))
             return(idot)
+    }
     NA
 }
 drop.unnamed.dots <- function(dots)

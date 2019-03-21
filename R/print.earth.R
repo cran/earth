@@ -2,7 +2,7 @@
 
 # print.earth's first arg is actually a model object but called x for consistency with generic
 
-print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.point=TRUE, ...)
+print.earth <- function(x, digits=getOption("digits"), fixed.point=TRUE, ...)
 {
     form <- function(x, pad)
     {
@@ -12,32 +12,45 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
     #--- print.earth starts here
     check.classname(x, substitute(x), "earth")
     warn.if.dots(...)
+    remind.user.bpairs.expansion <-
+        !is.null(x$glm.bpairs) && !is.null(x$ncases.after.expanding.bpairs)
+                # ncases.after.expanding.bpairs is null if Expand.bpairs was FALSE
+
+    if(!is.null(x$glm.list)) {
+        if(remind.user.bpairs.expansion)
+            printf("The following stats are for the binomial pairs without expansion (%g cases):\n",
+                   NROW(x$residuals))
+        print_earth_glm(x, digits, fixed.point,
+                        prefix.space=remind.user.bpairs.expansion)
+    }
     nresp <- NCOL(x$coefficients)
     is.cv <- !is.null(x$cv.list)
     nselected <- length(x$selected.terms)
-    if(is.null(x$glm.list))     # glm.list is a list of glm models, null if none
+    if(is.null(x$glm.list)) {   # glm.list is a list of glm models, null if none
+        if(remind.user.bpairs.expansion)
+            printf("   ")
         cat("Selected ")
-    else
-        cat("Earth selected ")  # remind user that these are for the earth not glm model
-
+    } else {
+        if(remind.user.bpairs.expansion)
+            printf("The following stats are for the binomial pairs after expansion (%g cases):\n   ",
+                    x$ncases.after.expanding.bpairs)
+        cat("Earth selected ") # remind user that these are for the earth not glm model
+    }
     cat(length(x$selected.terms), "of", nrow(x$dirs), "terms, and",
         get.nused.preds.per.subset(x$dirs, x$selected.terms),
         "of", ncol(x$dirs), "predictors")
+    if(x$pmethod != "backward")
+        printf(" (pmethod=\"%s\")", x$pmethod)
+    cat("\n")
 
-    if(x$pmethod == "cv")
-        printf(" using pmethod=\"cv\"\n")
-    else if(x$pmethod == "none")
-        printf(" (pmethod=\"none\")\n")
-    else
-        cat("\n")
-
-    print.termcond(x)             # print reason we terminated the forward pass
-    print.one.line.evimp(x)       # print estimated var importances on a single line
-    # "try" below is paranoia so don't completely blow out if problem in print.offset
-    try(print.offset(x, digits))  # print offset term in formula, if any
-    try(print.weights(x, digits)) # print case weights, if any
+    print_termcond(x, remind.user.bpairs.expansion)
+    print_one_line_evimp(x, remind.user.bpairs.expansion)
+    # "try" below is paranoia so don't completely blow out if problem in print_offset
+    try(print_offset(x, digits, remind.user.bpairs.expansion))
+    try(print_weights(x, digits, remind.user.bpairs.expansion))
 
     nterms.per.degree <- get.nterms.per.degree(x, x$selected.terms)
+    cat0(if(remind.user.bpairs.expansion) "   " else "")
     cat("Number of terms at each degree of interaction:", nterms.per.degree)
 
     cat0(switch(length(nterms.per.degree),
@@ -46,28 +59,26 @@ print.earth <- function(x, print.glm=TRUE, digits=getOption("digits"), fixed.poi
            "\n")
 
     if(nresp > 1)
-        print.earth.multiple.response(x, digits=digits, fixed.point=fixed.point, ...)
+        print_earth_multiple_response(x, digits, fixed.point)
     else
-        print.earth.single.response(x, digits=digits, fixed.point=fixed.point, ...)
+        print_earth_single_response(x, digits, fixed.point, remind.user.bpairs.expansion)
 
-    if(print.glm) {
-        if(!is.null(x$glm.list))
-            print.earth.glm(x, digits, fixed.point)
-        if(x$pmethod == "cv") {
-            # The digits +1 below is an attempt to be compatible with the above prints.
-            # The number of digits won't always match exactly, it's not critical.
-            print.would.have(x, if(nresp > 1) digits+1 else digits)
-        }
+    if(x$pmethod == "cv") {
+        # The digits +1 below is an attempt to be compatible with the above prints.
+        # The number of digits won't always match exactly, it's not critical.
+        print_would_have(x, if(nresp > 1) digits+1 else digits)
     }
     invisible(x)
 }
-print.earth.single.response <- function(x, digits, fixed.point, ...)
+print_earth_single_response <- function(x, digits, fixed.point, prefix.space)
 {
     is.cv <- !is.null(x$cv.list)
     spacer <- if(is.cv) "  " else "    "
     nselected <- length(x$selected.terms)
+    if(prefix.space)
+        printf("   ")
     if(!is.null(x$glm.list))
-        cat("Earth ")   # remind user
+        cat0("Earth ")   # remind user
     if(x$pmethod == "cv") {
         ilast <- nrow(x$cv.oof.rsq.tab)
         cat0("GRSq ", format(x$grsq, digits=digits),
@@ -89,7 +100,7 @@ print.earth.single.response <- function(x, digits, fixed.point, ...)
         cat("\n")
     }
 }
-print.earth.multiple.response <- function(x, digits, fixed.point, ...)
+print_earth_multiple_response <- function(x, digits, fixed.point)
 {
     nresp <- NCOL(x$coefficients)
     stopifnot(nresp > 1)
@@ -142,8 +153,11 @@ print.earth.multiple.response <- function(x, digits, fixed.point, ...)
     df[is.na(df)] <- "" # print NAs as blanks (in mean.oof.RSq column)
     print(df, digits=digits)
 }
-print.termcond <- function(object) # print reason we terminated the forward pass
+# print reason we terminated the forward pass
+print_termcond <- function(object, prefix.space)
 {
+    if(prefix.space)
+        printf("   ")
     printf("Termination condition: ")
     if(is.null(object$termcond)) {
         printf("Unknown\n") # model was created by mars.to.earth
@@ -202,29 +216,23 @@ print.summary.earth <- function(
     }
     printcall("Call: ", x$call)
     cat("\n")
-    is.glm <- !is.null(x$glm.list)   # TRUE if embedded GLM model(s)
     new.order <- reorder.earth(x, decomp=decomp)
-
-    if(!is.glm || details)
-        print.earth.coefficients(x, digits, fixed.point, new.order)
-    if(is.glm)
-        print.summary.earth.glm(x, details, digits, fixed.point, new.order)
-    if(details)
-        cat0("Number of cases: ", nrow(x$residuals), "\n")
-    print.earth(x, digits, print.glm=FALSE)
-    if(!is.null(x$glm.list))
-        print.earth.glm(x, digits, fixed.point)
+    if(is.null(x$glm.stats) || details)
+        print_earth_coefficients(x, digits, fixed.point, new.order)
+    if(!is.null(x$glm.stats))
+        print_summary_earth_glm(x, details, digits, fixed.point, new.order)
+    # if(details)
+    #     cat0("Number of cases: ", nrow(x$residuals), "\n")
+    print.earth(x, digits)
     if(!is.null(x$cv.list) && x$pmethod != "cv")
-        print.cv(x)
-    if(x$pmethod == "cv")
-        print.would.have(x, if(nresp > 1) digits+1 else digits)
+        print_cv(x)
     if(!is.null(x$varmod)) {
         printf("\nvarmod: ")
         x$varmod <- print.varmod(x$varmod, digits=digits)
     }
     invisible(x)
 }
-print.offset <- function(object, digits)
+print_offset <- function(object, digits, prefix.space)
 {
     # currently only earth.formula objects can have an offset
     terms <- object$terms
@@ -239,15 +247,19 @@ print.offset <- function(object, digits)
     offset.term <- varnames[offset.index]
     # convert "offset(foo)" to "foo"
     offset.term.name <- substring(offset.term, 8, nchar(offset.term)-1)
-    print.values("Offset", offset.term.name, object$offset, digits)
+    if(prefix.space)
+        printf("   ")
+    print_values("Offset", offset.term.name, object$offset, digits)
 }
-print.weights <- function(object, digits)
+print_weights <- function(object, digits, prefix.space)
 {
     if(is.null(object$weights))
         return()
-    print.values("Weights", NULL, object$weights, digits)
+    if(prefix.space)
+        printf("   ")
+    print_values("Weights", NULL, object$weights, digits)
 }
-print.values <- function(name, term.name, values, digits)
+print_values <- function(name, term.name, values, digits)
 {
     s <- if(is.null(term.name))
             paste0(name, ": ")
@@ -272,7 +284,7 @@ print.values <- function(name, term.name, values, digits)
         }
     cat0(s, "\n")
 }
-print.would.have <- function(x, digits)
+print_would_have <- function(x, digits)
 {
     form <- function(x) format(x, digits=digits)
     nselected <- length(x$backward.selected.terms)
@@ -296,7 +308,7 @@ print.would.have <- function(x, digits)
                nselected)
 
 }
-print.earth.coefficients <- function(x, digits, fixed.point, new.order)
+print_earth_coefficients <- function(x, digits, fixed.point, new.order)
 {
     nresp <- NCOL(x$coefficients)
     if(!is.null(x$strings)) {       # old style expression formatting?
@@ -319,20 +331,20 @@ print.earth.coefficients <- function(x, digits, fixed.point, new.order)
         cat("\n")
     }
 }
-print.summary.earth.glm <- function(x, details, digits, fixed.point, new.order)
+print_summary_earth_glm <- function(x, details, digits, fixed.point, new.order)
 {
     nresp <- NCOL(x$coefficients)
     resp.names <- colnames(x$fitted.values)
-    if(!is.null(x$strings)) {      # old style expression formatting?
+    if(!is.null(x$strings)) {     # old style expression formatting?
        for(iresp in seq_len(nresp)) {
            g <- x$glm.list[[iresp]]
-           cat("GLM ")
+           cat("GLM ") # remind user that these are GLM (not earth) coefficients
            cat0(resp.names[iresp], " =\n")
            cat(x$strings[nresp+iresp]) # glm strings index is offset by nresp
            cat("\n")
        }
     } else {
-        cat("GLM coefficients\n")
+        cat("GLM coefficients\n") # remind user that these are GLM (not earth) coefficients
         rownames(x$glm.coefficients) <- spaceout(rownames(x$glm.coefficients))
         coef <- x$glm.coefficients[new.order, , drop=FALSE]
         if(fixed.point)
@@ -342,18 +354,8 @@ print.summary.earth.glm <- function(x, details, digits, fixed.point, new.order)
     }
     if(details)
         for(iresp in seq_len(nresp))
-            print.glm.details(x$glm.list[[iresp]], nresp, digits,
+            print_glm_details(x$glm.list[[iresp]], nresp, digits,
                               my.fixed.point, resp.names[iresp])
-}
-# put some spaces into term names for readability
-#     convert h(x1-5860)*h(x2--15)
-#     to      h(x1-5860) * h(x2- -15)
-
-spaceout <- function(rownames.)
-{
-    rownames. <- gsub("\\*", " * ", rownames.)   # spaces around *
-    rownames. <- gsub("--", "- -", rownames.)    # spaces between --
-    gsub("`", "", rownames.)                     # remove backquotes
 }
 # TODO Add an inverse.func arg to summary.earth, similar to plotmo.
 
@@ -385,6 +387,17 @@ summary.earth <- function(   # returns a superset, not a summary in the strict s
         rval$newdata <- newdata
         rval$newrsq  <- plotmo::plotmo_rsq(object, newdata, ...)
     }
+    is.glm <- !is.null(object$glm.list)   # TRUE if embedded GLM model(s)
     class(rval) <- c("summary.earth", "earth")
     rval
+}
+# put some spaces into term names for readability
+#     convert h(x1-5860)*h(x2--15)
+#     to      h(x1-5860) * h(x2- -15)
+
+spaceout <- function(rownames.)
+{
+    rownames. <- gsub("\\*", " * ", rownames.)   # spaces around *
+    rownames. <- gsub("--", "- -", rownames.)    # spaces between --
+    gsub("`", "", rownames.)                     # remove backquotes
 }

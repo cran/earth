@@ -1,6 +1,7 @@
 # test.cv.R: test earth cross validation
 
 source("test.prolog.R")
+source("check.models.equal.R")
 library(earth)
 data(ozone1)
 data(trees)
@@ -147,14 +148,26 @@ a10 <- earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="po"), t
 printh(a10)
 printh(summary(a10))
 print.stripped.earth.model(a10, "a10")
-# two response binomial model (not yet supported)
-set.seed(1238)
-cat("Expect an error here ")
-expect.err(try(earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="bi"), trace=0.5, pmethod="none", nfold=3)))
+# binomial pair model with keepxy
+set.seed(2019)
+bpair.mod <- earth(cbind(counts, counts2) ~ outcome + treatment,
+                   glm=list(fam="quasib"), trace=1,
+                   pmethod="none", nfold=3, keepxy=TRUE)
+print(summary(bpair.mod))
+plot(bpair.mod, which=1, main="bpair.mod")
+
+bpair.data <- data.frame(counts, counts2, outcome, treatment)
+set.seed(2019)
+bpair.mod.Formula <- earth(counts+counts2 ~ outcome + treatment, data=bpair.data,
+                   glm=list(fam="quasib"), trace=1,
+                   pmethod="none", nfold=3, keepxy=TRUE)
+print(summary(bpair.mod.Formula))
+plot(bpair.mod.Formula, which=1, main="bpair.mod.Formula")
+check.models.equal(bpair.mod, bpair.mod.Formula, "bpair.mod, bpair.mod.Formula", newdata=bpair.data[1:3,])
 
 set.seed(427)
 earth.mod.err <- earth(survived~., data=etitanic, degree=1, nfold=3, keepxy=FALSE)
-expect.err(try(plot(earth.mod.err$cv.list[[1]]))) # earth object has no residuals field
+expect.err(try(plot(earth.mod.err$cv.list[[1]])), "cannot get the original model response")
 
 # test plot.earth with cross-validated models (example from help page)
 set.seed(427)
@@ -382,6 +395,9 @@ earth.cv.5 <- function(){ # fails
           pmethod="cv", nfold=3)
 }
 cat("\n--earth.cv.5\n")
-print(earth.cv.5())
+a.cv.5 <- earth.cv.5()
+print(a.cv.5)
+cat("\n--summary(earth.cv.5)\n")
+print(summary(a.cv.5))
 
 source("test.epilog.R")

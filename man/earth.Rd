@@ -24,7 +24,7 @@ See the package vignette
    nfold=0, ncross=1, stratify=TRUE,
    varmod.method = "none", varmod.exponent = 1,
    varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
-   Scale.y = (NCOL(y)==1), \dots)
+   Scale.y = NULL, \dots)
 
 \method{earth}{default}(x = stop("no 'x' argument"), y = stop("no 'y' argument"),
     weights = NULL, wp = NULL, subset = NULL,
@@ -34,7 +34,7 @@ See the package vignette
     nfold=0, ncross=1, stratify=TRUE,
     varmod.method = "none", varmod.exponent = 1,
     varmod.conv = 1, varmod.clamp = .1, varmod.minspan = -3,
-    Scale.y = (NCOL(y)==1), \dots)
+    Scale.y = NULL, \dots)
 
 \method{earth}{fit}(x = stop("no 'x' argument"), y = stop("no 'y' argument"),
     weights = NULL, wp = NULL, subset = NULL,
@@ -47,7 +47,7 @@ See the package vignette
     newvar.penalty = 0, fast.k = 20, fast.beta = 1,
     linpreds = FALSE, allowed = NULL,
     nprune = NULL, Object = NULL,
-    Scale.y = (NCOL(y)==1), Adjust.endspan = 2, Auto.linpreds = TRUE,
+    Scale.y = NULL, Adjust.endspan = 2, Auto.linpreds = TRUE,
     Force.weights = FALSE, Use.beta.cache = TRUE, Force.xtx.prune = FALSE,
     Get.leverages = NROW(x) < 1e5, Exhaustive.tol = 1e-10, \dots)
 }
@@ -96,6 +96,7 @@ standard algorithm by toying with tuning parameters such as \code{thresh},
      If specified, \code{weights} must have length equal to \code{nrow(x)}
      before applying \code{subset}.
      Zero weights are converted to a very small nonzero value.
+     In the current implementation, building models with weights can be slow.
      % Following the precedent set by \code{lm}, \code{earth} first searches for the
      % weights in \code{data}, then in the environment in which \code{earth} is called.
 }
@@ -199,7 +200,7 @@ The value \code{-1} means no penalty, so GCV = RSS/n.
     Negative values of \code{minspan} specify the maximum number of knots
     per predictor.  These will be equally spaced.
     For example, \code{minspan=-3} allows three evenly spaced knots for each predictor.
-    As always, knots that fall in the endzones specified by \code{endspan} will be ignored.
+    As always, knots that fall in the end zones specified by \code{endspan} will be ignored.
 }
 \item{endspan}{
     Minimum number of observations before the first and after the final knot.\cr
@@ -215,7 +216,7 @@ likely with a small \code{endspan}.
 The model's \code{RSq} and \code{GRSq} won't indicate when this
 overfitting is occurring.
 (A \code{\link[plotmo]{plotmo}} plot can help: look for sharp hinges at the
-edges of the data).  See also the \code{Adjust.endspan} argumen.
+edges of the data).  See also the \code{Adjust.endspan} argument.
 }
 \item{newvar.penalty}{
      Penalty for adding a new variable in the forward pass
@@ -260,7 +261,7 @@ edges of the data).  See also the \code{Adjust.endspan} argumen.
      in the standard MARS fashion, i.e., in hinge functions.
 \cr
 \cr
-     The linpreds argument does not specifiy that a predictor
+     The linpreds argument does not specify that a predictor
      \emph{must} enter the model; only that if it enters, it enters
      linearly.  See \dQuote{\emph{The linpreds argument}} in the
      \href{../doc/earth-notes.pdf}{vignette}.
@@ -457,13 +458,19 @@ number of knots helps prevent overfitting.
 Earth object to be updated, for use by \code{\link{update.earth}}.
 }
 \item{Scale.y}{
-\code{\link[=scale]{Scale}} \code{y} internally in the forward pass
-for better numeric stability.
-This is invisible to the user, up to numerical differences.
+\code{\link[=scale]{Scale}} the response internally in the forward pass.
 Scaling here means subtract the mean and divide by the standard
-deviation.  Default is \code{NCOL(y)==1},
-i.e., scale \code{y} unless \code{y} has multiple columns.
-
+deviation.
+\cr
+For single-response models, the default is \code{Scale.y = TRUE}.
+Scaling is invisible to the user, up to numerical differences,
+but does provide better numeric stability.
+\cr
+For multiple-response models, the default is \code{FALSE}.
+If \code{Scale.y} is set \code{TRUE}, each column of the response is
+independently scaled.
+This can prevent one response from ``overwhelming'' the others,
+and earth typically generates a different set of hinge functions.
 }
 \item{Adjust.endspan}{
 In interaction terms, \code{endspan} gets multiplied by this value.
@@ -640,8 +647,7 @@ The vignette can also be downloaded from
 The vignette
 \dQuote{\href{../doc/earth-varmod.pdf}{Variance models in earth}}
 is also included with the package.
-It describes how to build variance models and
-generate prediction intervals for \code{earth} models.
+It describes how to generate prediction intervals for \code{earth} models.
 }
 \examples{
 earth.mod <- earth(Volume ~ ., data = trees)

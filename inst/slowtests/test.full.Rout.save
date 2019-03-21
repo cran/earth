@@ -6,6 +6,7 @@
 > source("test.prolog.R")
 > source("check.models.equal.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -43,7 +44,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 4.7.0.
+  Splines. R package version 5.0.0.
   https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -52,7 +53,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 4.7.0},
+    note = {R package version 5.0.0},
     url = {https://CRAN.R-project.org/package=earth},
   }
 
@@ -127,7 +128,7 @@ y[32,1]:
 ... 21.4
 32  21.4
 
-Forward pass: minspan 5 endspan 10    x[32,10] 2.5 kB    bx[32,21] 5.25 kB
+Forward pass: minspan 5 endspan 10   x[32,10] 2.5 kB   bx[32,21] 5.25 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -161,8 +162,25 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
          13      0.1741  0.9579    -0.2793      6  1 2 3 4 5 6 8 9 10 11 12 13 14
 chosen   14     -0.5893  0.9587    -0.7634      6  1 2 3 4 5 6 7 8 9 10 11 12 13 14
 
-Prune method "none" penalty 2 nprune null: selected 14 of 14 terms, and 6 of 10 preds
+Prune none penalty 2 nprune null: selected 14 of 14 terms, and 6 of 10 preds
 After pruning pass GRSq -0.589 RSq 0.959
+> 
+> stopifnot(max(coef(cars) - cars$coefficients) == 0)
+> stopifnot(max(coef(cars, type="response") - cars$coefficients) == 0)
+> stopifnot(max(coef(cars, type="earth") - cars$coefficients) == 0)
+> expect.err(try(coef(cars, type="nonesuch")), "type=\"nonesuch\" is not allowed")
+Error : type="nonesuch" is not allowed
+Choose one of: "response" "earth" "glm"
+Got error as expected from try(coef(cars, type = "nonesuch"))
+> expect.err(try(coef(cars, type="glm")), "type == \"glm\" is not allowed because this is not an earth-glm model")
+Error : coef.earth: type == "glm" is not allowed because this is not an earth-glm model
+Got error as expected from try(coef(cars, type = "glm"))
+> expect.err(try(coefficients(cars, type="glm")), "type == \"glm\" is not allowed because this is not an earth-glm model")
+Error : coef.earth: type == "glm" is not allowed because this is not an earth-glm model
+Got error as expected from try(coefficients(cars, type = "glm"))
+> stopifnot(isTRUE(all.equal(coef(cars), coefficients(cars))))
+> stopifnot(isTRUE(all.equal(coef(cars, type="earth"), coefficients(cars, type="earth"))))
+> stopifnot(identical(names(coef(cars)), rownames(cars$coefficients)))
 > 
 > get.used.pred.names <- function(obj) # obj is an earth object
 + {
@@ -177,61 +195,67 @@ After pruning pass GRSq -0.589 RSq 0.959
 +              degree=2, trace=1,
 +              glm=list(family=binomial))
 x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
-y[1046,1] with colname survived
+y[1046,1] with colname survived, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.406 RSq 0.450
-Prune method "backward" penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
+Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
 After pruning pass GRSq 0.42 RSq 0.439
-GLM survived devratio 0.37 dof 1038/1045 iters 5 
+GLM survived devratio 0.37 dof 1038/1045 iters 5
 > printh(a1)
 ===a1 
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
 Earth selected 8 of 17 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
-
-GLM (family binomial, link logit):
- nulldev   df     dev   df devratio   AIC iters converged
- 1414.62 1045 892.794 1038    0.369 908.8     5         1
 > 
 > a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
 +              degree=2, trace=1,
 +              glm=list(family=binomial))
 x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
-y[1046,1] with colname etitanic[,2]
+y[1046,1] with colname etitanic[,2], and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.406 RSq 0.450
-Prune method "backward" penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
+Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
 After pruning pass GRSq 0.42 RSq 0.439
-GLM etitanic[,2] devratio 0.37 dof 1038/1045 iters 5 
+GLM etitanic[,2] devratio 0.37 dof 1038/1045 iters 5
 > printh(a1a)
 ===a1a 
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
 Earth selected 8 of 17 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
-
-GLM (family binomial, link logit):
- nulldev   df     dev   df devratio   AIC iters converged
- 1414.62 1045 892.794 1038    0.369 908.8     5         1
 > 
-> a2 <- earth(pclass ~ ., data=etitanic, trace=1, glm=list(family=binomial))
+> a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
 x[1046,5] with colnames survived sexmale age sibsp parch
 y[1046,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14
 RSq changed by less than 0.001 at 13 terms, 10 terms used (DeltaRSq 0.00065)
 After forward pass GRSq 0.163 RSq 0.195
-Prune method "backward" penalty 2 nprune null: selected 8 of 10 terms, and 4 of 5 preds
+Prune backward penalty 2 nprune null: selected 8 of 10 terms, and 4 of 5 preds
 After pruning pass GRSq 0.167 RSq 0.189
-GLM 1st devratio 0.25 dof 1038/1045 iters 5 
-GLM 2nd devratio 0.02 dof 1038/1045 iters 5 
-GLM 3rd devratio 0.21 dof 1038/1045 iters 5 
+GLM 1st devratio 0.25 dof 1038/1045 iters 5
+GLM 2nd devratio 0.02 dof 1038/1045 iters 5
+GLM 3rd devratio 0.21 dof 1038/1045 iters 5
 > printh(a2)
 ===a2 
+GLM (family binomial, link logit):
+    nulldev   df       dev   df   devratio     AIC iters converged
+1st 1223.31 1045   920.802 1038     0.2470   936.8     5         1
+2nd 1175.31 1045  1147.518 1038     0.0236  1164.0     5         1
+3rd 1448.21 1045  1142.756 1038     0.2110  1159.0     5         1
+
 Earth selected 8 of 10 terms, and 4 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 10 terms
 Importance: age, survived, sibsp, parch, sexmale-unused
@@ -243,75 +267,85 @@ Earth
 2nd 0.1885520 191.6094 -0.004971341 0.02177575
 3rd 0.1927692 195.8949  0.229032722 0.24955184
 All 0.5296626 538.2511  0.166969402 0.18914032
-
-GLM (family binomial, link logit):
-
-     nulldev   df       dev   df devratio    AIC iters converged
-1st 1223.308 1045  920.8021 1038   0.2470  936.8     5         1
-2nd 1175.305 1045 1147.5176 1038   0.0236 1164.0     5         1
-3rd 1448.213 1045 1142.7559 1038   0.2110 1159.0     5         1
 > 
-> ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
+> ldose <- rep(0:5, 2) - 2 # Venables and Ripley 4th edition page 191
 > sex <- factor(rep(c("male", "female"), times=c(6,6)))
 > numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
 > pair <- cbind(numdead, numalive=20 - numdead)
 > 
-> a3 <- earth(pair ~ sex + ldose, trace=1, pmethod="none",
-+             glm=list(family=binomial(link=probit), maxit=100))
+> a3 <- earth(pair ~ sex + ldose,
++             glm=list(family=binomial(link=probit), maxit=100), trace=1)
 x[12,2] with colnames sexmale ldose
 y[12,2] with colnames numdead numalive
+earth and glm: unweighted
+Response columns numdead and numalive are a binomial pair (240 obs in total)
+yfrac[12,1] with colname numdead, and values 0.05, 0.2, 0.45, 0.65, 0.9, 1...
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
-Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.952 RSq 0.981
-GLM numdead devratio 0.96 dof 9/11 iters 4 
+GLM numdead devratio 0.96 dof 9/11 iters 4
 > printh(a3)
 ===a3 
-Earth selected 3 of 3 terms, and 2 of 2 predictors (pmethod="none")
+GLM (family binomial, link probit):
+ nulldev df       dev df   devratio     AIC iters converged
+ 124.876 11   5.56596  9      0.955   41.68     4         1
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 2.376093    RSS 9.702381    GRSq 0.952486    RSq 0.9807588
-
-GLM (family binomial, link probit):
-  nulldev df      dev df devratio   AIC iters converged
- 124.8756 11 5.565963  9    0.955 41.68     4         1
+Earth GCV 0.005940233    RSS 0.02425595    GRSq 0.952486    RSq 0.9807588
 > 
+> numalive <- 20 - numdead
+> pairmod2 <- earth(numalive + numdead ~ sex + ldose,
++                   glm=list(family=binomial()), trace=1)
+Using class "Formula" because lhs of formula has terms separated by "+"
+x[12,2] with colnames sexmale ldose
+y[12,2] with colnames numalive numdead
+earth and glm: unweighted
+Response columns numalive and numdead are a binomial pair (240 obs in total)
+yfrac[12,1] with colname numalive, and values 0.95, 0.8, 0.55, 0.35, 0.1, 0...
+Forward pass term 1, 2, 4, 6
+RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
+After forward pass GRSq 0.907 RSq 0.981
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
+After pruning pass GRSq 0.952 RSq 0.981
+GLM numalive devratio 0.95 dof 9/11 iters 4
+> printh(pairmod2)
+===pairmod2 
+GLM (family binomial, link logit):
+ nulldev df       dev df   devratio     AIC iters converged
+ 124.876 11   6.75706  9      0.946   42.87     4         1
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: ldose, sexmale
+Number of terms at each degree of interaction: 1 2 (additive model)
+Earth GCV 0.005940233    RSS 0.02425595    GRSq 0.952486    RSq 0.9807588
+> 
+> # multiple responses with short (compacted) binomial data no longer supported
 > numdead2.verylongname <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
 > doublepair <- cbind(numdead, numalive=20-numdead,
 +                     numdead2.verylongname=numdead2.verylongname,
 +                     numalive2.verylongname=30-numdead2.verylongname)
-> 
-> a4 <- earth(doublepair ~ sex + ldose, trace=1, pmethod="none",
-+             glm=list(family="binomial"))
+> expect.err(try(earth(doublepair ~ sex + ldose, trace=1, pmethod="none", glm=list(family="binomial"))),
++            "Binomial response (see above): all values should be between 0 and 1, or a binomial pair")
 x[12,2] with colnames sexmale ldose
 y[12,4] with colnames numdead numalive numdead2.verylongname numalive2.verylong...
-Forward pass term 1, 2, 4, 6
-RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
-After forward pass GRSq 0.658 RSq 0.929
-Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
-After pruning pass GRSq 0.826 RSq 0.929
-GLM numdead devratio 0.95 dof 9/11 iters 4 
-GLM numdead2.verylongname devratio 0.82 dof 9/11 iters 4 
-> printh(a4)
-===a4 
-Earth selected 3 of 3 terms, and 2 of 2 predictors (pmethod="none")
-Termination condition: RSq changed by less than 0.001 at 3 terms
-Importance: ldose, sexmale
-Number of terms at each degree of interaction: 1 2 (additive model)
 
-Earth
-                            GCV       RSS      GRSq       RSq
-numdead                2.376093  9.702381 0.9524860 0.9807588
-numdead2.verylongname 15.773761 64.409524 0.7079827 0.8817451
-All                   18.149854 74.111905 0.8255238 0.9293443
+print(head(y)):
+     numdead numalive numdead2.verylongname numalive2.verylongname
+[1,]       1       19                     2                     28
+[2,]       4       16                     8                     22
+[3,]       9       11                    11                     19
+[4,]      13        7                    12                     18
+[5,]      18        2                    20                     10
+[6,]      20        0                    23                      7
 
-GLM (family binomial, link logit):
-
-                        nulldev df       dev df devratio   AIC iters converged
-numdead               124.87559 11  6.757064  9    0.946 42.87     4         1
-numdead2.verylongname  91.62481 11 16.067427  9    0.825 61.29     4         1
+Error : Binomial response (see above): all values should be between 0 and 1, or a binomial pair
+Got error as expected from try(earth(doublepair ~ sex + ldose, trace = 1, pmethod = "none",     glm = list(family = "binomial")))
 > 
 > counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 > outcome <- gl(3,1,9)
@@ -320,35 +354,35 @@ numdead2.verylongname  91.62481 11 16.067427  9    0.825 61.29     4         1
 > a5 <- earth(counts ~ outcome + treatment, trace=1, pmethod="none",
 +             glm=list(family=poisson))
 x[9,4] with colnames outcome2 outcome3 treatment2 treatment3
-y[9,1] with colname counts
+y[9,1] with colname counts, and values 18, 17, 15, 20, 10, 20, 25, 1...
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq -6.576 RSq 0.527
-Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 4 preds
+Prune none penalty 2 nprune null: selected 3 of 3 terms, and 2 of 4 preds
 After pruning pass GRSq -0.894 RSq 0.527
-GLM counts devratio 0.52 dof 6/8 iters 4 
+GLM counts devratio 0.52 dof 6/8 iters 4
 > printh(a5)
 ===a5 
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 10.5815  8   5.12914  6      0.515   52.76     4         1
+
 Earth selected 3 of 3 terms, and 2 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 3 terms
 Importance: outcome2, outcome3, treatment2-unused, treatment3-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 Earth GCV 46.875    RSS 83.33333    GRSq -0.8939394    RSq 0.5265152
-
-GLM (family poisson, link log):
-  nulldev df      dev df devratio   AIC iters converged
- 10.58145  8 5.129141  6    0.515 52.76     4         1
 > 
-> a6 <- earth(numdead ~ sex + ldose, trace=1, pmethod="none",
-+             glm=list(family=gaussian(link=identity)))
+> a6 <- earth(numdead ~ sex + ldose,
++             glm=list(family=gaussian(link=identity)), trace=1)
 x[12,2] with colnames sexmale ldose
-y[12,1] with colname numdead
+y[12,1] with colname numdead, and values 1, 4, 9, 13, 18, 20, 0, 2, 6,...
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.907 RSq 0.981
-Prune method "none" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.952 RSq 0.981
-GLM numdead devratio 0.98 dof 9/11 iters 2 
+GLM numdead devratio 0.98 dof 9/11 iters 2
 > printh(a6$coefficients == a6$glm.coefficients)  # all TRUE
 ===a6$coefficients == a6$glm.coefficients 
             numdead
@@ -357,15 +391,15 @@ ldose          TRUE
 sexmale        TRUE
 > printh(a6)
 ===a6 
-Earth selected 3 of 3 terms, and 2 of 2 predictors (pmethod="none")
+GLM (family gaussian, link identity):
+ nulldev df       dev df   devratio     AIC iters converged
+  504.25 11   9.70238  9      0.981    39.5     2         1
+
+Earth selected 3 of 3 terms, and 2 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
 Importance: ldose, sexmale
 Number of terms at each degree of interaction: 1 2 (additive model)
 Earth GCV 2.376093    RSS 9.702381    GRSq 0.952486    RSq 0.9807588
-
-GLM (family gaussian, link identity):
- nulldev df      dev df devratio  AIC iters converged
-  504.25 11 9.702381  9    0.981 39.5     2         1
 > 
 > remove(ldose)
 > remove(sex)
@@ -789,6 +823,9 @@ attr(,"dataClasses")
        am      gear      carb 
 "numeric" "numeric" "numeric" 
 
+$xlevels
+named list()
+
 attr(,"class")
 [1] "earth"
 > cat("--- done print.default of earth object----\n")
@@ -938,8 +975,7 @@ All    0.3620509 50.74747 0.8213802 0.8308418
 > earth(pclass ~ ., data=etitanic, trace=2)
 x[1046,5] with colnames survived sexmale age sibsp parch
 y[1046,3] with colnames 1st 2nd 3rd
-
-Forward pass: minspan 6 endspan 9    x[1046,5] 40.9 kB    bx[1046,21] 172 kB
+Forward pass: minspan 6 endspan 9   x[1046,5] 40.9 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -954,8 +990,8 @@ Forward pass: minspan 6 endspan 9    x[1046,5] 40.9 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 13 terms, 10 terms used (DeltaRSq 0.00065)
 After forward pass GRSq 0.163 RSq 0.195
 Forward pass complete: 13 terms, 10 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 2 nprune null: selected 8 of 10 terms, and 4 of 5 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 2 nprune null: selected 8 of 10 terms, and 4 of 5 preds
 After pruning pass GRSq 0.167 RSq 0.189
 Selected 8 of 10 terms, and 4 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 10 terms
@@ -1256,7 +1292,7 @@ prdct.> data(trees)
 
 prdct.> earth.mod <- earth(Volume ~ ., data = trees)
 
-prdct.> predict(earth.mod)           # same as earth.mod$fitted.values
+prdct.> predict(earth.mod) # same as earth.mod$fitted.values
          Volume
  [1,]  8.883097
  [2,]  9.909039
@@ -1290,7 +1326,11 @@ prdct.> predict(earth.mod)           # same as earth.mod$fitted.values
 [30,] 55.638930
 [31,] 75.905218
 
-prdct.> predict(earth.mod, c(10,80)) # yields 16.8
+prdct.> predict(earth.mod, data.frame(Girth=10, Height=80)) # yields 17.6
+       Volume
+[1,] 17.60359
+
+prdct.> predict(earth.mod, c(10,80))                        # equivalent
        Volume
 [1,] 17.60359
 > cat("--- residuals.earth.Rd --------------------\n")
@@ -1455,10 +1495,10 @@ $cex
 get.earth.x from model.matrix.earth from predict.earth: x[1,2]:
   Girth Height
 1    10     80
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[1,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[1,2]:
   Girth Height
 1    10     80
-predict.earth: bx[1,4]:
+predict.earth with newdata: bx[1,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 predict.earth: returning earth predictions 
@@ -1472,11 +1512,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    10     80
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    10     80
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           4.2            5
@@ -1493,11 +1533,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    11     81
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    11     81
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           3.2            6
@@ -1525,10 +1565,10 @@ predict.earth: returning earth predictions
 get.earth.x from model.matrix.earth from predict.earth: x[1,2]:
   Girth Height
 1    10     12
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[1,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[1,2]:
   Girth Height
 1    10     12
-predict.earth: bx[1,4]:
+predict.earth with newdata: bx[1,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            0
 predict.earth: returning earth predictions 
@@ -1542,11 +1582,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     12
 2    10     12
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     12
 2    10     12
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            0
 2           1             0           4.2            0
@@ -1563,11 +1603,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1585,11 +1625,11 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1605,11 +1645,11 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1631,11 +1671,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1653,11 +1693,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    80     10
 2    90     12
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    80     10
 2    90     12
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1          65.8             0            0
 2           1          75.8             0            0
@@ -1693,7 +1733,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1710,7 +1750,7 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1726,7 +1766,7 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1749,7 +1789,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1771,7 +1811,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    80     10
 2    90     12
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1          65.8             0            0
 2           1          75.8             0            0
@@ -1791,15 +1831,18 @@ predict.earth: returning earth predictions
 get.earth.x from model.matrix.earth from predict.earth: x[1,2]:
   Girth Height
 1    10     80
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[1,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[1,2]:
   Girth Height
 1    10     80
-predict.earth: bx[1,4]:
+predict.earth with newdata: bx[1,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 predict.earth: returning earth predictions 
        Volume cbind(Volume,Volume+100)2
 [1,] 17.60359                  117.6036
+> predict.a1a <- predict(a, c(10,80))
+> check.almost.equal(predict.a1a[1,1], 17.6035895926138, msg="predict.a1a[1,1]")
+> check.almost.equal(predict.a1a[1,2], 117.603589592614, msg="predict.a1a[1,2]")
 > cat("1b predict(a, c(10,10,80,80))\n")
 1b predict(a, c(10,10,80,80))
 > printh(predict(a, c(10,10,80,80), trace=1))
@@ -1808,11 +1851,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    10     80
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    10     80
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           4.2            5
@@ -1829,11 +1872,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    11     81
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    11     81
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           3.2            6
@@ -1842,6 +1885,20 @@ predict.earth: returning earth predictions
        Volume cbind(Volume,Volume+100)2
 [1,] 17.60359                  117.6036
 [2,] 21.60476                  121.6048
+> cat("1d predict(a, data.frame=c(Girth=10,Height=80))\n")
+1d predict(a, data.frame=c(Girth=10,Height=80))
+> printh(predict(a, newdata=data.frame(Girth=10,Height=80)))
+===predict(a, newdata = data.frame(Girth = 10, Height = 80))        Volume cbind(Volume,Volume+100)2
+[1,] 17.60359                  117.6036
+> predict.a1d <- predict(a, newdata=data.frame(Girth=10,Height=80))
+> check.almost.equal(predict.a1d[1,1], 17.6035895926138, msg="predict.a1d[1,1]")
+> check.almost.equal(predict.a1d[1,2], 117.603589592614, msg="predict.a1d[1,2]")
+> expect.err(try(predict(a, newdata=10)), "get.earth.x from model.matrix.earth from predict.earth:\n       could not convert vector x to matrix because length(x) 1\n       is not a multiple of the number 2 of predictors")
+Error : get.earth.x from model.matrix.earth from predict.earth:
+       could not convert vector x to matrix because length(x) 1
+       is not a multiple of the number 2 of predictors 
+       Expected predictors: Girth Height
+Got error as expected from try(predict(a, newdata = 10))
 > cat("2 predict(a)\n")
 2 predict(a)
 > printh(head(predict(a, trace=1)))
@@ -1861,10 +1918,10 @@ predict.earth: returning earth predictions
 get.earth.x from model.matrix.earth from predict.earth: x[1,2]:
   Girth Height
 1    10     12
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[1,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[1,2]:
   Girth Height
 1    10     12
-predict.earth: bx[1,4]:
+predict.earth with newdata: bx[1,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            0
 predict.earth: returning earth predictions 
@@ -1878,11 +1935,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     12
 2    10     12
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     12
 2    10     12
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            0
 2           1             0           4.2            0
@@ -1899,11 +1956,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1921,11 +1978,11 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1941,11 +1998,11 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -1967,11 +2024,11 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[2,2]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -2013,7 +2070,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -2030,7 +2087,7 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -2046,7 +2103,7 @@ predict.earth: returning earth predictions
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -2069,7 +2126,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[2,2]:
   Girth Height
 1    10     80
 2    12     90
-predict.earth: bx[2,4]:
+predict.earth with newdata: bx[2,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 2           1             0           2.2           15
@@ -2095,10 +2152,10 @@ get.earth.x from model.matrix.earth from predict.earth: x[1,5]:
   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 1          5.1         3.5          1.4         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[1,3]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[1,3]:
   Sepal.Length Sepal.Width Petal.Length
 1          5.1         3.5          1.4
-predict.earth: bx[1,9]:
+predict.earth with newdata: bx[1,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                  0                   0
   h(6.9-Sepal.Length) h(Sepal.Length-7.2) h(Petal.Length-5.3)
@@ -2116,10 +2173,10 @@ get.earth.x from model.matrix.earth from predict.earth: x[1,5]:
   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 1          5.1          NA          1.4         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[1,3]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[1,3]:
   Sepal.Length Sepal.Width Petal.Length
 1          5.1          NA          1.4
-predict.earth: bx[1,9]:
+predict.earth with newdata: bx[1,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                 NA                   0
   h(6.9-Sepal.Length) h(Sepal.Length-7.2) h(Petal.Length-5.3)
@@ -2138,10 +2195,10 @@ get.earth.x from model.matrix.earth from predict.earth: x[1,5]:
   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 1          5.1         3.5          1.4          NA  setosa
   Species is a factor with levels: setosa versicolor virginica
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[1,3]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[1,3]:
   Sepal.Length Sepal.Width Petal.Length
 1          5.1         3.5          1.4
-predict.earth: bx[1,9]:
+predict.earth with newdata: bx[1,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                  0                   0
   h(6.9-Sepal.Length) h(Sepal.Length-7.2) h(Petal.Length-5.3)
@@ -2162,12 +2219,12 @@ get.earth.x from model.matrix.earth from predict.earth: x[3,5]:
 2          4.9         3.0          1.4         0.2  setosa
 3          4.7         3.2          1.3         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[3,3]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[3,3]:
   Sepal.Length Sepal.Width Petal.Length
 1          5.1         3.5          1.4
 2          4.9         3.0          1.4
 3          4.7         3.2          1.3
-predict.earth: bx[3,9]:
+predict.earth with newdata: bx[3,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                0.0                   0
 2           1               4.6                0.5                   0
@@ -2195,12 +2252,12 @@ get.earth.x from model.matrix.earth from predict.earth: x[3,5]:
 2          4.9          NA          1.4         0.2  setosa
 3          4.7         3.2          1.3         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[3,3]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[3,3]:
   Sepal.Length Sepal.Width Petal.Length
 1          5.1         3.5          1.4
 2          4.9          NA          1.4
 3          4.7         3.2          1.3
-predict.earth: bx[3,9]:
+predict.earth with newdata: bx[3,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                0.0                   0
 2           1               4.6                 NA                   0
@@ -2229,12 +2286,12 @@ get.earth.x from model.matrix.earth from predict.earth: x[3,5]:
 2          4.9         3.0          1.4          NA  setosa
 3          4.7         3.2          1.3         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: data[3,3]:
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[3,3]:
   Sepal.Length Sepal.Width Petal.Length
 1          5.1         3.5          1.4
 2          4.9         3.0          1.4
 3          4.7         3.2          1.3
-predict.earth: bx[3,9]:
+predict.earth with newdata: bx[3,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                0.0                   0
 2           1               4.6                0.5                   0
@@ -2265,7 +2322,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[1,5]:
   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 1          5.1         3.5          1.4         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-predict.earth: bx[1,9]:
+predict.earth with newdata: bx[1,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                  0                   0
   h(6.9-Sepal.Length) h(Sepal.Length-7.2) h(Petal.Length-5.3)
@@ -2283,7 +2340,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[1,5]:
   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 1          5.1          NA          1.4         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-predict.earth: bx[1,9]:
+predict.earth with newdata: bx[1,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                 NA                   0
   h(6.9-Sepal.Length) h(Sepal.Length-7.2) h(Petal.Length-5.3)
@@ -2302,7 +2359,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[1,5]:
   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 1          5.1         3.5          1.4          NA  setosa
   Species is a factor with levels: setosa versicolor virginica
-predict.earth: bx[1,9]:
+predict.earth with newdata: bx[1,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                  0                   0
   h(6.9-Sepal.Length) h(Sepal.Length-7.2) h(Petal.Length-5.3)
@@ -2323,7 +2380,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[3,5]:
 2          4.9         3.0          1.4         0.2  setosa
 3          4.7         3.2          1.3         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-predict.earth: bx[3,9]:
+predict.earth with newdata: bx[3,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                0.0                   0
 2           1               4.6                0.5                   0
@@ -2351,7 +2408,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[3,5]:
 2          4.9          NA          1.4         0.2  setosa
 3          4.7         3.2          1.3         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-predict.earth: bx[3,9]:
+predict.earth with newdata: bx[3,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                0.0                   0
 2           1               4.6                 NA                   0
@@ -2380,7 +2437,7 @@ get.earth.x from model.matrix.earth from predict.earth: x[3,5]:
 2          4.9         3.0          1.4          NA  setosa
 3          4.7         3.2          1.3         0.2  setosa
   Species is a factor with levels: setosa versicolor virginica
-predict.earth: bx[3,9]:
+predict.earth with newdata: bx[3,9]:
   (Intercept) h(6-Petal.Length) h(3.5-Sepal.Width) h(Sepal.Length-6.9)
 1           1               4.6                0.0                   0
 2           1               4.6                0.5                   0
@@ -2580,9 +2637,8 @@ to earth(x=x, y=y, degree=degree, nk=nk)
 > # TODO why are we getting the rank deficient message?
 > itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, smooth.col=0, trace=2)
 x[330,2] with colnames wind ""
-y[330,1] with colname y
-
-Forward pass: minspan 5 endspan 8    x[330,2] 5.16 kB    bx[330,21] 54.1 kB
+y[330,1] with colname y, and values 33, 34, 35, 36, 37, 38, 39, 4...
+Forward pass: minspan 5 endspan 8   x[330,2] 5.16 kB   bx[330,21] 54.1 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -2591,15 +2647,15 @@ Forward pass: minspan 5 endspan 8    x[330,2] 5.16 kB    bx[330,21] 54.1 kB
 6      0.0821 0.1262     0.002668    1         wind           4  5             1 
 8      0.0730 0.1285     0.002307    1         wind           6  6             1 
 10     0.0633 0.1304     0.001925    2               1.7848e+08< 7             1 
-12     0.0527 0.1316     0.001264    2               1.7848e+08< 8             1 
-14     0.0420 0.1329     0.001279    2               1.7848e+08< 9             1 
-16     0.0297 0.1329            0    -                                       reject (no DeltaRsq)
+12     0.0534 0.1323     0.001868    2               1.7848e+08< 8             1 
+14     0.0432 0.1340     0.001792    2               1.7848e+08< 9             1 
+16     0.0309 0.1340            0    -                                       reject (no DeltaRsq)
 
 RSq changed by less than 0.001 at 15 terms, 9 terms used (DeltaRSq 0)
-After forward pass GRSq 0.030 RSq 0.133
+After forward pass GRSq 0.031 RSq 0.134
 Forward pass complete: 15 terms, 9 terms used
 Fixed rank deficient bx by removing 2 terms, 7 terms remain
-Prune method "backward" penalty 2 nprune null: selected 3 of 7 terms, and 1 of 2 preds
+Prune backward penalty 2 nprune null: selected 3 of 7 terms, and 1 of 2 preds
 After pruning pass GRSq 0.101 RSq 0.123
 Warning in storage.mode(tagx) <- "integer" :
   NAs introduced by coercion to integer range
@@ -3889,7 +3945,7 @@ Number of terms at each degree of interaction: 1 5 4
 GCV 14.03861    RSS 3996.421    GRSq 0.7819266    RSq 0.8107343
 > printh(update(a.none, nprune=4, pmethod="e"))
 ===update(a.none, nprune = 4, pmethod = "e") 
-Selected 4 of 31 terms, and 3 of 9 predictors
+Selected 4 of 31 terms, and 3 of 9 predictors (pmethod="exhaustive")
 Termination condition: Reached nk 31
 Importance: temp, ibh, humidity, vh-unused, wind-unused, dpg-unused, ...
 Number of terms at each degree of interaction: 1 2 1
@@ -3940,9 +3996,8 @@ Got error as expected from try(earth(y ~ ., data = data, Auto.linpr = 99))
 > 
 > a <- earth(y~., data=data, trace=2) # default Auto.linpreds=TRUE
 x[10,2] with colnames x1 x2
-y[10,1] with colname y
-
-Forward pass: minspan 3 endspan 4    x[10,2] 160 B    bx[10,21] 1.64 kB
+y[10,1] with colname y, and values 1.599, 0.5392, 0.4943, 0.7207...
+Forward pass: minspan 3 endspan 4   x[10,2] 160 Bytes   bx[10,21] 1.64 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -3952,7 +4007,7 @@ Forward pass: minspan 3 endspan 4    x[10,2] 160 B    bx[10,21] 1.64 kB
 Reached maximum RSq 0.9990 at 5 terms, 4 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 5 terms, 4 terms used
-Prune method "backward" penalty 2 nprune null: selected 4 of 4 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 4 terms, and 2 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > print(summary(a, style="pmax"))
 Call: earth(formula=y~., data=data, trace=2)
@@ -3978,9 +4033,8 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 > 
 > a1 <- earth(y~., data=data, trace=2, Auto.linpreds=FALSE)
 x[10,2] with colnames x1 x2
-y[10,1] with colname y
-
-Forward pass: minspan 3 endspan 4    x[10,2] 160 B    bx[10,21] 1.64 kB
+y[10,1] with colname y, and values 1.599, 0.5392, 0.4943, 0.7207...
+Forward pass: minspan 3 endspan 4   x[10,2] 160 Bytes   bx[10,21] 1.64 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -3990,7 +4044,7 @@ Forward pass: minspan 3 endspan 4    x[10,2] 160 B    bx[10,21] 1.64 kB
 Reached maximum RSq 0.9990 at 5 terms, 4 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 5 terms, 4 terms used
-Prune method "backward" penalty 2 nprune null: selected 4 of 4 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 4 terms, and 2 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > print(summary(a1, style="pmax"))
 Call: earth(formula=y~., data=data, trace=2, Auto.linpreds=FALSE)
@@ -4017,10 +4071,9 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 > 
 > a2 <- earth(y~., data=data, trace=2, linpreds=TRUE, Auto.linpreds=FALSE)
 x[10,2] with colnames x1 x2
-y[10,1] with colname y
-
+y[10,1] with colname y, and values 1.599, 0.5392, 0.4943, 0.7207...
 Linear predictors 1=x1 2=x2
-Forward pass: minspan 3 endspan 4    x[10,2] 160 B    bx[10,21] 1.64 kB
+Forward pass: minspan 3 endspan 4   x[10,2] 160 Bytes   bx[10,21] 1.64 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -4030,7 +4083,7 @@ Forward pass: minspan 3 endspan 4    x[10,2] 160 B    bx[10,21] 1.64 kB
 Reached maximum RSq 0.9990 at 5 terms, 3 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 5 terms, 3 terms used
-Prune method "backward" penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > print(summary(a2, style="pmax"))
 Call: earth(formula=y~., data=data, trace=2, linpreds=TRUE,
@@ -4277,9 +4330,8 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 Auto.linpreds=TRUE pmethod="none":
 > auto.linpreds.true.pmethod.none <- earth(y~., data=ndata, degree=2, nk=21, trace=2, pmethod="none")
 x[32,5] with colnames x1 x2 x3 x4 x5
-y[32,1] with colname y
-
-Forward pass: minspan 4 endspan 9    x[32,5] 1.25 kB    bx[32,21] 5.25 kB
+y[32,1] with colname y, and values -0.372, 0.5687, 2.42, 0.3432,...
+Forward pass: minspan 4 endspan 9   x[32,5] 1.25 kB   bx[32,21] 5.25 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -4295,7 +4347,7 @@ Forward pass: minspan 4 endspan 9    x[32,5] 1.25 kB    bx[32,21] 5.25 kB
 Reached minimum GRSq -10 at 15 terms, 10 terms used (GRSq -14)
 After forward pass GRSq -13.822 RSq 0.811
 Forward pass complete: 15 terms, 10 terms used
-Prune method "none" penalty 3 nprune null: selected 10 of 10 terms, and 3 of 5 preds
+Prune none penalty 3 nprune null: selected 10 of 10 terms, and 3 of 5 preds
 After pruning pass GRSq -1.76 RSq 0.792
 > print(summary(auto.linpreds.true.pmethod.none, decomp="none"))
 Call: earth(formula=y~., data=ndata, pmethod="none", trace=2, degree=2, nk=21)
@@ -4322,9 +4374,8 @@ GCV 8.371258    RSS 18.90073    GRSq -1.762519    RSq 0.792308
 Auto.linpreds=FALSE pmethod="none":
 > auto.linpreds.false.pmethod.none <- earth(y~., data=ndata, degree=2, nk=21, trace=2, Auto.linpreds=FALSE, pmethod="none")
 x[32,5] with colnames x1 x2 x3 x4 x5
-y[32,1] with colname y
-
-Forward pass: minspan 4 endspan 9    x[32,5] 1.25 kB    bx[32,21] 5.25 kB
+y[32,1] with colname y, and values -0.372, 0.5687, 2.42, 0.3432,...
+Forward pass: minspan 4 endspan 9   x[32,5] 1.25 kB   bx[32,21] 5.25 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -4341,7 +4392,7 @@ Reached minimum GRSq -10 at 15 terms, 12 terms used (GRSq -14)
 After forward pass GRSq -13.822 RSq 0.811
 Forward pass complete: 15 terms, 12 terms used
 Fixed rank deficient bx by removing 2 terms, 10 terms remain
-Prune method "none" penalty 3 nprune null: selected 10 of 10 terms, and 3 of 5 preds
+Prune none penalty 3 nprune null: selected 10 of 10 terms, and 3 of 5 preds
 After pruning pass GRSq -1.76 RSq 0.792
 > print(summary(auto.linpreds.false.pmethod.none, decomp="none"))
 Call: earth(formula=y~., data=ndata, pmethod="none", trace=2, degree=2, nk=21,
@@ -4371,9 +4422,8 @@ GCV 8.371258    RSS 18.90073    GRSq -1.762519    RSq 0.792308
 Auto.linpreds=TRUE:
 > auto.linpreds.true <- earth(y~., data=ndata, degree=2, nk=21, trace=2)
 x[32,5] with colnames x1 x2 x3 x4 x5
-y[32,1] with colname y
-
-Forward pass: minspan 4 endspan 9    x[32,5] 1.25 kB    bx[32,21] 5.25 kB
+y[32,1] with colname y, and values -0.372, 0.5687, 2.42, 0.3432,...
+Forward pass: minspan 4 endspan 9   x[32,5] 1.25 kB   bx[32,21] 5.25 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -4389,7 +4439,7 @@ Forward pass: minspan 4 endspan 9    x[32,5] 1.25 kB    bx[32,21] 5.25 kB
 Reached minimum GRSq -10 at 15 terms, 10 terms used (GRSq -14)
 After forward pass GRSq -13.822 RSq 0.811
 Forward pass complete: 15 terms, 10 terms used
-Prune method "backward" penalty 3 nprune null: selected 4 of 10 terms, and 3 of 5 preds
+Prune backward penalty 3 nprune null: selected 4 of 10 terms, and 3 of 5 preds
 After pruning pass GRSq 0.209 RSq 0.546
 > print(summary(auto.linpreds.true, decomp="none"))
 Call: earth(formula=y~., data=ndata, trace=2, degree=2, nk=21)
@@ -4410,9 +4460,8 @@ GCV 2.396481    RSS 41.35802    GRSq 0.20916    RSq 0.5455344
 Auto.linpreds=FALSE:
 > auto.linpreds.false <- earth(y~., data=ndata, degree=2, nk=21, trace=2, Auto.linpreds=FALSE)
 x[32,5] with colnames x1 x2 x3 x4 x5
-y[32,1] with colname y
-
-Forward pass: minspan 4 endspan 9    x[32,5] 1.25 kB    bx[32,21] 5.25 kB
+y[32,1] with colname y, and values -0.372, 0.5687, 2.42, 0.3432,...
+Forward pass: minspan 4 endspan 9   x[32,5] 1.25 kB   bx[32,21] 5.25 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -4429,7 +4478,7 @@ Reached minimum GRSq -10 at 15 terms, 12 terms used (GRSq -14)
 After forward pass GRSq -13.822 RSq 0.811
 Forward pass complete: 15 terms, 12 terms used
 Fixed rank deficient bx by removing 2 terms, 10 terms remain
-Prune method "backward" penalty 3 nprune null: selected 5 of 10 terms, and 3 of 5 preds
+Prune backward penalty 3 nprune null: selected 5 of 10 terms, and 3 of 5 preds
 After pruning pass GRSq 0.223 RSq 0.643
 > print(summary(auto.linpreds.false, decomp="none"))
 Call: earth(formula=y~., data=ndata, trace=2, degree=2, nk=21,
@@ -4459,13 +4508,21 @@ Got error as expected from try(earth(Volume ~ ., data = trees, Force.xtx.prune =
 > 
 > m1 <- earth(Volume ~ ., data = trees)
 > m2 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
-> check.models.equal(m1, m2, "Force.xtx.prune test 1", check.subsets=FALSE)
-check.models.equal not identical: Force.xtx.prune test 1 (m1$rsq 0.9742029 != m1$rsq 0.9742029) [but within numerical tolerances]
+> check.models.equal(m1, m2, "Force.xtx.prune test 1", check.subsets=FALSE, newdata=data.frame(Height=10, Girth=12))
+Force.xtx.prune test 1: models not identical
+
+mod1$rsq 0.9742029 != mod2$rsq 0.9742029 (although almost equal)
+Force.xtx.prune test 1: Models are equivalent, within numerical tolerances
+
 > 
 > m1 <- earth(O3 ~ wind+temp, data = ozone1, nk=51)
 > m2 <- earth(O3 ~ wind+temp, data = ozone1, nk=51, Force.xtx.prune=TRUE)
-> check.models.equal(m1, m2, "Force.xtx.prune test 2", check.subsets=FALSE)
-check.models.equal not identical: Force.xtx.prune test 2 (m1$rsq 0.6647086 != m1$rsq 0.6647086) [but within numerical tolerances]
+> check.models.equal(m1, m2, "Force.xtx.prune test 2", check.subsets=FALSE, newdata=ozone1[5:7,])
+Force.xtx.prune test 2: models not identical
+
+mod1$rsq 0.6647086 != mod2$rsq 0.6647086 (although almost equal)
+Force.xtx.prune test 2: Models are equivalent, within numerical tolerances
+
 > 
 > # TODO The following exposes a bug in leaps(?).  It is described in
 > # check.one.term.per.step in the earth R code.  The test is commented out
@@ -4603,13 +4660,11 @@ Call:
 mda(formula = Type ~ ., data = glass.train, method = earth, keep.fitted = TRUE, 
     keepxy = TRUE, degree = 2)
 
-Dimension: 12 
+Dimension: 11 
 
 Percent Between-Group Variance Explained:
     v1     v2     v3     v4     v5     v6     v7     v8     v9    v10    v11 
  65.54  84.85  91.55  95.01  96.73  98.04  99.00  99.88 100.00 100.00 100.00 
-   v12 
-100.00 
 
 Training Misclassification Error: 0.29 ( N = 100 )
 
@@ -4637,14 +4692,14 @@ update(a, trace=1)
 update.earth: using 31 by 3 data argument from original call to earth
 update.earth: using 31 by 1 subset argument from original call to earth
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 31 cases after taking subset
 Skipped forward pass
-Prune method "backward" penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.1  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
-> check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1")
-check.models.equal identical: a1update a1
+> check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1", newdata=trees[1:3,])
+a1update a1: models identical
 
 > 
 > cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
@@ -4653,16 +4708,16 @@ update(a.formula, data=new.trees, trace=1)
 > a.formula.2update <- update(a.formula, data=new.trees, trace=1)
 update.earth: using 31 by 1 subset argument from original call to earth
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 13.3, 14.3, 11.2, 18.4, 21.8,...
 31 cases after taking subset
 Forward pass term 1, 2, 4, 6, 8, 10, 12
 RSq changed by less than 0.001 at 11 terms, 8 terms used (DeltaRSq 0.00016)
 After forward pass GRSq 0.735 RSq 0.942
-Prune method "backward" penalty 2 nprune null: selected 5 of 8 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 5 of 8 terms, and 2 of 2 preds
 After pruning pass GRSq 0.886 RSq 0.938
 > a.formula.2  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = new.trees)
-> check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2")
-check.models.equal identical: a2update a2
+> check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2", newdata=trees[1:3,])
+a2update a2: models identical
 
 > 
 > cat("\nupdate(a.formula, wp=2, trace=1)\n")
@@ -4672,16 +4727,16 @@ update(a.formula, wp=2, trace=1)
 update.earth: using 31 by 3 data argument from original call to earth
 update.earth: using 31 by 1 subset argument from original call to earth
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 31 cases after taking subset
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00087)
 After forward pass GRSq 0.947 RSq 0.976
-Prune method "backward" penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.3  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees, wp=2)
-> check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3")
-check.models.equal identical: a3update a3
+> check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3", newdata=trees[1:3,])
+a3update a3: models identical
 
 > 
 > cat("\nupdate(a.formula, subset=subset.new, trace=1)\n")
@@ -4692,16 +4747,16 @@ update(a.formula, subset=subset.new, trace=1)
 > a.formula.4update <- update(a.formula, subset=subset.new, trace=1)
 update.earth: using 31 by 3 data argument from original call to earth
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 27 cases after taking subset
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00037)
 After forward pass GRSq 0.925 RSq 0.972
-Prune method "backward" penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.947 RSq 0.969
 > a.formula.4  <- earth(Volume ~ ., data = trees, subset=subset.new)
-> check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4")
-check.models.equal identical: a4update a4
+> check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4", newdata=trees[1:3,])
+a4update a4: models identical
 
 > 
 > # now use keepxy=TRUE
@@ -4715,13 +4770,13 @@ update(a.formula, trace=1)
 update.earth: using 31 by 3 data saved by keepxy in original call to earth
 update.earth: using 1 by 1 wp saved by keepxy in original call to earth
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 Skipped forward pass
-Prune method "backward" penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.5  <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
-> check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5")
-check.models.equal identical: a5update a5
+> check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5", newdata=trees[1:3,])
+a5update a5: models identical
 
 > 
 > cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
@@ -4730,15 +4785,15 @@ update(a.formula, data=new.trees, trace=1)
 > a.formula.6update <- update(a.formula, data=new.trees, trace=1)
 update.earth: using 1 by 1 wp saved by keepxy in original call to earth
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 13.3, 14.3, 11.2, 18.4, 21.8,...
 Forward pass term 1, 2, 4, 6, 8, 10, 12
 RSq changed by less than 0.001 at 11 terms, 8 terms used (DeltaRSq 0.00016)
 After forward pass GRSq 0.735 RSq 0.942
-Prune method "backward" penalty 2 nprune null: selected 5 of 8 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 5 of 8 terms, and 2 of 2 preds
 After pruning pass GRSq 0.886 RSq 0.938
 > a.formula.6  <- earth(Volume ~ ., wp=1, data = new.trees, keepxy=TRUE)
-> check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6")
-check.models.equal identical: a6update a6
+> check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6", newdata=trees[1:3,])
+a6update a6: models identical
 
 > 
 > cat("\nupdate(a.formula, wp=2, trace=1)\n")
@@ -4747,15 +4802,15 @@ update(a.formula, wp=2, trace=1)
 > a.formula.7update <- update(a.formula, wp=2, trace=1)
 update.earth: using 31 by 3 data saved by keepxy in original call to earth
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00087)
 After forward pass GRSq 0.947 RSq 0.976
-Prune method "backward" penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.7  <- earth(Volume ~ ., wp=2, data = trees, keepxy=TRUE)
-> check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7")
-check.models.equal identical: a7update a7
+> check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7", newdata=trees[1:3,])
+a7update a7: models identical
 
 > 
 > cat("\n----- update and keepxy, matrix interface--------------------------\n")
@@ -4778,14 +4833,14 @@ update.earth: using 31 by 2 x argument from original call to earth
 update.earth: using 31 by 1 y argument from original call to earth
 update.earth: using 31 by 1 subset argument from original call to earth
 x[31,2] with colnames Height Volume
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 31 cases after taking subset
 Skipped forward pass
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > a1  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
-> check.models.equal(a1update, a1, msg="a1update a1")
-check.models.equal identical: a1update a1
+> check.models.equal(a1update, a1, msg="a1update a1", newdata=trees[1:3,])
+a1update a1: models identical
 
 > 
 > cat("\nupdate(a, x=new.x, trace=1)\n")
@@ -4795,16 +4850,16 @@ update(a, x=new.x, trace=1)
 update.earth: using 31 by 1 y argument from original call to earth
 update.earth: using 31 by 1 subset argument from original call to earth
 x[31,2] with colnames Height Volume
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 31 cases after taking subset
 Forward pass term 1, 2, 4
 RSq changed by less than 0.001 at 3 terms (DeltaRSq 0.00028)
 After forward pass GRSq 0.992 RSq 0.996
-Prune method "backward" penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
 After pruning pass GRSq 0.994 RSq 0.995
 > a2  <- earth(new.x, Volume, subset=rep(TRUE, nrow(trees)))
-> check.models.equal(a2update, a2, msg="a2update a2")
-check.models.equal identical: a2update a2
+> check.models.equal(a2update, a2, msg="a2update a2", newdata=trees[1:3,])
+a2update a2: models identical
 
 > 
 > cat("\nupdate(a, wp=2, trace=0)\n")
@@ -4812,8 +4867,8 @@ check.models.equal identical: a2update a2
 update(a, wp=2, trace=0)
 > a3update <- update(a, wp=2, trace=0)
 > a3  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)), wp=2)
-> check.models.equal(a3update, a3, msg="a3update a3")
-check.models.equal identical: a3update a3
+> check.models.equal(a3update, a3, msg="a3update a3", newdata=trees[1:3,])
+a3update a3: models identical
 
 > 
 > cat("\nupdate(a, subset=subset.new, trace=4)\n")
@@ -4844,7 +4899,7 @@ y[31,1]:
 
 27 cases after taking subset
 
-Forward pass: minspan 4 endspan 8    x[27,2] 432 B    bx[27,21] 4.43 kB
+Forward pass: minspan 4 endspan 8   x[27,2] 432 Bytes   bx[27,21] 4.43 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -4854,19 +4909,19 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms, 2 terms used
 
-EvalSubsetsUsingXtx:
-nTerms iTerm DeltaRss    RSq
-     2     2   6527.9 -0.0000 min
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
+     nTerms iTerm    DeltaRss     RSq
+          2     2      6527.9 -0.0000 min
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
 chosen    2      1.0000  1.0000     1.0000      1  1 2
 
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > a4  <- earth(x, Volume, subset=subset.new)
-> check.models.equal(a4update, a4, msg="a4update a4")
-check.models.equal identical: a4update a4
+> check.models.equal(a4update, a4, msg="a4update a4", newdata=trees[1:3,])
+a4update a4: models identical
 
 > 
 > # now use keepxy=TRUE
@@ -4900,19 +4955,19 @@ y[31,1]:
 31    77.0
 
 Skipped forward pass
-EvalSubsetsUsingXtx:
-nTerms iTerm DeltaRss    RSq
-     2     2   8106.1 -0.0000 min
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
+     nTerms iTerm    DeltaRss     RSq
+          2     2      8106.1 -0.0000 min
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
 chosen    2      1.0000  1.0000     1.0000      1  1 2
 
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > a5  <- earth(x, Volume, wp=1, keepxy=TRUE)
-> check.models.equal(a5update, a5, msg="a5update a5")
-check.models.equal identical: a5update a5
+> check.models.equal(a5update, a5, msg="a5update a5", newdata=trees[1:3,])
+a5update a5: models identical
 
 > 
 > cat("\nupdate(a, x=new.x, trace=4)\n")
@@ -4939,7 +4994,7 @@ y[31,1]:
 ...   16.4
 31    77.0
 
-Forward pass: minspan 4 endspan 8    x[31,2] 496 B    bx[31,21] 5.09 kB
+Forward pass: minspan 4 endspan 8   x[31,2] 496 Bytes   bx[31,21] 5.09 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -4955,11 +5010,11 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           2      0.7964  0.8226     0.7964      1  1 2
 chosen    3      0.9938  0.9954     0.1974      1  1 2 3
 
-Prune method "backward" penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
 After pruning pass GRSq 0.994 RSq 0.995
 > a6  <- earth(new.x, Volume, wp=1, keepxy=TRUE)
-> check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6")
-check.models.equal identical: "allowed" function a6update a6
+> check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6", newdata=trees[1:3,])
+"allowed" function a6update a6: models identical
 
 > 
 > cat("\nupdate(a, wp=2)\n")
@@ -4967,8 +5022,8 @@ check.models.equal identical: "allowed" function a6update a6
 update(a, wp=2)
 > a7update <- update(a, wp=2)
 > a7  <- earth(x, Volume, wp=2, keepxy=TRUE)
-> check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7")
-check.models.equal identical: "allowed" function a7update a7
+> check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7", newdata=trees[1:3,])
+"allowed" function a7update a7: models identical
 
 > 
 > cat("--- \"allowed\" argument -----------------\n")
@@ -4999,8 +5054,8 @@ GCV 14.3391    RSS 312.6848    GRSq 0.948644    RSq 0.9614259
 +     namesx[pred] != "Height"  # disallow "Height"
 + }
 > a1a <- earth(Volume ~ ., data = trees, allowed = example1a)
-> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a")
-check.models.equal identical: "allowed" function a1 a1a
+> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a", newdata=trees[1:3,])
+"allowed" function a1 a1a: models identical
 
 > 
 > iheight <- 0
@@ -5014,8 +5069,8 @@ check.models.equal identical: "allowed" function a1 a1a
 +     pred != iheight
 + }
 > a1b <- earth(Volume ~ ., data = trees, allowed = example1b)
-> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b")
-check.models.equal identical: "allowed" function a1 a1b
+> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b", newdata=trees[1:3,])
+"allowed" function a1 a1b: models identical
 
 > 
 > example2 <- function(degree, pred, parents)
@@ -5108,8 +5163,8 @@ GCV 13.8999    RSS 3828.887    GRSq 0.7840813    RSq 0.8186686
 +     TRUE
 + }
 > a3a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-> check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a")
-check.models.equal identical: "allowed" function a3 a3a
+> check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a", newdata=trees[1:3,])
+"allowed" function a3 a3a: models identical
 
 > 
 > #--- no predictor in PREDICTORS is allowed to interact with any predictor in PARENTS
@@ -5475,9 +5530,123 @@ y[101,1]:
  Max.   :9.000  
 
 maxmem 0.0 GB
-earth.c version 4.6.3
+
+Scale.y = TRUE: yscale 2.907 ycenter 4.4554
+
+yscaled[101,1]:
+             y
+1   -1.5326750
+2   -1.1886746
+3   -0.8446742
+4   -0.5006738
+5   -0.1566734
+6    0.1873269
+7    0.5313273
+8    0.8753277
+9    1.2193281
+10   1.5633285
+11  -1.5326750
+12  -1.1886746
+13  -0.8446742
+14  -0.5006738
+15  -0.1566734
+16   0.1873269
+17   0.5313273
+18   0.8753277
+19   1.2193281
+20   1.5633285
+21  -1.5326750
+22  -1.1886746
+23  -0.8446742
+24  -0.5006738
+25  -0.1566734
+26   0.1873269
+27   0.5313273
+28   0.8753277
+29   1.2193281
+30   1.5633285
+31  -1.5326750
+32  -1.1886746
+33  -0.8446742
+34  -0.5006738
+35  -0.1566734
+36   0.1873269
+37   0.5313273
+38   0.8753277
+39   1.2193281
+40   1.5633285
+41  -1.5326750
+42  -1.1886746
+43  -0.8446742
+44  -0.5006738
+45  -0.1566734
+46   0.1873269
+47   0.5313273
+48   0.8753277
+49   1.2193281
+50   1.5633285
+51  -1.5326750
+52  -1.1886746
+53  -0.8446742
+54  -0.5006738
+55  -0.1566734
+56   0.1873269
+57   0.5313273
+58   0.8753277
+59   1.2193281
+60   1.5633285
+61  -1.5326750
+62  -1.1886746
+63  -0.8446742
+64  -0.5006738
+65  -0.1566734
+66   0.1873269
+67   0.5313273
+68   0.8753277
+69   1.2193281
+70   1.5633285
+71  -1.5326750
+72  -1.1886746
+73  -0.8446742
+74  -0.5006738
+75  -0.1566734
+76   0.1873269
+77   0.5313273
+78   0.8753277
+79   1.2193281
+80   1.5633285
+81  -1.5326750
+82  -1.1886746
+83  -0.8446742
+84  -0.5006738
+85  -0.1566734
+86   0.1873269
+87   0.5313273
+88   0.8753277
+89   1.2193281
+90   1.5633285
+91  -1.5326750
+92  -1.1886746
+93  -0.8446742
+94  -0.5006738
+95  -0.1566734
+96   0.1873269
+97   0.5313273
+98   0.8753277
+99   1.2193281
+100  1.5633285
+101 -1.5326750
+       y          
+ Min.   :-1.5327  
+ 1st Qu.:-0.8447  
+ Median :-0.1567  
+ Mean   : 0.0000  
+ 3rd Qu.: 0.8753  
+ Max.   : 1.5633  
+
+earth.c version 5.0.0
 BetaCache 3.45 kB
-Forward pass: minspan 4 endspan 7    x[101,1] 808 B    bx[101,21] 16.6 kB
+Forward pass: minspan 4 endspan 7   x[101,1] 808 Bytes   bx[101,21] 16.6 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5487,15 +5656,15 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms, 2 terms used
 
-EvalSubsetsUsingXtx:
-nTerms iTerm DeltaRss    RSq
-     2     2   845.05 -0.0000 min
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
+     nTerms iTerm    DeltaRss     RSq
+          2     2      845.05 -0.0000 min
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
 chosen    2      1.0000  1.0000     1.0000      1  1 2
 
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > 
 > a.longx  <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
@@ -5523,7 +5692,7 @@ y[101,1]:
 ... 3
 101 0
 
-Forward pass: minspan 4 endspan 7    x[101,1] 808 B    bx[101,21] 16.6 kB
+Forward pass: minspan 4 endspan 7   x[101,1] 808 Bytes   bx[101,21] 16.6 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5533,15 +5702,15 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms, 2 terms used
 
-EvalSubsetsUsingXtx:
-nTerms iTerm DeltaRss    RSq
-     2     2   845.05 -0.0000 min
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
+     nTerms iTerm    DeltaRss     RSq
+          2     2      845.05 -0.0000 min
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
 chosen    2      1.0000  1.0000     1.0000      1  1 2
 
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > 
 > a.longy  <- earth(x = x,
@@ -5569,7 +5738,7 @@ y[101,1]:
 ... 3
 101 0
 
-Forward pass: minspan 4 endspan 7    x[101,1] 808 B    bx[101,21] 16.6 kB
+Forward pass: minspan 4 endspan 7   x[101,1] 808 Bytes   bx[101,21] 16.6 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5579,15 +5748,15 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms, 2 terms used
 
-EvalSubsetsUsingXtx:
-nTerms iTerm DeltaRss    RSq
-     2     2   845.05 -0.0000 min
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
+     nTerms iTerm    DeltaRss     RSq
+          2     2      845.05 -0.0000 min
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
 chosen    2      1.0000  1.0000     1.0000      1  1 2
 
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > 
 > a.longxy <- earth(x = c(0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,
@@ -5618,7 +5787,7 @@ y[101,1]:
 ... 3
 101 0
 
-Forward pass: minspan 4 endspan 7    x[101,1] 808 B    bx[101,21] 16.6 kB
+Forward pass: minspan 4 endspan 7   x[101,1] 808 Bytes   bx[101,21] 16.6 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5628,15 +5797,15 @@ Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms, 2 terms used
 
-EvalSubsetsUsingXtx:
-nTerms iTerm DeltaRss    RSq
-     2     2   845.05 -0.0000 min
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
+     nTerms iTerm    DeltaRss     RSq
+          2     2      845.05 -0.0000 min
 
 Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
           1      0.0000  0.0000     0.0000      0  1
 chosen    2      1.0000  1.0000     1.0000      1  1 2
 
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > printh(summary(a))
 ===summary(a) 
@@ -5717,9 +5886,8 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 > attach(etitanic)
 > a1 <- earth(pclass, sex, degree=2, trace=2)        # x=unordered y=unordered
 x[1046,2] with colnames x2nd x3rd
-y[1046,1] with colname male
-
-Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
+y[1046,1] with colname male, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
+Forward pass: minspan 6 endspan 8   x[1046,2] 16.3 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5730,7 +5898,7 @@ Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.007 RSq 0.021
 Forward pass complete: 5 terms, 3 terms used
-Prune method "backward" penalty 3 nprune null: selected 2 of 3 terms, and 1 of 2 preds
+Prune backward penalty 3 nprune null: selected 2 of 3 terms, and 1 of 2 preds
 After pruning pass GRSq 0.0133 RSq 0.018
 > printh(summary(a1))
 ===summary(a1) 
@@ -5763,10 +5931,9 @@ GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > if (PLOT)
 +     plot(a1)
 > a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
-x[1046,1] with colname xmale
+x[1046,1] with colname xmale, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
 y[1046,3] with colnames 1st 2nd 3rd
-
-Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
+Forward pass: minspan 5 endspan 7   x[1046,1] 8.17 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5776,8 +5943,8 @@ Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 3 terms, 2 terms used (DeltaRSq 0)
 After forward pass GRSq 0.003 RSq 0.012
 Forward pass complete: 3 terms, 2 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 3 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 3 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 0.00728 RSq 0.012
 > printh(summary(a2))
 ===summary(a2) 
@@ -5801,9 +5968,8 @@ All 0.6311974 655.8215  0.007279765 0.0120239411
 +     plot(a2, nresponse=1)
 > a3 <- earth(pclass, age, degree=2, trace=2)        # x=unordered y=numeric
 x[1046,2] with colnames x2nd x3rd
-y[1046,1] with colname age
-
-Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
+y[1046,1] with colname age, and values 29, 0.9167, 2, 30, 25, 48, 63...
+Forward pass: minspan 6 endspan 8   x[1046,2] 16.3 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5814,7 +5980,7 @@ Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.160 RSq 0.172
 Forward pass complete: 5 terms, 3 terms used
-Prune method "backward" penalty 3 nprune null: selected 3 of 3 terms, and 2 of 2 preds
+Prune backward penalty 3 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.164 RSq 0.172
 > printh(summary(a3))
 ===summary(a3) 
@@ -5833,10 +5999,9 @@ GCV 173.8417    RSS 179758.3    GRSq 0.1640128    RSq 0.1719935
 > if (PLOT)
 +     plot(a3, nresponse=1)
 > a4 <- earth(age, pclass, degree=2, trace=2)        # x=numeric y=unordered
-x[1046,1] with colname age
+x[1046,1] with colname age, and values 29, 0.9167, 2, 30, 25, 48, 63...
 y[1046,3] with colnames 1st 2nd 3rd
-
-Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
+Forward pass: minspan 5 endspan 7   x[1046,1] 8.17 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5849,8 +6014,8 @@ Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 9 terms, 6 terms used (DeltaRSq 0.00081)
 After forward pass GRSq 0.081 RSq 0.107
 Forward pass complete: 9 terms, 6 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 3 nprune null: selected 2 of 6 terms, and 1 of 1 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 3 nprune null: selected 2 of 6 terms, and 1 of 1 preds
 After pruning pass GRSq 0.093 RSq 0.0974
 > printh(summary(a4))
 ===summary(a4) 
@@ -5875,8 +6040,7 @@ All 0.5766834 599.1808  0.093017132 0.09735157
 > a5 <- earth(etitanic[,c(2:4)], pclass, degree=2, trace=2)  # x=mixed  y=unordered
 x[1046,3] with colnames survived sexmale age
 y[1046,3] with colnames 1st 2nd 3rd
-
-Forward pass: minspan 6 endspan 8    x[1046,3] 24.5 kB    bx[1046,21] 172 kB
+Forward pass: minspan 6 endspan 8   x[1046,3] 24.5 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5894,8 +6058,8 @@ Forward pass: minspan 6 endspan 8    x[1046,3] 24.5 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 19 terms, 13 terms used (DeltaRSq 0.00073)
 After forward pass GRSq 0.149 RSq 0.202
 Forward pass complete: 19 terms, 13 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 3 nprune null: selected 7 of 13 terms, and 3 of 3 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 3 nprune null: selected 7 of 13 terms, and 3 of 3 preds
 After pruning pass GRSq 0.165 RSq 0.189
 > printh(summary(a5))
 ===summary(a5) 
@@ -5924,9 +6088,8 @@ All 0.5307550 538.3155 0.16525132 0.18904341
 +     plot(a5, nresponse=1)
 > a6 <- earth(etitanic[,c(1,3,4,5,6)], survived, degree=2, trace=2)  # x=mixed y=unordered
 x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
-y[1046,1] with colname survived
-
-Forward pass: minspan 6 endspan 9    x[1046,6] 49 kB    bx[1046,21] 172 kB
+y[1046,1] with colname survived, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
+Forward pass: minspan 6 endspan 9   x[1046,6] 49 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5944,7 +6107,7 @@ Forward pass: minspan 6 endspan 9    x[1046,6] 49 kB    bx[1046,21] 172 kB
 Reached nk 21
 After forward pass GRSq 0.406 RSq 0.450
 Forward pass complete: 21 terms, 17 terms used
-Prune method "backward" penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
+Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
 After pruning pass GRSq 0.42 RSq 0.439
 > printh(summary(a6))
 ===summary(a6) 
@@ -5970,8 +6133,7 @@ GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
 > a7 <- earth(etitanic[,c(2,3,5,6)], etitanic[,c(1,4)], degree=2, trace=2)  # x=mixed y=mixed
 x[1046,4] with colnames survived sexmale sibsp parch
 y[1046,4] with colnames pclass1st pclass2nd pclass3rd age
-
-Forward pass: minspan 6 endspan 9    x[1046,4] 32.7 kB    bx[1046,21] 172 kB
+Forward pass: minspan 6 endspan 9   x[1046,4] 32.7 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -5989,8 +6151,8 @@ Forward pass: minspan 6 endspan 9    x[1046,4] 32.7 kB    bx[1046,21] 172 kB
 Reached nk 21
 After forward pass GRSq 0.094 RSq 0.154
 Forward pass complete: 21 terms, 15 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 3 nprune null: selected 7 of 15 terms, and 2 of 4 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 3 nprune null: selected 7 of 15 terms, and 2 of 4 preds
 After pruning pass GRSq 0.113 RSq 0.138
 > printh(summary(a7))
 ===summary(a7) 
@@ -6024,9 +6186,8 @@ All       185.116817 187753.758  0.11250542 0.13780087
 > # these correspond to the models above (except a7 which is a multiple response model)
 > a1f <- earth(sex ~ pclass, degree=2, trace=2)        # x=unordered y=unordered
 x[1046,2] with colnames pclass2nd pclass3rd
-y[1046,1] with colname male
-
-Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
+y[1046,1] with colname male, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
+Forward pass: minspan 6 endspan 8   x[1046,2] 16.3 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6037,7 +6198,7 @@ Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.007 RSq 0.021
 Forward pass complete: 5 terms, 3 terms used
-Prune method "backward" penalty 3 nprune null: selected 2 of 3 terms, and 1 of 2 preds
+Prune backward penalty 3 nprune null: selected 2 of 3 terms, and 1 of 2 preds
 After pruning pass GRSq 0.0133 RSq 0.018
 > printh(summary(a1f))
 ===summary(a1f) 
@@ -6070,10 +6231,9 @@ GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > if (PLOT)
 +     plot(a1f)
 > a2f <- earth(pclass ~ sex, degree=2, trace=2)        # x=unordered y=unordered
-x[1046,1] with colname sexmale
+x[1046,1] with colname sexmale, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
 y[1046,3] with colnames 1st 2nd 3rd
-
-Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
+Forward pass: minspan 5 endspan 7   x[1046,1] 8.17 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6083,8 +6243,8 @@ Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 3 terms, 2 terms used (DeltaRSq 0)
 After forward pass GRSq 0.003 RSq 0.012
 Forward pass complete: 3 terms, 2 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 3 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 3 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 0.00728 RSq 0.012
 > printh(summary(a2f))
 ===summary(a2f) 
@@ -6108,9 +6268,8 @@ All 0.6311974 655.8215  0.007279765 0.0120239411
 +     plot(a2f, nresponse=1)
 > a3f <- earth(age ~ pclass, degree=2, trace=2)        # x=unordered y=numeric
 x[1046,2] with colnames pclass2nd pclass3rd
-y[1046,1] with colname age
-
-Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
+y[1046,1] with colname age, and values 29, 0.9167, 2, 30, 25, 48, 63...
+Forward pass: minspan 6 endspan 8   x[1046,2] 16.3 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6121,7 +6280,7 @@ Forward pass: minspan 6 endspan 8    x[1046,2] 16.3 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
 After forward pass GRSq 0.160 RSq 0.172
 Forward pass complete: 5 terms, 3 terms used
-Prune method "backward" penalty 3 nprune null: selected 3 of 3 terms, and 2 of 2 preds
+Prune backward penalty 3 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.164 RSq 0.172
 > printh(summary(a3f))
 ===summary(a3f) 
@@ -6140,10 +6299,9 @@ GCV 173.8417    RSS 179758.3    GRSq 0.1640128    RSq 0.1719935
 > if (PLOT)
 +     plot(a3f)
 > a4f <- earth(pclass ~ age, degree=2, trace=2)        # x=numeric y=unordered
-x[1046,1] with colname age
+x[1046,1] with colname age, and values 29, 0.9167, 2, 30, 25, 48, 63...
 y[1046,3] with colnames 1st 2nd 3rd
-
-Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
+Forward pass: minspan 5 endspan 7   x[1046,1] 8.17 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6156,8 +6314,8 @@ Forward pass: minspan 5 endspan 7    x[1046,1] 8.17 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 9 terms, 6 terms used (DeltaRSq 0.00081)
 After forward pass GRSq 0.081 RSq 0.107
 Forward pass complete: 9 terms, 6 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 3 nprune null: selected 2 of 6 terms, and 1 of 1 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 3 nprune null: selected 2 of 6 terms, and 1 of 1 preds
 After pruning pass GRSq 0.093 RSq 0.0974
 > printh(summary(a4f))
 ===summary(a4f) 
@@ -6182,8 +6340,7 @@ All 0.5766834 599.1808  0.093017132 0.09735157
 > a5f <- earth(pclass ~ survived + sex + age, data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
 x[1046,3] with colnames survived sexmale age
 y[1046,3] with colnames 1st 2nd 3rd
-
-Forward pass: minspan 6 endspan 8    x[1046,3] 24.5 kB    bx[1046,21] 172 kB
+Forward pass: minspan 6 endspan 8   x[1046,3] 24.5 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6201,8 +6358,8 @@ Forward pass: minspan 6 endspan 8    x[1046,3] 24.5 kB    bx[1046,21] 172 kB
 RSq changed by less than 0.001 at 19 terms, 13 terms used (DeltaRSq 0.00073)
 After forward pass GRSq 0.149 RSq 0.202
 Forward pass complete: 19 terms, 13 terms used
-Using EvalSubsetsUsingXtx because this is a multiple response model
-Prune method "backward" penalty 3 nprune null: selected 7 of 13 terms, and 3 of 3 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because this is a multiple response model
+Prune backward penalty 3 nprune null: selected 7 of 13 terms, and 3 of 3 preds
 After pruning pass GRSq 0.165 RSq 0.189
 > printh(summary(a5f))
 ===summary(a5f) 
@@ -6231,9 +6388,8 @@ All 0.5307550 538.3155 0.16525132 0.18904341
 +     plot(a5f, nresponse=1)
 > a6f <- earth(survived ~ ., data=etitanic, degree=2, trace=2)  # x=mixed y=unordered
 x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
-y[1046,1] with colname survived
-
-Forward pass: minspan 6 endspan 9    x[1046,6] 49 kB    bx[1046,21] 172 kB
+y[1046,1] with colname survived, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
+Forward pass: minspan 6 endspan 9   x[1046,6] 49 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6251,7 +6407,7 @@ Forward pass: minspan 6 endspan 9    x[1046,6] 49 kB    bx[1046,21] 172 kB
 Reached nk 21
 After forward pass GRSq 0.406 RSq 0.450
 Forward pass complete: 21 terms, 17 terms used
-Prune method "backward" penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
+Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
 After pruning pass GRSq 0.42 RSq 0.439
 > printh(summary(a6f))
 ===summary(a6f) 
@@ -6287,10 +6443,9 @@ GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
 ===head(vowels) 
 [1] 0 0 3 0 3 0
 > a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
-x[30,1] with colname x
-y[30,1] with colname vowels
-
-Forward pass: minspan 3 endspan 7    x[30,1] 240 B    bx[30,21] 4.92 kB
+x[30,1] with colname x, and values 19, 20, 1, 20, 9, 19, 20, 9, ...
+y[30,1] with colname vowels, and values 0, 0, 3, 0, 3, 0, 0, 3, 0, 0,...
+Forward pass: minspan 3 endspan 7   x[30,1] 240 Bytes   bx[30,21] 4.92 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6301,7 +6456,7 @@ Forward pass: minspan 3 endspan 7    x[30,1] 240 B    bx[30,21] 4.92 kB
 RSq changed by less than 0.001 at 5 terms, 4 terms used (DeltaRSq 0)
 After forward pass GRSq 0.430 RSq 0.701
 Forward pass complete: 5 terms, 4 terms used
-Prune method "backward" penalty 2 nprune null: selected 3 of 4 terms, and 1 of 1 preds
+Prune backward penalty 2 nprune null: selected 3 of 4 terms, and 1 of 1 preds
 After pruning pass GRSq 0.591 RSq 0.696
 > printh(summary(a8))
 ===summary(a8) 
@@ -6321,10 +6476,9 @@ GCV 0.828019    RSS 17.2504    GRSq 0.5906149    RSq 0.6957602
 +     plot(a8, nresponse=1)
 > plotmo(a8, caption="a8", pt.col=3)
 > a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
-x[30,1] with colname vowels
-y[30,1] with colname ff
-
-Forward pass: minspan 3 endspan 7    x[30,1] 240 B    bx[30,21] 4.92 kB
+x[30,1] with colname vowels, and values 0, 0, 3, 0, 3, 0, 0, 3, 0, 0,...
+y[30,1] with colname ff, and values 19, 20, 1, 20, 9, 19, 20, 9, ...
+Forward pass: minspan 3 endspan 7   x[30,1] 240 Bytes   bx[30,21] 4.92 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -6334,7 +6488,8 @@ Forward pass: minspan 3 endspan 7    x[30,1] 240 B    bx[30,21] 4.92 kB
 RSq changed by less than 0.001 at 3 terms, 2 terms used (DeltaRSq 0)
 After forward pass GRSq 0.286 RSq 0.469
 Forward pass complete: 3 terms, 2 terms used
-Prune method "backward" penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 0.388 RSq 0.469
 > if (PLOT)
 +     plot(a9, nresponse=1)
@@ -6905,7 +7060,7 @@ eval(call$data, R_GlobalEnv)
 call$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
 stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=call$data, na.action="na.fail")
-model.frame[,-1] is usable and has column names vh wind humidity temp ibh dpg ibt vis doy
+x=model.frame[,-1] is usable and has column names vh wind humidity temp ibh dpg ibt vis doy
 plotmo_x returned[330,9]:
       vh wind humidity temp  ibh dpg ibt vis doy
 1   5710    4       28   40 2693 -25  87 250  33
@@ -6968,7 +7123,7 @@ eval(call$data, R_GlobalEnv)
 call$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
 stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=call$data, na.action="na.fail")
-model.frame[,1] is usable and has column name O3
+y=model.frame[,1] is usable and has column name O3
 plotmo_y returned[330,1]:
     O3
 1    3
@@ -7004,7 +7159,7 @@ eval(call$data, R_GlobalEnv)
 call$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
 stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=call$data, na.action="na.fail")
-model.frame[,1] is usable and has column name O3
+y=model.frame[,1] is usable and has column name O3
 got model response from model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+...,
                                     data=call$data, na.action="na.fail")
 plotmo_y returned[330,1]:
@@ -7199,7 +7354,7 @@ object$model is NULL (and it has no colnames)
 object$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
 stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=object$data, na.action="na.fail")
-model.frame[,-1] is usable and has column names vh wind humidity temp ibh dpg ibt vis doy
+x=model.frame[,-1] is usable and has column names vh wind humidity temp ibh dpg ibt vis doy
 plotmo_x returned[330,9]:
       vh wind humidity temp  ibh dpg ibt vis doy
 1   5710    4       28   40 2693 -25  87 250  33
@@ -7867,6 +8022,22 @@ Termination condition: RSq changed by less than 0.001 at 3 terms
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV 14.3    RSS 313    GRSq 0.949    RSq 0.961
+Call: earth(formula=Sepal.Length+Sepal.Width~Species, data=iris)
+
+                  Sepal.Length Sepal.Width
+(Intercept)               5.01       3.428
+Speciesversicolor         0.93      -0.658
+Speciesvirginica          1.58      -0.454
+
+Selected 3 of 3 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: Speciesvirginica, Speciesversicolor
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+               GCV  RSS  GRSq   RSq
+Sepal.Length 0.278 39.0 0.597 0.619
+Sepal.Width  0.121 17.0 0.367 0.401
+All          0.399 55.9 0.547 0.571
 > 
 > cat("--- check that spurious warn gone: non-integer #successes in a binomial glm ---\n")
 --- check that spurious warn gone: non-integer #successes in a binomial glm ---
@@ -7884,16 +8055,16 @@ GLM coefficients
 h(age-36.5)        0.709
 h(age-39.5)       -0.484
 
+GLM (family binomial, link logit):
+ nulldev df       dev df   devratio     AIC iters converged
+     625 29      69.6 27       0.89     214     4         1
+
 Earth selected 3 of 5 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: age
 Weights: 13555, 13675, 18752, 22005, 23896, 24667, 24807, 23986, 22860, ...
 Number of terms at each degree of interaction: 1 2 (additive model)
 Earth GCV 0.0124    RSS 0.259    GRSq 0.867    RSq 0.901
-
-GLM (family binomial, link logit):
- nulldev df  dev df devratio AIC iters converged
-     625 29 69.6 27     0.89 214     4         1
 > 
 > # test nk=1, 2, and 3
 > cat("nk=1\n")
@@ -8092,7 +8263,7 @@ get.earth.x from model.matrix.earth: x[1,2]:
   Girth Height
 1   8.3     70
 
-get.earth.x from model.matrix.earth: after call to model.frame: data[1,2]:
+get.earth.x from model.matrix.earth: after call to model.frame: mf[1,2]:
   Girth Height
 1   8.3     70
 
@@ -8290,7 +8461,7 @@ y[50,1]:
 ...  6
 50   6
 
-Forward pass: minspan 5 endspan 10    x[50,9] 3.52 kB    bx[50,21] 8.2 kB
+Forward pass: minspan 5 endspan 10   x[50,9] 3.52 kB   bx[50,21] 8.2 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -8329,7 +8500,7 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds  Terms (col nbr in bx)
          17     -1.7229  0.9081    -0.9984      7  1 2 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 chosen   18     -4.1102  0.9101    -2.3873      7  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 
-Prune method "none" penalty 3 nprune null: selected 18 of 18 terms, and 7 of 9 preds
+Prune none penalty 3 nprune null: selected 18 of 18 terms, and 7 of 9 preds
 After pruning pass GRSq -4.11 RSq 0.91
 > print(summary(mod.none))
 Call: earth(formula=O3~., data=oz, pmethod="none", trace=4, degree=2)
@@ -8380,7 +8551,7 @@ y[50,1]:
 ...  6
 50   6
 
-Forward pass: minspan 5 endspan 10    x[50,9] 3.52 kB    bx[50,21] 8.2 kB
+Forward pass: minspan 5 endspan 10   x[50,9] 3.52 kB   bx[50,21] 8.2 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -8419,7 +8590,7 @@ chosen    7      0.5304  0.7739     0.0337      4  1 4 6 9 10 11 13
          17     -1.7229  0.9081    -0.9984      7  1 2 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
          18     -4.1102  0.9101    -2.3873      7  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 
-Prune method "backward" penalty 3 nprune null: selected 7 of 18 terms, and 4 of 9 preds
+Prune backward penalty 3 nprune null: selected 7 of 18 terms, and 4 of 9 preds
 After pruning pass GRSq 0.53 RSq 0.774
 > print(summary(mod.backward))
 Call: earth(formula=O3~., data=oz, pmethod="backward", trace=4, degree=2)
@@ -8459,7 +8630,7 @@ y[50,1]:
 ...  6
 50   6
 
-Forward pass: minspan 5 endspan 10    x[50,9] 3.52 kB    bx[50,21] 8.2 kB
+Forward pass: minspan 5 endspan 10   x[50,9] 3.52 kB   bx[50,21] 8.2 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -8498,7 +8669,7 @@ chosen    4      0.4118  0.5781     0.1251      3  1 3 4 7
          17     -1.7890  0.9059    -0.9754      7  1 3 4 7 13 16 9 14 5 8 15 10 6 11 17 18 12
          18     -4.1102  0.9101    -2.3212      7  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 
-Prune method "forward" penalty 3 nprune null: selected 4 of 18 terms, and 3 of 9 preds
+Prune forward penalty 3 nprune null: selected 4 of 18 terms, and 3 of 9 preds
 After pruning pass GRSq 0.412 RSq 0.578
 > print(summary(mod.forward))
 Call: earth(formula=O3~., data=oz, pmethod="forward", trace=4, degree=2)
@@ -8509,7 +8680,7 @@ h(28-humidity)       -0.266
 h(174-ibt)           -0.046
 h(doy-45)             0.110
 
-Selected 4 of 18 terms, and 3 of 9 predictors
+Selected 4 of 18 terms, and 3 of 9 predictors (pmethod="forward")
 Termination condition: Reached nk 21
 Importance: ibt, doy, humidity, vh-unused, wind-unused, temp-unused, ...
 Number of terms at each degree of interaction: 1 3 (additive model)
@@ -8535,7 +8706,7 @@ y[50,1]:
 ...  6
 50   6
 
-Forward pass: minspan 5 endspan 10    x[50,9] 3.52 kB    bx[50,21] 8.2 kB
+Forward pass: minspan 5 endspan 10   x[50,9] 3.52 kB   bx[50,21] 8.2 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -8575,7 +8746,7 @@ chosen    7      0.5304  0.7739     0.0337      4  1 6 9 4 11 10 13
          17     -1.7229  0.9081    -0.9984      7  1 2 11 6 8 12 18 9 14 7 13 10 15 17 5 16 4
          18     -4.1102  0.9101    -2.3873      7  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 
-Prune method "exhaustive" penalty 3 nprune null: selected 7 of 18 terms, and 4 of 9 preds
+Prune exhaustive penalty 3 nprune null: selected 7 of 18 terms, and 4 of 9 preds
 After pruning pass GRSq 0.53 RSq 0.774
 > print(summary(mod.exhaustive))
 Call: earth(formula=O3~., data=oz, pmethod="exhaustive", trace=4, degree=2)
@@ -8589,7 +8760,7 @@ h(doy-45)                  0.204
 h(doy-61)                 -0.334
 vh * h(humidity-28)        0.002
 
-Selected 7 of 18 terms, and 4 of 9 predictors
+Selected 7 of 18 terms, and 4 of 9 predictors (pmethod="exhaustive")
 Termination condition: Reached nk 21
 Importance: humidity, vh, doy, ibt-unused, wind, temp-unused, ibh-unused, ...
 Number of terms at each degree of interaction: 1 5 1
@@ -8615,7 +8786,7 @@ y[50,1]:
 ...  6
 50   6
 
-Forward pass: minspan 5 endspan 10    x[50,9] 3.52 kB    bx[50,21] 8.2 kB
+Forward pass: minspan 5 endspan 10   x[50,9] 3.52 kB   bx[50,21] 8.2 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -8654,7 +8825,7 @@ chosen    5      0.4131  0.6282     0.0013      4  1 13 3 4 16
          17     -1.7229  0.9081    -0.6986      7  1 17 5 9 13 8 10 18 6 4 11 14 15 16 7 12 2
          18     -4.1102  0.9101    -2.3873      7  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 
-Prune method "seqrep" penalty 3 nprune null: selected 5 of 18 terms, and 4 of 9 preds
+Prune seqrep penalty 3 nprune null: selected 5 of 18 terms, and 4 of 9 preds
 After pruning pass GRSq 0.413 RSq 0.628
 > print(summary(mod.seqrep))
 Call: earth(formula=O3~., data=oz, pmethod="seqrep", trace=4, degree=2)
@@ -8666,7 +8837,7 @@ h(-2-dpg)         -0.052
 h(174-ibt)        -0.043
 h(doy-45)          0.097
 
-Selected 5 of 18 terms, and 4 of 9 predictors
+Selected 5 of 18 terms, and 4 of 9 predictors (pmethod="seqrep")
 Termination condition: Reached nk 21
 Importance: ibt, doy, humidity-unused, wind, dpg, vh-unused, temp-unused, ...
 Number of terms at each degree of interaction: 1 4 (additive model)
@@ -8691,5 +8862,13 @@ GCV 4.02    RSS 122    GRSq 0.413    RSq 0.628
 3    forward  0.412      4
 4 exhaustive  0.530      7
 5     seqrep  0.413      5
+> 
+> # check fix for bug reported by Meleksen Akin (Feb 2019, fixed in earth 5.0.0)
+> # to fix this I added xlevels to earth objects
+> lm.Species <- lm(Sepal.Length~Species, data=iris)
+> predict.lm <- predict(lm.Species, newdata=data.frame(Species="setosa")) # ok
+> earth.Species <- earth(Sepal.Length~Species, data=iris)
+> predict.earth <- predict(earth.Species, newdata=data.frame(Species="setosa")) # used to fail
+> stopifnot(identical(as.vector(predict.lm), as.vector(predict.earth)))
 > 
 > source("test.epilog.R")

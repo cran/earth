@@ -10,7 +10,7 @@
 @echo test.big.R
 @exit /B 1
 :good1
-@echo mks.diff -w test.big.Rout test.big.Rout.save
+@echo mks.diff test.big.Rout test.big.Rout.save
 @rem egreps to deal with times
 @C:\Rtools\bin\echo -n "new "
 @egrep "^\[total time" test.big.Rout

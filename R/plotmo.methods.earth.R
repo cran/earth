@@ -21,9 +21,20 @@ plotmo.singles.earth <- function(object, x, nresponse, trace, all1, ...)
         else {                         # factors in x
             colnames <- colnames(object$dirs)[icol]
             for(ipred in seq_along(prednames)) {
-                if(is.factor(x[,ipred])) {
-                    # This knows how to handle expanded factor names because
-                    # it e.g. looks for "^pclass" in "pclass3rd"
+                if(ipred > ncol(x))
+                    stopf(
+"get.singles.earth: ipred=%d but x has only %d columns\n                          prednames=%s\n                          colnames(x)=%s",
+                        ipred, ncol(x),
+                        paste.c(prednames, maxlen=100),
+                        paste.c(colnames(x), maxlen=100))
+                if(is.logical(x[,ipred])) {
+                    # e.g. logical "survived" is renamed to "survivedTRUE" by model.matrix()
+                    # (model.matrix is invoked when earth.formula is invoked)
+                    if(paste0(prednames[ipred], "TRUE") %in% colnames)
+                        singles <- c(singles, ipred)
+                } else if(is.factor(x[,ipred])) {
+                    # This knows how to handle factor names expanded by model.matrix()
+                    # because it e.g. looks for "^pclass" in "pclass3rd".
                     # TODO this can give extra predictors if variable names alias
                     #      e.g. "x" and "x1" are both variable names
                     if(grepany(paste0("^", prednames[ipred]), colnames))

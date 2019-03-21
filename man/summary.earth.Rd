@@ -29,9 +29,9 @@ Summary method for \code{\link{earth}} objects.
     Default is \code{FALSE}.
     Use \code{TRUE}
     to print more information about \code{\link{earth}}--\code{\link{glm}} models.
-    But note that the displayed P-values of the GLM coefficients
-    are meaningless because of the amount of preprocessing
-    by earth to select the regression terms.
+    But note that the displayed Standard Errors and statistics for the
+    GLM coefficients are meaningless (because of the amount of preprocessing
+    done by earth to select the regression terms).
   }
   \item{style}{
     Formatting style. One of\cr

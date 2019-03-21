@@ -1,6 +1,6 @@
 # earth.varmod.R: build variance models for estimating prediction intervals
 #
-# TODO Extend the coverage table (print.inconf.tab) to show percentages in
+# TODO Extend the coverage table (print_inconf_tab) to show percentages in
 # lower and upper intervals, so the user can check for asymmetry of the
 # residuals.
 #
@@ -1101,7 +1101,7 @@ percent.inconf <- function(object, level, parent.y, newdata)
     inconf <- parent.y >= predict$lwr & parent.y <= predict$upr
     100 * sum(inconf) / length(inconf)
 }
-print.inconf.tab <- function(object, parent.y, newdata)
+print_inconf_tab <- function(object, parent.y, newdata)
 {
     if(NCOL(parent.y) != 1) {
         warning0("multiple response model: the table is for the first response")
@@ -1156,7 +1156,7 @@ print.varmod <- function(
     warn.if.dots(...)
     if(!is.null(newdata)) { # if newdata, print just the inconf table
         object$inconf.tab <-
-            print.inconf.tab(object,
+            print_inconf_tab(object,
                 plotmo::plotmo_response(object$parent, newdata, trace=0, ...),
                 newdata)
         return(invisible(object))
@@ -1206,7 +1206,7 @@ print.varmod <- function(
         }
         print(tab, digits=digits)
         printf("\n")
-        object$inconf.tab <- print.inconf.tab(object, object$parent.y, newdata=NULL)
+        object$inconf.tab <- print_inconf_tab(object, object$parent.y, newdata=NULL)
     }
     invisible(object)
 }

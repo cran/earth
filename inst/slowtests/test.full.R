@@ -56,6 +56,16 @@ stopifnot(abs(summary(earth.model, newdata=trees[test.subset,])$newrsq - newrsq)
 
 cars <- earth(mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
 
+stopifnot(max(coef(cars) - cars$coefficients) == 0)
+stopifnot(max(coef(cars, type="response") - cars$coefficients) == 0)
+stopifnot(max(coef(cars, type="earth") - cars$coefficients) == 0)
+expect.err(try(coef(cars, type="nonesuch")), "type=\"nonesuch\" is not allowed")
+expect.err(try(coef(cars, type="glm")), "type == \"glm\" is not allowed because this is not an earth-glm model")
+expect.err(try(coefficients(cars, type="glm")), "type == \"glm\" is not allowed because this is not an earth-glm model")
+stopifnot(isTRUE(all.equal(coef(cars), coefficients(cars))))
+stopifnot(isTRUE(all.equal(coef(cars, type="earth"), coefficients(cars, type="earth"))))
+stopifnot(identical(names(coef(cars)), rownames(cars$coefficients)))
+
 get.used.pred.names <- function(obj) # obj is an earth object
 {
   any1 <- function(x) any(x != 0)    # like any but no warning if x is double
@@ -73,26 +83,30 @@ a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
              glm=list(family=binomial))
 printh(a1a)
 
-a2 <- earth(pclass ~ ., data=etitanic, trace=1, glm=list(family=binomial))
+a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
 printh(a2)
 
-ldose <- rep(0:5, 2) - 2 # V&R 4th ed. p. 191
+ldose <- rep(0:5, 2) - 2 # Venables and Ripley 4th edition page 191
 sex <- factor(rep(c("male", "female"), times=c(6,6)))
 numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
 pair <- cbind(numdead, numalive=20 - numdead)
 
-a3 <- earth(pair ~ sex + ldose, trace=1, pmethod="none",
-            glm=list(family=binomial(link=probit), maxit=100))
+a3 <- earth(pair ~ sex + ldose,
+            glm=list(family=binomial(link=probit), maxit=100), trace=1)
 printh(a3)
 
+numalive <- 20 - numdead
+pairmod2 <- earth(numalive + numdead ~ sex + ldose,
+                  glm=list(family=binomial()), trace=1)
+printh(pairmod2)
+
+# multiple responses with short (compacted) binomial data no longer supported
 numdead2.verylongname <- c(2,8,11,12,20,23,0,4,6,16,12,14) # bogus data
 doublepair <- cbind(numdead, numalive=20-numdead,
                     numdead2.verylongname=numdead2.verylongname,
                     numalive2.verylongname=30-numdead2.verylongname)
-
-a4 <- earth(doublepair ~ sex + ldose, trace=1, pmethod="none",
-            glm=list(family="binomial"))
-printh(a4)
+expect.err(try(earth(doublepair ~ sex + ldose, trace=1, pmethod="none", glm=list(family="binomial"))),
+           "Binomial response (see above): all values should be between 0 and 1, or a binomial pair")
 
 counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 outcome <- gl(3,1,9)
@@ -102,8 +116,8 @@ a5 <- earth(counts ~ outcome + treatment, trace=1, pmethod="none",
             glm=list(family=poisson))
 printh(a5)
 
-a6 <- earth(numdead ~ sex + ldose, trace=1, pmethod="none",
-            glm=list(family=gaussian(link=identity)))
+a6 <- earth(numdead ~ sex + ldose,
+            glm=list(family=gaussian(link=identity)), trace=1)
 printh(a6$coefficients == a6$glm.coefficients)  # all TRUE
 printh(a6)
 
@@ -315,10 +329,19 @@ cat("--- test predict.earth with multiple response models-------------------\n")
 a <- earth(cbind(Volume, Volume + 100) ~ ., data = trees)
 cat("1a predict(a, c(10,80))\n")
 printh(predict(a, c(10,80), trace=1))
+predict.a1a <- predict(a, c(10,80))
+check.almost.equal(predict.a1a[1,1], 17.6035895926138, msg="predict.a1a[1,1]")
+check.almost.equal(predict.a1a[1,2], 117.603589592614, msg="predict.a1a[1,2]")
 cat("1b predict(a, c(10,10,80,80))\n")
 printh(predict(a, c(10,10,80,80), trace=1))
 cat("1c predict(a, c(10,11,80,81))\n")
 printh(predict(a, c(10,11,80,81), trace=1))
+cat("1d predict(a, data.frame=c(Girth=10,Height=80))\n")
+printh(predict(a, newdata=data.frame(Girth=10,Height=80)))
+predict.a1d <- predict(a, newdata=data.frame(Girth=10,Height=80))
+check.almost.equal(predict.a1d[1,1], 17.6035895926138, msg="predict.a1d[1,1]")
+check.almost.equal(predict.a1d[1,2], 117.603589592614, msg="predict.a1d[1,2]")
+expect.err(try(predict(a, newdata=10)), "get.earth.x from model.matrix.earth from predict.earth:\n       could not convert vector x to matrix because length(x) 1\n       is not a multiple of the number 2 of predictors")
 cat("2 predict(a)\n")
 printh(head(predict(a, trace=1)))
 cat("3a predict(a, matrix(c(10,12), nrow=1, ncol=2))\n")
@@ -989,11 +1012,11 @@ expect.err(try(earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE, pmethod="ex
 
 m1 <- earth(Volume ~ ., data = trees)
 m2 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
-check.models.equal(m1, m2, "Force.xtx.prune test 1", check.subsets=FALSE)
+check.models.equal(m1, m2, "Force.xtx.prune test 1", check.subsets=FALSE, newdata=data.frame(Height=10, Girth=12))
 
 m1 <- earth(O3 ~ wind+temp, data = ozone1, nk=51)
 m2 <- earth(O3 ~ wind+temp, data = ozone1, nk=51, Force.xtx.prune=TRUE)
-check.models.equal(m1, m2, "Force.xtx.prune test 2", check.subsets=FALSE)
+check.models.equal(m1, m2, "Force.xtx.prune test 2", check.subsets=FALSE, newdata=ozone1[5:7,])
 
 # TODO The following exposes a bug in leaps(?).  It is described in
 # check.one.term.per.step in the earth R code.  The test is commented out
@@ -1053,24 +1076,24 @@ a.formula <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
 cat("\nupdate(a, trace=1)\n")
 a.formula.1update <- update(a.formula, trace=1)
 a.formula.1  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
-check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1")
+check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1", newdata=trees[1:3,])
 
 cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
 a.formula.2update <- update(a.formula, data=new.trees, trace=1)
 a.formula.2  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = new.trees)
-check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2")
+check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2", newdata=trees[1:3,])
 
 cat("\nupdate(a.formula, wp=2, trace=1)\n")
 a.formula.3update <- update(a.formula, wp=2, trace=1)
 a.formula.3  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees, wp=2)
-check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3")
+check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3", newdata=trees[1:3,])
 
 cat("\nupdate(a.formula, subset=subset.new, trace=1)\n")
 subset.new <- rep(TRUE, nrow(trees))
 subset.new[1:4] = FALSE
 a.formula.4update <- update(a.formula, subset=subset.new, trace=1)
 a.formula.4  <- earth(Volume ~ ., data = trees, subset=subset.new)
-check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4")
+check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4", newdata=trees[1:3,])
 
 # now use keepxy=TRUE
 
@@ -1079,17 +1102,17 @@ a.formula <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
 cat("\nupdate(a.formula, trace=1)\n")
 a.formula.5update <- update(a.formula, trace=1)
 a.formula.5  <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
-check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5")
+check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5", newdata=trees[1:3,])
 
 cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
 a.formula.6update <- update(a.formula, data=new.trees, trace=1)
 a.formula.6  <- earth(Volume ~ ., wp=1, data = new.trees, keepxy=TRUE)
-check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6")
+check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6", newdata=trees[1:3,])
 
 cat("\nupdate(a.formula, wp=2, trace=1)\n")
 a.formula.7update <- update(a.formula, wp=2, trace=1)
 a.formula.7  <- earth(Volume ~ ., wp=2, data = trees, keepxy=TRUE)
-check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7")
+check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7", newdata=trees[1:3,])
 
 cat("\n----- update and keepxy, matrix interface--------------------------\n")
 
@@ -1104,24 +1127,24 @@ a <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
 cat("\nupdate(a, trace=1)\n")
 a1update <- update(a, trace=1)
 a1  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
-check.models.equal(a1update, a1, msg="a1update a1")
+check.models.equal(a1update, a1, msg="a1update a1", newdata=trees[1:3,])
 
 cat("\nupdate(a, x=new.x, trace=1)\n")
 a2update <- update(a, x=new.x, trace=1)
 a2  <- earth(new.x, Volume, subset=rep(TRUE, nrow(trees)))
-check.models.equal(a2update, a2, msg="a2update a2")
+check.models.equal(a2update, a2, msg="a2update a2", newdata=trees[1:3,])
 
 cat("\nupdate(a, wp=2, trace=0)\n")
 a3update <- update(a, wp=2, trace=0)
 a3  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)), wp=2)
-check.models.equal(a3update, a3, msg="a3update a3")
+check.models.equal(a3update, a3, msg="a3update a3", newdata=trees[1:3,])
 
 cat("\nupdate(a, subset=subset.new, trace=4)\n")
 subset.new <- rep(TRUE, nrow(trees))
 subset.new[1:4] = FALSE
 a4update <- update(a, subset=subset.new, trace=4)
 a4  <- earth(x, Volume, subset=subset.new)
-check.models.equal(a4update, a4, msg="a4update a4")
+check.models.equal(a4update, a4, msg="a4update a4", newdata=trees[1:3,])
 
 # now use keepxy=TRUE
 
@@ -1130,17 +1153,17 @@ a <- earth(x, Volume, wp=1, keepxy=TRUE)
 cat("\nupdate(a, trace=4)\n")
 a5update <- update(a, trace=4)
 a5  <- earth(x, Volume, wp=1, keepxy=TRUE)
-check.models.equal(a5update, a5, msg="a5update a5")
+check.models.equal(a5update, a5, msg="a5update a5", newdata=trees[1:3,])
 
 cat("\nupdate(a, x=new.x, trace=4)\n")
 a6update <- update(a, x=new.x, trace=4)
 a6  <- earth(new.x, Volume, wp=1, keepxy=TRUE)
-check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6")
+check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6", newdata=trees[1:3,])
 
 cat("\nupdate(a, wp=2)\n")
 a7update <- update(a, wp=2)
 a7  <- earth(x, Volume, wp=2, keepxy=TRUE)
-check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7")
+check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7", newdata=trees[1:3,])
 
 cat("--- \"allowed\" argument -----------------\n")
 
@@ -1156,7 +1179,7 @@ example1a  <- function(degree, pred, parents, namesx)
     namesx[pred] != "Height"  # disallow "Height"
 }
 a1a <- earth(Volume ~ ., data = trees, allowed = example1a)
-check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a")
+check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a", newdata=trees[1:3,])
 
 iheight <- 0
 example1b  <- function(degree, pred, parents, namesx, first)
@@ -1169,7 +1192,7 @@ example1b  <- function(degree, pred, parents, namesx, first)
     pred != iheight
 }
 a1b <- earth(Volume ~ ., data = trees, allowed = example1b)
-check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b")
+check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b", newdata=trees[1:3,])
 
 example2 <- function(degree, pred, parents)
 {
@@ -1213,7 +1236,7 @@ example3a  <- function(degree, pred, parents, namesx, first)
     TRUE
 }
 a3a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a")
+check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a", newdata=trees[1:3,])
 
 #--- no predictor in PREDICTORS is allowed to interact with any predictor in PARENTS
 #--- but all other interactions are allowed
@@ -2000,5 +2023,13 @@ tab <- data.frame(pmethod=c("none", "backward", "forward", "exhaustive", "seqrep
                            length(mod.seqrep$selected.terms)))
 cat("\n")
 print(tab)
+
+# check fix for bug reported by Meleksen Akin (Feb 2019, fixed in earth 5.0.0)
+# to fix this I added xlevels to earth objects
+lm.Species <- lm(Sepal.Length~Species, data=iris)
+predict.lm <- predict(lm.Species, newdata=data.frame(Species="setosa")) # ok
+earth.Species <- earth(Sepal.Length~Species, data=iris)
+predict.earth <- predict(earth.Species, newdata=data.frame(Species="setosa")) # used to fail
+stopifnot(identical(as.vector(predict.lm), as.vector(predict.earth)))
 
 source("test.epilog.R")

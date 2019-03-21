@@ -2,7 +2,7 @@
 #             Note that earth.cv returns null unless nfold > 1.
 
 earth.cv <- function(object, x, y,
-    subset, weights, na.action, pmethod, keepxy, trace, glm, degree, nprune,
+    subset, weights, na.action, pmethod, keepxy, trace, glm.arg, degree, nprune,
     nfold, ncross, stratify, get.oof.fit.tab, get.oof.rsq.per.subset,
     Scale.y, env, ...)
 {
@@ -14,10 +14,13 @@ earth.cv <- function(object, x, y,
         for(nterms in 1:min(max.nterms, nrow(foldmod$dirs))) {
             trace.get.fold1(trace, must.print.dots, nterms)
             # penalty=-1 to enforce strict nprune TODO consider changing to pmethod=none
-            # glm=NULL for speed, ok because we don't need the glm submodel
             # TODO with keepxy=TRUE, 70% of cv time is spent in update.earth
             pruned.foldmod <- update(foldmod, nprune=min(nprune, nterms),
-                    penalty=-1, ponly=TRUE, glm=NULL, trace=max(0, trace-1))
+                    penalty=-1, ponly=TRUE,
+                    # glm=NULL for speed, ok because we don't need the glm submodel,
+                    # except if is.bpairs must convert bpairs to yfrac in pruned.foldmod
+                    glm=if(is.bpairs) glm.arg else NULL,
+                    trace=max(0, trace-1))
             fit <- predict(pruned.foldmod, newdata=x, type="earth")
             oof.fit    <- fit[oof.subset,  , drop=FALSE]
             infold.fit <- fit[infold.subset, , drop=FALSE]
@@ -25,7 +28,6 @@ earth.cv <- function(object, x, y,
                 oof.rsq.per.subset[nterms] <- oof.rsq.per.subset[nterms] +
                     wp.expanded[iresp] *
                         get.weighted.rsq(oof.y[,iresp], oof.fit[,iresp], oof.weights)
-
                 infold.rsq.per.subset[nterms] <- infold.rsq.per.subset[nterms] +
                     wp.expanded[iresp] *
                         get.weighted.rsq(infold.y[,iresp], infold.fit[,iresp], infold.weights)
@@ -47,23 +49,21 @@ earth.cv <- function(object, x, y,
     trace1(trace, "\n")
     if(nfold > nrow(x))
         nfold <- nrow(x)
-    if(!is.null(object$glm.bpairs))
-        stop0("earth does not yet support cross validation of paired binomial responses")
+    is.bpairs <- !is.null(object$glm.bpairs) # response is glm binomial pairs
+    nresp <- if(is.bpairs) 1 else ncol(y) # number of responses
     max.nterms <- nrow(object$dirs)
     wp <- wp.expanded <- object$wp
     if(is.null(wp))
-        wp.expanded <- repl(1, ncol(y)) # all ones vector
+        wp.expanded <- repl(1, nresp) # all ones vector
     cv.list <- list()                   # returned list of cross validated models
     ncases <- nrow(x)
-    nresp <- ncol(y)                    # number of responses
     # ndigits aligns trace prints without too much white space
-    ndigits <- ceiling(log10(ncases - ncases/nfold + .1))
+    ndigits <- ceiling(log10(ncases))
     # print pacifier dots if get.fold.rss.per.subset will be slow
     must.print.dots <- trace >= .5 && trace <= 1 &&
         (get.oof.rsq.per.subset || get.oof.fit.tab) &&
         nrow(x) * max.nterms > 50e3
     trace.cv.header(object, nresp, trace, must.print.dots)
-    n.oof.digits <- ceiling(log10(1.2 * ncases / nfold)) # 1.2 allows for diff sized subsets
     groups <- matrix(NA, nrow=ncross*ncases, ncol=2)
     colnames(groups) <- c("cross", "fold")
     for(icross in seq_len(ncross)) {
@@ -72,9 +72,9 @@ earth.cv <- function(object, x, y,
         groups[start:(start+ncases-1), 2] <- get.groups(y, nfold, stratify)
     }
     is.binomial <- is.poisson <- FALSE
-    if(!is.null(glm)) {
-        glm1 <- get.glm.arg(glm)
-        family <- get.glm.family(glm1$family, env=env)
+    if(!is.null(glm.arg)) {
+        # TODO revisit the following to save memory?
+        family <- get.glm.family(glm.arg$family, env=env)
         is.binomial <- is.binomial(family)
         is.poisson <- is.poisson(family)
     }
@@ -88,8 +88,9 @@ earth.cv <- function(object, x, y,
     fold.names.plus.mean <- c(fold.names, "mean")
     fold.names.plus.all  <- c(fold.names, "all")
     fold.names.plus.max  <- c(fold.names, "max")
-    resp.names.plus.mean <- c(colnames(y), "mean") # response names plus "mean"
-    resp.names.plus.max  <- c(colnames(y), "max")
+    resp.names <- if(is.bpairs) colnames(y)[1] else colnames(y)
+    resp.names.plus.mean <- c(resp.names, "mean") # response names plus "mean"
+    resp.names.plus.max  <- c(resp.names, "max")
     ncross.fold <- ncross * nfold
     nvars.selected.by.gcv <- double(ncross.fold+1)  # nbr of used predictors in each CV mod
     nterms.selected.by.gcv <- double(ncross.fold+1) # nbr of selected terms in each CV mod
@@ -142,16 +143,17 @@ earth.cv <- function(object, x, y,
             infold.weights <- weights[infold.subset]
             foldmod <- earth.default(x=infold.x, y=infold.y, weights=infold.weights,
                 wp=wp, Scale.y=Scale.y, subset=subset,
-                trace=trace, glm=glm, degree=degree,
+                trace=trace, glm=glm.arg, degree=degree,
                 pmethod=if(pmethod == "cv") "backward" else pmethod,
-                nfold=0, ncross=0, varmod.method="none",
-                ...)
+                nfold=0, ncross=0, varmod.method="none",  ...)
             foldmod$icross <- icross
             foldmod$ifold <- ifold
             oof.x <- x[oof.subset,,drop=FALSE]
-            oof.y <- y[oof.subset,,drop=FALSE]
+            oof.y <- if(is.bpairs) object$glm.yfrac else y
+            oof.y <- oof.y[oof.subset,,drop=FALSE]
             oof.weights <- weights[oof.subset]
             oof.fit <- predict(foldmod, newdata=oof.x, type="earth")
+
             # fill in subset of entries in this icross column of oof.fit.tab
             # note that we use only the first response when there are multiple responses
             if(!is.null(oof.fit.tab))
@@ -170,7 +172,8 @@ earth.cv <- function(object, x, y,
                 if(is.binomial) {
                     deviance.tab[icross.fold, iresp] <-
                         get.binomial.deviance(oof.fit.resp[,iresp], oof.y[,iresp])
-                    calib <- get.binomial.calib(oof.fit.resp[,iresp], oof.y[,iresp])
+                    calib <- get.binomial.calib(oof.fit.resp[,iresp],
+                                if(is.bpairs) y[oof.subset,] else oof.y[,iresp])
                     calib.int.tab[icross.fold, iresp]   <- calib[1]
                     calib.slope.tab[icross.fold, iresp] <- calib[2]
                     maxerr.tab[icross.fold, iresp] <-
@@ -218,8 +221,8 @@ earth.cv <- function(object, x, y,
             }
             if(!keepxy) # reduce memory by getting rid of big fields
                 foldmod$bx <- foldmod$residuals <- foldmod$prune.terms <- NULL
-            trace.fold(icross, ifold, trace, y, infold.subset, oof.subset, ncross, ndigits,
-                       rsq.tab[icross.fold,], n.oof.digits, must.print.dots)
+            trace.fold(icross, ifold, trace, y, infold.subset, oof.subset, ncross,
+                       ndigits, rsq.tab[icross.fold,], must.print.dots)
             cv.list[[icross.fold]] <- foldmod
         } # end for ifold
     } # end for icross
@@ -251,8 +254,8 @@ earth.cv <- function(object, x, y,
             col.means.with.special.na.handling(infold.rsq.tab[-ilast,])
     }
     trace1(trace, "\n")
-    trace.fold(icross, -1, trace, y, TRUE, TRUE, ncross, ndigits,
-               rsq.tab[ilast,], n.oof.digits, must.print.dots)
+    trace.fold(icross, -1, trace, y, TRUE, TRUE, ncross,
+               ndigits, rsq.tab[ilast,], must.print.dots)
     if(trace >= .5)
         cat("\n")
     names(cv.list) <- fold.names
@@ -360,8 +363,8 @@ trace.fold.header <- function(trace, ncross, icross, ifold)
 }
 # print results for the current fold (ifold=-1 means "all")
 
-trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncross, ndigits,
-                       rsq.row, n.oof.digits, must.print.dots)
+trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncross,
+                       ndigits, rsq.row, must.print.dots)
 {
     if(trace < .5)
         return()
@@ -375,12 +378,12 @@ trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncros
             icross <- ""
         printf("CV fold %s%-2d ", icross, ifold)
     }
-    printf("CVRSq %-6.3f ", rsq.row[length(rsq.row)])
+    printf("CVRSq %-6.3 f   ", rsq.row[length(rsq.row)])
     nresp <- length(rsq.row) - 1 # -1 for "all"
     if(nresp > 1) {
         cat("Per response CVRSq ")
         for(iresp in seq_len(nresp))
-            printf("%-6.3f ", rsq.row[iresp])
+            printf("%-6.3 f  ", rsq.row[iresp])
     }
     if(nresp > 1) {
         if(ncross > 1)
@@ -389,25 +392,24 @@ trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncros
             cat("\n                         ")
     }
     if(ifold < 0)
-        printf("      %.*s       ", n.oof.digits, "                    ")
+        printf("       %.*s      ", ndigits, "                             ")
     else
-        printf("n.oof %*.0f %2.0f%%  ", n.oof.digits,
-               length(infold.subset),
+        printf("n.oof %*.0f %2.0f%%   ", ndigits, length(infold.subset),
                100 * (length(y[, 1]) - length(infold.subset)) / length(y[, 1]))
     cat("n.infold.nz ")
     if(nresp == 1)
-        printf("%*.0f %2.0f%%  ", ndigits, sum(y[infold.subset, 1] != 0),
+        printf("%*.0f %2.0f%%", ndigits, sum(y[infold.subset, 1] != 0),
                100 * sum(y[infold.subset, 1] != 0) / length(y[infold.subset, 1]))
     else for(iresp in seq_len(nresp))
-        printf("%*.0f ", ndigits, sum(y[infold.subset, iresp] != 0))
+        printf("%*.0f", ndigits, sum(y[infold.subset, iresp] != 0))
 
     if(ifold >= 0) {
-        cat("n.oof.nz ")
+        cat("   n.oof.nz ")
         if(nresp == 1)
-            printf("%*.0f %2.0f%%  ", ndigits, sum(y[oof.subset, 1] != 0),
+            printf("%*.0f %2.0f%%", ndigits, sum(y[oof.subset, 1] != 0),
                    100 * sum(y[oof.subset, 1] != 0) / length(y[oof.subset, 1]))
         else for(iresp in seq_len(nresp))
-            printf("%*.0f  ", ndigits, sum(y[oof.subset, iresp] != 0))
+            printf("%*.0f", ndigits, sum(y[oof.subset, iresp] != 0))
         if(nresp > 1)
             cat("\n")
     }
@@ -437,13 +439,13 @@ trace.get.fold2 <- function(trace, must.print.dots, nterms)
             cat("            ")
     }
 }
-print.cv <- function(x) # called from print.earth for cross validated models
+print_cv <- function(x) # called from print.earth for cross validated models
 {
     cv.field <- function(field) round(x[[field]][ilast,], 3)
 
     cv.sd <- function(field) round(apply(x[[field]][-ilast,], 2, sd), 3)
 
-    #--- print.cv starts here ---
+    #--- print_cv starts here ---
     stopifnot(!is.null(x$cv.list), x$pmethod != "cv")
     ilast <- nrow(x$cv.rsq.tab) # index of "all" row in summary tables
     cat("\nNote: the cross-validation sd's below are standard deviations across folds\n\n")

@@ -9,7 +9,7 @@
 @echo test.pmethod.cv.R
 @exit /B 1
 :good1
-@echo mks.diff -w test.pmethod.cv.Rout test.pmethod.cv.Rout.save
+@echo mks.diff test.pmethod.cv.Rout test.pmethod.cv.Rout.save
 @rem egreps to deal with times
 @C:\Rtools\bin\echo -n "new "
 @egrep "^\[total time" test.pmethod.cv.Rout

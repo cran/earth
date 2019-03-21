@@ -4,7 +4,7 @@ library(earth)
 library(mda)   # for Hastie Tibs version of mars
 set.seed(2018) # for reproducibility
 
-printf <- function(format, ...) cat(sprint(format, ...)) # like c printf
+printf <- function(format, ...) cat(sprintf(format, ...)) # like c printf
 
 # generate robot arm data from Friedman's Fast MARS paper
 robotarm <- function(n=1000, p=20)

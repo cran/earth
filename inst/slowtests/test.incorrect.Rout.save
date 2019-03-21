@@ -3,6 +3,7 @@
 > 
 > source("test.prolog.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -43,9 +44,8 @@ Loading required package: TeachingDemos
 > y <- func(x)
 > mod <- earth(x, y, degree=2, trace=2, minspan=-1)
 x[11,2] with colnames x1 x2
-y[11,1] with colname y
-
-Forward pass: minspan 6 endspan 4    x[11,2] 176 B    bx[11,21] 1.8 kB
+y[11,1] with colname y, and values 18.58, -22.71, -56.16, -3.128...
+Forward pass: minspan 6 endspan 4   x[11,2] 176 Bytes   bx[11,21] 1.8 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -56,7 +56,7 @@ Forward pass: minspan 6 endspan 4    x[11,2] 176 B    bx[11,21] 1.8 kB
 GRSq -Inf at 5 terms, 4 terms used
 After forward pass GRSq -in RSq 0.863
 Forward pass complete: 5 terms, 4 terms used
-Prune method "backward" penalty 3 nprune null: selected 2 of 4 terms, and 2 of 2 preds
+Prune backward penalty 3 nprune null: selected 2 of 4 terms, and 2 of 2 preds
 After pruning pass GRSq 0.0737 RSq 0.479
 > print(mod)
 Selected 2 of 4 terms, and 2 of 2 predictors

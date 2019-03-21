@@ -158,6 +158,7 @@ Default is \code{"12"}.
 Position of the legend in the Model Selection plot.
 Default is \code{NULL} meaning automatic.
 Use \code{legend.pos=NA} or \code{0} for no legend.
+Can be something like \code{legend.pos="topleft"} or \code{legend.pos=c(6, .75)}.
 }
 \item{add, max.nterms, max.npreds}{
 \code{earth_plotmodsel} arguments for internal use by
@@ -186,6 +187,9 @@ and
 Note that cross-validation data will not be displayed unless
 both \code{nfold} and \code{keepxy} were used in the original call to
 \code{earth}.
+
+To remove the \code{Number of used predictors} from the Model Selection
+graph (to reduce clutter), use \code{col.npreds=0}.
 
 \code{earth_plotmodsel} is provided for use by \code{\link[plotmo]{plotres}}.
 }

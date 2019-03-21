@@ -132,7 +132,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 4.6.3"; // change if you modify this file!
+static const char*  VERSION     = "version 5.0.0"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -321,7 +321,7 @@ static char* sFormatMemSize(const size_t MemSize, const bool Align)
     else if(Size >= 1e3)
         sprintf(s, Align? "%6.0f kB": "%.3g kB", Size / ((size_t)1 << 10));
     else
-        sprintf(s, Align? "%6.0f  B": "%g B", Size);
+        sprintf(s, Align? "%6.0f  B": "%g Bytes", Size);
     return s;
 }
 
@@ -1362,7 +1362,7 @@ static int GetEndSpan(
 //-----------------------------------------------------------------------------
 static void GetSpanParams(
     int* pnMinSpan,       // out: number cases between knots
-    int* pnEndSpan,       // out: number of cases ignored on each end
+    int* pnEndSpan,       // out: number of cases from start until first knot
     int* pnStartSpan,     // out: number of cases from end until first knot
     const size_t nCases,  // in
     const int    nPreds,  // in
@@ -1375,7 +1375,7 @@ static void GetSpanParams(
     int nStartSpan = 0, nMinSpan = 0;
     if(nMinSpanGlobal < 0) {           // treat negative minspan as number of knots
         // get nMinSpan
-        nMinSpan = (int)(ceil(nCases / (1.-nMinSpanGlobal))); // convert nknots to minspan
+        nMinSpan = (int)(ceil(nCases / (1.-nMinSpanGlobal))); // convert ncases to minspan
         // get nStartSpan
         nStartSpan = nMinSpan;
         while(nStartSpan < nEndSpan)
@@ -2323,7 +2323,7 @@ static void PrintForwardProlog(
         strcpy(sx, sFormatMemSize(nCases * nPreds    * sizeof(double), false));
         char sbx[100];
         strcpy(sbx, sFormatMemSize(nCases * nMaxTerms * sizeof(double), false));
-        printf("Forward pass: minspan %d endspan %d    x[%d,%d] %s    bx[%d,%d] %s%s\n\n",
+        printf("Forward pass: minspan %d endspan %d   x[%d,%d] %s   bx[%d,%d] %s%s\n\n",
             nMinSpan, nEndSpan,
             (int)nCases, nPreds, sx,
             (int)nCases, nMaxTerms,  sbx,
@@ -2482,7 +2482,7 @@ static int ForwardEpilog( // returns reason we stopped adding terms
 }
 
 //-----------------------------------------------------------------------------
-static void CheckVec(
+static void CheckVec( // check for NAs, NaNs, and infinite values in vector x
     const double x[],
     const size_t nCases,
     const int nCols,
@@ -2599,7 +2599,7 @@ static void CheckForwardPassArgs(
     const int nCases1 = (const int)nCases; // type convert from size_t
     if(nCases1 < 2)
         error("the x matrix must have at least two rows");
-    if(nCases1 > 1e9)
+    if(nCases1 > 1e9) // arbitrary
         error("too many rows %d in the input matrix, max allowed is 1e9", nCases1);
     if(nResp < 1)
         error("the number of responses %d is less than 1", nResp);
@@ -2840,7 +2840,8 @@ static void ForwardPass(
             tprintf(2, "reject (small DeltaRSq)\n");
             break;
         }
-        if(Thresh != 0 && 1 - Gcv / GcvNull < MIN_GRSQ) {
+        const double GRSq = 1 - Gcv / GcvNull;
+        if(Thresh != 0 && GRSq < MIN_GRSQ) {
             FullSet[nTerms] = FullSet[nTerms+1] = false;
             tprintf(2, "reject (negative GRSq)\n");
             break;
@@ -2885,47 +2886,47 @@ static void ForwardPass(
 // This is an interface from R to the C routine ForwardPass
 
 #if USING_R
-SEXP ForwardPassR(           // for use by R
-    SEXP SEXP_FullSet,       // out: nMaxTerms x 1, bool vec of lin indep cols of bx
-    SEXP SEXP_bx,            // out: MARS basis matrix, nCases x nMaxTerms
-    SEXP SEXP_Dirs,          // out: nMaxTerms x nPreds, elements are -1,0,1,2
-    SEXP SEXP_Cuts,          // out: nMaxTerms x nPreds, cut for iTerm,iPred
-    SEXP SEXP_iTermCond,     // out: reason we terminated the forward pass
-    SEXP SEXP_x,             // in: nCases x nPreds, unweighted x
-    SEXP SEXP_y,             // in: nCases x nResp, unweighted but scaled y
-    SEXP SEXP_yw,            // in: nCases x nResp, weighted and scaled y
-    SEXP SEXP_WeightsArg,    // in: nCases x 1, never R_NilValue
-    SEXP SEXP_nCases,        // in: number of rows in x and elements in y
-    SEXP SEXP_nResp,         // in: number of cols in y
-    SEXP SEXP_nPreds,        // in: number of cols in x
-    SEXP SEXP_nMaxDegree,    // in:
-    SEXP SEXP_Penalty,       // in:
-    SEXP SEXP_nMaxTerms,     // in:
-    SEXP SEXP_Thresh,        // in: forward step threshold
-    SEXP SEXP_nMinSpan,      // in:
-    SEXP SEXP_nEndSpan,      // in:
-    SEXP SEXP_nFastK,        // in: Fast MARS K
-    SEXP SEXP_FastBeta,      // in: Fast MARS ageing coef
-    SEXP SEXP_NewVarPenalty, // in: penalty for adding a new variable (default is 0)
-    SEXP SEXP_LinPreds,      // in: nPreds x 1, 1 if predictor must enter linearly
-    SEXP SEXP_Allowed,       // in: constraints function, can be MyNullFunc
-    SEXP SEXP_nAllowedArgs,  // in: number of arguments to Allowed function, 3 or 4
-    SEXP SEXP_Env,           // in: environment for Allowed function
-    SEXP SEXP_AdjustEndSpan, // in:
-    SEXP SEXP_nAutoLinPreds, // in: assume predictor linear if knot is min predictor value
-    SEXP SEXP_nUseBetaCache, // in: 1 to use the beta cache, for speed
-    SEXP SEXP_Trace,         // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
-    SEXP SEXP_sPredNames)    // in: predictor names in trace printfs
+SEXP ForwardPassR(             // for use by R
+    SEXP SEXP_FullSet,         // out: nMaxTerms x 1, bool vec of lin indep cols of bx
+    SEXP SEXP_bx,              // out: MARS basis matrix, nCases x nMaxTerms
+    SEXP SEXP_Dirs,            // out: nMaxTerms x nPreds, elements are -1,0,1,2
+    SEXP SEXP_Cuts,            // out: nMaxTerms x nPreds, cut for iTerm,iPred
+    SEXP SEXP_iTermCond,       // out: reason we terminated the forward pass
+    SEXP SEXP_x,               // in: nCases x nPreds, unweighted x
+    SEXP SEXP_y,               // in: nCases x nResp, unweighted but scaled y
+    SEXP SEXP_yw,              // in: nCases x nResp, weighted and scaled y
+    SEXP SEXP_WeightsArg,      // in: nCases x 1, never R_NilValue
+    SEXP SEXP_nCases,          // in: number of rows in x and elements in y
+    SEXP SEXP_nResp,           // in: number of cols in y
+    SEXP SEXP_nPreds,          // in: number of cols in x
+    SEXP SEXP_nMaxDegree,      // in:
+    SEXP SEXP_Penalty,         // in:
+    SEXP SEXP_nMaxTerms,       // in:
+    SEXP SEXP_Thresh,          // in: forward step threshold
+    SEXP SEXP_nMinSpan,        // in:
+    SEXP SEXP_nEndSpan,        // in:
+    SEXP SEXP_nFastK,          // in: Fast MARS K
+    SEXP SEXP_FastBeta,        // in: Fast MARS ageing coef
+    SEXP SEXP_NewVarPenalty,   // in: penalty for adding a new variable (default is 0)
+    SEXP SEXP_LinPreds,        // in: nPreds x 1, 1 if predictor must enter linearly
+    SEXP SEXP_Allowed,         // in: constraints function, can be MyNullFunc
+    SEXP SEXP_nAllowedArgs,    // in: number of arguments to Allowed function, 3 or 4
+    SEXP SEXP_Env,             // in: environment for Allowed function
+    SEXP SEXP_AdjustEndSpan,   // in:
+    SEXP SEXP_nAutoLinPreds,   // in: assume predictor linear if knot is min predictor value
+    SEXP SEXP_nUseBetaCache,   // in: 1 to use the beta cache, for speed
+    SEXP SEXP_Trace,           // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
+    SEXP SEXP_sPredNames)      // in: predictor names in trace printfs
 {
-    const size_t nCases = (size_t)(INTEGER(SEXP_nCases)[0]);
-    const int nResp     = INTEGER(SEXP_nResp)[0];
-    const int nPreds    = INTEGER(SEXP_nPreds)[0];
-    const int nMaxTerms = INTEGER(SEXP_nMaxTerms)[0];
+    const size_t nCases       = (size_t)(INTEGER(SEXP_nCases)[0]);
+    const int nResp           = INTEGER(SEXP_nResp)[0];
+    const int nPreds          = INTEGER(SEXP_nPreds)[0];
+    const int nMaxTerms       = INTEGER(SEXP_nMaxTerms)[0];
 
-    nMinSpanGlobal       = INTEGER(SEXP_nMinSpan)[0];
-    nEndSpanGlobal       = INTEGER(SEXP_nEndSpan)[0];
-    AdjustEndSpanGlobal  = REAL(SEXP_AdjustEndSpan)[0];
-    TraceGlobal          = REAL(SEXP_Trace)[0];
+    nMinSpanGlobal        = INTEGER(SEXP_nMinSpan)[0];
+    nEndSpanGlobal        = INTEGER(SEXP_nEndSpan)[0];
+    AdjustEndSpanGlobal   = REAL(SEXP_AdjustEndSpan)[0];
+    TraceGlobal           = REAL(SEXP_Trace)[0];
 
     // nUses is the number of time each predictor is used in the model
     nUses = (int*)malloc1(nPreds * sizeof(int),
@@ -2964,7 +2965,7 @@ SEXP ForwardPassR(           // for use by R
     ASSERT(SEXP_WeightsArg != R_NilValue);
 
     InitAllowedFunc(SEXP_Allowed, INTEGER(SEXP_nAllowedArgs)[0], SEXP_Env,
-                   sPredNames, nPreds);
+                   sPredNames, nPreds); // calls PROTECT
 
     int nTerms;
     ForwardPass(&nTerms, INTEGER(SEXP_iTermCond),
@@ -2979,7 +2980,7 @@ SEXP ForwardPassR(           // for use by R
             INTEGER(SEXP_nAutoLinPreds)[0], INTEGER(SEXP_nUseBetaCache)[0] != 0,
             sPredNames);
 
-    FreeAllowedFunc();
+    FreeAllowedFunc(); // matches PROTECT in InitAllowedFunc
 
     // remove linearly independent columns if necessary -- this updates BoolFullSet
     RegressAndFix(NULL, NULL, NULL, BoolFullSet,
@@ -3047,9 +3048,10 @@ static void EvalSubsetsUsingXtx(
     for(int iTerm = 0; iTerm < nMaxTerms; iTerm++)
         WorkingSet[iTerm] = true;
     const double RssNull = GetRssNull(y, NULL, nCases, nResp);
-    tprintf(4, "EvalSubsetsUsingXtx:\nnTerms iTerm DeltaRss    RSq\n");
 
+    bool PrintHeader = true;
     for(int nUsedCols = nMaxTerms; nUsedCols > 0; nUsedCols--) {
+        bool PrintNewline = true;
         int nRank;
         double Rss;
         Regress(Betas, NULL, &Rss, Diags, &nRank, NULL,
@@ -3083,17 +3085,24 @@ static void EvalSubsetsUsingXtx(
                     iDelete = iTerm;
                     NewMin = true;
                 }
-                if(iTerm != 0)
-                    tprintf(4, "%6d %5d %8.5g %6.4f%s\n",
+                if(iTerm != 0) {
+                    if(PrintHeader)
+                        tprintf(4, "     nTerms iTerm    DeltaRss     RSq");
+                    PrintHeader = false;
+                    if(PrintNewline)
+                        tprintf(4, "\n");
+                    PrintNewline = false;
+                    tprintf(4, "     %6d %5d %11.5g %7.4f%s\n",
                             nUsedCols, iTerm+IOFFSET, DeltaRss,
                             1 - (Rss + DeltaRss) / RssNull, NewMin? " min" : "");
+                }
                 iTerm1++;
             }
         }
         ASSERT(iDelete > 0);
         WorkingSet[iDelete] = false;
-        tprintf(4, "\n");
     }
+    tprintf(4, "\n");
     free1(WorkingSet);
     free1(Diags);
     free1(Betas);
@@ -3178,6 +3187,7 @@ static void BackwardPass(
                         "PruneTerms\t\tnMaxTerms %d nMaxTerms %d sizeof(bool) %d",
                         nMaxTerms, nMaxTerms, sizeof(bool));
 
+    tprintf(4, "EvalSubsetsUsingXtx:\n");
     EvalSubsetsUsingXtx(PruneTerms, RssVec, nCases, nResp,
                         nMaxTerms, bx, y);
 

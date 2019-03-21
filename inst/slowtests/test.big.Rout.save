@@ -2,6 +2,7 @@
 > 
 > source("test.prolog.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -61,7 +62,7 @@ calling earth
 > start.time <- proc.time()
 > a <- earth(x, y, degree=1, trace=1.5)
 x[20000,100] with colnames x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x1...
-y[20000,1] with colname y
+y[20000,1] with colname y, and values -1.519, 0.2927, -0.09702, -1...
 maxmem 0.1 GB
 malloc    400  B: nUses			nPreds 100 sizeof(int) 4
 malloc    804  B: nDegree		nMaxTerms 201 sizeof(int) 4
@@ -145,7 +146,7 @@ malloc      2 MB: xUsed			nCases 20000 nUsedCols 13 sizeof(double) 8
 malloc    156 kB: Residuals		nCases 20000 nResp 1 sizeof(double) 8
 malloc    104  B: qraux			nUsedCols 13 sizeof(double) 8
 malloc      2 MB: work			nCases 20000 nUsedCols 13 sizeof(double) 8
-Prune method "backward" penalty 2 nprune null: selected 12 of 13 terms, and 3 of 100 preds
+Prune backward penalty 2 nprune null: selected 12 of 13 terms, and 3 of 100 preds
 After pruning pass GRSq 0.997 RSq 0.997
 Getting leverages
 > if(interactive())

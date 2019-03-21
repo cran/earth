@@ -2,6 +2,7 @@
 > 
 > source("test.prolog.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -590,6 +591,9 @@ $namesx.org
 $namesx
 [1] "RHS"
 
+$xlevels
+named list()
+
 $data
    abs.resids       RHS
 1   0.7975990  9.913855
@@ -852,37 +856,37 @@ Warning: plotres: nothing to plot
 > set.seed(1) # optional, for cross validation reproducibility
 > earth.mod <- earth(y~x, nfold=10, ncross=3, varmod.method="earth", trace=.1)
 Full model GRSq 0.651 RSq 0.660, starting cross validation
-CV fold  1.1  CVRSq 0.507  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.2  CVRSq 0.447  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.3  CVRSq 0.684  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.4  CVRSq 0.714  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.5  CVRSq 0.658  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.6  CVRSq 0.725  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.7  CVRSq 0.565  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.8  CVRSq 0.539  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.9  CVRSq 0.450  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  1.10 CVRSq 0.763  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.1  CVRSq 0.654  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.2  CVRSq 0.462  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.3  CVRSq 0.550  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.4  CVRSq 0.510  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.5  CVRSq 0.628  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.6  CVRSq 0.742  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.7  CVRSq 0.692  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.8  CVRSq 0.684  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.9  CVRSq 0.530  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  2.10 CVRSq 0.710  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.1  CVRSq 0.352  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.2  CVRSq 0.652  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.3  CVRSq 0.574  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.4  CVRSq 0.789  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.5  CVRSq 0.598  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.6  CVRSq 0.732  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.7  CVRSq 0.658  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.8  CVRSq 0.632  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.9  CVRSq 0.649  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV fold  3.10 CVRSq 0.657  n.oof 297 10%  n.infold.nz 297 100%  n.oof.nz  33 100%  
-CV all        CVRSq 0.617                 n.infold.nz 330 100%  
+CV fold  1.1  CVRSq  0.507   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.2  CVRSq  0.447   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.3  CVRSq  0.684   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.4  CVRSq  0.714   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.5  CVRSq  0.658   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.6  CVRSq  0.725   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.7  CVRSq  0.565   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.8  CVRSq  0.539   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.9  CVRSq  0.450   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  1.10 CVRSq  0.763   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.1  CVRSq  0.654   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.2  CVRSq  0.462   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.3  CVRSq  0.550   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.4  CVRSq  0.510   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.5  CVRSq  0.628   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.6  CVRSq  0.742   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.7  CVRSq  0.692   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.8  CVRSq  0.684   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.9  CVRSq  0.530   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  2.10 CVRSq  0.710   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.1  CVRSq  0.352   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.2  CVRSq  0.652   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.3  CVRSq  0.574   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.4  CVRSq  0.789   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.5  CVRSq  0.598   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.6  CVRSq  0.732   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.7  CVRSq  0.658   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.8  CVRSq  0.632   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.9  CVRSq  0.649   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV fold  3.10 CVRSq  0.657   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
+CV all        CVRSq  0.617                   n.infold.nz 330 100%
 
 > predict <- predict(earth.mod, interval="pint")
 > 
@@ -943,22 +947,22 @@ head(residuals(earth.mod, type="standardize"))
 > set.seed(4)
 > earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.1)
 Full model GRSq 0.651 RSq 0.660, starting cross validation
-CV fold  1.1  CVRSq 0.711  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  1.2  CVRSq 0.642  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  1.3  CVRSq 0.654  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  1.4  CVRSq 0.571  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  1.5  CVRSq 0.604  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  2.1  CVRSq 0.646  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  2.2  CVRSq 0.746  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  2.3  CVRSq 0.579  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  2.4  CVRSq 0.550  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  2.5  CVRSq 0.602  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  3.1  CVRSq 0.716  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  3.2  CVRSq 0.717  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  3.3  CVRSq 0.511  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  3.4  CVRSq 0.550  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV fold  3.5  CVRSq 0.648  n.oof 264 20%  n.infold.nz 264 100%  n.oof.nz  66 100%  
-CV all        CVRSq 0.630                 n.infold.nz 330 100%  
+CV fold  1.1  CVRSq  0.711   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  1.2  CVRSq  0.642   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  1.3  CVRSq  0.654   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  1.4  CVRSq  0.571   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  1.5  CVRSq  0.604   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  2.1  CVRSq  0.646   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  2.2  CVRSq  0.746   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  2.3  CVRSq  0.579   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  2.4  CVRSq  0.550   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  2.5  CVRSq  0.602   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  3.1  CVRSq  0.716   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  3.2  CVRSq  0.717   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  3.3  CVRSq  0.511   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  3.4  CVRSq  0.550   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV fold  3.5  CVRSq  0.648   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
+CV all        CVRSq  0.630                   n.infold.nz 330 100%
 
 > plot(earth.mod1, which=3, ylim=c(-16,20), info=TRUE, level=.95)
 > do.caption()
@@ -1113,16 +1117,16 @@ test varmod.conv=50%
 > set.seed(1)
 > (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.conv=50))
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold  1.1  CVRSq 0.965  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  1.2  CVRSq 0.908  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  1.3  CVRSq 0.969  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.1  CVRSq 0.950  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  2.2  CVRSq 0.935  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.3  CVRSq 0.943  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.1  CVRSq 0.918  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  3.2  CVRSq 0.961  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.3  CVRSq 0.934  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all        CVRSq 0.943                 n.infold.nz 31 100%  
+CV fold  1.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  1.2  CVRSq  0.908   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  1.3  CVRSq  0.969   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.1  CVRSq  0.950   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  2.2  CVRSq  0.935   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.3  CVRSq  0.943   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.1  CVRSq  0.918   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  3.2  CVRSq  0.961   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.3  CVRSq  0.934   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all        CVRSq  0.943                  n.infold.nz 31 100%
 
 
 varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=50 clamp=0.1 minspan=-3:
@@ -1141,16 +1145,16 @@ test varmod.conv=-5
 > set.seed(1)
 > (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.conv=-5))
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold  1.1  CVRSq 0.965  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  1.2  CVRSq 0.908  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  1.3  CVRSq 0.969  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.1  CVRSq 0.950  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  2.2  CVRSq 0.935  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.3  CVRSq 0.943  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.1  CVRSq 0.918  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  3.2  CVRSq 0.961  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.3  CVRSq 0.934  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all        CVRSq 0.943                 n.infold.nz 31 100%  
+CV fold  1.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  1.2  CVRSq  0.908   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  1.3  CVRSq  0.969   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.1  CVRSq  0.950   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  2.2  CVRSq  0.935   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.3  CVRSq  0.943   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.1  CVRSq  0.918   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  3.2  CVRSq  0.961   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.3  CVRSq  0.934   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all        CVRSq  0.943                  n.infold.nz 31 100%
 
 
 varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=-5 clamp=0.1 minspan=-3:
@@ -1181,16 +1185,16 @@ test varmod.minspan=-5
 > set.seed(1)
 > a.varmod.minspan.minus5 <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth", trace=.3, varmod.minspan=-5)
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold  1.1  CVRSq 0.965  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  1.2  CVRSq 0.908  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  1.3  CVRSq 0.969  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.1  CVRSq 0.950  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  2.2  CVRSq 0.935  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.3  CVRSq 0.943  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.1  CVRSq 0.918  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  3.2  CVRSq 0.961  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.3  CVRSq 0.934  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all        CVRSq 0.943                 n.infold.nz 31 100%  
+CV fold  1.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  1.2  CVRSq  0.908   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  1.3  CVRSq  0.969   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.1  CVRSq  0.950   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  2.2  CVRSq  0.935   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.3  CVRSq  0.943   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.1  CVRSq  0.918   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  3.2  CVRSq  0.961   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.3  CVRSq  0.934   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all        CVRSq  0.943                  n.infold.nz 31 100%
 
 
 varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-5:
@@ -1205,16 +1209,16 @@ test varmod.minspan=1
 > set.seed(1)
 > a.varmod.minspan1 <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth", trace=.3, varmod.minspan=1)
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold  1.1  CVRSq 0.965  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  1.2  CVRSq 0.908  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  1.3  CVRSq 0.969  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.1  CVRSq 0.950  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  2.2  CVRSq 0.935  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.3  CVRSq 0.943  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.1  CVRSq 0.918  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  3.2  CVRSq 0.961  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.3  CVRSq 0.934  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all        CVRSq 0.943                 n.infold.nz 31 100%  
+CV fold  1.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  1.2  CVRSq  0.908   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  1.3  CVRSq  0.969   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.1  CVRSq  0.950   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  2.2  CVRSq  0.935   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.3  CVRSq  0.943   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.1  CVRSq  0.918   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  3.2  CVRSq  0.961   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.3  CVRSq  0.934   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all        CVRSq  0.943                  n.infold.nz 31 100%
 
 
 varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=1:
@@ -1290,16 +1294,16 @@ varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 + }
 ===varmod.method="const"
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold  1.1  CVRSq 0.864  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  1.2  CVRSq 0.932  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  1.3  CVRSq 0.888  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.1  CVRSq 0.950  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  2.2  CVRSq 0.966  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.3  CVRSq 0.842  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.1  CVRSq 0.945  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  3.2  CVRSq 0.884  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.3  CVRSq 0.950  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all        CVRSq 0.913                 n.infold.nz 31 100%  
+CV fold  1.1  CVRSq  0.864   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  1.2  CVRSq  0.932   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  1.3  CVRSq  0.888   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.1  CVRSq  0.950   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  2.2  CVRSq  0.966   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.3  CVRSq  0.842   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.1  CVRSq  0.945   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  3.2  CVRSq  0.884   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.3  CVRSq  0.950   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all        CVRSq  0.913                  n.infold.nz 31 100%
 
 
 varmod method="const" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:
@@ -1434,16 +1438,16 @@ Residual standard error: 2.157 on 30 degrees of freedom
 31 73.447846 65.617069 81.27862
 ===varmod.method="power"
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold  1.1  CVRSq 0.864  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  1.2  CVRSq 0.932  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  1.3  CVRSq 0.888  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.1  CVRSq 0.950  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  2.2  CVRSq 0.966  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.3  CVRSq 0.842  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.1  CVRSq 0.945  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  3.2  CVRSq 0.884  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.3  CVRSq 0.950  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all        CVRSq 0.913                 n.infold.nz 31 100%  
+CV fold  1.1  CVRSq  0.864   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  1.2  CVRSq  0.932   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  1.3  CVRSq  0.888   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.1  CVRSq  0.950   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  2.2  CVRSq  0.966   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.3  CVRSq  0.842   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.1  CVRSq  0.945   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  3.2  CVRSq  0.884   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.3  CVRSq  0.950   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all        CVRSq  0.913                  n.infold.nz 31 100%
 
 
 varmod method="power" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:
@@ -1718,16 +1722,16 @@ Achieved convergence tolerance: 1.212e-10
 31 73.447846 55.467108 91.42858
 ===varmod.method="lm"
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold  1.1  CVRSq 0.864  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  1.2  CVRSq 0.932  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  1.3  CVRSq 0.888  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.1  CVRSq 0.950  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  2.2  CVRSq 0.966  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  2.3  CVRSq 0.842  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.1  CVRSq 0.945  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold  3.2  CVRSq 0.884  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold  3.3  CVRSq 0.950  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all        CVRSq 0.913                 n.infold.nz 31 100%  
+CV fold  1.1  CVRSq  0.864   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  1.2  CVRSq  0.932   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  1.3  CVRSq  0.888   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.1  CVRSq  0.950   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  2.2  CVRSq  0.966   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  2.3  CVRSq  0.842   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.1  CVRSq  0.945   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold  3.2  CVRSq  0.884   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold  3.3  CVRSq  0.950   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all        CVRSq  0.913                  n.infold.nz 31 100%
 
 
 varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:

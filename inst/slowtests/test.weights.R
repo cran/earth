@@ -1,6 +1,7 @@
 # test.weights.R
 
 source("test.prolog.R")
+source("check.models.equal.R")
 library(earth)
 library(mda)
 check.equal <- function(x, y, msg="")
@@ -16,7 +17,7 @@ check.equal <- function(x, y, msg="")
         stop("check.equal failed for ", msg, call.=FALSE)
     }
 }
-check.models.equal <- function(lm.mod, earth.mod)
+check.earth.lm.models.equal <- function(lm.mod, earth.mod)
 {
     lm.mod.name <- deparse(substitute(lm.mod))
     earth.mod.name <- deparse(substitute(earth.mod))
@@ -39,31 +40,48 @@ colnames(data) <- c("x", "y")
 
 lm1 <- lm(y~., data=data)
 a1 <- earth(y~., data=data, linpreds=TRUE)
-check.models.equal(lm1, a1)
+check.earth.lm.models.equal(lm1, a1)
 
 weights <- c(1, 1, 1, 1, 1, 1, 1, 1, 1)
 lm2 <- lm(y~., data=data, weights=weights)
 a2  <- earth(y~., data=data, linpreds=TRUE, weights=weights)
-check.models.equal(lm2, a2)
+check.earth.lm.models.equal(lm2, a2)
 
 # check that we can get the weights from the data as per lm
 lm2.a <- lm(y~xxx, data=data, weights=x) # weights from model frame
 a2.a  <- earth(y~xxx, data=data, linpreds=TRUE, weights=x) # weights from model frame
 a2.b  <- earth(y~xxx, data=data, linpreds=TRUE, weights=xxx) # weights from global env
-check.models.equal(lm2.a, a2.a)
-check.models.equal(a2.b, a2.a)
+check.earth.lm.models.equal(lm2.a, a2.a)
+check.earth.lm.models.equal(a2.b, a2.a)
 
 weights <- c(1, 2, 3, 1, 2, 3, 1, 2, 3)
 lm3 <- lm(y~., data=data, weights=weights)
 a3  <- earth(y~., data=data, linpreds=TRUE, weights=weights, trace=-1)
-check.models.equal(lm3, a3)
+check.earth.lm.models.equal(lm3, a3)
+
+expect.err(try(earth(y~., data=data, wp=3, Scale.y=TRUE)), "Scale.y=TRUE is not allowed with wp")
+allthrees <- rep(3.0, length.out=nrow(data))
+options(warn=2)
+expect.err(try(earth(allthrees~x, data=data)), "Cannot scale y (values are all equal to 3)")
+options(warn=1)
+allthrees.mod <- earth(allthrees~x, data=data)
+print(summary(allthrees.mod))
+# Scale.y=FALSE allows us to use a response that is constant (silences the error message)
+allthrees.mod.noscale <- earth(allthrees~x, data=data, Scale.y=FALSE) # intercept only
+print(summary(allthrees.mod.noscale))
+stopifnot(identical(allthrees.mod$coefficients, allthrees.mod.noscale$coefficients))
+
+subset <- c(TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE)
+lm3.weights <- lm(y~., data=data, weights=weights, subset=subset)
+a3.weights  <- earth(y~., data=data, linpreds=TRUE, weights=weights, trace=-1, subset=subset)
+check.earth.lm.models.equal(lm3.weights, a3.weights)
 
 lm4 <- lm(y~., data=data, weights=.1 * weights)
 a4  <- earth(y~., data=data, linpreds=TRUE, weights=.1 * weights,
              minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
 cat("a4:\n")
 print(a4)
-check.models.equal(lm4, a4)
+check.earth.lm.models.equal(lm4, a4)
 
 # We want to see the effect only on the forward pass, so disable the
 # backward pass with penalty=-1.  This also prevents "termination of the
@@ -104,7 +122,7 @@ plotmo(a7.asmallweight, col.response=2, do.par=F, main="a7.asmallweight", grid.c
 cat("=== a7.xy.asmallweight ===\n") # x,y interface
 a7.xy.asmallweight  <- earth(xxx, yyy, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
                           minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-check.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
+check.earth.lm.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
 
 cat("=== a8 ===\n")
 par(mfrow = c(3, 2)) # new page
@@ -128,6 +146,8 @@ stopifnot(coefficients(a8$glm.list[[1]]) == coefficients(glm.a8))
 cat("=== a8.weights ===\n")
 # now glm models with weights
 glm.weights <- c(.8,1,1,.5,1,1,1,1,1)
+# The following calls to earth and glm both give "Warning: non-integer #successes in a binomial glm"
+# See https://stackoverflow.com/questions/12953045/warning-non-integer-successes-in-a-binomial-glm-survey-packages
 a8.weights <- earth(y~., data=data,
                     linpreds=TRUE, glm=list(family=binomial),
                     weights=glm.weights,
@@ -142,6 +162,40 @@ plotmo(a8.weights, type="earth",
        grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
 glm.a8.weights <- glm(y~., data=data, weights=glm.weights, family=binomial)
 stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm.a8.weights))
+stopifnot(a8.weights$glm.list[[1]]$aic == glm.a8.weights$aic)
+source("check.earth.matches.glm.R")
+check.earth.matches.glm(a8.weights, glm.a8.weights, newdata=data[2:6,])
+
+options(warn=2) # treat warnings as errors
+# same as a8.weights but use family=quasibinomial
+# (test no Warning: non-integer #successes in a binomial glm)
+a8.weights.quasibinomial <- earth(y~., data=data,
+                    linpreds=TRUE, glm=list(family=quasibinomial),
+                    weights=glm.weights,
+                    minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+options(warn=1)
+cat("a8.weights.quasibinomial:\n")
+print(a8.weights.quasibinomial)
+check.models.equal(a8.weights, a8.weights.quasibinomial, "a8.weights, a8.weights.quasibinomial", newdata=data[2,])
+
+# glm model with weights and subset
+# To suppress "Warning: non-integer #successes in a binomial glm" we use quasibinomial rather than binomial
+# See https://stackoverflow.com/questions/12953045/warning-non-integer-successes-in-a-binomial-glm-survey-packages
+a8.subset <- c(TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE)
+a8.weights.subset <- earth(y~., data=data,
+                    linpreds=TRUE, glm=list(family=quasibinomial),
+                    weights=glm.weights, subset=a8.subset,
+                    minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=1)
+glm.a8.weights.subset <- glm(y~., data=data, weights=glm.weights,  subset=a8.subset, family=quasibinomial)
+stopifnot(coefficients(a8.weights.subset$glm.list[[1]]) == coefficients(glm.a8.weights.subset))
+stopifnot(a8.weights.subset$glm.list[[1]]$deviance == glm.a8.weights.subset$deviance)
+# AIC is NA because we use quasibinomial rather than binomial
+stopifnot(is.na(a8.weights.subset$glm.list[[1]]$aic))
+stopifnot(is.na(glm.a8.weights.subset$aic))
+cat("summary(a8.weights.subset:\n")
+print(summary(a8.weights.subset))
+cat("summary(glm,a8.weights.subset:\n")
+print(summary(glm.a8.weights.subset))
 
 cat("=== a8.weights including a zero weight ===\n")
 # now glm models with weights including a zero weight
@@ -187,7 +241,7 @@ plotmo(a8.azeroweight,     pt.col=2, caption="plotmo: a8.azeroweight")
 set.seed(2018)
 plotmo(glm.a8.azeroweight, pt.col=2, caption="plotmo: glm.a8.azeroweight")
 
-cat("=== plot.earth with earth-glm model, weights, and offset ===\n")
+cat("=== plot.earth with earth-glm model, weights ===\n")
 
 # multivariate models
 
@@ -200,7 +254,7 @@ weights <- c(3, 2, 1, 1, 2, 3, 1, 2, 3)
 lm20 <- lm(y~., data=data, weights=weights)
 a20  <- earth(y~., data=data, linpreds=TRUE, weights=weights,
               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-check.models.equal(lm20, a20)
+check.earth.lm.models.equal(lm20, a20)
 
 a21.noweights <- earth(y~., data=data, # no weights for comparison
                        minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
@@ -348,7 +402,7 @@ rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), 
 plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
 
 # # TODO the following are meant to do degree2 weight tests,
-# #      but thet are unconvincing either way, so commented out
+# #      but they are unconvincing either way, so commented out
 #
 # par(mfcol = c(3, 3), mar = c(1.5, 4, 3, 2), mgp = c(1.5, 0.5, 0), oma=c(0,0,6,0))
 #
@@ -405,6 +459,85 @@ aw <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial), weigh
 print(summary(aw))
 yhatw <- predict(aw, dat[, c('x1', 'x2', 'x3')], type='response')
 stopifnot(identical(yhat, yhat))
-check.models.equal(a, aw)
+check.earth.lm.models.equal(a, aw)
+
+cat("---check Scale.y-------------------------------------------\n")
+
+xxx <- 1:9
+yyy <- 1:9
+yyy[3] <- 9
+datxy <- data.frame(x=xxx, y=yyy)
+colnames(datxy) <- c("xxx", "yyy")
+options(warn=2)
+
+mod1 <- earth(yyy~., datxy, Scale.y=FALSE)
+mod2 <- earth(yyy~., datxy, Scale.y=TRUE)
+check.models.equal(mod1, mod2, "mod1, mod2", newdata=dataxy[3,])
+
+mod3 <- earth(yyy~., datxy, weights=weights, Scale.y=FALSE)
+mod4 <- earth(yyy~., datxy, weights=weights, Scale.y=TRUE)
+check.models.equal(mod3, mod4, "mod3, mod4", newdata=dataxy[3,])
+
+data(ozone1)
+
+mod5 <- earth(O3~., ozone1, Scale.y=FALSE)
+mod6 <- earth(O3~., ozone1, Scale.y=TRUE)
+check.models.equal(mod5, mod6, "mod5, mod6", newdata=ozone1[3,])
+
+mod7 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=FALSE)
+mod8 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=TRUE)
+check.models.equal(mod7, mod8, "mod7, mod8", newdata=ozone1[3,])
+
+data(etitanic)
+
+# nk=5 for speed
+mod9  <- earth(survived~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=FALSE)
+mod10 <- earth(survived~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=TRUE)
+check.models.equal(mod9, mod10, "mod9, mod10", newdata=etitanic[2,])
+
+# use nk=7 to minimize differences between code for weighted and unweighted models in earth.c
+mod.O3vh    <- earth(O3+vh~wind+doy, ozone1, nk=7, Scale.y=FALSE, trace=1)
+w1 <- rep(1, length.out=nrow(ozone1))
+mod.O3vh.w1 <- earth(O3+vh~wind+doy, ozone1, nk=7, weights=w1, Force.weights=TRUE, Scale.y=FALSE, trace=1)
+check.models.equal(mod.O3vh, mod.O3vh.w1, "mod.O3vh, mod.O3vh.w1", newdata=ozone1[2,])
+
+w3 <- rep(3, length.out=nrow(ozone1))
+mod.O3vh.w3 <- earth(O3+vh~wind+doy, ozone1, nk=7, weights=w3, Force.weights=TRUE, Scale.y=FALSE)
+check.equal(mod.O3vh$grsq, mod.O3vh.w3$grsq)
+check.equal(mod.O3vh$rsq, mod.O3vh.w3$rsq)
+check.equal(mod.O3vh$coefficients, mod.O3vh.w3$coefficients)
+# check.models.equal(mod.O3vh, mod.O3vh.w3, "(mod.O3vh, mod.O3vh.w3") # not exactly equal but close
+
+mod.O3vh.Scaley    <- earth(O3+vh~wind+doy, ozone1, nk=7, Scale.y=TRUE, trace=0)
+w1 <- rep(1, length.out=nrow(ozone1))
+mod.O3vh.w1.Scaley <- earth(O3+vh~wind+doy, ozone1, nk=7, weights=w1, Force.weights=TRUE, Scale.y=TRUE)
+check.models.equal(mod.O3vh.Scaley, mod.O3vh.w1.Scaley, "mod.O3vh.Scaley, mod.O3vh.w1.Scaley", newdata=ozone1[2,])
+
+# multiple response models, Scale.y will be visible (i.e. models with different Scale.y will be different)
+mod.O3vh        <- earth(O3+vh~wind+doy, ozone1, degree=2, Scale.y=FALSE)
+print(mod.O3vh)
+mod.O3vh.Scaley <- earth(O3+vh~wind+doy, ozone1, degree=2, Scale.y=TRUE)
+print(mod.O3vh.Scaley)
+rsq.diff        <- abs(mod.O3vh$rsq.per.response[1]        - mod.O3vh$rsq.per.response[2])
+rsq.diff.Scaley <- abs(mod.O3vh.Scaley$rsq.per.response[1] - mod.O3vh.Scaley$rsq.per.response[2])
+# Scale.y=TRUE for multiple response models should make the rsq for the two responses closer
+# i.e. with Scale.y=TRUE, vh should not overwhelm O3 because vh has much bigger values
+stopifnot(rsq.diff.Scaley < rsq.diff)
+
+wO3 <- sqrt(ozone1$O3)
+mod.O3vh.wO3        <- earth(O3+vh~wind+doy, ozone1, degree=2, weights=wO3, Scale.y=FALSE)
+print(mod.O3vh.wO3)
+mod.O3vh.wO3.Scaley <- earth(O3+vh~wind+doy, ozone1, degree=2, weights=wO3, Scale.y=TRUE)
+print(mod.O3vh.wO3.Scaley)
+rsq.diff.wO3        <- abs(mod.O3vh.wO3$rsq.per.response[1]        - mod.O3vh.wO3$rsq.per.response[2])
+rsq.diff.wO3.Scaley <- abs(mod.O3vh.wO3.Scaley$rsq.per.response[1] - mod.O3vh.wO3.Scaley$rsq.per.response[2])
+# Scale.y=TRUE for multiple response models should make the rsq for the two responses closer
+stopifnot(rsq.diff.wO3.Scaley < rsq.diff.wO3)
+
+# nk=5 for speed
+mod11 <- earth(pclass~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=FALSE)
+print(mod11)
+mod12 <- earth(pclass~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=TRUE)
+print(mod12)
 
 source("test.epilog.R")

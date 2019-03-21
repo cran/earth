@@ -19,6 +19,10 @@ time /T
                         @if %errorlevel% NEQ 0 goto error
 @call test.glm.bat
                         @if %errorlevel% NEQ 0 goto error
+@call test.expand.bpairs.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.bpairs.bat
+                        @if %errorlevel% NEQ 0 goto error
 @call test.full.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.cv.bat
@@ -32,6 +36,8 @@ time /T
 @call test.plotd.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.offset.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.multresp.bat
                         @if %errorlevel% NEQ 0 goto error
 @goto done
 :error

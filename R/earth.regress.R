@@ -33,7 +33,10 @@ earth.regress <- function(
     ncols <- ncol(x)
     ncases <- nrow(x)
 
-    weights <- get.weights(weights, ncases)
+    if(is.null(weights))
+        weights <- repl(1, ncases)
+    else
+        weights <- check.weights(weights, "weights", ncases, tweak.zero.weights=TRUE)
     if(is.null(used.cols)) {
         used.cols <- repl(TRUE, ncols)
         coefficients <- matrix(1.0, nrow=ncol(x), ncol=nresp)

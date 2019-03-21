@@ -42,7 +42,7 @@ earthmain-gcc64.exe
                                 @if %errorlevel% neq 0 goto error
 
 @rem we use -w on mks.diff so it treats \r\n the same as \n
-mks.diff -w test.earthmain-gcc64.out test.earthmain.out64.save
+mks.diff test.earthmain-gcc64.out test.earthmain.out64.save
                                 @if %errorlevel% neq 0 goto error
 
 @rm -f R.dll Rblas.dll Riconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll Rdll.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc64.* *.o

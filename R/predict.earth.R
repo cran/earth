@@ -15,17 +15,17 @@ predict.earth <- function(
     trace <- as.numeric(check.numeric.scalar(trace, logical.ok=TRUE))
     type <- match.arg1(type, "type")
     env <- parent.frame() # the environment from which predict.earth was called
-
-    fit <- if(type == "terms")
-                predict.earth.terms(object, newdata, env, trace)
-           else
-                predict.earth.aux(object, newdata, env, type, thresh, trace)
+    if(type == "terms")
+        fit <- predict_earth_terms(object, newdata, env, trace)
+    else
+        fit <- predict_earth_aux(object, newdata, env, type, thresh, trace)
 
     interval <- match.choices(interval,
                     c("none", "pint", "cint", "se", "abs.residual"), "interval")
     if(interval == "none") {
         if(!missing(level))
-            stop0("predict.earth: level=", level, " was specified but interval=\"none\"")
+            stop0("predict.earth: level=", as.char(level),
+                  " was specified but interval=\"none\"")
         return(fit) # note return
     }
     # the interval argument was used
@@ -43,30 +43,29 @@ predict.earth <- function(
               "for multiple response models")
     predict.varmod(object$varmod, newdata=newdata, type=interval, level=level)
 }
-predict.earth.aux <- function(object, newdata, env, type, thresh, trace)
+predict_earth_aux <- function(object, newdata, env, type, thresh, trace)
 {
-    is.class <- FALSE
-    if(type=="class") {
-        is.class <- TRUE
+    type.is.class <- type=="class"
+    if(type.is.class) {
         type <- "response" # we want predicted probabilities
         ylevels <- object$levels
         if(is.null(ylevels))
             ylevels <- c(FALSE, TRUE)
     }
-    fit <- if(is.null(newdata)) # no newdata?
-               predict.earth.without.newdata(object, type, trace)
-           else # user supplied newdata
-               predict.earth.with.newdata(object, newdata, env, type, trace)
+    if(is.null(newdata)) # no newdata?
+        fit <- predict_earth_without_newdata(object, type, trace)
+    else # user supplied newdata
+        fit <- predict_earth_with_newdata(object, newdata, env, type, trace)
 
-    if(is.class)
+    if(type.is.class)
         fit <- convert.predicted.response.to.class(fit, ylevels,
                             colnames(object$coefficients)[1], thresh)
     fit
 }
-predict.earth.without.newdata <- function(object, type, trace)
+predict_earth_without_newdata <- function(object, type, trace)
 {
     if(is.null(object$glm.list) || type=="earth") {
-        print.returning.earth(object, trace, "fitted.values")
+        print_returning_earth(object, trace, "fitted.values")
         fit <- object$fitted.values
     } else {    # glm predictions
         trace1(trace, "predict.earth: returning glm fitted.values\n")
@@ -78,17 +77,17 @@ predict.earth.without.newdata <- function(object, type, trace)
     }
     fit
 }
-predict.earth.with.newdata <- function(object, newdata, env, type, trace)
+predict_earth_with_newdata <- function(object, newdata, env, type, trace)
 {
-    bx <- model.matrix.earth(object, newdata, trace=trace,
-                Env=env, Callers.name="model.matrix.earth from predict.earth")
+    bx <- model.matrix.earth(object, newdata, trace=trace, Env=env,
+                             Callers.name="model.matrix.earth from predict.earth")
     if(trace >= 1) {
-        print_summary(bx, "predict.earth: bx", trace=2)
+        print_summary(bx, "predict.earth with newdata: bx", trace=2)
         trace2(trace, "\n")
     }
     offset <- get.predict.offset(object, newdata, trace)
     if(is.null(object$glm.list) || type=="earth") {
-        print.returning.earth(object, trace, "predictions")
+        print_returning_earth(object, trace, "predictions")
         fit <- bx %*% object$coefficients
         if(!is.null(offset)) {
             stopifnot(NROW(fit) == NROW(offset))
@@ -115,7 +114,7 @@ predict.earth.with.newdata <- function(object, newdata, env, type, trace)
     }
     fit
 }
-print.returning.earth <- function(object, trace, msg)
+print_returning_earth <- function(object, trace, msg)
 {
     if(trace >= 1) {
         if(is.null(object$glm.list))
@@ -135,7 +134,8 @@ convert.predicted.response.to.class <- function(resp, ylevels, resp.name, thresh
         which.
     }
     if(is.null(ylevels)) # should never happen
-        stop0("cannot use type=\"class\" with this model")
+        stop0("predict.earth: cannot use type=\"class\" with this model")
+    check.numeric.scalar(thresh)
     resp <- ylevels[apply(resp, 1, which1, thresh)]
     if(is.character(ylevels))
         resp <- factor(resp, levels = ylevels)
@@ -143,8 +143,8 @@ convert.predicted.response.to.class <- function(resp, ylevels, resp.name, thresh
     colnames(fit) <- resp.name
     fit
 }
-# return just enough for termplot to work
-predict.earth.terms <- function(object, newdata, env, trace)
+# type="terms" was passed to predict.earth, return just enough for termplot to work
+predict_earth_terms <- function(object, newdata, env, trace)
 {
     if(!is.null(object$glm.list))
         warning0("predict.earth: returning the earth (not glm) terms")

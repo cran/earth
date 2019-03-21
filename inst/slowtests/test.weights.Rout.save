@@ -1,7 +1,9 @@
 > # test.weights.R
 > 
 > source("test.prolog.R")
+> source("check.models.equal.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -22,7 +24,7 @@ Loaded mda 0.4-10
 +         stop("check.equal failed for ", msg, call.=FALSE)
 +     }
 + }
-> check.models.equal <- function(lm.mod, earth.mod)
+> check.earth.lm.models.equal <- function(lm.mod, earth.mod)
 + {
 +     lm.mod.name <- deparse(substitute(lm.mod))
 +     earth.mod.name <- deparse(substitute(earth.mod))
@@ -45,24 +47,68 @@ Loaded mda 0.4-10
 > 
 > lm1 <- lm(y~., data=data)
 > a1 <- earth(y~., data=data, linpreds=TRUE)
-> check.models.equal(lm1, a1)
+> check.earth.lm.models.equal(lm1, a1)
 > 
 > weights <- c(1, 1, 1, 1, 1, 1, 1, 1, 1)
 > lm2 <- lm(y~., data=data, weights=weights)
 > a2  <- earth(y~., data=data, linpreds=TRUE, weights=weights)
-> check.models.equal(lm2, a2)
+> check.earth.lm.models.equal(lm2, a2)
 > 
 > # check that we can get the weights from the data as per lm
 > lm2.a <- lm(y~xxx, data=data, weights=x) # weights from model frame
 > a2.a  <- earth(y~xxx, data=data, linpreds=TRUE, weights=x) # weights from model frame
 > a2.b  <- earth(y~xxx, data=data, linpreds=TRUE, weights=xxx) # weights from global env
-> check.models.equal(lm2.a, a2.a)
-> check.models.equal(a2.b, a2.a)
+> check.earth.lm.models.equal(lm2.a, a2.a)
+> check.earth.lm.models.equal(a2.b, a2.a)
 > 
 > weights <- c(1, 2, 3, 1, 2, 3, 1, 2, 3)
 > lm3 <- lm(y~., data=data, weights=weights)
 > a3  <- earth(y~., data=data, linpreds=TRUE, weights=weights, trace=-1)
-> check.models.equal(lm3, a3)
+> check.earth.lm.models.equal(lm3, a3)
+> 
+> expect.err(try(earth(y~., data=data, wp=3, Scale.y=TRUE)), "Scale.y=TRUE is not allowed with wp")
+Error : Scale.y=TRUE is not allowed with wp (implementation restriction)
+Got error as expected from try(earth(y ~ ., data = data, wp = 3, Scale.y = TRUE))
+> allthrees <- rep(3.0, length.out=nrow(data))
+> options(warn=2)
+> expect.err(try(earth(allthrees~x, data=data)), "Cannot scale y (values are all equal to 3)")
+Error : (converted from warning) Cannot scale y (values are all equal to 3)
+         Use Scale.y=FALSE to silence this warning
+Got error as expected from try(earth(allthrees ~ x, data = data))
+> options(warn=1)
+> allthrees.mod <- earth(allthrees~x, data=data)
+Warning: Cannot scale y (values are all equal to 3)
+         Use Scale.y=FALSE to silence this warning
+> print(summary(allthrees.mod))
+Call: earth(formula=allthrees~x, data=data)
+
+            coefficients
+(Intercept)            3
+
+Selected 1 of 1 terms, and 0 of 1 predictors
+Termination condition: RSq changed by less than 0.001 at 1 term
+Importance: x-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+GCV 0    RSS 0    GRSq NaN    RSq NaN
+> # Scale.y=FALSE allows us to use a response that is constant (silences the error message)
+> allthrees.mod.noscale <- earth(allthrees~x, data=data, Scale.y=FALSE) # intercept only
+> print(summary(allthrees.mod.noscale))
+Call: earth(formula=allthrees~x, data=data, Scale.y=FALSE)
+
+            coefficients
+(Intercept)            3
+
+Selected 1 of 1 terms, and 0 of 1 predictors
+Termination condition: RSq changed by less than 0.001 at 1 term
+Importance: x-unused
+Number of terms at each degree of interaction: 1 (intercept only model)
+GCV 0    RSS 0    GRSq NaN    RSq NaN
+> stopifnot(identical(allthrees.mod$coefficients, allthrees.mod.noscale$coefficients))
+> 
+> subset <- c(TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE)
+> lm3.weights <- lm(y~., data=data, weights=weights, subset=subset)
+> a3.weights  <- earth(y~., data=data, linpreds=TRUE, weights=weights, trace=-1, subset=subset)
+> check.earth.lm.models.equal(lm3.weights, a3.weights)
 > 
 > lm4 <- lm(y~., data=data, weights=.1 * weights)
 > a4  <- earth(y~., data=data, linpreds=TRUE, weights=.1 * weights,
@@ -76,7 +122,7 @@ Importance: x
 Weights: 0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2, 0.3
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 0.3153798    RSS 2.838418    GRSq 0.7988523    RSq 0.7988523
-> check.models.equal(lm4, a4)
+> check.earth.lm.models.equal(lm4, a4)
 > 
 > # We want to see the effect only on the forward pass, so disable the
 > # backward pass with penalty=-1.  This also prevents "termination of the
@@ -95,10 +141,9 @@ GCV 0.3153798    RSS 2.838418    GRSq 0.7988523    RSq 0.7988523
 > par(mgp = c(1.5, 0.5, 0))
 > a5.noweights <- earth(y~., data=data,
 +                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-x[9,1] with colname x
-y[9,1] with colname y
-
-Forward pass: minspan 1 endspan 1    x[9,1] 72 B    bx[9,21] 1.48 kB
+x[9,1] with colname x, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
+y[9,1] with colname y, and values 1, 2, 3, 4, 9, 6, 7, 8, 9
+Forward pass: minspan 1 endspan 1   x[9,1] 72 Bytes   bx[9,21] 1.48 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -117,16 +162,16 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds
           4      0.9326  0.9326     0.0558      1  
 chosen    5      1.0000  1.0000     0.0674      1  
 
-Prune method "backward" penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
+Prune backward penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > plotmo(a5.noweights, col.response=2, do.par=F, main="a5.noweights", grid.col="gray", jitter=0)
 > # TODO why does this model differ from the above model?
 > a5.noweights.force <- earth(y~., data=data, Force.weights=T,
 +                       minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-x[9,1] with colname x
-y[9,1] with colname y
-
-Forward pass: minspan 1 endspan 1    x[9,1] 72 B    bx[9,21] 1.48 kB weighted
+x[9,1] with colname x, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
+y[9,1] with colname y, and values 1, 2, 3, 4, 9, 6, 7, 8, 9
+weights[9]: 1, 1, 1, 1, 1, 1, 1, 1, 1
+Forward pass: minspan 1 endspan 1   x[9,1] 72 Bytes   bx[9,21] 1.48 kB weighted
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -145,7 +190,7 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds
           4      0.9326  0.9326     0.0558      1  
 chosen    5      1.0000  1.0000     0.0674      1  
 
-Prune method "backward" penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
+Prune backward penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > cat("a5.noweights.force:\n")
 a5.noweights.force:
@@ -162,11 +207,10 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 === a6.azeroweight ===
 > a6.azeroweight  <- earth(y~., data=data, weights=c(1, 1, 1, 1, 0, 1, 1, 1, 1),
 +                          minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-x[9,1] with colname x
-y[9,1] with colname y
-weights[9,1] with no column names
-
-Forward pass: minspan 1 endspan 1    x[9,1] 72 B    bx[9,21] 1.48 kB weighted
+x[9,1] with colname x, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
+y[9,1] with colname y, and values 1, 2, 3, 4, 9, 6, 7, 8, 9
+weights[9]: 1, 1, 1, 1, 0, 1, 1, 1, 1
+Forward pass: minspan 1 endspan 1   x[9,1] 72 Bytes   bx[9,21] 1.48 kB weighted
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -176,11 +220,12 @@ Reached maximum RSq 1.0000 at 3 terms, 2 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
 Forward pass complete: 3 terms, 2 terms used
 
+Using EvalSubsetsUsingXtx (rather than leaps) because ncol(bx) <= 2
 Subset size        GRSq     RSq  DeltaGRSq nPreds
           1      0.0000  0.0000     0.0000      0  
 chosen    2      1.0000  1.0000     1.0000      1  
 
-Prune method "backward" penalty -1 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+Prune backward penalty -1 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > cat("a6.azeroweight:\n")
 a6.azeroweight:
@@ -188,7 +233,7 @@ a6.azeroweight:
 Selected 2 of 2 terms, and 1 of 1 predictors
 Termination condition: Reached maximum RSq 1.0000 at 2 terms
 Importance: x
-Weights: 1, 1, 1, 1, 8.888889e-09, 1, 1, 1, 1
+Weights: 1, 1, 1, 1, 0, 1, 1, 1, 1
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 1.580247e-08    RSS 1.422222e-07    GRSq 1    RSq 1
 > plotmo(a6.azeroweight, col.response=2, do.par=F, main="a6.azeroweight", grid.col="gray", jitter=0)
@@ -197,11 +242,10 @@ GCV 1.580247e-08    RSS 1.422222e-07    GRSq 1    RSq 1
 === a7.asmallweight ===
 > a7.asmallweight  <- earth(y~., data=data, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
 +                           minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-x[9,1] with colname x
-y[9,1] with colname y
-weights[9,1] with no column names
-
-Forward pass: minspan 1 endspan 1    x[9,1] 72 B    bx[9,21] 1.48 kB weighted
+x[9,1] with colname x, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
+y[9,1] with colname y, and values 1, 2, 3, 4, 9, 6, 7, 8, 9
+weights[9]: 1, 1, 1, 1, 0.5, 1, 1, 1, 1
+Forward pass: minspan 1 endspan 1   x[9,1] 72 Bytes   bx[9,21] 1.48 kB weighted
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -220,7 +264,7 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds
           4      0.9323  0.9323     0.0080      1  
 chosen    5      1.0000  1.0000     0.0677      1  
 
-Prune method "backward" penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
+Prune backward penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 > plotmo(a7.asmallweight, col.response=2, do.par=F, main="a7.asmallweight", grid.col="gray", jitter=0)
 > 
@@ -228,11 +272,10 @@ After pruning pass GRSq 1 RSq 1
 === a7.xy.asmallweight ===
 > a7.xy.asmallweight  <- earth(xxx, yyy, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
 +                           minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-x[9,1] with colname x
-y[9,1] with colname yyy
-weights[9,1] with no column names
-
-Forward pass: minspan 1 endspan 1    x[9,1] 72 B    bx[9,21] 1.48 kB weighted
+x[9,1] with colname x, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
+y[9,1] with colname yyy, and values 1, 2, 3, 4, 9, 6, 7, 8, 9
+weights[9]: 1, 1, 1, 1, 0.5, 1, 1, 1, 1
+Forward pass: minspan 1 endspan 1   x[9,1] 72 Bytes   bx[9,21] 1.48 kB weighted
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -251,9 +294,9 @@ Subset size        GRSq     RSq  DeltaGRSq nPreds
           4      0.9323  0.9323     0.0080      1  
 chosen    5      1.0000  1.0000     0.0677      1  
 
-Prune method "backward" penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
+Prune backward penalty -1 nprune null: selected 5 of 5 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
-> check.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
+> check.earth.lm.models.equal(a7.xy.asmallweight, a7.xy.asmallweight)
 > 
 > cat("=== a8 ===\n")
 === a8 ===
@@ -279,6 +322,8 @@ After pruning pass GRSq 1 RSq 1
 === a8.weights ===
 > # now glm models with weights
 > glm.weights <- c(.8,1,1,.5,1,1,1,1,1)
+> # The following calls to earth and glm both give "Warning: non-integer #successes in a binomial glm"
+> # See https://stackoverflow.com/questions/12953045/warning-non-integer-successes-in-a-binomial-glm-survey-packages
 > a8.weights <- earth(y~., data=data,
 +                     linpreds=TRUE, glm=list(family=binomial),
 +                     weights=glm.weights,
@@ -288,16 +333,16 @@ Warning in eval(family$initialize) :
 > cat("a8.weights:\n")
 a8.weights:
 > print(a8.weights)
+GLM (family binomial, link logit):
+ nulldev df       dev df   devratio     AIC iters converged
+ 11.4471  8   3.72175  7      0.675   6.107     7         1
+
 Earth selected 2 of 2 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 1e-08 at 2 terms
 Importance: x
 Weights: 0.8, 1, 1, 0.5, 1, 1, 1, 1, 1
 Number of terms at each degree of interaction: 1 1 (additive model)
 Earth GCV 0.07569683    RSS 0.6812715    GRSq 0.6693244    RSq 0.6693244
-
-GLM (family binomial, link logit):
-  nulldev df     dev df devratio   AIC iters converged
- 11.44714  8 3.72175  7    0.675 6.107     7         1
 > plotmo(a8.weights, type="response",
 +        col.response=2, do.par=F, main="a8.weights glm\ntype=\"response\"",
 +        grid.col="gray", ylim=c(-.2, 1.2), jitter=0)
@@ -308,6 +353,112 @@ GLM (family binomial, link logit):
 Warning in eval(family$initialize) :
   non-integer #successes in a binomial glm!
 > stopifnot(coefficients(a8.weights$glm.list[[1]]) == coefficients(glm.a8.weights))
+> stopifnot(a8.weights$glm.list[[1]]$aic == glm.a8.weights$aic)
+> source("check.earth.matches.glm.R")
+> check.earth.matches.glm(a8.weights, glm.a8.weights, newdata=data[2:6,])
+check a8.weights vs glm.a8.weights
+> 
+> options(warn=2) # treat warnings as errors
+> # same as a8.weights but use family=quasibinomial
+> # (test no Warning: non-integer #successes in a binomial glm)
+> a8.weights.quasibinomial <- earth(y~., data=data,
++                     linpreds=TRUE, glm=list(family=quasibinomial),
++                     weights=glm.weights,
++                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
+> options(warn=1)
+> cat("a8.weights.quasibinomial:\n")
+a8.weights.quasibinomial:
+> print(a8.weights.quasibinomial)
+GLM (family quasibinomial, link logit):
+ nulldev df       dev df   devratio    iters converged
+ 11.4471  8   3.72175  7      0.675        7         1
+
+Earth selected 2 of 2 terms, and 1 of 1 predictors
+Termination condition: RSq changed by less than 1e-08 at 2 terms
+Importance: x
+Weights: 0.8, 1, 1, 0.5, 1, 1, 1, 1, 1
+Number of terms at each degree of interaction: 1 1 (additive model)
+Earth GCV 0.07569683    RSS 0.6812715    GRSq 0.6693244    RSq 0.6693244
+> check.models.equal(a8.weights, a8.weights.quasibinomial, "a8.weights, a8.weights.quasibinomial", newdata=data[2,])
+a8.weights, a8.weights.quasibinomial: models not identical
+
+a8.weights, a8.weights.quasibinomial: glm submodel formula strings are identical: yarg ~ x
+a8.weights, a8.weights.quasibinomial: but the actual glm submodel formulas differ (classes are "formula" and "formula")
+a8.weights, a8.weights.quasibinomial: glm submodels not identical (but coefs, residuals, fitted.values are the same)
+a8.weights, a8.weights.quasibinomial: Models are equivalent, within numerical tolerances
+
+> 
+> # glm model with weights and subset
+> # To suppress "Warning: non-integer #successes in a binomial glm" we use quasibinomial rather than binomial
+> # See https://stackoverflow.com/questions/12953045/warning-non-integer-successes-in-a-binomial-glm-survey-packages
+> a8.subset <- c(TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE)
+> a8.weights.subset <- earth(y~., data=data,
++                     linpreds=TRUE, glm=list(family=quasibinomial),
++                     weights=glm.weights, subset=a8.subset,
++                     minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=1)
+x[9,1] with colname x, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
+y[9,1] with colname y, and values 0, 0, 0, 1, 0, 1, 1, 1, 1
+earth and glm weights[9]: 0.8, 1, 1, 0.5, 1, 1, 1, 1, 1
+7 cases after taking subset
+Forward pass term 1, 2, 4
+RSq changed by less than 1e-08 at 3 terms, 2 terms used (DeltaRSq 0)
+After forward pass GRSq 0.584 RSq 0.584
+Prune backward penalty -1 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+After pruning pass GRSq 0.584 RSq 0.584
+GLM y devratio 0.57 dof 5/6 iters 6
+> glm.a8.weights.subset <- glm(y~., data=data, weights=glm.weights,  subset=a8.subset, family=quasibinomial)
+> stopifnot(coefficients(a8.weights.subset$glm.list[[1]]) == coefficients(glm.a8.weights.subset))
+> stopifnot(a8.weights.subset$glm.list[[1]]$deviance == glm.a8.weights.subset$deviance)
+> # AIC is NA because we use quasibinomial rather than binomial
+> stopifnot(is.na(a8.weights.subset$glm.list[[1]]$aic))
+> stopifnot(is.na(glm.a8.weights.subset$aic))
+> cat("summary(a8.weights.subset:\n")
+summary(a8.weights.subset:
+> print(summary(a8.weights.subset))
+Call: earth(formula=y~., data=data, weights=glm.weights, subset=a8.subset,
+            trace=1, glm=list(family=quasibinomial), linpreds=TRUE, minspan=1,
+            endspan=1, penalty=-1, thresh=1e-08)
+
+GLM coefficients
+                    y
+(Intercept) -7.267917
+x            1.488788
+
+GLM (family quasibinomial, link logit):
+ nulldev df       dev df   devratio    iters converged
+ 8.65572  6   3.69334  5      0.573        6         1
+
+Earth selected 2 of 2 terms, and 1 of 1 predictors
+Termination condition: RSq changed by less than 1e-08 at 2 terms
+Importance: x
+Weights: 0.8, 1, 0.5, 1, 1, 1, 1
+Number of terms at each degree of interaction: 1 1 (additive model)
+Earth GCV 0.09233891    RSS 0.6463724    GRSq 0.5844749    RSq 0.5844749
+> cat("summary(glm,a8.weights.subset:\n")
+summary(glm,a8.weights.subset:
+> print(summary(glm.a8.weights.subset))
+
+Call:
+glm(formula = y ~ ., family = quasibinomial, data = data, weights = glm.weights, 
+    subset = a8.subset)
+
+Deviance Residuals: 
+       1         3         4         5         6         7         8  
+-0.07028  -0.34335   1.24541  -1.25302   0.58873   0.28918   0.13848  
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  -7.2679     5.0395  -1.442    0.209
+x             1.4888     0.9709   1.533    0.186
+
+(Dispersion parameter for quasibinomial family taken to be 0.6710906)
+
+    Null deviance: 8.6557  on 6  degrees of freedom
+Residual deviance: 3.6933  on 5  degrees of freedom
+AIC: NA
+
+Number of Fisher Scoring iterations: 6
+
 > 
 > cat("=== a8.weights including a zero weight ===\n")
 === a8.weights including a zero weight ===
@@ -359,8 +510,8 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > set.seed(2018)
 > plotmo(glm.a8.azeroweight, pt.col=2, caption="plotmo: glm.a8.azeroweight")
 > 
-> cat("=== plot.earth with earth-glm model, weights, and offset ===\n")
-=== plot.earth with earth-glm model, weights, and offset ===
+> cat("=== plot.earth with earth-glm model, weights ===\n")
+=== plot.earth with earth-glm model, weights ===
 > 
 > # multivariate models
 > 
@@ -373,7 +524,7 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > lm20 <- lm(y~., data=data, weights=weights)
 > a20  <- earth(y~., data=data, linpreds=TRUE, weights=weights,
 +               minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
-> check.models.equal(lm20, a20)
+> check.earth.lm.models.equal(lm20, a20)
 > 
 > a21.noweights <- earth(y~., data=data, # no weights for comparison
 +                        minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=-1)
@@ -441,9 +592,8 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > y <- bivariate.with.interaction(x)
 > a.biv  <- earth(x, y, degree=2, trace=2)
 x[18,2] with colnames x1 x2
-y[18,1] with colname y
-
-Forward pass: minspan 3 endspan 8    x[18,2] 288 B    bx[18,21] 2.95 kB
+y[18,1] with colname y, and values -0.9802, -0.8914, -0.8429, -0...
+Forward pass: minspan 3 endspan 8   x[18,2] 288 Bytes   bx[18,21] 2.95 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -456,13 +606,13 @@ Forward pass: minspan 3 endspan 8    x[18,2] 288 B    bx[18,21] 2.95 kB
 GRSq -Inf at 9 terms, 7 terms used
 After forward pass GRSq -in RSq 0.998
 Forward pass complete: 9 terms, 7 terms used
-Prune method "backward" penalty 3 nprune null: selected 5 of 7 terms, and 2 of 2 preds
+Prune backward penalty 3 nprune null: selected 5 of 7 terms, and 2 of 2 preds
 After pruning pass GRSq 0.914 RSq 0.985
 > aw.biv <- earth(x, y, degree=2, trace=2, Force.weights=TRUE)
 x[18,2] with colnames x1 x2
-y[18,1] with colname y
-
-Forward pass: minspan 3 endspan 8    x[18,2] 288 B    bx[18,21] 2.95 kB weighted
+y[18,1] with colname y, and values -0.9802, -0.8914, -0.8429, -0...
+weights[18]: 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+Forward pass: minspan 3 endspan 8   x[18,2] 288 Bytes   bx[18,21] 2.95 kB weighted
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
@@ -475,7 +625,7 @@ Forward pass: minspan 3 endspan 8    x[18,2] 288 B    bx[18,21] 2.95 kB weighted
 GRSq -Inf at 9 terms, 7 terms used
 After forward pass GRSq -in RSq 0.998
 Forward pass complete: 9 terms, 7 terms used
-Prune method "backward" penalty 3 nprune null: selected 5 of 7 terms, and 2 of 2 preds
+Prune backward penalty 3 nprune null: selected 5 of 7 terms, and 2 of 2 preds
 After pruning pass GRSq 0.914 RSq 0.985
 > cat("aw.biv:\n")
 aw.biv:
@@ -579,7 +729,7 @@ comparison to glm and rpart: weight=10
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
 > 
 > # # TODO the following are meant to do degree2 weight tests,
-> # #      but thet are unconvincing either way, so commented out
+> # #      but they are unconvincing either way, so commented out
 > #
 > # par(mfcol = c(3, 3), mar = c(1.5, 4, 3, 2), mgp = c(1.5, 0.5, 0), oma=c(0,0,6,0))
 > #
@@ -640,15 +790,15 @@ x1C            16.447160
 h(1.11783-x3)  -7.786156
 h(x3-1.11783) 163.435824
 
+GLM (family binomial, link logit):
+ nulldev df       dev df   devratio     AIC iters converged
+  133.75 99   20.5539 95      0.846   30.55    22         1
+
 Earth selected 5 of 13 terms, and 3 of 4 predictors
 Termination condition: Reached nk 21
 Importance: x3, x1C, x1B, x2-unused
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 0.09601838    RSS 7.951282    GRSq 0.6044237    RSq 0.6657721
-
-GLM (family binomial, link logit):
-  nulldev df      dev df devratio   AIC iters converged
- 133.7496 99 20.55387 95    0.846 30.55    22         1
 > yhat <- predict(a, dat[, c('x1', 'x2', 'x3')], type='response')
 > 
 > w <- rep(1, n) # vector of equal weights
@@ -665,17 +815,198 @@ x1C            16.447160
 h(1.11783-x3)  -7.786156
 h(x3-1.11783) 163.435824
 
+GLM (family binomial, link logit):
+ nulldev df       dev df   devratio     AIC iters converged
+  133.75 99   20.5539 95      0.846   30.55    22         1
+
 Earth selected 5 of 13 terms, and 3 of 4 predictors
 Termination condition: Reached nk 21
 Importance: x3, x1C, x1B, x2-unused
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 0.09601838    RSS 7.951282    GRSq 0.6044237    RSq 0.6657721
-
-GLM (family binomial, link logit):
-  nulldev df      dev df devratio   AIC iters converged
- 133.7496 99 20.55387 95    0.846 30.55    22         1
 > yhatw <- predict(aw, dat[, c('x1', 'x2', 'x3')], type='response')
 > stopifnot(identical(yhat, yhat))
-> check.models.equal(a, aw)
+> check.earth.lm.models.equal(a, aw)
+> 
+> cat("---check Scale.y-------------------------------------------\n")
+---check Scale.y-------------------------------------------
+> 
+> xxx <- 1:9
+> yyy <- 1:9
+> yyy[3] <- 9
+> datxy <- data.frame(x=xxx, y=yyy)
+> colnames(datxy) <- c("xxx", "yyy")
+> options(warn=2)
+> 
+> mod1 <- earth(yyy~., datxy, Scale.y=FALSE)
+> mod2 <- earth(yyy~., datxy, Scale.y=TRUE)
+> check.models.equal(mod1, mod2, "mod1, mod2", newdata=dataxy[3,])
+mod1, mod2: models identical
+
+> 
+> mod3 <- earth(yyy~., datxy, weights=weights, Scale.y=FALSE)
+> mod4 <- earth(yyy~., datxy, weights=weights, Scale.y=TRUE)
+> check.models.equal(mod3, mod4, "mod3, mod4", newdata=dataxy[3,])
+mod3, mod4: models identical
+
+> 
+> data(ozone1)
+> 
+> mod5 <- earth(O3~., ozone1, Scale.y=FALSE)
+> mod6 <- earth(O3~., ozone1, Scale.y=TRUE)
+> check.models.equal(mod5, mod6, "mod5, mod6", newdata=ozone1[3,])
+mod5, mod6: models identical
+
+> 
+> mod7 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=FALSE)
+> mod8 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=TRUE)
+> check.models.equal(mod7, mod8, "mod7, mod8", newdata=ozone1[3,])
+mod7, mod8: models identical
+
+> 
+> data(etitanic)
+> 
+> # nk=5 for speed
+> mod9  <- earth(survived~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=FALSE)
+> mod10 <- earth(survived~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=TRUE)
+> check.models.equal(mod9, mod10, "mod9, mod10", newdata=etitanic[2,])
+mod9, mod10: models identical
+
+> 
+> # use nk=7 to minimize differences between code for weighted and unweighted models in earth.c
+> mod.O3vh    <- earth(O3+vh~wind+doy, ozone1, nk=7, Scale.y=FALSE, trace=1)
+Using class "Formula" because lhs of formula has terms separated by "+"
+x[330,2] with colnames wind doy
+y[330,2] with colnames O3 vh
+Forward pass term 1, 2, 4, 6
+Reached nk 7
+After forward pass GRSq 0.452 RSq 0.485
+Prune backward penalty 2 nprune null: selected 6 of 6 terms, and 2 of 2 preds
+After pruning pass GRSq 0.452 RSq 0.485
+> w1 <- rep(1, length.out=nrow(ozone1))
+> mod.O3vh.w1 <- earth(O3+vh~wind+doy, ozone1, nk=7, weights=w1, Force.weights=TRUE, Scale.y=FALSE, trace=1)
+Using class "Formula" because lhs of formula has terms separated by "+"
+x[330,2] with colnames wind doy
+y[330,2] with colnames O3 vh
+weights[330]: 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+Forward pass term 1, 2, 4, 6
+Reached nk 7
+After forward pass GRSq 0.452 RSq 0.485
+Prune backward penalty 2 nprune null: selected 6 of 6 terms, and 2 of 2 preds
+After pruning pass GRSq 0.452 RSq 0.485
+> check.models.equal(mod.O3vh, mod.O3vh.w1, "mod.O3vh, mod.O3vh.w1", newdata=ozone1[2,])
+mod.O3vh, mod.O3vh.w1: models not identical
+
+Formulas differ: ~O3 + vh + (wind + doy)
+and:             ~O3 + vh + (wind + doy)
+
+mod.O3vh, mod.O3vh.w1: Models are equivalent, within numerical tolerances
+
+> 
+> w3 <- rep(3, length.out=nrow(ozone1))
+> mod.O3vh.w3 <- earth(O3+vh~wind+doy, ozone1, nk=7, weights=w3, Force.weights=TRUE, Scale.y=FALSE)
+> check.equal(mod.O3vh$grsq, mod.O3vh.w3$grsq)
+> check.equal(mod.O3vh$rsq, mod.O3vh.w3$rsq)
+> check.equal(mod.O3vh$coefficients, mod.O3vh.w3$coefficients)
+> # check.models.equal(mod.O3vh, mod.O3vh.w3, "(mod.O3vh, mod.O3vh.w3") # not exactly equal but close
+> 
+> mod.O3vh.Scaley    <- earth(O3+vh~wind+doy, ozone1, nk=7, Scale.y=TRUE, trace=0)
+> w1 <- rep(1, length.out=nrow(ozone1))
+> mod.O3vh.w1.Scaley <- earth(O3+vh~wind+doy, ozone1, nk=7, weights=w1, Force.weights=TRUE, Scale.y=TRUE)
+> check.models.equal(mod.O3vh.Scaley, mod.O3vh.w1.Scaley, "mod.O3vh.Scaley, mod.O3vh.w1.Scaley", newdata=ozone1[2,])
+mod.O3vh.Scaley, mod.O3vh.w1.Scaley: models not identical
+
+Formulas differ: ~O3 + vh + (wind + doy)
+and:             ~O3 + vh + (wind + doy)
+
+mod.O3vh.Scaley, mod.O3vh.w1.Scaley: Models are equivalent, within numerical tolerances
+
+> 
+> # multiple response models, Scale.y will be visible (i.e. models with different Scale.y will be different)
+> mod.O3vh        <- earth(O3+vh~wind+doy, ozone1, degree=2, Scale.y=FALSE)
+> print(mod.O3vh)
+Selected 9 of 15 terms, and 2 of 2 predictors
+Termination condition: Reached nk 21
+Importance: doy, wind
+Number of terms at each degree of interaction: 1 7 1
+
+          GCV        RSS      GRSq       RSq
+O3    41.1772   11914.06 0.3603606 0.4357645
+vh  5619.6553 1625970.63 0.4986120 0.5577182
+All 5660.8325 1637884.69 0.4978225 0.5570217
+> mod.O3vh.Scaley <- earth(O3+vh~wind+doy, ozone1, degree=2, Scale.y=TRUE)
+> print(mod.O3vh.Scaley)
+Selected 8 of 16 terms, and 2 of 2 predictors
+Termination condition: Reached nk 21
+Importance: doy, wind
+Number of terms at each degree of interaction: 1 7 (additive model)
+
+          GCV        RSS      GRSq       RSq
+O3    37.4304   11005.91 0.4185634 0.4787732
+vh  6042.6701 1776769.31 0.4608704 0.5166993
+All 6080.1004 1787775.23 0.4606288 0.5164827
+> rsq.diff        <- abs(mod.O3vh$rsq.per.response[1]        - mod.O3vh$rsq.per.response[2])
+> rsq.diff.Scaley <- abs(mod.O3vh.Scaley$rsq.per.response[1] - mod.O3vh.Scaley$rsq.per.response[2])
+> # Scale.y=TRUE for multiple response models should make the rsq for the two responses closer
+> # i.e. with Scale.y=TRUE, vh should not overwhelm O3 because vh has much bigger values
+> stopifnot(rsq.diff.Scaley < rsq.diff)
+> 
+> wO3 <- sqrt(ozone1$O3)
+> mod.O3vh.wO3        <- earth(O3+vh~wind+doy, ozone1, degree=2, weights=wO3, Scale.y=FALSE)
+> print(mod.O3vh.wO3)
+Selected 12 of 14 terms, and 2 of 2 predictors
+Termination condition: Reached nk 21
+Importance: doy, wind
+Weights: 1.732051, 2.236068, 2.236068, 2.44949, 2, 2, 2.44949, 2.645751,...
+Number of terms at each degree of interaction: 1 10 1
+
+          GCV       RSS      GRSq       RSq
+O3    139.039   38299.9 0.4024813 0.4981957
+vh  14584.328 4017418.8 0.5287752 0.6042591
+All 14723.367 4055718.7 0.5278328 0.6034676
+> mod.O3vh.wO3.Scaley <- earth(O3+vh~wind+doy, ozone1, degree=2, weights=wO3, Scale.y=TRUE)
+> print(mod.O3vh.wO3.Scaley)
+Selected 11 of 13 terms, and 2 of 2 predictors
+Termination condition: Reached nk 21
+Importance: doy, wind
+Weights: 1.732051, 2.236068, 2.236068, 2.44949, 2, 2, 2.44949, 2.645751,...
+Number of terms at each degree of interaction: 1 10 (additive model)
+
+           GCV       RSS      GRSq       RSq
+O3    125.7911   35227.6 0.4594138 0.5384483
+vh  14406.2124 4034437.9 0.5345302 0.6025826
+All 14532.0035 4069665.6 0.5339697 0.6021040
+> rsq.diff.wO3        <- abs(mod.O3vh.wO3$rsq.per.response[1]        - mod.O3vh.wO3$rsq.per.response[2])
+> rsq.diff.wO3.Scaley <- abs(mod.O3vh.wO3.Scaley$rsq.per.response[1] - mod.O3vh.wO3.Scaley$rsq.per.response[2])
+> # Scale.y=TRUE for multiple response models should make the rsq for the two responses closer
+> stopifnot(rsq.diff.wO3.Scaley < rsq.diff.wO3)
+> 
+> # nk=5 for speed
+> mod11 <- earth(pclass~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=FALSE)
+> print(mod11)
+Selected 3 of 4 terms, and 2 of 5 predictors
+Termination condition: Reached nk 5
+Importance: age, survived, sexmale-unused, sibsp-unused, parch-unused
+Weights: 5.385165, 0.9574445, 1.414214, 5.477226, 5, 6.928203, 7.937254,...
+Number of terms at each degree of interaction: 1 2 (additive model)
+
+          GCV       RSS         GRSq         RSq
+1st 0.8509308  881.5847  0.254112886 0.259812098
+2nd 0.9918505 1027.5809 -0.007243869 0.000452331
+3rd 1.0288556 1065.9190  0.207088152 0.213146673
+All 2.8716370 2975.0846  0.161103938 0.167513818
+> mod12 <- earth(pclass~., etitanic, nk=5, weights=sqrt(etitanic$age), Scale.y=TRUE)
+> print(mod12)
+Selected 4 of 4 terms, and 2 of 5 predictors
+Termination condition: Reached nk 5
+Importance: age, survived, sexmale-unused, sibsp-unused, parch-unused
+Weights: 5.385165, 0.9574445, 1.414214, 5.477226, 5, 6.928203, 7.937254,...
+Number of terms at each degree of interaction: 1 3 (additive model)
+
+          GCV       RSS         GRSq         RSq
+1st 0.8516553  878.9482  0.253477791 0.262025685
+2nd 0.9899034 1021.6267 -0.005266484 0.006244106
+3rd 1.0388367 1072.1282  0.199396002 0.208563148
+All 2.8803954 2972.7030  0.158545320 0.168180218
 > 
 > source("test.epilog.R")

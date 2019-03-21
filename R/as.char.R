@@ -1,5 +1,5 @@
 # as.char.R: brief description of an object as a string e.g. "c(1,2)"
-#            also includes print_summary for summarizing matrices and data.frames
+#            this file also includes print_summary for matrices and data.frames
 
 as.char <- function(object, maxlen=20)
 {
@@ -139,19 +139,19 @@ print_summary <- function(x, xname=trunc.deparse(substitute(x)),
     }
     df <- try(my.data.frame(x, trace, stringsAsFactors=FALSE), silent=TRUE)
     if(is.try.err(df)) { # be robust for whatever gets passed to this function
-        printf("print_summary: cannot convert class \"%s\" to a data.frame\n",
-               class(x)[1])
+        printf("print_summary: cannot convert class \"%s\" to a data.frame (%s)\n",
+               class(x)[1], cleantry(df))
         printf("%s%s%s:\n", prefix, xname, msg)
         if(length(dim(x)) == 2) { # it's a matrix or other 2D object?
             if(trace >= 4) {
-                try(print.with.strings.quoted(x))
+                try(print_with_strings_quoted(x))
                 try(print(summary(x)))
             } else {
-                try(print.with.strings.quoted(head(x)))
+                try(print_with_strings_quoted(head(x)))
                 printf("...\n")
             }
         } else
-            try(print.with.strings.quoted(x))
+            try(print_with_strings_quoted(x))
         return()
     }
     if(details < 2 && trace < 4) {
@@ -160,7 +160,12 @@ print_summary <- function(x, xname=trunc.deparse(substitute(x)),
             printf("        ")
         printf("%s%s[%d,%d]%s ",
                 prefix, xname, nrow(df), ncol(df), msg)
-        print.colnames(x, full=details == 2)
+        print_colnames(x, full=details == 2, newline="")
+        if(NCOL(x) == 1 || NROW(x) == 1) # if a vector, print first few values
+            cat0(", and values ", # if double, print 4 significant digits
+                 paste.trunc(if(is.double(x)) sprint("%.4g", x) else x,
+                             collapse=", ", maxlen=32))
+        cat0("\n")
         return()
     }
     colnames <- safe.colnames(x)
@@ -182,7 +187,7 @@ print_summary <- function(x, xname=trunc.deparse(substitute(x)),
         if(!is.null(colnames))
             colnames(df.short)[maxcols] <- "..."
     }
-    try(print.with.strings.quoted(df.short))
+    try(print_with_strings_quoted(df.short))
     is.fac <- sapply(df, is.factor)
     if(is.null(colnames))
         colnames(df) <- sprint("[,%d]", seq_len(NCOL(x)))
@@ -199,21 +204,23 @@ print_summary <- function(x, xname=trunc.deparse(substitute(x)),
     if(trace >= 4)
         try(print(summary(df)))
 }
-print.colnames <- function(x, full=FALSE)
+print_colnames <- function(x, full=FALSE, newline="\n")
 {
     colnames <- safe.colnames(x)
     if(is.null(colnames))
-        printf("with no column names\n")
+        printf("with no column names%s", newline)
     else {
         colnames[which(colnames == "")] <- "\"\""
         if(full) # full colnames (up to 1000 characters)
-            printf("with colname%s %s\n",
+            printf("with colname%s %s%s",
                 if(length(colnames(x)) > 1) "s" else "",
-                paste.trunc(colnames, maxlen=max(25, getOption("width")-20)))
+                paste.trunc(colnames, maxlen=max(25, getOption("width")-20)),
+                newline)
         else # short version of colnames
-            printf.wrap("with colname%s %s\n",
+            printf.wrap("with colname%s %s%s",
                 if(length(colnames(x)) > 1) "s" else "",
-                paste.trunc(colnames))
+                paste.trunc(colnames),
+                newline)
     }
 }
 # Like print but puts quotes around strings.
@@ -222,7 +229,7 @@ print.colnames <- function(x, full=FALSE)
 # "..." is not quoted because it is used as a
 # "something was deleted" indicator in print_summary
 
-print.with.strings.quoted <- function(x)
+print_with_strings_quoted <- function(x)
 {
     if(length(dim(x)) == 2)
         for(i in seq_len(NCOL(x)))

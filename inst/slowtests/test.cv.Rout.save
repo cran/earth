@@ -1,7 +1,9 @@
 > # test.cv.R: test earth cross validation
 > 
 > source("test.prolog.R")
+> source("check.models.equal.R")
 > library(earth)
+Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
@@ -44,10 +46,10 @@ a0: trees
 > set.seed(23)
 > a0 <- earth(Volume ~ ., data = trees, trace=0.5, nfold=3)
 Full model GRSq 0.960 RSq 0.974, starting cross validation
-CV fold 1  CVRSq 0.931  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold 2  CVRSq 0.928  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold 3  CVRSq 0.970  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all     CVRSq 0.943                 n.infold.nz 31 100%  
+CV fold 1  CVRSq  0.931   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold 2  CVRSq  0.928   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold 3  CVRSq  0.970   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all     CVRSq  0.943                  n.infold.nz 31 100%
 
 > printh(a0$cv.rsq.tab)
 === a0$cv.rsq.tab
@@ -206,6 +208,9 @@ list(Volume, Girth, Height)
 attr(,"dataClasses")
    Volume     Girth    Height 
 "numeric" "numeric" "numeric" 
+
+$xlevels
+named list()
 
 $cv.list
 $cv.list$fold1
@@ -509,17 +514,17 @@ a1: trees with trace enabled
 > set.seed(1)
 > a1 <- earth(Volume ~ ., data = trees, trace=1, nfold=3)
 x[31,2] with colnames Girth Height
-y[31,1] with colname Volume
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0.00087)
 After forward pass GRSq 0.947 RSq 0.976
-Prune method "backward" penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
+Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 Full model GRSq 0.960 RSq 0.974, starting cross validation
-CV fold 1  CVRSq 0.962  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold 2  CVRSq 0.929  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold 3  CVRSq 0.981  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all     CVRSq 0.957                 n.infold.nz 31 100%  
+CV fold 1  CVRSq  0.962   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold 2  CVRSq  0.929   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold 3  CVRSq  0.981   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all     CVRSq  0.957                  n.infold.nz 31 100%
 
 > stopifnot(!identical(a0$cv.rsq.tab, a1$cv.rsq.tab))
 > printh(a1)
@@ -559,20 +564,20 @@ a2 <- update(a0) # should do cv
 > set.seed(2)
 > a2 <- update(a0)
 Full model GRSq 0.960 RSq 0.974, starting cross validation
-CV fold 1  CVRSq 0.953  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold 2  CVRSq 0.964  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold 3  CVRSq 0.907  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all     CVRSq 0.941                 n.infold.nz 31 100%  
+CV fold 1  CVRSq  0.953   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold 2  CVRSq  0.964   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold 3  CVRSq  0.907   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all     CVRSq  0.941                  n.infold.nz 31 100%
 
 > cat("a3 <- update(a0) # should do cv\n")
 a3 <- update(a0) # should do cv
 > set.seed(3)
 > a3 <- update(a0, formula=Volume~.-Height)
 Full model GRSq 0.949 RSq 0.962, starting cross validation
-CV fold 1  CVRSq 0.927  n.oof 20 35%  n.infold.nz 20 100%  n.oof.nz 11 100%  
-CV fold 2  CVRSq 0.876  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV fold 3  CVRSq 0.971  n.oof 21 32%  n.infold.nz 21 100%  n.oof.nz 10 100%  
-CV all     CVRSq 0.925                 n.infold.nz 31 100%  
+CV fold 1  CVRSq  0.927   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
+CV fold 2  CVRSq  0.876   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV fold 3  CVRSq  0.971   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
+CV all     CVRSq  0.925                  n.infold.nz 31 100%
 
 > printh(a3$cv.rsq.tab)
 === a3$cv.rsq.tab
@@ -622,9 +627,9 @@ a5a <- update(a4, nfold=2, trace=.5) # should do cv
 > set.seed(2)
 > a5a <- update(a4, nfold=2, trace=.5)
 Full model GRSq 0.960 RSq 0.974, starting cross validation
-CV fold 1  CVRSq 0.947  n.oof 15 52%  n.infold.nz 15 100%  n.oof.nz 16 100%  
-CV fold 2  CVRSq 0.935  n.oof 16 48%  n.infold.nz 16 100%  n.oof.nz 15 100%  
-CV all     CVRSq 0.941                 n.infold.nz 31 100%  
+CV fold 1  CVRSq  0.947   n.oof 15 52%   n.infold.nz 15 100%   n.oof.nz 16 100%
+CV fold 2  CVRSq  0.935   n.oof 16 48%   n.infold.nz 16 100%   n.oof.nz 15 100%
+CV all     CVRSq  0.941                  n.infold.nz 31 100%
 
 > 
 > cat("a6: titanic data, one logical response\n\n")
@@ -634,27 +639,27 @@ a6: titanic data, one logical response
 > set.seed(6)
 > a6 <- earth(survived. ~ ., data=etitanic[,-2], degree=2, glm=list(family="binomial"), trace=0.5, ncross=2, nfold=3)
 Full model GRSq 0.420 RSq 0.439, starting cross validation
-CV fold  1.1  CVRSq 0.417  n.oof 703 33%  n.infold.nz 284 40%  n.oof.nz 143 42%  
-CV fold  1.2  CVRSq 0.408  n.oof 689 34%  n.infold.nz 285 41%  n.oof.nz 142 40%  
+CV fold  1.1  CVRSq  0.417   n.oof  703 33%   n.infold.nz  284 40%   n.oof.nz  143 42%
+CV fold  1.2  CVRSq  0.408   n.oof  689 34%   n.infold.nz  285 41%   n.oof.nz  142 40%
 CV fold  1.3  Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-CVRSq 0.411  n.oof 700 33%  n.infold.nz 285 41%  n.oof.nz 142 41%  
-CV fold  2.1  CVRSq 0.385  n.oof 688 34%  n.infold.nz 284 41%  n.oof.nz 143 40%  
-CV fold  2.2  CVRSq 0.462  n.oof 696 33%  n.infold.nz 285 41%  n.oof.nz 142 41%  
+CVRSq  0.411   n.oof  700 33%   n.infold.nz  285 41%   n.oof.nz  142 41%
+CV fold  2.1  CVRSq  0.385   n.oof  688 34%   n.infold.nz  284 41%   n.oof.nz  143 40%
+CV fold  2.2  CVRSq  0.462   n.oof  696 33%   n.infold.nz  285 41%   n.oof.nz  142 41%
 CV fold  2.3  Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-CVRSq 0.405  n.oof 708 32%  n.infold.nz 285 40%  n.oof.nz 142 42%  
-CV all        CVRSq 0.415                  n.infold.nz 427 41%  
+CVRSq  0.405   n.oof  708 32%   n.infold.nz  285 40%   n.oof.nz  142 42%
+CV all        CVRSq  0.415                    n.infold.nz  427 41%
 
 > printh(a6)
 === a6
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
 Earth selected 8 of 17 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1404529  RSS 141.7629  GRSq 0.4197106  RSq 0.4389834  CVRSq 0.41454
-
-GLM (family binomial, link logit):
- nulldev   df     dev   df devratio   AIC iters converged
- 1414.62 1045 892.794 1038    0.369 908.8     5         1
 > printh(summary(a6))
 === summary(a6)
 Call: earth(formula=survived.~., data=etitanic[,-2], trace=0.5, glm=list(family="binomial"), degree=2, nfold=3, ncross=2)
@@ -670,15 +675,15 @@ pclass3rd * sexmale     1.2226954
 pclass3rd * h(4-sibsp)  0.6186527
 sexmale * h(16-age)     0.2418140
 
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
 Earth selected 8 of 17 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1404529  RSS 141.7629  GRSq 0.4197106  RSq 0.4389834  CVRSq 0.41454
-
-GLM (family binomial, link logit):
- nulldev   df     dev   df devratio   AIC iters converged
- 1414.62 1045 892.794 1038    0.369 908.8     5         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -691,17 +696,17 @@ Cross validation:   nterms 8.83 sd 0.75    nvars 5.67 sd 0.52
                     3rd male  28     0     0
 > printh(a6$cv.list[[2]])
 === a6$cv.list[[2]]
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+   934.5 688   585.706 681      0.373   601.7     5         1
+
 Earth selected 8 of 16 terms, and 6 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 2 5
 Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
-
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio   AIC iters converged
- 934.5004 688 585.7064 681    0.373 601.7     5         1
 > printh(summary(a6$cv.list[[2]]))
 === summary(a6$cv.list[[2]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm, degree=degree, nfold=0, ncross=0,
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm.arg, degree=degree, nfold=0, ncross=0,
             varmod.method="none", Scale.y=Scale.y)
 
 GLM coefficients
@@ -715,14 +720,14 @@ pclass3rd * h(sibsp-1) -0.7146191
 pclass3rd * h(parch-1) -0.4299939
 sexmale * h(16-age)     0.2847608
 
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+   934.5 688   585.706 681      0.373   601.7     5         1
+
 Earth selected 8 of 16 terms, and 6 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 2 5
 Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
-
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio   AIC iters converged
- 934.5004 688 585.7064 681    0.373 601.7     5         1
 > print.stripped.earth.model(a6, "a6")
 print.stripped.earth.model(a6)
 $rsq
@@ -943,6 +948,10 @@ pclass3rd*h(4-sibsp)  0.61865275
 pclass3rd*sexmale     1.22269536
 h(age-32)            -0.03757149
 
+$glm.stats
+ nulldev   df     dev   df  devratio     AIC iters converged
+ 1414.62 1045 892.794 1038 0.3688809 908.794     5         1
+
 $call
 earth(formula = survived. ~ ., data = etitanic[, -2], trace = 0.5, 
     glm = list(family = "binomial"), degree = 2, nfold = 3, ncross = 2)
@@ -981,69 +990,77 @@ attr(,"dataClasses")
 survived.    pclass       sex       age     sibsp     parch 
 "logical"  "factor"  "factor" "numeric" "numeric" "numeric" 
 
+$xlevels
+$xlevels$pclass
+[1] "1st" "2nd" "3rd"
+
+$xlevels$sex
+[1] "female" "male"  
+
+
 $levels
 [1] FALSE  TRUE
 
 $cv.list
 $cv.list$fold1.1
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+ 948.479 702   587.509 694      0.381   605.5     5         1
+
 Earth selected 9 of 16 terms, and 6 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1419395    RSS 93.91107    GRSq 0.4121788    RSq 0.4451958
 
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio   AIC iters converged
- 948.4786 702 587.5087 694    0.381 605.5     5         1
-
 $cv.list$fold1.2
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+   934.5 688   585.706 681      0.373   601.7     5         1
+
 Earth selected 8 of 16 terms, and 6 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 2 5
 Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
 
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio   AIC iters converged
- 934.5004 688 585.7064 681    0.373 601.7     5         1
-
 $cv.list$fold1.3
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+ 946.122 699   578.961 691      0.388     597    15         1
+
 Earth selected 9 of 15 terms, and 6 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1403544    RSS 92.44165    GRSq 0.4201875    RSq 0.4528924
 
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio AIC iters converged
- 946.1225 699 578.9609 691    0.388 597    15         1
-
 $cv.list$fold2.1
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+ 932.733 687   570.859 680      0.388   586.9     5         1
+
 Earth selected 8 of 17 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 2 5
 Earth GCV 0.1384214    RSS 90.18122    GRSq 0.4306004    RSq 0.4592397
 
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio   AIC iters converged
- 932.7329 687 570.8586 680    0.388 586.9     5         1
-
 $cv.list$fold2.2
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+ 941.924 695   592.399 687      0.371   610.4     5         1
+
 Earth selected 9 of 15 terms, and 6 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 3 5
 Earth GCV 0.1464201    RSS 95.85151    GRSq 0.3962132    RSq 0.4304636
 
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio   AIC iters converged
- 941.9243 695 592.3993 687    0.371 610.4     5         1
-
 $cv.list$fold2.3
+GLM (family binomial, link logit):
+ nulldev  df       dev  df   devratio     AIC iters converged
+ 954.425 707    586.02 698      0.386     606    15         1
+
 Earth selected 10 of 15 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 4 5
 Earth GCV 0.1411377    RSS 93.40211    GRSq 0.4148103    RSq 0.4514645
-
-GLM (family binomial, link logit):
-  nulldev  df      dev  df devratio AIC iters converged
- 954.4251 707 586.0201 698    0.386 606    15         1
 
 
 $cv.nterms.selected.by.gcv
@@ -3230,22 +3247,22 @@ a6a: stratify=FALSE
 > set.seed(6)
 > a6a <- earth(survived. ~ ., data=etitanic[,-2], degree=2, glm=list(family="binomial"), trace=0.5, nfold=3, stratify=FALSE, keepxy=TRUE)
 Full model GRSq 0.420 RSq 0.439, starting cross validation
-CV fold 1  CVRSq 0.458  n.oof 697 33%  n.infold.nz 278 40%  n.oof.nz 149 43%  
-CV fold 2  CVRSq 0.374  n.oof 697 33%  n.infold.nz 293 42%  n.oof.nz 134 38%  
-CV fold 3  CVRSq 0.390  n.oof 698 33%  n.infold.nz 283 41%  n.oof.nz 144 41%  
-CV all     CVRSq 0.407                  n.infold.nz 427 41%  
+CV fold 1  CVRSq  0.458   n.oof  697 33%   n.infold.nz  278 40%   n.oof.nz  149 43%
+CV fold 2  CVRSq  0.374   n.oof  697 33%   n.infold.nz  293 42%   n.oof.nz  134 38%
+CV fold 3  CVRSq  0.390   n.oof  698 33%   n.infold.nz  283 41%   n.oof.nz  144 41%
+CV all     CVRSq  0.407                    n.infold.nz  427 41%
 
 > printh(a6a)
 === a6a
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
 Earth selected 8 of 17 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1404529  RSS 141.7629  GRSq 0.4197106  RSq 0.4389834  CVRSq 0.4071638
-
-GLM (family binomial, link logit):
- nulldev   df     dev   df devratio   AIC iters converged
- 1414.62 1045 892.794 1038    0.369 908.8     5         1
 > printh(summary(a6a))
 === summary(a6a)
 Call: earth(formula=survived.~., data=etitanic[,-2], keepxy=TRUE, trace=0.5, glm=list(family="binomial"), degree=2, nfold=3, stratify=FALSE)
@@ -3261,15 +3278,15 @@ pclass3rd * sexmale     1.2226954
 pclass3rd * h(4-sibsp)  0.6186527
 sexmale * h(16-age)     0.2418140
 
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
 Earth selected 8 of 17 terms, and 5 of 6 predictors
 Termination condition: Reached nk 21
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1404529  RSS 141.7629  GRSq 0.4197106  RSq 0.4389834  CVRSq 0.4071638
-
-GLM (family binomial, link logit):
- nulldev   df     dev   df devratio   AIC iters converged
- 1414.62 1045 892.794 1038    0.369 908.8     5         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -3290,38 +3307,44 @@ y[1046,3] with colnames 1st 2nd 3rd
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.164 RSq 0.227
-Prune method "backward" penalty 3 nprune null: selected 9 of 17 terms, and 5 of 5 preds
+Prune backward penalty 3 nprune null: selected 9 of 17 terms, and 5 of 5 preds
 After pruning pass GRSq 0.175 RSq 0.206
-GLM 1st devratio 0.27 dof 1037/1045 iters 5 
-GLM 2nd devratio 0.04 dof 1037/1045 iters 5 
-GLM 3rd devratio 0.23 dof 1037/1045 iters 5 
+GLM 1st devratio 0.27 dof 1037/1045 iters 5
+GLM 2nd devratio 0.04 dof 1037/1045 iters 5
+GLM 3rd devratio 0.23 dof 1037/1045 iters 5
 
 Full model GRSq 0.175 RSq 0.206, starting cross validation
 
-CV fold  1.1  CVRSq 0.165  Per response CVRSq 0.239  0.023  0.234  
-                            n.oof 697 33%  n.infold.nz 189 174 334 n.oof.nz  95   87  167  
+CV fold  1.1  CVRSq  0.165   Per response CVRSq  0.239   0.023   0.234  
+                            n.oof  697 33%   n.infold.nz  189 174 334   n.oof.nz   95  87 167
 
-CV fold  1.2  CVRSq 0.177  Per response CVRSq 0.269  0.039  0.223  
-                            n.oof 697 33%  n.infold.nz 189 174 334 n.oof.nz  95   87  167  
+CV fold  1.2  CVRSq  0.177   Per response CVRSq  0.269   0.039   0.223  
+                            n.oof  697 33%   n.infold.nz  189 174 334   n.oof.nz   95  87 167
 
-CV fold  1.3  CVRSq 0.131  Per response CVRSq 0.190  0.001  0.201  
-                            n.oof 698 33%  n.infold.nz 190 174 334 n.oof.nz  94   87  167  
+CV fold  1.3  CVRSq  0.131   Per response CVRSq  0.190   0.001   0.201  
+                            n.oof  698 33%   n.infold.nz  190 174 334   n.oof.nz   94  87 167
 
 CV fold  2.1  Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-CVRSq 0.167  Per response CVRSq 0.222  0.023  0.255  
-                            n.oof 697 33%  n.infold.nz 189 174 334 n.oof.nz  95   87  167  
+CVRSq  0.167   Per response CVRSq  0.222   0.023   0.255  
+                            n.oof  697 33%   n.infold.nz  189 174 334   n.oof.nz   95  87 167
 
-CV fold  2.2  CVRSq 0.176  Per response CVRSq 0.279  0.035  0.214  
-                            n.oof 697 33%  n.infold.nz 189 174 334 n.oof.nz  95   87  167  
+CV fold  2.2  CVRSq  0.176   Per response CVRSq  0.279   0.035   0.214  
+                            n.oof  697 33%   n.infold.nz  189 174 334   n.oof.nz   95  87 167
 
-CV fold  2.3  CVRSq 0.155  Per response CVRSq 0.232  0.008  0.225  
-                            n.oof 698 33%  n.infold.nz 190 174 334 n.oof.nz  94   87  167  
+CV fold  2.3  CVRSq  0.155   Per response CVRSq  0.232   0.008   0.225  
+                            n.oof  698 33%   n.infold.nz  190 174 334   n.oof.nz   94  87 167
 
-CV all        CVRSq 0.162  Per response CVRSq 0.238  0.021  0.225  
-                                            n.infold.nz 284 261 501 
+CV all        CVRSq  0.162   Per response CVRSq  0.238   0.021   0.225  
+                                             n.infold.nz  284 261 501
 
 > printh(a7)
 === a7
+GLM (family binomial, link logit):
+    nulldev   df       dev   df   devratio     AIC iters converged
+1st 1223.31 1045   894.814 1037     0.2690   912.8     5         1
+2nd 1175.31 1045  1126.944 1037     0.0411  1145.0     5         1
+3rd 1448.21 1045  1118.941 1037     0.2270  1137.0     5         1
+
 Earth selected 9 of 17 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: age, parch, survived, sibsp, sexmale
@@ -3333,13 +3356,6 @@ Earth
 2nd 0.1869804 187.8072 0.003405389 0.04118751 0.02148033
 3rd 0.1895587 190.3968 0.241872961 0.27061448 0.22548048
 All 0.5244105 526.7293 0.175229617 0.20649767 0.16181138
-
-GLM (family binomial, link logit):
-
-     nulldev   df       dev   df devratio    AIC iters converged
-1st 1223.308 1045  894.8141 1037   0.2690  912.8     5         1
-2nd 1175.305 1045 1126.9441 1037   0.0411 1145.0     5         1
-3rd 1448.213 1045 1118.9411 1037   0.2270 1137.0     5         1
 > plot(a7, nresponse=1)
 > print.stripped.earth.model(a7, "a7")
 print.stripped.earth.model(a7)
@@ -3599,6 +3615,12 @@ sexmale                1.42483431  0.965988623 -1.45239590
 h(55-age)*h(2-parch)  -0.04946408  0.000437374  0.04146455
 h(1-sibsp)*h(1-parch) -1.02162885 -0.219024356  1.12490799
 
+$glm.stats
+     nulldev   df       dev   df  devratio       AIC iters converged
+1st 1223.308 1045  894.8141 1037 0.2685294  912.8141     5         1
+2nd 1175.305 1045 1126.9441 1037 0.0411477 1144.9441     5         1
+3rd 1448.212 1045 1118.9411 1037 0.2273640 1136.9411     5         1
+
 $call
 earth(formula = pclass ~ ., data = etitanic, keepxy = TRUE, trace = 1, 
     glm = list(family = "binomial"), degree = 2, nfold = 3, ncross = 2)
@@ -3636,6 +3658,11 @@ list(pclass, survived, sex, age, sibsp, parch)
 attr(,"dataClasses")
    pclass  survived       sex       age     sibsp     parch 
  "factor" "numeric"  "factor" "numeric" "numeric" "numeric" 
+
+$xlevels
+$xlevels$sex
+[1] "female" "male"  
+
 
 $levels
 [1] "1st" "2nd" "3rd"
@@ -5740,6 +5767,12 @@ $y
 
 $cv.list
 $cv.list$fold1.1
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 814.669 696   590.683 686     0.2750   612.7     6         1
+2nd 783.345 696   719.417 686     0.0816   741.4     6         1
+3rd 965.040 696   720.941 686     0.2530   742.9     5         1
+
 Earth selected 11 of 18 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: survived, sexmale, age, sibsp, parch
@@ -5752,14 +5785,13 @@ Earth
 3rd 0.1910209 123.39378 0.23678590 0.29062979
 All 0.5277246 340.89418 0.17069504 0.22920157
 
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 814.6693 696 590.6834 686   0.2750 612.7     6         1
-2nd 783.3454 696 719.4168 686   0.0816 741.4     6         1
-3rd 965.0402 696 720.9407 686   0.2530 742.9     5         1
-
 $cv.list$fold1.2
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 814.669 696   610.563 688     0.2510   628.6     5         1
+2nd 783.345 696   745.550 688     0.0482   763.6     6         1
+3rd 965.040 696   751.747 688     0.2210   769.7     5         1
+
 Earth selected 9 of 17 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: survived, age, sexmale, parch, sibsp
@@ -5772,14 +5804,13 @@ Earth
 3rd 0.1957065 128.31156  0.218065152 0.26235826
 All 0.5370398 352.10085  0.156056458 0.20386208
 
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 814.6693 696 610.5633 688   0.2510 628.6     5         1
-2nd 783.3454 696 745.5500 688   0.0482 763.6     6         1
-3rd 965.0402 696 751.7474 688   0.2210 769.7     5         1
-
 $cv.list$fold1.3
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 817.276 697   600.341 691     0.2650   614.3     5         1
+2nd 783.919 697   764.829 691     0.0244   778.8     4         1
+3rd 966.344 697   775.072 691     0.1980   789.1     4         1
+
 Earth selected 7 of 19 terms, and 4 of 5 predictors
 Termination condition: Reached nk 21
 Importance: survived, age, parch, sibsp, sexmale-unused
@@ -5792,14 +5823,13 @@ Earth
 3rd 0.1975928 131.66929  0.21043323 0.24405177
 All 0.5360827 357.22770  0.15791340 0.19376815
 
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 817.2756 697 600.3405 691   0.2650 614.3     5         1
-2nd 783.9193 697 764.8289 691   0.0244 778.8     4         1
-3rd 966.3437 697 775.0717 691   0.1980 789.1     4         1
-
 $cv.list$fold2.1
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 814.669 696   603.553 690      0.259   617.6     6         1
+2nd 783.345 696   749.632 690      0.043   763.6    16         1
+3rd 965.040 696   766.719 690      0.206   780.7     5         1
+
 Earth selected 7 of 17 terms, and 4 of 5 predictors
 Termination condition: Reached nk 21
 Importance: age, survived, sexmale, sibsp, parch-unused
@@ -5812,14 +5842,13 @@ Earth
 3rd 0.1975828 131.46511  0.210568510 0.24422906
 All 0.5363402 356.86323  0.157155819 0.19309383
 
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 814.6693 696 603.5527 690    0.259 617.6     6         1
-2nd 783.3454 696 749.6319 690    0.043 763.6    16         1
-3rd 965.0402 696 766.7188 690    0.206 780.7     5         1
-
 $cv.list$fold2.2
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 814.669 696   610.160 689     0.2510   626.2     5         1
+2nd 783.345 696   740.547 689     0.0546   756.5     6         1
+3rd 965.040 696   743.498 689     0.2300   759.5     5         1
+
 Earth selected 8 of 18 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: age, survived, sibsp, parch, sexmale
@@ -5832,14 +5861,13 @@ Earth
 3rd 0.1923692 127.05810 0.231399201 0.26956419
 All 0.5295996 349.79582 0.167748414 0.20907399
 
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 814.6693 696 610.1602 689   0.2510 626.2     5         1
-2nd 783.3454 696 740.5468 689   0.0546 756.5     6         1
-3rd 965.0402 696 743.4980 689   0.2300 759.5     5         1
-
 $cv.list$fold2.3
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 817.276 697   599.090 688     0.2670   619.1     5         1
+2nd 783.919 697   746.113 688     0.0482   766.1     5         1
+3rd 966.344 697   721.279 688     0.2540   741.3     6         1
+
 Earth selected 10 of 17 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: survived, age, parch, sexmale, sibsp
@@ -5851,13 +5879,6 @@ Earth
 2nd 0.1910710 124.53841 -0.01807518 0.04659329
 3rd 0.1899654 123.81779  0.24091173 0.28912927
 All 0.5320931 346.81358  0.16418038 0.21727193
-
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 817.2756 697 599.0901 688   0.2670 619.1     5         1
-2nd 783.9193 697 746.1127 688   0.0482 766.1     5         1
-3rd 966.3437 697 721.2792 688   0.2540 741.3     6         1
 
 
 $cv.nterms.selected.by.gcv
@@ -8073,6 +8094,12 @@ survived * h(16-age)    -0.17824991  0.09390085  0.02011681
 h(55-age) * h(2-parch)  -0.04946408  0.00043737  0.04146455
 h(1-sibsp) * h(1-parch) -1.02162885 -0.21902436  1.12490799
 
+GLM (family binomial, link logit):
+    nulldev   df       dev   df   devratio     AIC iters converged
+1st 1223.31 1045   894.814 1037     0.2690   912.8     5         1
+2nd 1175.31 1045  1126.944 1037     0.0411  1145.0     5         1
+3rd 1448.21 1045  1118.941 1037     0.2270  1137.0     5         1
+
 Earth selected 9 of 17 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: age, parch, survived, sibsp, sexmale
@@ -8084,13 +8111,6 @@ Earth
 2nd 0.1869804 187.8072 0.003405389 0.04118751 0.02148033
 3rd 0.1895587 190.3968 0.241872961 0.27061448 0.22548048
 All 0.5244105 526.7293 0.175229617 0.20649767 0.16181138
-
-GLM (family binomial, link logit):
-
-     nulldev   df       dev   df devratio    AIC iters converged
-1st 1223.308 1045  894.8141 1037   0.2690  912.8     5         1
-2nd 1175.305 1045 1126.9441 1037   0.0411 1145.0     5         1
-3rd 1448.213 1045 1118.9411 1037   0.2270 1137.0     5         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -8106,6 +8126,12 @@ All 0.162 0.017     0.583 0.014  1.000 0.0170 0.727 0.018   1.059 0.0190   -0.17
                         0 male  28     0     0
 > printh(a7$cv.list[[3]])
 === a7$cv.list[[3]]
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 817.276 697   600.341 691     0.2650   614.3     5         1
+2nd 783.919 697   764.829 691     0.0244   778.8     4         1
+3rd 966.344 697   775.072 691     0.1980   789.1     4         1
+
 Earth selected 7 of 19 terms, and 4 of 5 predictors
 Termination condition: Reached nk 21
 Importance: survived, age, parch, sibsp, sexmale-unused
@@ -8117,16 +8143,9 @@ Earth
 2nd 0.1902775 126.79463 -0.01384729 0.02932077
 3rd 0.1975928 131.66929  0.21043323 0.24405177
 All 0.5360827 357.22770  0.15791340 0.19376815
-
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 817.2756 697 600.3405 691   0.2650 614.3     5         1
-2nd 783.9193 697 764.8289 691   0.0244 778.8     4         1
-3rd 966.3437 697 775.0717 691   0.1980 789.1     4         1
 > printh(summary(a7$cv.list[[3]]))
 === summary(a7$cv.list[[3]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm, degree=degree, nfold=0, ncross=0,
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm.arg, degree=degree, nfold=0, ncross=0,
             varmod.method="none", Scale.y=Scale.y)
 
 GLM coefficients
@@ -8139,6 +8158,12 @@ h(age-9) * h(2-parch)    0.0663575  0.02209568 -0.06726366
 h(age-28) * h(1-parch)  -0.0621653 -0.06221289  0.08618817
 h(2-sibsp) * h(2-parch) -0.3331675 -0.00112865  0.33651758
 
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 817.276 697   600.341 691     0.2650   614.3     5         1
+2nd 783.919 697   764.829 691     0.0244   778.8     4         1
+3rd 966.344 697   775.072 691     0.1980   789.1     4         1
+
 Earth selected 7 of 19 terms, and 4 of 5 predictors
 Termination condition: Reached nk 21
 Importance: survived, age, parch, sibsp, sexmale-unused
@@ -8150,13 +8175,6 @@ Earth
 2nd 0.1902775 126.79463 -0.01384729 0.02932077
 3rd 0.1975928 131.66929  0.21043323 0.24405177
 All 0.5360827 357.22770  0.15791340 0.19376815
-
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 817.2756 697 600.3405 691   0.2650 614.3     5         1
-2nd 783.9193 697 764.8289 691   0.0244 778.8     4         1
-3rd 966.3437 697 775.0717 691   0.1980 789.1     4         1
 > plot(a7, main="a7 (multiple response model)", which=1, nresponse=1)
 > 
 > cat("a7.wp: as above but with wp parameter\n\n")
@@ -8167,20 +8185,26 @@ a7.wp: as above but with wp parameter
 
 Full model GRSq 0.116 RSq 0.158, starting cross validation
 
-CV fold 1  CVRSq 0.101  Per response CVRSq 0.243  0.013  0.225  
-                         n.oof 697 33%  n.infold.nz 189 174 334 n.oof.nz  95   87  167  
+CV fold 1  CVRSq  0.101   Per response CVRSq  0.243   0.013   0.225  
+                         n.oof  697 33%   n.infold.nz  189 174 334   n.oof.nz   95  87 167
 
-CV fold 2  CVRSq 0.110  Per response CVRSq 0.247  0.036  0.197  
-                         n.oof 697 33%  n.infold.nz 189 174 334 n.oof.nz  95   87  167  
+CV fold 2  CVRSq  0.110   Per response CVRSq  0.247   0.036   0.197  
+                         n.oof  697 33%   n.infold.nz  189 174 334   n.oof.nz   95  87 167
 
-CV fold 3  CVRSq 0.108  Per response CVRSq 0.229  0.026  0.230  
-                         n.oof 698 33%  n.infold.nz 190 174 334 n.oof.nz  94   87  167  
+CV fold 3  CVRSq  0.108   Per response CVRSq  0.229   0.026   0.230  
+                         n.oof  698 33%   n.infold.nz  190 174 334   n.oof.nz   94  87 167
 
-CV all     CVRSq 0.106  Per response CVRSq 0.239  0.025  0.217  
-                                         n.infold.nz 284 261 501 
+CV all     CVRSq  0.106   Per response CVRSq  0.239   0.025   0.217  
+                                          n.infold.nz  284 261 501
 
 > printh(a7.wp)
 === a7.wp
+GLM (family binomial, link logit):
+    nulldev   df       dev   df   devratio     AIC iters converged
+1st 1223.31 1045   896.399 1035     0.2670   918.4     5         1
+2nd 1175.31 1045  1104.929 1035     0.0599  1127.0     5         1
+3rd 1448.21 1045  1104.910 1035     0.2370  1127.0     5         1
+
 Earth selected 11 of 17 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: age, survived, sexmale, sibsp, parch
@@ -8192,13 +8216,6 @@ Earth
 2nd 0.1853555 184.3632 0.01206601 0.05877016 0.02489309
 3rd 0.1892947 188.2813 0.24292866 0.27871887 0.21741825
 All 0.5360063 533.1367 0.11643262 0.15820288 0.10628245
-
-GLM (family binomial, link logit):
-
-     nulldev   df      dev   df devratio    AIC iters converged
-1st 1223.308 1045  896.399 1035   0.2670  918.4     5         1
-2nd 1175.305 1045 1104.929 1035   0.0599 1127.0     5         1
-3rd 1448.213 1045 1104.910 1035   0.2370 1127.0     5         1
 > printh(summary(a7.wp))
 === summary(a7.wp)
 Call: earth(formula=pclass~., data=etitanic, wp=c(1,3,1), trace=0.5, glm=list(family="binomial"), degree=2, nfold=3)
@@ -8217,6 +8234,12 @@ survived * sexmale     -1.1255509 -1.91592795  2.21593299
 survived * h(16-age)   -0.1880959  0.19060050 -0.03040525
 h(47-age) * h(2-parch) -0.0288987 -0.00291049  0.01997497
 
+GLM (family binomial, link logit):
+    nulldev   df       dev   df   devratio     AIC iters converged
+1st 1223.31 1045   896.399 1035     0.2670   918.4     5         1
+2nd 1175.31 1045  1104.929 1035     0.0599  1127.0     5         1
+3rd 1448.21 1045  1104.910 1035     0.2370  1127.0     5         1
+
 Earth selected 11 of 17 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Importance: age, survived, sexmale, sibsp, parch
@@ -8228,13 +8251,6 @@ Earth
 2nd 0.1853555 184.3632 0.01206601 0.05877016 0.02489309
 3rd 0.1892947 188.2813 0.24292866 0.27871887 0.21741825
 All 0.5360063 533.1367 0.11643262 0.15820288 0.10628245
-
-GLM (family binomial, link logit):
-
-     nulldev   df      dev   df devratio    AIC iters converged
-1st 1223.308 1045  896.399 1035   0.2670  918.4     5         1
-2nd 1175.305 1045 1104.929 1035   0.0599 1127.0     5         1
-3rd 1448.213 1045 1104.910 1035   0.2370 1127.0     5         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -8507,6 +8523,12 @@ sexmale               1.29672890  0.882170836 -1.35666727
 h(47-age)*h(2-parch) -0.02889869 -0.002910489  0.01997497
 h(age-2)              0.04991720 -0.032816163 -0.03729641
 
+$glm.stats
+     nulldev   df      dev   df   devratio      AIC iters converged
+1st 1223.308 1045  896.399 1035 0.26723386  918.399     5         1
+2nd 1175.305 1045 1104.929 1035 0.05987931 1126.929     5         1
+3rd 1448.212 1045 1104.910 1035 0.23705247 1126.910     5         1
+
 $call
 earth(formula = pclass ~ ., data = etitanic, wp = c(1, 3, 1), 
     trace = 0.5, glm = list(family = "binomial"), degree = 2, 
@@ -8546,6 +8568,11 @@ attr(,"dataClasses")
    pclass  survived       sex       age     sibsp     parch 
  "factor" "numeric"  "factor" "numeric" "numeric" "numeric" 
 
+$xlevels
+$xlevels$sex
+[1] "female" "male"  
+
+
 $levels
 [1] "1st" "2nd" "3rd"
 
@@ -8554,6 +8581,12 @@ $wp
 
 $cv.list
 $cv.list$fold1
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 814.669 696   602.025 688      0.261   620.0     5         1
+2nd 783.345 696   728.509 688      0.070   746.5     5         1
+3rd 965.040 696   750.665 688      0.222   768.7     5         1
+
 Earth selected 9 of 18 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 3 5
@@ -8565,14 +8598,13 @@ Earth
 3rd 0.1940377 127.21749 0.224732492 0.26864793
 All 0.5405724 354.41698 0.109785483 0.16021215
 
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 814.6693 696 602.0252 688    0.261 620.0     5         1
-2nd 783.3454 696 728.5088 688    0.070 746.5     5         1
-3rd 965.0402 696 750.6651 688    0.222 768.7     5         1
-
 $cv.list$fold2
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 814.669 696   613.861 688     0.2460   631.9     5         1
+2nd 783.345 696   742.382 688     0.0523   760.4     6         1
+3rd 965.040 696   765.362 688     0.2070   783.4     4         1
+
 Earth selected 9 of 18 terms, and 5 of 5 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 5 3
@@ -8584,14 +8616,13 @@ Earth
 3rd 0.1980005 129.8156  0.208899584 0.25371189
 All 0.5502390 360.7547  0.093866624 0.14519503
 
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 814.6693 696 613.8607 688   0.2460 631.9     5         1
-2nd 783.3454 696 742.3820 688   0.0523 760.4     6         1
-3rd 965.0402 696 765.3617 688   0.2070 783.4     4         1
-
 $cv.list$fold3
+GLM (family binomial, link logit):
+    nulldev  df       dev  df   devratio     AIC iters converged
+1st 817.276 697   612.839 691     0.2500   626.8     5         1
+2nd 783.919 697   737.832 691     0.0588   751.8     5         1
+3rd 966.344 697   779.772 691     0.1930   793.8     4         1
+
 Earth selected 7 of 18 terms, and 3 of 5 predictors
 Termination condition: Reached nk 21
 Number of terms at each degree of interaction: 1 4 2
@@ -8602,13 +8633,6 @@ Earth
 2nd 0.1844139 122.88728 0.01739575 0.05923352
 3rd 0.2005791 133.65923 0.19850037 0.23262699
 All 0.5421762 361.28822 0.10706117 0.14508113
-
-GLM (family binomial, link logit):
-
-     nulldev  df      dev  df devratio   AIC iters converged
-1st 817.2756 697 612.8395 691   0.2500 626.8     5         1
-2nd 783.9193 697 737.8316 691   0.0588 751.8     5         1
-3rd 966.3437 697 779.7722 691   0.1930 793.8     4         1
 
 
 $cv.nterms.selected.by.gcv
@@ -9743,22 +9767,22 @@ a8p: one response poisson model
 > set.seed(1236)
 > a8p <- earth(counts ~ outcome + treatment, glm=list(family=poisson()), trace=0.5, pmethod="none", nfold=3)
 Full model GRSq 0.254 RSq 0.556, starting cross validation
-CV fold 1  CVRSq 0.479  n.oof 24 33%  n.infold.nz 24 100%  n.oof.nz 12 100%  
-CV fold 2  CVRSq 0.373  n.oof 24 33%  n.infold.nz 24 100%  n.oof.nz 12 100%  
-CV fold 3  CVRSq 0.118  n.oof 24 33%  n.infold.nz 24 100%  n.oof.nz 12 100%  
-CV all     CVRSq 0.323                 n.infold.nz 36 100%  
+CV fold 1  CVRSq  0.479   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV fold 2  CVRSq  0.373   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV fold 3  CVRSq  0.118   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV all     CVRSq  0.323                  n.infold.nz 36 100%
 
 > printh(a8p)
 === a8p
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 41.6537 35   18.9744 31      0.544   200.2     4         1
+
 Earth selected 5 of 5 terms, and 4 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: outcome2, outcome3, treatment3, treatment2
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 17.16461  RSS 347.5833  GRSq 0.2538186  RSq 0.5559459  CVRSq 0.3231995
-
-GLM (family poisson, link log):
- nulldev df      dev df devratio   AIC iters converged
- 41.6537 35 18.97441 31    0.544 200.2     4         1
 > printh(summary(a8p))
 === summary(a8p)
 Call: earth(formula=counts~outcome+treatment, pmethod="none", trace=0.5, glm=list(family=poisson()), nfold=3)
@@ -9771,15 +9795,15 @@ outcome3    -0.2605737
 treatment2   0.1102031
 treatment3   0.1733820
 
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 41.6537 35   18.9744 31      0.544   200.2     4         1
+
 Earth selected 5 of 5 terms, and 4 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: outcome2, outcome3, treatment3, treatment2
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 17.16461  RSS 347.5833  GRSq 0.2538186  RSq 0.5559459  CVRSq 0.3231995
-
-GLM (family poisson, link log):
- nulldev df      dev df devratio   AIC iters converged
- 41.6537 35 18.97441 31    0.544 200.2     4         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -9901,6 +9925,10 @@ outcome3    -0.2605738
 treatment3   0.1733820
 treatment2   0.1102031
 
+$glm.stats
+ nulldev df      dev df  devratio      AIC iters converged
+ 41.6537 35 18.97441 31 0.5444724 200.1817     4         1
+
 $call
 earth(formula = counts ~ outcome + treatment, pmethod = "none", 
     trace = 0.5, glm = list(family = poisson()), nfold = 3)
@@ -9936,36 +9964,44 @@ attr(,"dataClasses")
    counts   outcome treatment 
 "numeric"  "factor"  "factor" 
 
+$xlevels
+$xlevels$outcome
+[1] "1" "2" "3"
+
+$xlevels$treatment
+[1] "1" "2" "3"
+
+
 $cv.list
 $cv.list$fold1
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 25.0203 23   12.9124 19      0.484   135.7     4         1
+
 Earth selected 5 of 5 terms, and 4 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 24.62925    RSS 230.8992    GRSq -0.2028133    RSq 0.4884064
 
-GLM (family poisson, link log):
-  nulldev df      dev df devratio   AIC iters converged
- 25.02026 23 12.91244 19    0.484 135.7     4         1
-
 $cv.list$fold2
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 29.4089 23   13.0637 19      0.556   137.6     4         1
+
 Earth selected 5 of 5 terms, and 4 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 24.6596    RSS 231.1838    GRSq 0.001765396    RSq 0.5754201
 
-GLM (family poisson, link log):
-  nulldev df      dev df devratio   AIC iters converged
- 29.40889 23 13.06365 19    0.556 137.6     4         1
-
 $cv.list$fold3
+GLM (family poisson, link log):
+ nulldev df       dev df   devratio     AIC iters converged
+ 26.5154 23   9.66777 19      0.635   134.8     4         1
+
 Earth selected 5 of 5 terms, and 4 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Number of terms at each degree of interaction: 1 4 (additive model)
 Earth GCV 20.23752    RSS 189.7267    GRSq 0.1508846    RSq 0.638845
-
-GLM (family poisson, link log):
-  nulldev df      dev df devratio   AIC iters converged
- 26.51544 23 9.667767 19    0.635 134.8     4         1
 
 
 $cv.nterms.selected.by.gcv
@@ -10070,20 +10106,25 @@ a10: two response poisson model
 
 Full model GRSq 0.303 RSq 0.522, starting cross validation
 
-CV fold 1  CVRSq 0.109  Per response CVRSq -0.025 0.243  
-                         n.oof 24 33%  n.infold.nz 24 24 n.oof.nz 12  12  
+CV fold 1  CVRSq  0.109   Per response CVRSq -0.025   0.243  
+                         n.oof 24 33%   n.infold.nz 2424   n.oof.nz 1212
 
-CV fold 2  CVRSq 0.442  Per response CVRSq 0.454  0.429  
-                         n.oof 24 33%  n.infold.nz 24 24 n.oof.nz 12  12  
+CV fold 2  CVRSq  0.442   Per response CVRSq  0.454   0.429  
+                         n.oof 24 33%   n.infold.nz 2424   n.oof.nz 1212
 
-CV fold 3  CVRSq 0.571  Per response CVRSq 0.597  0.545  
-                         n.oof 24 33%  n.infold.nz 24 24 n.oof.nz 12  12  
+CV fold 3  CVRSq  0.571   Per response CVRSq  0.597   0.545  
+                         n.oof 24 33%   n.infold.nz 2424   n.oof.nz 1212
 
-CV all     CVRSq 0.374  Per response CVRSq 0.342  0.406  
-                                        n.infold.nz 36 36 
+CV all     CVRSq  0.374   Per response CVRSq  0.342   0.406  
+                                        n.infold.nz 3636
 
 > printh(a10)
 === a10
+GLM (family poisson, link log):
+         nulldev df       dev df   devratio     AIC iters converged
+counts   41.6537 35   22.3511 32      0.463   201.6     4         1
+counts2 418.8258 35  204.9731 32      0.511   463.0     4         1
+
 Earth selected 4 of 4 terms, and 3 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 4 terms
 Importance: outcome2, outcome3, treatment2, treatment3-unused
@@ -10094,12 +10135,6 @@ Earth
 counts    17.59156   410.958 0.2352582 0.4749814 0.3423659
 counts2 1461.64328 34145.611 0.3039166 0.5221174 0.4059528
 All     1479.23484 34556.569 0.3031726 0.5216067 0.3741594
-
-GLM (family poisson, link log):
-
-         nulldev df       dev df devratio   AIC iters converged
-counts   41.6537 35  22.35113 32    0.463 201.6     4         1
-counts2 418.8258 35 204.97309 32    0.511 463.0     4         1
 > printh(summary(a10))
 === summary(a10)
 Call: earth(formula=cbind(counts,counts2)~outcome+treatment, pmethod="none", trace=0.5, glm=list(fam="po"), nfold=3)
@@ -10111,6 +10146,11 @@ outcome2    -0.40010316 -0.4422645
 outcome3    -0.26057375 -0.2900158
 treatment2   0.01975915  0.0179835
 
+GLM (family poisson, link log):
+         nulldev df       dev df   devratio     AIC iters converged
+counts   41.6537 35   22.3511 32      0.463   201.6     4         1
+counts2 418.8258 35  204.9731 32      0.511   463.0     4         1
+
 Earth selected 4 of 4 terms, and 3 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 4 terms
 Importance: outcome2, outcome3, treatment2, treatment3-unused
@@ -10121,12 +10161,6 @@ Earth
 counts    17.59156   410.958 0.2352582 0.4749814 0.3423659
 counts2 1461.64328 34145.611 0.3039166 0.5221174 0.4059528
 All     1479.23484 34556.569 0.3031726 0.5216067 0.3741594
-
-GLM (family poisson, link log):
-
-         nulldev df       dev df devratio   AIC iters converged
-counts   41.6537 35  22.35113 32    0.463 201.6     4         1
-counts2 418.8258 35 204.97309 32    0.511 463.0     4         1
 
 Note: the cross-validation sd's below are standard deviations across folds
 
@@ -10261,6 +10295,11 @@ outcome2    -0.40010316 -0.44226451
 outcome3    -0.26057375 -0.29001580
 treatment2   0.01975915  0.01798347
 
+$glm.stats
+         nulldev df       dev df  devratio      AIC iters converged
+counts   41.6537 35  22.35113 32 0.4634058 201.5585     4         1
+counts2 418.8258 35 204.97309 32 0.5106006 463.0048     4         1
+
 $call
 earth(formula = cbind(counts, counts2) ~ outcome + treatment, 
     pmethod = "none", trace = 0.5, glm = list(fam = "po"), nfold = 3)
@@ -10296,8 +10335,21 @@ attr(,"dataClasses")
 cbind(counts, counts2)                outcome              treatment 
            "nmatrix.2"               "factor"               "factor" 
 
+$xlevels
+$xlevels$outcome
+[1] "1" "2" "3"
+
+$xlevels$treatment
+[1] "1" "2" "3"
+
+
 $cv.list
 $cv.list$fold1
+GLM (family poisson, link log):
+         nulldev df       dev df   devratio     AIC iters converged
+counts   31.7006 23   13.5089 20      0.574   135.2     4         1
+counts2 309.6838 23  128.7831 20      0.584   303.2     4         1
+
 Earth selected 4 of 4 terms, and 3 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 4 terms
 Number of terms at each degree of interaction: 1 3 (additive model)
@@ -10308,13 +10360,12 @@ counts    19.86026   239.1507 0.2495657 0.5900274
 counts2 1792.46566 21584.2740 0.2512687 0.5909577
 All     1812.32592 21823.4247 0.2512500 0.5909476
 
-GLM (family poisson, link log):
-
-          nulldev df       dev df devratio   AIC iters converged
-counts   31.70063 23  13.50892 20    0.574 135.2     4         1
-counts2 309.68384 23 128.78309 20    0.584 303.2     4         1
-
 $cv.list$fold2
+GLM (family poisson, link log):
+         nulldev df       dev df   devratio     AIC iters converged
+counts   28.7392 23    13.469 20      0.531   135.9     4         1
+counts2 300.8275 23   141.706 20      0.529   316.2     4         1
+
 Earth selected 4 of 4 terms, and 3 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 4 terms
 Number of terms at each degree of interaction: 1 3 (additive model)
@@ -10325,13 +10376,12 @@ counts    20.80232   250.4946 0.1642420 0.5434139
 counts2 1944.82774 23418.9674 0.1632476 0.5428706
 All     1965.63006 23669.4620 0.1632581 0.5428764
 
-GLM (family poisson, link log):
-
-          nulldev df       dev df devratio   AIC iters converged
-counts   28.73925 23  13.46897 20    0.531 135.9     4         1
-counts2 300.82745 23 141.70576 20    0.529 316.2     4         1
-
 $cv.list$fold3
+GLM (family poisson, link log):
+         nulldev df       dev df   devratio     AIC iters converged
+counts   22.7308 23   12.9947 20      0.428   135.3     4         1
+counts2 226.1006 23  124.8146 20      0.448   300.0     4         1
+
 Earth selected 4 of 4 terms, and 3 of 4 predictors (pmethod="none")
 Termination condition: RSq changed by less than 0.001 at 4 terms
 Number of terms at each degree of interaction: 1 3 (additive model)
@@ -10341,12 +10391,6 @@ Earth
 counts    20.22078   243.4919 -0.034206234 0.4349989
 counts2 1738.74289 20937.3623  0.010394263 0.4593647
 All     1758.96368 21180.8543  0.009903411 0.4590966
-
-GLM (family poisson, link log):
-
-         nulldev df       dev df devratio   AIC iters converged
-counts   22.7308 23  12.99465 20    0.428 135.3     4         1
-counts2 226.1006 23 124.81463 20    0.448 300.0     4         1
 
 
 $cv.nterms.selected.by.gcv
@@ -10442,16 +10486,125 @@ attr(,"class")
 [1] "earth"
 -------------------------------------------------------------------------------
 
-> # two response binomial model (not yet supported)
-> set.seed(1238)
-> cat("Expect an error here ")
-Expect an error here > expect.err(try(earth(cbind(counts, counts2) ~ outcome + treatment, glm=list(fam="bi"), trace=0.5, pmethod="none", nfold=3)))
-Error : earth does not yet support cross validation of paired binomial responses
-Got error as expected from try(earth(cbind(counts, counts2) ~ outcome + treatment, glm = list(fam = "bi"),     trace = 0.5, pmethod = "none", nfold = 3))
+> # binomial pair model with keepxy
+> set.seed(2019)
+> bpair.mod <- earth(cbind(counts, counts2) ~ outcome + treatment,
++                    glm=list(fam="quasib"), trace=1,
++                    pmethod="none", nfold=3, keepxy=TRUE)
+x[36,4] with colnames outcome2 outcome3 treatment2 treatment3
+y[36,2] with colnames counts counts2
+weights used by earth internally: 199, 188, 166, 221, 111, 221, 276, 144, 133, 20...
+Response columns counts and counts2 are a binomial pair (6835 obs in total)
+yfrac[36,1] with colname counts, and values 0.09045, 0.09043, 0.09036, 0...
+Forward pass term 1, 2, 4, 6, 8, 10
+RSq changed by less than 0.001 at 9 terms, 5 terms used (DeltaRSq 0)
+After forward pass GRSq 0.521 RSq 0.756
+Prune none penalty 2 nprune null: selected 5 of 5 terms, and 4 of 4 preds
+After pruning pass GRSq 0.589 RSq 0.756
+GLM counts devratio 0.76 dof 31/35 iters 3
+Warning: No 'data' argument to earth so 'keepxy' is limited
+
+Full model GRSq 0.589 RSq 0.756, starting cross validation
+CV fold 1  CVRSq  0.710   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV fold 2  CVRSq  0.194   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV fold 3  CVRSq  0.628   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV all     CVRSq  0.510                  n.infold.nz 36 100%
+
+> print(summary(bpair.mod))
+Call: earth(formula=cbind(counts,counts2)~outcome+treatment, pmethod="none", keepxy=TRUE, trace=1, glm=list(fam="quasib"), nfold=3)
+
+GLM coefficients
+                 counts
+(Intercept) -2.31447853
+outcome2     0.04632793
+outcome3     0.03287022
+treatment2   0.09145788
+treatment3   0.17175093
+
+GLM (family quasibinomial, link logit):
+ nulldev df       dev df   devratio    iters converged
+ 4.17066 35  0.988449 31      0.763        3         1
+
+Earth selected 5 of 5 terms, and 4 of 4 predictors (pmethod="none")
+Termination condition: RSq changed by less than 0.001 at 5 terms
+Importance: treatment3, treatment2, outcome2, outcome3
+Number of terms at each degree of interaction: 1 4 (additive model)
+Earth GCV 0.004549784  RSS 0.09213313  GRSq 0.5894512  RSq 0.7556816  CVRSq 0.5103401
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 5.00 sd 0.00    nvars 4.00 sd 0.00
+
+ CVRSq    sd MaxErr     sd AUC sd MeanDev     sd CalibInt    sd CalibSlope    sd
+  0.51 0.277 0.0118 0.0114 NaN NA   0.651 0.0113   -0.409 0.608      0.812 0.276
+> plot(bpair.mod, which=1, main="bpair.mod")
+> 
+> bpair.data <- data.frame(counts, counts2, outcome, treatment)
+> set.seed(2019)
+> bpair.mod.Formula <- earth(counts+counts2 ~ outcome + treatment, data=bpair.data,
++                    glm=list(fam="quasib"), trace=1,
++                    pmethod="none", nfold=3, keepxy=TRUE)
+Using class "Formula" because lhs of formula has terms separated by "+"
+x[36,4] with colnames outcome2 outcome3 treatment2 treatment3
+y[36,2] with colnames counts counts2
+weights used by earth internally: 199, 188, 166, 221, 111, 221, 276, 144, 133, 20...
+Response columns counts and counts2 are a binomial pair (6835 obs in total)
+yfrac[36,1] with colname counts, and values 0.09045, 0.09043, 0.09036, 0...
+Forward pass term 1, 2, 4, 6, 8, 10
+RSq changed by less than 0.001 at 9 terms, 5 terms used (DeltaRSq 0)
+After forward pass GRSq 0.521 RSq 0.756
+Prune none penalty 2 nprune null: selected 5 of 5 terms, and 4 of 4 preds
+After pruning pass GRSq 0.589 RSq 0.756
+GLM counts devratio 0.76 dof 31/35 iters 3
+Full model GRSq 0.589 RSq 0.756, starting cross validation
+CV fold 1  CVRSq  0.710   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV fold 2  CVRSq  0.194   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV fold 3  CVRSq  0.628   n.oof 24 33%   n.infold.nz 24 100%   n.oof.nz 12 100%
+CV all     CVRSq  0.510                  n.infold.nz 36 100%
+
+> print(summary(bpair.mod.Formula))
+Call: earth(formula=counts+counts2~outcome+treatment, data=bpair.data, pmethod="none", keepxy=TRUE, trace=1, glm=list(fam="quasib"), nfold=3)
+
+GLM coefficients
+                 counts
+(Intercept) -2.31447853
+outcome2     0.04632793
+outcome3     0.03287022
+treatment2   0.09145788
+treatment3   0.17175093
+
+GLM (family quasibinomial, link logit):
+ nulldev df       dev df   devratio    iters converged
+ 4.17066 35  0.988449 31      0.763        3         1
+
+Earth selected 5 of 5 terms, and 4 of 4 predictors (pmethod="none")
+Termination condition: RSq changed by less than 0.001 at 5 terms
+Importance: treatment3, treatment2, outcome2, outcome3
+Number of terms at each degree of interaction: 1 4 (additive model)
+Earth GCV 0.004549784  RSS 0.09213313  GRSq 0.5894512  RSq 0.7556816  CVRSq 0.5103401
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 5.00 sd 0.00    nvars 4.00 sd 0.00
+
+ CVRSq    sd MaxErr     sd AUC sd MeanDev     sd CalibInt    sd CalibSlope    sd
+  0.51 0.277 0.0118 0.0114 NaN NA   0.651 0.0113   -0.409 0.608      0.812 0.276
+> plot(bpair.mod.Formula, which=1, main="bpair.mod.Formula")
+> check.models.equal(bpair.mod, bpair.mod.Formula, "bpair.mod, bpair.mod.Formula", newdata=bpair.data[1:3,])
+bpair.mod, bpair.mod.Formula: models not identical
+
+Formulas differ: cbind(counts, counts2) ~ outcome + treatment
+and:             ~counts + counts2 + (outcome + treatment)
+
+bpair.mod, bpair.mod.Formula: glm submodel formula strings are identical: yarg ~ treatment3 + treatment2 + outcome2 + outcome3
+bpair.mod, bpair.mod.Formula: but the actual glm submodel formulas differ (classes are "formula" and "formula")
+bpair.mod, bpair.mod.Formula: glm submodels not identical (but coefs, residuals, fitted.values are the same)
+bpair.mod, bpair.mod.Formula: Models are equivalent, within numerical tolerances
+
 > 
 > set.seed(427)
 > earth.mod.err <- earth(survived~., data=etitanic, degree=1, nfold=3, keepxy=FALSE)
-> expect.err(try(plot(earth.mod.err$cv.list[[1]]))) # earth object has no residuals field
+> expect.err(try(plot(earth.mod.err$cv.list[[1]])), "cannot get the original model response")
 
 Looked unsuccessfully for the original response in the following places:
 
@@ -10468,19 +10621,19 @@ Got error as expected from try(plot(earth.mod.err$cv.list[[1]]))
 > set.seed(427)
 > earth.mod.help <- earth(survived~., data=etitanic, trace=1, degree=2, nfold=5, keepxy=TRUE)
 x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
-y[1046,1] with colname survived
+y[1046,1] with colname survived, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.406 RSq 0.450
-Prune method "backward" penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
+Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
 After pruning pass GRSq 0.42 RSq 0.439
 Full model GRSq 0.420 RSq 0.439, starting cross validation
-CV fold 1  CVRSq 0.448  n.oof 839 20%  n.infold.nz 341 41%  n.oof.nz  86 42%  
-CV fold 2  CVRSq 0.433  n.oof 838 20%  n.infold.nz 341 41%  n.oof.nz  86 41%  
-CV fold 3  CVRSq 0.436  n.oof 828 21%  n.infold.nz 342 41%  n.oof.nz  85 39%  
-CV fold 4  CVRSq 0.397  n.oof 840 20%  n.infold.nz 342 41%  n.oof.nz  85 41%  
-CV fold 5  CVRSq 0.372  n.oof 839 20%  n.infold.nz 342 41%  n.oof.nz  85 41%  
-CV all     CVRSq 0.417                  n.infold.nz 427 41%  
+CV fold 1  CVRSq  0.448   n.oof  839 20%   n.infold.nz  341 41%   n.oof.nz   86 42%
+CV fold 2  CVRSq  0.433   n.oof  838 20%   n.infold.nz  341 41%   n.oof.nz   86 41%
+CV fold 3  CVRSq  0.436   n.oof  828 21%   n.infold.nz  342 41%   n.oof.nz   85 39%
+CV fold 4  CVRSq  0.397   n.oof  840 20%   n.infold.nz  342 41%   n.oof.nz   85 41%
+CV fold 5  CVRSq  0.372   n.oof  839 20%   n.infold.nz  342 41%   n.oof.nz   85 41%
+CV all     CVRSq  0.417                    n.infold.nz  427 41%
 
 > print.stripped.earth.model(earth.mod.help, "earth.mod.help")
 print.stripped.earth.model(earth.mod.help)
@@ -10711,6 +10864,14 @@ list(survived, pclass, sex, age, sibsp, parch)
 attr(,"dataClasses")
  survived    pclass       sex       age     sibsp     parch 
 "numeric"  "factor"  "factor" "numeric" "numeric" "numeric" 
+
+$xlevels
+$xlevels$pclass
+[1] "1st" "2nd" "3rd"
+
+$xlevels$sex
+[1] "female" "male"  
+
 
 $levels
 [1] 0 1
@@ -14259,7 +14420,7 @@ GCV 11.25439  RSS 209.1139  GRSq 0.959692  RSq 0.9742029  CVRSq 0.9504197
 
 --earth.cv.1
 > print(earth.cv.1())
-Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Selected 3 of 5 terms, and 1 of 2 predictors (pmethod="cv")
 Termination condition: RSq changed by less than 0.002 at 5 terms
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
@@ -14280,7 +14441,7 @@ pmethod="backward" would have selected:
 
 --earth.cv.2
 > print(earth.cv.2())
-Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Selected 3 of 5 terms, and 1 of 2 predictors (pmethod="cv")
 Termination condition: RSq changed by less than 0.002 at 5 terms
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
@@ -14298,7 +14459,7 @@ pmethod="backward" would have selected:
 
 --earth.cv.3
 > print(earth.cv.3())
-Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Selected 3 of 5 terms, and 1 of 2 predictors (pmethod="cv")
 Termination condition: RSq changed by less than 0.002 at 5 terms
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
@@ -14316,7 +14477,7 @@ pmethod="backward" would have selected:
 
 --earth.cv.4
 > print(earth.cv.4())
-Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+Selected 3 of 5 terms, and 1 of 2 predictors (pmethod="cv")
 Termination condition: RSq changed by less than 0.002 at 5 terms
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
@@ -14333,8 +14494,28 @@ pmethod="backward" would have selected:
 > cat("\n--earth.cv.5\n")
 
 --earth.cv.5
-> print(earth.cv.5())
-Selected 3 of 5 terms, and 1 of 2 predictors using pmethod="cv"
+> a.cv.5 <- earth.cv.5()
+> print(a.cv.5)
+Selected 3 of 5 terms, and 1 of 2 predictors (pmethod="cv")
+Termination condition: RSq changed by less than 0.002 at 5 terms
+Importance: Girth, Height-unused
+Number of terms at each degree of interaction: 1 2 (additive model)
+GRSq 0.948644  RSq 0.9614259  mean.oof.RSq 0.9531341 (sd 0.0122)
+
+pmethod="backward" would have selected:
+    4 terms 2 preds,  GRSq 0.959692  RSq 0.9742029  mean.oof.RSq 0.9504197
+> cat("\n--summary(earth.cv.5)\n")
+
+--summary(earth.cv.5)
+> print(summary(a.cv.5))
+Call: earth(formula=formula.global, data=data.global, pmethod="cv", nfold=3, thresh=thresh)
+
+              coefficients
+(Intercept)      30.656747
+h(14.2-Girth)    -3.569047
+h(Girth-14.2)     6.757306
+
+Selected 3 of 5 terms, and 1 of 2 predictors (pmethod="cv")
 Termination condition: RSq changed by less than 0.002 at 5 terms
 Importance: Girth, Height-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
