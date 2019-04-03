@@ -174,8 +174,6 @@ set.seed(427)
 earth.mod.help <- earth(survived~., data=etitanic, trace=1, degree=2, nfold=5, keepxy=TRUE)
 print.stripped.earth.model(earth.mod.help, "earth.mod.help")
 plot(earth.mod.help) # the full model
-# $$ TODO the following no longer works: Error: plotmo.y.default: cannot get y
-# plot(earth.mod.help$cv.list[[3]])
 
 # test various options
 old.par <- par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
@@ -203,6 +201,14 @@ par(old.par)
 set.seed(428)
 earth.mod <- earth(survived ~ ., data=etitanic, nfold=3, keepxy=TRUE)
 plot.earth.models(earth.mod$cv.list, main="plot.earth.models with cross validated models")
+
+# test keepxy=2
+expect.err(try(plot(earth.mod.help$cv.list[[3]])), "cannot get the original model response (use keepxy=2 in the call to earth)")
+expect.err(try(plotmo(earth.mod.help$cv.list[[3]])), "cannot get the original model predictors (use keepxy=2 in the call to earth)")
+set.seed(2019)
+earth.mod.help.keepxy2 <- earth(survived~., data=etitanic, nfold=3, keepxy=2)
+plot(earth.mod.help.keepxy2$cv.list[[3]])
+plotmo(earth.mod.help.keepxy2$cv.list[[3]])
 
 # example in earth vignette
 

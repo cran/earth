@@ -2,6 +2,7 @@
 @rem
 @rem Stephen Milborrow Dec 2014 Shrewsbury
 
+@echo test.earthmain.clang.bat
 @cp "d:/bin/R320dll/i386/R.dll" .
                                 @if %errorlevel% neq 0 goto error
 @cp "d:/bin/R320dll/i386/Rblas.dll" .
@@ -40,9 +41,8 @@ clang -DSTANDALONE -DMAIN -Wall -pedantic -Wextra -Weverything -O3 -std=gnu99^
  Rdll.lib Rblas.lib -o earthmain-clang.exe
                                 @if %errorlevel% neq 0 goto error
 @earthmain-clang.exe > test.earthmain-clang.out
-                                @if %errorlevel% neq 0 goto error
-
-@rem we use -w on mks.diff so it treats \r\n the same as \n
+                                @rem no errorlevel test, diff will do check for discrepancies
+                                @rem @if %errorlevel% neq 0 goto error
 mks.diff test.earthmain-clang.out test.earthmain.out.save
                                 @if %errorlevel% neq 0 goto error
 

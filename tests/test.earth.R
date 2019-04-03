@@ -10,7 +10,8 @@ allowed.func <- function(degree, pred, parents, namesx)
 {
     namesx[pred] != "Height"  # disallow "Height"
 }
-earth.mod2 <- earth(Volume~., data=trees, allowed=allowed.func)
+set.seed(2019)
+earth.mod2 <- earth(Volume~., data=trees, allowed=allowed.func, trace=1)
 print(summary(earth.mod2))
 # multiple response model using class "Formula" and a factor predictor
 data(iris)

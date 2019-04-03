@@ -133,8 +133,7 @@ standard algorithm by toying with tuning parameters such as \code{thresh},
      When the \code{nfold} argument is used with \code{keepxy=TRUE},
      \code{earth} keeps more data and calls \code{predict.earth} multiple
      times to generate \code{cv.oof.rsq.tab} and \code{cv.infold.rsq.tab}
-     (see the \code{cv.} arguments in the \dQuote{\emph{Value}} section
-     below).
+     (see the \code{cv.} arguments in \code{\link{earth.object}}).
      It therefore makes cross-validation significantly slower.
 }
 \item{trace}{

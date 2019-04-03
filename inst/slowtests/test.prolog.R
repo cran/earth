@@ -40,4 +40,4 @@ options(warn=1) # print warnings as they occur
 if(!interactive())
     postscript(paper="letter")
 old.par <- par(no.readonly=TRUE)
-set.seed(2018)
+set.seed(2019)

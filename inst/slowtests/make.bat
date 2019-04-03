@@ -25,6 +25,8 @@ time /T
                         @if %errorlevel% NEQ 0 goto error
 @call test.full.bat
                         @if %errorlevel% NEQ 0 goto error
+@call test.allowedfunc.bat
+                        @if %errorlevel% NEQ 0 goto error
 @call test.cv.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.pmethod.cv.bat
@@ -38,6 +40,8 @@ time /T
 @call test.offset.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.multresp.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.mem.bat
                         @if %errorlevel% NEQ 0 goto error
 @goto done
 :error

@@ -2,6 +2,7 @@
 @rem
 @rem Stephen Milborrow Apr 2007 Petaluma
 
+@echo test.earthmain.vc.bat
 @set CYGWIN=nodosfilewarning
 @cp "d:/bin/R320dll/i386/R.dll" .
                                 @if %errorlevel% neq 0 goto error
@@ -24,15 +25,14 @@
 
 @md Debug
 
-@rem Use -W4 for lint like warnings
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -I"/a/r/ra/include" -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
+@rem Use -W4 (insteadof -W3) for lint like warnings
+cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\r\R-3.5.3"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
                                 @if %errorlevel% neq 0 goto error
 link -nologo -debug -out:earthmain.exe Debug\earth.obj Rdll.lib Rblas.lib
                                 @if %errorlevel% neq 0 goto error
 earthmain.exe > Debug\test.earthmain.out
-                                @if %errorlevel% neq 0 goto error
-
-@rem we use -w on mks.diff so it treats \r\n the same as \n
+                                @rem no errorlevel test, diff will do check for discrepancies
+                                @rem @if %errorlevel% neq 0 goto error
 mks.diff Debug\test.earthmain.out test.earthmain.out.save
                                 @if %errorlevel% neq 0 goto error
 

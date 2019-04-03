@@ -165,10 +165,10 @@ earth.default <- function(
             stop0("illegal 'na.action', only na.action=na.fail is allowed")
     } else if(!identical(na.action, na.fail))
         stop0("illegal 'na.action', only na.action=na.fail is allowed")
-    keepxy <- check.boolean(keepxy)
+    keepxy <- check.numeric.scalar(keepxy, min=0, max=2, logical.ok=TRUE)
     pmethod <- match.arg1(pmethod, "pmethod")
     if(pmethod == "cv")
-        keepxy <- TRUE
+        keepxy <- min(1, keepxy)
     if(keepxy) {
         xkeep <- x
         ykeep <- y
@@ -406,7 +406,7 @@ earth.formula <- function(
         xlevels <- ret$xlevels
         ylevels <- ret$ylevels
 
-    keepxy <- check.boolean(keepxy)
+    keepxy <- check.numeric.scalar(keepxy, min=0, max=2, logical.ok=TRUE)
     pmethod <- match.arg1(pmethod, "pmethod")
     # we need the diag of the hat matrix if varmod.method != "none"
     varmod.method <- match.choices(varmod.method,
@@ -1039,6 +1039,7 @@ eval.subsets.xtx <- function(
         nresp <- ncol(y)
         stopifnot(is.double(bx))
         stopifnot(is.double(y))
+        on.exit(.C("FreeEarth", PACKAGE="earth")) # if error or user interrupt, free mem
         # TODO replace .C call with alternative interface that doesn't require DUP=TRUE
         rv <- .C("EvalSubsetsUsingXtxR",
             prune.terms = matrix(0, nrow=nterms, ncol=nterms), # double PruneTerms[]
@@ -1105,7 +1106,7 @@ forward.pass <- function(x, y, yw, weights, # must be double, but yw can be NULL
     stopifnot(is.double(y))
     stopifnot(is.null(weights) || is.double(weights))
 
-    on.exit(.C("FreeR", PACKAGE="earth"))  # if user interrupts, free memory
+    on.exit(.C("FreeEarth", PACKAGE="earth")) # if error or user interrupt, free mem
 
     .Call("ForwardPassR",
         fullset,                           # out: int FullSet[]

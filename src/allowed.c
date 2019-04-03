@@ -23,7 +23,7 @@ static bool FirstGlobal;
 // For efficiency, we initialize once here rather than in IsAllowed.
 //
 // The caller of ForwardPassR has already checked that Allowed is
-// a function and has three arguments: degree, pred, parents.
+// a function and has 3...5 args: degree, pred, parents, namesx, first.
 //
 // The "allowed" function has the following prototype, where
 // namesx and first are optional.
@@ -42,6 +42,9 @@ static bool FirstGlobal;
 //                to earth, after factor expansion
 //       "first" is optional and is 1 the first time "allowed"
 //               is invoked for the current model
+//
+// This code is based on the "Writing R Extensions" manual
+// Section 5.11 "Evaluating R expressions from C"
 
 void InitAllowedFunc(
         SEXP Allowed, // can be NULL
@@ -57,8 +60,15 @@ void InitAllowedFunc(
         AllowedEnvGlobal = Env;
         nArgsGlobal = nAllowedArgs;
 
-        // the UNPROTECT for the PROTECT below is in FreeAllowedFunc()
-        PROTECT(AllowedFuncGlobal = allocList(1 + nAllowedArgs));
+        // We use R_PreserveObject/R_ReleaseObject here instead of
+        // PROTECT/UNPROTECT purely to avoid a false warning from CRAN rchk.
+        // In the normal course of operation, FreeAllowedFunc() calls
+        // R_ReleaseObject to undo the call below to R_PreserveObject.
+        // But if there is a call to error in the earth C code (or
+        // R_CheckUserInterrupt doesn't return), an on.exit in
+        // the R code will call FreeEarth to callFreeAllowedFunc.
+        AllowedFuncGlobal = allocList(1 + nAllowedArgs);
+        R_PreserveObject(AllowedFuncGlobal);
 
         SEXP s = AllowedFuncGlobal; // 1st element is the function
         SETCAR(s, Allowed);
@@ -77,9 +87,9 @@ void InitAllowedFunc(
             SEXP namesx;
             s = CDR(s);             // 5th element is "namesx"
             SETCAR(s, namesx = allocVector(STRSXP, nPreds));
-            PROTECT(namesx);
             if(sPredNames == NULL)
                 error("Bad sPredNames");
+            PROTECT(namesx);
             for(int i = 0; i < nPreds; i++)
                 SET_STRING_ELT(namesx, i, mkChar(sPredNames[i]));
             UNPROTECT(1);
@@ -95,7 +105,8 @@ void InitAllowedFunc(
 void FreeAllowedFunc(void)
 {
     if(AllowedFuncGlobal != NULL) {
-        UNPROTECT(1);           // matches PROTECT in InitAllowedFunc
+        // following matches R_PreserveObject in InitAllowedFunc
+        R_ReleaseObject(AllowedFuncGlobal);
         AllowedFuncGlobal = NULL;
     }
 }
@@ -147,6 +158,7 @@ bool IsAllowed(
     if(AllowedFuncGlobal == NULL)
        return TRUE;
 
+    // AllowedFuncGlobal has been protected by R_PreserveObject
     SEXP s = AllowedFuncGlobal;     // 1st element is the function
     s = CDR(s);                     // 2nd element is "degree"
     INTEGER(CADR(s))[0] = iPred+1;  // 3rd element is "pred"

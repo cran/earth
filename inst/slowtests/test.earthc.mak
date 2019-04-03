@@ -3,7 +3,7 @@
 
 all: test.earthc.out
 
-R_DIR="%ProgramFiles%\r\R-3.5.2"
+R_DIR="%ProgramFiles%\r\R-3.5.3"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -64,7 +64,7 @@ test.earthc.out: test.earthc.main.exe test.earthc.out.save
 !IF  "$(CFG)" == "Debug"
 	@rem @echo === Following diff may give some differences ===
 !ENDIF
-	mks.diff -w $(OUTDIR)\test.earthc.out test.earthc.out.save 
+	diff -w $(OUTDIR)\test.earthc.out test.earthc.out.save 
 
 $(OUTDIR)/earth.obj: ..\..\src\earth.c test.earthc.mak
    cl $(CFLAGS) ..\..\src\earth.c

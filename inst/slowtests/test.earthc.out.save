@@ -3,7 +3,7 @@ Copyright (C) Microsoft Corporation.  All rights reserved.
 
 =============================================================================
 TEST 1: noise n=1000 p=1
-Forward pass: minspan 5 endspan 7    x[1000,1] 7.81 kB    bx[1000,51] 398 kB
+Forward pass: minspan 5 endspan 7   x[1000,1] 7.81 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -49,9 +49,9 @@ TEST 2: x0 n=10 p=1
    8  0.17770  0.17770
    9  0.41900  0.41900
 
-earth.c version 5.0.0
+earth.c version 5.1.0
 BetaCache 20.3 kB
-Forward pass: minspan 3 endspan 4    x[10,1] 80 Bytes    bx[10,51] 3.98 kB
+Forward pass: minspan 3 endspan 4   x[10,1] 80 Bytes   bx[10,51] 3.98 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -97,7 +97,7 @@ TEST 2: FUNCTION x0 n=10 p=1
 
 =============================================================================
 TEST 3: x0 n=10 p=1
-Forward pass: minspan 3 endspan 4    x[10,1] 80 Bytes    bx[10,1] 80 Bytes
+Forward pass: minspan 3 endspan 4   x[10,1] 80 Bytes   bx[10,1] 80 Bytes
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -119,7 +119,7 @@ TEST 3: FUNCTION x0 n=10 p=1
 
 =============================================================================
 TEST 4: x0 n=10 p=1
-Forward pass: minspan 3 endspan 4    x[10,1] 80 Bytes    bx[10,2] 160 Bytes
+Forward pass: minspan 3 endspan 4   x[10,1] 80 Bytes   bx[10,2] 160 Bytes
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -141,7 +141,7 @@ TEST 4: FUNCTION x0 n=10 p=1
 
 =============================================================================
 TEST 5: x0 n=1000 p=1
-Forward pass: minspan 5 endspan 7    x[1000,1] 7.81 kB    bx[1000,51] 398 kB
+Forward pass: minspan 5 endspan 7   x[1000,1] 7.81 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -166,7 +166,7 @@ TEST 5: FUNCTION x0 n=1000 p=1
 
 =============================================================================
 TEST 6: x0 + noise n=1000 p=2
-Forward pass: minspan 6 endspan 8    x[1000,2] 15.6 kB    bx[1000,51] 398 kB
+Forward pass: minspan 6 endspan 8   x[1000,2] 15.6 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1193,9 +1193,9 @@ TEST 7: x0 + x1 n=1000 p=2
  998  1.57294  0.99760  0.65150
  999  0.77250  0.99800 -0.15910
 
-earth.c version 5.0.0
+earth.c version 5.1.0
 BetaCache 1.89 kB
-Forward pass: minspan 6 endspan 8    x[1000,2] 15.6 kB    bx[1000,11] 85.9 kB
+Forward pass: minspan 6 endspan 8   x[1000,2] 15.6 kB   bx[1000,11] 85.9 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1328,7 +1328,7 @@ TEST 9: x0 + x1 + x0*x1 n=30 p=2
   28  0.88658  0.59880  0.18000
   29 -0.19086  0.96250 -0.58770
 
-Forward pass: minspan 4 endspan 8    x[30,2] 480 Bytes    bx[30,51] 12 kB
+Forward pass: minspan 4 endspan 8   x[30,2] 480 Bytes   bx[30,51] 12 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1385,7 +1385,7 @@ TEST 9: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 10: x0 + x1 + x0*x1 n=1000 p=2
-Forward pass: minspan 6 endspan 8    x[1000,2] 15.6 kB    bx[1000,51] 398 kB
+Forward pass: minspan 6 endspan 8   x[1000,2] 15.6 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1535,7 +1535,7 @@ TEST 11: FUNCTION x0 + x1 + x0*x1 n=1000 p=2
 
 =============================================================================
 TEST 12: cos(x0) + x1 n=1000 p=2
-Forward pass: minspan 6 endspan 8    x[1000,2] 15.6 kB    bx[1000,51] 398 kB
+Forward pass: minspan 6 endspan 8   x[1000,2] 15.6 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1573,7 +1573,7 @@ TEST 12: FUNCTION cos(x0) + x1 n=1000 p=2
 
 =============================================================================
 TEST 13: sin(2*x0)+2*x1*.5*x0*x1 n=1000 p=2
-Forward pass: minspan 6 endspan 8    x[1000,2] 15.6 kB    bx[1000,51] 398 kB
+Forward pass: minspan 6 endspan 8   x[1000,2] 15.6 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1614,7 +1614,7 @@ TEST 13: FUNCTION sin(2*x0)+2*x1*.5*x0*x1 n=1000 p=2
 
 =============================================================================
 TEST 14: sin(2*x0)+2*x1*.5*x0*x1 n=1000 p=3
-Forward pass: minspan 6 endspan 8    x[1000,3] 23.4 kB    bx[1000,51] 398 kB
+Forward pass: minspan 6 endspan 8   x[1000,3] 23.4 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1674,7 +1674,7 @@ TEST 15: FUNCTION 3rd order, mi=2 ni=11 n=1000 p=6
 
 =============================================================================
 TEST 16: 3rd order, mi=2 ni=51 n=1000 p=6
-Forward pass: minspan 6 endspan 9    x[1000,6] 46.9 kB    bx[1000,51] 398 kB
+Forward pass: minspan 6 endspan 9   x[1000,6] 46.9 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1718,7 +1718,7 @@ TEST 16: FUNCTION 3rd order, mi=2 ni=51 n=1000 p=6
 
 =============================================================================
 TEST 17: 3rd order, mi=3 n=1000 p=6
-Forward pass: minspan 6 endspan 9    x[1000,6] 46.9 kB    bx[1000,51] 398 kB
+Forward pass: minspan 6 endspan 9   x[1000,6] 46.9 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1799,7 +1799,7 @@ TEST 17: FUNCTION 3rd order, mi=3 n=1000 p=6
 
 =============================================================================
 TEST 18: 5 preds + noise n=200 p=15
-Forward pass: minspan 6 endspan 11    x[200,15] 23.4 kB    bx[200,101] 158 kB
+Forward pass: minspan 6 endspan 11   x[200,15] 23.4 kB   bx[200,101] 158 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1869,7 +1869,7 @@ TEST 18: FUNCTION 5 preds + noise n=200 p=15
 
 =============================================================================
 TEST 19: 5 preds clean n=200 p=15
-Forward pass: minspan 6 endspan 11    x[200,15] 23.4 kB    bx[200,101] 158 kB
+Forward pass: minspan 6 endspan 11   x[200,15] 23.4 kB   bx[200,101] 158 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -1941,7 +1941,7 @@ TEST 19: FUNCTION 5 preds clean n=200 p=15
 
 =============================================================================
 TEST 20: 10 preds + noise n=200 p=50
-Forward pass: minspan 7 endspan 12    x[200,50] 78.1 kB    bx[200,101] 158 kB
+Forward pass: minspan 7 endspan 12   x[200,50] 78.1 kB   bx[200,101] 158 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2041,7 +2041,7 @@ TEST 20: FUNCTION 10 preds + noise n=200 p=50
 
 =============================================================================
 TEST 21: 20 preds + noise, n=100 p=30
-Forward pass: minspan 6 endspan 12    x[100,30] 23.4 kB    bx[100,101] 78.9 kB
+Forward pass: minspan 6 endspan 12   x[100,30] 23.4 kB   bx[100,101] 78.9 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2133,7 +2133,7 @@ TEST 21: FUNCTION 20 preds + noise, n=100 p=30
 
 =============================================================================
 TEST 22: 20 preds + noise, n=400 p=30
-Forward pass: minspan 7 endspan 12    x[400,30] 93.8 kB    bx[400,101] 316 kB
+Forward pass: minspan 7 endspan 12   x[400,30] 93.8 kB   bx[400,101] 316 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2303,7 +2303,7 @@ TEST 22: FUNCTION 20 preds + noise, n=400 p=30
 
 =============================================================================
 TEST 23: 3rd order, mi=3 + noise n=1000 p=10
-Forward pass: minspan 7 endspan 10    x[1000,10] 78.1 kB    bx[1000,51] 398 kB
+Forward pass: minspan 7 endspan 10   x[1000,10] 78.1 kB   bx[1000,51] 398 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2379,7 +2379,7 @@ TEST 23: FUNCTION 3rd order, mi=3 + noise n=1000 p=10
 
 =============================================================================
 TEST 24: eqn56 mi=1 n=300 p=6
-Forward pass: minspan 6 endspan 9    x[300,6] 14.1 kB    bx[300,101] 237 kB
+Forward pass: minspan 6 endspan 9   x[300,6] 14.1 kB   bx[300,101] 237 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2528,7 +2528,7 @@ TEST 24: FUNCTION eqn56 mi=1 n=300 p=6
 
 =============================================================================
 TEST 25: eqn56 mi=2 n=300 p=6
-Forward pass: minspan 6 endspan 9    x[300,6] 14.1 kB    bx[300,51] 120 kB
+Forward pass: minspan 6 endspan 9   x[300,6] 14.1 kB   bx[300,51] 120 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2632,7 +2632,7 @@ TEST 25: FUNCTION eqn56 mi=2 n=300 p=6
 
 =============================================================================
 TEST 26: eqn56 mi=10 n=300 p=6
-Forward pass: minspan 6 endspan 9    x[300,6] 14.1 kB    bx[300,51] 120 kB
+Forward pass: minspan 6 endspan 9   x[300,6] 14.1 kB   bx[300,51] 120 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2749,7 +2749,7 @@ TEST 26: FUNCTION eqn56 mi=10 n=300 p=6
 
 =============================================================================
 TEST 27: x0 + x1 + x0*x1 n=30 p=2
-Forward pass: minspan 4 endspan 8    x[30,2] 480 Bytes    bx[30,51] 12 kB
+Forward pass: minspan 4 endspan 8   x[30,2] 480 Bytes   bx[30,51] 12 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2784,7 +2784,7 @@ TEST 27: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 28: x0 + x1 + x0*x1 n=30 p=2
-Forward pass: minspan 4 endspan 8    x[30,2] 480 Bytes    bx[30,51] 12 kB
+Forward pass: minspan 4 endspan 8   x[30,2] 480 Bytes   bx[30,51] 12 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2819,7 +2819,7 @@ TEST 28: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 29: x0 + x1 + x0*x1 n=30 p=2
-Forward pass: minspan 4 endspan 8    x[30,2] 480 Bytes    bx[30,51] 12 kB
+Forward pass: minspan 4 endspan 8   x[30,2] 480 Bytes   bx[30,51] 12 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2854,7 +2854,7 @@ TEST 29: FUNCTION x0 + x1 + x0*x1 n=30 p=2
 
 =============================================================================
 TEST 30: x0|x0+x1 degree=1 n=30 p=2
-Forward pass: minspan 4 endspan 8    x[30,2] 480 Bytes    bx[30,51] 12 kB
+Forward pass: minspan 4 endspan 8   x[30,2] 480 Bytes   bx[30,51] 12 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2890,7 +2890,7 @@ Response 1:
 
 =============================================================================
 TEST 31: x0|x+x1+noise n=100 p=2
-Forward pass: minspan 4 endspan 8    x[100,2] 1.56 kB    bx[100,51] 39.8 kB
+Forward pass: minspan 4 endspan 8   x[100,2] 1.56 kB   bx[100,51] 39.8 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2929,7 +2929,7 @@ Response 1:
 
 =============================================================================
 TEST 32: x0+x1+x0*x1|x0+x1+x0*x1 degree=1 n=100 p=2
-Forward pass: minspan 4 endspan 8    x[100,2] 1.56 kB    bx[100,51] 39.8 kB
+Forward pass: minspan 4 endspan 8   x[100,2] 1.56 kB   bx[100,51] 39.8 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -2976,7 +2976,7 @@ Response 1:
 
 =============================================================================
 TEST 33: x0+x1+x0*x1|x0+x1+x0*x1 degree=2 n=100 p=2
-Forward pass: minspan 4 endspan 8    x[100,2] 1.56 kB    bx[100,51] 39.8 kB
+Forward pass: minspan 4 endspan 8   x[100,2] 1.56 kB   bx[100,51] 39.8 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -3027,7 +3027,7 @@ Response 1:
 
 =============================================================================
 TEST 34: x0|sin(2*x0) + 2*x1 + 0.5*x0*x1 + 8 noise preds n=200 p=10
-Forward pass: minspan 6 endspan 10    x[200,10] 15.6 kB    bx[200,101] 158 kB
+Forward pass: minspan 6 endspan 10   x[200,10] 15.6 kB   bx[200,101] 158 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -3076,7 +3076,7 @@ Response 1:
 
 =============================================================================
 TEST 35: x0|x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1  + 8 noise preds n=200 p=11
-Forward pass: minspan 6 endspan 10    x[200,11] 17.2 kB    bx[200,101] 158 kB
+Forward pass: minspan 6 endspan 10   x[200,11] 17.2 kB   bx[200,101] 158 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -3133,7 +3133,7 @@ Response 2:
 
 =============================================================================
 TEST 36: |x0+x1+x0*x1|sin(2*x0) + 2*x1 + 0.5*x0*x1|x0  + 8 noise preds n=200 p=11
-Forward pass: minspan 6 endspan 10    x[200,11] 17.2 kB    bx[200,101] 158 kB
+Forward pass: minspan 6 endspan 10   x[200,11] 17.2 kB   bx[200,101] 158 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -3190,7 +3190,7 @@ Response 2:
 
 =============================================================================
 TEST 37: sin(2*x0) + 2*x1 + 0.5*x0*x1|x0+x1+x0*x1|x0  + 8 noise preds n=200 p=11
-Forward pass: minspan 6 endspan 10    x[200,11] 17.2 kB    bx[200,101] 158 kB
+Forward pass: minspan 6 endspan 10   x[200,11] 17.2 kB   bx[200,101] 158 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -3247,7 +3247,7 @@ Response 2:
 
 =============================================================================
 TEST 38: sin(2*x0) + 2*x1 + 0.5*x0*x1|2nd order 6 preds + noise n=1000 p=6
-Forward pass: minspan 6 endspan 9    x[1000,6] 46.9 kB    bx[1000,101] 789 kB
+Forward pass: minspan 6 endspan 9   x[1000,6] 46.9 kB   bx[1000,101] 789 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -3338,7 +3338,7 @@ Response 1:
 
 =============================================================================
 TEST 39: cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0 n=100 p=2
-Forward pass: minspan 4 endspan 8    x[100,2] 1.56 kB    bx[100,51] 39.8 kB
+Forward pass: minspan 4 endspan 8   x[100,2] 1.56 kB   bx[100,51] 39.8 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0
@@ -3374,7 +3374,7 @@ TEST 39: FUNCTION cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0 n=100
 
 =============================================================================
 TEST 40: cos(x1) + cos(x2), x1 and x2 xcollinear, NewVarPenalty=0 n=100 p=2
-Forward pass: minspan 4 endspan 8    x[100,2] 1.56 kB    bx[100,51] 39.8 kB
+Forward pass: minspan 4 endspan 8   x[100,2] 1.56 kB   bx[100,51] 39.8 kB
 
          GRSq    RSq     DeltaRSq Pred        Cut  Terms   Par Deg
 0      0.0000 0.0000                               0

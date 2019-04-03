@@ -17,7 +17,8 @@ Example short form:\preformatted{
 }
 The long form specifies the response as single column of
 \code{TRUE}s and \code{FALSE}s.
-Long form of the above data (spaces and comments added):\preformatted{
+For example, the
+long form of the above data (spaces and comments added):\preformatted{
     survived dose    sex
         TRUE   10   male     # row 1 of short data: 0 died, 3 survived
         TRUE   10   male

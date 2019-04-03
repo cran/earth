@@ -51,6 +51,9 @@ func <- function(x) # additive, no interactions
 }
 cat("creating y\n")
 y <- func(x)
+cat("testing memory handling when an error (Adjust.endspan = -999)\n")
+dummy.allowed <- function(degree, pred, parents) TRUE
+expect.err(try(earth(x, y, trace=1.5, allowed=dummy.allowed, Adjust.endspan = -999)), "Adjust.endspan is -999 but should be between 0 and 10")
 cat("calling earth\n")
 start.time <- proc.time()
 a <- earth(x, y, degree=1, trace=1.5)

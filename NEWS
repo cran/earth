@@ -1,6 +1,25 @@
 Changes to the earth package
 ----------------------------
 
+5.1.0 Apr 3, 2019
+
+  Fixed a formatting bug in the trace output for cross validation.
+  Thanks to Dirk Eddelbuettel.
+
+  Fixed small memory leaks that sometimes occurred in the C code if error()
+  was invoked or the user hit ^C.  Changed the way memory is protected
+  in allowed.c to pacify CRAN rchk.  Thanks to Tomas Kalibera.
+  Changed the name of the fallback memory release function to FreeEarth
+  (it was FreeR) and made it suitable for use in environments other than R.
+
+  If nfold > 1 and keepxy = 2, we now use keepxy=TRUE on the fold models. This 
+  allows plot.earth and plotmo on the fold models e.g. plot(mod$cv.list[[3]]).  
+  Also updated plotmo to remind user of this.
+
+  Tweaked the trace message that is issued when glm doesn't converge.
+
+  Documentation and test code updates.
+
 5.0.0 March 20, 2019
 
   Two-column binomial pair responses are now handled in a way that is more

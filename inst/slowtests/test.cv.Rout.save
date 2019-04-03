@@ -706,8 +706,8 @@ Number of terms at each degree of interaction: 1 2 5
 Earth GCV 0.1422795    RSS 92.83688    GRSq 0.4150849    RSq 0.4444623
 > printh(summary(a6$cv.list[[2]]))
 === summary(a6$cv.list[[2]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm.arg, degree=degree, nfold=0, ncross=0,
-            varmod.method="none", Scale.y=Scale.y)
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, keepxy=(keepxy==2), trace=trace, glm=glm.arg, degree=degree, nfold=0,
+            ncross=0, varmod.method="none", Scale.y=Scale.y)
 
 GLM coefficients
                         survived.
@@ -8145,8 +8145,8 @@ Earth
 All 0.5360827 357.22770  0.15791340 0.19376815
 > printh(summary(a7$cv.list[[3]]))
 === summary(a7$cv.list[[3]])
-Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, trace=trace, glm=glm.arg, degree=degree, nfold=0, ncross=0,
-            varmod.method="none", Scale.y=Scale.y)
+Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp, subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod, keepxy=(keepxy==2), trace=trace, glm=glm.arg, degree=degree, nfold=0,
+            ncross=0, varmod.method="none", Scale.y=Scale.y)
 
 GLM coefficients
                                1st         2nd         3rd
@@ -10614,7 +10614,7 @@ Looked unsuccessfully for the original response in the following places:
 
 (3) getCall(object)$y: object 'infold.y' not found
 
-Error : cannot get the original model response
+Error : cannot get the original model response (use keepxy=2 in the call to earth)
 Got error as expected from try(plot(earth.mod.err$cv.list[[1]]))
 > 
 > # test plot.earth with cross-validated models (example from help page)
@@ -14118,8 +14118,6 @@ attr(,"class")
 -------------------------------------------------------------------------------
 
 > plot(earth.mod.help) # the full model
-> # $$ TODO the following no longer works: Error: plotmo.y.default: cannot get y
-> # plot(earth.mod.help$cv.list[[3]])
 > 
 > # test various options
 > old.par <- par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
@@ -14148,6 +14146,38 @@ Warning: cannot plot cross-validation data because the earth model was not built
 > set.seed(428)
 > earth.mod <- earth(survived ~ ., data=etitanic, nfold=3, keepxy=TRUE)
 > plot.earth.models(earth.mod$cv.list, main="plot.earth.models with cross validated models")
+> 
+> # test keepxy=2
+> expect.err(try(plot(earth.mod.help$cv.list[[3]])), "cannot get the original model response (use keepxy=2 in the call to earth)")
+
+Looked unsuccessfully for the original response in the following places:
+
+(1) object$y: NULL
+
+(2) model.frame: no formula in getCall(object)
+
+(3) getCall(object)$y: object 'infold.y' not found
+
+Error : cannot get the original model response (use keepxy=2 in the call to earth)
+Got error as expected from try(plot(earth.mod.help$cv.list[[3]]))
+> expect.err(try(plotmo(earth.mod.help$cv.list[[3]])), "cannot get the original model predictors (use keepxy=2 in the call to earth)")
+
+Looked unsuccessfully for the original predictors in the following places:
+
+(1) object$x: NULL
+
+(2) model.frame: no formula in getCall(object)
+
+(3) getCall(object)$x: object 'infold.x' not found
+
+Error : cannot get the original model predictors (use keepxy=2 in the call to earth)
+Got error as expected from try(plotmo(earth.mod.help$cv.list[[3]]))
+> set.seed(2019)
+> earth.mod.help.keepxy2 <- earth(survived~., data=etitanic, nfold=3, keepxy=2)
+> plot(earth.mod.help.keepxy2$cv.list[[3]])
+> plotmo(earth.mod.help.keepxy2$cv.list[[3]])
+ plotmo grid:    pclass2nd pclass3rd sexmale age sibsp parch
+                         0         0       1  28     0     0
 > 
 > # example in earth vignette
 > 

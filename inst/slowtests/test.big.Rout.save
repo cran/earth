@@ -57,12 +57,28 @@ creating x
 > cat("creating y\n")
 creating y
 > y <- func(x)
+> cat("testing memory handling when an error (Adjust.endspan = -999)\n")
+testing memory handling when an error (Adjust.endspan = -999)
+> dummy.allowed <- function(degree, pred, parents) TRUE
+> expect.err(try(earth(x, y, trace=1.5, allowed=dummy.allowed, Adjust.endspan = -999)), "Adjust.endspan is -999 but should be between 0 and 10")
+x[20000,100] with colnames x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x1...
+y[20000,1] with colname y, and values 0.7958, 0.4044, -2.497, -1.05...
+maxmem 0.1 GB
+malloc    400  B: nUses			nPreds 100 sizeof(int) 4
+malloc    804  B: nDegree		nMaxTerms 201 sizeof(int) 4
+calloc      4  B: iDirs			nMaxTerms 201 nPreds 100 sizeof(int) 4
+malloc    804  B: BoolFullSet		nMaxTerms 201 sizeof(bool) 4
+malloc    800  B: sPredNames		LENGTH(SEXP_sPredNames) 100 sizeof(char*) 8
+FreeEarth
+Error in forward.pass(x, y, yw, weights, trace, degree, penalty, nk, thresh,  : 
+  Adjust.endspan is -999 but should be between 0 and 10
+Got error as expected from try(earth(x, y, trace = 1.5, allowed = dummy.allowed, Adjust.endspan = -999))
 > cat("calling earth\n")
 calling earth
 > start.time <- proc.time()
 > a <- earth(x, y, degree=1, trace=1.5)
 x[20000,100] with colnames x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x1...
-y[20000,1] with colname y, and values -1.519, 0.2927, -0.09702, -1...
+y[20000,1] with colname y, and values 0.7958, 0.4044, -2.497, -1.05...
 maxmem 0.1 GB
 malloc    400  B: nUses			nPreds 100 sizeof(int) 4
 malloc    804  B: nDegree		nMaxTerms 201 sizeof(int) 4
@@ -139,13 +155,14 @@ calloc      8  B: ycboSum		nMaxTerms 201 nResp 1 sizeof(double) 8
 malloc      8  B: ybxSum		nResp 1 sizeof(double) 8
 Forward pass term 20
 
-RSq changed by less than 0.001 at 19 terms, 13 terms used (DeltaRSq 0.00073)
+RSq changed by less than 0.001 at 19 terms, 13 terms used (DeltaRSq 0.00078)
 After forward pass GRSq 0.998 RSq 0.998
 malloc    804  B: iPivots		nTerms 201 sizeof(int) 4
 malloc      2 MB: xUsed			nCases 20000 nUsedCols 13 sizeof(double) 8
 malloc    156 kB: Residuals		nCases 20000 nResp 1 sizeof(double) 8
 malloc    104  B: qraux			nUsedCols 13 sizeof(double) 8
 malloc      2 MB: work			nCases 20000 nUsedCols 13 sizeof(double) 8
+FreeEarth (already free)
 Prune backward penalty 2 nprune null: selected 12 of 13 terms, and 3 of 100 preds
 After pruning pass GRSq 0.997 RSq 0.997
 Getting leverages
@@ -160,18 +177,18 @@ print(summary(a1)):
 Call: earth(x=x, y=y, trace=1.5, degree=1)
 
                  coefficients
-(Intercept)             -2.08
-h(-0.607149-x1)          3.85
-h(x1- -0.607149)        -1.50
-h(x1- -0.363854)         3.50
-h(x1- -0.212507)         1.53
-h(x1-0.277862)          -3.17
-h(x1-0.477433)          -3.78
-h(0.999197-x2)          -1.00
-h(x3- -0.584256)         2.14
-h(0.0102887-x3)          3.31
-h(x3-0.0102887)         -1.00
-h(x3-0.523375)           1.91
+(Intercept)            -2.096
+h(-0.609965-x1)         3.841
+h(x1- -0.609965)       -1.557
+h(x1- -0.366104)        3.545
+h(x1- -0.21304)         1.537
+h(x1-0.276572)         -3.138
+h(x1-0.477924)         -3.827
+h(0.998539-x2)         -1.000
+h(x3- -0.57676)         2.162
+h(0.0224676-x3)         3.296
+h(x3-0.0224676)        -0.974
+h(x3-0.530607)          1.866
 
 Selected 12 of 13 terms, and 3 of 100 predictors
 Termination condition: RSq changed by less than 0.001 at 13 terms

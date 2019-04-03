@@ -1,4 +1,5 @@
 # earth.regress.R: earth.regress is used only for testing Regress in earth.c
+#                  (it is called using earth:::earth.regress in test.earth.full.R)
 
 earth.regress <- function(
     x         = stop("no 'x' argument"), # NAs are not allowed in x or y
@@ -51,6 +52,8 @@ earth.regress <- function(
     }
     rownames(coefficients) <- colnames(x)[used.cols]
     colnames(coefficients) <- colnames(y)
+
+    on.exit(.C("FreeEarth", PACKAGE="earth")) # if error or user interrupt, free mem
 
     rval <- .C("RegressR",
         coefficients = coefficients, # double  Betas[]     out: nUsedCols * nResp

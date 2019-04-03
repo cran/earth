@@ -132,7 +132,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 5.0.0"; // change if you modify this file!
+static const char*  VERSION     = "version 5.1.0"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -171,25 +171,73 @@ static const int    MAX_DEGREE  = 100;
 #define ycboSum_(iTerm,iResp)       ycboSum        [(iTerm) + (iResp)*(nMaxTerms)]
 #define Betas_(iTerm,iResp)         Betas          [(iTerm) + (iResp)*(nUsedCols)]
 
+static char* sFormatMemSize(const size_t MemSize, const bool Align);
+#if FAST_MARS
+static void FreeQ(void);
+#endif
+
+//-----------------------------------------------------------------------------
 // Global copies of some input parameters.  These stay constant for the entire MARS fit.
 static double TraceGlobal;         // copy of Trace parameter
 static int nMinSpanGlobal;         // copy of nMinSpan parameter
 static int nEndSpanGlobal;         // copy of nEndSpan parameter
 static double AdjustEndSpanGlobal; // copy of AdjustEndSpan parameter
 
-static void FreeBetaCache(void);
-static char* sFormatMemSize(const size_t MemSize, const bool Align);
+//-----------------------------------------------------------------------------
+// These are malloced blocks.  They unfortunately have to be declared
+// globally so we can free them if there is a call to error (or if a
+// call to R_CheckUserInterrupt doesn't return).
+// Some of these are thus shadowed (same name for global and local vars).
+
+static double* ybxSum;          // local to FindPredGivenParent
+#if WEIGHTS
+static bool*   UsedCols;        // local to FindWeightedPredGivenParent
+#endif
+static bool*   WorkingSet;      // local to FindTerm and EvalSubsets
+static double* xbx;             // local to FindTerm
+static double* CovSx;           // local to FindTerm
+static double* CovCol;          // local to FindTerm
+static double* ycboSum;         // local to FindTerm (used to be called CovSy)
+static double* bxOrth;          // local to ForwardPass
+static double* yMean;           // local to ForwardPass
+
+// Transposed and mean centered copy of bxOrth, for fast update in FindKnot.
+// It's faster because there is better data locality as iTerm increases, so
+// better L1 cache use.  This is used only if USE_BLAS is true.
+
+static double* bxOrthCenteredT; // local to ForwardPass
+
+static double* bxOrthMean;      // local to ForwardPass
+static int*    nDegree;         // local to Earth or ForwardPassR
+static int*    nUses;           // local to Earth or ForwardPassR
+static int*    xOrder;          // local to ForwardPass (init in GetArrayOrder)
+#if USING_R
+static int*    iDirs;           // local to ForwardPassR
+static bool*   BoolFullSet;     // local to ForwardPassR
+const char**   sPredNames;      // local to ForwardPassR
+static bool*   BoolPruneTerms;  // local to void EvalSubsetsUsingXtxR
+#endif
+static double* Betas;           // local to EvalSubsetsUsingXtx
+static double* Diags;           // local to EvalSubsetsUsingXtx
+
+static double* BetaCacheGlobal; // [iOrthCol,iParent,iPred]
+                                // dim nPreds x nMaxTerms x nMaxTerms
 
 //-----------------------------------------------------------------------------
 // DON'T USE free, malloc, and calloc in this file.
 // Use free1, malloc1, and calloc1 instead.
 //
-// malloc and its friends are redefined (a) so under microsoft C using
-// crtdbg.h we can easily track alloc errors and (b) so FreeR() doesn't
-// re-free any freed blocks and (c) so out of memory conditions are
-// immediately detected.
+// The function malloc and its friends are redefined so:
+// (a) out-of-memory conditions are immediately detected (in any operating system)
+// (b) FreeEarth doesn't re-free any freed blocks
+// (c) Under Microsoft C using crtdbg.h we can easily track alloc errors.
+//
+// In normal operation of the code in this file, each alloc is eventually
+// followed by a free.  But if there is an premature return from the code (via
+// a call to error or via ^C), then we must call FreeEarth to ensure full freeing.
+// The R code does this using on.exit(.C("FreeEarth")).
 
-// free1 is a macro so we can zero p (so we know it is released if FreeR is invoked)
+// free1 is a macro so we can zero p (so FreeEarth can check if it's released)
 #define free1(p)    \
 {                   \
     if(p)           \
@@ -237,10 +285,13 @@ static void* calloc1(size_t num, size_t size, const char* args, ...)
     return p;
 }
 
+#if _MSC_VER && _DEBUG          // microsoft C and debugging enabled?
+
 // After calling this, on program termination we will get a report if there are
 // writes outside the borders of allocated blocks or if there are non-freed blocks.
+// For example, use earth/inst/slowtests/test.earthc.bat or test.earthmain.vc.bat,
+// and temporarily comment out a call to free() in this file to see the report.
 
-#if _MSC_VER && _DEBUG          // microsoft C and debugging enabled?
 static void InitMallocTracking(void)
 {
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_WNDW);
@@ -256,58 +307,49 @@ static void InitMallocTracking(void)
 }
 #endif
 
-//-----------------------------------------------------------------------------
-// These are malloced blocks.  They unfortunately have to be declared globally so
-// under R if the user interrupts we can free them using on.exit(.C("FreeR"))
-
-static int*    xOrder;        // local to FindTerm
-static bool*   WorkingSet;    // local to FindTerm and EvalSubsets
-static double* xbx;           // local to FindTerm
-static double* CovSx;         // local to FindTerm
-static double* CovCol;        // local to FindTerm
-static double* ycboSum;       // local to FindTerm (used to be called CovSy)
-static double* bxOrth;        // local to ForwardPass
-static double* yMean;         // local to ForwardPass
-
-// Transposed and mean centered copy of bxOrth, for fast update in FindKnot.
-// It's faster because there is better data locality as iTerm increases, so
-// better L1 cache use.  This is used only if USE_BLAS is true.
-
-static double* bxOrthCenteredT; // local to ForwardPass
-
-static double* bxOrthMean;      // local to ForwardPass
-static int*    nDegree;         // local to Earth or ForwardPassR
-static int*    nUses;           // local to Earth or ForwardPassR
-#if USING_R
-static int*    iDirs;           // local to ForwardPassR
-static bool*   BoolFullSet;     // local to ForwardPassR
-#endif
-#if FAST_MARS
-static void FreeQ(void);
-#endif
-
-#if USING_R
-void FreeR(void)                // for use by R
+void FreeEarth(void) // frees memory if premature exit from the C code
 {
+    if(TraceGlobal == 1.5) {
+        // the following is only an approximate check that mem already free
+        const bool isfree =
+#if USING_R
+            nUses == NULL &&   // initialized at the start of ForwardPassR
+#endif
+            xOrder == NULL &&  // initialized in ForwardPass
+            Betas == NULL;     // initialized in EvalSubsetsUsingXtx
+
+        printf("FreeEarth%s\n", isfree? " (already free)": "");
+    }
+    free1(ybxSum);
+#if WEIGHTS
+    free1(UsedCols);
+#endif
     free1(WorkingSet);
+    free1(xbx);
     free1(CovSx);
     free1(CovCol);
     free1(ycboSum);
-    free1(xOrder);
-    free1(bxOrthMean);
-    free1(bxOrthCenteredT);
     free1(bxOrth);
     free1(yMean);
-    free1(BoolFullSet);
-    free1(iDirs);
-    free1(nUses);
+    free1(bxOrthCenteredT);
+    free1(bxOrthMean);
     free1(nDegree);
-    FreeBetaCache();
+    free1(nUses);
+    free1(xOrder);
+#if USING_R
+    free1(iDirs);
+    free1(BoolFullSet);
+    free1(sPredNames);
+    free1(BoolPruneTerms);
+    FreeAllowedFunc();
+#endif
+    free1(Betas);
+    free1(Diags);
+    free1(BetaCacheGlobal);
 #if FAST_MARS
     FreeQ();
 #endif
 }
-#endif
 
 //-----------------------------------------------------------------------------
 static char* sFormatMemSize(const size_t MemSize, const bool Align)
@@ -557,7 +599,6 @@ static void GetOrder(
     qsort(sorted, nx, sizeof(int), Compare);
 }
 
-
 //-----------------------------------------------------------------------------
 // Get order indices for an x array of dimensions nRows x nCols.
 //
@@ -571,7 +612,7 @@ static int* GetArrayOrder(
     const size_t nRows, // in
     const int    nCols) // in
 {
-    int* xOrder = (int*)malloc1(nRows * nCols * sizeof(int),
+    int *xOrder = (int*)malloc1(nRows * nCols * sizeof(int),
                             "xOrder\t\tnRows %d nCols %d sizeof(int) %d",
                             nRows, nCols, sizeof(int));
 
@@ -1042,9 +1083,6 @@ static double GetCut(
 // iPred      is the predictor for the new term
 // iOrthCol   is the column index in the bxOrth matrix
 
-static double* BetaCacheGlobal; // [iOrthCol,iParent,iPred]
-                                // dim nPreds x nMaxTerms x nMaxTerms
-
 static void InitBetaCache(const bool UseBetaCache,
                           const int nMaxTerms, const int nPreds)
 {
@@ -1069,12 +1107,6 @@ static void InitBetaCache(const bool UseBetaCache,
         for(int i = 0; i < nCache; i++) // mark all entries as uninitialized
             BetaCacheGlobal[i] = POS_INF;
     }
-}
-
-static void FreeBetaCache(void)
-{
-    if(BetaCacheGlobal)
-        free1(BetaCacheGlobal);
 }
 
 //-----------------------------------------------------------------------------
@@ -1694,7 +1726,7 @@ static INLINE void FindPredGivenParent(
     const int nEndSpan,             // in
     const int nStartSpan)           // in
 {
-    double* ybxSum = (double*)malloc1(nResp * sizeof(double),  // working var for FindKnot
+    ybxSum = (double*)malloc1(nResp * sizeof(double), // working var for FindKnot
                         "ybxSum\t\tnResp %d sizeof(double) %d",
                         nResp, sizeof(double));
 
@@ -1931,7 +1963,7 @@ static INLINE void FindWeightedKnot(
                             nUsedCols, sizeof(double));
 
     // in GetRegressionRss, work must be p*2 for dqrdc2, and
-    // nCases in dqrsl where it is used temp storage for qty
+    // nCases in dqrsl where it is used as temporary storage for qty
 
     double* work = (double*)malloc1(
                             max(nUsedCols * 2, (const int)nCases) * sizeof(double),
@@ -2022,7 +2054,7 @@ static INLINE void FindWeightedPredGivenParent(
         error("newvar.penalty is not yet implemented with weights");
     bool UpdatedBestRssDelta = false;
 
-    bool* UsedCols = (bool*)calloc1(nMaxTerms, sizeof(bool),
+    UsedCols = (bool*)calloc1(nMaxTerms, sizeof(bool),
                         "UsedCols\t\tnMaxTerms %d sizeof(bool) %d",
                         nMaxTerms, sizeof(bool));
     for(int iTerm = 0; iTerm < nTerms; iTerm++)
@@ -2040,7 +2072,6 @@ static INLINE void FindWeightedPredGivenParent(
 #endif
         } else {
 #if USING_R
-            // TODO we don't release UsedCols here if user interrupts
             ServiceR();
 #endif
             // const double NewVarAdjust = 1 + (nUses[iPred] == 0? NewVarPenalty: 0);
@@ -2069,7 +2100,7 @@ static INLINE void FindWeightedPredGivenParent(
             } else {
                 tprintf(8, "\n|Parent %-2d Pred %-2d no new form\n",
                     iParent+IOFFSET, iPred+IOFFSET);
-#if 1 // TODO remove this slow check when weights code has been fully tested
+#if 0 // removed this slowish check for earth 5.1.0 (gives about 4% speed increase)
                 Regress(NULL, NULL, &RssBeforeKnot, NULL, NULL, NULL,
                     bx, yw, nCases, nResp, nMaxTerms, UsedCols);
                 if(fabs(RssBeforeKnot - RssBeforeNewTerm) > RssBeforeKnot * 1e-6)
@@ -2083,7 +2114,7 @@ static INLINE void FindWeightedPredGivenParent(
             double RssBestKnot = RssBeforeKnot;
             int iBestCase = 0;
             if(!LinPreds[iPred]) {
-#if 1 // TODO remove this slow check when weights code has been fully tested
+#if 0 // removed this slowish check for earth 5.1.0
                 double RssTemp;
                 Regress(NULL, NULL, &RssTemp, NULL, NULL, NULL,
                     bx, yw, nCases, nResp, nMaxTerms, UsedCols);
@@ -2645,7 +2676,7 @@ static void CheckForwardPassArgs(
     if(NewVarPenalty > 100)
         warning("newvar.penalty %g is greater than 100", NewVarPenalty);
     if(AdjustEndSpan < 0 || AdjustEndSpan > 10)
-        error("Endspan.penalty is %g but should be between 0 and 10", AdjustEndSpan);
+        error("Adjust.endspan is %g but should be between 0 and 10", AdjustEndSpan);
     if(AutoLinPreds != 0 && AutoLinPreds != 1)
         error("Auto.linpreds  is neither TRUE nor FALSE");
     if(UseBetaCache != 0 && UseBetaCache != 1)
@@ -2870,7 +2901,6 @@ static void ForwardPass(
                                 Gcv, GcvNull, iBestCase, FullSet);
     *pnTerms = nTerms;
 
-    // free in opposite order to alloc to help operating system memory manager
 #if FAST_MARS
     FreeQ();
 #endif
@@ -2878,7 +2908,7 @@ static void ForwardPass(
     free1(bxOrthMean);
     free1(bxOrthCenteredT);
     free1(bxOrth);
-    FreeBetaCache();
+    free1(BetaCacheGlobal);
     free1(xOrder);
 }
 
@@ -2909,8 +2939,8 @@ SEXP ForwardPassR(             // for use by R
     SEXP SEXP_FastBeta,        // in: Fast MARS ageing coef
     SEXP SEXP_NewVarPenalty,   // in: penalty for adding a new variable (default is 0)
     SEXP SEXP_LinPreds,        // in: nPreds x 1, 1 if predictor must enter linearly
-    SEXP SEXP_Allowed,         // in: constraints function, can be MyNullFunc
-    SEXP SEXP_nAllowedArgs,    // in: number of arguments to Allowed function, 3 or 4
+    SEXP SEXP_Allowed,         // in: constraints function, can be R NULL
+    SEXP SEXP_nAllowedArgs,    // in: number of arguments to Allowed function, 3...5
     SEXP SEXP_Env,             // in: environment for Allowed function
     SEXP SEXP_AdjustEndSpan,   // in:
     SEXP SEXP_nAutoLinPreds,   // in: assume predictor linear if knot is min predictor value
@@ -2952,7 +2982,7 @@ SEXP ForwardPassR(             // for use by R
 
     // copy predictor names from SEXP_sPredNames to sPredNames
     ASSERT(LENGTH(SEXP_sPredNames) == nPreds);
-    const char** sPredNames = (const char**)malloc1(
+    sPredNames = (const char**)malloc1(
                     LENGTH(SEXP_sPredNames) * sizeof(char*),
                     "sPredNames\t\tLENGTH(SEXP_sPredNames) %d sizeof(char*) %d",
                     nPreds, sizeof(char*));
@@ -2965,7 +2995,7 @@ SEXP ForwardPassR(             // for use by R
     ASSERT(SEXP_WeightsArg != R_NilValue);
 
     InitAllowedFunc(SEXP_Allowed, INTEGER(SEXP_nAllowedArgs)[0], SEXP_Env,
-                   sPredNames, nPreds); // calls PROTECT
+                    sPredNames, nPreds); // calls R_PreserveObject
 
     int nTerms;
     ForwardPass(&nTerms, INTEGER(SEXP_iTermCond),
@@ -2980,7 +3010,7 @@ SEXP ForwardPassR(             // for use by R
             INTEGER(SEXP_nAutoLinPreds)[0], INTEGER(SEXP_nUseBetaCache)[0] != 0,
             sPredNames);
 
-    FreeAllowedFunc(); // matches PROTECT in InitAllowedFunc
+    FreeAllowedFunc(); // calls R_ReleaseObject
 
     // remove linearly independent columns if necessary -- this updates BoolFullSet
     RegressAndFix(NULL, NULL, NULL, BoolFullSet,
@@ -3033,11 +3063,11 @@ static void EvalSubsetsUsingXtx(
     const double bx[],         // in: nCases x nMaxTerms, all cols must be indep
     const double y[])          // in: nCases * nResp
 {
-    double* Betas = (double*)malloc1(nMaxTerms * nResp * sizeof(double),
+    Betas = (double*)malloc1(nMaxTerms * nResp * sizeof(double),
                         "Betas\t\t\tnMaxTerms %d nResp %d sizeof(double) %d",
                         nMaxTerms, nResp, sizeof(double));
 
-    double* Diags = (double*)malloc1(nMaxTerms * sizeof(double),
+    Diags = (double*)malloc1(nMaxTerms * sizeof(double),
                         "Diags\t\t\tnMaxTerms %d sizeof(double) %d",
                         nMaxTerms, sizeof(double));
 
@@ -3127,7 +3157,7 @@ void EvalSubsetsUsingXtxR(      // for use by R
     TraceGlobal = *pTrace;
 
     const int nMaxTerms = *pnMaxTerms;
-    bool* BoolPruneTerms = (bool*)malloc1(nMaxTerms * nMaxTerms * sizeof(bool),
+    BoolPruneTerms = (bool*)malloc1(nMaxTerms * nMaxTerms * sizeof(bool),
                                 "BoolPruneTerms\tMaxTerms %d nMaxTerms %d sizeof(bool) %d",
                                 nMaxTerms, nMaxTerms, sizeof(bool));
 
@@ -3567,6 +3597,9 @@ void error(const char *args, ...)       // params like printf
     vsprintf(s, args, va);
     va_end(va);
     printf("\nError: %s\n", s);
+    // The following frees memory malloced by Earth().
+    // It is redundant here because exit() will release any unreleased memory.
+    FreeEarth();
     exit(-1);
 }
 

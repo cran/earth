@@ -517,6 +517,34 @@ eshort.with.zeros, eshort.with.zeros.plus: glm submodels not identical (but coef
 eshort.with.zeros, eshort.with.zeros.plus: Models are equivalent, within numerical tolerances
 
 > 
+> eshort.with.zeros.plus.quasibinomial <- earth(true+false~x1+x2, data=short.with.zeros, glm=list(family="quasibinomial"),
++                                 linpreds=TRUE, thresh=0, penalty=-1, trace=1)
+Using class "Formula" because lhs of formula has terms separated by "+"
+x[6,2] with colnames x1 x2
+y[6,2] with colnames true false
+Note: Both entries in row 6 of the true and false response are zero
+weights used by earth internally: 4, 5, 1, 2, 3, 0
+Response columns true and false are a binomial pair (15 obs in total)
+yfrac[6,1] with colname true, and values 0.25, 0.4, 0, 1, 0.6667, 0
+Forward pass term 1, 2, 4, 6
+No new term increases RSq (perhaps reached numerical limits) at 5 terms, 3 terms used
+After forward pass GRSq 0.578 RSq 0.578
+Prune backward penalty -1 nprune null: selected 3 of 3 terms, and 2 of 2 preds
+After pruning pass GRSq 0.578 RSq 0.578
+GLM true devratio 0.54 dof 2/4 iters 18
+> check.models.equal(eshort.with.zeros.plus, eshort.with.zeros.plus.quasibinomial, "eshort.with.zeros.plus eshort.with.zeros.plus.quasibinomial", newdata=short.with.zeros[1:3,])
+eshort.with.zeros.plus eshort.with.zeros.plus.quasibinomial: models not identical
+
+eshort.with.zeros.plus eshort.with.zeros.plus.quasibinomial: glm submodel formula strings are identical: yarg ~ x1 + x2
+eshort.with.zeros.plus eshort.with.zeros.plus.quasibinomial: but the actual glm submodel formulas differ (classes are "formula" and "formula")
+eshort.with.zeros.plus eshort.with.zeros.plus.quasibinomial: glm submodels not identical (but coefs, residuals, fitted.values are the same)
+eshort.with.zeros.plus eshort.with.zeros.plus.quasibinomial: Models are equivalent, within numerical tolerances
+
+> # print(summary(eshort.with.zeros.plus))
+> # print(summary(eshort.with.zeros.plus.quasibinomial))
+> # print(summary(eshort.with.zeros.plus$glm.list[[1]]))
+> # print(summary(eshort.with.zeros.plus.quasibinomial$glm.list[[1]]))
+> 
 > cat("\n===compare with model where yfrac is generated manually===\n")
 
 ===compare with model where yfrac is generated manually===
@@ -579,7 +607,7 @@ Error in eval(family$initialize) :
   (converted from warning) non-integer #successes in a binomial glm!
 Got error as expected from try(earth(frac ~ x1 + x2, data = short.with.zeros, glm = list(family = "binomial"),     linpreds = TRUE, thresh = 0, penalty = -1))
 > # warning goes away if we use quasibinomial
-> eshort.with.zeros.frac <- earth(frac~x1+x2, data=short.with.zeros, weights=weights, glm=list(family="quasibinomial"),
+> eshort.with.zeros.frac.quasibinomial <- earth(frac~x1+x2, data=short.with.zeros, weights=weights, glm=list(family="quasibinomial"),
 +                                 linpreds=TRUE, thresh=0, penalty=-1, trace=1)
 x[6,2] with colnames x1 x2
 y[6,1] with colname frac, and values 0.25, 0.4, 0, 1, 0.6667, 0
@@ -591,7 +619,7 @@ Prune backward penalty -1 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.578 RSq 0.578
 GLM frac devratio 0.54 dof 2/4 iters 18
 > options(warn=1)
-> check.models.equal(eshort.with.zeros.frac, eshort.with.zeros.plus, "eshort.frac, eshort.with.zeros.plus", newdata=short.with.zeros[2:3,], allow.different.names=TRUE)
+> check.models.equal(eshort.with.zeros.frac.quasibinomial, eshort.with.zeros.plus, "eshort.frac, eshort.with.zeros.plus", newdata=short.with.zeros[2:3,], allow.different.names=TRUE)
 eshort.frac, eshort.with.zeros.plus: models not identical
 
 mod1 coefficients 
@@ -672,6 +700,17 @@ eshort.frac, eshort.with.zeros.plus: but the actual glm submodel formulas differ
 eshort.frac, eshort.with.zeros.plus: glm submodels not identical (but coefs, residuals, fitted.values are the same)
 eshort.frac, eshort.with.zeros.plus: Models are equivalent, within numerical tolerances
 
+> eshort.with.zeros.frac.binomial <- earth(frac~x1+x2, data=short.with.zeros, weights=weights, glm=list(family="binomial"),
++                                          linpreds=TRUE, thresh=0, penalty=-1)
+> # # compare stats like deviance etc (all identical here except no AIC for quasibinomial,
+> # #                                  and standard deviations of glm submodels differ)
+> # cat("eshort.with.zeros.frac.binomial:\n")
+> # print(summary(eshort.with.zeros.frac.binomial))
+> # cat("eshort.with.zeros.frac.quasibinomial:\n")
+> # print(summary(eshort.with.zeros.frac.quasibinomial))
+> # cat("---------------------------------------------------\n")
+> # print(summary(eshort.with.zeros.frac.binomial$glm.list[[1]]))
+> # print(summary(eshort.with.zeros.frac.quasibinomial$glm.list[[1]]))
 > 
 > # lizard data used in McCullagh and Nelder GLM book (2nd ed)
 > # this has an entry with both responses equal to zero (similar to the above data):
@@ -1364,7 +1403,7 @@ sexmale        -2       2
 
 Error : dirs don't match, see above messages (max=0)
 > stopifnot(all.equal(sort(coef(pairmod8)), sort(coef(pairmod2)))) # ok
-> 
+> set.seed(2019)
 > pairmod.cv <- earth(numalive + numdead ~ ., data=df, nfold=2, trace=1, pmethod="none",
 +                     keepxy=TRUE,
 +                     glm=list(family=binomial))
@@ -1381,9 +1420,9 @@ Prune none penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.952 RSq 0.981
 GLM numalive devratio 0.95 dof 9/11 iters 4
 Full model GRSq 0.952 RSq 0.981, starting cross validation
-CV fold 1  CVRSq -1.958   n.oof  5 58%   n.infold.nz  4 80%   n.oof.nz  7 100%
-CV fold 2  CVRSq  0.822   n.oof  7 42%   n.infold.nz  7 100%   n.oof.nz  4 80%
-CV all     CVRSq -0.568                  n.infold.nz 11 92%
+CV fold 1  CVRSq -0.256   n.oof  5 58%   n.infold.nz  4 80%   n.oof.nz  7 100%
+CV fold 2  CVRSq  0.700   n.oof  7 42%   n.infold.nz  7 100%   n.oof.nz  4 80%
+CV all     CVRSq  0.222                  n.infold.nz 11 92%
 
 > check.models.equal(pairmod.cv, pairmod8, "pairmod.cv, pairmod9", newdata=df[3:5,])
 pairmod.cv, pairmod9: models not identical
@@ -1971,8 +2010,8 @@ first fold model:
 > print(summary(earth.cv$cv.list[[1]]))
 Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp,
             subset=subset, pmethod=if(pmethod=="cv")"backward"elsepmethod,
-            trace=trace, glm=glm.arg, degree=degree, nfold=0, ncross=0,
-            varmod.method="none", Scale.y=Scale.y)
+            keepxy=(keepxy==2), trace=trace, glm=glm.arg, degree=degree,
+            nfold=0, ncross=0, varmod.method="none", Scale.y=Scale.y)
 
 GLM coefficients
                   good

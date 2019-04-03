@@ -16,9 +16,9 @@
 #if !defined(EARTH_H)
 #define EARTH_H
 
-#if USING_R
+void FreeEarth(void);
 
-void FreeR(void);
+#if USING_R
 
 SEXP ForwardPassR(              // for use by R
     SEXP SEXP_FullSet,          // out: nMaxTerms x 1, bool vec of lin indep cols of bx
@@ -43,8 +43,8 @@ SEXP ForwardPassR(              // for use by R
     SEXP SEXP_FastBeta,         // in: Fast MARS ageing coef
     SEXP SEXP_NewVarPenalty,    // in: penalty for adding a new variable (default is 0)
     SEXP SEXP_LinPreds,         // in: nPreds x 1, 1 if predictor must enter linearly
-    SEXP SEXP_Allowed,          // in: constraints function, can be MyNullFunc
-    SEXP SEXP_nAllowedArgs,     // in: number of arguments to Allowed function, 3 or 4
+    SEXP SEXP_Allowed,          // in: constraints function, can be R NULL
+    SEXP SEXP_nAllowedArgs,     // in: number of arguments to Allowed function, 3...5
     SEXP SEXP_Env,              // in: environment for Allowed function
     SEXP SEXP_AdjustEndSpan,    // in:
     SEXP SEXP_nAutoLinPreds,    // in: assume predictor linear if knot is min predictor value

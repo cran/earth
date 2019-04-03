@@ -126,6 +126,7 @@ earth.glm <- function(bx, y, weights, na.action, offset,
         # difficulties evaluating them later in the correct environment
         # (process.glm.arg has already checked if such args were supplied by the user).
 
+        # TODO consider setting x=FALSE, y=FALSE if keepxy=-1
         g <- glm(yarg ~ ., family=family, data=bx.data.frame,
                  weights=weights, na.action=na.action, offset=offset,
                  control=control, model=TRUE, trace=(trace>=2),
@@ -135,23 +136,21 @@ earth.glm <- function(bx, y, weights, na.action, offset,
             g <- hack.intercept.only.glm.model(g)
 
         # if !converged remember this response for warning later
-        # (to reduce printing noise, we issue the warning only if info not
-        # already printed i.e. not tracing and multiple responses)
-        if(!g$converged && trace < 1 &&
-                ncol(y) > 1 && !identical(is.bpairs, c(TRUE, FALSE))) {
+        if(!g$converged)
             non.converged <- c(non.converged, colnames(yarg)[1])
-        }
+
         if(trace >= 1) {
-            printf("GLM %s devratio %.2f dof %d/%d iters %d%s\n",
+            printf("GLM %s devratio %.2f dof %d/%d iters %d\n",
                 colnames(yarg)[1],
                 get.devratio(g$null.deviance, g$deviance),
-                g$df.residual, g$df.null, g$iter,
-                if(!g$converged) " did not converge" else "")
+                g$df.residual, g$df.null, g$iter)
         }
         check.glm.model(g, colnames(yarg)[1])
         glm.list[[iycol]] <- g
-        if(is.bpairs)
-            break # note break
+        if(is.bpairs) {
+            stopifnot(NCOL(y) == 2) # paranoia
+            break                   # note break
+        }
     }
     if(!is.null(non.converged))
         warning0("the glm algorithm did not converge for response",

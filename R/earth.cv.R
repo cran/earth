@@ -145,7 +145,8 @@ earth.cv <- function(object, x, y,
                 wp=wp, Scale.y=Scale.y, subset=subset,
                 trace=trace, glm=glm.arg, degree=degree,
                 pmethod=if(pmethod == "cv") "backward" else pmethod,
-                nfold=0, ncross=0, varmod.method="none",  ...)
+                nfold=0, ncross=0, varmod.method="none",
+                keepxy=(keepxy == 2), ...)
             foldmod$icross <- icross
             foldmod$ifold <- ifold
             oof.x <- x[oof.subset,,drop=FALSE]
@@ -378,12 +379,12 @@ trace.fold <- function(icross, ifold, trace, y, infold.subset, oof.subset, ncros
             icross <- ""
         printf("CV fold %s%-2d ", icross, ifold)
     }
-    printf("CVRSq %-6.3 f   ", rsq.row[length(rsq.row)])
+    printf("CVRSq % -6.3f   ", rsq.row[length(rsq.row)])
     nresp <- length(rsq.row) - 1 # -1 for "all"
     if(nresp > 1) {
         cat("Per response CVRSq ")
         for(iresp in seq_len(nresp))
-            printf("%-6.3 f  ", rsq.row[iresp])
+            printf("% -6.3f  ", rsq.row[iresp])
     }
     if(nresp > 1) {
         if(ncross > 1)

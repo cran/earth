@@ -1,6 +1,7 @@
 @rem test.expand.bpairs.bat
 
-@"C:\PROGRA~1\R\R-3.5.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.expand.bpairs.R
+@echo test.expand.bpairs.bat
+@"C:\PROGRA~1\R\R-3.5.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.expand.bpairs.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.expand.bpairs.Rout:
 @echo.

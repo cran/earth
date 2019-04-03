@@ -2,6 +2,7 @@
 @rem
 @rem Stephen Milborrow Jan 2008 Durban
 
+@echo test.earthmain.gcc.bat
 @cp "d:/bin/R320dll/i386/R.dll" .
                                 @if %errorlevel% neq 0 goto error
 @cp "d:/bin/R320dll/i386/Rblas.dll" .
@@ -24,7 +25,7 @@
 @echo Modifying path for 32 bit Rtools and R
 @set PATH=C:\Rtools\mingw_32\bin;^
 C:\Rtools\bin;^
-C:\Program Files\R\R-3.5.2\bin\i386;^
+C:\Program Files\R\R-3.5.3\bin\i386;^
 C:\Program Files\gs\gs9.19\bin;^
 %PATH%
 :donesetpath
@@ -34,8 +35,8 @@ C:\Program Files\gs\gs9.19\bin;^
  Rdll.lib Rblas.lib -o earthmain-gcc.exe
                                 @if %errorlevel% neq 0 goto error
 @earthmain-gcc.exe > test.earthmain-gcc.out
-                                @if %errorlevel% neq 0 goto error
-
+                                @rem no errorlevel test, diff will do check for discrepancies
+                                @rem @if %errorlevel% neq 0 goto error
 @rem we use -w on mks.diff so it treats \r\n the same as \n
 mks.diff -w test.earthmain-gcc.out test.earthmain.out.save
                                 @if %errorlevel% neq 0 goto error

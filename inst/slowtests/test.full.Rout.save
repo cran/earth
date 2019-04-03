@@ -1,7 +1,7 @@
 > # test.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 3.5.2 (2018-12-20)"
+[1] "R version 3.5.3 (2019-03-11)"
 > 
 > source("test.prolog.R")
 > source("check.models.equal.R")
@@ -44,7 +44,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 5.0.0.
+  Splines. R package version 5.1.0.
   https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -53,7 +53,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 5.0.0},
+    note = {R package version 5.1.0},
     url = {https://CRAN.R-project.org/package=earth},
   }
 
@@ -4698,7 +4698,8 @@ Skipped forward pass
 Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.1  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
-> check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1", newdata=trees[1:3,])
+> newdata.global <- trees[seq(from=nrow(trees), to=1, by=-5),]
+> check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1", newdata=newdata.global)
 a1update a1: models identical
 
 > 
@@ -4716,7 +4717,7 @@ After forward pass GRSq 0.735 RSq 0.942
 Prune backward penalty 2 nprune null: selected 5 of 8 terms, and 2 of 2 preds
 After pruning pass GRSq 0.886 RSq 0.938
 > a.formula.2  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = new.trees)
-> check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2", newdata=trees[1:3,])
+> check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2", newdata=newdata.global)
 a2update a2: models identical
 
 > 
@@ -4735,7 +4736,7 @@ After forward pass GRSq 0.947 RSq 0.976
 Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.3  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees, wp=2)
-> check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3", newdata=trees[1:3,])
+> check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3", newdata=newdata.global)
 a3update a3: models identical
 
 > 
@@ -4755,7 +4756,7 @@ After forward pass GRSq 0.925 RSq 0.972
 Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.947 RSq 0.969
 > a.formula.4  <- earth(Volume ~ ., data = trees, subset=subset.new)
-> check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4", newdata=trees[1:3,])
+> check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4", newdata=newdata.global)
 a4update a4: models identical
 
 > 
@@ -4775,7 +4776,7 @@ Skipped forward pass
 Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.5  <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
-> check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5", newdata=trees[1:3,])
+> check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5", newdata=newdata.global)
 a5update a5: models identical
 
 > 
@@ -4792,7 +4793,7 @@ After forward pass GRSq 0.735 RSq 0.942
 Prune backward penalty 2 nprune null: selected 5 of 8 terms, and 2 of 2 preds
 After pruning pass GRSq 0.886 RSq 0.938
 > a.formula.6  <- earth(Volume ~ ., wp=1, data = new.trees, keepxy=TRUE)
-> check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6", newdata=trees[1:3,])
+> check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6", newdata=newdata.global)
 a6update a6: models identical
 
 > 
@@ -4809,7 +4810,7 @@ After forward pass GRSq 0.947 RSq 0.976
 Prune backward penalty 2 nprune null: selected 4 of 5 terms, and 2 of 2 preds
 After pruning pass GRSq 0.96 RSq 0.974
 > a.formula.7  <- earth(Volume ~ ., wp=2, data = trees, keepxy=TRUE)
-> check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7", newdata=trees[1:3,])
+> check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7", newdata=newdata.global)
 a7update a7: models identical
 
 > 
@@ -4839,7 +4840,7 @@ Skipped forward pass
 Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > a1  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
-> check.models.equal(a1update, a1, msg="a1update a1", newdata=trees[1:3,])
+> check.models.equal(a1update, a1, msg="a1update a1", newdata=newdata.global)
 a1update a1: models identical
 
 > 
@@ -4858,7 +4859,7 @@ After forward pass GRSq 0.992 RSq 0.996
 Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
 After pruning pass GRSq 0.994 RSq 0.995
 > a2  <- earth(new.x, Volume, subset=rep(TRUE, nrow(trees)))
-> check.models.equal(a2update, a2, msg="a2update a2", newdata=trees[1:3,])
+> check.models.equal(a2update, a2, msg="a2update a2", newdata=newdata.global)
 a2update a2: models identical
 
 > 
@@ -4867,7 +4868,7 @@ a2update a2: models identical
 update(a, wp=2, trace=0)
 > a3update <- update(a, wp=2, trace=0)
 > a3  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)), wp=2)
-> check.models.equal(a3update, a3, msg="a3update a3", newdata=trees[1:3,])
+> check.models.equal(a3update, a3, msg="a3update a3", newdata=newdata.global)
 a3update a3: models identical
 
 > 
@@ -4920,7 +4921,7 @@ chosen    2      1.0000  1.0000     1.0000      1  1 2
 Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > a4  <- earth(x, Volume, subset=subset.new)
-> check.models.equal(a4update, a4, msg="a4update a4", newdata=trees[1:3,])
+> check.models.equal(a4update, a4, msg="a4update a4", newdata=newdata.global)
 a4update a4: models identical
 
 > 
@@ -4966,7 +4967,7 @@ chosen    2      1.0000  1.0000     1.0000      1  1 2
 Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 2 preds
 After pruning pass GRSq 1 RSq 1
 > a5  <- earth(x, Volume, wp=1, keepxy=TRUE)
-> check.models.equal(a5update, a5, msg="a5update a5", newdata=trees[1:3,])
+> check.models.equal(a5update, a5, msg="a5update a5", newdata=newdata.global)
 a5update a5: models identical
 
 > 
@@ -5013,8 +5014,8 @@ chosen    3      0.9938  0.9954     0.1974      1  1 2 3
 Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
 After pruning pass GRSq 0.994 RSq 0.995
 > a6  <- earth(new.x, Volume, wp=1, keepxy=TRUE)
-> check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6", newdata=trees[1:3,])
-"allowed" function a6update a6: models identical
+> check.models.equal(a6update, a6, msg="a6update a6", newdata=newdata.global)
+a6update a6: models identical
 
 > 
 > cat("\nupdate(a, wp=2)\n")
@@ -5022,264 +5023,9 @@ After pruning pass GRSq 0.994 RSq 0.995
 update(a, wp=2)
 > a7update <- update(a, wp=2)
 > a7  <- earth(x, Volume, wp=2, keepxy=TRUE)
-> check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7", newdata=trees[1:3,])
-"allowed" function a7update a7: models identical
+> check.models.equal(a7update, a7, msg="a7update a7", newdata=newdata.global)
+a7update a7: models identical
 
-> 
-> cat("--- \"allowed\" argument -----------------\n")
---- "allowed" argument -----------------
-> 
-> example1  <- function(degree, pred, parents)
-+ {
-+     pred != 2  # disallow predictor 2, which is "Height"
-+ }
-> a1 <- earth(Volume ~ ., data = trees, allowed = example1)
-> printh(summary(a1))
-===summary(a1) 
-Call: earth(formula=Volume~., data=trees, allowed=example1)
-
-              coefficients
-(Intercept)      30.656747
-h(14.2-Girth)    -3.569047
-h(Girth-14.2)     6.757306
-
-Selected 3 of 3 terms, and 1 of 2 predictors
-Termination condition: RSq changed by less than 0.001 at 3 terms
-Importance: Girth, Height-unused
-Number of terms at each degree of interaction: 1 2 (additive model)
-GCV 14.3391    RSS 312.6848    GRSq 0.948644    RSq 0.9614259
-> 
-> example1a  <- function(degree, pred, parents, namesx)
-+ {
-+     namesx[pred] != "Height"  # disallow "Height"
-+ }
-> a1a <- earth(Volume ~ ., data = trees, allowed = example1a)
-> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a", newdata=trees[1:3,])
-"allowed" function a1 a1a: models identical
-
-> 
-> iheight <- 0
-> example1b  <- function(degree, pred, parents, namesx, first)
-+ {
-+     if (first) {
-+         iheight <<- which(namesx == "Height") # note use of <<- not <-
-+         if (length(iheight) != 1)
-+             stop("could not find Height in ", paste(namesx, collapse=" "))
-+     }
-+     pred != iheight
-+ }
-> a1b <- earth(Volume ~ ., data = trees, allowed = example1b)
-> check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b", newdata=trees[1:3,])
-"allowed" function a1 a1b: models identical
-
-> 
-> example2 <- function(degree, pred, parents)
-+ {
-+     # disallow humidity in terms of degree > 1
-+     # 3 is the "humidity" column in the input matrix
-+     if (degree > 1 && (pred == 3 || parents[3]))
-+         return(FALSE)
-+     TRUE
-+ }
-> a2 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
-> printh(summary(a2))
-===summary(a2) 
-Call: earth(formula=O3~., data=ozone1, degree=2, allowed=example2)
-
-                         coefficients
-(Intercept)                14.8457466
-h(5860-vh)                 -0.0157499
-h(vh-5860)                  0.2637241
-h(temp-58)                  0.5296758
-h(ibh-1105)                -0.0004860
-h(10-dpg)                  -0.0560986
-h(dpg-10)                  -0.0761112
-h(150-vis)                  0.0504424
-h(96-doy)                  -0.1184470
-h(doy-158)                 -0.0302548
-h(vh-5860) * h(dpg- -15)   -0.0038034
-h(vh-5860) * h(-15-dpg)    -0.0093059
-h(temp-58) * h(dpg-52)     -0.0160364
-h(temp-58) * h(52-dpg)     -0.0047659
-h(72-temp) * h(150-vis)    -0.0012431
-h(temp-72) * h(150-vis)    -0.0042689
-
-Selected 16 of 20 terms, and 6 of 9 predictors
-Termination condition: Reached nk 21
-Importance: temp, doy, dpg, vis, vh, ibh, wind-unused, humidity-unused, ...
-Number of terms at each degree of interaction: 1 9 6
-GCV 15.17392    RSS 3907.158    GRSq 0.764291    RSq 0.8149617
-> example3 <- function(degree, pred, parents)
-+ {
-+     # allow only humidity and temp in terms of degree > 1
-+     # 3 and 4 are the "humidity" and "temp" columns
-+     allowed.set = c(3,4)
-+     if (degree > 1 && (all(allowed.set != pred) || any(parents[-allowed.set])))
-+         return(FALSE)
-+     TRUE
-+ }
-> a3 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-> printh(summary(a3))
-===summary(a3) 
-Call: earth(formula=O3~., data=ozone1, degree=2, allowed=example3)
-
-                            coefficients
-(Intercept)                   13.4717045
-h(5850-vh)                    -0.0142141
-h(wind-6)                     -0.5690100
-h(temp-58)                     0.2832302
-h(1105-ibh)                   -0.0029012
-h(10-dpg)                     -0.0691576
-h(dpg-10)                     -0.0903813
-h(ibt-115)                     0.0446509
-h(200-vis)                     0.0181357
-h(96-doy)                     -0.1237491
-h(doy-150)                    -0.0313603
-h(55-humidity) * h(temp-58)   -0.0173091
-
-Selected 12 of 20 terms, and 9 of 9 predictors
-Termination condition: Reached nk 21
-Importance: temp, dpg, vis, doy, humidity, ibh, vh, ibt, wind
-Number of terms at each degree of interaction: 1 10 1
-GCV 13.8999    RSS 3828.887    GRSq 0.7840813    RSq 0.8186686
-> 
-> ihumidity <- 0
-> itemp <- 0
-> example3a  <- function(degree, pred, parents, namesx, first)
-+ {
-+     if (first) {
-+         ihumidity <<- which(namesx == "humidity") # note use of <<- not <-
-+         if (length(ihumidity) != 1)
-+             stop("could not find humidity in ", paste(namesx, collapse=" "))
-+         itemp <<- which(namesx == "temp") # note use of <<- not <-
-+         if (length(itemp) != 1)
-+             stop("could not find temp in ", paste(namesx, collapse=" "))
-+     }
-+     # allow only humidity and temp in terms of degree > 1
-+     allowed.set = c(ihumidity, itemp)
-+     if (degree > 1 &&
-+            (all(allowed.set != pred) || any(parents[-allowed.set])))
-+         return(FALSE)
-+     TRUE
-+ }
-> a3a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-> check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a", newdata=trees[1:3,])
-"allowed" function a3 a3a: models identical
-
-> 
-> #--- no predictor in PREDICTORS is allowed to interact with any predictor in PARENTS
-> #--- but all other interactions are allowed
-> 
-> PREDICTORS <- c("age")
-> PARENTS <- c("survived", "parch")
-> 
-> example4 <- function(degree, pred, parents, namesx)
-+ {
-+     if (degree > 1) {
-+         predictor <- namesx[pred]
-+         parents   <- namesx[parents != 0]
-+         if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
-+            (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
-+             return(FALSE)
-+         }
-+     }
-+     TRUE
-+ }
-> a4.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example4)
-> printh(summary(a4.allowed))
-===summary(a4.allowed) 
-Call: earth(formula=sex~., data=etitanic, degree=2, allowed=example4)
-
-                        coefficients
-(Intercept)               0.74841883
-pclass3rd                -0.44966704
-survived                 -0.62673470
-h(15-age)                 0.03878154
-pclass2nd * survived     -0.16200218
-pclass3rd * survived      0.31810348
-pclass3rd * h(20-age)    -0.02792432
-pclass3rd * h(4-parch)    0.08607338
-h(3-sibsp) * h(4-parch)   0.01835222
-h(sibsp-3) * h(4-parch)   0.08911862
-
-Selected 10 of 16 terms, and 6 of 6 predictors
-Termination condition: Reached nk 21
-Importance: survived, parch, sibsp, pclass3rd, age, pclass2nd
-Number of terms at each degree of interaction: 1 3 6
-GCV 0.1525303    RSS 152.4583    GRSq 0.3475741    RSq 0.3753665
-> plotmo(a4.allowed, caption="a4.allowed")
- plotmo grid:    pclass survived age sibsp parch
-                    3rd        0  28     0     0
-> 
-> #--- predictors in PREDICTORS are allowed to interact with predictors in PARENTS
-> #--- but no other interactions are allowed
-> 
-> PREDICTORS <- c("age")
-> PARENTS    <- c("survived", "parch")
-> 
-> example5 <- function(degree, pred, parents, namesx)
-+ {
-+     if (degree <= 1)
-+         return(TRUE)
-+     predictor <- namesx[pred]
-+     parents   <- namesx[parents != 0]
-+     if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
-+        (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
-+         return(TRUE)
-+     }
-+     FALSE
-+ }
-> a5.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example5)
-> printh(summary(a5.allowed))
-===summary(a5.allowed) 
-Call: earth(formula=sex~., data=etitanic, degree=2, allowed=example5)
-
-                       coefficients
-(Intercept)              0.34721404
-h(2-sibsp)               0.06347988
-h(sibsp-2)               0.10099095
-h(4-parch)               0.11453239
-survived * h(age-15)     0.15093805
-survived * h(age-11.5)  -0.15199742
-h(25-age) * h(4-parch)  -0.00419678
-
-Selected 7 of 17 terms, and 4 of 6 predictors
-Termination condition: Reached nk 21
-Importance: survived, parch, age, sibsp, pclass2nd-unused, ...
-Number of terms at each degree of interaction: 1 3 3
-GCV 0.1561245    RSS 158.3485    GRSq 0.3322006    RSq 0.3512343
-> plotmo(a5.allowed, caption="a5.allowed")
- plotmo grid:    pclass survived age sibsp parch
-                    3rd        0  28     0     0
-> 
-> # "allowed" function checks, these check error handling by forcing an error
-> 
-> expect.err(try(earth(Volume ~ ., data = trees, allowed = 99)), "argument is not a function")
-Error : your 'allowed' argument is not a function
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = 99))
-> 
-> example7  <- function(degree, pred) pred!=2
-> expect.err(try(earth(Volume ~ ., data = trees, allowed = example7)), "function does not have the correct number of arguments")
-Error : your 'allowed' function does not have the correct number of arguments
-  The 'allowed' function needs the following arguments (but namesx and first are optional):
-      degree pred parents namesx first
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = example7))
-> 
-> example8  <- function(degree, pred, parents99) pred!=2
-> expect.err(try(earth(Volume ~ ., data = trees, allowed = example8)), "function needs the following arguments")
-Error :   The 'allowed' function needs the following arguments (but namesx and first are optional):
-      degree pred parents namesx first
-  You have:
-      degree pred parents99
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = example8))
-> 
-> example9  <- function(degree, pred, parents, namesx99) pred!=2
-> expect.err(try(earth(Volume ~ ., data = trees, allowed = example9)), "function needs the following arguments")
-Error :   The 'allowed' function needs the following arguments (but namesx and first are optional):
-      degree pred parents namesx first
-  You have:
-      degree pred parents namesx99
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = example9))
 > 
 > cat("--- beta cache -------------------------\n")
 --- beta cache -------------------------
@@ -5644,7 +5390,7 @@ yscaled[101,1]:
  3rd Qu.: 0.8753  
  Max.   : 1.5633  
 
-earth.c version 5.0.0
+earth.c version 5.1.0
 BetaCache 3.45 kB
 Forward pass: minspan 4 endspan 7   x[101,1] 808 Bytes   bx[101,21] 16.6 kB
 
@@ -8010,7 +7756,14 @@ Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: Girth, Height
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 11.3    RSS 209    GRSq 0.96    RSq 0.974
-Call: earth(formula=Volume~., data=trees, allowed=allowed.func)
+x[31,2] with colnames Girth Height
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
+Forward pass term 1, 2, 4
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 9.7e-05)
+After forward pass GRSq 0.940 RSq 0.962
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
+After pruning pass GRSq 0.949 RSq 0.961
+Call: earth(formula=Volume~., data=trees, trace=1, allowed=allowed.func)
 
               coefficients
 (Intercept)          30.66

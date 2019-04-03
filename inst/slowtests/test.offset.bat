@@ -1,7 +1,8 @@
 @rem test.offset.bat
 @rem Stephen Milborrow Dec 2018 Midtown
 
-@"C:\PROGRA~1\R\R-3.5.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.offset.R
+@echo test.offset.bat
+@"C:\PROGRA~1\R\R-3.5.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.offset.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.offset.Rout:
 @echo.

@@ -1,7 +1,8 @@
 @Rem test.pmethod.cv.R: example pmethod.cv model built by earth
 @rem Stephen Milborrow May 2015 Berea
 
-@"C:\PROGRA~1\R\R-3.5.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.pmethod.cv.R
+@echo test.pmethod.cv.bat
+@"C:\PROGRA~1\R\R-3.5.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.pmethod.cv.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.pmethod.cv.Rout:
 @echo.
@@ -9,7 +10,7 @@
 @echo test.pmethod.cv.R
 @exit /B 1
 :good1
-@echo mks.diff test.pmethod.cv.Rout test.pmethod.cv.Rout.save
+@echo diff test.pmethod.cv.Rout test.pmethod.cv.Rout.save
 @rem egreps to deal with times
 @C:\Rtools\bin\echo -n "new "
 @egrep "^\[total time" test.pmethod.cv.Rout
@@ -32,4 +33,5 @@ diffps Rplots.ps ..\..\.#\test-reference\test.pmethod.cv.save.ps
 @exit /B 1
 :good3
 @rm -f test.pmethod.cv.Rout test.pmethod.cv.Rout1 test.pmethod.cv.Rout.save1
+@rm -f Rplots.ps
 @exit /B  0

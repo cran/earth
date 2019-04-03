@@ -1,7 +1,8 @@
 @rem test.plotd.bat
 @rem Stephen Milborrow Mar 2008 Durban
 
-@"C:\PROGRA~1\R\R-3.5.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
+@echo test.plotd.bat
+@"C:\PROGRA~1\R\R-3.5.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.plotd.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.plotd.Rout:
 @echo.

@@ -29,9 +29,17 @@ GCV 11.3    RSS 209    GRSq 0.96    RSq 0.974
 + {
 +     namesx[pred] != "Height"  # disallow "Height"
 + }
-> earth.mod2 <- earth(Volume~., data=trees, allowed=allowed.func)
+> set.seed(2019)
+> earth.mod2 <- earth(Volume~., data=trees, allowed=allowed.func, trace=1)
+x[31,2] with colnames Girth Height
+y[31,1] with colname Volume, and values 10.3, 10.3, 10.2, 16.4, 18.8,...
+Forward pass term 1, 2, 4
+RSq changed by less than 0.001 at 3 terms (DeltaRSq 9.7e-05)
+After forward pass GRSq 0.940 RSq 0.962
+Prune backward penalty 2 nprune null: selected 3 of 3 terms, and 1 of 2 preds
+After pruning pass GRSq 0.949 RSq 0.961
 > print(summary(earth.mod2))
-Call: earth(formula=Volume~., data=trees, allowed=allowed.func)
+Call: earth(formula=Volume~., data=trees, trace=1, allowed=allowed.func)
 
               coefficients
 (Intercept)          30.66

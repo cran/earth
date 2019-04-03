@@ -12,7 +12,7 @@
 #endif
 #include "earth.h"
 
-static R_NativePrimitiveArgType FreeR_t[] = {INTSXP};
+static R_NativePrimitiveArgType FreeEarth_t[] = {INTSXP};
 static R_NativePrimitiveArgType EvalSubsetsUsingXtxR_t[] = {
     REALSXP,    // 01 double        PruneTerms[]
     REALSXP,    // 02 double        RssVec[]
@@ -38,7 +38,7 @@ static R_NativePrimitiveArgType RegressR_t[] = {
     LGLSXP      // 12 const bool   UsedCols[]
 };
 static R_CMethodDef cEntries[] = {
-  {"FreeR",                (DL_FUNC)&FreeR,                 0, FreeR_t},
+  {"FreeEarth",            (DL_FUNC)&FreeEarth,             0, FreeEarth_t},
   {"EvalSubsetsUsingXtxR", (DL_FUNC)&EvalSubsetsUsingXtxR,  8, EvalSubsetsUsingXtxR_t},
   {"RegressR",             (DL_FUNC)&RegressR,             12, RegressR_t},
   {NULL,                   NULL,                            0, NULL}

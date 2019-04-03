@@ -393,7 +393,8 @@ After pruning pass GRSq 0.935 RSq 0.981
 Deviance = 6.811649 Iterations - 1
 Deviance = 6.757094 Iterations - 2
 Warning: glm.fit: algorithm did not converge
-GLM numdead devratio 0.95 dof 9/11 iters 2 did not converge
+GLM numdead devratio 0.95 dof 9/11 iters 2
+Warning: the glm algorithm did not converge for response "numdead"
 > show.earth.models(a1h, legend.pos="topleft") # show non convergence (and maxit)
 
 Print a1h 
@@ -7205,11 +7206,12 @@ Prune none penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq -0.145 RSq 0.536
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM A devratio 1.00 dof 9/11 iters 25 did not converge
+GLM A devratio 1.00 dof 9/11 iters 25
 GLM B devratio 0.06 dof 9/11 iters 4
 Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-GLM C devratio 1.00 dof 9/11 iters 25 did not converge
+GLM C devratio 1.00 dof 9/11 iters 25
+Warning: the glm algorithm did not converge for responses "A" "C"
 Warning: No 'data' argument to earth so 'keepxy' is limited
 
 > c4g <- glm(fac3 ~ sex + ldose, family="binomial") # use this as a reference

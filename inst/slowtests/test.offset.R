@@ -203,7 +203,7 @@ print.devratio <- function(s, mod)
 # linear model
 
 n <- 100
-set.seed(2018)
+set.seed(2019)
 x1 <- ((1:n) + runif(n, min=0, max=10)) / n
 set.seed(2019)
 x2 <- ((1:n) + runif(n, min=0, max=10)) / n
@@ -231,17 +231,17 @@ cat("==summary(earth4, details=TRUE)==\n")
 print(summary(earth4, details=TRUE))
 
 par(mfrow=c(4, 2), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
-set.seed(2018)
+set.seed(2019)
 plotmo(lm4, trace=0, pt.col=2, do.par=FALSE)
 mtext(
     "row1: lm4\nrow2: earth4\nrow3: lm4   grid.levels=list(myoffset=-3)\nrow4: earth4   grid.levels=list(myoffset=-3)",
     outer=TRUE, cex=.8)
-set.seed(2018)
+set.seed(2019)
 plotmo(earth4, trace=0, pt.col=2, do.par=FALSE)
 empty.plot()
-set.seed(2018)
+set.seed(2019)
 plotmo(lm4, trace=0, pt.col=2, do.par=FALSE, grid.levels=list(myoffset=-3))
-set.seed(2018)
+set.seed(2019)
 plotmo(earth4, trace=0, pt.col=2, do.par=FALSE, grid.levels=list(myoffset=-3))
 par(old.par)
 
@@ -312,16 +312,16 @@ print.devratio("earth.pois",            earth.pois$glm.list[[1]])
 print.devratio("earth.pois.no.penalty", earth.pois.no.penalty$glm.list[[1]])
 
 par(mfrow=c(3, 4), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
-set.seed(2018)
+set.seed(2019)
 plotmo(pois, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50))
 mtext(sprint(
     "row1: pois (%s)\nrow2: earth.pois.linpreds (%s)\nrow3: earth.pois.linpreds(all1=TRUE)",
     devratio(pois), devratio(earth.pois.linpreds)),
     outer=TRUE, cex=.8)
-set.seed(2018)
+set.seed(2019)
 plotmo(earth.pois.linpreds, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50))
 empty.plot()
-set.seed(2018)
+set.seed(2019)
 plotmo(earth.pois.linpreds, all1=T, trace=-1, pt.col=2, do.par=FALSE, ylim=c(0,50))
 par(old.par)
 
@@ -329,15 +329,15 @@ plotres(pois, type="response", caption='pois, type="response"')
 plotres(earth.pois.linpreds, type="response", caption='earth.pois.linpreds, type="response"')
 
 par(mfrow=c(3, 4), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
-set.seed(2018)
+set.seed(2019)
 plotmo(pois, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.levels=list(Holders=20))
 mtext(
     "----- grid.levels=list(Holders=20)) -----\nrow1: pois\nrow2: earth.pois.linpreds\nrow3: earth.pois.linpreds(all1=TRUE)",
     outer=TRUE, cex=.8)
-set.seed(2018)
+set.seed(2019)
 plotmo(earth.pois.linpreds, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.levels=list(Holders=20))
 empty.plot()
-set.seed(2018)
+set.seed(2019)
 plotmo(earth.pois.linpreds, all1=T, trace=-1, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.levels=list(Holders=20))
 par(old.par)
 
@@ -399,7 +399,7 @@ plotmo(earth.pois.linpreds.weights.some.zero, caption="earth.pois.linpreds.weigh
 
 data(trees)
 tr <- trees
-set.seed(2018)
+set.seed(2019)
 tr$Vol2 <- tr$Volume + 10 * rnorm(nrow(tr))
 
 earth10 <- earth(Volume ~ Girth + offset(log(Height)), data=tr,
@@ -456,7 +456,7 @@ plotmo(earth.pois.multiple.response, nresponse=1, pt.col=2)
 
 data(trees)
 tr <- trees
-set.seed(2018)
+set.seed(2019)
 tr$Vol2 <- tr$Volume + 10 * rnorm(nrow(tr))
 my.weights <- 1:nrow(tr)
 my.weights[3] <- 0

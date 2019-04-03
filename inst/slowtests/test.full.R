@@ -1076,24 +1076,25 @@ a.formula <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
 cat("\nupdate(a, trace=1)\n")
 a.formula.1update <- update(a.formula, trace=1)
 a.formula.1  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees)
-check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1", newdata=trees[1:3,])
+newdata.global <- trees[seq(from=nrow(trees), to=1, by=-5),]
+check.models.equal(a.formula.1update, a.formula.1, msg="a1update a1", newdata=newdata.global)
 
 cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
 a.formula.2update <- update(a.formula, data=new.trees, trace=1)
 a.formula.2  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = new.trees)
-check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2", newdata=trees[1:3,])
+check.models.equal(a.formula.2update, a.formula.2, msg="a2update a2", newdata=newdata.global)
 
 cat("\nupdate(a.formula, wp=2, trace=1)\n")
 a.formula.3update <- update(a.formula, wp=2, trace=1)
 a.formula.3  <- earth(Volume ~ ., subset=rep(TRUE, nrow(trees)), data = trees, wp=2)
-check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3", newdata=trees[1:3,])
+check.models.equal(a.formula.3update, a.formula.3, msg="a3update a3", newdata=newdata.global)
 
 cat("\nupdate(a.formula, subset=subset.new, trace=1)\n")
 subset.new <- rep(TRUE, nrow(trees))
 subset.new[1:4] = FALSE
 a.formula.4update <- update(a.formula, subset=subset.new, trace=1)
 a.formula.4  <- earth(Volume ~ ., data = trees, subset=subset.new)
-check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4", newdata=trees[1:3,])
+check.models.equal(a.formula.4update, a.formula.4, msg="a4update a4", newdata=newdata.global)
 
 # now use keepxy=TRUE
 
@@ -1102,17 +1103,17 @@ a.formula <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
 cat("\nupdate(a.formula, trace=1)\n")
 a.formula.5update <- update(a.formula, trace=1)
 a.formula.5  <- earth(Volume ~ ., wp=1, data = trees, keepxy=TRUE)
-check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5", newdata=trees[1:3,])
+check.models.equal(a.formula.5update, a.formula.5, msg="a5update a5", newdata=newdata.global)
 
 cat("\nupdate(a.formula, data=new.trees, trace=1)\n")
 a.formula.6update <- update(a.formula, data=new.trees, trace=1)
 a.formula.6  <- earth(Volume ~ ., wp=1, data = new.trees, keepxy=TRUE)
-check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6", newdata=trees[1:3,])
+check.models.equal(a.formula.6update, a.formula.6, msg="a6update a6", newdata=newdata.global)
 
 cat("\nupdate(a.formula, wp=2, trace=1)\n")
 a.formula.7update <- update(a.formula, wp=2, trace=1)
 a.formula.7  <- earth(Volume ~ ., wp=2, data = trees, keepxy=TRUE)
-check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7", newdata=trees[1:3,])
+check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7", newdata=newdata.global)
 
 cat("\n----- update and keepxy, matrix interface--------------------------\n")
 
@@ -1127,24 +1128,24 @@ a <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
 cat("\nupdate(a, trace=1)\n")
 a1update <- update(a, trace=1)
 a1  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)))
-check.models.equal(a1update, a1, msg="a1update a1", newdata=trees[1:3,])
+check.models.equal(a1update, a1, msg="a1update a1", newdata=newdata.global)
 
 cat("\nupdate(a, x=new.x, trace=1)\n")
 a2update <- update(a, x=new.x, trace=1)
 a2  <- earth(new.x, Volume, subset=rep(TRUE, nrow(trees)))
-check.models.equal(a2update, a2, msg="a2update a2", newdata=trees[1:3,])
+check.models.equal(a2update, a2, msg="a2update a2", newdata=newdata.global)
 
 cat("\nupdate(a, wp=2, trace=0)\n")
 a3update <- update(a, wp=2, trace=0)
 a3  <- earth(x, Volume, subset=rep(TRUE, nrow(trees)), wp=2)
-check.models.equal(a3update, a3, msg="a3update a3", newdata=trees[1:3,])
+check.models.equal(a3update, a3, msg="a3update a3", newdata=newdata.global)
 
 cat("\nupdate(a, subset=subset.new, trace=4)\n")
 subset.new <- rep(TRUE, nrow(trees))
 subset.new[1:4] = FALSE
 a4update <- update(a, subset=subset.new, trace=4)
 a4  <- earth(x, Volume, subset=subset.new)
-check.models.equal(a4update, a4, msg="a4update a4", newdata=trees[1:3,])
+check.models.equal(a4update, a4, msg="a4update a4", newdata=newdata.global)
 
 # now use keepxy=TRUE
 
@@ -1153,147 +1154,17 @@ a <- earth(x, Volume, wp=1, keepxy=TRUE)
 cat("\nupdate(a, trace=4)\n")
 a5update <- update(a, trace=4)
 a5  <- earth(x, Volume, wp=1, keepxy=TRUE)
-check.models.equal(a5update, a5, msg="a5update a5", newdata=trees[1:3,])
+check.models.equal(a5update, a5, msg="a5update a5", newdata=newdata.global)
 
 cat("\nupdate(a, x=new.x, trace=4)\n")
 a6update <- update(a, x=new.x, trace=4)
 a6  <- earth(new.x, Volume, wp=1, keepxy=TRUE)
-check.models.equal(a6update, a6, msg="\"allowed\" function a6update a6", newdata=trees[1:3,])
+check.models.equal(a6update, a6, msg="a6update a6", newdata=newdata.global)
 
 cat("\nupdate(a, wp=2)\n")
 a7update <- update(a, wp=2)
 a7  <- earth(x, Volume, wp=2, keepxy=TRUE)
-check.models.equal(a7update, a7, msg="\"allowed\" function a7update a7", newdata=trees[1:3,])
-
-cat("--- \"allowed\" argument -----------------\n")
-
-example1  <- function(degree, pred, parents)
-{
-    pred != 2  # disallow predictor 2, which is "Height"
-}
-a1 <- earth(Volume ~ ., data = trees, allowed = example1)
-printh(summary(a1))
-
-example1a  <- function(degree, pred, parents, namesx)
-{
-    namesx[pred] != "Height"  # disallow "Height"
-}
-a1a <- earth(Volume ~ ., data = trees, allowed = example1a)
-check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1a", newdata=trees[1:3,])
-
-iheight <- 0
-example1b  <- function(degree, pred, parents, namesx, first)
-{
-    if (first) {
-        iheight <<- which(namesx == "Height") # note use of <<- not <-
-        if (length(iheight) != 1)
-            stop("could not find Height in ", paste(namesx, collapse=" "))
-    }
-    pred != iheight
-}
-a1b <- earth(Volume ~ ., data = trees, allowed = example1b)
-check.models.equal(a1, a1a, msg="\"allowed\" function a1 a1b", newdata=trees[1:3,])
-
-example2 <- function(degree, pred, parents)
-{
-    # disallow humidity in terms of degree > 1
-    # 3 is the "humidity" column in the input matrix
-    if (degree > 1 && (pred == 3 || parents[3]))
-        return(FALSE)
-    TRUE
-}
-a2 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example2)
-printh(summary(a2))
-example3 <- function(degree, pred, parents)
-{
-    # allow only humidity and temp in terms of degree > 1
-    # 3 and 4 are the "humidity" and "temp" columns
-    allowed.set = c(3,4)
-    if (degree > 1 && (all(allowed.set != pred) || any(parents[-allowed.set])))
-        return(FALSE)
-    TRUE
-}
-a3 <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-printh(summary(a3))
-
-ihumidity <- 0
-itemp <- 0
-example3a  <- function(degree, pred, parents, namesx, first)
-{
-    if (first) {
-        ihumidity <<- which(namesx == "humidity") # note use of <<- not <-
-        if (length(ihumidity) != 1)
-            stop("could not find humidity in ", paste(namesx, collapse=" "))
-        itemp <<- which(namesx == "temp") # note use of <<- not <-
-        if (length(itemp) != 1)
-            stop("could not find temp in ", paste(namesx, collapse=" "))
-    }
-    # allow only humidity and temp in terms of degree > 1
-    allowed.set = c(ihumidity, itemp)
-    if (degree > 1 &&
-           (all(allowed.set != pred) || any(parents[-allowed.set])))
-        return(FALSE)
-    TRUE
-}
-a3a <- earth(O3 ~ ., data = ozone1, degree = 2, allowed = example3)
-check.models.equal(a3, a3a, msg="\"allowed\" function a3 a3a", newdata=trees[1:3,])
-
-#--- no predictor in PREDICTORS is allowed to interact with any predictor in PARENTS
-#--- but all other interactions are allowed
-
-PREDICTORS <- c("age")
-PARENTS <- c("survived", "parch")
-
-example4 <- function(degree, pred, parents, namesx)
-{
-    if (degree > 1) {
-        predictor <- namesx[pred]
-        parents   <- namesx[parents != 0]
-        if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
-           (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
-            return(FALSE)
-        }
-    }
-    TRUE
-}
-a4.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example4)
-printh(summary(a4.allowed))
-plotmo(a4.allowed, caption="a4.allowed")
-
-#--- predictors in PREDICTORS are allowed to interact with predictors in PARENTS
-#--- but no other interactions are allowed
-
-PREDICTORS <- c("age")
-PARENTS    <- c("survived", "parch")
-
-example5 <- function(degree, pred, parents, namesx)
-{
-    if (degree <= 1)
-        return(TRUE)
-    predictor <- namesx[pred]
-    parents   <- namesx[parents != 0]
-    if((any(predictor %in% PREDICTORS) && any(parents %in% PARENTS)) ||
-       (any(predictor %in% PARENTS)    && any(parents %in% PREDICTORS))) {
-        return(TRUE)
-    }
-    FALSE
-}
-a5.allowed <- earth(sex~., data=etitanic, degree=2, allowed=example5)
-printh(summary(a5.allowed))
-plotmo(a5.allowed, caption="a5.allowed")
-
-# "allowed" function checks, these check error handling by forcing an error
-
-expect.err(try(earth(Volume ~ ., data = trees, allowed = 99)), "argument is not a function")
-
-example7  <- function(degree, pred) pred!=2
-expect.err(try(earth(Volume ~ ., data = trees, allowed = example7)), "function does not have the correct number of arguments")
-
-example8  <- function(degree, pred, parents99) pred!=2
-expect.err(try(earth(Volume ~ ., data = trees, allowed = example8)), "function needs the following arguments")
-
-example9  <- function(degree, pred, parents, namesx99) pred!=2
-expect.err(try(earth(Volume ~ ., data = trees, allowed = example9)), "function needs the following arguments")
+check.models.equal(a7update, a7, msg="a7update a7", newdata=newdata.global)
 
 cat("--- beta cache -------------------------\n")
 

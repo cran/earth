@@ -1,7 +1,8 @@
 @rem test.varmod.bat
 @rem Stephen Milborrow Dec 2014 Shrewsbury
 
-@"C:\PROGRA~1\R\R-3.5.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.varmod.R
+@echo test.varmod.bat
+@"C:\PROGRA~1\R\R-3.5.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.varmod.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.varmod.Rout:
 @echo.

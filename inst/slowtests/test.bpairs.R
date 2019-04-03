@@ -162,6 +162,14 @@ eshort.with.zeros.plus <- earth(true+false~x1+x2, data=short.with.zeros, glm=lis
                                 linpreds=TRUE, thresh=0, penalty=-1, trace=1)
 check.models.equal(eshort.with.zeros, eshort.with.zeros.plus, "eshort.with.zeros, eshort.with.zeros.plus", newdata=short.with.zeros[2:3,])
 
+eshort.with.zeros.plus.quasibinomial <- earth(true+false~x1+x2, data=short.with.zeros, glm=list(family="quasibinomial"),
+                                linpreds=TRUE, thresh=0, penalty=-1, trace=1)
+check.models.equal(eshort.with.zeros.plus, eshort.with.zeros.plus.quasibinomial, "eshort.with.zeros.plus eshort.with.zeros.plus.quasibinomial", newdata=short.with.zeros[1:3,])
+# print(summary(eshort.with.zeros.plus))
+# print(summary(eshort.with.zeros.plus.quasibinomial))
+# print(summary(eshort.with.zeros.plus$glm.list[[1]]))
+# print(summary(eshort.with.zeros.plus.quasibinomial$glm.list[[1]]))
+
 cat("\n===compare with model where yfrac is generated manually===\n")
 bpairs.frac <- function(y)
 {
@@ -195,10 +203,21 @@ options(warn=2)
 expect.err(try(earth(frac~x1+x2, data=short.with.zeros, glm=list(family="binomial"),
                linpreds=TRUE, thresh=0, penalty=-1)), "non-integer #successes in a binomial glm")
 # warning goes away if we use quasibinomial
-eshort.with.zeros.frac <- earth(frac~x1+x2, data=short.with.zeros, weights=weights, glm=list(family="quasibinomial"),
+eshort.with.zeros.frac.quasibinomial <- earth(frac~x1+x2, data=short.with.zeros, weights=weights, glm=list(family="quasibinomial"),
                                 linpreds=TRUE, thresh=0, penalty=-1, trace=1)
 options(warn=1)
-check.models.equal(eshort.with.zeros.frac, eshort.with.zeros.plus, "eshort.frac, eshort.with.zeros.plus", newdata=short.with.zeros[2:3,], allow.different.names=TRUE)
+check.models.equal(eshort.with.zeros.frac.quasibinomial, eshort.with.zeros.plus, "eshort.frac, eshort.with.zeros.plus", newdata=short.with.zeros[2:3,], allow.different.names=TRUE)
+eshort.with.zeros.frac.binomial <- earth(frac~x1+x2, data=short.with.zeros, weights=weights, glm=list(family="binomial"),
+                                         linpreds=TRUE, thresh=0, penalty=-1)
+# # compare stats like deviance etc (all identical here except no AIC for quasibinomial,
+# #                                  and standard deviations of glm submodels differ)
+# cat("eshort.with.zeros.frac.binomial:\n")
+# print(summary(eshort.with.zeros.frac.binomial))
+# cat("eshort.with.zeros.frac.quasibinomial:\n")
+# print(summary(eshort.with.zeros.frac.quasibinomial))
+# cat("---------------------------------------------------\n")
+# print(summary(eshort.with.zeros.frac.binomial$glm.list[[1]]))
+# print(summary(eshort.with.zeros.frac.quasibinomial$glm.list[[1]]))
 
 # lizard data used in McCullagh and Nelder GLM book (2nd ed)
 # this has an entry with both responses equal to zero (similar to the above data):
@@ -394,7 +413,7 @@ plotmo(pairmod8, nresponse=1)
 # following fails because predictors are in a different order in dirs, ok
 try(check.models.equal(pairmod8, pairmod2, "pairmod8, pairmod2", newdata=df[5:6,]))
 stopifnot(all.equal(sort(coef(pairmod8)), sort(coef(pairmod2)))) # ok
-
+set.seed(2019)
 pairmod.cv <- earth(numalive + numdead ~ ., data=df, nfold=2, trace=1, pmethod="none",
                     keepxy=TRUE,
                     glm=list(family=binomial))
