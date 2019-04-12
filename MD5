@@ -1,6 +1,6 @@
-775f96253c1fcd72176aa905c8e84ed6 *DESCRIPTION
+c63a8a28795c9dab41e7fedccc63c8ff *DESCRIPTION
 5aa79ec1972007b8f7d88e50a785acfe *NAMESPACE
-6285b7cf6d13f2a18b05a89a5ed4d2c2 *NEWS
+09684cdd0233bec1af7df3fee152059b *NEWS
 1b32f707cff45fa442f5bcac644aa921 *R/as.char.R
 be26dc1e4635bf4953204d621592d672 *R/bpairs.R
 a8a382411b4193cd470e8b26448ad179 *R/call.dots.R
@@ -20,7 +20,7 @@ aa67b6f1757775f2b4e184c3fe06841b *R/earthlib.R
 b468ecca4c3738aa2d01b99fbd885b1a *R/evimp.R
 b3db51152b3f4509a9d8e95c24533110 *R/expand.arg.R
 56be31b525f9c5cc1d97eec124804624 *R/format.earth.R
-88d0773398ffb35318b94c0b91d685c9 *R/lib.R
+0e0ab780975f24288aa94236ebddef6f *R/lib.R
 7f26f04d6f862be62ca51806f962b4d4 *R/mars.to.earth.R
 a3dc652297d085a62cc8317949037b37 *R/model.matrix.earth.R
 f0c3d0d81a64557287bb56ad7c0695a6 *R/offset.R
@@ -33,12 +33,12 @@ a7cfa01bdb6be6069eeed7f427df35ee *R/printcall.R
 c28a335203f548644cb5db09d39d6d61 *R/residuals.earth.R
 a556d185d5c55facadd00539ab77433c *R/stop.if.dots.R
 c585abfe33f2b18ad00d5eb0386d99ab *R/varmod.R
-2c4c50fe537e62cf9e4db067a0f76103 *build/partial.rdb
+688edbc68eda9f8bd567e0c7c65003d8 *build/partial.rdb
 ea521b18189dc9e26e3e8953602656de *data/etitanic.rda
 15f5470c6245efd1c6d5e0ed0be996b4 *data/ozone1.rda
 80c701f6d86dff4e6d5dab3cab33ae9a *inst/doc/Auto-linpreds-example.pdf
-7012316963fcb7ef83b5477c9b08f1a4 *inst/doc/earth-notes.pdf
-262d3db05f8d2ff974647980970f7a07 *inst/doc/earth-varmod.pdf
+0e29a4936551f2c8e960dacc4f49b382 *inst/doc/earth-notes.pdf
+83b857d4a5e1319ee680889c26473608 *inst/doc/earth-varmod.pdf
 8ace3b54aa5b3cf62b0f7df1938de8cd *inst/doc/index.html
 d4aa9fde2958026574fe7ae4d6c7d0b2 *inst/slowtests/README.txt
 85c1427c3d7bb2a49d3d9a71f3502581 *inst/slowtests/check.earth.matches.glm.R
@@ -73,7 +73,7 @@ a47317f1e7814f82617c91adf6fd0518 *inst/slowtests/test.earthmain.out.save
 b3d056aacfcc0ef3fd5ca61517cd21df *inst/slowtests/test.expand.bpairs.Rout.save
 ae6b991f0fbc569bc5a0e4ac47ad8d11 *inst/slowtests/test.expand.bpairs.bat
 0ff34c1be58292d60065612a9762b012 *inst/slowtests/test.full.R
-eb1ed9323d42a32242f4611e737b3683 *inst/slowtests/test.full.Rout.save
+880828d3b90602264281ca2b5129fb43 *inst/slowtests/test.full.Rout.save
 7197856a256161bc8bd5cd8dc38cb963 *inst/slowtests/test.full.bat
 be2650065462122a9454a9df7200b8cc *inst/slowtests/test.glm.R
 645c58081696c2d6b64dcad21419711c *inst/slowtests/test.glm.Rout.save
@@ -106,8 +106,8 @@ b9765304ac8f8f99b933f042c9853016 *inst/slowtests/test.varmod.bat
 1e0f343adca8e020d7752b9adc5cfe46 *inst/slowtests/test.varmod.mgcv.R
 8c511a1202c82cf8466ef2616e0b103f *inst/slowtests/test.varmod.mgcv.Rout.save
 460951b6d8fc7e1c7e9d82373ea30a05 *inst/slowtests/test.varmod.mgcv.bat
-ef2a099f9d43d2955cf7d968dcad8e02 *inst/slowtests/test.weights.R
-a30cdce049684832fb0d5f390fe8cc55 *inst/slowtests/test.weights.Rout.save
+d0a44248e59b4666ab662e82f911a988 *inst/slowtests/test.weights.R
+40258fd4522c409b16fd0624f8569f71 *inst/slowtests/test.weights.Rout.save
 d53ca26d11da500fd2ff680337f7e8d4 *inst/slowtests/test.weights.bat
 5e8f2c2936cb04affe73d49102b2a151 *man/contr.earth.response.Rd
 3e4443bad637d4591473680027b32d16 *man/earth.Rd

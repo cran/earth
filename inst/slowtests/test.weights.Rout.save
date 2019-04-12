@@ -7,10 +7,6 @@ Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> library(mda)
-Loading required package: class
-Loaded mda 0.4-10
-
 > check.equal <- function(x, y, msg="")
 + {
 +     diff <- x - y

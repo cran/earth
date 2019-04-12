@@ -1,6 +1,14 @@
 Changes to the earth package
 ----------------------------
 
+5.1.1 Apr 11, 2019
+
+  Earth now runs with R versions 3.4.0 or higher (whereas before
+  the R version had to be 3.5.0 or higher).  This restriction was lifted
+  after running the tests in earth/inst/slowtests on R version 3.4.0.
+
+  Minor updates to libraries shared with plotmo and rpart.plot.
+
 5.1.0 Apr 3, 2019
 
   Fixed a formatting bug in the trace output for cross validation.
@@ -12,8 +20,8 @@ Changes to the earth package
   Changed the name of the fallback memory release function to FreeEarth
   (it was FreeR) and made it suitable for use in environments other than R.
 
-  If nfold > 1 and keepxy = 2, we now use keepxy=TRUE on the fold models. This 
-  allows plot.earth and plotmo on the fold models e.g. plot(mod$cv.list[[3]]).  
+  If nfold > 1 and keepxy = 2, we now use keepxy=TRUE on the fold models. This
+  allows plot.earth and plotmo on the fold models e.g. plot(mod$cv.list[[3]]).
   Also updated plotmo to remind user of this.
 
   Tweaked the trace message that is issued when glm doesn't converge.

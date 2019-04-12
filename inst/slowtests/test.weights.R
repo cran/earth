@@ -3,7 +3,6 @@
 source("test.prolog.R")
 source("check.models.equal.R")
 library(earth)
-library(mda)
 check.equal <- function(x, y, msg="")
 {
     diff <- x - y

@@ -18,7 +18,7 @@ check <- function(object, object.name, check.name, check.func, na.ok=FALSE)
         which.na <- which(is.na(any))
         if(length(which.na)) {
             stopf("NA in %s\n       %s[%d] is %g",
-                  object.name, unquote(object.name),
+                  object.name, object.name,
                   which.na[1], object[which.na[1]])
         }
     }
@@ -26,7 +26,7 @@ check <- function(object, object.name, check.name, check.func, na.ok=FALSE)
         which <- which(check.func(object))
         stopifnot(length(which) > 0)
         stopf("%s in %s\n       %s[%d] is %g",
-              check.name, object.name, unquote(object.name),
+              check.name, object.name, object.name,
               which[1], object[which[1]])
     }
 }
@@ -52,8 +52,8 @@ check <- function(object, object.name, check.name, check.func, na.ok=FALSE)
 #             printf("\n")
 #             s <- paste0(strwrap(list.as.char(args),
 #                         width=getOption("width"), exdent=7), collapse="\n")
-#             stop0("cannot evaluate '", names(args)[i],
-#                   "' in\n       ", fname, "(", s, ")")
+#             stop0("cannot evaluate ", quotify(names(args)[i], "'"),
+#                   " in\n       ", fname, "(", s, ")")
 #         }
 #     }
 # }
@@ -79,40 +79,52 @@ is.boolean <- function(b) # b==NA or b==0 or b==1
 }
 check.classname <- function(object, substituted.object, allowed.classnames)
 {
-    err.msg <- quotify(allowed.classnames)
+    expected.classname <- quotify(allowed.classnames)
     if(length(allowed.classnames) > 1)
-        err.msg <- sprint("one of\n%s", err.msg)
+        expected.classname <- sprint("one of\n%s", expected.classname)
     if(is.null(object))
         stopf("object is NULL but expected an object of class of %s",
-              err.msg)
+              expected.classname)
     if(!inherits(object, allowed.classnames)) {
-        stopf("the class of '%s' is \"%s\" but expected the class to be %s",
-              paste.trunc(substituted.object, maxlen=30),
-              class(object)[1], err.msg)
+        stopf("the class of %s is \"%s\" but expected the class to be %s",
+              quotify(paste.trunc(substituted.object, maxlen=30)),
+              class(object)[1], expected.classname)
     }
+}
+# adjust name so e.g. error message is "argument is NULL" not "NULL is NULL"
+tweak.name <- function(name, quote=TRUE)
+{
+    quoted.name <- quotify(name, quote="'")
+    if(name %in% c("NULL", "NA") ||
+           (substr(name[1], 1, 1) %in% c("+", "-")) ||
+           grepl("[0-9]", substr(name[1], 1, 1))) {
+        quoted.name <- name <- "argument"
+    }
+    if(quote) quoted.name else name
 }
 check.integer.scalar <- function(object, min=NA, max=NA, null.ok=FALSE,
                                  na.ok=FALSE, logical.ok=TRUE,
                                  char.ok=FALSE,
                                  object.name=short.deparse(substitute(object)))
 {
-    stop.msg <- function()
+    stop.msg <- function(s)
     {
         s.null    <- if(null.ok)    ", or NULL"          else ""
         s.na      <- if(na.ok)      ", or NA"            else ""
         s.logical <- if(logical.ok) ", or TRUE or FALSE" else ""
         s.char    <- if(char.ok)    ", or a string"      else ""
-        stop0(object.name, "=", object[1], " but it should be an an integer",
+        stop0(s,
+              " but it should be an integer",
               s.null, s.na, s.logical, s.char)
     }
     if(is.character(object)) {
         if(!char.ok || length(object) != 1)
-            stop.msg()
+            stop.msg(paste0(tweak.name(object.name), " is a string"))
     } else {
         check.numeric.scalar(object, min, max, null.ok, na.ok, logical.ok,
                              char.ok.msg=char.ok, object.name=object.name)
         if(!is.null(object) && !is.na(object) && object != floor(object))
-            stop.msg()
+            stop.msg(paste0(tweak.name(object.name, quote=FALSE), "=", object[1]))
     }
     object
 }
@@ -169,33 +181,35 @@ check.numeric.scalar <- function(object, min=NA, max=NA, null.ok=FALSE,
         logical.ok <- TRUE # needed because NA is a logical
     any.na <- !is.null(object) &&
                 # following needed because anyNA gives error on some objects
-                (is.numeric(object) || is.logical(object) || is.list(object)) &&
+                (is.numeric(object) || is.logical(object) ||
+                    is.list(object) || is.character(object)) &&
                 anyNA(object)
     if(is.null(object)) {
         if(!null.ok)
-            stop0(object.name, "=NULL is not allowed")
+            stop0(tweak.name(object.name), " is NULL")
     } else if(any.na && !na.ok)
-        stop0(object.name, "=NA is not allowed")
+        stop0(tweak.name(object.name), " is NA")
     else if(!is.numeric(object) && !(is.logical(object) && logical.ok)) {
         s.na   <- if(na.ok)       ", or NA"       else ""
         s.null <- if(null.ok)     ", or NULL"     else ""
         s.char <- if(char.ok.msg) ", or a string" else ""
-        stopf("'%s' must be numeric%s%s%s%s (whereas its current class is \"%s\")",
-              object.name, s.null, s.na, s.char, s.logical, class(object)[1])
+        stopf("%s must be numeric%s%s%s%s (whereas its current class is %s)",
+              tweak.name(object.name),
+              s.null, s.na, s.char, s.logical, quotify(class(object)[1]))
     } else if(length(object) != 1)
-        stopf("the length of '%s' must be 1 (whereas its current length is %d)",
-              object.name, length(object))
-    if(!is.null(object) && !is.na(object)) {
+        stopf("the length of %s must be 1 (whereas its current length is %d)",
+              tweak.name(object.name), length(object))
+    if(!is.null(object) && !any.na) {
         if(!is.na(min) && !is.na(max) && (object < min || object > max)) {
-            stop0(object.name, "=", object,
+            stop0(tweak.name(object.name, quote=FALSE), "=", object,
                   " but it should be between ", min, " and ", max)
         }
         if(!is.na(min) && object < min) {
-            stop0(object.name, "=", object,
+            stop0(tweak.name(object.name, quote=FALSE), "=", object,
                   " but it should be at least ", min)
         }
         if(!is.na(max) && object > max) {
-            stop0(object.name, "=", object,
+            stop0(tweak.name(object.name, quote=FALSE), "=", object,
                   " but it should not be greater than ", max)
         }
     }
@@ -224,12 +238,12 @@ check.that.most.are.positive <- function(x, xname, user.arg, non.positive.msg, f
 check.vec <- function(object, object.name, expected.len=NA, logical.ok=TRUE, na.ok=FALSE)
 {
     if(!(NROW(object) == 1 || NCOL(object) == 1))
-        stop0(object.name, " is not a vector\n       ",
+        stop0(tweak.name(object.name), " is not a vector\n       ",
               "It has dimensions ", NROW(object), " by ", NCOL(object))
     if(!((logical.ok && is.logical(object)) || is.numeric(object)))
-        stop0(object.name, " is not numeric")
+        stop0(tweak.name(object.name), " is not numeric")
     if(!is.na(expected.len) && length(object) != expected.len)
-        stop0(object.name, " has the wrong length ",
+        stop0(tweak.name(object.name), " has the wrong length ",
               length(object), ", expected ", expected.len)
     if(na.ok)
         object[is.na(object)] <- 1 # prevent check is.finite from complaining
@@ -507,7 +521,9 @@ imatch.choices <- function(arg, choices,
     if(nchar(err.msg) == 0)
         err.msg <- sprint("Choose%s one of: %s", err.msg.ext, quotify(choices))
     if(!is.character(arg) || length(arg) != 1 || !nzchar(arg))
-         stopf("illegal '%s' argument\n%s", argname, err.msg)
+         stopf("illegal %s argument\n%s", quotify(argname, "'"), err.msg)
+    if(argname %in% c("NULL", "NA"))
+        argname <- "argument"
     imatch <- pmatch(arg, choices)
     if(anyNA(imatch)) {
         imatch <- NULL
@@ -645,8 +661,8 @@ my.data.frame <- function(x, trace, stringsAsFactors=TRUE)
         # come here for sparse matrices from the Matrix package
         df <- try(as.matrix(x))
         if(is.try.err(df))
-            stopf("Cannot convert '%s' object to a data.frame or matrix",
-                  class(x)[1])
+            stopf("Cannot convert %s object to a data.frame or matrix",
+                  quotify(class(x)[1]))
         df <- as.data.frame(df, stringsAsFactors=stringsAsFactors)
         trace2(trace, "converted %s object to data.frame\n", class(x)[1])
     }
@@ -807,9 +823,9 @@ quotify <- function(s, quote="\"") # add quotes and collapse to a single string
     if(is.null(s))
         "NULL"
     else if(length(s) == 0)
-        paste0(quote, quote)       # not sure what is best here
-    else if(substr(s[1], 1, 1) == quote) # already has quotes?
-        paste.collapse(s)
+        paste0(quote, quote)
+    else if(substr(s[1], 1, 1) == "'" || substr(s[1], 1, 1) == "\"")
+        paste.collapse(s) # already has quotes
     else
         paste0(quote, paste(s, collapse=paste0(quote, " ", quote)), quote)
 }
@@ -905,22 +921,24 @@ stopf <- function(fmt, ...) # args like printf
 stopifnot.string <- function(s, name=short.deparse(substitute(s)),
                              null.ok=FALSE, allow.empty=FALSE)
 {
+    if(name %in% c("NULL", "NA"))
+        name <- "argument"
     if(is.null(s)) {
         if(null.ok)
             return()
         else
-            stop0("'", name, "' is NULL (it should be a string)")
+            stop0(quotify(name, "'"), " is NULL (it should be a string)")
     }
     if(!is.character(s))
-        stop0("'", name, "' is not a character variable (class(",
+        stop0(quotify(name, "'"), " is not a character variable (class(",
               name, ") is \"", class(s), "\")")
     if(length(s) == 0)
-        stop0("'", name, "' is empty (it has no elements)")
+        stop0(quotify(name, "'"), " is empty (it has no elements)")
     if(length(s) != 1)
-        stop0("'", name, "' has more than one element\n       ",
+        stop0(quotify(name, "'"), " has more than one element\n       ",
               name, " = c(", paste.trunc("\"", s, "\"", sep=""), ")")
     if(!allow.empty && !nzchar(s))
-        stop0("'", name, "' is an empty string")
+        stop0(quotify(name, "'"), " is an empty string")
 }
 strip.deparse <- function(object) # deparse, collapse, remove most white space
 {
