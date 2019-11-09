@@ -15,7 +15,8 @@
 # data and the bx generated from that data has linear dependencies (which
 # is actually ok).
 #
-# I also touched up the warning messages to be more informative.
+# I also touched up the warning messages to be more informative,
+# and changed most warning messages to stop messages.
 
 leaps.setup<-function(x,y,wt=rep(1,length(y)),force.in=NULL,
                       force.out=NULL,intercept=TRUE,
@@ -63,27 +64,28 @@ leaps.setup<-function(x,y,wt=rep(1,length(y)),force.in=NULL,
                     thetab=numeric(np),sserr=numeric(1),ier=as.integer(0),
                     PACKAGE="earth")
   if (qrleaps$ier!=0)
-      warning(paste("MAKEQR returned error code",qrleaps$ier))
+      stopf("Fortran routine MAKEQR returned error code 0x%4.4X", qrleaps$ier)
   qrleaps$tx<-NULL
   qrleaps$wt<-NULL
   tolset<-.Fortran("tolset",as.integer(np),
                    as.integer(nrbar),qrleaps$d,qrleaps$rbar,
                    tol=numeric(np),numeric(np),ier=as.integer(0), PACKAGE="earth")
   if (tolset$ier!=0)
-      warning(paste("TOLSET returned error code",tolset$ier))
+      stopf("Fortran routine TOLSET returned error code 0x%4.4X", tolset$ier)
   ss<-.Fortran("ssleaps",as.integer(np),qrleaps$d,
                qrleaps$thetab,qrleaps$sserr,rss=numeric(np),
                ier=as.integer(0), PACKAGE="earth")
   if (ss$ier!=0)
-      warning(paste("SS returned error code",ss$ier))
+      stopf("Fortran routine SSLEAPS returned error code 0x%4.4X", ss$ier)
   sing<-.Fortran("sing",np=as.integer(qrleaps$np),nrbar=as.integer(nrbar),
                 d=qrleaps$d,rbar=qrleaps$rbar,thetab=qrleaps$thetab,
-                sserr=qrleaps$sserr,tol=tolset$tol,lindep=logical(qrleaps$np),
+                sserr=qrleaps$sserr,tol=tolset$tol,lindep=integer(qrleaps$np),
                 work=numeric(qrleaps$np),ier=as.integer(0), PACKAGE="earth")
   if (sing$ier>0)
-       warning(paste("SING returned error code",sing$ier))
+       stopf("Fortran routine SING returned error code 0x%4.4X", sing$ier)
+  sing$lindep <- as.logical(sing$lindep) # from integer (0 or 1) to logical
   sing$work<-NULL
-  if(any(sing$lindep)) { # linear dependencies in x?
+  if(any(sing$lindep)) { # linear dependencies in x? (should never happen with earth bx)
       if (intercept) {
           new.force.out <- sing$lindep | c(FALSE,force.out)
           reordered.col.nbrs <- order(new.force.out[-1]) # put lin dep cols at end
@@ -97,16 +99,17 @@ leaps.setup<-function(x,y,wt=rep(1,length(y)),force.in=NULL,
           lindep.in.force.in <- any(sing$lindep & force.in)
           colnames.with.intercept <- colnames(x)
       }
-      if (warn.dep)
-        warning0(if(try.again) "Trying again because " else "",
-                 sum(sing$lindep),
-                 " linearly dependent variable",
-                 if(sum(sing$lindep) > 1) "s" else "",
-                 ": ",
-                 paste(colnames.with.intercept[sing$lindep], collapse=", "))
+      if (warn.dep) {
+          nsingular <- sum(sing$lindep)
+          warning0("In leaps.setup, ",
+                   if(try.again) "discarding " else "",
+                   if(nsingular > 1) paste0(nsingular, " linearly dependent variables: ")
+                   else "linearly dependent variable: ",
+                   paste(colnames.with.intercept[sing$lindep], collapse=", "))
+      }
       if (lindep.in.force.in)
           stop("Linear dependency in force.in variable(s)")
-      if (try.again) {
+      if (try.again) { # recursive call
           rval<-leaps.setup(x[,ii[reordered.col.nbrs],drop=FALSE], y, wt,
                             force.in[reordered.col.nbrs], force.out[reordered.col.nbrs],
                             intercept, nvmax, nbest, warn.dep=FALSE)
@@ -125,14 +128,14 @@ leaps.setup<-function(x,y,wt=rep(1,length(y)),force.in=NULL,
       ss<-.Fortran("ssleaps",as.integer(np),sing$d,sing$thetab,
                    sing$sserr,rss=numeric(np),ier=as.integer(0),PACKAGE="earth")
     if (ss$ier!=0)
-            warning(paste("SS returned error code",ss$ier))
+            stopf("Fortran routine SSLEAPS returned error code 0x%4.4X", ss$ier)
   }
   initr<-.Fortran("initr",as.integer(np),as.integer(nvmax),as.integer(nbest),
                   bound=numeric(np),ress=numeric(nbest*nvmax),as.integer(nvmax),
                   lopt=integer(nbest*il),as.integer(il),vorder=as.integer(vorder),
                   ss$rss,ier=as.integer(0), PACKAGE="earth")
   if (initr$ier!=0)
-      warning(paste("INITR returned error code",initr$ier))
+      stopf("Fortran routine INITR returned error code 0x%4.4X", initr$ier)
   nullrss<-if (intercept) ss$rss[1] else sum(y^2)
   rval<-c(sing,list(nn=qrleaps$nn,rss=ss$rss,bound=initr$bound,
                     ress=matrix(initr$ress,ncol=nbest),
@@ -146,14 +149,10 @@ leaps.setup<-function(x,y,wt=rep(1,length(y)),force.in=NULL,
   invisible(rval)
 }
 
-leaps.exhaustive<-function(leaps.obj,really.big=FALSE){
-    if (!inherits(leaps.obj,"regsubsets")){
+leaps.exhaustive<-function(leaps.obj){
+    if (!inherits(leaps.obj,"regsubsets"))
         stop("Not a regsubsets object -- must run leaps.setup")
-    }
     nbest<-leaps.obj$nbest
-    if (!really.big & (leaps.obj$np>50 || leaps.obj$nbest>40)) {
-        stop("Exhaustive search will be S L O W, must specify really.big=T")
-    }
     dimwk<-3*leaps.obj$last
     dimiwk<-leaps.obj$nvmax
     rval<-.Fortran("xhaust",
@@ -179,6 +178,7 @@ leaps.exhaustive<-function(leaps.obj,really.big=FALSE){
                    iwk=integer(dimiwk),
                    dimiwk=as.integer(dimiwk),
                    ier=as.integer(0), PACKAGE="earth")
+    if(rval$ier!=0) stopf("Fortran routine XHAUST returned error code 0x%4.4X", rval$ier)
     rval$dimwk<-rval$dimiwk<-rval$iwk<-rval$wk<-NULL
     rval$xnames<-leaps.obj$xnames
     rval$method<-c("exhaustive",leaps.obj$method)
@@ -191,15 +191,13 @@ leaps.exhaustive<-function(leaps.obj,really.big=FALSE){
     rval$nullrss<-leaps.obj$nullrss
     rval$nn<-leaps.obj$nn
     class(rval)<-"regsubsets"
-    if(rval$ier!=0) warning(paste("XHAUST returned error code",rval$ier))
     rval
 }
 
 
 leaps.backward<-function(leaps.obj){
-  if (!inherits(leaps.obj,"regsubsets")){
+  if (!inherits(leaps.obj,"regsubsets"))
       stop("Not a regsubsets object -- must run leaps.setup")
-  }
   nbest<-leaps.obj$nbest
   dimwk<-2*leaps.obj$last
   rval<-.Fortran("bakwrd",np=as.integer(leaps.obj$np),
@@ -215,6 +213,8 @@ leaps.backward<-function(leaps.obj){
                  lopt=matrix(as.integer(leaps.obj$lopt),ncol=nbest),
                  il=as.integer(leaps.obj$il),wk=numeric(dimwk),
                  iwk=as.integer(dimwk),ier=as.integer(0), PACKAGE="earth")
+  if(rval$ier!=0)
+      stopf("Fortran routine BAKWRD returned error code 0x%4.4X", rval$ier)
   rval$dimwk<-rval$wk<-NULL
   rval$xnames<-leaps.obj$xnames
   rval$method<-c("backward",leaps.obj$method)
@@ -227,16 +227,13 @@ leaps.backward<-function(leaps.obj){
   rval$nullrss<-leaps.obj$nullrss
   rval$nn<-leaps.obj$nn
   class(rval)<-"regsubsets"
-  if(rval$ier!=0)
-      warning(paste("BAKWRD returned error code",rval$ier))
   rval
 }
 
 
 leaps.forward<-function(leaps.obj){
-  if (!inherits(leaps.obj,"regsubsets")){
+  if (!inherits(leaps.obj,"regsubsets"))
       stop("Not a regsubsets object -- must run leaps.setup")
-  }
   nbest<-leaps.obj$nbest
   dimwk<-3*leaps.obj$last
   rval<-.Fortran("forwrd",np=as.integer(leaps.obj$np),
@@ -252,6 +249,8 @@ leaps.forward<-function(leaps.obj){
                  lopt=matrix(as.integer(leaps.obj$lopt),ncol=nbest),
                  il=as.integer(leaps.obj$il),wk=numeric(dimwk),
                  iwk=as.integer(dimwk),ier=as.integer(0), PACKAGE="earth")
+  if(rval$ier!=0)
+      stopf("Fortran routine FORWARD returned error code 0x%4.4X", rval$ier)
   rval$dimwk<-rval$wk<-NULL
   rval$xnames<-leaps.obj$xnames
   rval$method<-c("forward",leaps.obj$method)
@@ -264,16 +263,13 @@ leaps.forward<-function(leaps.obj){
   rval$nullrss<-leaps.obj$nullrss
   rval$nn<-leaps.obj$nn
   class(rval)<-"regsubsets"
-  if(rval$ier!=0)
-      warning(paste("FORWARD returned error code",rval$ier))
   rval
 }
 
 
 leaps.seqrep<-function(leaps.obj){
-    if (!inherits(leaps.obj,"regsubsets")){
+    if (!inherits(leaps.obj,"regsubsets"))
         stop("Not a regsubsets object -- must run leaps.setup")
-    }
     nbest<-leaps.obj$nbest
     dimwk<-3*leaps.obj$last
     rval<-.Fortran("seqrep",np=as.integer(leaps.obj$np),
@@ -291,6 +287,8 @@ leaps.seqrep<-function(leaps.obj){
                    ncol=nbest),il=as.integer(leaps.obj$il),
                    wk=numeric(dimwk),iwk=as.integer(dimwk),
                    ier=as.integer(0), PACKAGE="earth")
+  if(rval$ier!=0)
+      stopf("Fortran routine SEQREP returned error code 0x%4.4X", rval$ier)
   rval$dimwk<-rval$wk<-NULL
   rval$xnames<-leaps.obj$xnames
   rval$method<-c("seqrep",leaps.obj$method)
@@ -303,7 +301,5 @@ leaps.seqrep<-function(leaps.obj){
   rval$nullrss<-leaps.obj$nullrss
   rval$nn<-leaps.obj$nn
   class(rval)<-"regsubsets"
-  if(rval$ier!=0)
-      warning(paste("SEQREP returned error code",rval$ier))
   rval
 }

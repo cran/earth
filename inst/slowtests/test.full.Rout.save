@@ -1,7 +1,7 @@
 > # test.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 3.5.3 (2019-03-11)"
+[1] "R version 3.6.1 (2019-07-05)"
 > 
 > source("test.prolog.R")
 > source("check.models.equal.R")
@@ -44,7 +44,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 5.1.1.
+  Splines. R package version 5.1.2.
   https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -53,7 +53,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 5.1.1},
+    note = {R package version 5.1.2},
     url = {https://CRAN.R-project.org/package=earth},
   }
 
@@ -98,13 +98,13 @@ GCV 11    RSS 209    GRSq 0.96    RSq 0.97
 > 
 >     # print R-Squared on the test data
 >     print(summary(earth.model, newdata=trees[test.subset,]))
-RSq 0.882 on newdata (7 cases)
+RSq 0.959 on newdata (7 cases)
 > 
 >     # manually calculate R-Squared on the test data (same as above call to summary)
 >     yhat <- predict(earth.model, newdata = trees[test.subset,])
 >     y <- trees$Volume[test.subset]
 >     printh(1 - sum((y - yhat)^2) / sum((y - mean(y))^2)) # print R-Squared
-===1 - sum((y - yhat)^2)/sum((y - mean(y))^2) [1] 0.8821553
+===1 - sum((y - yhat)^2)/sum((y - mean(y))^2) [1] 0.9592516
 > 
 > newrsq <- 1 - sum((y - yhat)^2) / sum((y - mean(y))^2)
 > stopifnot(abs(summary(earth.model, newdata=trees[test.subset,])$newrsq - newrsq) < 1e-10)
@@ -3875,40 +3875,40 @@ All 6876.7859 1863004.66 0.3743779 0.4832712
 > a <- earth(ozone1[,-1], ozone1[,1], subset=train.subset, nprune=7, degree=2)
 > printh(a)
 ===a 
-Selected 7 of 21 terms, and 4 of 9 predictors
+Selected 7 of 21 terms, and 5 of 9 predictors
 Termination condition: Reached nk 21
-Importance: humidity, ibt, doy, temp, vh-unused, wind-unused, ibh-unused, ...
-Number of terms at each degree of interaction: 1 5 1
-GCV 15.60427    RSS 3635.322    GRSq 0.7561022    RSq 0.7831299
+Importance: temp, ibh, humidity, doy, dpg, vh-unused, wind-unused, ...
+Number of terms at each degree of interaction: 1 4 2
+GCV 17.531    RSS 4084.192    GRSq 0.7243851    RSq 0.7549275
 > if (PLOT)
 +     plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)", trace=-1)
 > 
 > a <- earth(ozone1[train.subset,-1], ozone1[train.subset,1], nprune=7, degree=2)
 > printh(a)
 ===a 
-Selected 7 of 21 terms, and 4 of 9 predictors
+Selected 7 of 21 terms, and 5 of 9 predictors
 Termination condition: Reached nk 21
-Importance: humidity, ibt, doy, temp, vh-unused, wind-unused, ibh-unused, ...
-Number of terms at each degree of interaction: 1 5 1
-GCV 15.60427    RSS 3635.322    GRSq 0.7561022    RSq 0.7831299
+Importance: temp, ibh, humidity, doy, dpg, vh-unused, wind-unused, ...
+Number of terms at each degree of interaction: 1 4 2
+GCV 17.531    RSS 4084.192    GRSq 0.7243851    RSq 0.7549275
 > if (PLOT)
 +     plotmo(a, caption="test subset: earth(ozone1[train.subset,-1], ozone1[train.subset,1]", trace=-1)
 > 
 > a <- earth(O3 ~ ., data=ozone1, subset=train.subset, nprune=7, degree=2)
 > printh(a)
 ===a 
-Selected 7 of 21 terms, and 4 of 9 predictors
+Selected 7 of 21 terms, and 5 of 9 predictors
 Termination condition: Reached nk 21
-Importance: humidity, ibt, doy, temp, vh-unused, wind-unused, ibh-unused, ...
-Number of terms at each degree of interaction: 1 5 1
-GCV 15.60427    RSS 3635.322    GRSq 0.7561022    RSq 0.7831299
+Importance: temp, ibh, humidity, doy, dpg, vh-unused, wind-unused, ...
+Number of terms at each degree of interaction: 1 4 2
+GCV 17.531    RSS 4084.192    GRSq 0.7243851    RSq 0.7549275
 > if (PLOT)
 +     plotmo(a, caption="test subset: earth(O3 ~ ., data=ozone1, subset=train.subset", trace=-1)
 > 
 > y <- ozone1[test.subset, 1]
 > yhat <- predict(a, newdata = ozone1[test.subset, -1])
 > printh(1 - sum((y - yhat)^2)/sum((y - mean(y))^2)) # print RSquared
-===1 - sum((y - yhat)^2)/sum((y - mean(y))^2) [1] 0.7931236
+===1 - sum((y - yhat)^2)/sum((y - mean(y))^2) [1] 0.7922595
 > 
 > cat("--- update -------------------------\n")
 --- update -------------------------
@@ -4645,34 +4645,38 @@ Call:
 mda(formula = Type ~ ., data = glass.train, method = mars, keepxy = TRUE, 
     degree = 2)
 
-Dimension: 13 
+Dimension: 14 
 
 Percent Between-Group Variance Explained:
- v1  v2  v3  v4  v5  v6  v7  v8  v9 v10 v11 v12 v13 
-100 100 100 100 100 100 100 100 100 100 100 100 100 
+    v1     v2     v3     v4     v5     v6     v7     v8     v9    v10    v11 
+ 50.58  74.19  86.94  92.11  95.37  97.20  98.32  99.16  99.64  99.88 100.00 
+   v12    v13    v14 
+100.00 100.00 100.00 
 
-Training Misclassification Error: 0.25 ( N = 100 )
+Training Misclassification Error: 0.2 ( N = 100 )
 
-Deviance: 213.874 
+Deviance: 83.903 
 > printh(a)
 ===a 
 Call:
 mda(formula = Type ~ ., data = glass.train, method = earth, keep.fitted = TRUE, 
     keepxy = TRUE, degree = 2)
 
-Dimension: 11 
+Dimension: 12 
 
 Percent Between-Group Variance Explained:
     v1     v2     v3     v4     v5     v6     v7     v8     v9    v10    v11 
- 65.54  84.85  91.55  95.01  96.73  98.04  99.00  99.88 100.00 100.00 100.00 
+ 46.60  74.43  85.71  92.48  95.56  98.06  99.20 100.00 100.00 100.00 100.00 
+   v12 
+100.00 
 
-Training Misclassification Error: 0.29 ( N = 100 )
+Training Misclassification Error: 0.22 ( N = 100 )
 
-Deviance: 213.021 
+Deviance: 121.699 
 > cat("mda with mars  ", attr(confusion(am), "error"), "\n")
-mda with mars   0.25 
+mda with mars   0.2 
 > cat("mda with earth ", attr(confusion(a),  "error"), "\n")
-mda with earth  0.29 
+mda with earth  0.22 
 > if (PLOT) {
 +     plot(a$fit, caption="mda on glass data", nresponse=1)
 +     plotmo(a$fit, nresponse=9, clip=FALSE, ylim=NA, caption="mda on glass data", trace=-1)

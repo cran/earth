@@ -26,7 +26,7 @@
 @md Debug
 
 @rem Use -W4 (insteadof -W3) for lint like warnings
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\r\R-3.5.3"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
+cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\r\R-3.6.1"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
                                 @if %errorlevel% neq 0 goto error
 link -nologo -debug -out:earthmain.exe Debug\earth.obj Rdll.lib Rblas.lib
                                 @if %errorlevel% neq 0 goto error

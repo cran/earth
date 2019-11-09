@@ -339,10 +339,14 @@ for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
         } else
             library(gam)
     }
-    set.seed(6)
+    set.seed(2019)
+    # may 2019: following added because gam version 1.16 R version 3.6.0 gives Warning: non-list contrasts argument ignored
+    if(varmod.method %in% c("gam", "x.gam"))
+        options(warn=1)
     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
                        varmod.method=varmod.method,
                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
+    options(warn=2)
     printh(sprint("varmod.method %s: summary(earth.mod)", varmod.method))
     printh("summary(earth.mod)")
     print(summary(earth.mod))

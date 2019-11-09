@@ -24,11 +24,16 @@ Loading required package: TeachingDemos
 > 
 > max.mem.change <- function(mem.start, gc.start)
 + {
-+     mem <- memory.size()
++     mem <- memory.size() # MBytes (on non windows platforms, will always be Inf)
 +     gc <- gc(full=TRUE) # returns cells left after garbage collection
-+     max(abs(mem - mem.start),
-+         abs(gc[1,1] - gc.start[1,1]),  # Ncells
-+         abs(gc[2,1] - gc.start[2,1]))  # Vcells
++     # max(abs(mem - mem.start),
++     #     abs(gc[1,1] - gc.start[1,1]),  # Ncells
++     #     abs(gc[2,1] - gc.start[2,1]))  # Vcells
++     mem <- abs(mem - mem.start)
++     ncells <- abs(gc[1,1] - gc.start[1,1])
++     vcells <- abs(gc[2,1] - gc.start[2,1])
++     printf("mem %g ncells %g vcells %g\n", mem, ncells, vcells)
++     max(mem, ncells, vcells)
 + }
 > plotmem <- function(nlm, nstandardearth, ngoodallowed, nbadallowed, nbadendspan)
 + {
@@ -61,8 +66,9 @@ Loading required package: TeachingDemos
 +     # this stop is silent because call earth using try(..., silent=TRUE)
 +     stop("early exit from bad.allowedfunc")
 + }
-> cat("initial redundant run of lm\n") # else initial nlm very large (why?)
+> cat("initial redundant run of lm\n") # else initial nlm very large
 initial redundant run of lm
+>                                      # (probably because some function is allocating a static buffer)
 > print(summary(lm(y~x)))
 
 Call:
@@ -92,6 +98,11 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 +     } else
 +         nlm[i] <- max.mem.change(mem.start, gc.start)
 + }
+mem 5.39 ncells 20 vcells 30
+mem 5.21 ncells 1585 vcells 3675
+mem 5.37 ncells 1785 vcells 4255
+mem 5.37 ncells 1785 vcells 4255
+mem 5.37 ncells 1785 vcells 4255
 > cat("actual run of lm\n")
 actual run of lm
 > # We use 0:nmodels, because we build the first model at iter 0,
@@ -126,6 +137,11 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 +     } else
 +         nlm[i] <- max.mem.change(mem.start, gc.start)
 + }
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
 > # standard earth model
 > cat("earth(y~x)\n")
 earth(y~x)
@@ -151,6 +167,11 @@ GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
 +     } else
 +         nstandardearth[i] <- max.mem.change(mem.start, gc.start)
 + }
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
 > # earth model with an allowed func
 > cat("earth(y~x, allowed = good.allowedfunc)\n")
 earth(y~x, allowed = good.allowedfunc)
@@ -176,6 +197,11 @@ GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
 +     } else
 +         ngoodallowed[i] <- max.mem.change(mem.start, gc.start)
 + }
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
 > # try earth model with an allowed func which causes an error
 > cat("earth(y~x, allowed = bad.allowedfunc)\n")
 earth(y~x, allowed = bad.allowedfunc)
@@ -192,6 +218,11 @@ Got error as expected from try(earth(y ~ x, allowed = bad.allowedfunc), silent =
 +     } else
 +         nbadallowed[i] <- max.mem.change(mem.start, gc.start)
 + }
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
 > # try earth model with an arg that causes error in ForwardPass in earth.c
 > cat("earth(y~x, Adjust.endspan = -999\n")
 earth(y~x, Adjust.endspan = -999
@@ -208,16 +239,21 @@ Got error as expected from try(earth(y ~ x, Adjust.endspan = -999), silent = FAL
 +     } else
 +         nbadendspan[i] <- max.mem.change(mem.start, gc.start)
 + }
-> print(nlm)
-[1] 9 9 9 9 9
-> print(nstandardearth)
-[1] 9 9 9 9 9
-> print(ngoodallowed)
-[1] 9 9 9 9 9
-> print(nbadallowed)
-[1] 9 9 9 9 9
-> print(nbadendspan)
-[1] 9 9 9 9 9
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+mem 0 ncells 9 vcells 1
+> cat("nlm           "); print(nlm)
+nlm           [1] 9 9 9 9 9
+> cat("nstandardearth"); print(nstandardearth)
+nstandardearth[1] 9 9 9 9 9
+> cat("ngoodallowed  "); print(ngoodallowed)
+ngoodallowed  [1] 9 9 9 9 9
+> cat("nbadallowed   "); print(nbadallowed)
+nbadallowed   [1] 9 9 9 9 9
+> cat("nbadendspan   "); print(nbadendspan)
+nbadendspan   [1] 9 9 9 9 9
 > 
 > # printf("\n                             Min       1stQ     Median       Mean      3rdQ        Max\n")
 > # printf("lm                    %s\n", paste0(sprintf("% 10.3f", summary(nlm)), collapse=" "))

@@ -2,7 +2,7 @@
 @rem Stephen Milborrow Mar 2019 Petaluma
 
 @echo test.multresp.bat
-@"C:\PROGRA~1\R\R-3.5.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.multresp.R
+@"C:\PROGRA~1\R\R-3.6.1\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.multresp.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.multresp.Rout:
 @echo.

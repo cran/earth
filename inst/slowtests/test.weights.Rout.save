@@ -657,7 +657,7 @@ GCV 0.0670688    RSS 0.1825762    GRSq 0.9142114    RSq 0.9854545
 > library(gam)
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.16
+Loaded gam 1.16.1
 
 > library(rpart)
 > n <- 100
@@ -676,6 +676,8 @@ comparison to glm and rpart: unweighted
 > plotmo(a200, do.par=FALSE, pt.col=2, main="unweighted\nearth", cex=.7, pt.cex=.2, grid.col=TRUE)
 > mtext("comparison to glm and rpart", outer=TRUE, line=2)
 > gam200 <- gam(y~s(x1, 5), data=data)
+Warning in model.matrix.default(mt, mf, contrasts) :
+  non-list contrasts argument ignored
 > plotmo(gam200, do.par=FALSE, pt.col=2, main="gam", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001))
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="rpart", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -687,6 +689,8 @@ comparison to glm and rpart: weight=.1
 > aw201 <- earth(y~x1, data=data, weights=w)
 > plotmo(aw201, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw201 <- gam(y~s(x1, 5), data=data, weights=w)
+Warning in model.matrix.default(mt, mf, contrasts) :
+  non-list contrasts argument ignored
 > plotmo(gamw201, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -698,6 +702,8 @@ comparison to glm and rpart: weight=1
 > aw202 <- earth(y~x1, data=data, weights=w)
 > plotmo(aw202, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw202 <- gam(y~s(x1, 5), data=data, weights=w)
+Warning in model.matrix.default(mt, mf, contrasts) :
+  non-list contrasts argument ignored
 > plotmo(gamw202, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -709,6 +715,8 @@ comparison to glm and rpart: weight=2
 > aw203 <- earth(y~x1, data=data, weights=w)
 > plotmo(aw203, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw203 <- gam(y~s(x1, 5), data=data, weights=w)
+Warning in model.matrix.default(mt, mf, contrasts) :
+  non-list contrasts argument ignored
 > plotmo(gamw203, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -720,6 +728,8 @@ comparison to glm and rpart: weight=10
 > aw204 <- earth(y~x1, data=data, weights=w)
 > plotmo(aw204, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw204 <- gam(y~s(x1, 5), data=data, weights=w)
+Warning in model.matrix.default(mt, mf, contrasts) :
+  non-list contrasts argument ignored
 > plotmo(gamw204, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -774,55 +784,109 @@ comparison to glm and rpart: weight=10
 > dat <- data.frame(y=y, x1=x1, x2=x2, x3=x3)
 > 
 > a <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial))
+Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: the glm algorithm did not converge for response "yes"
 > print(summary(a))
 Call: earth(formula=y~x1+x2+x3, data=dat, glm=list(family=binomial))
 
 GLM coefficients
-                     yes
-(Intercept)     3.790425
-x1B             7.421038
-x1C            16.447160
-h(1.11783-x3)  -7.786156
-h(x3-1.11783) 163.435824
+                        yes
+(Intercept)      -354.94518
+x1B               225.24760
+x1C               400.87267
+h(0.162484-x2)   1756.01294
+h(x2-0.162484)    482.27536
+h(x3- -0.662305)  -27.27155
+h(0.0157099-x3)  -107.40748
+h(x3-0.0157099)   245.22300
 
-GLM (family binomial, link logit):
- nulldev df       dev df   devratio     AIC iters converged
-  133.75 99   20.5539 95      0.846   30.55    22         1
+GLM (family binomial, link logit, maxit=25):
+ nulldev df         dev df   devratio     AIC iters converged
+ 132.813 99 3.92659e-08 92          1      16    25         0
 
-Earth selected 5 of 13 terms, and 3 of 4 predictors
+Earth selected 8 of 13 terms, and 4 of 4 predictors
 Termination condition: Reached nk 21
-Importance: x3, x1C, x1B, x2-unused
-Number of terms at each degree of interaction: 1 4 (additive model)
-Earth GCV 0.09601838    RSS 7.951282    GRSq 0.6044237    RSq 0.6657721
+Importance: x3, x1C, x1B, x2
+Number of terms at each degree of interaction: 1 7 (additive model)
+Earth GCV 0.0989258    RSS 7.147389    GRSq 0.588467    RSq 0.6966304
 > yhat <- predict(a, dat[, c('x1', 'x2', 'x3')], type='response')
 > 
 > w <- rep(1, n) # vector of equal weights
 > aw <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial), weight=w)
+Warning: glm.fit: algorithm did not converge
 Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: the glm algorithm did not converge for response "yes"
 > print(summary(aw))
 Call: earth(formula=y~x1+x2+x3, data=dat, weights=w, glm=list(family=binomial))
 
 GLM coefficients
-                     yes
-(Intercept)     3.790425
-x1B             7.421038
-x1C            16.447160
-h(1.11783-x3)  -7.786156
-h(x3-1.11783) 163.435824
+                        yes
+(Intercept)      -354.94518
+x1B               225.24760
+x1C               400.87267
+h(0.162484-x2)   1756.01294
+h(x2-0.162484)    482.27536
+h(x3- -0.662305)  -27.27155
+h(0.0157099-x3)  -107.40748
+h(x3-0.0157099)   245.22300
 
-GLM (family binomial, link logit):
- nulldev df       dev df   devratio     AIC iters converged
-  133.75 99   20.5539 95      0.846   30.55    22         1
+GLM (family binomial, link logit, maxit=25):
+ nulldev df         dev df   devratio     AIC iters converged
+ 132.813 99 3.92659e-08 92          1      16    25         0
 
-Earth selected 5 of 13 terms, and 3 of 4 predictors
+Earth selected 8 of 13 terms, and 4 of 4 predictors
 Termination condition: Reached nk 21
-Importance: x3, x1C, x1B, x2-unused
-Number of terms at each degree of interaction: 1 4 (additive model)
-Earth GCV 0.09601838    RSS 7.951282    GRSq 0.6044237    RSq 0.6657721
+Importance: x3, x1C, x1B, x2
+Number of terms at each degree of interaction: 1 7 (additive model)
+Earth GCV 0.0989258    RSS 7.147389    GRSq 0.588467    RSq 0.6966304
 > yhatw <- predict(aw, dat[, c('x1', 'x2', 'x3')], type='response')
 > stopifnot(identical(yhat, yhat))
-> check.earth.lm.models.equal(a, aw)
+> check.models.equal(a, aw)
+models not identical
+
+Formulas differ: y ~ x1 + x2 + x3
+and:             y ~ x1 + x2 + x3
+
+glm submodel formula strings are identical: yarg ~ `h(x3-0.0157099)` + `h(0.0157099-x3)` + x1C + x1B + `h(x2-0.162484)` +     `h(0.162484-x2)` + `h(x3--0.662305)`
+but the actual glm submodel formulas differ (classes are "formula" and "formula")
+glm submodels not identical (but coefs, residuals, fitted.values are the same)
+Models are equivalent, within numerical tolerances
+
+> 
+> w <- rep(1, n) # vector of equal weights
+> aw.force <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial), weight=w, Force.weights=TRUE)
+Warning: glm.fit: algorithm did not converge
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: the glm algorithm did not converge for response "yes"
+> print(summary(aw.force))
+Call: earth(formula=y~x1+x2+x3, data=dat, weights=w, glm=list(family=binomial),
+            Force.weights=TRUE)
+
+GLM coefficients
+                        yes
+(Intercept)      -354.94518
+x1B               225.24760
+x1C               400.87267
+h(0.162484-x2)   1756.01294
+h(x2-0.162484)    482.27536
+h(x3- -0.662305)  -27.27155
+h(0.0157099-x3)  -107.40748
+h(x3-0.0157099)   245.22300
+
+GLM (family binomial, link logit, maxit=25):
+ nulldev df         dev df   devratio     AIC iters converged
+ 132.813 99 3.92659e-08 92          1      16    25         0
+
+Earth selected 8 of 13 terms, and 4 of 4 predictors
+Termination condition: Reached nk 21
+Importance: x3, x1C, x1B, x2
+Weights: 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+Number of terms at each degree of interaction: 1 7 (additive model)
+Earth GCV 0.0989258    RSS 7.147389    GRSq 0.588467    RSq 0.6966304
+> yhatw <- predict(aw.force, dat[, c('x1', 'x2', 'x3')], type='response')
+> stopifnot(identical(yhat, yhat))
+> check.earth.lm.models.equal(a, aw.force)
 > 
 > cat("---check Scale.y-------------------------------------------\n")
 ---check Scale.y-------------------------------------------

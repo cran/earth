@@ -1,6 +1,20 @@
 Changes to the earth package
 ----------------------------
 
+5.1.2 Nov 4, 2019
+
+  Changed the type of the "lindeps" argument of the Fortran subroutine
+  "SING" from LOGICAL to INTEGER, to satisfy a CRAN check.
+
+  Improved handling of linear dependencies in bx (before the backward pass),
+  although it is unlikely that such dependencies would exist in any earth model.
+
+  Improved error reporting in leaps routines, although it is unlikely that
+  such errors could occur in earth.
+
+  Updated test scripts for the new random number generator
+  that came with R version 3.6.0.
+
 5.1.1 Apr 11, 2019
 
   Earth now runs with R versions 3.4.0 or higher (whereas before

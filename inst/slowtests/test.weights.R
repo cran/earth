@@ -458,7 +458,14 @@ aw <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial), weigh
 print(summary(aw))
 yhatw <- predict(aw, dat[, c('x1', 'x2', 'x3')], type='response')
 stopifnot(identical(yhat, yhat))
-check.earth.lm.models.equal(a, aw)
+check.models.equal(a, aw)
+
+w <- rep(1, n) # vector of equal weights
+aw.force <- earth(formula=y ~ x1 + x2 + x3, data=dat, glm=list(family=binomial), weight=w, Force.weights=TRUE)
+print(summary(aw.force))
+yhatw <- predict(aw.force, dat[, c('x1', 'x2', 'x3')], type='response')
+stopifnot(identical(yhat, yhat))
+check.earth.lm.models.equal(a, aw.force)
 
 cat("---check Scale.y-------------------------------------------\n")
 

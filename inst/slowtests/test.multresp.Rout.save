@@ -1397,8 +1397,7 @@ Prune backward penalty 2 nprune null: selected 10 of 18 terms, and 5 of 9 preds
 After pruning pass GRSq 0.377 RSq 0.443
 > # TODO the following fails, it puts log(O3) on both sides of the formula
 > try(stopifnot(all.equal(as.vector(a10$coefficients), as.vector(a11$coefficients))))
-Error in try(stopifnot(all.equal(as.vector(a10$coefficients), as.vector(a11$coefficients)))) : 
-  as.vector(a10$coefficients) and as.vector(a11$coefficients) are not equal:
+Error : as.vector(a10$coefficients) and as.vector(a11$coefficients) are not equal:
   Numeric: lengths (24, 20) differ
 > 
 > a1 <- earth(cbind(log.O3=log(O3),wind) ~ humidity+temp, data=ozone1)

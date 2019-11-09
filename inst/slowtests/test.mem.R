@@ -20,11 +20,16 @@ nbadendspan    <- double(length=nmodels)
 
 max.mem.change <- function(mem.start, gc.start)
 {
-    mem <- memory.size()
+    mem <- memory.size() # MBytes (on non windows platforms, will always be Inf)
     gc <- gc(full=TRUE) # returns cells left after garbage collection
-    max(abs(mem - mem.start),
-        abs(gc[1,1] - gc.start[1,1]),  # Ncells
-        abs(gc[2,1] - gc.start[2,1]))  # Vcells
+    # max(abs(mem - mem.start),
+    #     abs(gc[1,1] - gc.start[1,1]),  # Ncells
+    #     abs(gc[2,1] - gc.start[2,1]))  # Vcells
+    mem <- abs(mem - mem.start)
+    ncells <- abs(gc[1,1] - gc.start[1,1])
+    vcells <- abs(gc[2,1] - gc.start[2,1])
+    printf("mem %g ncells %g vcells %g\n", mem, ncells, vcells)
+    max(mem, ncells, vcells)
 }
 plotmem <- function(nlm, nstandardearth, ngoodallowed, nbadallowed, nbadendspan)
 {
@@ -57,7 +62,8 @@ bad.allowedfunc  <- function(degree, pred, parents, namesx, first)
     # this stop is silent because call earth using try(..., silent=TRUE)
     stop("early exit from bad.allowedfunc")
 }
-cat("initial redundant run of lm\n") # else initial nlm very large (why?)
+cat("initial redundant run of lm\n") # else initial nlm very large
+                                     # (probably because some function is allocating a static buffer)
 print(summary(lm(y~x)))
 for(i in 0:nmodels) {
     try(lm(y~x), silent=FALSE)
@@ -130,11 +136,11 @@ for(i in 0:nmodels) {
     } else
         nbadendspan[i] <- max.mem.change(mem.start, gc.start)
 }
-print(nlm)
-print(nstandardearth)
-print(ngoodallowed)
-print(nbadallowed)
-print(nbadendspan)
+cat("nlm           "); print(nlm)
+cat("nstandardearth"); print(nstandardearth)
+cat("ngoodallowed  "); print(ngoodallowed)
+cat("nbadallowed   "); print(nbadallowed)
+cat("nbadendspan   "); print(nbadendspan)
 
 # printf("\n                             Min       1stQ     Median       Mean      3rdQ        Max\n")
 # printf("lm                    %s\n", paste0(sprintf("% 10.3f", summary(nlm)), collapse=" "))

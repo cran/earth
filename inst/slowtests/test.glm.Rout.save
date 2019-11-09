@@ -7505,10 +7505,9 @@ After pruning pass GRSq 0 RSq 0
 earth.glm: intercept-only earth model
 GLM aaa devratio 0.00 dof 17/17 iters 4
 Full model GRSq 0.000 RSq 0.000, starting cross validation
-CV fold 1  Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-CVRSq -1.076   n.oof  8 56%   n.infold.nz  6 75%   n.oof.nz  6 60%
-CV fold 2  CVRSq -0.120   n.oof 10 44%   n.infold.nz  6 60%   n.oof.nz  6 75%
-CV all     CVRSq -0.598                  n.infold.nz 12 67%
+CV fold 1  CVRSq -1.032   n.oof  9 50%   n.infold.nz  6 67%   n.oof.nz  6 67%
+CV fold 2  CVRSq  0.000   n.oof  9 50%   n.infold.nz  6 67%   n.oof.nz  6 67%
+CV all     CVRSq -0.516                  n.infold.nz 12 67%
 
 > show.earth.models(a.intercept.only)
 
@@ -7522,7 +7521,7 @@ Earth selected 1 of 5 terms, and 0 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.5982021
+Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.515968
 
 Summary a.intercept.only 
 
@@ -7541,16 +7540,16 @@ Earth selected 1 of 5 terms, and 0 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.5982021
+Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.515968
 
 Note: the cross-validation sd's below are standard deviations across folds
 
 Cross validation:   nterms 1.50 sd 0.71    nvars 0.50 sd 0.71
 
-  CVRSq    sd ClassRate    sd MaxErr    sd   AUC    sd MeanDev   sd CalibInt
- -0.598 0.676     0.725 0.035     -1 0.283 0.573 0.103    11.4 14.4    0.786
+  CVRSq   sd ClassRate    sd MaxErr   sd   AUC    sd MeanDev    sd CalibInt
+ -0.516 0.73     0.611 0.079  0.995 1.18 0.583 0.118    1.97 0.993    0.808
     sd CalibSlope sd
- 0.442         NA NA
+ 0.162         NA NA
 
 Summary a.intercept.only digits=3, details=TRUE
 
@@ -7581,16 +7580,16 @@ Earth selected 1 of 5 terms, and 0 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.249  RSS 4  GRSq 0  RSq 0  CVRSq -0.598
+Earth GCV 0.249  RSS 4  GRSq 0  RSq 0  CVRSq -0.516
 
 Note: the cross-validation sd's below are standard deviations across folds
 
 Cross validation:   nterms 1.50 sd 0.71    nvars 0.50 sd 0.71
 
-  CVRSq    sd ClassRate    sd MaxErr    sd   AUC    sd MeanDev   sd CalibInt
- -0.598 0.676     0.725 0.035     -1 0.283 0.573 0.103    11.4 14.4    0.786
+  CVRSq   sd ClassRate    sd MaxErr   sd   AUC    sd MeanDev    sd CalibInt
+ -0.516 0.73     0.611 0.079  0.995 1.18 0.583 0.118    1.97 0.993    0.808
     sd CalibSlope sd
- 0.442         NA NA
+ 0.162         NA NA
 
 evimp a.intercept.only 
 
@@ -7641,16 +7640,16 @@ Earth selected 1 of 5 terms, and 0 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
-Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.5982021
+Earth GCV 0.2491349  RSS 4  GRSq 0  RSq 0  CVRSq -0.515968
 
 Note: the cross-validation sd's below are standard deviations across folds
 
 Cross validation:   nterms 1.50 sd 0.71    nvars 0.50 sd 0.71
 
-  CVRSq    sd ClassRate    sd MaxErr    sd   AUC    sd MeanDev   sd CalibInt
- -0.598 0.676     0.725 0.035     -1 0.283 0.573 0.103    11.4 14.4    0.786
+  CVRSq   sd ClassRate    sd MaxErr   sd   AUC    sd MeanDev    sd CalibInt
+ -0.516 0.73     0.611 0.079  0.995 1.18 0.583 0.118    1.97 0.993    0.808
     sd CalibSlope sd
- 0.442         NA NA
+ 0.162         NA NA
 > printh(predict(a.intercept.only))
 === predict(a.intercept.only)
             aaa
@@ -7842,7 +7841,6 @@ predict.earth: returning glm response predictions
 > 
 > set.seed(1235)
 > a <- earth(survived ~ ., data=etitanic, glm=list(family=binomial), nfold=2)
-Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > plot.earth.models(list(a.intercept.only, a), main="plot.earth.models\nlist(a.intercept.only, a)")
 > plot.earth.models(list(a, a.intercept.only), main="plot.earth.models\nlist(a, a.intercept.only)", legend.pos="topleft", jitter=.01)
 > # nothing will plot for the next call

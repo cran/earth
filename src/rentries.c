@@ -153,7 +153,8 @@ extern void F77_SUB(sing)(
     double *THETAB,
     double *SSERR,
     double *TOL,
-    bool   *LINDEP,
+// nov 2019: changed LINDEP to int (from bool) to pacify R CRAN check
+    int    *LINDEP,
     double *WORK,
     int    *IER);
 extern void F77_SUB(ssleaps)(
@@ -293,7 +294,8 @@ static R_NativePrimitiveArgType sing_t[] = {
     REALSXP,    // 06 DOUBLE  THETAB
     REALSXP,    // 07 DOUBLE  SSERR
     REALSXP,    // 08 DOUBLE  TOL
-    LGLSXP,     // 10 LOGICAL LINDEP
+// nov 2019: changed LINDEP to INTSXP (from LGLSXP) to pacify R CRAN check
+    INTSXP,     // 10 INTEGER LINDEP
     REALSXP,    // 09 DOUBLE  WORK
     INTSXP,     // 03 INTEGER IER
 };

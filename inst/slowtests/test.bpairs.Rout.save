@@ -1420,9 +1420,9 @@ Prune none penalty 2 nprune null: selected 3 of 3 terms, and 2 of 2 preds
 After pruning pass GRSq 0.952 RSq 0.981
 GLM numalive devratio 0.95 dof 9/11 iters 4
 Full model GRSq 0.952 RSq 0.981, starting cross validation
-CV fold 1  CVRSq -0.256   n.oof  5 58%   n.infold.nz  4 80%   n.oof.nz  7 100%
-CV fold 2  CVRSq  0.700   n.oof  7 42%   n.infold.nz  7 100%   n.oof.nz  4 80%
-CV all     CVRSq  0.222                  n.infold.nz 11 92%
+CV fold 1  CVRSq  0.778   n.oof  6 50%   n.infold.nz  5 83%   n.oof.nz  6 100%
+CV fold 2  CVRSq  0.707   n.oof  6 50%   n.infold.nz  6 100%   n.oof.nz  5 83%
+CV all     CVRSq  0.743                  n.infold.nz 11 92%
 
 > check.models.equal(pairmod.cv, pairmod8, "pairmod.cv, pairmod9", newdata=df[3:5,])
 pairmod.cv, pairmod9: models not identical
@@ -1972,9 +1972,9 @@ Prune backward penalty 2 nprune null: selected 4 of 7 terms, and 1 of 1 preds
 After pruning pass GRSq 0.949 RSq 0.963
 GLM good devratio 0.93 dof 36/39 iters 4
 Full model GRSq 0.949 RSq 0.963, starting cross validation
-CV fold 1  CVRSq  0.811   n.oof 19 52%   n.infold.nz 19 100%   n.oof.nz 21 100%
-CV fold 2  CVRSq  0.952   n.oof 21 48%   n.infold.nz 21 100%   n.oof.nz 19 100%
-CV all     CVRSq  0.882                  n.infold.nz 40 100%
+CV fold 1  CVRSq  0.923   n.oof 21 48%   n.infold.nz 21 100%   n.oof.nz 19 100%
+CV fold 2  CVRSq  0.928   n.oof 19 52%   n.infold.nz 19 100%   n.oof.nz 21 100%
+CV all     CVRSq  0.926                  n.infold.nz 40 100%
 
 > cat("cross validated model:\n")
 cross validated model:
@@ -1997,14 +1997,16 @@ Earth selected 4 of 7 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 7 terms
 Importance: x
 Number of terms at each degree of interaction: 1 3 (additive model)
-Earth GCV 0.004633736  RSS 0.1261535  GRSq 0.9488392  RSq 0.9633701  CVRSq 0.8818172
+Earth GCV 0.004633736  RSS 0.1261535  GRSq 0.9488392  RSq 0.9633701  CVRSq 0.9256185
 
 Note: the cross-validation sd's below are standard deviations across folds
 
-Cross validation:   nterms 3.00 sd 0.00    nvars 1.00 sd 0.00
+Cross validation:   nterms 3.50 sd 0.71    nvars 1.00 sd 0.00
 
- CVRSq  sd MaxErr     sd AUC sd MeanDev     sd CalibInt   sd CalibSlope   sd
- 0.882 0.1  0.225 0.0814   1  0    1.04 0.0154    0.074 0.08       1.17 0.41
+ CVRSq    sd MaxErr    sd   AUC    sd MeanDev    sd CalibInt    sd CalibSlope
+ 0.926 0.004 -0.208 0.289 0.994 0.008    1.04 0.132   -0.052 0.401       1.08
+    sd
+ 0.243
 > cat("first fold model:\n")
 first fold model:
 > print(summary(earth.cv$cv.list[[1]]))
@@ -2015,19 +2017,19 @@ Call: earth(x=infold.x, y=infold.y, weights=infold.weights, wp=wp,
 
 GLM coefficients
                   good
-(Intercept)  2.0286505
-h(17-x)     -0.2787507
-h(x-17)     -0.1587691
+(Intercept)  3.0769321
+h(21-x)     -0.2770319
+h(x-21)     -0.2732809
 
 GLM (family binomial, link logit):
  nulldev df       dev df   devratio     AIC iters converged
- 142.085 18   17.6735 16      0.876   79.42     4         1
+ 206.311 20   10.5272 18      0.949   72.58     4         1
 
 Earth selected 3 of 3 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
 Importance: x
 Number of terms at each degree of interaction: 1 2 (additive model)
-Earth GCV 0.01240045    RSS 0.1279205    GRSq 0.8609776    RSq 0.9159
+Earth GCV 0.004101511    RSS 0.04999937    GRSq 0.9637956    RSq 0.9768292
 > par(mfrow = c(2, 2), mar = c(3, 3, 3, 1), mgp = c(1.5, 0.5, 0))
 > set.seed(2019)
 > plotmo(earth.cv, type="earth", pt.col=2, do.par=0)

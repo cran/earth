@@ -970,35 +970,19 @@ eval.model.subsets <- function(
         eval.subsets.xtx(bx, y, pmethod, nprune, Force.xtx.prune, trace)
 
     } else
-        eval.model.subsets.with.leaps(bx, y, pmethod, nprune, trace)
+        eval.model.subsets.with.leaps(bx, y, pmethod, nprune)
 }
-eval.model.subsets.with.leaps <- function(
-    bx,
-    y,
-    pmethod,
-    nprune,
-    trace)
+# convert lopt format to prune.terms format
+convert.lopt <- function(lopt, nprune)
 {
-    convert.lopt <- function(lopt, nprune) # convert lopt format to prune.terms format
-    {
-        # Assignment fills matrix column wise. We want row wise, so
-        # take upper triangle and then transpose.
-
-        prune.terms <- matrix(0, nrow=nprune, ncol=nprune)
-        prune.terms[upper.tri(prune.terms, diag=TRUE)] <- lopt
-        t(prune.terms)
-    }
-    #--- eval.model.subsets.with.leaps starts here ---
-    # Make warnings in the leaps routines behave as errors.
-    # We have seen the leaps routines return bad data (?) after issuing
-    # the warning "XHAUST returned error code -999",
-    # and when that occurs we don't want to continue running.
-    # Also with very big models, we want to treat the following as an error:
-    # Warning in leaps.setup: Reached total allocation of 32673Mb
-    old.warn <- getOption("warn")
-    on.exit(options(warn=old.warn))
-    options(warn=2)
-
+    # Assignment fills matrix column wise. We want row wise, so
+    # take upper triangle and then transpose.
+    prune.terms <- matrix(0, nrow=nprune, ncol=nprune)
+    prune.terms[upper.tri(prune.terms, diag=TRUE)] <- lopt
+    t(prune.terms)
+}
+eval.model.subsets.with.leaps <- function( bx, y, pmethod, nprune)
+{
     rprune <- leaps.setup(x=bx, y=y,
         force.in=1,        # make sure intercept is in model
         force.out=NULL,
@@ -1008,14 +992,13 @@ eval.model.subsets.with.leaps <- function(
     rprune <- switch(pmethod,
         backward   = leaps.backward(rprune),
         none       = leaps.backward(rprune), # for stats, won't actually prune
-        exhaustive = leaps.exhaustive(rprune, really.big=TRUE),
+        exhaustive = leaps.exhaustive(rprune),
         forward    = leaps.forward(rprune),
         seqrep     = leaps.seqrep(rprune))
 
-    rss.per.subset <- as.vector(rprune$ress) # convert from n x 1 mat to vector
-
-    list(rss.per.subset = rss.per.subset, # vec of RSSs for each model (index on subset size)
-         prune.terms = convert.lopt(rprune$lopt, nprune)) # each row is a vec of term indices
+    list(rss.per.subset = as.vector(rprune$ress), # convert nx1 mat to vec
+         # each row of prune.terms is a vec of term indices
+         prune.terms    = convert.lopt(rprune$lopt, nprune))
 }
 # This calls the earth.c routine EvalSubsetsUsingXtxR.
 # Unlike the leaps code, it can handle multiple responses (i.e. multiple y columns)
@@ -1814,8 +1797,6 @@ pruning.pass <- function(x, y, bx, # x, y, and bx are weighted if weights arg wa
     prune.terms    <- rv$prune.terms    # each row is a vec of term indices
     stopifnot(length(rss.per.subset) <= nprune)
     nprune <- length(rss.per.subset)
-    stopifnot(NROW(prune.terms) == nprune)
-    stopifnot(NCOL(prune.terms) == nprune)
     prune.terms <- prune.terms[seq_len(nprune), seq_len(nprune), drop=FALSE]
     stopifnot(all(prune.terms[,1] == 1)) # check intercept column
     gcv.per.subset <- get.gcv(rss.per.subset, seq_len(nprune), penalty, nrow(bx))
