@@ -3,7 +3,7 @@
 
 all: test.earthc.out
 
-R_DIR="%ProgramFiles%\r\R-3.6.1"
+R_DIR="%ProgramFiles%\r\R-4.0.2"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -23,8 +23,9 @@ CFG=Debug
 OUTDIR=Release
 CFLAGS=-nologo -DSTANDALONE $(RELEASE_BUILD_CFLAGS) -TP -O2 -W3 -MT $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo $(RELEASE_BUILD_LFLAGS) $(PROF_FLAGS)
-# To build Rdll.libs see instructions in gnuwin32\README.packages
-LIBS=Rdll.lib Rblas.lib
+# To build R.lib, see for example https://www.asawicki.info/news_1420_generating_lib_file_for_dll_library
+# See also c:\bin\ddl2lib.bat
+LIBS=R.lib Rblas.lib
 !ENDIF
 
 !IF  "$(CFG)" == "Debug"
@@ -37,12 +38,12 @@ LIBS=Rdll.lib Rblas.lib
 # No need to define _DEBUG, compiler does it for us if -MTd flag is used
 OUTDIR=Debug
 # TODO We use -MDd instead of -MTd here.  It seems to work just as well.
-#      Using -Mtd causes linker error: LIBCMTD.lib(sprintf.obj) : error LNK2005: _sprintf already defined in Rdll.lib(R.dll)
+#      Using -Mtd causes linker error: LIBCMTD.lib(sprintf.obj) : error LNK2005: _sprintf already defined in R.lib(R.dll)
 # CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MTd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 CFLAGS=-nologo -DSTANDALONE -TP -Zi -W3 -MDd $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo -debug
-# To build Rdll.libs see instructions in gnuwin32\README.packages
-LIBS=Rdll.lib Rblas.lib 
+# To build R.libs see instructions in gnuwin32\README.packages
+LIBS=R.lib Rblas.lib 
 !ENDIF
 
 OBJ=$(OUTDIR)\earth.obj $(OUTDIR)\test.earthc.obj
@@ -54,7 +55,8 @@ clean:
 	rm -f test.earthc.main.exe $(OUTDIR)/*.obj $(OUTDIR)/*.out $(OUTDIR)/*.pch *.pdb *.dll *.map *.ilk
 
 test.earthc.main.exe: $(OBJ)
-	link $(LFLAGS) -out:test.earthc.main.exe $(OBJ) $(LIBS)
+	@rem Added path below to disambiguate from rtools which (may 2020 R version 4.0.0)
+	"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\link.exe" $(LFLAGS) -out:test.earthc.main.exe $(OBJ) $(LIBS)
 
 # we use diff -w below so \r\n is treated the same as \n
 test.earthc.out: test.earthc.main.exe test.earthc.out.save

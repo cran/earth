@@ -27,8 +27,14 @@ check.earth.matches.glm <- function(earth, glm, newdata=long[c(3,1,9),],
     earth.glm <- earth$glm.list[[1]]
     stopifnot(!is.null(earth.glm))
     stopifnot(almost.equal(sort(coef(earth.glm)), sort(coef(glm)), max=max))
-    if(check.coef.names)
-        stopifnot(identical(sort(names(coef(earth.glm))), sort(names(coef(glm)))))
+    if(check.coef.names) {
+        # earth and glm handle backquoted names slightly differently
+        names.earth.glm <- gsub("\`", "", names(coef(earth.glm)))
+        names.earth.glm <- sort(names.earth.glm)
+        names.glm       <- gsub("\`", "", names(coef(glm)))
+        names.glm       <- sort(names.glm)
+        stopifnot(identical(names.earth.glm, names.glm))
+    }
 
     stopifnot(length(earth.glm$coefficients) == length(glm$coefficients))
     stopifnot(almost.equal(sort(earth.glm$coefficients), sort(glm$coefficients), max=max))

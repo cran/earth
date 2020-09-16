@@ -1,8 +1,8 @@
 # earth.cv.R: Functions for cross validation of earth models.
 #             Note that earth.cv returns null unless nfold > 1.
 
-earth.cv <- function(object, x, y,
-    subset, weights, na.action, pmethod, keepxy, trace, glm.arg, degree, nprune,
+earth.cv <- function(object, x, y, subset, weights, na.action,
+    pmethod, keepxy, trace, trace.org, glm.arg, degree,
     nfold, ncross, stratify, get.oof.fit.tab, get.oof.rsq.per.subset,
     Scale.y, env, ...)
 {
@@ -13,16 +13,19 @@ earth.cv <- function(object, x, y,
         # nrow(foldmod$dirs) is the number of terms in this fold's model before pruning
         for(nterms in 1:min(max.nterms, nrow(foldmod$dirs))) {
             trace.get.fold1(trace, must.print.dots, nterms)
-            # penalty=-1 to enforce strict nprune TODO consider changing to pmethod=none
+            # penalty=-1 to enforce strict nprune
+            # we set nprune=nterms so earth_plotmodsel shows oof.rsq
+            # for all submodels even when the user specifies nprune
             # TODO with keepxy=TRUE, 70% of cv time is spent in update.earth
-            pruned.foldmod <- update(foldmod, nprune=min(nprune, nterms),
+            # TODO check that subset arg of main call to earth is handled correctly here
+            pruned.foldmod <- update.earth(foldmod, nprune=nterms,
                     penalty=-1, ponly=TRUE,
                     # glm=NULL for speed, ok because we don't need the glm submodel,
                     # except if is.bpairs must convert bpairs to yfrac in pruned.foldmod
                     glm=if(is.bpairs) glm.arg else NULL,
                     trace=max(0, trace-1))
-            fit <- predict(pruned.foldmod, newdata=x, type="earth")
-            oof.fit    <- fit[oof.subset,  , drop=FALSE]
+            fit <- predict.earth(pruned.foldmod, newdata=x, type="earth")
+            oof.fit    <- fit[oof.subset,    , drop=FALSE]
             infold.fit <- fit[infold.subset, , drop=FALSE]
             for(iresp in seq_len(NCOL(fit))) { # for each response
                 oof.rsq.per.subset[nterms] <- oof.rsq.per.subset[nterms] +
@@ -42,11 +45,10 @@ earth.cv <- function(object, x, y,
     }
     #--- earth.cv starts here ---
     # We called check.cv.args(nfold, ncross, varmod.method, pmethod)
-    # earlier so it's safe to use those args here
+    # earlier so it's safe to use those args here.
     # Likewise, subset arg was already checked in earth.fit.
     stratify <- check.boolean(stratify)
     stopifnot(nfold > 1, ncross >= 1)
-    trace1(trace, "\n")
     if(nfold > nrow(x))
         nfold <- nrow(x)
     is.bpairs <- !is.null(object$glm.bpairs) # response is glm binomial pairs
@@ -63,7 +65,9 @@ earth.cv <- function(object, x, y,
     must.print.dots <- trace >= .5 && trace <= 1 &&
         (get.oof.rsq.per.subset || get.oof.fit.tab) &&
         nrow(x) * max.nterms > 50e3
-    trace.cv.header(object, nresp, trace, must.print.dots)
+    trace.cv.header(object, nresp, pmethod,
+                    if(pmethod == "cv") "backward" else pmethod,
+                    trace.org, must.print.dots)
     groups <- matrix(NA, nrow=ncross*ncases, ncol=2)
     colnames(groups) <- c("cross", "fold")
     for(icross in seq_len(ncross)) {
@@ -147,6 +151,7 @@ earth.cv <- function(object, x, y,
                 pmethod=if(pmethod == "cv") "backward" else pmethod,
                 nfold=0, ncross=0, varmod.method="none",
                 keepxy=(keepxy == 2), ...)
+
             foldmod$icross <- icross
             foldmod$ifold <- ifold
             oof.x <- x[oof.subset,,drop=FALSE]
@@ -205,10 +210,10 @@ earth.cv <- function(object, x, y,
             if(must.get.class.rate)
                 class.rate.tab[icross.fold, ] <- get.class.rate(oof.fit.resp, oof.y, object$levels)
             if(get.oof.rsq.per.subset) {
-                temp <-
-                    get.fold.rsq.per.subset(foldmod, oof.y, max.nterms, trace, must.print.dots)
-                oof.rsq.tab[icross.fold,]    <- temp$oof.rsq.per.subset
-                infold.rsq.tab[icross.fold,] <- temp$infold.rsq.per.subset
+                ret <- get.fold.rsq.per.subset(foldmod, oof.y, max.nterms,
+                                               trace, must.print.dots)
+                    oof.rsq.tab[icross.fold,]    <- ret$oof.rsq.per.subset
+                    infold.rsq.tab[icross.fold,] <- ret$infold.rsq.per.subset
             }
             # init last column of summary tables
             ilast.col <- nresp+1 # index of final (summary) column in tables
@@ -257,8 +262,9 @@ earth.cv <- function(object, x, y,
     trace1(trace, "\n")
     trace.fold(icross, -1, trace, y, TRUE, TRUE, ncross,
                ndigits, rsq.tab[ilast,], must.print.dots)
-    if(trace >= .5)
+    if(trace == .5 && nresp > 1 && pmethod == "cv")
         cat("\n")
+    trace1("\n")
     names(cv.list) <- fold.names
     rv <- list(
         cv.list = cv.list, # list of earth models built during cross validation
@@ -278,6 +284,7 @@ earth.cv <- function(object, x, y,
         oof.rsq.tab     = oof.rsq.tab)
     rv
 }
+
 # Return the mean of each column in tab.
 # NAs are ignored, except that the column mean is NA
 # for columns in which over half the entries are NA.
@@ -335,13 +342,20 @@ get.this.group <- function(icross, ifold, ncases, groups)
     start <- ((icross-1) * ncases) + 1
     groups[start:(start+ncases-1), 2]
 }
-trace.cv.header <- function(object, nresp, trace, must.print.dots)
+trace.cv.header <- function(object, nresp, pmethod, pmethod1, trace.org, must.print.dots)
 {
-    if(trace == .5) {
+    if(trace.org == .5) {
         if(must.print.dots || nresp > 1)
             cat("\n")
-        printf("Full model GRSq %5.3f RSq %5.3f, starting cross validation\n",
-               object$grsq , object$rsq)
+        printf("%s with pmethod=\"%s\": GRSq %.3f RSq %.3f nterms %d\n",
+                if(pmethod == "cv") "Preliminary model" else "Model",
+                pmethod1, object$grsq , object$rsq, length(object$selected.terms))
+        if(must.print.dots || nresp > 1)
+            cat("\n")
+    }
+    else if(trace.org >= 1)
+    {
+        printf("\n")
         if(must.print.dots || nresp > 1)
             cat("\n")
     }

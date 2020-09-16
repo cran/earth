@@ -357,7 +357,7 @@ a1 a1d: Models are equivalent, within numerical tolerances
 x[12,3] with colnames sexmale ldose ldose1
 y[12,2] with colnames numdead numalive
 Error : earth: 'offset' is not supported in glm argument to earth
-Got error as expected from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     offset = NULL), trace = 1, pmethod = PMETHOD, nk = NK, degree = 2))
+Got expected error from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     offset = NULL), trace = 1, pmethod = PMETHOD, nk = NK, degree = 2))
 > a1g <-  earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"),control=glm.control()), trace=1, pmethod=PMETHOD, nk=NK, degree=2)
 x[12,3] with colnames sexmale ldose ldose1
 y[12,2] with colnames numdead numalive
@@ -514,27 +514,27 @@ a1h a1h2: Models are equivalent, within numerical tolerances
 > expect.err(try(earth(SF ~ sex + ldose + ldose1, family=binomial)), "illegal 'family' argument to earth\nTry something like earth(y~x, glm=list(family=binomial))")
 Error : illegal 'family' argument to earth
 Try something like earth(y~x, glm=list(family=binomial))
-Got error as expected from try(earth(SF ~ sex + ldose + ldose1, family = binomial))
+Got expected error from try(earth(SF ~ sex + ldose + ldose1, family = binomial))
 > expect.err(try(earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), maxi=123)), "illegal 'maxit' argument to earth\nTry something like earth(y~x, glm=list(family=binomial, control=list(maxit=99)))")
 Error : illegal 'maxit' argument to earth
 Try something like earth(y~x, glm=list(family=binomial, control=list(maxit=99)))
-Got error as expected from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit")),     maxi = 123))
+Got expected error from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit")),     maxi = 123))
 > expect.err(try(earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit")), eps=123)), "illegal 'epsilon' argument to earth\nTry something like earth(y~x, glm=list(family=binomial, control=list(epsilon=1e-9)))")
 Error : illegal 'epsilon' argument to earth
 Try something like earth(y~x, glm=list(family=binomial, control=list(epsilon=1e-9)))
-Got error as expected from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit")),     eps = 123))
+Got expected error from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit")),     eps = 123))
 > expect.err(try(earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"), weights=1:nrow(SF)))), "earth: illegal 'weights' in 'glm' argument")
 Error : earth: illegal 'weights' in 'glm' argument
        Use earth's 'weights' argument instead (which will be passed on to glm internally)
-Got error as expected from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     weights = 1:nrow(SF))))
+Got expected error from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     weights = 1:nrow(SF))))
 > expect.err(try(earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"), subset=1:nrow(SF)))), "earth: illegal 'subset' in 'glm' argument")
 Error : earth: illegal 'subset' in 'glm' argument
        Use earth's 'subset' argument instead (which will be passed on to glm internally)
-Got error as expected from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     subset = 1:nrow(SF))))
+Got expected error from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     subset = 1:nrow(SF))))
 > expect.err(try(earth(SF ~ sex + ldose + ldose1, glm=list(family=binomial(link="logit"), formula=SF~sex))), "earth: illegal 'formula' in 'glm' argument")
 Error : earth: illegal 'formula' in 'glm' argument
        Use earth's 'formula' argument instead
-Got error as expected from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     formula = SF ~ sex)))
+Got expected error from try(earth(SF ~ sex + ldose + ldose1, glm = list(family = binomial(link = "logit"),     formula = SF ~ sex)))
 > 
 > plotres(a1h,                  caption="a1h: default type", legend.pos="topleft")
 > plotres(a1h, type="response", caption="a1h: type=\"response\" (same as default type)", legend.pos="topleft")
@@ -784,7 +784,7 @@ plotmo a1h.update2
 > 
 > # basic check with an I in formula
 > a1i <-  earth(SF ~ sex + ldose + I(ldose1-3), glm=list(family="binomial"), trace=1, pmethod=PMETHOD, nk=NK, degree=2)
-x[12,3] with colnames sexmale ldose I(ldose1-3)
+x[12,3] with colnames sexmale ldose I(ldose1 - 3)
 y[12,2] with colnames numdead numalive
 earth and glm: unweighted
 Response columns numdead and numalive are a binomial pair (240 obs in total)
@@ -811,7 +811,7 @@ GLM (family binomial, link logit):
 
 Earth selected 3 of 3 terms, and 2 of 3 predictors (pmethod="none")
 Termination condition: Reached nk 6
-Importance: ldose, sexmale, I(ldose1-3)-unused
+Importance: ldose, sexmale, I(ldose1 - 3)-unused
 Number of terms at each degree of interaction: 1 2 (additive model)
 Earth GCV 0.008085317    RSS 0.02425595    GRSq 0.9353281    RSq 0.9807588
 > 
@@ -1064,7 +1064,7 @@ print(head(y)):
 [6,]      20        0       20         0
 
 Error : Binomial response (see above): all values should be between 0 and 1, or a binomial pair
-Got error as expected from try(earth(SF.both ~ sex * ldose, linpreds = TRUE, glm = list(family = "binomial"),     trace = 1))
+Got expected error from try(earth(SF.both ~ sex * ldose, linpreds = TRUE, glm = list(family = "binomial"),     trace = 1))
 > 
 > # titanic data, multiple responses (i.e. 3 level factor)
 > cat("a5: titanic data, multiple responses (i.e. 3 level factor)\n\n")
@@ -1659,11 +1659,16 @@ $call
 earth(formula = pclass ~ ., data = etitanic, trace = 0, glm = list(family = "binomial"), 
     degree = 2)
 
-$namesx.org
-[1] "survived" "sex"      "age"      "sibsp"    "parch"   
-
 $namesx
 [1] "survived" "sex"      "age"      "sibsp"    "parch"   
+
+$modvars
+         survived sexmale age sibsp parch
+survived        1       0   0     0     0
+sex             0       1   0     0     0
+age             0       0   1     0     0
+sibsp           0       0   0     1     0
+parch           0       0   0     0     1
 
 $terms
 pclass ~ survived + sex + age + sibsp + parch
@@ -1708,7 +1713,7 @@ attr(,"class")
 > # variance models are not supported for multiple response models
 > expect.err(try(earth(pclass ~ ., data=etitanic, ncross=3, nfold=3, varmod.method="lm")), "variance models are not supported for multiple response models")
 Error : variance models are not supported for multiple response models
-Got error as expected from try(earth(pclass ~ ., data = etitanic, ncross = 3, nfold = 3,     varmod.method = "lm"))
+Got expected error from try(earth(pclass ~ ., data = etitanic, ncross = 3, nfold = 3,     varmod.method = "lm"))
 > 
 > a5d <- earth(pclass ~ .-age, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 > a5update <- update(a5, form=pclass ~ .-age)
@@ -2237,11 +2242,16 @@ $call
 earth(formula = pclass1 ~ ., data = etitanic[, -1], trace = 1, 
     glm = list(family = "binomial"), degree = 2)
 
-$namesx.org
-[1] "survived" "sex"      "age"      "sibsp"    "parch"   
-
 $namesx
 [1] "survived" "sex"      "age"      "sibsp"    "parch"   
+
+$modvars
+         survived sexmale age sibsp parch
+survived        1       0   0     0     0
+sex             0       1   0     0     0
+age             0       0   1     0     0
+sibsp           0       0   0     1     0
+parch           0       0   0     0     1
 
 $terms
 pclass1 ~ survived + sex + age + sibsp + parch
@@ -2790,11 +2800,16 @@ $call
 earth(formula = sex ~ ., data = etitanic, trace = 1, glm = list(family = "binomial"), 
     degree = 2)
 
-$namesx.org
-[1] "pclass"   "survived" "age"      "sibsp"    "parch"   
-
 $namesx
 [1] "pclass"   "survived" "age"      "sibsp"    "parch"   
+
+$modvars
+         pclass2nd pclass3rd survived age sibsp parch
+pclass           1         1        0   0     0     0
+survived         0         0        1   0     0     0
+age              0         0        0   1     0     0
+sibsp            0         0        0   0     1     0
+parch            0         0        0   0     0     1
 
 $terms
 sex ~ pclass + survived + age + sibsp + parch
@@ -2837,6 +2852,125 @@ attr(,"class")
 -------------------------------------------------------------------------------
 
 > 
+> expect.err(try(earth(sex ~ ., data=etitanic, nfold=2,       # earth.formula
++                subset=rep(TRUE, length.out=nrow(etitanic)))),
++            "'subset' cannot be used with 'nfold' (implementation restriction)")
+Error : 'subset' cannot be used with 'nfold' (implementation restriction)
+Got expected error from try(earth(sex ~ ., data = etitanic, nfold = 2, subset = rep(TRUE,     length.out = nrow(etitanic))))
+> 
+> expect.err(try(earth(etitanic$age, etitanic$sex, nfold=2,   # earth.default
++                subset=rep(TRUE, length.out=nrow(etitanic)))),
++            "'subset' cannot be used with 'nfold' (implementation restriction)")
+Error : 'subset' cannot be used with 'nfold' (implementation restriction)
+Got expected error from try(earth(etitanic$age, etitanic$sex, nfold = 2, subset = rep(TRUE,     length.out = nrow(etitanic))))
+> 
+> cat("glm.varmod: titanic data, one response which is a two level factor, with varmod and plotmo\n\n")
+glm.varmod: titanic data, one response which is a two level factor, with varmod and plotmo
+
+> set.seed(2020)
+> glm.varmod <- earth(sex ~ pclass+age+sibsp, data=etitanic, glm=list(family="binomial"), trace=.5,
++                   nfold=5, ncross=3, varmod.method="lm")
+Model with pmethod="backward": GRSq 0.043 RSq 0.058 nterms 5
+CV fold  1.1  CVRSq  0.043   n.oof  829 21%   n.infold.nz  526 63%   n.oof.nz  132 61%
+CV fold  1.2  CVRSq  0.064   n.oof  840 20%   n.infold.nz  526 63%   n.oof.nz  132 64%
+CV fold  1.3  CVRSq -0.001   n.oof  828 21%   n.infold.nz  526 64%   n.oof.nz  132 61%
+CV fold  1.4  CVRSq  0.042   n.oof  842 20%   n.infold.nz  527 63%   n.oof.nz  131 64%
+CV fold  1.5  CVRSq  0.023   n.oof  845 19%   n.infold.nz  527 62%   n.oof.nz  131 65%
+CV fold  2.1  CVRSq  0.034   n.oof  836 20%   n.infold.nz  526 63%   n.oof.nz  132 63%
+CV fold  2.2  CVRSq  0.073   n.oof  847 19%   n.infold.nz  526 62%   n.oof.nz  132 66%
+CV fold  2.3  CVRSq  0.008   n.oof  835 20%   n.infold.nz  526 63%   n.oof.nz  132 63%
+CV fold  2.4  CVRSq -0.017   n.oof  836 20%   n.infold.nz  527 63%   n.oof.nz  131 62%
+CV fold  2.5  CVRSq  0.072   n.oof  830 21%   n.infold.nz  527 63%   n.oof.nz  131 61%
+CV fold  3.1  CVRSq -0.022   n.oof  841 20%   n.infold.nz  526 63%   n.oof.nz  132 64%
+CV fold  3.2  CVRSq  0.044   n.oof  827 21%   n.infold.nz  526 64%   n.oof.nz  132 60%
+CV fold  3.3  CVRSq  0.079   n.oof  837 20%   n.infold.nz  526 63%   n.oof.nz  132 63%
+CV fold  3.4  CVRSq  0.047   n.oof  842 20%   n.infold.nz  527 63%   n.oof.nz  131 64%
+CV fold  3.5  CVRSq  0.054   n.oof  837 20%   n.infold.nz  527 63%   n.oof.nz  131 63%
+CV all        CVRSq  0.036                    n.infold.nz  658 63%
+
+
+varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:
+     iter weight.ratio coefchange% (Intercept)  male
+        1          4.4        0.00        0.75 -0.49
+        2          6.1       13.60        0.81 -0.58
+        3          6.5        2.51        0.82 -0.60
+        4          6.6        0.53        0.83 -0.61
+
+> cat("\nprint(glm.varmod)\n")
+
+print(glm.varmod)
+> print(glm.varmod)
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1379.57 1045    1318.2 1041     0.0445    1328     4         1
+
+Earth selected 5 of 9 terms, and 4 of 4 predictors
+Termination condition: RSq changed by less than 0.001 at 9 terms
+Importance: sibsp, pclass3rd, age, pclass2nd
+Number of terms at each degree of interaction: 1 4 (additive model)
+Earth GCV 0.2236787  RSS 229.959  GRSq 0.0432477  RSq 0.05784047  CVRSq 0.03630886
+> cat("\nsummary(glm.varmod)\n")
+
+summary(glm.varmod)
+> print(summary(glm.varmod))
+Call: earth(formula=sex~pclass+age+sibsp, data=etitanic, trace=0.5,
+            glm=list(family="binomial"), nfold=5, ncross=3, varmod.method="lm")
+
+GLM coefficients
+                  male
+(Intercept) -0.7705754
+pclass2nd    0.4669103
+pclass3rd    0.9302584
+h(age-14)    0.0210683
+h(1-sibsp)   0.6348306
+
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1379.57 1045    1318.2 1041     0.0445    1328     4         1
+
+Earth selected 5 of 9 terms, and 4 of 4 predictors
+Termination condition: RSq changed by less than 0.001 at 9 terms
+Importance: sibsp, pclass3rd, age, pclass2nd
+Number of terms at each degree of interaction: 1 4 (additive model)
+Earth GCV 0.2236787  RSS 229.959  GRSq 0.0432477  RSq 0.05784047  CVRSq 0.03630886
+
+Note: the cross-validation sd's below are standard deviations across folds
+
+Cross validation:   nterms 5.73 sd 1.16    nvars 3.87 sd 0.35
+
+ CVRSq    sd ClassRate    sd MaxErr   sd   AUC    sd MeanDev     sd CalibInt
+ 0.036 0.032     0.631 0.024 -0.917 0.42 0.628 0.035    1.28 0.0422    0.079
+    sd CalibSlope    sd
+ 0.189      0.838 0.323
+
+varmod: method "lm"    min.sd 0.0557    iter.rsq 0.139
+
+stddev of predictions:
+            coefficients iter.stderr iter.stderr%
+(Intercept)    1.0365640   0.0395354            4
+male          -0.7621124   0.0586009            8
+
+                              mean   smallest    largest      ratio
+95% prediction interval   2.183977   1.195783   3.075882   2.572275
+
+                                         68%    80%    90%     95% 
+response values in prediction interval   81     89     98     100  
+> plotmo(glm.varmod, type="earth", level=.8, ylim=c(-1, 2), SHOWCALL=TRUE)
+ plotmo grid:    pclass age sibsp
+                    3rd  28     0
+> options(warn=2)
+> expect.err(try(plotmo(glm.varmod, leve=.8)),                 "predict.earth: with earth-glm models, use type=\"earth\" when using the interval argument")
+ plotmo grid:    pclass age sibsp
+                    3rd  28     0
+Error : predict.earth: with earth-glm models, use type="earth" when using the interval argument
+Got expected error from try(plotmo(glm.varmod, leve = 0.8))
+> expect.err(try(plotmo(glm.varmod, lev=.8, type="response")), "predict.earth: with earth-glm models, use type=\"earth\" when using the interval argument")
+ plotmo grid:    pclass age sibsp
+                    3rd  28     0
+Error : predict.earth: with earth-glm models, use type="earth" when using the interval argument
+Got expected error from try(plotmo(glm.varmod, lev = 0.8, type = "response"))
+> options(warn=1)
+> 
 > a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 > a7dupdate <- update(a7, form=sex ~ .-pclass)
 update.earth: using 1046 by 6 data argument from original call to earth
@@ -2863,8 +2997,8 @@ a7update a7d: Models are equivalent, within numerical tolerances
 === a7d$levels
 [1] "female" "male"  
 > 
-> a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
-> a7dupdate <- update(a7, form=sex ~ .-pclass)
+> a7d1 <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
+> a7d1update <- update(a7, form=sex ~ .-pclass)
 update.earth: using 1046 by 6 data argument from original call to earth
 x[1046,4] with colnames survived age sibsp parch
 y[1046,1] with colname male, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
@@ -2874,16 +3008,16 @@ After forward pass GRSq 0.310 RSq 0.368
 Prune backward penalty 3 nprune null: selected 8 of 19 terms, and 4 of 4 preds
 After pruning pass GRSq 0.335 RSq 0.357
 GLM male devratio 0.30 dof 1038/1045 iters 4
-> check.models.equal(a7dupdate, a7d, msg="a7update a7d with keepxy", newdata=etitanic[5,])
-a7update a7d with keepxy: models not identical
+> check.models.equal(a7d1update, a7d1, msg="a7update a7d1 with keepxy", newdata=etitanic[5,])
+a7update a7d1 with keepxy: models not identical
 
 Formulas differ: sex ~ survived + age + sibsp + parch
 and:             sex ~ (pclass + survived + age + sibsp + parch) - pclass
 
-a7update a7d with keepxy: glm submodel formula strings are identical: yarg ~ `survived*h(age-15)` + `h(25-age)*h(4-parch)` + `h(sibsp-2)*h(4-parch)` +     `h(2-sibsp)*h(4-parch)` + `h(sibsp-2)` + `h(2-sibsp)` + `survived*h(age-11.5)`
-a7update a7d with keepxy: but the actual glm submodel formulas differ (classes are "formula" and "formula")
-a7update a7d with keepxy: glm submodels not identical (but coefs, residuals, fitted.values are the same)
-a7update a7d with keepxy: Models are equivalent, within numerical tolerances
+a7update a7d1 with keepxy: glm submodel formula strings are identical: yarg ~ `survived*h(age-15)` + `h(25-age)*h(4-parch)` + `h(sibsp-2)*h(4-parch)` +     `h(2-sibsp)*h(4-parch)` + `h(sibsp-2)` + `h(2-sibsp)` + `survived*h(age-11.5)`
+a7update a7d1 with keepxy: but the actual glm submodel formulas differ (classes are "formula" and "formula")
+a7update a7d1 with keepxy: glm submodels not identical (but coefs, residuals, fitted.values are the same)
+a7update a7d1 with keepxy: Models are equivalent, within numerical tolerances
 
 > 
 > subset. <- rep(TRUE, nrow(etitanic))
@@ -3789,7 +3923,7 @@ print(head(y)):
 [6,]      20        0       20         0
 
 Error : Binomial response (see above): all values should be between 0 and 1, or a binomial pair
-Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family = "binomial"),     trace = 1))
+Got expected error from try(earth(SF.both ~ ., data = df, glm = list(family = "binomial"),     trace = 1))
 > 
 > # --- predict with factors ------------------------------------------------------
 > 
@@ -4001,11 +4135,13 @@ Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family =
 + 
 +     cat("A-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
 +     xdata.frame <- data.frame(sex[1], -2)
-+     expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 3")
++     expect.err(try(predict(am, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex.1.\", \"X.2\"\n           need 3 columns: \"sexmale\", \"ldose\", \"ldose1\"")
 + 
 +     cat("A-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
 +     xdata.frame <- data.frame(sex[1], -2)
-+     expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 3")
++     expect.err(try(predict(af, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex.1.\", \"X.2\"\n           need 3 columns: \"sex\", \"ldose\", \"ldose1\"")
 + 
 +     cat("A-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
 +     xdata.frame <- data.frame(-2, sex[1], 0.1)
@@ -4044,10 +4180,12 @@ Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family =
 + 
 +     cat("A-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
 +     xdata.frame <- data.frame(sex[c(1,7)], c(-2,-1))
-+     expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 3")
++     expect.err(try(predict(am, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex.c.1..7..\", \"c..2...1.\"\n           need 3 columns: \"sexmale\", \"ldose\", \"ldose1\"")
 + 
 +     cat("A-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-+     expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 3")
++     expect.err(try(predict(af, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex.c.1..7..\", \"c..2...1.\"\n           need 3 columns: \"sex\", \"ldose\", \"ldose1\"")
 +     stop.if.not.identical("A-57", pm, pf)
 + 
 +     cat("A-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -4101,10 +4239,10 @@ Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family =
 +     my.input.mat <- cbind(my.x1, my.x2)
 +     my.response <- ToothGrowth[,1]
 + 
-+     cat("A-68 input matrix to formula interface trace=", trace, ", expect error \"could not interpret\"\n", sep="")
++     cat("A-68 input matrix to formula interface trace=", trace, ", expect error \"model.matrix.earth could not interpret the data\"\n", sep="")
 +     a41 <- earth(my.response~my.input.mat, trace=trace)
-+     expect.err(try(predict(a41, c(2.1, 0.6), trace=trace)), "could not interpret the data")
-+ 
++     expect.err(try(predict(a41, c(2.1, 0.6), trace=trace)),
++                "model.matrix.earth could not interpret the data")
 +     cat("A-69 above test but with properly named dataframe trace=", trace, "\n", sep="")
 +     df <- data.frame(growth=my.response, supp=my.x1, dose=my.x2)
 +     a42 <- earth(formula=growth~., data=df, trace=0)
@@ -4240,10 +4378,12 @@ Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family =
 + 
 +     cat("B-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
 +     xdata.frame <- data.frame(sex3[1], -2)
-+     expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
++     expect.err(try(predict(am, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.1.\", \"X.2\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
 + 
 +     cat("B-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-+     expect.err(try(predict(af, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
++     expect.err(try(predict(af, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.1.\", \"X.2\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
 + 
 +     cat("B-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
 +     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
@@ -4297,10 +4437,12 @@ Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family =
 + 
 +     cat("B-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
 +     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
-+     expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
++     expect.err(try(predict(am, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.c.1..7..\", \"c..2...1.\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
 + 
 +     cat("B-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-+     expect.err(try(predict(af, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
++     expect.err(try(predict(af, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.c.1..7..\", \"c..2...1.\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
 +     stop.if.not.identical("B-57", pm, pf)
 + 
 +     cat("B-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -4402,10 +4544,10 @@ Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family =
 + 
 +     cat("C-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
 +     xdata.frame <- data.frame(sex3[1], -2)
-+     expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
++     expect.err(try(predict(am, xdata.frame, trace=trace)), "could not interpret newdata")
 + 
 +     cat("C-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-+     expect.err(try(predict(af, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
++     expect.err(try(predict(af, xdata.frame, trace=trace)), "could not interpret newdata")
 + 
 +     cat("C-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
 +     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
@@ -4455,10 +4597,12 @@ Got error as expected from try(earth(SF.both ~ ., data = df, glm = list(family =
 + 
 +     cat("C-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
 +     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
-+     expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
++     expect.err(try(predict(am, xdata.frame, trace=trace)), "could not interpret newdata")
 + 
 +     cat("C-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-+     expect.err(try(predict(af, xdata.frame, trace=trace)), "has 2 columns")
++     expect.err(try(predict(af, xdata.frame, trace=trace)),
++ "could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.c.1..7..\", \"c..2...1.\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
++ 
 +     stop.if.not.identical("C-57", pm, pf)
 + 
 +     cat("C-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -5136,15 +5280,15 @@ predict.earth: returning earth predictions
 [2,] 8.535714
 A-44f identical
 A-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.1. X.2
-       expected column names: sexmale ldose ldose1
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.1.", "X.2"
+           need 3 columns: "sexmale", "ldose", "ldose1"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 A-53f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.1. X.2
-       expected column names: sex ldose ldose1
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.1.", "X.2"
+           need 3 columns: "sex", "ldose", "ldose1"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 A-54m predict(am, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex ldose1
@@ -5255,15 +5399,15 @@ predict.earth: returning earth predictions
 [2,] 2.202381
 A-56 identical
 A-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.c.1..7.. c..2...1.
-       expected column names: sexmale ldose ldose1
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.c.1..7..", "c..2...1."
+           need 3 columns: "sexmale", "ldose", "ldose1"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 A-57f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.c.1..7.. c..2...1.
-       expected column names: sex ldose ldose1
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.c.1..7..", "c..2...1."
+           need 3 columns: "sex", "ldose", "ldose1"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 A-57 identical
 A-58m predict(am, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
@@ -5386,7 +5530,7 @@ predict.earth: returning earth predictions
      numdead
 [1,] 1.72619
 A-61 identical
-A-68 input matrix to formula interface trace=1, expect error "could not interpret"
+A-68 input matrix to formula interface trace=1, expect error "model.matrix.earth could not interpret the data"
 x[60,2] with colnames my.input.matmy.x1 my.input.matmy.x2
 y[60,1] with colname my.response, and values 4.2, 11.5, 7.3, 5.8, 6.4, 10,...
 Forward pass term 1, 2, 4, 6
@@ -5394,20 +5538,24 @@ RSq changed by less than 0.001 at 5 terms, 4 terms used (DeltaRSq 0)
 After forward pass GRSq 0.682 RSq 0.762
 Prune backward penalty 2 nprune null: selected 4 of 4 terms, and 2 of 2 preds
 After pruning pass GRSq 0.705 RSq 0.762
-get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: my.x1 my.x2
-get.earth.x from model.matrix.earth from predict.earth: x[1,2]:
-  my.x1 my.x2
-1   2.1   0.6
-get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[60,1]:
-    my.input.mat.my.x1 my.input.mat.my.x2
-1                  2.0                0.5
-2                  2.0                0.5
-3                  2.0                0.5
-...                2.0                0.5
-60                 1.0                2.0
-Error : model.frame.default could not interpret the data passed to get.earth.x from model.matrix.earth from predict.earth
-        (actual.nrows=60 expected.nrows=1 fitted.nrows=60)
-Got error as expected from try(predict(a41, c(2.1, 0.6), trace = trace))
+get.earth.x from model.matrix.earth from predict.earth: x has no column names, adding column names: my.input.mat
+get.earth.x from model.matrix.earth from predict.earth: x[2,1]:
+  my.input.mat
+1          2.1
+2          0.6
+get.earth.x from model.matrix.earth from predict.earth: after call to model.frame: mf[2,1]:
+  my.input.mat
+1          2.1
+2          0.6
+Error : variable 'my.input.mat' was fitted with type "nmatrix.2" but type "numeric" was supplied
+Continuing anyway, first few rows of modelframe are
+  my.input.mat
+1          2.1
+2          0.6
+Error : model.matrix.earth could not interpret the data
+           model.matrix returned 1 column: "my.input.mat"
+           need 2 columns: "my.input.matmy.x1", "my.input.matmy.x2"
+Got expected error from try(predict(a41, c(2.1, 0.6), trace = trace))
 A-69 above test but with properly named dataframe trace=1
      growth
 [1,] 10.211
@@ -5429,7 +5577,7 @@ predict.earth: returning earth predictions
        numdead
 [1,] 0.4686592
 A-72m predict(am, newdata=newdata[two columns], trace=trace)
-get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+newdata has missing columns, adding missing cols with all NAs
 get.earth.x from model.matrix.earth from predict.earth: x[1,3]:
   ldose dummy ldose1
 1    -2    NA    0.1
@@ -5482,7 +5630,7 @@ predict.earth: returning earth predictions
 [11,] 14.3041584
 [12,] 18.8362636
 A-73m predict(am, newdata=newdata[two columns], trace=trace)
-get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+newdata has missing columns, adding missing cols with all NAs
 get.earth.x from model.matrix.earth from predict.earth: x[12,3]:
     ldose dummy ldose1
 1      -2    NA    0.1
@@ -5532,7 +5680,7 @@ predict.earth: returning earth predictions
        numdead
 [1,] 0.4686592
 A-72f predict(af, newdata=newdata[two columns], trace=trace)
-get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+newdata has missing columns, adding missing cols with all NAs
 get.earth.x from model.matrix.earth from predict.earth: x[1,3]:
   ldose dummy ldose1
 1    -2    NA    0.1
@@ -5595,7 +5743,7 @@ predict.earth: returning earth predictions
 [11,] 14.3041584
 [12,] 18.8362636
 A-73f predict(af, newdata=newdata[two columns], trace=trace)
-get.earth.x from model.matrix.earth from predict.earth: x has missing columns, creating a new x with all cols
+newdata has missing columns, adding missing cols with all NAs
 get.earth.x from model.matrix.earth from predict.earth: x[12,3]:
     ldose dummy ldose1
 1      -2    NA    0.1
@@ -5767,15 +5915,15 @@ predict.earth: returning earth predictions
 [1,] 1.577732 1.587702
 B-32 identical
 B-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 B-53f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 B-54m predict(am, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
@@ -5938,15 +6086,15 @@ predict.earth: returning earth predictions
 [2,] 22.663117 20.019737
 B-56 identical
 B-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 B-57f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 B-57 identical
 B-58m predict(am, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
@@ -6166,15 +6314,15 @@ predict.earth: returning earth predictions
 [1,] 0.4879688 0.5564692 -0.04443804
 C-32 identical
 C-53m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 C-53f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 C-54m predict(am, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
     Old columns: ldose sex3 ldose1 fac3
@@ -6320,15 +6468,15 @@ predict.earth: returning earth predictions
 [2,] -1.1001477 2.0104065  0.08974114
 C-56 identical
 C-57m predict(am, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 C-57f predict(af, xdata.frame, trace=1) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 C-57 identical
 C-58m predict(am, xdata.frame, trace=1) # data frame with cols in different order
 get.earth.x from model.matrix.earth from predict.earth: x columns are in the wrong order, correcting the column order
@@ -6571,15 +6719,15 @@ A-44a identical
 A-44fm predict(am, newdata=c(sex[1], sex[1], -2, -1, 0.1, 0.1), trace=0)) more multiple rows as a vec
 A-44f identical
 A-53m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.1. X.2
-       expected column names: sexmale ldose ldose1
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.1.", "X.2"
+           need 3 columns: "sexmale", "ldose", "ldose1"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 A-53f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.1. X.2
-       expected column names: sex ldose ldose1
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.1.", "X.2"
+           need 3 columns: "sex", "ldose", "ldose1"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 A-54m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 A-54 identical
 A-54f predict(af, xdata.frame, trace=0) # data frame with cols in different order
@@ -6592,15 +6740,15 @@ A-56 identical
 A-56f predict(af, xdata.frame, trace=0) # data frame with col names
 A-56 identical
 A-57m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.c.1..7.. c..2...1.
-       expected column names: sexmale ldose ldose1
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.c.1..7..", "c..2...1."
+           need 3 columns: "sexmale", "ldose", "ldose1"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 A-57f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 3
-       column names: sex.c.1..7.. c..2...1.
-       expected column names: sex ldose ldose1
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex.c.1..7..", "c..2...1."
+           need 3 columns: "sex", "ldose", "ldose1"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 A-57 identical
 A-58m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 A-58 identical
@@ -6622,10 +6770,16 @@ A-60f data frame without column names, trace=0
 A-60 identical
 A-61f data frame without extra columns, trace=0
 A-61 identical
-A-68 input matrix to formula interface trace=0, expect error "could not interpret"
-Error : model.frame.default could not interpret the data passed to get.earth.x from model.matrix.earth from predict.earth
-        (actual.nrows=60 expected.nrows=1 fitted.nrows=60)
-Got error as expected from try(predict(a41, c(2.1, 0.6), trace = trace))
+A-68 input matrix to formula interface trace=0, expect error "model.matrix.earth could not interpret the data"
+Error : variable 'my.input.mat' was fitted with type "nmatrix.2" but type "numeric" was supplied
+Continuing anyway, first few rows of modelframe are
+  my.input.mat
+1          2.1
+2          0.6
+Error : model.matrix.earth could not interpret the data
+           model.matrix returned 1 column: "my.input.mat"
+           need 2 columns: "my.input.matmy.x1", "my.input.matmy.x2"
+Got expected error from try(predict(a41, c(2.1, 0.6), trace = trace))
 A-69 above test but with properly named dataframe trace=0
 Tests with not all predictors used in the model so can pass fewer columns
 A-72m predict(am, newdata=newdata[two columns], trace=trace)
@@ -6689,15 +6843,15 @@ B-32 identical
 B-32f predict(af, xdata.frame, trace=0) # data frame with names
 B-32 identical
 B-53m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 B-53f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 B-54m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 B-54 identical
 B-54f predict(af, xdata.frame, trace=0) # data frame with cols in different order
@@ -6718,15 +6872,15 @@ B-56 identical
 B-56f predict(af, xdata.frame, trace=0) # data frame with col names
 B-56 identical
 B-57m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 B-57f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 B-57 identical
 B-58m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 B-58 identical
@@ -6765,15 +6919,15 @@ C-32 identical
 C-32f predict(af, xdata.frame, trace=0) # data frame with names
 C-32 identical
 C-53m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 C-53f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.1. X.2
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.1.", "X.2"
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 C-54m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 C-54 identical
 C-54f predict(af, xdata.frame, trace=0) # data frame with cols in different order
@@ -6790,15 +6944,15 @@ C-56 identical
 C-56f predict(af, xdata.frame, trace=0) # data frame with col names
 C-56 identical
 C-57m predict(am, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(am, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(am, xdata.frame, trace = trace))
 C-57f predict(af, xdata.frame, trace=0) data frame with not enough columns, expect error message
-Error : get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4
-       column names: sex3.c.1..7.. c..2...1.
-       expected column names: sex3 ldose ldose1 fac3
-Got error as expected from try(predict(af, xdata.frame, trace = trace))
+Error : could not interpret newdata
+           model.matrix returned 2 columns: "sex3.c.1..7..", "c..2...1."
+           need 4 columns: "sex3", "ldose", "ldose1", "fac3"
+Got expected error from try(predict(af, xdata.frame, trace = trace))
 C-57 identical
 C-58m predict(am, xdata.frame, trace=0) # data frame with cols in different order
 C-58 identical
@@ -7351,15 +7505,15 @@ After pruning pass GRSq 0.944 RSq 0.977
 > expect.err(try(printh(resid(a, type="nonesuch"), max.print=3)), "Choose one of")
 === resid(a, type = "nonesuch")Error : type="nonesuch" is not allowed
 Choose one of: "earth" "deviance" "response" "standardize" "delever" "pearson" "working" "partial" "glm.response" "glm.pearson" "glm.working" "glm.partial"
-Got error as expected from try(printh(resid(a, type = "nonesuch"), max.print = 3))
+Got expected error from try(printh(resid(a, type = "nonesuch"), max.print = 3))
 > expect.err(try(printh(resid(a, type="g"), max.print=3)), "ambiguous") # type="g" is ambiguous
 === resid(a, type = "g")Error : type="g" is ambiguous
 Choose one of: "earth" "deviance" "response" "standardize" "delever" "pearson" "working" "partial" "glm.response" "glm.pearson" "glm.working" "glm.partial"
-Got error as expected from try(printh(resid(a, type = "g"), max.print = 3))
+Got expected error from try(printh(resid(a, type = "g"), max.print = 3))
 > expect.err(try(printh(resid(a, type="standardize"), max.print=3)), "model was not built with varmod.method") # model was not built with varmod.method
 === resid(a, type = "standardize")Error : "standardize" is not allowed because
 the model was not built with varmod.method
-Got error as expected from try(printh(resid(a, type = "standardize"), max.print = 3))
+Got expected error from try(printh(resid(a, type = "standardize"), max.print = 3))
 > 
 > # tests based on Gavin Simpson's bug report
 > # fit a MARS model allowing one-way interactions
@@ -7504,7 +7658,7 @@ Prune backward penalty 2 nprune null: selected 1 of 5 terms, and 0 of 2 preds
 After pruning pass GRSq 0 RSq 0
 earth.glm: intercept-only earth model
 GLM aaa devratio 0.00 dof 17/17 iters 4
-Full model GRSq 0.000 RSq 0.000, starting cross validation
+
 CV fold 1  CVRSq -1.032   n.oof  9 50%   n.infold.nz  6 67%   n.oof.nz  6 67%
 CV fold 2  CVRSq  0.000   n.oof  9 50%   n.infold.nz  6 67%   n.oof.nz  6 67%
 CV all     CVRSq -0.516                  n.infold.nz 12 67%
@@ -7854,7 +8008,6 @@ y[18,1] with colname aaa, and values 0, 1, 0, 0, 1, 1, 0, 0, 1, 1,...
 Forward pass term 1, 2, 4, 6
 RSq changed by less than 0.001 at 5 terms (DeltaRSq 0)
 After forward pass GRSq -3.791 RSq 0.188
-nprune=1
 Prune backward penalty 2 nprune 1: selected 1 of 5 terms, and 0 of 2 preds
 After pruning pass GRSq 0 RSq 0
 earth.glm: intercept-only earth model
@@ -7867,7 +8020,7 @@ GLM (family binomial, link logit):
  nulldev df       dev df   devratio     AIC iters converged
  22.9145 17   22.9145 17          0   24.91     4         1
 
-Earth selected 1 of 5 terms, and 0 of 2 predictors
+Earth selected 1 of 5 terms, and 0 of 2 predictors (nprune=1)
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
@@ -7886,7 +8039,7 @@ GLM (family binomial, link logit):
  nulldev df       dev df   devratio     AIC iters converged
  22.9145 17   22.9145 17          0   24.91     4         1
 
-Earth selected 1 of 5 terms, and 0 of 2 predictors
+Earth selected 1 of 5 terms, and 0 of 2 predictors (nprune=1)
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
@@ -7917,7 +8070,7 @@ GLM (family binomial, link logit):
  nulldev df       dev df   devratio     AIC iters converged
    22.91 17     22.91 17          0    24.9     4         1
 
-Earth selected 1 of 5 terms, and 0 of 2 predictors
+Earth selected 1 of 5 terms, and 0 of 2 predictors (nprune=1)
 Termination condition: RSq changed by less than 0.001 at 5 terms
 Importance: bbb-unused, ccc-unused
 Number of terms at each degree of interaction: 1 (intercept only model)
@@ -7947,45 +8100,16 @@ plotmo a.intercept.pruned
 ---misc 1---
 > sex1 <- factor(rep(c("male", "female"), times=c(6,6)))
 > sex2 <- factor(rep(c("male", "female"), times=c(6,6)))
-> earth(numdead, cbind(sex1, sex2, sex1), trace=1) # one duplicate name
-x[12,1] with colname numdead, and values 1, 4, 9, 13, 18, 20, 0, 2, 6,...
-y[12,3] with colnames sex1 sex2 sex1.1
-Forward pass term 1, 2, 4
-RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
-After forward pass GRSq -3.446 RSq 0.081
-Prune backward penalty 2 nprune null: selected 1 of 3 terms, and 0 of 1 preds
-After pruning pass GRSq 0 RSq 0
-Selected 1 of 3 terms, and 0 of 1 predictors
-Termination condition: RSq changed by less than 0.001 at 3 terms
-Importance: numdead-unused
-Number of terms at each degree of interaction: 1 (intercept only model)
-
-             GCV RSS GRSq RSq
-sex1   0.2975207   3    0   0
-sex2   0.2975207   3    0   0
-sex1.1 0.2975207   3    0   0
-All    0.8925620   9    0   0
+> expect.err(try(earth(numdead, cbind(sex1, sex2, sex1), trace=1)), # one duplicate name
++                "Duplicate colname in cbind(sex1, sex2, sex1) (colnames are \"sex1\", \"sex2\", \"sex1\"")
+Error : Duplicate colname in cbind(sex1, sex2, sex1) (colnames are "sex1", "sex2", "sex1")
+Got expected error from try(earth(numdead, cbind(sex1, sex2, sex1), trace = 1))
 > sex1 <- factor(rep(c("male", "female"), times=c(6,6)))
 > sex2 <- factor(rep(c("male", "female"), times=c(6,6)))
-> earth(numdead, cbind(sex1, sex2, sex1, sex1), trace=1) # two duplicate names
-x[12,1] with colname numdead, and values 1, 4, 9, 13, 18, 20, 0, 2, 6,...
-y[12,4] with colnames sex1 sex2 sex1.1 sex1.2
-Forward pass term 1, 2, 4
-RSq changed by less than 0.001 at 3 terms (DeltaRSq 0)
-After forward pass GRSq -3.446 RSq 0.081
-Prune backward penalty 2 nprune null: selected 1 of 3 terms, and 0 of 1 preds
-After pruning pass GRSq 0 RSq 0
-Selected 1 of 3 terms, and 0 of 1 predictors
-Termination condition: RSq changed by less than 0.001 at 3 terms
-Importance: numdead-unused
-Number of terms at each degree of interaction: 1 (intercept only model)
-
-             GCV RSS GRSq RSq
-sex1   0.2975207   3    0   0
-sex2   0.2975207   3    0   0
-sex1.1 0.2975207   3    0   0
-sex1.2 0.2975207   3    0   0
-All    1.1900826  12    0   0
+> expect.err(try(earth(numdead, cbind(sex1, sex2, sex1, sex1), trace=1)), # two duplicate names
++                "Duplicate colname in cbind(sex1, sex2, sex1, sex1) (colnames are \"sex1\", \"sex2\", \"sex1\", \"sex1\"")
+Error : Duplicate colname in cbind(sex1, sex2, sex1, sex1) (colnames are "sex1", "sex2", "sex1", "sex1")
+Got expected error from try(earth(numdead, cbind(sex1, sex2, sex1, sex1), trace = 1))
 > 
 > # test column expansion when y is a data frame in earth.default
 > 
@@ -8024,14 +8148,32 @@ After pruning pass GRSq 0.297 RSq 0.791
 > sex2 <- rep(c("male", "female"), times=c(6,6))
 > # y cannot be a character variable
 > expect.err(try(earth(sex2, sex2, trace=1)), "y is a character variable: ")
-Error : y is a character variable: "male", "male", "male", ...
-Got error as expected from try(earth(sex2, sex2, trace = 1))
+Error : y is a character variable: "male", "male", "male", "male", "male...
+Got expected error from try(earth(sex2, sex2, trace = 1))
 > expect.err(try(earth(sex2~ldose1, trace=1)), "y is a character variable: ")
-Error : y is a character variable: "male", "male", "male", ...
-Got error as expected from try(earth(sex2 ~ ldose1, trace = 1))
+Error : y is a character variable: "male", "male", "male", "male", "male...
+Got expected error from try(earth(sex2 ~ ldose1, trace = 1))
 > # but note that this is ok
 > earth(sex2, data.frame(sex2=sex2), trace=1)
-x[12,1] with colname xmale, and values 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,...
+x[12,1] with colname sex2male, and values 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,...
+y[12,2] with colnames sex2female sex2male
+Forward pass term 1, 2
+Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
+After forward pass GRSq 1.000 RSq 1.000
+Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
+After pruning pass GRSq 1 RSq 1
+Selected 2 of 2 terms, and 1 of 1 predictors
+Termination condition: Reached maximum RSq 0.9990 at 2 terms
+Importance: sex2male
+Number of terms at each degree of interaction: 1 1 (additive model)
+
+                    GCV          RSS GRSq RSq
+sex2female 2.154759e-31 1.454462e-30    1   1
+sex2male   9.130335e-33 6.162976e-32    1   1
+All        0.000000e+00 0.000000e+00    1   1
+> 
+> earth(sex2, data.frame(sex2=sex2, stringsAsFactors=TRUE), trace=1) # R 4.0.0 may 2020
+x[12,1] with colname sex2male, and values 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,...
 y[12,1] with colname sex2, and values 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,...
 Forward pass term 1, 2
 Reached maximum RSq 0.9990 at 3 terms, 2 terms used (RSq 1.0000)
@@ -8040,7 +8182,7 @@ Prune backward penalty 2 nprune null: selected 2 of 2 terms, and 1 of 1 preds
 After pruning pass GRSq 1 RSq 1
 Selected 2 of 2 terms, and 1 of 1 predictors
 Termination condition: Reached maximum RSq 0.9990 at 2 terms
-Importance: xmale
+Importance: sex2male
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 0    RSS 0    GRSq 1    RSq 1
 > 
@@ -8055,9 +8197,9 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 update.earth: using 31 by 1 x argument from original call to earth
 update.earth: using 31 by 2 y argument from original call to earth
 x[31,1] with colname x1, and values 70, 65, 63, 72, 81, 83, 66, 7...
-y[31,2] with colnames volumei cbind(volumei,100-volumei)2
+y[31,2] with colnames volumei cbind(volumei, 100-volumei)2
 earth and glm: unweighted
-Response columns volumei and cbind(volumei,100-volumei)2 are a binomial pair (3100 obs in total)
+Response columns volumei and cbind(volumei, 100-volumei)2 are a binomial pair (3100 obs in total)
 yfrac[31,1] with colname volumei, and values 0.1, 0.1, 0.1, 0.16, 0.18, 0...
 Skipped forward pass
 Prune backward penalty 2 nprune null: selected 2 of 5 terms, and 1 of 1 preds
@@ -8077,9 +8219,9 @@ Earth GCV 0.02132819    RSS 0.5393967    GRSq 0.2394863    RSq 0.337508
 update.earth: using 31 by 1 x argument from original call to earth
 update.earth: using 31 by 2 y argument from original call to earth
 x[31,1] with colname x1, and values 70, 65, 63, 72, 81, 83, 66, 7...
-y[31,2] with colnames volumei cbind(volumei,100-volumei)2
+y[31,2] with colnames volumei cbind(volumei, 100-volumei)2
 earth and glm: unweighted
-Response columns volumei and cbind(volumei,100-volumei)2 are a binomial pair (3100 obs in total)
+Response columns volumei and cbind(volumei, 100-volumei)2 are a binomial pair (3100 obs in total)
 yfrac[31,1] with colname volumei, and values 0.1, 0.1, 0.1, 0.16, 0.18, 0...
 Skipped forward pass
 Prune backward penalty 2 nprune null: selected 2 of 5 terms, and 1 of 1 preds

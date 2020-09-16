@@ -70,13 +70,26 @@ and additionally \code{\link{glm}} if earth's \code{glm} argument is used.
   \code{\link{earth}}
 }
 \examples{
-data(trees)
-earth.mod <- earth(Volume ~ ., data = trees)
-summary(earth.mod, decomp = "none") # "none" to print terms in same order as lm.mod below
+# Example 1
 
-bx <- model.matrix(earth.mod)         # equivalent to bx <- earth.mod$bx
-lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
-summary(lm.mod)                       # yields same coeffs as above summary
-                                      # displayed t values are not meaningful
+data(trees)
+earth.mod <- earth(Volume ~ ., data = trees) # standard earth model
+summary(earth.mod, decomp = "none")  # "none" to print terms in same order as lm.mod below
+bx <- model.matrix(earth.mod)        # earth model's basis mat (equivalent to bx <- earth.mod$bx)
+lm.mod <- lm(trees$Volume ~ bx[,-1]) # -1 to drop intercept
+summary(lm.mod)                      # yields same coeffs as above summary
+                                     # displayed t values are not meaningful
+
+# Example 2
+
+earth.mod <- earth(Volume~., data=trees) # standard earth model
+summary(earth.mod, decomp = "none")  # "none" to print terms in same order as lm.mod below
+bx <- model.matrix(earth.mod)        # earth model's basis mat (equivalent to bx <- earth.mod$bx)
+bx <- bx[, -1]                       # drop intercept column
+bx <- as.data.frame(bx)              # lm requires a data frame
+bx$Volume <- trees$Volume            # add Volume to data
+lm.mod <- lm(Volume~., data=bx)      # standard linear regression on earth's basis mat
+summary(lm.mod)                      # yields same coeffs as above summary
+                                     # displayed t values are not meaningful
 }
 \keyword{models}

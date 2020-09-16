@@ -55,7 +55,7 @@ evimp <- function(object, trim=TRUE, sqrt.=TRUE) # see help page for description
     stopifnot(!is.null(object$prune.terms))
     nsubsets <- length(object$selected.terms)
     dirs <- object$dirs
-    pred.names <- gen.colnames(dirs, "x", "x", trace=0)
+    pred.names <- gen.colnames(dirs, "x")
 
     # tagged.pred.names is a copy of pred.names but with unused
     # predictors renamed by adding a "-unused" suffix.
@@ -88,16 +88,18 @@ evimp <- function(object, trim=TRUE, sqrt.=TRUE) # see help page for description
     importances[, "col"] <- seq_len(nrow(importances))
     importances[used.preds, "used"] <- 1
 
-    if(nsubsets > 1) for(isubset in 2:nsubsets) {
-        terms.in.this.subset <- object$prune.terms[isubset,-1]  # -1 drops intercept
-        preds.in.this.subset <-
-            unique(unlist(preds.in.each.term[terms.in.this.subset]))
+    if(nsubsets > 1) {
+        for(isubset in 2:nsubsets) {
+            terms.in.this.subset <- object$prune.terms[isubset,-1]  # -1 drops intercept
+            preds.in.this.subset <-
+                unique(unlist(preds.in.each.term[terms.in.this.subset]))
 
-        for(icrit in 1:3) {
-            icriti <- as.icriti(icrit)
-            importances[preds.in.this.subset, icriti] <-
-                importances[preds.in.this.subset, icriti] +
-                deltas[isubset-1, icrit]
+            for(icrit in 1:3) {
+                icriti <- as.icriti(icrit)
+                importances[preds.in.this.subset, icriti] <-
+                    importances[preds.in.this.subset, icriti] +
+                    deltas[isubset-1, icrit]
+            }
         }
     }
     # sort rows in "importances" by the nsubsets criteria

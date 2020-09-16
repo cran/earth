@@ -19,7 +19,6 @@ predict.earth <- function(
         fit <- predict_earth_terms(object, newdata, env, trace)
     else
         fit <- predict_earth_aux(object, newdata, env, type, thresh, trace)
-
     interval <- match.choices(interval,
                     c("none", "pint", "cint", "se", "abs.residual"), "interval")
     if(interval == "none") {

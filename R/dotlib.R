@@ -37,7 +37,7 @@ merge.list <- function(original, extra)
 # environment and enclosure are set up for dot arg lists.)
 #
 # TODO "scalar" is ugly, it is for par() alone and prevents
-# e.g. errmsg graphical parameter "lty" has the wrong length
+# e.g. error: graphical parameter "lty" has the wrong length
 
 eval.dotlist <- function(dots, n=1, scalar=FALSE)
 {

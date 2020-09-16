@@ -349,20 +349,20 @@ GCV 0.1561245    RSS 158.3485    GRSq 0.3322006    RSq 0.3512343
 > 
 > expect.err(try(earth(Volume ~ ., data = trees, allowed = 99)), "argument is not a function")
 Error : your 'allowed' argument is not a function
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = 99))
+Got expected error from try(earth(Volume ~ ., data = trees, allowed = 99))
 > 
 > example7  <- function(degree, pred) pred!=2
 > expect.err(try(earth(Volume ~ ., data = trees, allowed = example7)), "function does not have the correct number of arguments")
 Error : your 'allowed' function does not have the correct number of arguments
   The 'allowed' function needs the following arguments (but namesx and first are optional):
       degree pred parents namesx first
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = example7))
+Got expected error from try(earth(Volume ~ ., data = trees, allowed = example7))
 > 
 > expect.err(try(earth(Volume ~ ., data = trees, allowed = earth)), "your 'allowed' function does not have the correct number of arguments")
 Error : your 'allowed' function does not have the correct number of arguments
   The 'allowed' function needs the following arguments (but namesx and first are optional):
       degree pred parents namesx first
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = earth))
+Got expected error from try(earth(Volume ~ ., data = trees, allowed = earth))
 > 
 > example8  <- function(degree, pred, parents99) pred!=2
 > expect.err(try(earth(Volume ~ ., data = trees, allowed = example8)), "function needs the following arguments")
@@ -370,7 +370,7 @@ Error :   The 'allowed' function needs the following arguments (but namesx and f
       degree pred parents namesx first
   You have:
       degree pred parents99
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = example8))
+Got expected error from try(earth(Volume ~ ., data = trees, allowed = example8))
 > 
 > example9  <- function(degree, pred, parents, namesx99) pred!=2
 > expect.err(try(earth(Volume ~ ., data = trees, allowed = example9)), "function needs the following arguments")
@@ -378,6 +378,6 @@ Error :   The 'allowed' function needs the following arguments (but namesx and f
       degree pred parents namesx first
   You have:
       degree pred parents namesx99
-Got error as expected from try(earth(Volume ~ ., data = trees, allowed = example9))
+Got expected error from try(earth(Volume ~ ., data = trees, allowed = example9))
 > 
 > source("test.epilog.R")

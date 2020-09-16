@@ -212,14 +212,36 @@ show.earth.models(a7, nresponse=1)
 printh(a7$levels)
 print.stripped.earth.model(a7, "a7")
 
+expect.err(try(earth(sex ~ ., data=etitanic, nfold=2,       # earth.formula
+               subset=rep(TRUE, length.out=nrow(etitanic)))),
+           "'subset' cannot be used with 'nfold' (implementation restriction)")
+
+expect.err(try(earth(etitanic$age, etitanic$sex, nfold=2,   # earth.default
+               subset=rep(TRUE, length.out=nrow(etitanic)))),
+           "'subset' cannot be used with 'nfold' (implementation restriction)")
+
+cat("glm.varmod: titanic data, one response which is a two level factor, with varmod and plotmo\n\n")
+set.seed(2020)
+glm.varmod <- earth(sex ~ pclass+age+sibsp, data=etitanic, glm=list(family="binomial"), trace=.5,
+                  nfold=5, ncross=3, varmod.method="lm")
+cat("\nprint(glm.varmod)\n")
+print(glm.varmod)
+cat("\nsummary(glm.varmod)\n")
+print(summary(glm.varmod))
+plotmo(glm.varmod, type="earth", level=.8, ylim=c(-1, 2), SHOWCALL=TRUE)
+options(warn=2)
+expect.err(try(plotmo(glm.varmod, leve=.8)),                 "predict.earth: with earth-glm models, use type=\"earth\" when using the interval argument")
+expect.err(try(plotmo(glm.varmod, lev=.8, type="response")), "predict.earth: with earth-glm models, use type=\"earth\" when using the interval argument")
+options(warn=1)
+
 a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0)
 a7dupdate <- update(a7, form=sex ~ .-pclass)
 check.models.equal(a7dupdate, a7d, msg="a7update a7d", newdata=etitanic[5,])
 printh(a7d$levels)
 
-a7d <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
-a7dupdate <- update(a7, form=sex ~ .-pclass)
-check.models.equal(a7dupdate, a7d, msg="a7update a7d with keepxy", newdata=etitanic[5,])
+a7d1 <- earth(sex ~ .-pclass, data=etitanic, degree=2, glm=list(family="binomial"), trace=0, keepxy=1)
+a7d1update <- update(a7, form=sex ~ .-pclass)
+check.models.equal(a7d1update, a7d1, msg="a7update a7d1 with keepxy", newdata=etitanic[5,])
 
 subset. <- rep(TRUE, nrow(etitanic))
 subset.[1:10] <- FALSE
@@ -523,11 +545,13 @@ test.predict.with.factors <- function(trace)
 
     cat("A-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex[1], -2)
-    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 3")
+    expect.err(try(predict(am, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex.1.\", \"X.2\"\n           need 3 columns: \"sexmale\", \"ldose\", \"ldose1\"")
 
     cat("A-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex[1], -2)
-    expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 3")
+    expect.err(try(predict(af, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex.1.\", \"X.2\"\n           need 3 columns: \"sex\", \"ldose\", \"ldose1\"")
 
     cat("A-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
     xdata.frame <- data.frame(-2, sex[1], 0.1)
@@ -566,10 +590,12 @@ test.predict.with.factors <- function(trace)
 
     cat("A-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex[c(1,7)], c(-2,-1))
-    expect.err(try(predict(am, xdata.frame, trace=trace)), "expected 3")
+    expect.err(try(predict(am, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex.c.1..7..\", \"c..2...1.\"\n           need 3 columns: \"sexmale\", \"ldose\", \"ldose1\"")
 
     cat("A-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)), "expected 3")
+    expect.err(try(predict(af, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex.c.1..7..\", \"c..2...1.\"\n           need 3 columns: \"sex\", \"ldose\", \"ldose1\"")
     stop.if.not.identical("A-57", pm, pf)
 
     cat("A-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -623,10 +649,10 @@ test.predict.with.factors <- function(trace)
     my.input.mat <- cbind(my.x1, my.x2)
     my.response <- ToothGrowth[,1]
 
-    cat("A-68 input matrix to formula interface trace=", trace, ", expect error \"could not interpret\"\n", sep="")
+    cat("A-68 input matrix to formula interface trace=", trace, ", expect error \"model.matrix.earth could not interpret the data\"\n", sep="")
     a41 <- earth(my.response~my.input.mat, trace=trace)
-    expect.err(try(predict(a41, c(2.1, 0.6), trace=trace)), "could not interpret the data")
-
+    expect.err(try(predict(a41, c(2.1, 0.6), trace=trace)),
+               "model.matrix.earth could not interpret the data")
     cat("A-69 above test but with properly named dataframe trace=", trace, "\n", sep="")
     df <- data.frame(growth=my.response, supp=my.x1, dose=my.x2)
     a42 <- earth(formula=growth~., data=df, trace=0)
@@ -762,10 +788,12 @@ test.predict.with.factors <- function(trace)
 
     cat("B-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[1], -2)
-    expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
+    expect.err(try(predict(am, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.1.\", \"X.2\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
 
     cat("B-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
+    expect.err(try(predict(af, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.1.\", \"X.2\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
 
     cat("B-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
@@ -819,10 +847,12 @@ test.predict.with.factors <- function(trace)
 
     cat("B-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
-    expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
+    expect.err(try(predict(am, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.c.1..7..\", \"c..2...1.\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
 
     cat("B-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
+    expect.err(try(predict(af, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.c.1..7..\", \"c..2...1.\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
     stop.if.not.identical("B-57", pm, pf)
 
     cat("B-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -924,10 +954,10 @@ test.predict.with.factors <- function(trace)
 
     cat("C-53m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[1], -2)
-    expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "could not interpret newdata")
 
     cat("C-53f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
+    expect.err(try(predict(af, xdata.frame, trace=trace)), "could not interpret newdata")
 
     cat("C-54m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
     xdata.frame <- data.frame(-2, sex3[1], 0.1, fac3[1])
@@ -977,10 +1007,12 @@ test.predict.with.factors <- function(trace)
 
     cat("C-57m predict(am, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
     xdata.frame <- data.frame(sex3[c(1,7)], c(-2,-1))
-    expect.err(try(predict(am, xdata.frame, trace=trace)), "get.earth.x from model.matrix.earth from predict.earth: x has 2 columns but expected 4")
+    expect.err(try(predict(am, xdata.frame, trace=trace)), "could not interpret newdata")
 
     cat("C-57f predict(af, xdata.frame, trace=", trace, ") data frame with not enough columns, expect error message\n", sep="")
-    expect.err(try(predict(af, xdata.frame, trace=trace)), "has 2 columns")
+    expect.err(try(predict(af, xdata.frame, trace=trace)),
+"could not interpret newdata\n           model.matrix returned 2 columns: \"sex3.c.1..7..\", \"c..2...1.\"\n           need 4 columns: \"sex3\", \"ldose\", \"ldose1\", \"fac3\"")
+
     stop.if.not.identical("C-57", pm, pf)
 
     cat("C-58m predict(am, xdata.frame, trace=", trace, ") # data frame with cols in different order\n", sep="")
@@ -1321,10 +1353,12 @@ show.earth.models(a.intercept.pruned)
 cat("---misc 1---\n")
 sex1 <- factor(rep(c("male", "female"), times=c(6,6)))
 sex2 <- factor(rep(c("male", "female"), times=c(6,6)))
-earth(numdead, cbind(sex1, sex2, sex1), trace=1) # one duplicate name
+expect.err(try(earth(numdead, cbind(sex1, sex2, sex1), trace=1)), # one duplicate name
+               "Duplicate colname in cbind(sex1, sex2, sex1) (colnames are \"sex1\", \"sex2\", \"sex1\"")
 sex1 <- factor(rep(c("male", "female"), times=c(6,6)))
 sex2 <- factor(rep(c("male", "female"), times=c(6,6)))
-earth(numdead, cbind(sex1, sex2, sex1, sex1), trace=1) # two duplicate names
+expect.err(try(earth(numdead, cbind(sex1, sex2, sex1, sex1), trace=1)), # two duplicate names
+               "Duplicate colname in cbind(sex1, sex2, sex1, sex1) (colnames are \"sex1\", \"sex2\", \"sex1\", \"sex1\"")
 
 # test column expansion when y is a data frame in earth.default
 
@@ -1357,6 +1391,8 @@ expect.err(try(earth(sex2, sex2, trace=1)), "y is a character variable: ")
 expect.err(try(earth(sex2~ldose1, trace=1)), "y is a character variable: ")
 # but note that this is ok
 earth(sex2, data.frame(sex2=sex2), trace=1)
+
+earth(sex2, data.frame(sex2=sex2, stringsAsFactors=TRUE), trace=1) # R 4.0.0 may 2020
 
 # test update.earth with bpairs argument (for now always do forward pass if bpairs)
 

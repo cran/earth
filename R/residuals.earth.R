@@ -12,6 +12,7 @@ residuals.earth <- function(object=stop("no 'object' argument"), type=NULL, warn
                "standardize", "delever",
                "pearson", "working", "partial",
                "glm.response", "glm.pearson", "glm.working", "glm.partial")
+
     if(is.null(object$residuals)) # I think this can only happen for cv models
         stop0("earth object has no residuals field.\n",
               "       Use keepxy=TRUE in the call to earth.")

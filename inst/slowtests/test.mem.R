@@ -124,6 +124,7 @@ for(i in 0:nmodels) {
     } else
         nbadallowed[i] <- max.mem.change(mem.start, gc.start)
 }
+
 # try earth model with an arg that causes error in ForwardPass in earth.c
 cat("earth(y~x, Adjust.endspan = -999\n")
 expect.err(try(earth(y~x, Adjust.endspan = -999), silent=FALSE), "Adjust.endspan is -999 but should be between 0 and 10")
@@ -136,6 +137,7 @@ for(i in 0:nmodels) {
     } else
         nbadendspan[i] <- max.mem.change(mem.start, gc.start)
 }
+
 cat("nlm           "); print(nlm)
 cat("nstandardearth"); print(nstandardearth)
 cat("ngoodallowed  "); print(ngoodallowed)

@@ -7,6 +7,7 @@ Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
+> options(warn=1) # print warnings as they occur
 > check.equal <- function(x, y, msg="")
 + {
 +     diff <- x - y
@@ -64,13 +65,13 @@ Loading required package: TeachingDemos
 > 
 > expect.err(try(earth(y~., data=data, wp=3, Scale.y=TRUE)), "Scale.y=TRUE is not allowed with wp")
 Error : Scale.y=TRUE is not allowed with wp (implementation restriction)
-Got error as expected from try(earth(y ~ ., data = data, wp = 3, Scale.y = TRUE))
+Got expected error from try(earth(y ~ ., data = data, wp = 3, Scale.y = TRUE))
 > allthrees <- rep(3.0, length.out=nrow(data))
 > options(warn=2)
 > expect.err(try(earth(allthrees~x, data=data)), "Cannot scale y (values are all equal to 3)")
 Error : (converted from warning) Cannot scale y (values are all equal to 3)
          Use Scale.y=FALSE to silence this warning
-Got error as expected from try(earth(allthrees ~ x, data = data))
+Got expected error from try(earth(allthrees ~ x, data = data))
 > options(warn=1)
 > allthrees.mod <- earth(allthrees~x, data=data)
 Warning: Cannot scale y (values are all equal to 3)
@@ -268,16 +269,16 @@ After pruning pass GRSq 1 RSq 1
 === a7.xy.asmallweight ===
 > a7.xy.asmallweight  <- earth(xxx, yyy, weights=c(1, 1, 1, 1, .5, 1, 1, 1, 1),
 +                           minspan=1, endspan=1, penalty=-1, thresh=1e-8, trace=3)
-x[9,1] with colname x, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
+x[9,1] with colname xx, and values 1, 2, 3, 4, 5, 6, 7, 8, 9
 y[9,1] with colname yyy, and values 1, 2, 3, 4, 9, 6, 7, 8, 9
 weights[9]: 1, 1, 1, 1, 0.5, 1, 1, 1, 1
 Forward pass: minspan 1 endspan 1   x[9,1] 72 Bytes   bx[9,21] 1.48 kB weighted
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
-2      0.9138 0.9138       0.9138    1            x           5  2   3         1 
-4      0.9323 0.9323      0.01846    1            x           6  4             1 
-6      1.0000 1.0000       0.0677    1            x           4  5             1 final (max RSq)
+2      0.9138 0.9138       0.9138    1           xx           5  2   3         1 
+4      0.9323 0.9323      0.01846    1           xx           6  4             1 
+6      1.0000 1.0000       0.0677    1           xx           4  5             1 final (max RSq)
 
 Reached maximum RSq 1.0000 at 7 terms, 5 terms used (RSq 1.0000)
 After forward pass GRSq 1.000 RSq 1.000
@@ -481,11 +482,11 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > cat("=== plot.earth with weights ===\n")
 === plot.earth with weights ===
 > # we also test id.n=TRUE and id.n=-1 here
-> old.par <- par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), oma=c(0,0,3,0), par(cex=1))
+> par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), oma=c(0,0,3,0), par(cex=1))
 > plot(a3, id.n=TRUE, SHOWCALL=TRUE, caption="compare a3 to to lm3", do.par=FALSE,
 +      which=c(3,4), caption.cex=1.5)
 > plot(lm3, id.n=9, which=c(1,2), sub.caption="")
-> par(old.par)
+> par(org.par)
 > 
 > cat("=== plot.earth with earth-glm model and weights ===\n")
 === plot.earth with earth-glm model and weights ===
@@ -573,6 +574,7 @@ Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > # aw.trees <- earth(Volume~., data=trees, trace=2, Force.weights=TRUE)
 > # plotmo(a.trees, do.par=2, caption="trees: top and bottom should be similar")
 > # plotmo(aw.trees, do.par=FALSE)
+> # par(org.par)
 > 
 > # bivariate.with.interaction
 > set.seed(2015)
@@ -657,7 +659,7 @@ GCV 0.0670688    RSS 0.1825762    GRSq 0.9142114    RSq 0.9854545
 > library(gam)
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.16.1
+Loaded gam 1.20
 
 > library(rpart)
 > n <- 100
@@ -676,8 +678,6 @@ comparison to glm and rpart: unweighted
 > plotmo(a200, do.par=FALSE, pt.col=2, main="unweighted\nearth", cex=.7, pt.cex=.2, grid.col=TRUE)
 > mtext("comparison to glm and rpart", outer=TRUE, line=2)
 > gam200 <- gam(y~s(x1, 5), data=data)
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
 > plotmo(gam200, do.par=FALSE, pt.col=2, main="gam", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001))
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="rpart", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -687,10 +687,14 @@ comparison to glm and rpart: weight=.1
 > weight <- .1
 > w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
 > aw201 <- earth(y~x1, data=data, weights=w)
+> expect.err(try(earth(y~., data=data, wp=3, Scale.y=TRUE)), "Scale.y=TRUE is not allowed with wp")
+Error : Scale.y=TRUE is not allowed with wp (implementation restriction)
+Got expected error from try(earth(y ~ ., data = data, wp = 3, Scale.y = TRUE))
+> expect.err(try(earth(y~., data=data, Scale.y=999)), "Scale.y=999 but it should be FALSE, TRUE, 0, or 1")
+Error : Scale.y=999 but it should be FALSE, TRUE, 0, or 1
+Got expected error from try(earth(y ~ ., data = data, Scale.y = 999))
 > plotmo(aw201, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw201 <- gam(y~s(x1, 5), data=data, weights=w)
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
 > plotmo(gamw201, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -702,8 +706,6 @@ comparison to glm and rpart: weight=1
 > aw202 <- earth(y~x1, data=data, weights=w)
 > plotmo(aw202, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw202 <- gam(y~s(x1, 5), data=data, weights=w)
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
 > plotmo(gamw202, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -715,8 +717,6 @@ comparison to glm and rpart: weight=2
 > aw203 <- earth(y~x1, data=data, weights=w)
 > plotmo(aw203, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw203 <- gam(y~s(x1, 5), data=data, weights=w)
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
 > plotmo(gamw203, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -728,8 +728,6 @@ comparison to glm and rpart: weight=10
 > aw204 <- earth(y~x1, data=data, weights=w)
 > plotmo(aw204, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 > gamw204 <- gam(y~s(x1, 5), data=data, weights=w)
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
 > plotmo(gamw204, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
 > rpart <- rpart(y~x1, data=data, method="anova", control=rpart.control(cp=.001), weights=w)
 > plotmo(rpart, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE, trace=-1)
@@ -896,7 +894,6 @@ Earth GCV 0.0989258    RSS 7.147389    GRSq 0.588467    RSq 0.6966304
 > yyy[3] <- 9
 > datxy <- data.frame(x=xxx, y=yyy)
 > colnames(datxy) <- c("xxx", "yyy")
-> options(warn=2)
 > 
 > mod1 <- earth(yyy~., datxy, Scale.y=FALSE)
 > mod2 <- earth(yyy~., datxy, Scale.y=TRUE)

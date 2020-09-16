@@ -4,31 +4,35 @@
 
 @echo test.earthmain.vc.bat
 @set CYGWIN=nodosfilewarning
-@cp "d:/bin/R320dll/i386/R.dll" .
+
+@mks.cp "C:\bin\R400devdll\i386\R.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "d:/bin/R320dll/i386/Rblas.dll" .
+@mks.cp "C:\bin\R400devdll\i386\Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "d:/bin/R320dll/i386/Riconv.dll" .
+@mks.cp "C:\bin\R400devdll\i386\Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "d:/bin/R320dll/i386/Rgraphapp.dll" .
+@mks.cp "C:\bin\R400devdll\i386\Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
-@cp "d:/bin/R320dll/i386/Rzlib.dll" .
+@rem you may have to create R.lib and Rblas.lib beforehand
+mks.cp "C:\bin\R400devdll\i386\R.lib" .
                                 @if %errorlevel% neq 0 goto error
-@rem you may have to create Rdll.lib and Rblas.lib beforehand
-@cp "../../.#/Rdll.lib" .
-                                @if %errorlevel% neq 0 goto error
-@cp "../../.#/Rblas.lib" .
-                                @if %errorlevel% neq 0 goto error
-@rem get iconv.dll from /a/r/ra/src/gnuwin32/unicode
-@cp "../../.#/Rdll.lib" .
+mks.cp "C:\bin\R400devdll\i386\Rblas.lib" .
                                 @if %errorlevel% neq 0 goto error
 
 @md Debug
 
-@rem Use -W4 (insteadof -W3) for lint like warnings
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\r\R-3.6.1"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
+@rem Note: Use Microsoft VC14 (Visual Studio 2015) 32 bit.
+@rem (Other versions haven't been tested and may cause spurious errors.)
+@rem
+@rem To set up the environment for the call to "cl" below, invoke:
+@rem    C:\Program Files\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat
+@rem
+@rem We use -W4 below (insteadof -W3) for lint-like warnings
+
+cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\R\R-4.0.2"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
                                 @if %errorlevel% neq 0 goto error
-link -nologo -debug -out:earthmain.exe Debug\earth.obj Rdll.lib Rblas.lib
+@rem Added path below to disambiguate from rtools which (may 2020 R version 4.0.0)
+"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\link.exe" -nologo -debug -out:earthmain.exe Debug\earth.obj R.lib Rblas.lib
                                 @if %errorlevel% neq 0 goto error
 earthmain.exe > Debug\test.earthmain.out
                                 @rem no errorlevel test, diff will do check for discrepancies
@@ -36,7 +40,7 @@ earthmain.exe > Debug\test.earthmain.out
 mks.diff Debug\test.earthmain.out test.earthmain.out.save
                                 @if %errorlevel% neq 0 goto error
 
-@rm -f R.dll Rblas.dll Rdll.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll Rzlib.dll earthmain.exe *.map *.ilk *.pdb
+@rm -f R.dll Rblas.dll R.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll earthmain.exe *.map *.ilk *.pdb
 @rm -rf Debug
 @exit /B 0
 

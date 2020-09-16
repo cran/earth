@@ -2,7 +2,7 @@
 @rem Stephen Milborrow May 2015 Berea
 
 @echo test.incorrect.bat
-@"C:\PROGRA~1\R\R-3.6.1\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.incorrect.R
+@"C:\PROGRA~1\R\R-4.0.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.incorrect.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.incorrect.Rout:
 @echo.
@@ -11,15 +11,8 @@
 @exit /B 1
 :good1
 @echo diff test.incorrect.Rout test.incorrect.Rout.save
-@rem egreps to deal with times
-@C:\Rtools\bin\echo -n "new "
-@egrep "^\[total time" test.incorrect.Rout
-@C:\Rtools\bin\echo -n "old "
-@egrep "^\[total time" test.incorrect.Rout.save
-@egrep -v "^\[total time" test.incorrect.Rout      >test.incorrect.Rout1
-@egrep -v "^\[total time" test.incorrect.Rout.save >test.incorrect.Rout.save1
 @rem -w to treat \n same as \r\n
-@mks.diff -w test.incorrect.Rout1 test.incorrect.Rout.save1
+@mks.diff -w test.incorrect.Rout test.incorrect.Rout.save
 @if %errorlevel% equ 0 goto good2
 @echo === Files are different ===
 @diffps -s Rplots.ps ..\..\.#\test-reference\test.incorrect.save.ps
@@ -32,6 +25,6 @@ diffps Rplots.ps ..\..\.#\test-reference\test.incorrect.save.ps
 @echo === Files are different ===
 @exit /B 1
 :good3
-@rm -f test.incorrect.Rout test.incorrect.Rout1 test.incorrect.Rout.save1
+@rm -f test.incorrect.Rout
 @rm -f Rplots.ps
 @exit /B  0

@@ -7,6 +7,7 @@ library(earth)
 data(ozone1)
 data(trees)
 data(etitanic)
+options(warn=1) # print warnings as they occur
 
 cat("\n===short and long data===\n")
 x.short <- data.frame(x1=c(5,2,2,9,5), x2=c(20,20,30,20,20))
@@ -34,7 +35,7 @@ plotres(glong, do.par=0, which=3, main="glong")
 par(mfrow=c(2,2))
 plotmo(elong, do.par=0)
 plotmo(glong, do.par=0)
-par(old.par)
+par(org.par)
 
 eshort <- earth(true.false~x1+x2, data=short, glm=list(family="binomial"),
                 linpreds=TRUE, thresh=0, penalty=-1, trace=2)
@@ -49,12 +50,12 @@ plotres(gshort, do.par=0, which=3, main="gshort")
 par(mfrow=c(2,2))
 plotmo(eshort, do.par=0)
 plotmo(gshort, do.par=0)
-par(old.par)
+par(org.par)
 
 par(mfrow=c(2,2))
 plot(elong, main="elong: Model Selection", which=c(1, 3), do.par=0, legend.pos="topleft")
 plot(eshort, main="eshort: Model Selection", which=c(1, 3), do.par=0, legend.pos="topleft")
-par(old.par)
+par(org.par)
 
 cat("\n===long data with weights ===\n")
 elong.weights <- earth(true~x1+x2, data=long, glm=list(family="binomial"),
@@ -138,8 +139,7 @@ plotres(eshort.hinge, do.par=0, which=c(1,3), main="eshort.hinge", legend.pos="t
 par(mfrow=c(2,2))
 plotmo(elong.hinge, do.par=0, ndiscrete=0)
 plotmo(eshort.hinge, do.par=0, ndiscrete=0)
-
-par(old.par)
+par(org.par)
 
 # test with a y with a binomial pair row with both entries equal to 0
 x.short.with.zeros <- data.frame(x1=c(5,2,2,9,5,9), x2=c(20,20,30,20,20,30))
@@ -157,7 +157,7 @@ plotres(gshort.with.zeros, do.par=0, which=3, main="gshort.with.zeros")
 par(mfrow=c(2,2))
 plotmo(eshort.with.zeros, do.par=0, ndiscrete=0)
 plotmo(gshort.with.zeros, do.par=0, ndiscrete=0)
-par(old.par)
+par(org.par)
 eshort.with.zeros.plus <- earth(true+false~x1+x2, data=short.with.zeros, glm=list(family="binomial"),
                                 linpreds=TRUE, thresh=0, penalty=-1, trace=1)
 check.models.equal(eshort.with.zeros, eshort.with.zeros.plus, "eshort.with.zeros, eshort.with.zeros.plus", newdata=short.with.zeros[2:3,])
@@ -261,23 +261,27 @@ lizards <- data.frame(
     opalinus=opalinus)
 
 grahami.opalinus <- cbind(grahami=lizards$grahami, opalinus=lizards$opalinus)
-eliz <- earth(grahami.opalinus~shade+wide+tall+time,
+eliz <- earth(grahami.opalinus~as.numeric(shade)+wide+tall*time,
               data=lizards, glm=list(family="binomial"),
               linpreds=TRUE, thresh=0, penalty=-1, trace=1)
-eliz.Formula <- earth(grahami+opalinus~shade+wide+tall+time,
+print(summary(eliz))
+eliz.Formula <- earth(grahami+opalinus~as.numeric(shade)+wide+tall*time,
               data=lizards, glm=list(family="binomial"),
               linpreds=TRUE, thresh=0, penalty=-1, trace=1)
-gliz <- glm(grahami.opalinus~shade+wide+tall+time,
+print(summary(eliz.Formula))
+gliz <- glm(grahami.opalinus~as.numeric(shade)+wide+tall*time,
             data=lizards, family="binomial")
-check.earth.matches.glm(eliz, gliz, newdata=lizards[c(2:5),])
-check.earth.matches.glm(eliz.Formula, gliz, newdata=lizards[c(2:5),])
+print(summary(gliz))
+
+check.earth.matches.glm(eliz, gliz, newdata=lizards[c(2:5),], max=1e-12)
+check.earth.matches.glm(eliz.Formula, gliz, newdata=lizards[c(2:5),], max=1e-12)
 print(evimp(eliz))
 par(mfrow=c(3,2))
 plotres(eliz,         do.par=0, which=c(1,3), main="eliz",         legend.pos="topleft")
 plotres(eliz.Formula, do.par=0, which=c(1,3), main="eliz.Formula", legend.pos="topleft")
 empty.plot()
 plotres(gliz,         do.par=0, which=3, main="gliz")
-par(old.par)
+par(org.par)
 plotmo(eliz, ndiscrete=0, SHOWCALL=TRUE)
 plotmo(eliz.Formula, ndiscrete=0, SHOWCALL=TRUE)
 plotmo(gliz, ndiscrete=0, SHOWCALL=TRUE)
@@ -387,11 +391,12 @@ plot(pairmod_formula_subset, info=TRUE)
 plotmo(pairmod_Formula_subset, SHOWCALL=TRUE)
 plotmo(pairmod_formula_subset, SHOWCALL=TRUE)
 
-# have to use I() if a minus in a formula that has a plus
-pairmod5 <- earth(I(20-numdead) + numdead ~ sex + ldose, data=df, trace=1, pmethod="none",
-                   glm=list(family=binomial))
-check.models.equal(pairmod5, pairmod2, "pairmod5, pairmod2", newdata=df[5:6,], allow.different.names=TRUE)
-plot(pairmod5, info=TRUE)
+# Terms on lhs like I(20-numdead) are not supported in multiple response Formulas
+# (else `log(O3)` is included in model matrix if log(O3) is used on lhs of the Formula)
+# Tested Sep 2020, problem in Formula package?
+expect.err(try(earth(I(20-numdead) + numdead ~ sex + ldose, data=df, trace=1, pmethod="none",
+               glm=list(family=binomial))),
+           "terms like 'I(20 - numdead)' are not allowed on the LHS of a multiple-response formula")
 
 pairmod6a <- earth(numalive + numdead ~ sex + ldose - sex, data=df, trace=1, pmethod="none")
 pairmod6b <- earth(numalive + numdead ~ ldose, data=df, trace=1, pmethod="none")
@@ -427,25 +432,25 @@ print(newdata.dataframe)
 predict.pairmod  <- predict(pairmod, newdata.dataframe)
 predict.pairmod2 <- predict(pairmod2, newdata.dataframe)
 predict.pairmod_Formula <- predict(pairmod_Formula, newdata.dataframe)
-predict.pairmod5 <- predict(pairmod5, newdata.dataframe)
+# predict.pairmod5 <- predict(pairmod5, newdata.dataframe)
 check.same(predict.pairmod, 2.372412, max=1e-4)
 check.same(predict.pairmod2, predict.pairmod, "predict pairmod2,pairmod with newdata.dataframe")
 check.same(predict.pairmod_Formula, predict.pairmod, "predict pairmod_Formula,pairmod2 with newdata.dataframe")
-check.same(predict.pairmod5, predict.pairmod, "predict pairmod5,pairmod2 with newdata.dataframe", allow.different.names=TRUE)
+# check.same(predict.pairmod5, predict.pairmod, "predict pairmod5,pairmod2 with newdata.dataframe", allow.different.names=TRUE)
 
 newdata.vector <- df[1,,drop=TRUE] # list
 print(newdata.vector)
 predict.pairmodv  <- predict(pairmod, newdata.vector)
 predict.pairmod2v <- predict(pairmod2, newdata.vector)
 predict.pairmod_Formulav <- predict(pairmod_Formula, newdata.vector)
-predict.pairmod5v <- predict(pairmod5, newdata.vector)
+# predict.pairmod5v <- predict(pairmod5, newdata.vector)
 check.same(predict.pairmodv, 2.372412, max=1e-4)
 check.same(predict.pairmod2v, predict.pairmodv, "predict pairmod2,pairmod with newdata.vector")
 check.same(predict.pairmod_Formulav, predict.pairmodv, "predict pairmod_Formula,pairmod2 with newdata.vector")
-check.same(predict.pairmod5v, predict.pairmodv, "predict pairmod5,pairmod2 with newdata.vector", allow.different.names=TRUE)
+# check.same(predict.pairmod5v, predict.pairmodv, "predict pairmod5,pairmod2 with newdata.vector", allow.different.names=TRUE)
 
 plotmo(pairmod_Formula, SHOWCALL=TRUE)
-plotmo(pairmod5, SHOWCALL=TRUE)
+# plotmo(pairmod5, SHOWCALL=TRUE)
 expect.err(try(plotmo(pairmod2)), "cannot get the original model predictors") # because we deleted ldose, numalive, etc.
 expect.err(try(plotmo(pairmod2.weights)), "cannot get the original model predictors") # because we deleted ldose, numalive, etc.
 
@@ -513,8 +518,13 @@ par(mfrow = c(2, 2), mar = c(3, 3, 3, 1), mgp = c(1.5, 0.5, 0))
 set.seed(2019)
 plotmo(earth.cv, type="earth", pt.col=2, do.par=0)
 empty.plot()
-# TODO following doesn't work (can't plotmo the fold models)
-# plotmo(earth.cv$cv.list[[1]], type="earth", pt.col=2, do.par=0)
 plot.earth.models(list(earth.cv, earth.cv$cv.list[[1]], earth.cv$cv.list[[2]]), which=1:2, do.par=0)
+
+# try plotmo on one of the fold models
+expect.err(try(plotmo(earth.cv$cv.list[[1]])), "cannot get the original model predictors (use keepxy=2 in the call to earth)")
+# can plotmo on a fold model if we use keepxy=2 in call to earth
+set.seed(2020)
+earth.cv.keepxy2 <- earth(good+bad~., data=data, glm=list(family=binomial), trace=.5, nfold=2, keepxy=2)
+plotmo(earth.cv.keepxy2$cv.list[[1]], type="earth", SHOWCALL=TRUE)
 
 source("test.epilog.R")

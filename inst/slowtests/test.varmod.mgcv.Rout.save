@@ -8,7 +8,7 @@ Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> options(warn=2)
+> options(warn=1) # print warnings as they occur
 > 
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -29,11 +29,10 @@ Loading required package: TeachingDemos
 + }
 > do.caption <- function() # must be called _after_ first plot on new page
 +     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
-> old.par <- par(no.readonly=TRUE)
 > 
 > library(mgcv)
 Loading required package: nlme
-This is mgcv 1.8-30. For overview type 'help("mgcv-package")'.
+This is mgcv 1.8-33. For overview type 'help("mgcv-package")'.
 > 
 > for(varmod.method in c("gam", "x.gam")) {
 + 
@@ -228,6 +227,6 @@ response values in prediction interval   77     90     97     97
 29 56.363903 44.128614 68.59919
 30 56.363903 44.128614 68.59919
 31 73.447846 58.508304 88.38739
-> par(old.par)
+> par(org.par)
 > 
 > source("test.epilog.R")

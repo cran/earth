@@ -24,7 +24,6 @@ Loading required package: TeachingDemos
 + }
 > do.caption <- function(caption)
 +     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
-> old.par <- par(no.readonly=TRUE)
 > 
 > # test plotd basic functionality on a numeric response
 > 
@@ -160,8 +159,14 @@ grouping criterion: CLASS1 survived == 0, CLASS2 survived != 0
 > printh("a9")
 ===a9
 > a9 <- earth(survived - .5 ~ .-survived, data=etitanic, degree=2)
+Warning in terms.formula(formula, data = data) :
+  'varlist' has changed (from nvar=6) to new 7 after EncodeVars() -- should no longer happen!
 > plotd(a9, main="earth, survived-.5, type=class, thresh=0", hist=TRUE, type="class",thresh=0,vline.col="brown",xaxis.cex=.8, fill="pink",breaks=4,labels=TRUE)
+Warning in terms.formula(formula, data = data) :
+  'varlist' has changed (from nvar=6) to new 7 after EncodeVars() -- should no longer happen!
 > plotd(a9, main="earth, survived-.5, type=class, thresh=0.3", hist=TRUE, type="class",thresh=0.3,vline.col="brown", xaxis.cex=.7,breaks=3,labels=TRUE)
+Warning in terms.formula(formula, data = data) :
+  'varlist' has changed (from nvar=6) to new 7 after EncodeVars() -- should no longer happen!
 > 
 > multifigure("a10")
 ===a10
@@ -236,9 +241,9 @@ plotd+ }
 > lm.model <- lm(as.numeric(sex) ~ ., data=etitanic)
 > plotd(lm.model, trace=2)
 plotd trace 2: plotd(object=lm.model, trace=2)
+--get.model.env for object with class lm
 object call is lm(formula=as.numeric(sex)~., data=etitanic)
---get.model.env for lm object
-using the environment saved with the lm model: R_GlobalEnv
+using the environment saved in $terms of the lm model: R_GlobalEnv
 --plotmo_prolog for lm object lm.model
 observed response[1046,1]:
      as.numeric(sex)
@@ -564,6 +569,6 @@ grouping criterion: CLASS1 predicted[observed == female], CLASS2 predicted[obser
 > plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"),
 +       err.border=c("slategray1","slategray3","red"), xlim=c(.52, .9))
 > 
-> par(old.par)
+> par(org.par)
 > 
 > source("test.epilog.R")

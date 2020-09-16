@@ -118,7 +118,7 @@ mars.to.earth <- function(object=stop("no 'object' argument"), trace=TRUE)
                                             nselected, penalty, ncases)
         grsq.per.response[iresp] <- get.rsq(gcv.per.response[iresp], gcv.null)
     }
-    pred.names <- gen.colnames(object$factor, "x", "x", trace=0)
+    pred.names <- gen.colnames(object$factor, "x")
     term.names <- get.earth.term.name(seq_len(nrow(object$factor)),
                                       object$factor, object$cuts, pred.names,
                                       NULL, warn.if.dup=FALSE)
@@ -134,42 +134,52 @@ mars.to.earth <- function(object=stop("no 'object' argument"), trace=TRUE)
     dimnames(object$cuts)   <- list(term.names, pred.names)
     colnames(object$x) <- term.names[selected.terms]
     rownames(object$coefficients)  <- term.names[selected.terms]
-    resp.names <- gen.colnames(object$fitted.values, "y", "y", trace=0)
+    resp.names <- gen.colnames(object$fitted.values, "y")
     colnames(object$fitted.values) <- resp.names
     colnames(object$residuals)     <- resp.names
     colnames(object$coefficients)  <- resp.names
     dirs <- object$factor[object$all.terms, , drop=FALSE]
+    modvars <- get.identity.modvars(dirs) # incorrect if terms like sqrt(num) in formula
 
     leverages = try(hatvalues.qr(lm.fit(object$x, y, singular.ok=FALSE)$qr,
                     maxmem=0, trace=0), silent=trace == 0)
     if(is.try.err(leverages))
         leverages <- NULL
 
+    # return fields in approximately the same order as earth.default
     rval <- structure(list(
+        rss               = rss,
+        rsq               = get.rsq(rss, rss.per.subset[1]),
+        gcv               = gcv,
+        grsq              = get.rsq(gcv, gcv.per.subset[1]),
+
         bx                = object$x,
         dirs              = dirs,
         cuts              = object$cuts[object$all.terms, , drop=FALSE],
         selected.terms    = selected.terms,
         prune.terms       = NULL, # init later if you want by calling update.earth()
-        rss               = rss,
-        rsq               = get.rsq(rss, rss.per.subset[1]),
-        gcv               = gcv,
-        grsq              = get.rsq(gcv, gcv.per.subset[1]),
+
+        fitted.values     = object$fitted.values,
+        residuals         = residuals,
+        coefficients      = object$coefficients,
+
         rss.per.response  = rss.per.response,
         rsq.per.response  = rsq.per.response,
         gcv.per.response  = gcv.per.response,
         grsq.per.response = grsq.per.response,
+
         rss.per.subset    = rss.per.subset,
         gcv.per.subset    = gcv.per.subset,
-        fitted.values     = object$fitted.values,
-        residuals         = residuals,
-        coefficients      = object$coefficients,
+
         leverages         = leverages,
         pmethod           = "backward",
+        nprune            = NULL,
         penalty           = object$penalty,
-        namesx            = colnames(dirs),
-        namesx.org        = colnames(dirs),
-        call              = newcall),
+        nk                = object$nk,
+        thresh            = object$thresh,
+        call              = newcall,
+        namesx            = rownames(modvars),
+        modvars           = modvars),
     class = "earth")
 
     if(weights.used) { # wp or w args used in original call?

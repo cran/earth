@@ -182,8 +182,8 @@ PLOTMO.ARGS <- c( "caption.", "cex.", "col.", "contour.", "cum.",
     "degree1.", "degree2.", "density.", "filled.contour.", "font.", "func.",
     "grid.", "heatmap.", "image.", "jitter.", "legend.", "label.", "level.",
     "line.", "lines.", "lty.", "lty.", "lwd.", "main.", "mtext.",
-    "nresiduals", "par.", "pch.", "persp.", "plot.", "plotmath.", "qq.",
-    "qqline.", "pt.", "response.", "rug.", "smooth.", "text.", "title.",
+    "nresiduals", "par.", "pch.", "persp.", "plot.", "plotmath.", "prednames.",
+    "qq.", "qqline.", "pt.", "response.", "rug.", "smooth.", "text.", "title.",
     "vfont.")
 
 # from now on in this module function defs are in alphabetic order

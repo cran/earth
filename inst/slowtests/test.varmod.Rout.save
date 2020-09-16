@@ -6,7 +6,7 @@ Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
-> options(warn=2)
+> options(warn=1) # print warnings as they occur
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
 > 
@@ -26,7 +26,6 @@ Loading required package: TeachingDemos
 + }
 > do.caption <- function() # must be called _after_ first plot on new page
 +     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
-> old.par <- par(no.readonly=TRUE)
 > 
 > multifigure("test predict.earth with pints", 2, 2)
 ===test predict.earth with pints
@@ -44,7 +43,7 @@ Loading required package: TeachingDemos
 $call
 varmod(parent = parent, method = method, exponent = exponent, 
     conv = conv, clamp = clamp, minspan = minspan, trace = trace, 
-    parent.x = x, parent.y = y, model.var = model.var, degree = ..1)
+    parent.x = x, parent.y = y, model.var = model.var)
 
 $parent
 Selected 3 of 4 terms, and 1 of 1 predictors
@@ -268,7 +267,7 @@ response values in prediction interval   68     90     94     97
 > # level arg not allowed with interval="se"
 > expect.err(try(predict(earth.trees, interval="se", level=.8)))
 Error : predict.varmod: the level argument is not allowed with type="se"
-Got error as expected from try(predict(earth.trees, interval = "se", level = 0.8))
+Got expected error from try(predict(earth.trees, interval = "se", level = 0.8))
 > 
 > printh("predict(earth.trees, interval=\"se\")")
 ===predict(earth.trees, interval="se")
@@ -283,7 +282,7 @@ Got error as expected from try(predict(earth.trees, interval = "se", level = 0.8
 > # level arg not allowed with interval="abs.residual"
 > expect.err(try(predict(earth.trees, interval="abs.res", level=.8)))
 Error : predict.varmod: the level argument is not allowed with type="abs.residual"
-Got error as expected from try(predict(earth.trees, interval = "abs.res", level = 0.8))
+Got expected error from try(predict(earth.trees, interval = "abs.res", level = 0.8))
 > 
 > printh("predict(earth.trees, interval=\"abs.residual\")")
 ===predict(earth.trees, interval="abs.residual")
@@ -297,7 +296,7 @@ Got error as expected from try(predict(earth.trees, interval = "abs.res", level 
 > 
 > expect.err(try(predict(earth.trees, newdata=trees, interval="cint")))
 Error : predict.varmod: newdata is not allowed with interval="cint"
-Got error as expected from try(predict(earth.trees, newdata = trees, interval = "cint"))
+Got expected error from try(predict(earth.trees, newdata = trees, interval = "cint"))
 > 
 > printh("predict(earth.trees, interval=\"cint\")")
 ===predict(earth.trees, interval="cint")
@@ -374,16 +373,16 @@ Got error as expected from try(predict(earth.trees, newdata = trees, interval = 
 31 73.447846 67.191204 79.70449
 > expect.err(try(predict(earth.trees, interval="none", level=.80)), "predict.earth: level=0.8 was specified but interval=\"none\"")
 Error : predict.earth: level=0.8 was specified but interval="none"
-Got error as expected from try(predict(earth.trees, interval = "none", level = 0.8))
+Got expected error from try(predict(earth.trees, interval = "none", level = 0.8))
 > expect.err(try(predict(earth.trees, interval="pin", type="class")), "predict.earth: the interval argument is not allowed with type=\"class\"")
 Error : predict.earth: the interval argument is not allowed with type="class"
-Got error as expected from try(predict(earth.trees, interval = "pin", type = "class"))
+Got expected error from try(predict(earth.trees, interval = "pin", type = "class"))
 > expect.err(try(predict(earth.trees, interval="pin", type="cl")), "predict.earth: the interval argument is not allowed with type=\"class\"")
 Error : predict.earth: the interval argument is not allowed with type="class"
-Got error as expected from try(predict(earth.trees, interval = "pin", type = "cl"))
+Got expected error from try(predict(earth.trees, interval = "pin", type = "cl"))
 > expect.err(try(predict(earth.trees, interval="pin", type="ter")), "predict.earth: the interval argument is not allowed with type=\"terms\"")
 Error : predict.earth: the interval argument is not allowed with type="terms"
-Got error as expected from try(predict(earth.trees, interval = "pin", type = "ter"))
+Got expected error from try(predict(earth.trees, interval = "pin", type = "ter"))
 > 
 > printh("print.default(earth.trees$varmod$residmod)")
 ===print.default(earth.trees$varmod$residmod)
@@ -583,13 +582,14 @@ NULL
 
 $call
 earth(formula = abs.resids ~ ., data = data, weights = weights, 
-    keepxy = TRUE, trace = trace, degree = ..1, minspan = minspan)
-
-$namesx.org
-[1] "RHS"
+    keepxy = TRUE, trace = trace, minspan = minspan)
 
 $namesx
 [1] "RHS"
+
+$modvars
+    RHS
+RHS   1
 
 $xlevels
 named list()
@@ -787,9 +787,9 @@ response values in prediction interval   73     82     93     96
 > 
 > # plot.earth will silently not plots it cannot plot below, so 1:9 becomes c(3,5,6)
 > plot(mod.temp.vh.doy, which=1:9, versus="v", info=T, caption='which=c(3,5) versus="v" info=T')
+> par(org.par)
 > 
 > # versus="b:"
-> 
 > plot(mod.temp.vh.doy, versus="b:", level=.9,
 +      caption="plot.earth versus=\"b:\"")
 > 
@@ -821,7 +821,7 @@ Error : versus must be an integer or a string:
   4    leverages
   ""   predictors
   "b:" basis functions
-Got error as expected from try(plot(mod.temp.vh.doy, versus = 9))
+Got expected error from try(plot(mod.temp.vh.doy, versus = 9))
 > expect.err(try(plot(mod.temp.vh.doy, versus=1.2)))
 Error : versus must be an integer or a string:
   1    fitted (default)
@@ -830,21 +830,19 @@ Error : versus must be an integer or a string:
   4    leverages
   ""   predictors
   "b:" basis functions
-Got error as expected from try(plot(mod.temp.vh.doy, versus = 1.2))
+Got expected error from try(plot(mod.temp.vh.doy, versus = 1.2))
 > expect.err(try(plot(mod.temp.vh.doy, versus=2:3)))
 Error : illegal 'versus' argument (length of 'versus' must be 1 when 'versus' is numeric)
-Got error as expected from try(plot(mod.temp.vh.doy, versus = 2:3))
+Got expected error from try(plot(mod.temp.vh.doy, versus = 2:3))
 > 
 > # versus="b:doy"
 > 
 > plot(mod.temp.vh.doy, versus="b:doy", level=.9, caption="plot.earth versus=\"b:doy\"")
 > 
 > # test warnings from plotres about which
-> options(warn=1) # print warnings as they occur
 > plot(mod.temp.vh.doy, which=1, versus="b:doy")
 Warning: which=1 is now empty because plots were removed because versus=b:doy
 Warning: plotres: nothing to plot
-> options(warn=2)
 > 
 > multifigure("test example in (very old) earth vignette", 2, 2)
 ===test example in (very old) earth vignette
@@ -855,7 +853,6 @@ Warning: plotres: nothing to plot
 > 
 > set.seed(1) # optional, for cross validation reproducibility
 > earth.mod <- earth(y~x, nfold=10, ncross=3, varmod.method="earth", trace=.1)
-Full model GRSq 0.651 RSq 0.660, starting cross validation
 CV fold  1.1  CVRSq  0.704   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
 CV fold  1.2  CVRSq  0.514   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
 CV fold  1.3  CVRSq  0.774   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
@@ -887,8 +884,18 @@ CV fold  3.8  CVRSq  0.560   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33
 CV fold  3.9  CVRSq  0.717   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
 CV fold  3.10 CVRSq  0.709   n.oof 297 10%   n.infold.nz 297 100%   n.oof.nz  33 100%
 CV all        CVRSq  0.623                   n.infold.nz 330 100%
-
 > predict <- predict(earth.mod, interval="pint")
+> cat("\npredict(earth.mod, interval=\"pint\")\n")
+
+predict(earth.mod, interval="pint")
+> print(head(predict))
+       fit        lwr       upr
+1 4.745556 -0.4564985  9.947611
+2 5.532021 -0.2056124 11.269655
+3 6.947658  0.2459826 13.649334
+4 3.959091 -0.7073845  8.625567
+5 5.532021 -0.2056124 11.269655
+6 7.104951  0.2961598 13.913743
 > 
 > order <- order(x)
 > x <- x[order]
@@ -945,8 +952,8 @@ head(residuals(earth.mod, type="standardize"))
 ===plot.earth delever and standardize
 > 
 > set.seed(4)
-> earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.1)
-Full model GRSq 0.651 RSq 0.660, starting cross validation
+> earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.5)
+Model with pmethod="backward": GRSq 0.651 RSq 0.660 nterms 3
 CV fold  1.1  CVRSq  0.648   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
 CV fold  1.2  CVRSq  0.739   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
 CV fold  1.3  CVRSq  0.549   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
@@ -964,6 +971,14 @@ CV fold  3.4  CVRSq  0.616   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66
 CV fold  3.5  CVRSq  0.610   n.oof 264 20%   n.infold.nz 264 100%   n.oof.nz  66 100%
 CV all        CVRSq  0.619                   n.infold.nz 330 100%
 
+
+varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:
+     iter weight.ratio coefchange% (Intercept)   O3
+        1           11        0.00         1.7 0.18
+        2           15       15.79         1.4 0.21
+        3           16        2.25         1.4 0.21
+        4           16        0.32         1.3 0.21
+
 > plot(earth.mod1, which=3, ylim=c(-16,20), info=TRUE, level=.95)
 > do.caption()
 > plot(earth.mod1, which=3, ylim=c(-16,20), delever=TRUE, level=.95)
@@ -971,7 +986,7 @@ CV all        CVRSq  0.619                   n.infold.nz 330 100%
 > # the standardize and delever arguments cannot both be set
 > expect.err(try(plot(earth.mod1, which=3, standardize=TRUE, delever=TRUE, level=.95)))
 Error : the standardize and delever arguments cannot both be set
-Got error as expected from try(plot(earth.mod1, which = 3, standardize = TRUE, delever = TRUE,     level = 0.95))
+Got expected error from try(plot(earth.mod1, which = 3, standardize = TRUE, delever = TRUE,     level = 0.95))
 > 
 > multifigure("plot.earth which=5 and which=6", 2, 3)
 ===plot.earth which=5 and which=6
@@ -1026,24 +1041,33 @@ RSq 0.199 on newdata (100 cases)
                                  68%    80%    90%    95% 
 newdata in prediction interval   79     85     92     95  
 > 
+> expect.err(try(summary(earth.mod1, newdata=c(1,2,3))),
++            "plotmo_response: newdata must be a matrix or data.frame")
+Error : plotmo_response: newdata must be a matrix or data.frame
+Got expected error from try(summary(earth.mod1, newdata = c(1, 2, 3)))
+> expect.err(try(summary(earth.mod1, newdata=ozone1[1:100,1:3])),
++            "response with newdata object 'temp' not found")
+Error : response with newdata object 'temp' not found
+Got expected error from try(summary(earth.mod1, newdata = ozone1[1:100, 1:3]))
+> 
 > # earth.default
 > O3 <- ozone1$O3
-> temp <- ozone1$temp
+> temper <- ozone1$temp
 > set.seed(4)
-> earth.default <- earth(temp, O3, nfold=5, ncross=3, varmod.method="lm")
+> earth.default <- earth(temper, O3, nfold=5, ncross=3, varmod.method="lm")
 > cat("summary(earth.default)\n")
 summary(earth.default)
 > print(summary(earth.default))
-Call: earth(x=temp, y=O3, nfold=5, ncross=3, varmod.method="lm")
+Call: earth(x=temper, y=O3, nfold=5, ncross=3, varmod.method="lm")
 
-            coefficients
-(Intercept)    7.5768304
-h(58-temp)    -0.1572930
-h(temp-58)     0.6090229
+             coefficients
+(Intercept)     7.5768304
+h(58-temper)   -0.1572930
+h(temper-58)    0.6090229
 
 Selected 3 of 4 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 4 terms
-Importance: temp
+Importance: temper
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV 22.43818  RSS 7181.917  GRSq 0.6514492  RSq 0.6598731  CVRSq 0.6191483
 
@@ -1066,22 +1090,42 @@ O3             0.2644448   0.0348975           13
 
                                          68%    80%    90%    95% 
 response values in prediction interval   72     83     93     97  
-> cat("summary(earth.default, newdata=ozone1[1:100,]:)\n")
-summary(earth.default, newdata=ozone1[1:100,]:)
-> print(summary(earth.default, newdata=ozone1[1:100,]))
+> expect.err(try(summary(earth.default, newdata=ozone1[1:100,])),
++           "model.matrix.earth could not interpret the data")
+
+stats::predict(earth.object, data.frame[100,10], type="response")
+
+Error : model.matrix.earth could not interpret the data
+           model.matrix returned 0 columns: 
+           need 1 column: "temper"
+Got expected error from try(summary(earth.default, newdata = ozone1[1:100, ]))
+> newdata_temper <- matrix(c(O3[1:100], temper[1:100]), ncol=2)
+> expect.err(try(summary(earth.default, newdata=newdata_temper)),
++           "cannot get response from newdata because newdata has no column names")
+Error : cannot get response from newdata because newdata has no column names
+Got expected error from try(summary(earth.default, newdata = newdata_temper))
+> colnames(newdata_temper) <- c("O3", "temper")
+> cat("summary(earth.default, newdata=newdata_temper)\n")
+summary(earth.default, newdata=newdata_temper)
+> print(summary(earth.default, newdata=newdata_temper))
 RSq 0.199 on newdata (100 cases)
 
                                  68%    80%    90%    95% 
 newdata in prediction interval   79     85     92     95  
 > plot(earth.default, level=.80, caption="earth.default")
-> plotmo(earth.default, level=.80, col.response=3, caption="earth.default\nlevel = .80")
+> options(warn=2) # treat warnings as errors
+> expect.err(try(plotmo(earth.default, level=.80, col.response=3)),
++            "Cannot determine which variables to plot (use all1=TRUE?)")
+Error : (converted from warning) Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(temper,temper)
+             colnames(x)=x
+
+Got expected error from try(plotmo(earth.default, level = 0.8, col.response = 3))
+> plotmo(earth.default, all1=TRUE, level=.80, col.response=3, caption="earth.default\nlevel = .80")
+> options(warn=1) # print warnings as they occur
 > 
-> # TODO the following give err msg as expected, but do not give a try error
-> # expect.err(try(summary(earth.mod1, newdata=c(1,2,3))))
-> # expect.err(try(summary(earth.mod1, newdata=ozone1[1:100,1:3])))
-> 
-> multifigure("plot(earth.mod1)", 2, 2)
-===plot(earth.mod1)
+> multifigure("plot(earth.mod2)", 2, 2)
+===plot(earth.mod2)
 > set.seed(5)
 > earth.mod2 <- earth(y~x, nfold=10, ncross=5, varmod.method="earth")
 > plot(earth.mod2, caption="plot(earth.mod2)", level=.95)
@@ -1116,7 +1160,6 @@ newdata in prediction interval   79     85     92     95
 test varmod.conv=50%
 > set.seed(1)
 > (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.conv=50))
-Full model GRSq 0.949 RSq 0.962, starting cross validation
 CV fold  1.1  CVRSq  0.927   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
 CV fold  1.2  CVRSq  0.953   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  1.3  CVRSq  0.927   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
@@ -1127,7 +1170,6 @@ CV fold  3.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 10
 CV fold  3.2  CVRSq  0.968   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  3.3  CVRSq  0.921   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV all        CVRSq  0.870                  n.infold.nz 31 100%
-
 
 varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=50 clamp=0.1 minspan=-3:
      iter weight.ratio coefchange% (Intercept) Volume
@@ -1144,7 +1186,6 @@ GCV 14.20145  RSS 309.6832  GRSq 0.949137  RSq 0.9617962  CVRSq 0.8701366
 test varmod.conv=-5
 > set.seed(1)
 > (earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="lm", trace=.3, varmod.conv=-5))
-Full model GRSq 0.949 RSq 0.962, starting cross validation
 CV fold  1.1  CVRSq  0.927   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
 CV fold  1.2  CVRSq  0.953   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  1.3  CVRSq  0.927   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
@@ -1155,7 +1196,6 @@ CV fold  3.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 10
 CV fold  3.2  CVRSq  0.968   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  3.3  CVRSq  0.921   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV all        CVRSq  0.870                  n.infold.nz 31 100%
-
 
 varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=-5 clamp=0.1 minspan=-3:
      iter weight.ratio coefchange% (Intercept) Volume
@@ -1184,7 +1224,6 @@ test varmod.clamp
 test varmod.minspan=-5
 > set.seed(1)
 > a.varmod.minspan.minus5 <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth", trace=.3, varmod.minspan=-5)
-Full model GRSq 0.949 RSq 0.962, starting cross validation
 CV fold  1.1  CVRSq  0.927   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
 CV fold  1.2  CVRSq  0.953   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  1.3  CVRSq  0.927   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
@@ -1195,7 +1234,6 @@ CV fold  3.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 10
 CV fold  3.2  CVRSq  0.968   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  3.3  CVRSq  0.921   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV all        CVRSq  0.870                  n.infold.nz 31 100%
-
 
 varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-5:
      iter weight.ratio coefchange% (Intercept) h(Volume-19.1689)
@@ -1210,7 +1248,6 @@ varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 test varmod.minspan=1
 > set.seed(1)
 > a.varmod.minspan1 <- earth(Volume~Girth, data=trees, nfold=3, ncross=3, varmod.method="earth", trace=.3, varmod.minspan=1)
-Full model GRSq 0.949 RSq 0.962, starting cross validation
 CV fold  1.1  CVRSq  0.927   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
 CV fold  1.2  CVRSq  0.953   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  1.3  CVRSq  0.927   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
@@ -1221,7 +1258,6 @@ CV fold  3.1  CVRSq  0.965   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 10
 CV fold  3.2  CVRSq  0.968   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  3.3  CVRSq  0.921   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV all        CVRSq  0.870                  n.infold.nz 31 100%
-
 
 varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=1:
      iter weight.ratio coefchange% (Intercept) h(Volume-19.1689)
@@ -1258,7 +1294,6 @@ varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 +     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
 +                        varmod.method=varmod.method,
 +                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
-+     options(warn=2)
 +     printh(sprint("varmod.method %s: summary(earth.mod)", varmod.method))
 +     printh("summary(earth.mod)")
 +     print(summary(earth.mod))
@@ -1301,7 +1336,6 @@ varmod method="earth" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
 +     }
 + }
 ===varmod.method="const"
-Full model GRSq 0.949 RSq 0.962, starting cross validation
 CV fold  1.1  CVRSq  0.913   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
 CV fold  1.2  CVRSq  0.949   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  1.3  CVRSq  0.928   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
@@ -1312,7 +1346,6 @@ CV fold  3.1  CVRSq  0.924   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 10
 CV fold  3.2  CVRSq  0.974   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  3.3  CVRSq  0.957   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV all        CVRSq  0.940                  n.infold.nz 31 100%
-
 
 varmod method="const" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:
      iter weight.ratio coefchange% (Intercept)
@@ -1445,7 +1478,6 @@ Residual standard error: 2.063 on 30 degrees of freedom
 30 56.363903 48.914178 63.81363
 31 73.447846 65.998122 80.89757
 ===varmod.method="power"
-Full model GRSq 0.949 RSq 0.962, starting cross validation
 CV fold  1.1  CVRSq  0.913   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
 CV fold  1.2  CVRSq  0.949   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  1.3  CVRSq  0.928   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
@@ -1456,7 +1488,6 @@ CV fold  3.1  CVRSq  0.924   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 10
 CV fold  3.2  CVRSq  0.974   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  3.3  CVRSq  0.957   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV all        CVRSq  0.940                  n.infold.nz 31 100%
-
 
 varmod method="power" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:
 
@@ -1732,7 +1763,6 @@ Achieved convergence tolerance: 4.65e-12
 30 56.363903 44.612510 68.11530
 31 73.447846 59.364306 87.53139
 ===varmod.method="lm"
-Full model GRSq 0.949 RSq 0.962, starting cross validation
 CV fold  1.1  CVRSq  0.913   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 100%
 CV fold  1.2  CVRSq  0.949   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  1.3  CVRSq  0.928   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
@@ -1743,7 +1773,6 @@ CV fold  3.1  CVRSq  0.924   n.oof 20 35%   n.infold.nz 20 100%   n.oof.nz 11 10
 CV fold  3.2  CVRSq  0.974   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV fold  3.3  CVRSq  0.957   n.oof 21 32%   n.infold.nz 21 100%   n.oof.nz 10 100%
 CV all        CVRSq  0.940                  n.infold.nz 31 100%
-
 
 varmod method="lm" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspan=-3:
      iter weight.ratio coefchange% (Intercept) Volume
@@ -2090,7 +2119,7 @@ Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 3.8    RSS 97    GRSq 0.13    RSq 0.24
 ===summary(earth.mod$varmod$residmod)
 Call: earth(formula=abs.resids~., data=data, weights=weights, keepxy=TRUE,
-            trace=trace, degree=..1, minspan=minspan)
+            trace=trace, minspan=minspan)
 
                coefficients
 (Intercept)       3.8278571
@@ -2137,16 +2166,8 @@ GCV 3.834325    RSS 96.97131    GRSq 0.1284858    RSq 0.2408143
 ===varmod.method="gam"
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.16.1
+Loaded gam 1.20
 
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
 ===varmod.method gam: summary(earth.mod)
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
@@ -2235,7 +2256,7 @@ Deviance Residuals:
 Residual Deviance: 69.3525 on 25.9999 degrees of freedom
 AIC: 133.2783 
 
-Number of Local Scoring Iterations: 2 
+Number of Local Scoring Iterations: NA 
 
 Anova for Parametric Effects
           Df Sum Sq Mean Sq F value  Pr(>F)  
@@ -2620,7 +2641,7 @@ Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 3.7    RSS 93    GRSq 0.16    RSq 0.27
 ===summary(earth.mod$varmod$residmod)
 Call: earth(formula=abs.resids~., data=data, weights=weights, keepxy=TRUE,
-            trace=trace, degree=..1, minspan=minspan)
+            trace=trace, minspan=minspan)
 
             coefficients
 (Intercept)    2.0699332
@@ -2665,14 +2686,6 @@ GCV 3.674869    RSS 92.93863    GRSq 0.1647288    RSq 0.272386
 30 56.363903 44.699563 68.02824
 31 73.447846 59.339636 87.55606
 ===varmod.method="x.gam"
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
-Warning in model.matrix.default(mt, mf, contrasts) :
-  non-list contrasts argument ignored
 ===varmod.method x.gam: summary(earth.mod)
 ===summary(earth.mod)
 Call: earth(formula=Volume~Girth, data=trees,
@@ -2761,7 +2774,7 @@ Deviance Residuals:
 Residual Deviance: 65.1524 on 26 degrees of freedom
 AIC: 132.156 
 
-Number of Local Scoring Iterations: 2 
+Number of Local Scoring Iterations: NA 
 
 Anova for Parametric Effects
           Df Sum Sq Mean Sq F value Pr(>F)  
@@ -2853,6 +2866,6 @@ sqrt(Volume)     1.229319    0.318489           26
                                          68%    80%    90%    95% 
 response values in prediction interval   71     90     97     97  
 > 
-> par(old.par)
+> par(org.par)
 > 
 > source("test.epilog.R")

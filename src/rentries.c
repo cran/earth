@@ -1,5 +1,5 @@
 // rentries.c: Register native routines for R.
-//             The core of this routine is the function R_init_earth.
+//             The core of this file is the function R_init_earth.
 
 #define USING_R 1
 #include "R.h"

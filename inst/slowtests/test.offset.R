@@ -243,7 +243,7 @@ set.seed(2019)
 plotmo(lm4, trace=0, pt.col=2, do.par=FALSE, grid.levels=list(myoffset=-3))
 set.seed(2019)
 plotmo(earth4, trace=0, pt.col=2, do.par=FALSE, grid.levels=list(myoffset=-3))
-par(old.par)
+par(org.par)
 
 plotres(lm4)
 plotres(earth4)
@@ -276,7 +276,7 @@ Ins <- Insurance
 Ins$Claims[Ins$Claims > 100] <- 100
 Ins$day <- (1:nrow(Insurance)) / nrow(Insurance) # non linear term (like a seasonal effect)
 Ins$Claims <- round(Ins$Claims * (1 + sin(2 * pi * Ins$day)))
-pois <- glm(Claims ~ Group + Age + day + offset(log(Holders)),
+pois <- glm(Claims ~ offset(log(Holders)) + Group + Age + day,
             data = Ins, family = poisson)
 earth.pois.linpreds <- earth(Claims ~ offset(log(Holders)) + Group + Age + day,
                              data = Ins, glm=list(family = poisson),
@@ -323,7 +323,7 @@ plotmo(earth.pois.linpreds, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50))
 empty.plot()
 set.seed(2019)
 plotmo(earth.pois.linpreds, all1=T, trace=-1, pt.col=2, do.par=FALSE, ylim=c(0,50))
-par(old.par)
+par(org.par)
 
 plotres(pois, type="response", caption='pois, type="response"')
 plotres(earth.pois.linpreds, type="response", caption='earth.pois.linpreds, type="response"')
@@ -339,12 +339,13 @@ plotmo(earth.pois.linpreds, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.
 empty.plot()
 set.seed(2019)
 plotmo(earth.pois.linpreds, all1=T, trace=-1, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.levels=list(Holders=20))
-par(old.par)
+par(org.par)
 
 plotmo(earth.pois.linpreds, pmethod="partdep", do.par=2,
        caption=sprint("earth.pois.linpreds, pmethod=\"partdep\", %s", devratio(earth.pois.linpreds)))
 plotmo(earth.pois.linpreds, pmethod="partdep", do.par=0,
        grid.levels=list(Age=">35"), degree1="day", main="day with Age=\">35\"")
+par(org.par)
 plotmo(earth.pois,          pmethod="partdep",
        caption=sprint("earth.pois, pmethod=\"partdep\", %s", devratio(earth.pois)))
 plotmo(earth.pois.no.penalty, pmethod="partdep",
@@ -484,5 +485,7 @@ earth31.weights.offset <- update(earth31.weights, formula=Volume ~ Girth + offse
 check.earth.matches.lm(earth31.weights.offset, lm31.weights.offset, newdata=tr[c(3:5),], max=1e-6, max.residuals=1e-6)
 cat("earth31.weights.offset:\n")
 print(summary(earth31.weights.offset))
+cat("\nnearth31.weights.offset$modvars:\n")
+print.default(earth31.weights.offset$modvars)
 
 source("test.epilog.R")

@@ -3,7 +3,7 @@
 @rem Stephen Milborrow Mar 2008 Durban
 
 @echo test.big.bat
-@"C:\PROGRA~1\R\R-3.6.1\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.big.R
+@"C:\PROGRA~1\R\R-4.0.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.big.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.big.Rout:
 @echo.
@@ -12,14 +12,7 @@
 @exit /B 1
 :good1
 @echo diff test.big.Rout test.big.Rout.save
-@rem egreps to deal with times
-@C:\Rtools\bin\echo -n "new "
-@egrep "^\[total time" test.big.Rout
-@C:\Rtools\bin\echo -n "old "
-@egrep "^\[total time" test.big.Rout.save
-@egrep -v "^\[total time" test.big.Rout      >test.big.Rout1
-@egrep -v "^\[total time" test.big.Rout.save >test.big.Rout.save1
-@mks.diff test.big.Rout1 test.big.Rout.save1
+@mks.diff test.big.Rout test.big.Rout.save
 @if %errorlevel% equ 0 goto good2
 @echo === Files are different ===
 @diffps -s Rplots.ps ..\..\.#\test-reference\test.big.save.ps
@@ -32,6 +25,6 @@ diffps Rplots.ps ..\..\.#\test-reference\test.big.save.ps
 @echo === Files are different ===
 @exit /B 1
 :good3
-@rm -f test.big.Rout test.big.Rout1 test.big.Rout.save1
+@rm -f test.big.Rout
 @rm -f Rplots.ps
 @exit /B  0

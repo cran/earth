@@ -46,17 +46,26 @@ plotd <- function(object,   # object is a model object
     sd.thresh = 0.01,
     ...)                    # passed to predict
 {
+    # the following lines of code must match plotmo::plotmo() and plotmo::plotres()
     init.global.data()
-    on.exit(init.global.data()) # release memory on exit
+    on.exit({init.global.data(); gc()}) # release memory on exit
     object.name <- short.deparse(substitute(object))
     trace <- as.numeric(check.integer.scalar(trace, logical.ok=TRUE))
+
+    use.submodel <- dota("USE.SUBMODEL", DEF=TRUE, ...) # undoc arg (for parsnip models)
+    use.submodel <- is.specified(use.submodel)
+
     # Associate the model environment with the object.
     # (This is instead of passing it as an argument to plotmo's data access
     # functions.  It saves a few hundred references to model.env in the code.)
-    attr(object, ".Environment") <- get.model.env(object, object.name, trace)
-    temp <- plotmo::plotmo_prolog(object, object.name, trace, ...)
-        object  <- temp$object
-        my.call <- temp$my.call
+    object.env <- get.model.env(object, object.name, trace, use.submodel)
+
+    ret <- plotmo::plotmo_prolog(object, object.name, trace, ...)
+        object  <- ret$object # the original object or a submodel (parsnip)
+        my.call <- ret$my.call
+
+    attr(object, ".Environment") <- object.env
+
     hist         <- check.boolean(hist)
     # dicho      <- check.boolean(dichot) # can't use because we use missing(dichot) below
     trace        <- as.numeric(check.integer.scalar(trace, logical.ok=TRUE))
@@ -66,7 +75,7 @@ plotd <- function(object,   # object is a model object
     legend       <- check.boolean(legend)
     legend.extra <- check.boolean(legend.extra)
 
-    type <- plotmo::plotmo_type(object, trace, "plotmo", type, ...)
+    type <- plotmo::plotmo_type(object, trace, "plotd", type, ...)
 
     yhat.per.class <- get.yhat.per.class(object, object.name,
                             type, nresponse, dichot, trace, ...)
@@ -444,8 +453,7 @@ get.plotd.data <- function(object, type, nresponse, trace, ...)
     colnames.yhat <- colnames(yhat)
     if(!is.null(nresponse)) {
         nresponse <- plotmo::plotmo_nresponse(yhat, object, nresponse, trace,
-                                        sprint("predict.%s", class(object)[1]),
-                                        type)
+                                sprint("predict.%s", class.as.char(object)), type)
         if(NCOL(yhat) > 1) {
             yhat <- yhat[, nresponse]
             if(is.data.frame(yhat)) # TODO needed for fda type="hier", why?

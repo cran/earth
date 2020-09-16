@@ -82,6 +82,72 @@ a1a <- earth(etitanic[,-2], etitanic[,2],  # equivalent but using earth.default
              degree=2, trace=1,
              glm=list(family=binomial))
 printh(a1a)
+plotmo(a1a)
+
+a1b <- earth(etitanic[,-2,drop=FALSE], etitanic[,2,drop=FALSE],
+             degree=2, trace=1,
+             glm=list(family=binomial))
+printh(a1b)
+plotmo(a1b)
+
+# x and y dataframes but with missing column names
+xdf_nonames <- etitanic[,-2,drop=FALSE]
+cat("original colnames of xdf_nonames:", paste(colnames(xdf_nonames)), "\n")
+ydf_nonames <- etitanic[,2,drop=FALSE]
+colnames(xdf_nonames) <- NULL # weird for a dataframe, but earth still works
+colnames(ydf_nonames) <- NULL
+earth_df_nonames <- earth(xdf_nonames, ydf_nonames,
+             degree=2, trace=1,
+             glm=list(family=binomial))
+cat("earth_df_nonames:\n")
+print(summary(earth_df_nonames))
+cat("\nearth_df_nonames$modvars\n")
+print(earth_df_nonames$modvars)
+options(warn=2)
+expect.err(try(plotmo(earth_df_nonames)), "Cannot determine which variables to plot")
+plotmo(earth_df_nonames, all1=TRUE, SHOWCALL=TRUE)
+options(warn=1)
+plotmo(earth_df_nonames, trace=1, SHOWCALL=TRUE)
+
+# xmat in canonical form (double matrix) but with missing column names
+xmat_nonames <- etitanic[,"age",drop=FALSE]
+xmat_nonames$pclass <- as.numeric(etitanic[,"pclass"])
+xmat_nonames <- as.matrix(xmat_nonames)
+cat("original colnames of xmat_nonames:", paste(colnames(xmat_nonames)), "\n")
+ymat_nonames <- as.numeric(etitanic[,"survived"])
+ymat_nonames <- as.matrix(ymat_nonames)
+colnames(xmat_nonames) <- NULL
+colnames(ymat_nonames) <- NULL
+earth_mat_nonames <- earth(xmat_nonames, ymat_nonames, degree=2, trace=1)
+cat("earth_mat_nonames:\n")
+print(summary(earth_mat_nonames))
+options(warn=2)
+expect.err(try(plotmo(earth_mat_nonames)), "Cannot determine which variables to plot")
+options(warn=1)
+plotmo(earth_mat_nonames)
+
+# xmat in canonical form (double matrix) but with some missing column names
+xmat_partial <- etitanic[,"age",drop=FALSE]
+xmat_partial$pclass <- as.numeric(etitanic[,"pclass"])
+xmat_partial$sibsp <- as.numeric(etitanic[,"sibsp"])
+xmat_partial <- as.matrix(xmat_partial)
+cat("original colnames of xmat_partial:", paste(colnames(xmat_partial)), "\n")
+colnames(xmat_partial) <- c("", "x2", "") # some column names are missing (earth will create them)
+ymat_partial <- as.numeric(etitanic[,"survived"])
+ymat_partial <- as.matrix(ymat_partial)
+colnames(ymat_partial) <- "yy"
+earth_mat_partialnames <- earth(xmat_partial, ymat_partial, degree=2, trace=1)
+cat("earth_mat_partialnames:\n")
+print(summary(earth_mat_partialnames))
+options(warn=2)
+expect.err(try(plotmo(earth_mat_partialnames)), "Cannot determine which variables to plot")
+options(warn=1)
+plotmo(earth_mat_partialnames)
+
+# use a partial column name that will cause a duplicate within gen.colnames
+colnames(xmat_partial) <- c("", "xmat_partial1", "")
+expect.err(try(earth(xmat_partial, ymat_partial, degree=2, trace=1)),
+           "Duplicate colname in xmat_partial (colnames are \"xmat_partial1\", \"xmat_partial1\", \"xmat_partial3\")")
 
 a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
 printh(a2)
@@ -207,11 +273,32 @@ cat(format(a, colon.char="*"))
 cat("--- mars.to.earth.Rd ----------------------\n")
 example(mars.to.earth)
 library(mda)
-a <- mars(trees[,-3], trees[,3])
-a <- mars.to.earth(a)
-print(summary(a, digits = 2))
-printh(summary(a, digits=2))
-printh(summary(a, digits=2, style="bf"))
+mars.mod <- mars(trees[,-3], trees[,3])
+cat("print.default(mars.mod):\n")
+print.default(mars.mod)
+mars.to.earth.mod <- mars.to.earth(mars.mod)
+cat("print.default(mars.to.earth.mod):\n")
+print.default(mars.to.earth.mod)
+printh(mars.to.earth.mod)
+printh(summary(mars.to.earth.mod))
+printh(summary(mars.to.earth.mod, style="bf"))
+stopifnot(length(mars.mod$coeff) == length(mars.to.earth.mod$coeff))
+stopifnot(max(mars.mod$coeff - mars.to.earth.mod$coeff) < 1e-10)
+earth.mod <- earth(trees[,-3], trees[,3])
+stopifnot(length(mars.mod$coeff) == length(earth.mod$coeff))
+# coeff differences can be big because forward passes are different
+stopifnot(max(mars.mod$coeff - earth.mod$coeff) < .3)
+
+par(mfrow=c(3,4), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.7))
+plot(mars.to.earth.mod, which=c(1,3), do.par=FALSE)
+plotmo(mars.to.earth.mod, do.par=FALSE)
+mars.to.earth.mod2 <- update(mars.to.earth.mod)
+plot(mars.to.earth.mod2, which=c(1,3), do.par=FALSE)
+plotmo(mars.to.earth.mod2, do.par=FALSE)
+plot(earth.mod, which=c(1,3), do.par=FALSE)
+plotmo(earth.mod, do.par=FALSE)
+par(org.par)
+
 cat("--- plot.earth.models.Rd ----------------------\n")
 if (PLOT)
     example(plot.earth.models)
@@ -341,7 +428,7 @@ printh(predict(a, newdata=data.frame(Girth=10,Height=80)))
 predict.a1d <- predict(a, newdata=data.frame(Girth=10,Height=80))
 check.almost.equal(predict.a1d[1,1], 17.6035895926138, msg="predict.a1d[1,1]")
 check.almost.equal(predict.a1d[1,2], 117.603589592614, msg="predict.a1d[1,2]")
-expect.err(try(predict(a, newdata=10)), "get.earth.x from model.matrix.earth from predict.earth:\n       could not convert vector x to matrix because length(x) 1\n       is not a multiple of the number 2 of predictors")
+expect.err(try(predict(a, newdata=10)), "Could not convert vector x to matrix because length(x) 1\n       is not a multiple of the number 2 of predictors")
 cat("2 predict(a)\n")
 printh(head(predict(a, trace=1)))
 cat("3a predict(a, matrix(c(10,12), nrow=1, ncol=2))\n")
@@ -363,6 +450,12 @@ cat("6 predict(a, xpredict with reversed columns and colnames)\n")
 printh(predict(a, xpredict, trace=1))
 expect.err(try(predict(a, interval="pin")), "no prediction intervals because the earth model was not built with varmod.method")
 expect.err(try(earth(cbind(Volume, Volume + 100) ~ ., data = trees, nfold=3, ncross=3, varmod.method="lm")), "variance models are not supported for multiple response models")
+
+options(warn=2)
+# TODO column naming for the following maybe needs work?
+#      nresponse="cbind(Volume, Volume + 100)2"  is confusing (2 should be in brackets?)
+expect.err(try(plot(a)), "Defaulting to nresponse=1, see above messages")
+options(warn=1)
 
 # repeat but with x,y (not formula) call to earth
 
@@ -410,11 +503,11 @@ x <- iris[1:3,]
 x[2,]$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
 predict.with.message("formula interface and matrix with NA in unused variable", iris.earth, newdata=x)
 
-cat("--- earth.predict with NAs, with matrix interface ---\n")
+cat("--- earth.predict with NAs, with xy interface ---\n")
 
 iris.earth <- earth(iris[,1:3], iris[,4])
 x <- iris[1,]
-predict.with.message("default interface and vector", iris.earth, newdata=x)
+predict.with.message("default interface and vector", iris.earth, newdata=x) # tests the "Fix: April 2010" in get.earthx()
 x$Sepal.Width <- as.numeric(NA)
 predict.with.message("default interface and vector with NA", iris.earth, newdata=x)
 x <- iris[1,]
@@ -584,6 +677,7 @@ test.plot.earth.args <- function()
          main="legend.pos=0")
 }
 test.plot.earth.args()
+par(org.par)
 
 cat("--- test minspan --------------------------------\n")
 
@@ -809,6 +903,7 @@ test.subset <- (1:nrow(ozone1))[-train.subset]
 # all the following models should be identical
 a <- earth(ozone1[,-1], ozone1[,1], subset=train.subset, nprune=7, degree=2)
 printh(a)
+plot(a)
 if (PLOT)
     plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)", trace=-1)
 
@@ -851,7 +946,6 @@ x1 <- runif(10)
 x2 <- runif(10)
 y <- x1 + x2
 data=data.frame(x1=x1, x2=x2, y=y)
-OLD.PAR <- par(no.readonly=TRUE)
 par(mfrow = c(6, 4), mar = c(3, 3, 3, 1), mgp = c(1.5, 0.5, 0))
 
 expect.err(try(earth(y~., data=data, Auto.linpr=99)), "Auto.linpreds=99 but it should be FALSE, TRUE, 0, or 1")
@@ -909,7 +1003,7 @@ plotmo(a5, extend=.3, ylim=c(.2, 1.7),
 empty.plot()
 empty.plot()
 stopifnot(isTRUE(all.equal(as.vector(predict(a1)), as.vector(predict(a5)))))
-par(OLD.PAR)
+par(org.par)
 
 # more complicated example (with Auto.linpreds=TRUE, vh enters linearly in a degree2 term)
 data(ozone1)
@@ -921,7 +1015,6 @@ print(summary(mod.none2))
 stopifnot(all.equal(predict(mod.none1), predict(mod.none2)))
 
 # example figure in inst/doc
-OLD.PAR <- par(no.readonly=TRUE)
 par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.7))
 set.seed(2017)
 offset <- 98
@@ -949,7 +1042,7 @@ legend(x="topleft", legend=c("data", "earth model"),
        lty=c(0, 1), lwd=c(0, 2), pch=c(20, NA), col=c("red", 1))
 text(x=offset+4, y=offset-2.4, cex=.9, "Same data as previous graph")
 stopifnot(isTRUE(all.equal(predict(autolinTRUE), predict(autolinFALSE))))
-par(OLD.PAR)
+par(org.par)
 
 # test Auto.linpreds with data sent in by a user
 ndata <- matrix(data=c(
@@ -1115,7 +1208,7 @@ a.formula.7update <- update(a.formula, wp=2, trace=1)
 a.formula.7  <- earth(Volume ~ ., wp=2, data = trees, keepxy=TRUE)
 check.models.equal(a.formula.7update, a.formula.7, msg="a7update a7", newdata=newdata.global)
 
-cat("\n----- update and keepxy, matrix interface--------------------------\n")
+cat("\n----- update and keepxy, xy interface--------------------------\n")
 
 Volume <- trees$Volume
 x <- cbind(trees$Height, trees$Volume)
@@ -1327,7 +1420,12 @@ cat("response weights: wp", wp, "earth gcv", e3$gcv,
     "mars gcv", m3$gcv, "mars gcv*length(wp)",
     m3$gcv * length(wp), "\n")
 
-e4 <- earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))
+expect.err(try(earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))),
+           "Duplicate colname in cbind(O3, O3) (colnames are \"O3\", \"O3\")")
+
+oz2 <- ozone1
+oz2$O3a <- ozone1$O3
+e4 <- earth(cbind(O3, O3a) ~ ., data=oz2, wp=c(1, .01))
 printh(e4) # both sub models should be the same
 printh(summary(e4))
 
@@ -1619,7 +1717,7 @@ cat("summary(a.xy1.trees, newdata=trees[1:5,])\n")
 a.xy1.trees.summary <- print(summary(a.xy1.trees, newdata=trees[1:5,]))
 stopifnot(a.xy1.trees.summary$newrsq == a.trees.summary$newrsq)
 
-cat("--- ../../tests/test.earth.R -------------------------\n")
+cat("--- /a/r/earth/tests/test.earth.R -------------------------\n")
 
 options(options.old)
 source("../../tests/test.earth.R")
@@ -1862,6 +1960,42 @@ xnew <- as.matrix(trees[3,1:2])
 names(xnew) <- NULL
 bx <- model.matrix(earth.girth.xy, xnew)
 check.model.matrix("earth.girth.xy x,y 15", xnew, bx, earth.girth.xy$bx[3,,drop=FALSE])
+
+cat("--- example in earth vignette \"How do I get p values for earth model coefficients?\" ---\n")
+
+earth.mod <- earth(Volume~., data=trees) # standard earth model
+bx <- earth.mod$bx[,-1]                  # earth model's basis mat (-1 to drop intercept)
+bx <- as.data.frame(bx)                  # lm requires a data frame
+bx$Volume <- trees$Volume                # add Volume to data
+lm.mod <- lm(Volume~., data=bx)          # standard linear regression on earth's basis mat
+summary(lm.mod)                          # prints p values
+
+remove(earth.mod, bx, lm.mod) # tidy up
+
+cat("--- examples in model.matrix.earth.Rd ---------------------------------------\n")
+
+# Example 1
+data(trees)
+earth.mod <- earth(Volume ~ ., data = trees) # standard earth model
+summary(earth.mod, decomp = "none")   # "none" to print terms in same order as lm.mod below
+
+bx <- model.matrix(earth.mod)         # equivalent to bx <- earth.mod$bx
+lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
+summary(lm.mod)                       # yields same coeffs as above summary
+                                      # displayed t values are not meaningful
+
+# Example 2
+earth.mod <- earth(Volume~., data=trees) # standard earth model
+summary(earth.mod, decomp = "none") # "none" to print terms in same order as lm.mod below
+bx <- model.matrix(earth.mod)       # earth model's basis mat (equivalent to bx <- earth.mod$bx)
+bx <- bx[, -1, drop=FALSE]          # -1 to drop intercept
+bx <- as.data.frame(bx)             # lm requires a data frame
+bx$Volume <- trees$Volume           # add Volume to data
+lm.mod <- lm(Volume~., data=bx)     # standard linear regression on earth's basis mat
+summary(lm.mod)                     # yields same coeffs as above summary
+                                    # displayed t values are not meaningful
+
+remove(earth.mod, bx, lm.mod) # tidy up
 
 cat("--- compare backward, none, exhaustive, forward, seqrep ---------------------\n")
 data(ozone1)

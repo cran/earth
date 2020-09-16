@@ -30,7 +30,7 @@ robotarm <- function(n=1000, p=20)
 spacer <- function()
 {
     cat("                        |",
-        "                                                         |\n", sep="")
+        "                                                           |\n", sep="")
 }
 test <- function(x, y, nk, degree, niter) {
     earth.time <- system.time(for (i in 1:niter)
@@ -73,31 +73,41 @@ test <- function(x, y, nk, degree, niter) {
     #     weights.minspan1.time <- NA
     #     weights.minspan1 <- list(grsq=NA)
     # }
+
+    cv5.time <- system.time(for (i in 1:niter)
+      cv5 <- earth(x, y, nk=nk, degree=degree, minspan=0, nfold=5))
+
+    pmethcv.time <- system.time(for (i in 1:niter)
+      pmethcv <- earth(x, y, nk=nk, degree=degree, minspan=0, nfold=5, pmethod="cv"))
+
     format <- paste(
-       # nk degree  nterms time     mars     no-fast no-betacache  minspan1 allowed weights
-        "%2d    %3d   %4.0d %6.3f | %4.1f       %5.1f        %5.1f     %5.1f   %5.1f %7.0f ",
-      #  grsq  mars       no-fast  minspan1   weights
-        "|  %4.2f %4.2f        %4.2f      %4.2f    %4.2f\n",
+       # nk degree  nterms time     mars  nofast nobeta minspan1 allowed weights   cv5 pmethcv
+        "%2d    %3d   %4.0d %6.3f | %4.1f  %5.1f  %5.1f    %5.1f   %5.1f %7.0f %5.1f   %5.1f ",
+      #  grsq  mars      nofast  minspan1  weights pmethcv
+        "|  %4.2f %4.2f   %4.2f     %4.2f    %4.2f   %4.2f\n",
         sep="")
 
     printf(format,
         nk, degree, length(earth$selected.terms), earth.time[1] / niter,
-        mars.time[1]              / earth.time[1],
-        no.fastmars.time[1]       / earth.time[1],
-        no.betacache.time[1]      / earth.time[1],
-        minspan1.time[1]          / earth.time[1],
-        allowed.time[1]           / earth.time[1],
-        (weights.time[1]          / earth.time[1]) * (niter / niter.weights),
-        grsq, mars.grsq, no.fastmars$grsq, minspan1$grsq, weights$grsq)
+        mars.time[1]            / earth.time[1],
+        no.fastmars.time[1]     / earth.time[1],
+        no.betacache.time[1]    / earth.time[1],
+        minspan1.time[1]        / earth.time[1],
+        allowed.time[1]         / earth.time[1],
+        (weights.time[1]        / earth.time[1]) * (niter / niter.weights),
+        cv5.time[1]             / earth.time[1],
+        pmethcv.time[1]         / earth.time[1],
+        grsq, mars.grsq, no.fastmars$grsq,
+        minspan1$grsq, weights$grsq, pmethcv$grsq)
 }
 print.header <- function ()
 {
     printf("nk degree  earth  earth ")
-    printf("| execution time ratio:                                   ")
-    printf("| grsq:                                   \n")
+    printf("| execution time ratio:                                     ")
+    printf("| grsq:                                 \n")
     printf("          nterms   time ")
-    printf("| mars no-fastmars no-betacache minspan=1 allowed weights ")
-    printf("| earth mars no-fastmars minspan=1 weights\n")
+    printf("| mars nofast nobeta minspan1 allowed weights   cv5 pmethcv ")
+    printf("| earth mars nofast minspan1 weights pmethcv\n")
     spacer()
 }
 
@@ -114,7 +124,7 @@ data(ozone1)
 x <- ozone1[,-1]
 y <- ozone1[,1]
 niter <- 50
-printf("\n==== ozone %d x %d ============\n\n", nrow(x), ncol(x))
+printf("==== ozone %d x %d ============\n\n", nrow(x), ncol(x))
 print.header()
 
 test(x, y, nk=5, degree=1, niter=niter)

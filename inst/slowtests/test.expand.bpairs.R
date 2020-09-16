@@ -2,6 +2,8 @@
 
 source("test.prolog.R")
 library(earth)
+options(warn=1) # print warnings as they occur
+
 # 5 cases (11 obs)
 sex <- factor(c("m","f","f","f","f"))
 pclass <- factor(c("1st", "2nd", "3rd", "3rd", "3rd"))
@@ -21,8 +23,8 @@ long <- data.frame(
             dose    =c(   1L,   1L,   2L,   2L,   2L,   3L,   3L,   3L,   3L,   4L,   5L),
             numericx=c(  1.1,  1.1,  1.2,  1.2,  1.2,  1.3,  1.3,  1.3,  1.3,  1.4,  1.5),
             logicalx=c(    T,    T,    F,    F,    F,    T,    T,    T,    T,    F,    T),
-            sex     =c(  "m",  "m",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f"),
-            pclass  =c("1st","1st","2nd","2nd","2nd","3rd","3rd","3rd","3rd","3rd","3rd"))
+            sex     =factor(c(  "m",  "m",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f")),
+            pclass  =factor(c("1st","1st","2nd","2nd","2nd","3rd","3rd","3rd","3rd","3rd","3rd")))
 bpairs.index <- c(1L, 3L, 6L, 10L, 11L)
 ynames <- c("success", "fail")
 
@@ -35,28 +37,11 @@ check.expanded.bpairs <- function(long.expanded, long.ref, bpairs.index.ref, yna
     attr(stripped.long.expanded, "bpairs.index") <- NULL
     attr(stripped.long.expanded, "ynames") <- NULL
     if(!identical(stripped.long.expanded, long.ref)) {
-        printf("\nstripped.long.expanded:\n")
-        print(stripped.long.expanded)
-        printf("\nlong.ref:\n")
-        print(long.ref)
-        printf("\n")
-
-        printf("class(long.expanded) '%s'\n", class(long.expanded))
-        for(j in 1:ncol(long.expanded))
-            printf("class(long.expanded[,%d] %s colname '%s'\n",
-                   j, class(long.expanded[,j]), colnames(long.expanded)[j])
-        printf("\n")
-        printf("class(long.ref) '%s'\n", class(long.ref))
-        for(j in 1:ncol(long.ref))
-            printf("class(long.ref[,%d] %s colname '%s'\n",
-                   j, class(long.ref[,j]), colnames(long.ref)[j])
-        printf("\n")
-        printf("attributes(stripped.long.expanded):\n")
-        print(attributes(stripped.long.expanded))
-        printf("\n")
-        printf("attributes(long.ref):\n")
-        print(attributes(long.ref))
-        printf("\n")
+        printf("\n---print.default(stripped.long.expanded)------\n")
+        print.default(stripped.long.expanded)
+        printf("\n---print.default(long.ref)--------------------\n")
+        print.default(long.ref)
+        printf("\n----------------------------------------------\n")
 
         stop("!identical(stripped.long.expanded, long.ref), see above prints")
     }
@@ -118,12 +103,12 @@ expect.err(try(expand.bpairs(short.data.frame, c("success99", "fail"))), "undefi
 expect.err(try(expand.bpairs(short.data.frame, c("nonesuch", "fail"))), "undefined columns selected")
 expect.err(try(expand.bpairs(short.data.frame, "nonesuch")), "bad y argument 'nonesuch'")
 expect.err(try(expand.bpairs(short.data.frame, nonesuch)), "object 'nonesuch' not found")
-options(warn=2)
+options(warn=2) # treat warnings as errors
 expect.err(try(expand.bpairs(short.data.frame, c("nonesuch", "fail"))),   "\"nonesuch\" in ycolumns does not match any names")
 expect.err(try(expand.bpairs(short.data.frame, c("fail", "nonesuch99"))), "\"nonesuch99\" in ycolumns does not match any names")
 expect.err(try(expand.bpairs(short.data.frame, c("", "fail"))), "ycolumns[1] is an empty string \"\"")
 expect.err(try(expand.bpairs(short.data.frame, c("success", ""))), "ycolumns[2] is an empty string \"\"")
-options(warn=1)
+options(warn=1) # print warnings as they occur
 try(expand.bpairs(short.data.frame, c("success", ""))) # check error messages that are issued after the warning
 
 # formula

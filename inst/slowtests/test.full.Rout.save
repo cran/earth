@@ -1,7 +1,7 @@
 > # test.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 3.6.1 (2019-07-05)"
+[1] "R version 4.0.2 (2020-06-22)"
 > 
 > source("test.prolog.R")
 > source("check.models.equal.R")
@@ -12,7 +12,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.4-10
+Loaded mda 0.5-2
 
 > data(ozone1)
 > data(trees)
@@ -44,7 +44,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 5.1.2.
+  Splines. R package version 5.2.0.
   https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -53,7 +53,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 5.1.2},
+    note = {R package version 5.2.0},
     url = {https://CRAN.R-project.org/package=earth},
   }
 
@@ -171,13 +171,13 @@ After pruning pass GRSq -0.589 RSq 0.959
 > expect.err(try(coef(cars, type="nonesuch")), "type=\"nonesuch\" is not allowed")
 Error : type="nonesuch" is not allowed
 Choose one of: "response" "earth" "glm"
-Got error as expected from try(coef(cars, type = "nonesuch"))
+Got expected error from try(coef(cars, type = "nonesuch"))
 > expect.err(try(coef(cars, type="glm")), "type == \"glm\" is not allowed because this is not an earth-glm model")
 Error : coef.earth: type == "glm" is not allowed because this is not an earth-glm model
-Got error as expected from try(coef(cars, type = "glm"))
+Got expected error from try(coef(cars, type = "glm"))
 > expect.err(try(coefficients(cars, type="glm")), "type == \"glm\" is not allowed because this is not an earth-glm model")
 Error : coef.earth: type == "glm" is not allowed because this is not an earth-glm model
-Got error as expected from try(coefficients(cars, type = "glm"))
+Got expected error from try(coefficients(cars, type = "glm"))
 > stopifnot(isTRUE(all.equal(coef(cars), coefficients(cars))))
 > stopifnot(isTRUE(all.equal(coef(cars, type="earth"), coefficients(cars, type="earth"))))
 > stopifnot(identical(names(coef(cars)), rownames(cars$coefficients)))
@@ -218,13 +218,13 @@ Earth GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
 +              degree=2, trace=1,
 +              glm=list(family=binomial))
 x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
-y[1046,1] with colname etitanic[,2], and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
+y[1046,1] with colname `etitanic[, 2]`, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
 Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 Reached nk 21
 After forward pass GRSq 0.406 RSq 0.450
 Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
 After pruning pass GRSq 0.42 RSq 0.439
-GLM etitanic[,2] devratio 0.37 dof 1038/1045 iters 5
+GLM `etitanic[, 2]` devratio 0.37 dof 1038/1045 iters 5
 > printh(a1a)
 ===a1a 
 GLM (family binomial, link logit):
@@ -236,6 +236,232 @@ Termination condition: Reached nk 21
 Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
 Number of terms at each degree of interaction: 1 3 4
 Earth GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
+> plotmo(a1a)
+ plotmo grid:    pclass  sex age sibsp parch
+                    3rd male  28     0     0
+> 
+> a1b <- earth(etitanic[,-2,drop=FALSE], etitanic[,2,drop=FALSE],
++              degree=2, trace=1,
++              glm=list(family=binomial))
+x[1046,6] with colnames pclass2nd pclass3rd sexmale age sibsp parch
+y[1046,1] with colname survived, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached nk 21
+After forward pass GRSq 0.406 RSq 0.450
+Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
+After pruning pass GRSq 0.42 RSq 0.439
+GLM survived devratio 0.37 dof 1038/1045 iters 5
+> printh(a1b)
+===a1b 
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
+Earth selected 8 of 17 terms, and 5 of 6 predictors
+Termination condition: Reached nk 21
+Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
+Number of terms at each degree of interaction: 1 3 4
+Earth GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
+> plotmo(a1b)
+ plotmo grid:    pclass  sex age sibsp parch
+                    3rd male  28     0     0
+> 
+> # x and y dataframes but with missing column names
+> xdf_nonames <- etitanic[,-2,drop=FALSE]
+> cat("original colnames of xdf_nonames:", paste(colnames(xdf_nonames)), "\n")
+original colnames of xdf_nonames: pclass sex age sibsp parch 
+> ydf_nonames <- etitanic[,2,drop=FALSE]
+> colnames(xdf_nonames) <- NULL # weird for a dataframe, but earth still works
+> colnames(ydf_nonames) <- NULL
+> earth_df_nonames <- earth(xdf_nonames, ydf_nonames,
++              degree=2, trace=1,
++              glm=list(family=binomial))
+x[1046,6] with colnames xdf_nonames12nd xdf_nonames13rd xdf_nonames2male xdf_nona...
+y[1046,1] with colname ydf_nonames, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+Reached nk 21
+After forward pass GRSq 0.406 RSq 0.450
+Prune backward penalty 3 nprune null: selected 8 of 17 terms, and 5 of 6 preds
+After pruning pass GRSq 0.42 RSq 0.439
+GLM ydf_nonames devratio 0.37 dof 1038/1045 iters 5
+> cat("earth_df_nonames:\n")
+earth_df_nonames:
+> print(summary(earth_df_nonames))
+Call: earth(x=xdf_nonames, y=ydf_nonames, trace=1, glm=list(family=binomial),
+            degree=2)
+
+GLM coefficients
+                                      ydf_nonames
+(Intercept)                             2.9135260
+xdf_nonames13rd                        -5.0300560
+xdf_nonames2male                       -3.1856245
+h(xdf_nonames3-32)                     -0.0375715
+xdf_nonames12nd * xdf_nonames2male     -1.7680945
+xdf_nonames13rd * xdf_nonames2male      1.2226954
+xdf_nonames13rd * h(4-xdf_nonames4)     0.6186527
+xdf_nonames2male * h(16-xdf_nonames3)   0.2418140
+
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
+Earth selected 8 of 17 terms, and 5 of 6 predictors
+Termination condition: Reached nk 21
+Importance: xdf_nonames2male, xdf_nonames13rd, xdf_nonames12nd, ...
+Number of terms at each degree of interaction: 1 3 4
+Earth GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
+> cat("\nearth_df_nonames$modvars\n")
+
+earth_df_nonames$modvars
+> print(earth_df_nonames$modvars)
+             xdf_nonames12nd xdf_nonames13rd xdf_nonames2male xdf_nonames3
+xdf_nonames1               1               1                0            0
+xdf_nonames2               0               0                1            0
+xdf_nonames3               0               0                0            1
+xdf_nonames4               0               0                0            0
+xdf_nonames5               0               0                0            0
+             xdf_nonames4 xdf_nonames5
+xdf_nonames1            0            0
+xdf_nonames2            0            0
+xdf_nonames3            0            0
+xdf_nonames4            1            0
+xdf_nonames5            0            1
+> options(warn=2)
+> expect.err(try(plotmo(earth_df_nonames)), "Cannot determine which variables to plot")
+Error : (converted from warning) Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(xdf_nonames2,xdf_nonames1,xdf_nonames3)
+             colnames(x)=c(x1,x2,x3,x4,x5)
+
+Got expected error from try(plotmo(earth_df_nonames))
+> plotmo(earth_df_nonames, all1=TRUE, SHOWCALL=TRUE)
+ plotmo grid:    x1   x2 x3 x4 x5
+                3rd male 28  0  0
+> options(warn=1)
+> plotmo(earth_df_nonames, trace=1, SHOWCALL=TRUE)
+stats::predict(earth.object, NULL, type="response")
+stats::fitted(object=earth.object)
+got model response from getCall(object)$y
+Warning: Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(xdf_nonames2,xdf_nonames1,xdf_nonames3)
+             colnames(x)=c(x1,x2,x3,x4,x5)
+
+
+ plotmo grid:    x1   x2 x3 x4 x5
+                3rd male 28  0  0
+
+> 
+> # xmat in canonical form (double matrix) but with missing column names
+> xmat_nonames <- etitanic[,"age",drop=FALSE]
+> xmat_nonames$pclass <- as.numeric(etitanic[,"pclass"])
+> xmat_nonames <- as.matrix(xmat_nonames)
+> cat("original colnames of xmat_nonames:", paste(colnames(xmat_nonames)), "\n")
+original colnames of xmat_nonames: age pclass 
+> ymat_nonames <- as.numeric(etitanic[,"survived"])
+> ymat_nonames <- as.matrix(ymat_nonames)
+> colnames(xmat_nonames) <- NULL
+> colnames(ymat_nonames) <- NULL
+> earth_mat_nonames <- earth(xmat_nonames, ymat_nonames, degree=2, trace=1)
+x[1046,2] with colnames xmat_nonames1 xmat_nonames2
+y[1046,1] with colname ymat_nonames, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
+Forward pass term 1, 2, 4, 6, 8, 10
+RSq changed by less than 0.001 at 9 terms (DeltaRSq 0.00055)
+After forward pass GRSq 0.120 RSq 0.162
+Prune backward penalty 3 nprune null: selected 6 of 9 terms, and 2 of 2 preds
+After pruning pass GRSq 0.137 RSq 0.158
+> cat("earth_mat_nonames:\n")
+earth_mat_nonames:
+> print(summary(earth_mat_nonames))
+Call: earth(x=xmat_nonames, y=ymat_nonames, trace=1, degree=2)
+
+                                         coefficients
+(Intercept)                                0.47789359
+h(18-xmat_nonames1)                        0.03051719
+h(xmat_nonames1-18)                       -0.00609975
+h(2-xmat_nonames2)                         0.28092736
+h(xmat_nonames2-2)                        -0.16376873
+h(23-xmat_nonames1) * h(xmat_nonames2-2)  -0.01570789
+
+Selected 6 of 9 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 9 terms
+Importance: xmat_nonames2, xmat_nonames1
+Number of terms at each degree of interaction: 1 4 1
+GCV 0.2088003    RSS 212.8039    GRSq 0.1373292    RSq 0.1578438
+> options(warn=2)
+> expect.err(try(plotmo(earth_mat_nonames)), "Cannot determine which variables to plot")
+Error : (converted from warning) Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(xmat_nonames2,xmat_nonames2,xmat_nonames1,xmat_nonames1)
+             colnames(x)=c(x1,x2)
+
+Got expected error from try(plotmo(earth_mat_nonames))
+> options(warn=1)
+> plotmo(earth_mat_nonames)
+Warning: Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(xmat_nonames2,xmat_nonames2,xmat_nonames1,xmat_nonames1)
+             colnames(x)=c(x1,x2)
+
+ plotmo grid:    x1 x2
+                 28  2
+> 
+> # xmat in canonical form (double matrix) but with some missing column names
+> xmat_partial <- etitanic[,"age",drop=FALSE]
+> xmat_partial$pclass <- as.numeric(etitanic[,"pclass"])
+> xmat_partial$sibsp <- as.numeric(etitanic[,"sibsp"])
+> xmat_partial <- as.matrix(xmat_partial)
+> cat("original colnames of xmat_partial:", paste(colnames(xmat_partial)), "\n")
+original colnames of xmat_partial: age pclass sibsp 
+> colnames(xmat_partial) <- c("", "x2", "") # some column names are missing (earth will create them)
+> ymat_partial <- as.numeric(etitanic[,"survived"])
+> ymat_partial <- as.matrix(ymat_partial)
+> colnames(ymat_partial) <- "yy"
+> earth_mat_partialnames <- earth(xmat_partial, ymat_partial, degree=2, trace=1)
+x[1046,3] with colnames xmat_partial1 x2 xmat_partial3
+y[1046,1] with colname yy, and values 1, 1, 0, 0, 0, 1, 1, 0, 1, 0,...
+Forward pass term 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+RSq changed by less than 0.001 at 19 terms, 17 terms used (DeltaRSq 0.0009)
+After forward pass GRSq 0.126 RSq 0.195
+Prune backward penalty 3 nprune null: selected 7 of 17 terms, and 3 of 3 preds
+After pruning pass GRSq 0.157 RSq 0.181
+> cat("earth_mat_partialnames:\n")
+earth_mat_partialnames:
+> print(summary(earth_mat_partialnames))
+Call: earth(x=xmat_partial, y=ymat_partial, trace=1, degree=2)
+
+                                         coefficients
+(Intercept)                                0.93106453
+h(xmat_partial1-5)                        -0.03561187
+h(xmat_partial1-18)                        0.03022469
+h(2-x2)                                    0.27484540
+h(x2-2)                                   -0.18280547
+h(18-xmat_partial1) * h(xmat_partial3-2)  -0.04797511
+h(18-xmat_partial1) * h(xmat_partial3-3)   0.04721023
+
+Selected 7 of 17 terms, and 3 of 3 predictors
+Termination condition: RSq changed by less than 0.001 at 17 terms
+Importance: x2, xmat_partial1, xmat_partial3
+Number of terms at each degree of interaction: 1 4 2
+GCV 0.2040487    RSS 206.9554    GRSq 0.1569604    RSq 0.1809888
+> options(warn=2)
+> expect.err(try(plotmo(earth_mat_partialnames)), "Cannot determine which variables to plot")
+Error : (converted from warning) Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(x2,x2,xmat_partial1,xmat_partial1)
+             colnames(x)=c(x1,x2,x3)
+
+Got expected error from try(plotmo(earth_mat_partialnames))
+> options(warn=1)
+> plotmo(earth_mat_partialnames)
+Warning: Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(x2,x2,xmat_partial1,xmat_partial1)
+             colnames(x)=c(x1,x2,x3)
+
+ plotmo grid:    x1 x2 x3
+                 28  2  0
+> 
+> # use a partial column name that will cause a duplicate within gen.colnames
+> colnames(xmat_partial) <- c("", "xmat_partial1", "")
+> expect.err(try(earth(xmat_partial, ymat_partial, degree=2, trace=1)),
++            "Duplicate colname in xmat_partial (colnames are \"xmat_partial1\", \"xmat_partial1\", \"xmat_partial3\")")
+Error : Duplicate colname in xmat_partial (colnames are "xmat_partial1", "xmat_partial1", "xmat_partial3")
+Got expected error from try(earth(xmat_partial, ymat_partial, degree = 2, trace = 1))
 > 
 > a2 <- earth(pclass ~ ., data=etitanic, glm=list(family=binomial), trace=1)
 x[1046,5] with colnames survived sexmale age sibsp parch
@@ -345,7 +571,7 @@ print(head(y)):
 [6,]      20        0                    23                      7
 
 Error : Binomial response (see above): all values should be between 0 and 1, or a binomial pair
-Got error as expected from try(earth(doublepair ~ sex + ldose, trace = 1, pmethod = "none",     glm = list(family = "binomial")))
+Got expected error from try(earth(doublepair ~ sex + ldose, trace = 1, pmethod = "none",     glm = list(family = "binomial")))
 > 
 > counts <- c(18,17,15,20,10,20,25,13,12) # Dobson 1990 p. 93
 > outcome <- gl(3,1,9)
@@ -782,11 +1008,21 @@ NULL
 $call
 earth(formula = mpg ~ ., data = mtcars, pmethod = "none", trace = 4)
 
-$namesx.org
- [1] "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear" "carb"
-
 $namesx
  [1] "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear" "carb"
+
+$modvars
+     cyl disp hp drat wt qsec vs am gear carb
+cyl    1    0  0    0  0    0  0  0    0    0
+disp   0    1  0    0  0    0  0  0    0    0
+hp     0    0  1    0  0    0  0  0    0    0
+drat   0    0  0    1  0    0  0  0    0    0
+wt     0    0  0    0  1    0  0  0    0    0
+qsec   0    0  0    0  0    1  0  0    0    0
+vs     0    0  0    0  0    0  1  0    0    0
+am     0    0  0    0  0    0  0  1    0    0
+gear   0    0  0    0  0    0  0  0    1    0
+carb   0    0  0    0  0    0  0  0    0    1
 
 $terms
 mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb
@@ -872,7 +1108,7 @@ Theta2 0.1234732 14.560786 0.8781676 0.9029281
 All    0.1707733 20.138729 0.9157480 0.9328709
 > expect.err(try(printh(summary(a$fit, none.such1="xxx"))), "unrecognized argument") # summary.earth unrecognized argument "none.such1"
 ===summary(a$fit, none.such1 = "xxx") Error : summary.earth: unrecognized argument 'none.such1'
-Got error as expected from try(printh(summary(a$fit, none.such1 = "xxx")))
+Got expected error from try(printh(summary(a$fit, none.such1 = "xxx")))
 > printh(summary(a$fit, style="bf", none.such2="xxx")) # Warning: format.earth ignored unrecognized argument "none.such2"
 ===summary(a$fit, style = "bf", none.such2 = "xxx") Warning: format.earth ignored argument 'none.such2'
 
@@ -1201,50 +1437,420 @@ Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 3 (additive model)
 GCV 10    RSS 190    GRSq 0.96    RSq 0.98
 > library(mda)
-> a <- mars(trees[,-3], trees[,3])
-> a <- mars.to.earth(a)
+> mars.mod <- mars(trees[,-3], trees[,3])
+> cat("print.default(mars.mod):\n")
+print.default(mars.mod):
+> print.default(mars.mod)
+$call
+mars(x = trees[, -3], y = trees[, 3])
+
+$all.terms
+[1]  1  2  3  4  5  6  8 10
+
+$selected.terms
+[1] 1 2 3 8
+
+$penalty
+[1] 2
+
+$degree
+[1] 1
+
+$nk
+[1] 21
+
+$thresh
+[1] 0.001
+
+$gcv
+[1] 10.22537
+
+$factor
+      Girth Height
+ [1,]     0      0
+ [2,]     1      0
+ [3,]    -1      0
+ [4,]     0      1
+ [5,]     0     -1
+ [6,]     1      0
+ [7,]    -1      0
+ [8,]     0      1
+ [9,]     0     -1
+[10,]     0      1
+[11,]     0     -1
+
+$cuts
+      [,1] [,2]
+ [1,]  0.0    0
+ [2,] 13.8    0
+ [3,] 13.8    0
+ [4,]  0.0   75
+ [5,]  0.0   75
+ [6,] 11.4    0
+ [7,] 11.4    0
+ [8,]  0.0   72
+ [9,]  0.0   72
+[10,]  0.0   80
+[11,]  0.0   80
+
+$residuals
+            [,1]
+ [1,]  1.4581315
+ [2,]  0.5079983
+ [3,] -0.2254239
+ [4,]  0.5904880
+ [5,] -2.1221305
+ [6,] -2.5342186
+ [7,] -1.7930674
+ [8,] -0.6861328
+ [9,]  0.9087137
+[10,]  0.3804450
+[11,]  2.3729800
+[12,]  0.3493344
+[13,]  0.7493344
+[14,]  1.6899552
+[15,] -2.9532435
+[16,] -2.2059546
+[17,]  3.9194721
+[18,] -4.2450607
+[19,] -0.2442662
+[20,] -1.3609773
+[21,]  4.0303181
+[22,] -0.9876327
+[23,]  4.7646376
+[24,] -1.4092887
+[25,] -1.4315918
+[26,]  3.2647855
+[27,]  1.8445232
+[28,]  2.9947526
+[29,] -4.4165342
+[30,] -4.9165342
+[31,]  1.7061874
+
+$fitted.values
+           [,1]
+ [1,]  8.841869
+ [2,]  9.792002
+ [3,] 10.425424
+ [4,] 15.809512
+ [5,] 20.922131
+ [6,] 22.234219
+ [7,] 17.393067
+ [8,] 18.886133
+ [9,] 21.691286
+[10,] 19.519555
+[11,] 21.827020
+[12,] 20.650666
+[13,] 20.650666
+[14,] 19.610045
+[15,] 22.053243
+[16,] 24.405955
+[17,] 29.880528
+[18,] 31.645061
+[19,] 25.944266
+[20,] 26.260977
+[21,] 30.469682
+[22,] 32.687633
+[23,] 31.535362
+[24,] 39.709289
+[25,] 44.031592
+[26,] 52.135215
+[27,] 53.855477
+[28,] 55.305247
+[29,] 55.916534
+[30,] 55.916534
+[31,] 75.293813
+
+$lenb
+[1] 11
+
+$coefficients
+           [,1]
+[1,] 26.2609773
+[2,]  6.1128688
+[3,] -3.1671107
+[4,]  0.4976885
+
+$x
+      [,1] [,2] [,3] [,4]
+ [1,]    1  0.0  5.5    0
+ [2,]    1  0.0  5.2    0
+ [3,]    1  0.0  5.0    0
+ [4,]    1  0.0  3.3    0
+ [5,]    1  0.0  3.1    9
+ [6,]    1  0.0  3.0   11
+ [7,]    1  0.0  2.8    0
+ [8,]    1  0.0  2.8    3
+ [9,]    1  0.0  2.7    8
+[10,]    1  0.0  2.6    3
+[11,]    1  0.0  2.5    7
+[12,]    1  0.0  2.4    4
+[13,]    1  0.0  2.4    4
+[14,]    1  0.0  2.1    0
+[15,]    1  0.0  1.8    3
+[16,]    1  0.0  0.9    2
+[17,]    1  0.0  0.9   13
+[18,]    1  0.0  0.5   14
+[19,]    1  0.0  0.1    0
+[20,]    1  0.0  0.0    0
+[21,]    1  0.2  0.0    6
+[22,]    1  0.4  0.0    8
+[23,]    1  0.7  0.0    2
+[24,]    1  2.2  0.0    0
+[25,]    1  2.5  0.0    5
+[26,]    1  3.5  0.0    9
+[27,]    1  3.7  0.0   10
+[28,]    1  4.1  0.0    8
+[29,]    1  4.2  0.0    8
+[30,]    1  4.2  0.0    8
+[31,]    1  6.8  0.0   15
+
+attr(,"class")
+[1] "mars"
+> mars.to.earth.mod <- mars.to.earth(mars.mod)
 Converted mars(x=trees[,-3], y=trees[,3])
 
 to earth(x=trees[,-3], y=trees[,3])
 
-> print(summary(a, digits = 2))
+> cat("print.default(mars.to.earth.mod):\n")
+print.default(mars.to.earth.mod):
+> print.default(mars.to.earth.mod)
+$rss
+[1] 189.9939
+
+$rsq
+[1] 0.9765616
+
+$gcv
+[1] 10.22537
+
+$grsq
+[1] 0.9633775
+
+$bx
+      (Intercept) h(Girth-13.8) h(13.8-Girth) h(11.4-Girth)
+ [1,]           1           0.0           5.5             0
+ [2,]           1           0.0           5.2             0
+ [3,]           1           0.0           5.0             0
+ [4,]           1           0.0           3.3             0
+ [5,]           1           0.0           3.1             9
+ [6,]           1           0.0           3.0            11
+ [7,]           1           0.0           2.8             0
+ [8,]           1           0.0           2.8             3
+ [9,]           1           0.0           2.7             8
+[10,]           1           0.0           2.6             3
+[11,]           1           0.0           2.5             7
+[12,]           1           0.0           2.4             4
+[13,]           1           0.0           2.4             4
+[14,]           1           0.0           2.1             0
+[15,]           1           0.0           1.8             3
+[16,]           1           0.0           0.9             2
+[17,]           1           0.0           0.9            13
+[18,]           1           0.0           0.5            14
+[19,]           1           0.0           0.1             0
+[20,]           1           0.0           0.0             0
+[21,]           1           0.2           0.0             6
+[22,]           1           0.4           0.0             8
+[23,]           1           0.7           0.0             2
+[24,]           1           2.2           0.0             0
+[25,]           1           2.5           0.0             5
+[26,]           1           3.5           0.0             9
+[27,]           1           3.7           0.0            10
+[28,]           1           4.1           0.0             8
+[29,]           1           4.2           0.0             8
+[30,]           1           4.2           0.0             8
+[31,]           1           6.8           0.0            15
+
+$dirs
+              Girth Height
+(Intercept)       0      0
+h(Girth-13.8)     1      0
+h(13.8-Girth)    -1      0
+h(Height-75)      0      1
+h(75-Height)      0     -1
+h(Girth-11.4)     1      0
+h(Height-72)      0      1
+h(Height-80)      0      1
+
+$cuts
+              Girth Height
+(Intercept)     0.0      0
+h(Girth-13.8)  13.8      0
+h(13.8-Girth)  13.8      0
+h(Height-75)    0.0     75
+h(75-Height)    0.0     75
+h(Girth-11.4)  11.4      0
+h(Height-72)    0.0     72
+h(Height-80)    0.0     80
+
+$selected.terms
+[1] 1 2 3 7
+
+$prune.terms
+NULL
+
+$fitted.values
+              y
+ [1,]  8.841869
+ [2,]  9.792002
+ [3,] 10.425424
+ [4,] 15.809512
+ [5,] 20.922131
+ [6,] 22.234219
+ [7,] 17.393067
+ [8,] 18.886133
+ [9,] 21.691286
+[10,] 19.519555
+[11,] 21.827020
+[12,] 20.650666
+[13,] 20.650666
+[14,] 19.610045
+[15,] 22.053243
+[16,] 24.405955
+[17,] 29.880528
+[18,] 31.645061
+[19,] 25.944266
+[20,] 26.260977
+[21,] 30.469682
+[22,] 32.687633
+[23,] 31.535362
+[24,] 39.709289
+[25,] 44.031592
+[26,] 52.135215
+[27,] 53.855477
+[28,] 55.305247
+[29,] 55.916534
+[30,] 55.916534
+[31,] 75.293813
+
+$residuals
+            [,1]
+ [1,]  1.4581315
+ [2,]  0.5079983
+ [3,] -0.2254239
+ [4,]  0.5904880
+ [5,] -2.1221305
+ [6,] -2.5342186
+ [7,] -1.7930674
+ [8,] -0.6861328
+ [9,]  0.9087137
+[10,]  0.3804450
+[11,]  2.3729800
+[12,]  0.3493344
+[13,]  0.7493344
+[14,]  1.6899552
+[15,] -2.9532435
+[16,] -2.2059546
+[17,]  3.9194721
+[18,] -4.2450607
+[19,] -0.2442662
+[20,] -1.3609773
+[21,]  4.0303181
+[22,] -0.9876327
+[23,]  4.7646376
+[24,] -1.4092887
+[25,] -1.4315918
+[26,]  3.2647855
+[27,]  1.8445232
+[28,]  2.9947526
+[29,] -4.4165342
+[30,] -4.9165342
+[31,]  1.7061874
+
+$coefficients
+                       y
+(Intercept)   26.2609773
+h(Girth-13.8)  6.1128688
+h(13.8-Girth) -3.1671107
+h(11.4-Girth)  0.4976885
+
+$rss.per.response
+[1] 189.9939
+
+$rsq.per.response
+[1] 0.9765616
+
+$gcv.per.response
+[1] 10.22537
+
+$grsq.per.response
+[1] 0.9633775
+
+$rss.per.subset
+[1] 8106.0839        NA        NA  189.9939        NA        NA        NA
+[8]        NA
+
+$gcv.per.subset
+[1] 279.20956        NA        NA  10.22537        NA        NA        NA
+[8]        NA
+
+$leverages
+ [1] 0.23257376 0.20337574 0.18555587 0.08723624 0.12248572 0.17248005
+ [7] 0.07641904 0.05073854 0.08780610 0.04741454 0.06734919 0.04425746
+[13] 0.04425746 0.07509704 0.04728244 0.08085017 0.21454775 0.26167636
+[19] 0.16017614 0.16788561 0.10621610 0.10955549 0.11166012 0.16467557
+[25] 0.07594784 0.09429047 0.10722497 0.12495379 0.13133163 0.13133163
+[31] 0.41334716
+
+$pmethod
+[1] "backward"
+
+$nprune
+NULL
+
+$penalty
+[1] 2
+
+$nk
+[1] 21
+
+$thresh
+[1] 0.001
+
+$call
+earth(x = trees[, -3], y = trees[, 3])
+
+$namesx
+[1] "Girth"  "Height"
+
+$modvars
+       Girth Height
+Girth      1      0
+Height     0      1
+
+attr(,"class")
+[1] "earth"
+> printh(mars.to.earth.mod)
+===mars.to.earth.mod 
+Selected 4 of 8 terms, and 2 of 2 predictors
+Termination condition: Unknown
+Importance: object has no prune.terms, call update() on the model to fix that
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 10.22537    RSS 189.9939    GRSq 0.9633775    RSq 0.9765616
+> printh(summary(mars.to.earth.mod))
+===summary(mars.to.earth.mod) 
 Call: earth(x=trees[,-3], y=trees[,3])
 
               coefficients
-(Intercept)           26.3
-h(13.8-Girth)         -3.2
-h(Girth-13.8)          6.1
-h(11.4-Girth)          0.5
+(Intercept)     26.2609773
+h(13.8-Girth)   -3.1671107
+h(Girth-13.8)    6.1128688
+h(11.4-Girth)    0.4976885
 
 Selected 4 of 8 terms, and 2 of 2 predictors
 Termination condition: Unknown
 Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10    RSS 190    GRSq 0.96    RSq 0.98
-> printh(summary(a, digits=2))
-===summary(a, digits = 2) 
-Call: earth(x=trees[,-3], y=trees[,3])
-
-              coefficients
-(Intercept)           26.3
-h(13.8-Girth)         -3.2
-h(Girth-13.8)          6.1
-h(11.4-Girth)          0.5
-
-Selected 4 of 8 terms, and 2 of 2 predictors
-Termination condition: Unknown
-Importance: object has no prune.terms, call update() on the model to fix that
-Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10    RSS 190    GRSq 0.96    RSq 0.98
-> printh(summary(a, digits=2, style="bf"))
-===summary(a, digits = 2, style = "bf") 
+GCV 10.22537    RSS 189.9939    GRSq 0.9633775    RSq 0.9765616
+> printh(summary(mars.to.earth.mod, style="bf"))
+===summary(mars.to.earth.mod, style = "bf") 
 Call: earth(x=trees[,-3], y=trees[,3])
 
 y =
-  26
-  - 3.2 * bf1
-  + 6.1 * bf2
-  + 0.5 * bf3
+  26.26098
+  -  3.167111 * bf1
+  +  6.112869 * bf2
+  + 0.4976885 * bf3
 
    bf1  h(13.8-Girth)
    bf2  h(Girth-13.8)
@@ -1254,7 +1860,30 @@ Selected 4 of 8 terms, and 2 of 2 predictors
 Termination condition: Unknown
 Importance: object has no prune.terms, call update() on the model to fix that
 Number of terms at each degree of interaction: 1 3 (additive model)
-GCV 10    RSS 190    GRSq 0.96    RSq 0.98
+GCV 10.22537    RSS 189.9939    GRSq 0.9633775    RSq 0.9765616
+> stopifnot(length(mars.mod$coeff) == length(mars.to.earth.mod$coeff))
+> stopifnot(max(mars.mod$coeff - mars.to.earth.mod$coeff) < 1e-10)
+> earth.mod <- earth(trees[,-3], trees[,3])
+> stopifnot(length(mars.mod$coeff) == length(earth.mod$coeff))
+> # coeff differences can be big because forward passes are different
+> stopifnot(max(mars.mod$coeff - earth.mod$coeff) < .3)
+> 
+> par(mfrow=c(3,4), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.7))
+> plot(mars.to.earth.mod, which=c(1,3), do.par=FALSE)
+> plotmo(mars.to.earth.mod, do.par=FALSE)
+ plotmo grid:    Girth Height
+                  12.9     76
+> mars.to.earth.mod2 <- update(mars.to.earth.mod)
+> plot(mars.to.earth.mod2, which=c(1,3), do.par=FALSE)
+> plotmo(mars.to.earth.mod2, do.par=FALSE)
+ plotmo grid:    Girth Height
+                  12.9     76
+> plot(earth.mod, which=c(1,3), do.par=FALSE)
+> plotmo(earth.mod, do.par=FALSE)
+ plotmo grid:    Girth Height
+                  12.9     76
+> par(org.par)
+> 
 > cat("--- plot.earth.models.Rd ----------------------\n")
 --- plot.earth.models.Rd ----------------------
 > if (PLOT)
@@ -1379,7 +2008,7 @@ Number of terms at each degree of interaction: 1 9 5
 GCV 13.01626    RSS 3409.313    GRSq 0.7978077    RSq 0.8385391
 
 updt.r> update(earth.mod, nprune = 8)              # requires only pruning
-Selected 8 of 21 terms, and 6 of 9 predictors
+Selected 8 of 21 terms, and 6 of 9 predictors (nprune=8)
 Termination condition: Reached nk 21
 Importance: temp, humidity, ibh-unused, ibt, doy, dpg, vis, vh-unused, ...
 Number of terms at each degree of interaction: 1 5 2
@@ -1838,8 +2467,8 @@ predict.earth with newdata: bx[1,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            5
 predict.earth: returning earth predictions 
-       Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
+       Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
 > predict.a1a <- predict(a, c(10,80))
 > check.almost.equal(predict.a1a[1,1], 17.6035895926138, msg="predict.a1a[1,1]")
 > check.almost.equal(predict.a1a[1,2], 117.603589592614, msg="predict.a1a[1,2]")
@@ -1861,9 +2490,9 @@ predict.earth with newdata: bx[2,4]:
 2           1             0           4.2            5
 predict.earth: returning earth predictions 
 
-       Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
-[2,] 17.60359                  117.6036
+       Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
+[2,] 17.60359                     117.6036
 > cat("1c predict(a, c(10,11,80,81))\n")
 1c predict(a, c(10,11,80,81))
 > printh(predict(a, c(10,11,80,81), trace=1))
@@ -1882,35 +2511,34 @@ predict.earth with newdata: bx[2,4]:
 2           1             0           3.2            6
 predict.earth: returning earth predictions 
 
-       Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
-[2,] 21.60476                  121.6048
+       Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
+[2,] 21.60476                     121.6048
 > cat("1d predict(a, data.frame=c(Girth=10,Height=80))\n")
 1d predict(a, data.frame=c(Girth=10,Height=80))
 > printh(predict(a, newdata=data.frame(Girth=10,Height=80)))
-===predict(a, newdata = data.frame(Girth = 10, Height = 80))        Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
+===predict(a, newdata = data.frame(Girth = 10, Height = 80))        Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
 > predict.a1d <- predict(a, newdata=data.frame(Girth=10,Height=80))
 > check.almost.equal(predict.a1d[1,1], 17.6035895926138, msg="predict.a1d[1,1]")
 > check.almost.equal(predict.a1d[1,2], 117.603589592614, msg="predict.a1d[1,2]")
-> expect.err(try(predict(a, newdata=10)), "get.earth.x from model.matrix.earth from predict.earth:\n       could not convert vector x to matrix because length(x) 1\n       is not a multiple of the number 2 of predictors")
-Error : get.earth.x from model.matrix.earth from predict.earth:
-       could not convert vector x to matrix because length(x) 1
+> expect.err(try(predict(a, newdata=10)), "Could not convert vector x to matrix because length(x) 1\n       is not a multiple of the number 2 of predictors")
+Error : Could not convert vector x to matrix because length(x) 1
        is not a multiple of the number 2 of predictors 
-       Expected predictors: Girth Height
-Got error as expected from try(predict(a, newdata = 10))
+       Expected predictors: "Girth", "Height"
+Got expected error from try(predict(a, newdata = 10))
 > cat("2 predict(a)\n")
 2 predict(a)
 > printh(head(predict(a, trace=1)))
 ===head(predict(a, trace = 1)) predict.earth: returning earth fitted.values 
 
-        Volume cbind(Volume,Volume+100)2
-[1,]  8.883097                  108.8831
-[2,]  9.909039                  109.9090
-[3,] 10.593000                  110.5930
-[4,] 16.406671                  116.4067
-[5,] 20.578818                  120.5788
-[6,] 22.083528                  122.0835
+        Volume cbind(Volume, Volume + 100)2
+[1,]  8.883097                     108.8831
+[2,]  9.909039                     109.9090
+[3,] 10.593000                     110.5930
+[4,] 16.406671                     116.4067
+[5,] 20.578818                     120.5788
+[6,] 22.083528                     122.0835
 > cat("3a predict(a, matrix(c(10,12), nrow=1, ncol=2))\n")
 3a predict(a, matrix(c(10,12), nrow=1, ncol=2))
 > printh(predict(a, matrix(c(10,12), nrow=1, ncol=2), trace=1))
@@ -1925,8 +2553,8 @@ predict.earth with newdata: bx[1,4]:
   (Intercept) h(Girth-14.2) h(14.2-Girth) h(Height-75)
 1           1             0           4.2            0
 predict.earth: returning earth predictions 
-       Volume cbind(Volume,Volume+100)2
-[1,] 14.69677                  114.6968
+       Volume cbind(Volume, Volume + 100)2
+[1,] 14.69677                     114.6968
 > cat("3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)\n")
 3b predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE)
 > printh(predict(a, matrix(c(10,12), nrow=2, ncol=2, byrow=TRUE), trace=1))
@@ -1945,9 +2573,9 @@ predict.earth with newdata: bx[2,4]:
 2           1             0           4.2            0
 predict.earth: returning earth predictions 
 
-       Volume cbind(Volume,Volume+100)2
-[1,] 14.69677                  114.6968
-[2,] 14.69677                  114.6968
+       Volume cbind(Volume, Volume + 100)2
+[1,] 14.69677                     114.6968
+[2,] 14.69677                     114.6968
 > cat("3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))\n")
 3c predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2))
 > printh(predict(a, matrix(c(10,12,80,90), nrow=2, ncol=2), trace=1))
@@ -1966,9 +2594,9 @@ predict.earth with newdata: bx[2,4]:
 2           1             0           2.2           15
 predict.earth: returning earth predictions 
 
-       Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
-[2,] 30.25685                  130.2568
+       Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
+[2,] 30.25685                     130.2568
 > xpredict <- matrix(c(10,12,80,90), nrow=2, ncol=2)
 > colnames(xpredict) <- c("Girth", "Height")
 > cat("4 predict(a, xpredict with colnames)\n")
@@ -1988,9 +2616,9 @@ predict.earth with newdata: bx[2,4]:
 2           1             0           2.2           15
 predict.earth: returning earth predictions 
 
-       Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
-[2,] 30.25685                  130.2568
+       Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
+[2,] 30.25685                     130.2568
 > cat("5 predict(a, as.data.frame(xpredict with colnames))\n")
 5 predict(a, as.data.frame(xpredict with colnames))
 > printh(predict(a, as.data.frame(xpredict), trace=1))
@@ -2008,9 +2636,9 @@ predict.earth with newdata: bx[2,4]:
 2           1             0           2.2           15
 predict.earth: returning earth predictions 
 
-       Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
-[2,] 30.25685                  130.2568
+       Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
+[2,] 30.25685                     130.2568
 > # reverse dataframe columns (and their names), predict should deal with it correctly
 > xpredict <- as.data.frame(cbind(xpredict[,2], xpredict[,1]))
 > colnames(xpredict) <- c("Height", "Girth")
@@ -2034,15 +2662,37 @@ predict.earth with newdata: bx[2,4]:
 2           1             0           2.2           15
 predict.earth: returning earth predictions 
 
-       Volume cbind(Volume,Volume+100)2
-[1,] 17.60359                  117.6036
-[2,] 30.25685                  130.2568
+       Volume cbind(Volume, Volume + 100)2
+[1,] 17.60359                     117.6036
+[2,] 30.25685                     130.2568
 > expect.err(try(predict(a, interval="pin")), "no prediction intervals because the earth model was not built with varmod.method")
 Error : no prediction intervals because the earth model was not built with varmod.method
-Got error as expected from try(predict(a, interval = "pin"))
+Got expected error from try(predict(a, interval = "pin"))
 > expect.err(try(earth(cbind(Volume, Volume + 100) ~ ., data = trees, nfold=3, ncross=3, varmod.method="lm")), "variance models are not supported for multiple response models")
 Error : variance models are not supported for multiple response models
-Got error as expected from try(earth(cbind(Volume, Volume + 100) ~ ., data = trees, nfold = 3,     ncross = 3, varmod.method = "lm"))
+Got expected error from try(earth(cbind(Volume, Volume + 100) ~ ., data = trees, nfold = 3,     ncross = 3, varmod.method = "lm"))
+> 
+> options(warn=2)
+> # TODO column naming for the following maybe needs work?
+> #      nresponse="cbind(Volume, Volume + 100)2"  is confusing (2 should be in brackets?)
+> expect.err(try(plot(a)), "Defaulting to nresponse=1, see above messages")
+
+predict.earth[31,2]:
+       Volume cbind(Volume, Volume + 100)2
+1    8.883097                     108.8831
+2    9.909039                     109.9090
+3   10.593000                     110.5930
+... 16.406671                     116.4067
+31  75.905218                     175.9052
+
+predict.earth returned multiple columns (see above) but nresponse is not specified
+    Use the nresponse argument to specify a column.
+         Example: nresponse=2
+         Example: nresponse="cbind(Volume, Volume + 100)2"
+
+Error : (converted from warning) Defaulting to nresponse=1, see above messages
+Got expected error from try(plot(a))
+> options(warn=1)
 > 
 > # repeat but with x,y (not formula) call to earth
 > 
@@ -2311,12 +2961,12 @@ predict.earth: returning earth predictions
 [3,]   0.1880121
 
 > 
-> cat("--- earth.predict with NAs, with matrix interface ---\n")
---- earth.predict with NAs, with matrix interface ---
+> cat("--- earth.predict with NAs, with xy interface ---\n")
+--- earth.predict with NAs, with xy interface ---
 > 
 > iris.earth <- earth(iris[,1:3], iris[,4])
 > x <- iris[1,]
-> predict.with.message("default interface and vector", iris.earth, newdata=x)
+> predict.with.message("default interface and vector", iris.earth, newdata=x) # tests the "Fix: April 2010" in get.earthx()
 predict.earth  default interface and vector:
 get.earth.x from model.matrix.earth from predict.earth: x[1,5]:
   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
@@ -2330,7 +2980,7 @@ predict.earth with newdata: bx[1,9]:
   h(Petal.Length-4.7) h(Petal.Length-5.5)
 1                   0                   0
 predict.earth: returning earth predictions 
-      iris[,4]
+     iris[, 4]
 [1,] 0.2562505
 
 > x$Sepal.Width <- as.numeric(NA)
@@ -2348,8 +2998,8 @@ predict.earth with newdata: bx[1,9]:
   h(Petal.Length-4.7) h(Petal.Length-5.5)
 1                   0                   0
 predict.earth: returning earth predictions 
-     iris[,4]
-[1,]       NA
+     iris[, 4]
+[1,]        NA
 
 > x <- iris[1,]
 > x$Petal.Width <- as.numeric(NA) # Petal.Width is unused in the earth model
@@ -2367,7 +3017,7 @@ predict.earth with newdata: bx[1,9]:
   h(Petal.Length-4.7) h(Petal.Length-5.5)
 1                   0                   0
 predict.earth: returning earth predictions 
-      iris[,4]
+     iris[, 4]
 [1,] 0.2562505
 
 > 
@@ -2394,7 +3044,7 @@ predict.earth with newdata: bx[3,9]:
 2                   0                   0
 3                   0                   0
 predict.earth: returning earth predictions 
-      iris[,4]
+     iris[, 4]
 [1,] 0.2562505
 [2,] 0.1733787
 [3,] 0.1880121
@@ -2422,7 +3072,7 @@ predict.earth with newdata: bx[3,9]:
 2                   0                   0
 3                   0                   0
 predict.earth: returning earth predictions 
-      iris[,4]
+     iris[, 4]
 [1,] 0.2562505
 [2,]        NA
 [3,] 0.1880121
@@ -2451,7 +3101,7 @@ predict.earth with newdata: bx[3,9]:
 2                   0                   0
 3                   0                   0
 predict.earth: returning earth predictions 
-      iris[,4]
+     iris[, 4]
 [1,] 0.2562505
 [2,] 0.1733787
 [3,] 0.1880121
@@ -2636,7 +3286,7 @@ to earth(x=x, y=y, degree=degree, nk=nk)
 > # trace==2 so we print the "Fixed rank deficient bx by removing 2 terms, 7 terms remain" message
 > # TODO why are we getting the rank deficient message?
 > itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, smooth.col=0, trace=2)
-x[330,2] with colnames wind ""
+x[330,2] with colnames wind x2
 y[330,1] with colname y, and values 33, 34, 35, 36, 37, 38, 39, 4...
 Forward pass: minspan 5 endspan 8   x[330,2] 5.16 kB   bx[330,21] 54.1 kB
 
@@ -2646,9 +3296,9 @@ Forward pass: minspan 5 endspan 8   x[330,2] 5.16 kB   bx[330,21] 54.1 kB
 4      0.0906 0.1235      0.01274    1         wind           9  4             1 
 6      0.0821 0.1262     0.002668    1         wind           4  5             1 
 8      0.0730 0.1285     0.002307    1         wind           6  6             1 
-10     0.0633 0.1304     0.001925    2               1.7848e+08< 7             1 
-12     0.0534 0.1323     0.001868    2               1.7848e+08< 8             1 
-14     0.0432 0.1340     0.001792    2               1.7848e+08< 9             1 
+10     0.0633 0.1304     0.001925    2           x2  1.7848e+08< 7             1 
+12     0.0534 0.1323     0.001868    2           x2  1.7848e+08< 8             1 
+14     0.0432 0.1340     0.001792    2           x2  1.7848e+08< 9             1 
 16     0.0309 0.1340            0    -                                       reject (no DeltaRsq)
 
 RSq changed by less than 0.001 at 15 terms, 9 terms used (DeltaRSq 0)
@@ -3010,6 +3660,7 @@ GCV 13.89191    RSS 3890.408    GRSq 0.7842055    RSq 0.815755
 + }
 > test.plot.earth.args()
 ===caption [1] "test earth args"
+> par(org.par)
 > 
 > cat("--- test minspan --------------------------------\n")
 --- test minspan --------------------------------
@@ -3215,14 +3866,14 @@ itest 5   multiple responses func1 func7  degree 1  nk 51
 
 Error : pmethod="exhaustive" is not allowed with multiple response models
        (y has 2 columns, use trace=4 to see y)
-Got error as expected from try(test.two.responses(itest, func1, func7, nk = 51, degree = 1,     pmethod = "ex"))
+Got expected error from try(test.two.responses(itest, func1, func7, nk = 51, degree = 1,     pmethod = "ex"))
 > # expect pmethod="seq" cannot be used with multiple response models
 > expect.err(try(test.two.responses(itest, func1, func7, nk=51, degree=1, pmethod="seq")), "not allowed with multiple response models")
 itest 5   multiple responses func1 func7  degree 1  nk 51  
 
 Error : pmethod="seqrep" is not allowed with multiple response models
        (y has 2 columns, use trace=4 to see y)
-Got error as expected from try(test.two.responses(itest, func1, func7, nk = 51, degree = 1,     pmethod = "seq"))
+Got expected error from try(test.two.responses(itest, func1, func7, nk = 51, degree = 1,     pmethod = "seq"))
 > itest <- itest+1; a <- test.two.responses(itest, func1, func7, nk=51, degree=1)
 itest 6   multiple responses func1 func7  degree 1  nk 51  
 
@@ -3469,10 +4120,10 @@ Termination condition: RSq changed by less than 0.001 at 22 terms
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 11 (additive model)
 
-                           GCV       RSS      GRSq       RSq
-data.global[,1:2][1] 0.1186568  7.035159 0.9859153 0.9914796
-neg.eqn56noise       1.0576805 62.709877 0.8846994 0.9302502
-All                  1.1763373 69.745036 0.9331542 0.9595624
+                            GCV       RSS      GRSq       RSq
+data.global[, 1:2][1] 0.1186568  7.035159 0.9859153 0.9914796
+neg.eqn56noise        1.0576805 62.709877 0.8846994 0.9302502
+All                   1.1763373 69.745036 0.9331542 0.9595624
  plotmo grid:    x1         x2         x3          x4          x5
         -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
  plotmo grid:    x1         x2         x3          x4          x5
@@ -3509,10 +4160,10 @@ Termination condition: RSq changed by less than 0.001 at 36 terms
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-                           GCV       RSS      GRSq       RSq
-data.global[,1:2][1] 0.1491246  8.166063 0.9822988 0.9901100
-data.global[,1:2][2] 1.2644713 69.242451 0.8621565 0.9229843
-All                  1.4135959 77.408514 0.9196719 0.9551192
+                            GCV       RSS      GRSq       RSq
+data.global[, 1:2][1] 0.1491246  8.166063 0.9822988 0.9901100
+data.global[, 1:2][2] 1.2644713 69.242451 0.8621565 0.9229843
+All                   1.4135959 77.408514 0.9196719 0.9551192
  plotmo grid:    x1         x2         x3          x4          x5
         -0.02437858 0.03719751 -0.2437968 -0.07448578 -0.04164241
  plotmo grid:    x1         x2         x3          x4          x5
@@ -3524,35 +4175,35 @@ Call: earth(x=data.global[,c(-1,-2),drop=FALSE], y=data.global[,1:2],
             pmethod=pmethod, trace=trace, degree=degree, nk=nk,
             minspan=minspan)
 
-                 data.global[,1:2][1] data.global[,1:2][2]
-(Intercept)                 0.2818910            -0.199523
-h(0.565866-x1)             -0.5573832             0.701461
-h(x1-0.565866)              8.6735609            -6.756016
-h(x2-0.266987)              5.6617262            -3.485078
-h(x2-0.458619)             24.7167189           -41.977152
-h(x2-0.516206)            -26.6087010            42.046569
-h(x3-0.109801)              2.5861859            -2.829496
-h(0.26284-x3)              -2.9626317             2.501109
-h(-0.303396-x4)            -3.1086768             3.484234
-h(x4-0.124354)              2.6383691            -2.972662
-h(x5- -0.859935)            0.9423879            -0.854188
+                 data.global[, 1:2][1] data.global[, 1:2][2]
+(Intercept)                  0.2818910             -0.199523
+h(0.565866-x1)              -0.5573832              0.701461
+h(x1-0.565866)               8.6735609             -6.756016
+h(x2-0.266987)               5.6617262             -3.485078
+h(x2-0.458619)              24.7167189            -41.977152
+h(x2-0.516206)             -26.6087010             42.046569
+h(x3-0.109801)               2.5861859             -2.829496
+h(0.26284-x3)               -2.9626317              2.501109
+h(-0.303396-x4)             -3.1086768              3.484234
+h(x4-0.124354)               2.6383691             -2.972662
+h(x5- -0.859935)             0.9423879             -0.854188
 
 Selected 11 of 36 terms, and 5 of 5 predictors
 Termination condition: RSq changed by less than 0.001 at 36 terms
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-                           GCV       RSS      GRSq       RSq
-data.global[,1:2][1] 0.1491246  8.166063 0.9822988 0.9901100
-data.global[,1:2][2] 1.2644713 69.242451 0.8621565 0.9229843
-All                  1.4135959 77.408514 0.9196719 0.9551192
+                            GCV       RSS      GRSq       RSq
+data.global[, 1:2][1] 0.1491246  8.166063 0.9822988 0.9901100
+data.global[, 1:2][2] 1.2644713 69.242451 0.8621565 0.9229843
+All                   1.4135959 77.408514 0.9196719 0.9551192
 > printh(summary(a70, style="bf"))
 ===summary(a70, style = "bf") 
 Call: earth(x=data.global[,c(-1,-2),drop=FALSE], y=data.global[,1:2],
             pmethod=pmethod, trace=trace, degree=degree, nk=nk,
             minspan=minspan)
 
-data.global[,1:2][1] =
+data.global[, 1:2][1] =
   0.281891
   -  0.5573832 * bf1
   +   8.673561 * bf2
@@ -3576,7 +4227,7 @@ data.global[,1:2][1] =
    bf9  h(x4-0.124354)
   bf10  h(x5--0.859935)
 
-data.global[,1:2][2] =
+data.global[, 1:2][2] =
   -0.1995226
   +  0.7014611 * bf1
   -   6.756016 * bf2
@@ -3605,10 +4256,10 @@ Termination condition: RSq changed by less than 0.001 at 36 terms
 Importance: x3, x2, x4, x1, x5
 Number of terms at each degree of interaction: 1 10 (additive model)
 
-                           GCV       RSS      GRSq       RSq
-data.global[,1:2][1] 0.1491246  8.166063 0.9822988 0.9901100
-data.global[,1:2][2] 1.2644713 69.242451 0.8621565 0.9229843
-All                  1.4135959 77.408514 0.9196719 0.9551192
+                            GCV       RSS      GRSq       RSq
+data.global[, 1:2][1] 0.1491246  8.166063 0.9822988 0.9901100
+data.global[, 1:2][2] 1.2644713 69.242451 0.8621565 0.9229843
+All                   1.4135959 77.408514 0.9196719 0.9551192
 > 
 > N1 <- 100
 > set.seed(1)
@@ -3875,18 +4526,19 @@ All 6876.7859 1863004.66 0.3743779 0.4832712
 > a <- earth(ozone1[,-1], ozone1[,1], subset=train.subset, nprune=7, degree=2)
 > printh(a)
 ===a 
-Selected 7 of 21 terms, and 5 of 9 predictors
+Selected 7 of 21 terms, and 5 of 9 predictors (nprune=7)
 Termination condition: Reached nk 21
 Importance: temp, ibh, humidity, doy, dpg, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 4 2
 GCV 17.531    RSS 4084.192    GRSq 0.7243851    RSq 0.7549275
+> plot(a)
 > if (PLOT)
 +     plotmo(a, caption="test subset: earth(ozone1[,-1], ozone1[,1], subset=train.subset)", trace=-1)
 > 
 > a <- earth(ozone1[train.subset,-1], ozone1[train.subset,1], nprune=7, degree=2)
 > printh(a)
 ===a 
-Selected 7 of 21 terms, and 5 of 9 predictors
+Selected 7 of 21 terms, and 5 of 9 predictors (nprune=7)
 Termination condition: Reached nk 21
 Importance: temp, ibh, humidity, doy, dpg, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 4 2
@@ -3897,7 +4549,7 @@ GCV 17.531    RSS 4084.192    GRSq 0.7243851    RSq 0.7549275
 > a <- earth(O3 ~ ., data=ozone1, subset=train.subset, nprune=7, degree=2)
 > printh(a)
 ===a 
-Selected 7 of 21 terms, and 5 of 9 predictors
+Selected 7 of 21 terms, and 5 of 9 predictors (nprune=7)
 Termination condition: Reached nk 21
 Importance: temp, ibh, humidity, doy, dpg, vh-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 4 2
@@ -3931,21 +4583,21 @@ GCV 17.30867    RSS 3795.372    GRSq 0.7311301    RSq 0.8202558
 > a <- earth(O3 ~ ., data=ozone1, nk=31, pmethod="n", degree=2)
 > a.none <- printh(update(a, nprune=10, pmethod="n"))
 ===update(a, nprune = 10, pmethod = "n") 
-Selected 10 of 31 terms, and 5 of 9 predictors (pmethod="none")
+Selected 10 of 31 terms, and 5 of 9 predictors (pmethod="none") (nprune=10)
 Termination condition: Reached nk 31
 Importance: temp, ibt-unused, humidity, doy, dpg, vis-unused, wind-unused, ...
 Number of terms at each degree of interaction: 1 6 3
 GCV 14.03861    RSS 3996.421    GRSq 0.7819266    RSq 0.8107343
 > printh(update(a.none, pmethod="b"))
 ===update(a.none, pmethod = "b") 
-Selected 10 of 31 terms, and 8 of 9 predictors
+Selected 10 of 31 terms, and 8 of 9 predictors (nprune=10)
 Termination condition: Reached nk 31
 Importance: temp, ibt, humidity, doy, dpg, vis, wind, ibh, vh-unused
 Number of terms at each degree of interaction: 1 5 4
 GCV 14.03861    RSS 3996.421    GRSq 0.7819266    RSq 0.8107343
 > printh(update(a.none, nprune=4, pmethod="e"))
 ===update(a.none, nprune = 4, pmethod = "e") 
-Selected 4 of 31 terms, and 3 of 9 predictors (pmethod="exhaustive")
+Selected 4 of 31 terms, and 3 of 9 predictors (pmethod="exhaustive") (nprune=4)
 Termination condition: Reached nk 31
 Importance: temp, ibh, humidity, vh-unused, wind-unused, dpg-unused, ...
 Number of terms at each degree of interaction: 1 2 1
@@ -3953,7 +4605,7 @@ GCV 18.56782    RSS 5815.792    GRSq 0.7115708    RSq 0.7245711
 > a.updated <- update(a.none, nprune=10, pmethod="b")
 > printh(a.updated)
 ===a.updated 
-Selected 10 of 31 terms, and 8 of 9 predictors
+Selected 10 of 31 terms, and 8 of 9 predictors (nprune=10)
 Termination condition: Reached nk 31
 Importance: temp, ibt, humidity, doy, dpg, vis, wind, ibh, vh-unused
 Number of terms at each degree of interaction: 1 5 4
@@ -3961,7 +4613,7 @@ GCV 14.03861    RSS 3996.421    GRSq 0.7819266    RSq 0.8107343
 > a.backwards <- update(a, nprune=10, pmethod="b")
 > printh(a.backwards)
 ===a.backwards 
-Selected 10 of 31 terms, and 8 of 9 predictors
+Selected 10 of 31 terms, and 8 of 9 predictors (nprune=10)
 Termination condition: Reached nk 31
 Importance: temp, ibt, humidity, doy, dpg, vis, wind, ibh, vh-unused
 Number of terms at each degree of interaction: 1 5 4
@@ -3971,7 +4623,7 @@ GCV 14.03861    RSS 3996.421    GRSq 0.7819266    RSq 0.8107343
 > a <- earth(O3 ~ ., data=ozone1, nk=31, nprune=10, pmethod="b", degree=2)
 > printh(a)
 ===a 
-Selected 10 of 31 terms, and 8 of 9 predictors
+Selected 10 of 31 terms, and 8 of 9 predictors (nprune=10)
 Termination condition: Reached nk 31
 Importance: temp, ibt, humidity, doy, dpg, vis, wind, ibh, vh-unused
 Number of terms at each degree of interaction: 1 5 4
@@ -3987,12 +4639,11 @@ GCV 14.03861    RSS 3996.421    GRSq 0.7819266    RSq 0.8107343
 > x2 <- runif(10)
 > y <- x1 + x2
 > data=data.frame(x1=x1, x2=x2, y=y)
-> OLD.PAR <- par(no.readonly=TRUE)
 > par(mfrow = c(6, 4), mar = c(3, 3, 3, 1), mgp = c(1.5, 0.5, 0))
 > 
 > expect.err(try(earth(y~., data=data, Auto.linpr=99)), "Auto.linpreds=99 but it should be FALSE, TRUE, 0, or 1")
 Error : Auto.linpreds=99 but it should be FALSE, TRUE, 0, or 1
-Got error as expected from try(earth(y ~ ., data = data, Auto.linpr = 99))
+Got expected error from try(earth(y ~ ., data = data, Auto.linpr = 99))
 > 
 > a <- earth(y~., data=data, trace=2) # default Auto.linpreds=TRUE
 x[10,2] with colnames x1 x2
@@ -4160,7 +4811,7 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 > print(summary(a5, style="pmax"))
 Call: earth(x=data[,1:2], y=data[,3], Auto.linpreds=FALSE)
 
-data[,3] =
+data[, 3] =
   0.4714001
   + 1 * pmax(0,         x1 - 0.03932234) 
   - 1 * pmax(0,  0.4320778 -         x2) 
@@ -4179,7 +4830,7 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 > empty.plot()
 > empty.plot()
 > stopifnot(isTRUE(all.equal(as.vector(predict(a1)), as.vector(predict(a5)))))
-> par(OLD.PAR)
+> par(org.par)
 > 
 > # more complicated example (with Auto.linpreds=TRUE, vh enters linearly in a degree2 term)
 > data(ozone1)
@@ -4236,7 +4887,6 @@ GCV 7.21889    RSS 52.12038    GRSq -0.05294658    RSq 0.8416852
 > stopifnot(all.equal(predict(mod.none1), predict(mod.none2)))
 > 
 > # example figure in inst/doc
-> OLD.PAR <- par(no.readonly=TRUE)
 > par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.7))
 > set.seed(2017)
 > offset <- 98
@@ -4286,7 +4936,7 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 +        lty=c(0, 1), lwd=c(0, 2), pch=c(20, NA), col=c("red", 1))
 > text(x=offset+4, y=offset-2.4, cex=.9, "Same data as previous graph")
 > stopifnot(isTRUE(all.equal(predict(autolinTRUE), predict(autolinFALSE))))
-> par(OLD.PAR)
+> par(org.par)
 > 
 > # test Auto.linpreds with data sent in by a user
 > ndata <- matrix(data=c(
@@ -4504,7 +5154,7 @@ GCV 2.354961    RSS 32.4543    GRSq 0.2228618    RSq 0.6433736
 > 
 > expect.err(try(earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE, pmethod="ex")), "not allowed with") # pmethod="ex" cannot be used with Force.xtx.prune
 Error : pmethod="exhaustive" is not allowed with 'eval.subsets.xtx'
-Got error as expected from try(earth(Volume ~ ., data = trees, Force.xtx.prune = TRUE, pmethod = "ex"))
+Got expected error from try(earth(Volume ~ ., data = trees, Force.xtx.prune = TRUE, pmethod = "ex"))
 > 
 > m1 <- earth(Volume ~ ., data = trees)
 > m2 <- earth(Volume ~ ., data = trees, Force.xtx.prune=TRUE)
@@ -4818,9 +5468,9 @@ After pruning pass GRSq 0.96 RSq 0.974
 a7update a7: models identical
 
 > 
-> cat("\n----- update and keepxy, matrix interface--------------------------\n")
+> cat("\n----- update and keepxy, xy interface--------------------------\n")
 
------ update and keepxy, matrix interface--------------------------
+----- update and keepxy, xy interface--------------------------
 > 
 > Volume <- trees$Volume
 > x <- cbind(trees$Height, trees$Volume)
@@ -5635,14 +6285,14 @@ GCV 0    RSS 0    GRSq 1    RSq 1
 > data(etitanic)
 > attach(etitanic)
 > a1 <- earth(pclass, sex, degree=2, trace=2)        # x=unordered y=unordered
-x[1046,2] with colnames x2nd x3rd
+x[1046,2] with colnames 2nd 3rd
 y[1046,1] with colname male, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
 Forward pass: minspan 6 endspan 8   x[1046,2] 16.3 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
-2      0.0133 0.0180      0.01797    2         x3rd           0< 2             1 
-4      0.0116 0.0210     0.003025    1         x2nd           0< 3             1 
+2      0.0133 0.0180      0.01797    2          3rd           0< 2             1 
+4      0.0116 0.0210     0.003025    1          2nd           0< 3             1 
 6      0.0068 0.0210            0    -                                       reject (no DeltaRsq)
 
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
@@ -5656,11 +6306,11 @@ Call: earth(x=pclass, y=sex, trace=2, degree=2)
 
             coefficients
 (Intercept)    0.5669725
-x3rd           0.1296343
+3rd            0.1296343
 
 Selected 2 of 3 terms, and 1 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
-Importance: x3rd, x2nd-unused
+Importance: 3rd, 2nd-unused
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > printh(summary(a1, style="bf"))
@@ -5671,23 +6321,23 @@ male =
   0.5669725
   + 0.1296343 * bf1
 
-   bf1  x3rd
+   bf1  3rd
 
 Selected 2 of 3 terms, and 1 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
-Importance: x3rd, x2nd-unused
+Importance: 3rd, 2nd-unused
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 0.2306901    RSS 239.6897    GRSq 0.01325722    RSq 0.01797283
 > if (PLOT)
 +     plot(a1)
 > a2 <- earth(sex, pclass, degree=2, trace=2)        # x=unordered y=unordered
-x[1046,1] with colname xmale, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
+x[1046,1] with colname male, and values 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,...
 y[1046,3] with colnames 1st 2nd 3rd
 Forward pass: minspan 5 endspan 7   x[1046,1] 8.17 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
-2      0.0073 0.0120      0.01202    1        xmale           0< 2             1 
+2      0.0073 0.0120      0.01202    1         male           0< 2             1 
 4      0.0025 0.0120            0    -                                       reject (no DeltaRsq)
 
 RSq changed by less than 0.001 at 3 terms, 2 terms used (DeltaRSq 0)
@@ -5702,11 +6352,11 @@ Call: earth(x=sex, y=pclass, trace=2, degree=2)
 
                    1st         2nd       3rd
 (Intercept)  0.3427835  0.26546392 0.3917526
-xmale       -0.1133002 -0.02534234 0.1386426
+male        -0.1133002 -0.02534234 0.1386426
 
 Selected 2 of 2 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 2 terms
-Importance: xmale
+Importance: male
 Number of terms at each degree of interaction: 1 1 (additive model)
 
           GCV      RSS         GRSq          RSq
@@ -5717,14 +6367,14 @@ All 0.6311974 655.8215  0.007279765 0.0120239411
 > if (PLOT)
 +     plot(a2, nresponse=1)
 > a3 <- earth(pclass, age, degree=2, trace=2)        # x=unordered y=numeric
-x[1046,2] with colnames x2nd x3rd
+x[1046,2] with colnames 2nd 3rd
 y[1046,1] with colname age, and values 29, 0.9167, 2, 30, 25, 48, 63...
 Forward pass: minspan 6 endspan 8   x[1046,2] 16.3 kB   bx[1046,21] 172 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
-2      0.1094 0.1136       0.1136    2         x3rd           0< 2             1 
-4      0.1640 0.1720      0.05838    1         x2nd           0< 3             1 
+2      0.1094 0.1136       0.1136    2          3rd           0< 2             1 
+4      0.1640 0.1720      0.05838    1          2nd           0< 3             1 
 6      0.1600 0.1720            0    -                                       reject (no DeltaRsq)
 
 RSq changed by less than 0.001 at 5 terms, 3 terms used (DeltaRSq 0)
@@ -5738,12 +6388,12 @@ Call: earth(x=pclass, y=age, trace=2, degree=2)
 
             coefficients
 (Intercept)    39.159918
-x2nd           -9.653213
-x3rd          -14.343551
+2nd            -9.653213
+3rd           -14.343551
 
 Selected 3 of 3 terms, and 2 of 2 predictors
 Termination condition: RSq changed by less than 0.001 at 3 terms
-Importance: x3rd, x2nd
+Importance: 3rd, 2nd
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV 173.8417    RSS 179758.3    GRSq 0.1640128    RSq 0.1719935
 > if (PLOT)
@@ -6193,14 +6843,14 @@ GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
 ===head(vowels) 
 [1] 0 0 3 0 3 0
 > a8 <- earth(ff, vowels, degree=1, trace=2)        # x=ordered y=numeric
-x[30,1] with colname x, and values 19, 20, 1, 20, 9, 19, 20, 9, ...
+x[30,1] with colname ff, and values 19, 20, 1, 20, 9, 19, 20, 9, ...
 y[30,1] with colname vowels, and values 0, 0, 3, 0, 3, 0, 0, 3, 0, 0,...
 Forward pass: minspan 3 endspan 7   x[30,1] 240 Bytes   bx[30,21] 4.92 kB
 
          GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
 1      0.0000 0.0000                    (Intercept)
-2      0.5906 0.6958       0.6958    1            x           9  2   3         1 
-4      0.5250 0.7012     0.005454    1            x          19  4             1 
+2      0.5906 0.6958       0.6958    1           ff           9  2   3         1 
+4      0.5250 0.7012     0.005454    1           ff          19  4             1 
 6      0.4302 0.7012            0    -                                       reject (no DeltaRsq)
 
 RSq changed by less than 0.001 at 5 terms, 4 terms used (DeltaRSq 0)
@@ -6214,17 +6864,21 @@ Call: earth(x=ff, y=vowels, trace=2, degree=1)
 
             coefficients
 (Intercept)    2.7464305
-h(9-x)        -0.1445003
-h(x-9)        -0.2609730
+h(9-ff)       -0.1445003
+h(ff-9)       -0.2609730
 
 Selected 3 of 4 terms, and 1 of 1 predictors
 Termination condition: RSq changed by less than 0.001 at 4 terms
-Importance: x
+Importance: ff
 Number of terms at each degree of interaction: 1 2 (additive model)
 GCV 0.828019    RSS 17.2504    GRSq 0.5906149    RSq 0.6957602
 > if (PLOT)
 +     plot(a8, nresponse=1)
 > plotmo(a8, caption="a8", pt.col=3)
+Warning: Cannot determine which variables to plot (use all1=TRUE?)
+             single.names=c(ff,ff)
+             colnames(x)=x
+
 > a9 <- earth(vowels, ff, degree=1, trace=2)        # x=numeric y=ordered
 x[30,1] with colname vowels, and values 0, 0, 3, 0, 3, 0, 0, 3, 0, 0,...
 y[30,1] with colname ff, and values 19, 20, 1, 20, 9, 19, 20, 9, ...
@@ -6343,7 +6997,14 @@ All 0.0178708309 1.35264319 0.9416429 0.9549327
 +     m3$gcv * length(wp), "\n")
 response weights: wp 1 2 earth gcv 0.01787083 mars gcv 0.007495028 mars gcv*length(wp) 0.01499006 
 > 
-> e4 <- earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))
+> expect.err(try(earth(cbind(O3, O3) ~ ., data=ozone1, wp=c(1, .01))),
++            "Duplicate colname in cbind(O3, O3) (colnames are \"O3\", \"O3\")")
+Error : Duplicate colname in cbind(O3, O3) (colnames are "O3", "O3")
+Got expected error from try(earth(cbind(O3, O3) ~ ., data = ozone1, wp = c(1, 0.01)))
+> 
+> oz2 <- ozone1
+> oz2$O3a <- ozone1$O3
+> e4 <- earth(cbind(O3, O3a) ~ ., data=oz2, wp=c(1, .01))
 > printh(e4) # both sub models should be the same
 ===e4 
 Selected 12 of 20 terms, and 9 of 9 predictors
@@ -6351,15 +7012,15 @@ Termination condition: Reached nk 21
 Importance: temp, humidity, dpg, doy, vh, vis, ibt, ibh, wind
 Number of terms at each degree of interaction: 1 11 (additive model)
 
-          GCV      RSS      GRSq       RSq
-O3   14.61004 4172.671 0.7730502 0.8023874
-O3.1 14.61004 4172.671 0.7730502 0.8023874
-All  29.22008 8345.342 0.7730502 0.8023874
+         GCV      RSS      GRSq       RSq
+O3  14.61004 4172.671 0.7730502 0.8023874
+O3a 14.61004 4172.671 0.7730502 0.8023874
+All 29.22008 8345.342 0.7730502 0.8023874
 > printh(summary(e4))
 ===summary(e4) 
-Call: earth(formula=cbind(O3,O3)~., data=ozone1, wp=c(1,0.01))
+Call: earth(formula=cbind(O3,O3a)~., data=oz2, wp=c(1,0.01))
 
-                       O3       O3.1
+                       O3        O3a
 (Intercept)    14.1595171 14.1595171
 h(5860-vh)     -0.0137728 -0.0137728
 h(wind-3)      -0.3377222 -0.3377222
@@ -6378,10 +7039,10 @@ Termination condition: Reached nk 21
 Importance: temp, humidity, dpg, doy, vh, vis, ibt, ibh, wind
 Number of terms at each degree of interaction: 1 11 (additive model)
 
-          GCV      RSS      GRSq       RSq
-O3   14.61004 4172.671 0.7730502 0.8023874
-O3.1 14.61004 4172.671 0.7730502 0.8023874
-All  29.22008 8345.342 0.7730502 0.8023874
+         GCV      RSS      GRSq       RSq
+O3  14.61004 4172.671 0.7730502 0.8023874
+O3a 14.61004 4172.671 0.7730502 0.8023874
+All 29.22008 8345.342 0.7730502 0.8023874
 > 
 > # wp with formula interface
 > e5 <- earth(cbind(O3, wind) ~ ., data=ozone1, wp=c(1, 1))
@@ -6788,9 +7449,9 @@ Number of terms at each degree of interaction: 1 5 6
 GCV 13.40805    RSS 3693.401    GRSq 0.7917216    RSq 0.825085
 > plotmo(a, trace=2, caption="getdata earth test1")
 plotmo trace 2: plotmo(object=a, caption="getdata earth test1", trace=2)
+--get.model.env for object with class earth
 object call is earth(formula=O3~., data=se, keepxy=0, degree=2)
---get.model.env for earth object
-using the environment saved with the earth model: R_GlobalEnv
+using the environment saved in $terms of the earth model: R_GlobalEnv
 --plotmo_prolog for earth object 'a'
 --plotmo_x for earth object
 
@@ -6800,7 +7461,7 @@ object$x is NULL (and it has no colnames)
 object call is earth(formula=O3~., data=se, keepxy=0, degree=2)
 
 get.x.from.model.frame:
-formula(object) is O3~vh+wind+humidity+temp+ibh+dpg+ibt+vis+doy
+formula(object) is O3 ~ vh + wind + humidity + temp + ibh + dpg + ibt + vis ...
 naked formula is the same
 formula is valid, now looking for data for the model.frame
 object$model is NULL (and it has no colnames)
@@ -6809,7 +7470,7 @@ argument 2 of the call is 'data'
 eval(call$data, R_GlobalEnv)
 call$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
-stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=call$data, na.action="na.fail")
+stats::model.frame(O3 ~ vh + wind + humidity + temp + ib..., data=call$data, na.action="na.fail")
 x=model.frame[,-1] is usable and has column names vh wind humidity temp ibh dpg ibt vis doy
 plotmo_x returned[330,9]:
       vh wind humidity temp  ibh dpg ibt vis doy
@@ -6863,8 +7524,7 @@ object$y is NULL (and it has no colnames)
 object call is earth(formula=O3~., data=se, keepxy=0, degree=2)
 
 get.y.from.model.frame:
-formula(object) is O3~vh+wind+humidity+temp+ibh+dpg+ibt+vis+doy
-naked formula is the same
+formula(object) is O3 ~ vh + wind + humidity + temp + ibh + dpg + ibt + vis ...
 formula is valid, now looking for data for the model.frame
 object$model is NULL (and it has no colnames)
 object$data is NULL (and it has no colnames)
@@ -6872,7 +7532,7 @@ argument 2 of the call is 'data'
 eval(call$data, R_GlobalEnv)
 call$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
-stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=call$data, na.action="na.fail")
+stats::model.frame(O3 ~ vh + wind + humidity + temp + ib..., data=call$data, na.action="na.fail")
 y=model.frame[,1] is usable and has column name O3
 plotmo_y returned[330,1]:
     O3
@@ -6900,7 +7560,7 @@ object$y is NULL (and it has no colnames)
 object call is earth(formula=O3~., data=se, keepxy=0, degree=2)
 
 get.y.from.model.frame:
-formula(object) is O3~vh+wind+humidity+temp+ibh+dpg+ibt+vis+doy
+formula(object) is O3 ~ vh + wind + humidity + temp + ibh + dpg + ibt + vis ...
 formula is valid, now looking for data for the model.frame
 object$model is NULL (and it has no colnames)
 object$data is NULL (and it has no colnames)
@@ -6908,9 +7568,9 @@ argument 2 of the call is 'data'
 eval(call$data, R_GlobalEnv)
 call$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
-stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=call$data, na.action="na.fail")
+stats::model.frame(O3 ~ vh + wind + humidity + temp + ib..., data=call$data, na.action="na.fail")
 y=model.frame[,1] is usable and has column name O3
-got model response from model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+...,
+got model response from model.frame(O3 ~ vh + wind + humidity + temp + ib...,
                                     data=call$data, na.action="na.fail")
 plotmo_y returned[330,1]:
     O3
@@ -7085,9 +7745,9 @@ Number of terms at each degree of interaction: 1 5 6
 GCV 13.40805    RSS 3693.401    GRSq 0.7917216    RSq 0.825085
 > plotmo(a, trace=2, caption="getdata earth test3")
 plotmo trace 2: plotmo(object=a, caption="getdata earth test3", trace=2)
+--get.model.env for object with class earth
 object call is earth(formula=O3~., data=se, keepxy=1, degree=2)
---get.model.env for earth object
-using the environment saved with the earth model: R_GlobalEnv
+using the environment saved in $terms of the earth model: R_GlobalEnv
 --plotmo_prolog for earth object 'a'
 --plotmo_x for earth object
 
@@ -7097,13 +7757,13 @@ object$x is NULL (and it has no colnames)
 object call is earth(formula=O3~., data=se, keepxy=1, degree=2)
 
 get.x.from.model.frame:
-formula(object) is O3~vh+wind+humidity+temp+ibh+dpg+ibt+vis+doy
+formula(object) is O3 ~ vh + wind + humidity + temp + ibh + dpg + ibt + vis ...
 naked formula is the same
 formula is valid, now looking for data for the model.frame
 object$model is NULL (and it has no colnames)
 object$data is usable and has column names O3 vh wind humidity temp ibh dpg ibt vis doy
 na.action(object) is "na.fail"
-stats::model.frame(O3~vh+wind+humidity+temp+ibh+dpg+ibt+..., data=object$data, na.action="na.fail")
+stats::model.frame(O3 ~ vh + wind + humidity + temp + ib..., data=object$data, na.action="na.fail")
 x=model.frame[,-1] is usable and has column names vh wind humidity temp ibh dpg ibt vis doy
 plotmo_x returned[330,9]:
       vh wind humidity temp  ibh dpg ibt vis doy
@@ -7327,7 +7987,7 @@ Looked unsuccessfully for the original predictors in the following places:
 (3) getCall(object)$x: NULL
 
 Error : cannot get the original model predictors
-Got error as expected from try(plotmo(a, trace = 0, caption = "getdata earth test4"))
+Got expected error from try(plotmo(a, trace = 0, caption = "getdata earth test4"))
 > 
 > # test the way plotmo gets the data with earth with the default interface
 > se <- ozone1
@@ -7427,7 +8087,7 @@ Looked unsuccessfully for the original predictors in the following places:
 (3) getCall(object)$x: NULL
 
 Error : cannot get the original model predictors
-Got error as expected from try(plotmo(a, trace = 0, caption = "getdata earth test8"))
+Got expected error from try(plotmo(a, trace = 0, caption = "getdata earth test8"))
 > se <- ozone1
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=0)
 > # TODO error message could be improved here
@@ -7443,7 +8103,7 @@ Looked unsuccessfully for the original predictors in the following places:
 (3) getCall(object)$x: undefined columns selected
 
 Error : cannot get the original model predictors
-Got error as expected from try(plotmo(a, trace = 0, caption = "getdata earth test9"))
+Got expected error from try(plotmo(a, trace = 0, caption = "getdata earth test9"))
 > se <- ozone1
 > a <- earth(se[,2:10], se[,1], degree=2, keepxy=TRUE)
 > se$vh <- NULL # vh is unused (but plotmo still needs it --- why?)
@@ -7621,7 +8281,7 @@ Looked unsuccessfully for the original predictors in the following places:
 (3) getCall(object)$x: less than three rows
 
 Error : cannot get the original model predictors
-Got error as expected from try(plotmo(a, trace = 0, caption = "getdata lm test4"))
+Got expected error from try(plotmo(a, trace = 0, caption = "getdata lm test4"))
 > se <- ozone1
 > a <- lm(O3 ~ ., data=se, x=1, y=1)
 > se <- 77
@@ -7671,7 +8331,7 @@ Looked unsuccessfully for the original predictors in the following places:
 (3) getCall(object)$x: NULL
 
 Error : cannot get the original model predictors
-Got error as expected from try(plotmo(a, trace = 0, caption = "getdata lm test6"))
+Got expected error from try(plotmo(a, trace = 0, caption = "getdata lm test6"))
 > 
 > cat("test fixed.point warning in print.summary.earth\n")
 test fixed.point warning in print.summary.earth
@@ -7731,7 +8391,7 @@ RSq 0.919 on newdata (5 cases)
 > cat("summary(a.xy.trees, newdata=trees[1:5,])\n")
 summary(a.xy.trees, newdata=trees[1:5,])
 > a.xy.trees.summary <- print(summary(a.xy.trees, newdata=trees[1:5,]))
-Assuming response trees[,3] implies that the response column is 3
+Assuming response trees[, 3] implies that the response column is  3
 RSq 0.919 on newdata (5 cases)
 > stopifnot(a.xy.trees.summary$newrsq == a.trees.summary$newrsq)
 > 
@@ -7742,8 +8402,8 @@ summary(a.xy1.trees, newdata=trees[1:5,])
 RSq 0.919 on newdata (5 cases)
 > stopifnot(a.xy1.trees.summary$newrsq == a.trees.summary$newrsq)
 > 
-> cat("--- ../../tests/test.earth.R -------------------------\n")
---- ../../tests/test.earth.R -------------------------
+> cat("--- /a/r/earth/tests/test.earth.R -------------------------\n")
+--- /a/r/earth/tests/test.earth.R -------------------------
 > 
 > options(options.old)
 > source("../../tests/test.earth.R")
@@ -8192,6 +8852,133 @@ check.model.matrix earth.girth.xy x,y 14 :
 check.model.matrix earth.girth.xy x,y 15 :
   Girth Height
 3   8.8     63
+> 
+> cat("--- example in earth vignette \"How do I get p values for earth model coefficients?\" ---\n")
+--- example in earth vignette "How do I get p values for earth model coefficients?" ---
+> 
+> earth.mod <- earth(Volume~., data=trees) # standard earth model
+> bx <- earth.mod$bx[,-1]                  # earth model's basis mat (-1 to drop intercept)
+> bx <- as.data.frame(bx)                  # lm requires a data frame
+> bx$Volume <- trees$Volume                # add Volume to data
+> lm.mod <- lm(Volume~., data=bx)          # standard linear regression on earth's basis mat
+> summary(lm.mod)                          # prints p values
+
+Call:
+lm(formula = Volume ~ ., data = bx)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-4.977 -2.178  0.083  1.376  5.371 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       29.060      1.073   27.07  < 2e-16 ***
+`h(Girth-14.2)`    6.230      0.390   15.99  2.7e-15 ***
+`h(14.2-Girth)`   -3.420      0.331  -10.32  7.2e-11 ***
+`h(Height-75)`     0.581      0.159    3.66   0.0011 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.78 on 27 degrees of freedom
+Multiple R-squared:  0.974,	Adjusted R-squared:  0.971 
+F-statistic:  340 on 3 and 27 DF,  p-value: <2e-16
+
+> 
+> remove(earth.mod, bx, lm.mod) # tidy up
+> 
+> cat("--- examples in model.matrix.earth.Rd ---------------------------------------\n")
+--- examples in model.matrix.earth.Rd ---------------------------------------
+> 
+> # Example 1
+> data(trees)
+> earth.mod <- earth(Volume ~ ., data = trees) # standard earth model
+> summary(earth.mod, decomp = "none")   # "none" to print terms in same order as lm.mod below
+Call: earth(formula=Volume~., data=trees)
+
+              coefficients
+(Intercept)         29.060
+h(Girth-14.2)        6.230
+h(14.2-Girth)       -3.420
+h(Height-75)         0.581
+
+Selected 4 of 5 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 5 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.3    RSS 209    GRSq 0.96    RSq 0.974
+> 
+> bx <- model.matrix(earth.mod)         # equivalent to bx <- earth.mod$bx
+> lm.mod <- lm(trees$Volume ~ bx[,-1])  # -1 to drop intercept
+> summary(lm.mod)                       # yields same coeffs as above summary
+
+Call:
+lm(formula = trees$Volume ~ bx[, -1])
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-4.977 -2.178  0.083  1.376  5.371 
+
+Coefficients:
+                      Estimate Std. Error t value Pr(>|t|)    
+(Intercept)             29.060      1.073   27.07  < 2e-16 ***
+bx[, -1]h(Girth-14.2)    6.230      0.390   15.99  2.7e-15 ***
+bx[, -1]h(14.2-Girth)   -3.420      0.331  -10.32  7.2e-11 ***
+bx[, -1]h(Height-75)     0.581      0.159    3.66   0.0011 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.78 on 27 degrees of freedom
+Multiple R-squared:  0.974,	Adjusted R-squared:  0.971 
+F-statistic:  340 on 3 and 27 DF,  p-value: <2e-16
+
+>                                       # displayed t values are not meaningful
+> 
+> # Example 2
+> earth.mod <- earth(Volume~., data=trees) # standard earth model
+> summary(earth.mod, decomp = "none") # "none" to print terms in same order as lm.mod below
+Call: earth(formula=Volume~., data=trees)
+
+              coefficients
+(Intercept)         29.060
+h(Girth-14.2)        6.230
+h(14.2-Girth)       -3.420
+h(Height-75)         0.581
+
+Selected 4 of 5 terms, and 2 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 5 terms
+Importance: Girth, Height
+Number of terms at each degree of interaction: 1 3 (additive model)
+GCV 11.3    RSS 209    GRSq 0.96    RSq 0.974
+> bx <- model.matrix(earth.mod)       # earth model's basis mat (equivalent to bx <- earth.mod$bx)
+> bx <- bx[, -1, drop=FALSE]          # -1 to drop intercept
+> bx <- as.data.frame(bx)             # lm requires a data frame
+> bx$Volume <- trees$Volume           # add Volume to data
+> lm.mod <- lm(Volume~., data=bx)     # standard linear regression on earth's basis mat
+> summary(lm.mod)                     # yields same coeffs as above summary
+
+Call:
+lm(formula = Volume ~ ., data = bx)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-4.977 -2.178  0.083  1.376  5.371 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       29.060      1.073   27.07  < 2e-16 ***
+`h(Girth-14.2)`    6.230      0.390   15.99  2.7e-15 ***
+`h(14.2-Girth)`   -3.420      0.331  -10.32  7.2e-11 ***
+`h(Height-75)`     0.581      0.159    3.66   0.0011 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.78 on 27 degrees of freedom
+Multiple R-squared:  0.974,	Adjusted R-squared:  0.971 
+F-statistic:  340 on 3 and 27 DF,  p-value: <2e-16
+
+>                                     # displayed t values are not meaningful
+> 
+> remove(earth.mod, bx, lm.mod) # tidy up
 > 
 > cat("--- compare backward, none, exhaustive, forward, seqrep ---------------------\n")
 --- compare backward, none, exhaustive, forward, seqrep ---------------------

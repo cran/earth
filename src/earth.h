@@ -108,7 +108,7 @@ void Earth(
     const double NewVarPenalty,  // in: penalty for adding a new variable
     const int LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
     const double AdjustEndSpan,  // in: for adjusting endspan for interaction terms
-    const bool AutoLinPreds,      // in: assume predictor linear if knot is max predictor value
+    const bool AutoLinPreds,     // in: assume predictor linear if knot is max predictor value
     const bool UseBetaCache,     // in: 1 to use the beta cache, for speed
     const double Trace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning
     const char* sPredNames[]);   // in: predictor names in trace printfs, can be NULL

@@ -21,16 +21,17 @@ strip.space <- function(s) gsub("[ \t\n]", "", s)
 # test that we got an error as expected from a try() call
 expect.err <- function(object, expected.msg="")
 {
-    if(class(object)[1] == "try-error") {
+    if(class(object)[1] != "try-error")
+        stop("Did not get expected error: ", expected.msg)
+    else {
         msg <- attr(object, "condition")$message[1]
         if(length(grep(expected.msg, msg, fixed=TRUE)))
-            cat0("Got error as expected from ",
+            cat0("Got expected error from ",
                  deparse(substitute(object)), "\n")
         else
             stop(sprint("Expected: %s\n  Got:      %s",
-                         expected.msg, substr(msg[1], 1, 1000)))
-    } else
-        stop("Did not get expected error: ", expected.msg)
+                        expected.msg, substr(msg[1], 1, 1000)))
+    }
 }
 empty.plot <- function()
 {
@@ -39,5 +40,5 @@ empty.plot <- function()
 options(warn=1) # print warnings as they occur
 if(!interactive())
     postscript(paper="letter")
-old.par <- par(no.readonly=TRUE)
-set.seed(2019)
+org.par <- par(no.readonly=TRUE)
+set.seed(2020)

@@ -2,7 +2,7 @@
 
 source("test.prolog.R")
 library(earth)
-options(warn=2)
+options(warn=1) # print warnings as they occur
 printh <- function(caption)
     cat("===", caption, "\n", sep="")
 
@@ -22,7 +22,6 @@ multifigure <- function(caption, nrow=3, ncol=3)
 }
 do.caption <- function() # must be called _after_ first plot on new page
     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
-old.par <- par(no.readonly=TRUE)
 
 multifigure("test predict.earth with pints", 2, 2)
 
@@ -120,9 +119,9 @@ plot(mod.temp.vh.doy, versus="temp", level=.9, caption="", main="temp on same pa
 
 # plot.earth will silently not plots it cannot plot below, so 1:9 becomes c(3,5,6)
 plot(mod.temp.vh.doy, which=1:9, versus="v", info=T, caption='which=c(3,5) versus="v" info=T')
+par(org.par)
 
 # versus="b:"
-
 plot(mod.temp.vh.doy, versus="b:", level=.9,
      caption="plot.earth versus=\"b:\"")
 
@@ -154,9 +153,7 @@ expect.err(try(plot(mod.temp.vh.doy, versus=2:3)))
 plot(mod.temp.vh.doy, versus="b:doy", level=.9, caption="plot.earth versus=\"b:doy\"")
 
 # test warnings from plotres about which
-options(warn=1) # print warnings as they occur
 plot(mod.temp.vh.doy, which=1, versus="b:doy")
-options(warn=2)
 
 multifigure("test example in (very old) earth vignette", 2, 2)
 
@@ -167,6 +164,8 @@ y <- ozone1$O3
 set.seed(1) # optional, for cross validation reproducibility
 earth.mod <- earth(y~x, nfold=10, ncross=3, varmod.method="earth", trace=.1)
 predict <- predict(earth.mod, interval="pint")
+cat("\npredict(earth.mod, interval=\"pint\")\n")
+print(head(predict))
 
 order <- order(x)
 x <- x[order]
@@ -205,7 +204,7 @@ plot(earth.mod, which=3, level=.95, level.shade=0, level.shade2="mistyrose4")
 multifigure("plot.earth delever and standardize", 2, 2)
 
 set.seed(4)
-earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.1)
+earth.mod1 <- earth(O3~temp, data=ozone1, nfold=5, ncross=3, varmod.method="lm", keepxy=T, trace=.5)
 plot(earth.mod1, which=3, ylim=c(-16,20), info=TRUE, level=.95)
 do.caption()
 plot(earth.mod1, which=3, ylim=c(-16,20), delever=TRUE, level=.95)
@@ -252,23 +251,34 @@ print(summary(earth.mod1, newdata=ozone1))
 cat("summary(earth.mod1, newdata=ozone1[1:100,]:)\n")
 print(summary(earth.mod1, newdata=ozone1[1:100,]))
 
+expect.err(try(summary(earth.mod1, newdata=c(1,2,3))),
+           "plotmo_response: newdata must be a matrix or data.frame")
+expect.err(try(summary(earth.mod1, newdata=ozone1[1:100,1:3])),
+           "response with newdata object 'temp' not found")
+
 # earth.default
 O3 <- ozone1$O3
-temp <- ozone1$temp
+temper <- ozone1$temp
 set.seed(4)
-earth.default <- earth(temp, O3, nfold=5, ncross=3, varmod.method="lm")
+earth.default <- earth(temper, O3, nfold=5, ncross=3, varmod.method="lm")
 cat("summary(earth.default)\n")
 print(summary(earth.default))
-cat("summary(earth.default, newdata=ozone1[1:100,]:)\n")
-print(summary(earth.default, newdata=ozone1[1:100,]))
+expect.err(try(summary(earth.default, newdata=ozone1[1:100,])),
+          "model.matrix.earth could not interpret the data")
+newdata_temper <- matrix(c(O3[1:100], temper[1:100]), ncol=2)
+expect.err(try(summary(earth.default, newdata=newdata_temper)),
+          "cannot get response from newdata because newdata has no column names")
+colnames(newdata_temper) <- c("O3", "temper")
+cat("summary(earth.default, newdata=newdata_temper)\n")
+print(summary(earth.default, newdata=newdata_temper))
 plot(earth.default, level=.80, caption="earth.default")
-plotmo(earth.default, level=.80, col.response=3, caption="earth.default\nlevel = .80")
+options(warn=2) # treat warnings as errors
+expect.err(try(plotmo(earth.default, level=.80, col.response=3)),
+           "Cannot determine which variables to plot (use all1=TRUE?)")
+plotmo(earth.default, all1=TRUE, level=.80, col.response=3, caption="earth.default\nlevel = .80")
+options(warn=1) # print warnings as they occur
 
-# TODO the following give err msg as expected, but do not give a try error
-# expect.err(try(summary(earth.mod1, newdata=c(1,2,3))))
-# expect.err(try(summary(earth.mod1, newdata=ozone1[1:100,1:3])))
-
-multifigure("plot(earth.mod1)", 2, 2)
+multifigure("plot(earth.mod2)", 2, 2)
 set.seed(5)
 earth.mod2 <- earth(y~x, nfold=10, ncross=5, varmod.method="earth")
 plot(earth.mod2, caption="plot(earth.mod2)", level=.95)
@@ -346,7 +356,6 @@ for(varmod.method in c(earth:::VARMOD.METHODS, "gam", "x.gam")) {
     earth.mod <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
                        varmod.method=varmod.method,
                        trace=if(varmod.method %in% c("const", "lm", "power")) .3 else 0)
-    options(warn=2)
     printh(sprint("varmod.method %s: summary(earth.mod)", varmod.method))
     printh("summary(earth.mod)")
     print(summary(earth.mod))
@@ -395,6 +404,6 @@ earth.exponent <- earth(Volume~Girth, data=trees, nfold=3, ncross=3,
 printh("summary(earth.exponent)")
 print(summary(earth.exponent))
 
-par(old.par)
+par(org.par)
 
 source("test.epilog.R")

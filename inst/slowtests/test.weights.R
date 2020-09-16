@@ -3,6 +3,7 @@
 source("test.prolog.R")
 source("check.models.equal.R")
 library(earth)
+options(warn=1) # print warnings as they occur
 check.equal <- function(x, y, msg="")
 {
     diff <- x - y
@@ -217,11 +218,11 @@ glm.a8.azeroweight <- glm(y~., data=data, weights=glm.weights, family=binomial)
 
 cat("=== plot.earth with weights ===\n")
 # we also test id.n=TRUE and id.n=-1 here
-old.par <- par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), oma=c(0,0,3,0), par(cex=1))
+par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), oma=c(0,0,3,0), par(cex=1))
 plot(a3, id.n=TRUE, SHOWCALL=TRUE, caption="compare a3 to to lm3", do.par=FALSE,
      which=c(3,4), caption.cex=1.5)
 plot(lm3, id.n=9, which=c(1,2), sub.caption="")
-par(old.par)
+par(org.par)
 
 cat("=== plot.earth with earth-glm model and weights ===\n")
 plot(a8, id.n=TRUE, caption="a8")
@@ -304,6 +305,7 @@ test.zigzag()
 # aw.trees <- earth(Volume~., data=trees, trace=2, Force.weights=TRUE)
 # plotmo(a.trees, do.par=2, caption="trees: top and bottom should be similar")
 # plotmo(aw.trees, do.par=FALSE)
+# par(org.par)
 
 # bivariate.with.interaction
 set.seed(2015)
@@ -364,6 +366,8 @@ cat("comparison to glm and rpart: weight=.1\n")
 weight <- .1
 w <- c(rep_len(1, 2 * n + 1), rep_len(weight, 2 * n + 1))
 aw201 <- earth(y~x1, data=data, weights=w)
+expect.err(try(earth(y~., data=data, wp=3, Scale.y=TRUE)), "Scale.y=TRUE is not allowed with wp")
+expect.err(try(earth(y~., data=data, Scale.y=999)), "Scale.y=999 but it should be FALSE, TRUE, 0, or 1")
 plotmo(aw201, do.par=FALSE, pt.col=2, main=sprint("weight %g\nearth", weight), cex=.7, pt.cex=.2, grid.col=TRUE)
 gamw201 <- gam(y~s(x1, 5), data=data, weights=w)
 plotmo(gamw201, do.par=FALSE, pt.col=2, main="", cex=.7, pt.cex=.2, grid.col=TRUE)
@@ -474,7 +478,6 @@ yyy <- 1:9
 yyy[3] <- 9
 datxy <- data.frame(x=xxx, y=yyy)
 colnames(datxy) <- c("xxx", "yyy")
-options(warn=2)
 
 mod1 <- earth(yyy~., datxy, Scale.y=FALSE)
 mod2 <- earth(yyy~., datxy, Scale.y=TRUE)

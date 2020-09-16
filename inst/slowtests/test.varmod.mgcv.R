@@ -4,7 +4,7 @@
 
 source("test.prolog.R")
 library(earth)
-options(warn=2)
+options(warn=1) # print warnings as they occur
 
 printh <- function(caption)
     cat("===", caption, "\n", sep="")
@@ -25,7 +25,6 @@ multifigure <- function(caption, nrow=3, ncol=3)
 }
 do.caption <- function() # must be called _after_ first plot on new page
     mtext(CAPTION, outer=TRUE, font=2, line=1, cex=1)
-old.par <- par(no.readonly=TRUE)
 
 library(mgcv)
 
@@ -62,6 +61,6 @@ for(varmod.method in c("gam", "x.gam")) {
     # plot.varmod
     plot(earth.mod$varmod, do.par=FALSE, which=1:3, info=(varmod.method=="earth"))
 }
-par(old.par)
+par(org.par)
 
 source("test.epilog.R")

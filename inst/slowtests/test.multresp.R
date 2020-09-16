@@ -3,6 +3,7 @@
 
 source("test.prolog.R")
 source("check.models.equal.R")
+options(warn=1) # print warnings as they occur
 library(earth)
 show.earth.mod <- function(mod, modname, nresponses, caption, trace, ...)
 {
@@ -30,7 +31,7 @@ show.earth.mod <- function(mod, modname, nresponses, caption, trace, ...)
         plotmo(mod, do.par=0, pt.col="red", trace=trace)
     else for(iresponse in 1:nresponses)
         plotmo(mod, nresponse=iresponse, do.par=0, pt.col=iresponse+1, trace=trace)
-    par(old.par)
+    par(org.par)
     cat("-------------------------------------------------------------------------------\n\n")
 }
 show.earth.formula <- function(formula, data=trees, subset=NULL, nresponses=1,
@@ -71,7 +72,6 @@ show.earth.Formula <- function(formula, data=trees, subset=NULL, nresponses=1,
                    caption=caption, trace=trace, ...)
     mod
 }
-options(warn=2)
 VolNeg <- -sqrt(trees$Volume)
 SinVol <- sin(pi * trees$Volume / max(trees$Volume))
 global.mod <- NULL
@@ -95,6 +95,8 @@ show.earth.formula(cbind(VolNeg+33, SinVol)~., nresponses=2, show=FALSE)
 show.earth.formula(cbind(VolNeg,    SinVol)~Girth,  nresponses=2, show=FALSE)
 randx <- c(0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0)
 show.earth.formula(VolNeg~randx, nresponses=1) # intercept only model
+VolNeg.randx <- earth(VolNeg~randx, trace=1)   # intercept only model
+plotmo(VolNeg.randx)
 VolVolNeg <- show.earth.formula(cbind(Volume, VolNeg)~Girth+Height, nresponses=2, trace=0)
 # Use a global variable for Volume
 trees1 <- trees
@@ -132,10 +134,8 @@ plot(VolVolNega.nokeepxy, nresponse=2, which=3, do.par=0,
      main="Response 2: Residuals vs Fitted")
 plotmo(VolVolNega.nokeepxy, nresponse=1, do.par=0, pt.col=2)
 plotmo(VolVolNega.nokeepxy, nresponse=2, do.par=0, pt.col=3)
-par(old.par)
-options(warn=1)
+par(org.par)
 plot(VolVolNega.nokeepxy) # Warning: Defaulting to nresponse=1, see above messages
-options(warn=2)
 
 # subset, single response
 # TODO we don't use show.earth.formula here because there are plotmo problems
@@ -163,7 +163,7 @@ plot(VolVolNega.formula.subset.nokeepxy, nresponse=2, which=3, do.par=0,
      main="Response 2: Residuals vs Fitted")
 plotmo(VolVolNega.formula.subset.nokeepxy, nresponse=1, do.par=0, pt.col=2)
 plotmo(VolVolNega.formula.subset.nokeepxy, nresponse=2, do.par=0, pt.col=3)
-par(old.par)
+par(org.par)
 
 caption <- "VolVolNega.Formula.subset.nokeepxy"
 par(mfrow=c(3, 2), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
@@ -175,7 +175,7 @@ plot(VolVolNega.Formula.subset.nokeepxy, nresponse=2, which=3, do.par=0,
      main="Response 2: Residuals vs Fitted")
 plotmo(VolVolNega.Formula.subset.nokeepxy, nresponse=1, do.par=0, pt.col=2)
 plotmo(VolVolNega.Formula.subset.nokeepxy, nresponse=2, do.par=0, pt.col=3)
-par(old.par)
+par(org.par)
 
 # subset, multiple response, keepxy
 subset2 <- seq(from=1, to=nrow(trees1), by=2)
@@ -196,7 +196,7 @@ plot(VolVolNega.formula.subset.keepxy, nresponse=2, which=3, do.par=0,
 # TODO following fail: subset and keepxy
 try(plotmo(VolVolNega.formula.subset.keepxy, nresponse=1, do.par=0, pt.col=2))
 try(plotmo(VolVolNega.formula.subset.keepxy, nresponse=2, do.par=0, pt.col=3))
-par(old.par)
+par(org.par)
 
 caption <- "VolVolNega.Formula.subset.keepxy"
 par(mfrow=c(3, 2), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
@@ -209,7 +209,7 @@ plot(VolVolNega.Formula.subset.keepxy, nresponse=2, which=3, do.par=0,
 # TODO following fail: subset and keepxy
 try(plotmo(VolVolNega.Formula.subset.keepxy, nresponse=1, do.par=0, pt.col=2))
 try(plotmo(VolVolNega.Formula.subset.keepxy, nresponse=2, do.par=0, pt.col=3))
-par(old.par)
+par(org.par)
 
 # subset, multiple response, weights
 weights2 <- sqrt(1:nrow(trees1))
@@ -227,7 +227,7 @@ plot(VolVolNega.formula.weights.subset.nokeepxy, nresponse=2, which=3, do.par=0,
      main="Response 2: Residuals vs Fitted")
 plotmo(VolVolNega.formula.weights.subset.nokeepxy, nresponse=1, do.par=0, pt.col=2)
 plotmo(VolVolNega.formula.weights.subset.nokeepxy, nresponse=2, do.par=0, pt.col=3)
-par(old.par)
+par(org.par)
 
 caption <- "VolVolNega.Formula.weights.subset.nokeepxy"
 par(mfrow=c(3, 2), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
@@ -239,7 +239,7 @@ plot(VolVolNega.Formula.weights.subset.nokeepxy, nresponse=2, which=3, do.par=0,
      main="Response 2: Residuals vs Fitted")
 plotmo(VolVolNega.Formula.weights.subset.nokeepxy, nresponse=1, do.par=0, pt.col=2)
 plotmo(VolVolNega.Formula.weights.subset.nokeepxy, nresponse=2, do.par=0, pt.col=3)
-par(old.par)
+par(org.par)
 
 # examples in earth vignette
 data(ozone1)
@@ -265,20 +265,23 @@ mul7 <- earth(y1 + y2 ~ x1 + x2 + log(x3), trace=1)
 stopifnot(all.equal(as.vector(mul5$coefficients), as.vector(mul7$coefficients)))
 stopifnot(all.equal(as.vector(mul5$dirs), as.vector(mul7$dirs)))
 
-log.O3.wind <- log(ozone1$O3 + ozone1$wind)
-a10 <- earth(log.O3.wind + ibt ~ temp, data=ozone1, trace=1)
-a11 <- earth(log(O3 + wind) + ibt ~ temp, data=ozone1, trace=1)
-stopifnot(all.equal(as.vector(a10$coefficients), as.vector(a11$coefficients)))
-stopifnot(all.equal(as.vector(a10$dirs), as.vector(a11$dirs)))
+# TODO Sep 2020: work around for model.matrix.Formula which incorrectly includes log(03) on lhs
+expect.err(try(earth(log(O3 + wind) + ibt ~ temp, data=ozone1, trace=1)),
+           "terms like 'log(O3 + wind)' are not allowed on the LHS of a multiple-response formula")
 
 expect.err(try(show.earth.Formula(VolNeg+Volume~1, nresponses=2)), "'x' has no columns")
 # use lhs on rhs TODO earth itself should give an error message, not just plotmo
 expect.err(try(show.earth.Formula(VolNeg+Volume~Volume, nresponses=2)), "x is empty") # err from plotmo
 # formula has better error handling than Formula (model.matrix.default gives warning)
+options(warn=2)
 expect.err(try(show.earth.formula(Volume~Volume)), "(converted from warning) the response appeared on the right-hand side and was dropped")
+options(warn=1) # print warnings as they occur
 show.earth.Formula(VolNeg+Volume~Girth, nresponses=2, subset=)
 show.earth.Formula(Volume+VolNeg+SinVol~., nresponses=3)
-show.earth.formula(VolNeg+SinVol~randx, nresponses=2) # intercept only model
+show.earth.formula(VolNeg+SinVol~randx, nresponses=2)       # intercept only model
+VolNeg.SinVol.randx <- earth(VolNeg+SinVol~randx, trace=1)  # intercept only model
+plotmo(VolNeg.SinVol.randx, nresponse=2)
+
 # TODO following should say "invalid formula: too many terms on the left hand side", but at least it gives an error message
 expect.err(try(earth(Volume+VolNeg|99~Girth+Height, data=trees, trace=1)), "multiple parts on left side of formula (because \"|\" was used)")
 expect.err(try(earth(Volume+VolNeg~Girth+Height|Volume, data=trees, trace=1)), "multiple parts on right side of formula (because \"|\" was used)")
@@ -295,14 +298,14 @@ expect.err(try(earth(Volume+VolNeg/99+SinVol~., data=trees, trace=1)), "invalid 
 library(earth)
 data(ozone1)
 
-a10 <- earth(cbind(log.O3=log(O3),wind) ~ ., data=ozone1, trace=1) # ok
-a11 <- earth(log(O3) + wind             ~ ., data=ozone1, trace=1) # wrong
-# TODO the following fails, it puts log(O3) on both sides of the formula
-try(stopifnot(all.equal(as.vector(a10$coefficients), as.vector(a11$coefficients))))
+# TODO Sep 2020: work around for model.matrix.Formula which incorrectly includes log(03)+wind on lhs
+expect.err(try(earth(log(O3) + wind             ~ ., data=ozone1, trace=1)),
+           "terms like 'log(O3)' are not allowed on the LHS of a multiple-response formula")
 
 a1 <- earth(cbind(log.O3=log(O3),wind) ~ humidity+temp, data=ozone1)
 options(warn=2)
 expect.err(try(coef(a1)), "coef.earth: multiple response model: returning coefficients for just the first response")
+options(warn=1)
 a2 <- earth(cbind(log(O3),wind) ~ humidity+temp, data=ozone1)
 stopifnot(all.equal(as.vector(a2$coefficients), as.vector(a1$coefficients)))
 log.O3 <- log(ozone1$O3)
@@ -310,15 +313,16 @@ a3 <- earth(cbind(log.O3,wind) ~ humidity+temp, data=ozone1)
 stopifnot(all.equal(as.vector(a3$coefficients), as.vector(a1$coefficients)))
 a4 <- earth(log.O3+wind ~ humidity+temp, data=ozone1)
 stopifnot(all.equal(as.vector(a4$coefficients), as.vector(a1$coefficients)))
-a5 <- earth(log(O3)+wind ~ humidity+temp, data=ozone1)
-stopifnot(all.equal(as.vector(a5$coefficients), as.vector(a1$coefficients)))
+
+# TODO Sep 2020: work around for model.matrix.Formula which incorrectly includes log(03) on lhs
+expect.err(try(earth(log(O3)+wind ~ humidity+temp, data=ozone1)),
+           "terms like 'log(O3)' are not allowed on the LHS of a multiple-response formula")
 
 # multiple responses, mixed factors and numeric
 data(etitanic)
 pclass.age <- earth(pclass+age~sibsp, data=etitanic)
 plot(pclass.age, nresponse=4)
 par(mfrow=c(2,2))
-options(warn=2)
 cat("plotmo(pclass.age, nresponse=1):\n")
 plotmo(pclass.age, nresponse=1, main="nresponse=1, pclass1st", do.par=FALSE)
 cat("plotmo(pclass.age, nresponse=2):\n")
@@ -328,11 +332,12 @@ plotmo(pclass.age, nresponse=3, main="nresponse=3, pclass3rd", do.par=FALSE)
 cat("plotmo(pclass.age, nresponse=4):\n")
 plotmo(pclass.age, nresponse=4, main="nresponse=4, age", do.par=FALSE)
 cat("plotmo(pclass.age, nresponse=5):\n")
+options(warn=2)
 expect.err(try(plotmo(pclass.age, nresponse=5, main="nresponse=5", do.par=FALSE)), "nresponse is 5 but the number of columns is only 4")
+options(warn=1)
 
 age.pclass <- earth(age+pclass~sibsp, data=etitanic)
 par(mfrow=c(2,2))
-options(warn=2)
 cat("plotmo(age.pclass, nresponse=1):\n")
 plotmo(age.pclass, nresponse=1, main="nresponse=1, age", do.par=FALSE, trace=1)
 cat("plotmo(age.pclass, nresponse=2):\n")
@@ -342,11 +347,12 @@ plotmo(age.pclass, nresponse=3, main="nresponse=3, pclass2nd", do.par=FALSE)
 cat("plotmo(age.pclass, nresponse=4):\n")
 plotmo(age.pclass, nresponse=4, main="nresponse=4, pclass3rd", do.par=FALSE)
 cat("plotmo(age.pclass, nresponse=5):\n")
+options(warn=2)
 expect.err(try(plotmo(age.pclass, nresponse=5, main="nresponse=5", do.par=FALSE)), "nresponse is 5 but the number of columns is only 4")
+options(warn=1)
 
 pclass.sex <- earth(pclass+sex~sibsp, data=etitanic)
 par(mfrow=c(2,2))
-options(warn=2)
 cat("plotmo(pclass.sex, nresponse=1):\n")
 plotmo(pclass.sex, nresponse=1, main="nresponse=1, pclass1st", do.par=FALSE, trace=1)
 cat("plotmo(pclass.sex, nresponse=2):\n")
@@ -355,7 +361,22 @@ cat("plotmo(pclass.sex, nresponse=3):\n")
 plotmo(pclass.sex, nresponse=3, main="nresponse=3, pclass3rd", do.par=FALSE)
 cat("plotmo(pclass.sex, nresponse=4):\n")
 plotmo(pclass.sex, nresponse=4, main="nresponse=4, age", do.par=FALSE)
+
 cat("plotmo(pclass.sex, nresponse=5):\n")
+options(warn=2)
 expect.err(try(plotmo(pclass.sex, nresponse=5, main="nresponse=5", do.par=FALSE)), "nresponse is 5 but the number of columns is only 4")
+options(warn=1)
+
+# try to delete a varname (expose bug in model.matrix.Formula)
+options(warn=2)
+expect.err(try(earth(pclass+sex~.-survived, data=etitanic)), "'varlist' has changed (from nvar=4) to new 5 after EncodeVars() -- should no longer happen!")
+options(warn=1)
+expect.err(try(earth(pclass+sex~.-survived, data=etitanic)), "model frame and formula mismatch in model.matrix()")
+
+# try to delete a varname not in data (expose bug in model.matrix.Formula)
+options(warn=2)
+expect.err(try(earth(pclass+sex~.-nonesuch, data=etitanic)), "'varlist' has changed (from nvar=5) to new 6 after EncodeVars() -- should no longer happen!")
+options(warn=1)
+expect.err(try(earth(pclass+sex~.-nonesuch, data=etitanic)), "model frame and formula mismatch in model.matrix()")
 
 source("test.epilog.R")

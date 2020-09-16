@@ -195,7 +195,8 @@ check.numeric.scalar <- function(object, min=NA, max=NA, null.ok=FALSE,
         s.char <- if(char.ok.msg) ", or a string" else ""
         stopf("%s must be numeric%s%s%s%s (whereas its current class is %s)",
               tweak.name(object.name),
-              s.null, s.na, s.char, s.logical, quotify(class(object)[1]))
+              s.null, s.na, s.char, s.logical,
+              class.as.char(object, quotify=TRUE))
     } else if(length(object) != 1)
         stopf("the length of %s must be 1 (whereas its current length is %d)",
               tweak.name(object.name), length(object))
@@ -334,26 +335,27 @@ exp10 <- function(x) # e.g. exp10(-3) = 1e-3
 
 fix.lim <- function(lim)
 {
-    if(!is.null(lim) && !isDate(lim)) {
+    if(!is.null(lim) && !inherits(lim, "Date")) {
         stopifnot(is.numeric(lim), length(lim) == 2)
         # constants below are arbitrary
-        small <- max(1e-6, .001 * abs(lim[1]), .001 * abs(lim[2]))
+        small <- max(1e-6, .01 * abs(lim[1] - lim[2]))
         if(abs(lim[2] - lim[1]) < small) # illegal lim?
             lim <- c(lim[1] - small, lim[2] + small)
     }
     lim
 }
-# Ensure all columns of x have column names.  Won't overwrite existing
-# column names (TODO except possibly if make.unique kicks in).
+# Ensure all columns of x have column names.  Won't overwrite existing column names.
 
-gen.colnames <- function(x, prefix="x", alt.prefix=prefix, trace=0, xname=NULL)
+gen.colnames <- function(x, prefix="x", alt.prefix=prefix, trace=0)
 {
     if(NCOL(x) == 0)
         return(NULL)
+
     # If prefix is long and has characters like ( or [ then use the
     # alternate prefix.  This is sometimes necessary when prefix is
     # generated using deparse and the arg is something like
     # "cbind(trees$Volume,trees$Volume+100)"
+
     if(any(nchar(prefix) > 30) && grepany("[([,]", prefix)) {
         trace2(trace, "using alt.prefix \"%s\" instead of prefix \"%s\"\n",
                alt.prefix, prefix)
@@ -376,10 +378,12 @@ gen.colnames <- function(x, prefix="x", alt.prefix=prefix, trace=0, xname=NULL)
         if(any(missing))
             colnames[missing] <- new.colnames[missing]
     }
-    colnames <- make.unique(strip.space(colnames))
+    if(length(unique(colnames)) != length(colnames))
+        stop0("Duplicate colname in ", paste.trunc(prefix),
+              " (colnames are ",
+              paste.with.quotes(colnames, maxlen=60), ")")
     if(trace >= 2 && !identical(org.colnames, colnames))
-        trace2(trace, "%s colname%s %s now %s\n",
-            if(is.null(xname)) trunc.deparse(substitute(x)) else xname,
+        trace2(trace, "colname%s %s now %s\n",
             if(length(colnames) > 1) "s were" else " was",
             if(is.null(org.colnames)) "NULL"
             else paste.trunc(quotify(org.colnames)),
@@ -403,39 +407,69 @@ get.mean.rsq <- function(rss, tss, wp)
 #   3. Else return the environment in which the caller of this function
 #      was called (e.g. return the environment of plotmo's caller).
 
-get.model.env <- function(object, object.name="object", trace=0)
+get.model.env <- function(object, object.name="object", trace=0, use.submodel=FALSE)
 {
     # check args, because this func is called very early in plotmo (and friends)
-    stopifnot.string(object.name)
     check.numeric.scalar(trace, logical.ok=TRUE)
-    if(is.null(object))
-        stopf("%s is NULL", object.name)
-    if(!is.list(object))
-        stopf("%s is not an S3 model", object.name)
-    if(class(object)[1] == "list")
-        stopf("%s is a plain list, not an S3 model", object.name)
     if(trace >= 2) {
         callers.name <- callers.name()
         my.call <- call.as.char(n=2)
         printf.wrap("%s trace %g: %s\n", callers.name, trace, my.call)
-        call <- getCall(object)
-        if(is.null(call))
-            printf("object class is \"%s\" with no call\n", class(object)[1])
-        else
-            printf.wrap("object call is %s\n", strip.deparse(call), maxlen=80)
-        printf("--get.model.env for %s object\n", class(object)[1])
+        printf("--get.model.env for object with class %s\n", class.as.char(object))
     }
-    # following will fail for non-formula models because they have no terms field
-    terms <- try(terms(object), silent=trace < 3)
-    if(!is.try.err(terms) && !is.null(terms)) {
+    stopifnot.string(object.name)
+    if(is.null(object))
+        stopf("argument %s is NULL", object.name)
+    if(!is.list(object))
+        stopf("%s is not an S3 model", object.name)
+    if(class(object)[1] == "list") # some packages build models without a specific class
+        stopf("%s is a plain list, not an S3 model", object.name)
+    obj <- object
+
+    # Special handling for parsnip models. Their class is like c("_earth", "model_fit").
+    # For these models, use the env if any saved with the submod (e.g. earth)
+    # (We don't do this for caret models because caret models have a terms field.)
+    #
+    # TODO this code is preliminary (works with parsnip 0.1.3)
+    # and only works if model saves the data (e.g. lm, earth(keepxy=TRUE), not rpart
+    if(use.submodel && inherits(object, "model_fit")) { # parsnip
+        trace2(trace, "plotmo parsnip model: will plot %s$fit, not %s itself\n",
+               gsub("'", "", object.name), object.name)
+        obj <- object[["fit"]]
+        if(!is.list(obj)) # sanity check
+            stopf("plotmo parsnip model: %s$fit is not an S3 model",
+                  gsub("'", "", object.name))
+        # TODO following is temporary, hopefully
+        if(inherits(obj, "rpart") && is.null(obj$model))
+            stop0(
+                "Cannot plot parsnip rpart model: need model=TRUE in call to rpart\n",
+                "       Do it like this: set_engine(\"rpart\", model=TRUE)")
+    }
+    if(trace >= 2) {
+        call <- getCall(obj)
+        if(is.null(call))
+            printf("object has no call field (it's class is %s)\n", class.as.char(object))
+        else
+            printf.wrap("object call is %s\n", strip.deparse(call), maxlen=120)
+    }
+    terms <- try(terms(obj), silent=trace < 3)
+
+    # Following will fail (correctly) for non-formula models because they have no terms.
+    #
+    # TODO Also, if use.submodel, don't use terms (because the term env was
+    #      inside the parsnip func that created the submodel)
+    #      But that also fails later when we eval the formula because
+    #      eval will use GlobalEnv instead of the data passed to the model
+
+    if(!is.null(terms) && !is.try.err(terms)) {
         model.env <- attr(terms, ".Environment")
         if(is.null(model.env)) {
-            if(inherits(object, "glmnet.formula") ||  # glmnetUtils package
-               inherits(object, "cv.glmnet.formula"))
-                if(inherits(object, "glmnet.formula"))
+            if(inherits(obj, "glmnet.formula") ||  # glmnetUtils package
+               inherits(obj, "cv.glmnet.formula"))
+                if(inherits(obj, "glmnet.formula"))
                     stop0(
 "for this plot, glmnet.formula must be called with use.model.frame=TRUE")
-                if(inherits(object, "cv.glmnet.formula"))
+                if(inherits(obj, "cv.glmnet.formula"))
                     stop0(
 "for this plot, cv.glmnet.formula must be called with use.model.frame=TRUE")
             stop0("attr(terms, \".Environment\") is NULL")
@@ -443,25 +477,29 @@ get.model.env <- function(object, object.name="object", trace=0)
         if(!is.environment(model.env))
             stop0("attr(terms, \".Environment\") is not an environment")
         else {
-            trace2(trace, "using the environment saved with the %s model: %s\n",
-                   class(object)[1], environment.as.char(model.env))
+            trace2(trace, "using the environment saved in $terms of the %s model: %s\n",
+                   class.as.char(obj), environment.as.char(model.env))
             return(model.env)
         }
     }
-    model.env <- attr(object, ".Environment")
+    model.env <- attr(obj, ".Environment")
     if(is.environment(model.env)) {
-        trace2(trace, "using attr(object,\".Environment\") saved with %s model: %s\n",
-               class(object)[1], environment.as.char(model.env))
+        trace2(trace, "using attr(obj,\".Environment\") saved with %s model: %s\n",
+               class.as.char(obj), environment.as.char(model.env))
         return(model.env)
     }
     if(!is.null(model.env))
-        stop0("attr(object, \".Environment\") is not an environment")
+        stop0("attr(obj, \".Environment\") is not an environment")
 
-    model.env <- parent.frame(n=2) # caller of the function that called model.env
+    # n=2 is the caller of the function that called get.model.env
+    # for plotmo it will be the caller of plotmo, typically R_GlobalEnv
+    model.env <- parent.frame(n=2)
+
     trace2(trace,
            "assuming the environment of the %s model is that of %s's caller: %s\n",
-           class(object)[1], callers.name, environment.as.char(model.env))
-    return(model.env)
+           class.as.char(obj), callers.name, environment.as.char(model.env))
+
+    model.env
 }
 get.rsq <- function(rss, tss)
 {
@@ -511,17 +549,17 @@ ife <- function(ife.test, ife.yes, ife.no)
 # returns an index, choices is a vector of strings
 imatch.choices <- function(arg, choices,
             argname=short.deparse(substitute(arg), "function"),
-            err.msg.has.index=FALSE, # TRUE if integer "arg" is legal elsewhere
-            err.msg="",              # error message, "" for automatic
-            err.msg.ext="")          # extension to error message
+            errmsg.has.index=FALSE, # TRUE if integer "arg" is legal elsewhere
+            errmsg="",              # error message, "" for automatic
+            errmsg.ext="")          # extension to error message
 {
-    err.msg.ext <- paste0(
-               if(err.msg.has.index) " an integer index or" else "",
-               if(nchar(err.msg.ext)) paste0(" ", err.msg.ext, " or") else "")
-    if(nchar(err.msg) == 0)
-        err.msg <- sprint("Choose%s one of: %s", err.msg.ext, quotify(choices))
+    errmsg.ext <- paste0(
+               if(errmsg.has.index) " an integer index or" else "",
+               if(nchar(errmsg.ext)) paste0(" ", errmsg.ext, " or") else "")
+    if(nchar(errmsg) == 0)
+        errmsg <- sprint("Choose%s one of: %s", errmsg.ext, quotify(choices))
     if(!is.character(arg) || length(arg) != 1 || !nzchar(arg))
-         stopf("illegal %s argument\n%s", quotify(argname, "'"), err.msg)
+         stopf("illegal %s argument\n%s", quotify(argname, "'"), errmsg)
     if(argname %in% c("NULL", "NA"))
         argname <- "argument"
     imatch <- pmatch(arg, choices)
@@ -533,20 +571,16 @@ imatch.choices <- function(arg, choices,
         if(length(imatch) == 0) {
             if(length(choices) == 1)
                 stopf("%s=\"%s\" is not allowed\n       Only%s %s is allowed",
-                      argname, paste(arg), err.msg.ext, quotify(choices))
+                      argname, paste(arg), errmsg.ext, quotify(choices))
             else
                 stopf("%s=\"%s\" is not allowed\n%s",
-                      argname, paste(arg), err.msg)
+                      argname, paste(arg), errmsg)
         }
         if(length(imatch) > 1)
             stopf("%s=\"%s\" is ambiguous\n%s",
-                  argname, paste(arg), err.msg)
+                  argname, paste(arg), errmsg)
     }
     imatch
-}
-isDate <- function(x)
-{
-    inherits(x, "Date")
 }
 # TRUE if all values in object are integers, ignoring NAs
 # assumes object is numeric or logical (check this before call this function)
@@ -618,11 +652,11 @@ match.arg1 <- function(arg, argname=deparse(substitute(arg)))
 match.choices <- function(arg,
             choices,
             argname=deparse(substitute(arg)),
-            err.msg="",              # error message ("" for automatic)
-            err.msg.ext="")          # extension to error message
+            errmsg="",              # error message ("" for automatic)
+            errmsg.ext="")          # extension to error message
 {
     choices[imatch.choices(arg, choices, argname,
-                           err.msg=err.msg, err.msg.ext=err.msg.ext)]
+                           errmsg=errmsg, errmsg.ext=errmsg.ext)]
 }
 # This uses the object's .Environment attribute, which was
 # pre-assigned to the object via get.model.env
@@ -694,12 +728,21 @@ nlines <- function(s)
     else
         length(strsplit(s, "\n")[[1]])
 }
-paste.c <- function(object, maxlen=16) # return "x1" or "c(x1, x2)"
+paste.c <- function(object, maxlen=16) # return 'x1' or 'c(x1, x2)'
 {
     if(length(object) == 1)
         paste.trunc(object)
     else
         paste0("c(", paste.trunc(object, collapse=",", maxlen=maxlen), ")")
+}
+paste.with.quotes <- function(object, maxlen=16) # return '"x1"' or '"x1", "x2"'
+{
+    if(is.null(object[1]))
+        "NULL"
+    else if(length(object) == 0)
+        "EMPTY"
+    else
+        paste0(paste.trunc("\"", object, "\"", collapse=", ", sep="", maxlen=maxlen))
 }
 paste.collapse <- function(...)
 {
@@ -856,6 +899,8 @@ range1 <- function(object, ...)
         object <- object[,1]
     if(is.factor(object))
         c(1, nlevels(object))
+    else if(inherits(object, "Date")) # Sep 2020, R 4.0.2: range no longer works with Date objects
+        c(min(object), max(object))
     else
         range(object, finite=TRUE, ...)
 }

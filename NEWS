@@ -1,6 +1,44 @@
 Changes to the earth package
 ----------------------------
 
+5.2.0 Sep 15, 2020
+
+  Earth now has better support for models with unusual variable names:
+  for example, variable names with spaces in them, and formula terms
+  like "as.numeric(x1)".
+
+  Earth model selection graph:
+    The text "selected model" is now first in the menu.
+    Minor adjustments for vertical lines which overlay each other.
+    The graph with nprune or pmethod="cv" models is now a little clearer.
+
+  Better support for residual plots for earth-glm models.
+
+  By default, plotmo now plots the offset if specified in the
+  earth model formula.
+
+  Under certain circumstances when nprune was used with pmethod="cv",
+  summary.earth would issue an incorrect error messge.
+  Fixed that with help from Boris Leroy at the
+  Muséum national d'Histoire naturelle (Paris).
+
+  Earth objects now have a "modvars" field. See the help page for earth.object.
+  Earth objects no longer have a "namesx.org" field, and the "namesx" field
+  is deprecated. These fields have been subsumed by the "modvars" field.
+
+  Updated the libraries shared with the earth and plotmo packages.
+  Support for unusual variable names (mentioned above) required a
+  fairly substantial change to the internal handling of formulas. It
+  also affected the code that selects which variables to plot in plotmo.
+  For easier maintenance, the source file earth.R was split into earth.R,
+  earth.fit.R, and earth.prune.R.  The new file naken.R was added for
+  handling model variables.
+
+  Extended the test scripts and updated them for R version 4.0.2.
+  Added new test files test.emma.R and test.ordinal.R.
+
+  Some documentation updates.
+
 5.1.2 Nov 4, 2019
 
   Changed the type of the "lindeps" argument of the Fortran subroutine

@@ -20,7 +20,6 @@ multifigure <- function(caption)
 }
 do.caption <- function(caption)
     mtext(caption, outer=TRUE, font=2, line=1, cex=1)
-old.par <- par(no.readonly=TRUE)
 
 # test plotd basic functionality on a numeric response
 
@@ -390,6 +389,6 @@ a1.shade <- earth(!survived ~ ., data=etitanic, degree=2, glm=list(family=binomi
 plotd(a1.shade, vline.col="gray", err.col=c("slategray1","slategray3","pink"),
       err.border=c("slategray1","slategray3","red"), xlim=c(.52, .9))
 
-par(old.par)
+par(org.par)
 
 source("test.epilog.R")

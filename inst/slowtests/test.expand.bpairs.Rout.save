@@ -6,6 +6,8 @@ Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
 Loading required package: TeachingDemos
+> options(warn=1) # print warnings as they occur
+> 
 > # 5 cases (11 obs)
 > sex <- factor(c("m","f","f","f","f"))
 > pclass <- factor(c("1st", "2nd", "3rd", "3rd", "3rd"))
@@ -25,8 +27,8 @@ Loading required package: TeachingDemos
 +             dose    =c(   1L,   1L,   2L,   2L,   2L,   3L,   3L,   3L,   3L,   4L,   5L),
 +             numericx=c(  1.1,  1.1,  1.2,  1.2,  1.2,  1.3,  1.3,  1.3,  1.3,  1.4,  1.5),
 +             logicalx=c(    T,    T,    F,    F,    F,    T,    T,    T,    T,    F,    T),
-+             sex     =c(  "m",  "m",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f"),
-+             pclass  =c("1st","1st","2nd","2nd","2nd","3rd","3rd","3rd","3rd","3rd","3rd"))
++             sex     =factor(c(  "m",  "m",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f",  "f")),
++             pclass  =factor(c("1st","1st","2nd","2nd","2nd","3rd","3rd","3rd","3rd","3rd","3rd")))
 > bpairs.index <- c(1L, 3L, 6L, 10L, 11L)
 > ynames <- c("success", "fail")
 > 
@@ -39,28 +41,11 @@ Loading required package: TeachingDemos
 +     attr(stripped.long.expanded, "bpairs.index") <- NULL
 +     attr(stripped.long.expanded, "ynames") <- NULL
 +     if(!identical(stripped.long.expanded, long.ref)) {
-+         printf("\nstripped.long.expanded:\n")
-+         print(stripped.long.expanded)
-+         printf("\nlong.ref:\n")
-+         print(long.ref)
-+         printf("\n")
-+ 
-+         printf("class(long.expanded) '%s'\n", class(long.expanded))
-+         for(j in 1:ncol(long.expanded))
-+             printf("class(long.expanded[,%d] %s colname '%s'\n",
-+                    j, class(long.expanded[,j]), colnames(long.expanded)[j])
-+         printf("\n")
-+         printf("class(long.ref) '%s'\n", class(long.ref))
-+         for(j in 1:ncol(long.ref))
-+             printf("class(long.ref[,%d] %s colname '%s'\n",
-+                    j, class(long.ref[,j]), colnames(long.ref)[j])
-+         printf("\n")
-+         printf("attributes(stripped.long.expanded):\n")
-+         print(attributes(stripped.long.expanded))
-+         printf("\n")
-+         printf("attributes(long.ref):\n")
-+         print(attributes(long.ref))
-+         printf("\n")
++         printf("\n---print.default(stripped.long.expanded)------\n")
++         print.default(stripped.long.expanded)
++         printf("\n---print.default(long.ref)--------------------\n")
++         print.default(long.ref)
++         printf("\n----------------------------------------------\n")
 + 
 +         stop("!identical(stripped.long.expanded, long.ref), see above prints")
 +     }
@@ -134,7 +119,7 @@ The y argument should be one of:
 
      o Two-element character vector specifying the response column names in 'data'.
        The full names must be used (partial matching isn't supported).
-Got error as expected from try(expand.bpairs())
+Got expected error from try(expand.bpairs())
 > expect.err(try(expand.bpairs(short.data.frame.dose)), "expand.bpairs: no y argument")
 Error : expand.bpairs: no y argument
 
@@ -146,13 +131,13 @@ The y argument should be one of:
 
      o Two-element character vector specifying the response column names in 'data'.
        The full names must be used (partial matching isn't supported).
-Got error as expected from try(expand.bpairs(short.data.frame.dose))
+Got expected error from try(expand.bpairs(short.data.frame.dose))
 > expect.err(try(expand.bpairs(short.data.frame.dose, c(2,3), nonesuch=99)), "expand.bpairs.default: unrecognized argument 'nonesuch'")
 Error : expand.bpairs.default: unrecognized argument 'nonesuch'
-Got error as expected from try(expand.bpairs(short.data.frame.dose, c(2, 3), nonesuch = 99))
+Got expected error from try(expand.bpairs(short.data.frame.dose, c(2, 3), nonesuch = 99))
 > expect.err(try(expand.bpairs(short.data.frame, c(5,6))), "short.data.frame[,c(5,6)] is not a two-column matrix of binomial pairs")
 Error : expand.bpairs: short.data.frame[,c(5,6)] is not a two-column matrix of binomial pairs
-Got error as expected from try(expand.bpairs(short.data.frame, c(5, 6)))
+Got expected error from try(expand.bpairs(short.data.frame, c(5, 6)))
 > expect.err(try(expand.bpairs(short.data.frame, 1)), "expand.bpairs: bad y argument '1'")
 Error : expand.bpairs: bad y argument '1'
 
@@ -164,7 +149,7 @@ The y argument should be one of:
 
      o Two-element character vector specifying the response column names in 'data'.
        The full names must be used (partial matching isn't supported).
-Got error as expected from try(expand.bpairs(short.data.frame, 1))
+Got expected error from try(expand.bpairs(short.data.frame, 1))
 > expect.err(try(expand.bpairs(short.data.frame, c(1,2,3))), "bad y argument 'c(1, 2, 3)'")
 Error : expand.bpairs: bad y argument 'c(1, 2, 3)'
 
@@ -176,7 +161,7 @@ The y argument should be one of:
 
      o Two-element character vector specifying the response column names in 'data'.
        The full names must be used (partial matching isn't supported).
-Got error as expected from try(expand.bpairs(short.data.frame, c(1, 2, 3)))
+Got expected error from try(expand.bpairs(short.data.frame, c(1, 2, 3)))
 > expect.err(try(expand.bpairs(short.data.frame, c(1,2))), "expand.bpairs: short.data.frame[,c(1,2)] is not a two-column matrix of binomial pairs")
 
 print(head(y)):
@@ -190,22 +175,22 @@ print(head(y)):
 Response has two columns but is not a binomial pair because not all values are integers
 
 Error : expand.bpairs: short.data.frame[,c(1,2)] is not a two-column matrix of binomial pairs
-Got error as expected from try(expand.bpairs(short.data.frame, c(1, 2)))
+Got expected error from try(expand.bpairs(short.data.frame, c(1, 2)))
 > expect.err(try(expand.bpairs(short.data.frame, c(99,100))), "'ycolumns' is out of range, allowed values are 1 to 7")
 Error : 'ycolumns' is out of range, allowed values are 1 to 7
-Got error as expected from try(expand.bpairs(short.data.frame, c(99, 100)))
+Got expected error from try(expand.bpairs(short.data.frame, c(99, 100)))
 > expect.err(try(expand.bpairs(short.data.frame, c("success99", "fail"))), "undefined columns selected")
 Warning: "success99" in ycolumns does not match any names
          Available names are "dose" "numericx" "logicalx" "sex" "pclass" "success" "fail"
 Error in `[.data.frame`(data, , ycolumns, drop = FALSE) : 
   undefined columns selected
-Got error as expected from try(expand.bpairs(short.data.frame, c("success99", "fail")))
+Got expected error from try(expand.bpairs(short.data.frame, c("success99", "fail")))
 > expect.err(try(expand.bpairs(short.data.frame, c("nonesuch", "fail"))), "undefined columns selected")
 Warning: "nonesuch" in ycolumns does not match any names
          Available names are "dose" "numericx" "logicalx" "sex" "pclass" "success" "fail"
 Error in `[.data.frame`(data, , ycolumns, drop = FALSE) : 
   undefined columns selected
-Got error as expected from try(expand.bpairs(short.data.frame, c("nonesuch", "fail")))
+Got expected error from try(expand.bpairs(short.data.frame, c("nonesuch", "fail")))
 > expect.err(try(expand.bpairs(short.data.frame, "nonesuch")), "bad y argument 'nonesuch'")
 Error : expand.bpairs: bad y argument 'nonesuch'
 
@@ -217,27 +202,27 @@ The y argument should be one of:
 
      o Two-element character vector specifying the response column names in 'data'.
        The full names must be used (partial matching isn't supported).
-Got error as expected from try(expand.bpairs(short.data.frame, "nonesuch"))
+Got expected error from try(expand.bpairs(short.data.frame, "nonesuch"))
 > expect.err(try(expand.bpairs(short.data.frame, nonesuch)), "object 'nonesuch' not found")
 Error in expand.bpairs.default(short.data.frame, nonesuch) : 
   object 'nonesuch' not found
-Got error as expected from try(expand.bpairs(short.data.frame, nonesuch))
-> options(warn=2)
+Got expected error from try(expand.bpairs(short.data.frame, nonesuch))
+> options(warn=2) # treat warnings as errors
 > expect.err(try(expand.bpairs(short.data.frame, c("nonesuch", "fail"))),   "\"nonesuch\" in ycolumns does not match any names")
 Error : (converted from warning) "nonesuch" in ycolumns does not match any names
          Available names are "dose" "numericx" "logicalx" "sex" "pclass" "success" "fail"
-Got error as expected from try(expand.bpairs(short.data.frame, c("nonesuch", "fail")))
+Got expected error from try(expand.bpairs(short.data.frame, c("nonesuch", "fail")))
 > expect.err(try(expand.bpairs(short.data.frame, c("fail", "nonesuch99"))), "\"nonesuch99\" in ycolumns does not match any names")
 Error : (converted from warning) "nonesuch99" in ycolumns does not match any names
          Available names are "dose" "numericx" "logicalx" "sex" "pclass" "success" "fail"
-Got error as expected from try(expand.bpairs(short.data.frame, c("fail", "nonesuch99")))
+Got expected error from try(expand.bpairs(short.data.frame, c("fail", "nonesuch99")))
 > expect.err(try(expand.bpairs(short.data.frame, c("", "fail"))), "ycolumns[1] is an empty string \"\"")
 Error : (converted from warning) ycolumns[1] is an empty string ""
-Got error as expected from try(expand.bpairs(short.data.frame, c("", "fail")))
+Got expected error from try(expand.bpairs(short.data.frame, c("", "fail")))
 > expect.err(try(expand.bpairs(short.data.frame, c("success", ""))), "ycolumns[2] is an empty string \"\"")
 Error : (converted from warning) ycolumns[2] is an empty string ""
-Got error as expected from try(expand.bpairs(short.data.frame, c("success", "")))
-> options(warn=1)
+Got expected error from try(expand.bpairs(short.data.frame, c("success", "")))
+> options(warn=1) # print warnings as they occur
 > try(expand.bpairs(short.data.frame, c("success", ""))) # check error messages that are issued after the warning
 Warning: ycolumns[2] is an empty string ""
 Warning: "" in ycolumns does not match any names
@@ -288,10 +273,10 @@ row4.1   FALSE    4      1.4    FALSE   f    3rd
 row5.1    TRUE    5      1.5     TRUE   f    3rd
 > expect.err(try(expand.bpairs(success~., data=xy.short)), "expand.bpairs: 'success' does not have two columns")
 Error : expand.bpairs: 'success' does not have two columns
-Got error as expected from try(expand.bpairs(success ~ ., data = xy.short))
+Got expected error from try(expand.bpairs(success ~ ., data = xy.short))
 > expect.err(try(expand.bpairs(success+success~., data=xy.short)), "expand.bpairs: 'success + success' does not have two columns")
 Error : expand.bpairs: 'success + success' does not have two columns
-Got error as expected from try(expand.bpairs(success + success ~ ., data = xy.short))
+Got expected error from try(expand.bpairs(success + success ~ ., data = xy.short))
 > 
 > cat("expand.bpairs(success.fail~., data=x.short)\n")
 expand.bpairs(success.fail~., data=x.short)
@@ -306,7 +291,7 @@ expand.bpairs(data.frame(success.fail)~., data=x.short)
 > expect.err(try(expand.bpairs(data.frame(success.fail)~., data=x.short)), "invalid type (list) for variable 'data.frame(success.fail)'")
 Error in model.frame.default(terms(formula, lhs = lhs, rhs = rhs, data = data,  : 
   invalid type (list) for variable 'data.frame(success.fail)'
-Got error as expected from try(expand.bpairs(data.frame(success.fail) ~ ., data = x.short))
+Got expected error from try(expand.bpairs(data.frame(success.fail) ~ ., data = x.short))
 > 
 > # formula, single predictor "dose"
 > cat("expand.bpairs(expand.bpairs(success+fail~dose, data=xy.short)\n")
@@ -364,13 +349,13 @@ Note: Both entries in row 4 of the success and fail response are zero
 > 
 > expect.err(try(expand.bpairs(nonesuch~., data=x.short)), "object 'nonesuch' not found")
 Error in eval(predvars, data, env) : object 'nonesuch' not found
-Got error as expected from try(expand.bpairs(nonesuch ~ ., data = x.short))
+Got expected error from try(expand.bpairs(nonesuch ~ ., data = x.short))
 > expect.err(try(expand.bpairs(dose~., data=x.short)), "'dose' does not have two columns")
 Error : expand.bpairs: 'dose' does not have two columns
-Got error as expected from try(expand.bpairs(dose ~ ., data = x.short))
+Got expected error from try(expand.bpairs(dose ~ ., data = x.short))
 > expect.err(try(expand.bpairs(dose~success.fail, data=x.short)), "'dose' does not have two columns")
 Error : expand.bpairs: 'dose' does not have two columns
-Got error as expected from try(expand.bpairs(dose ~ success.fail, data = x.short))
+Got expected error from try(expand.bpairs(dose ~ success.fail, data = x.short))
 > 
 > # # # check Warning: dropping column 'success' from x because it matches a column name in y
 > # # TODO Removed because we (intentionally) no longer give a warning
@@ -389,7 +374,7 @@ Note: Both entries in row 4 of the success and fail response are zero
 > expect.err(try(expand.bpairs(success.fail~., data=xy.short)), "variable lengths differ (found for 'success')")
 Error in model.frame.default(terms(formula, lhs = lhs, rhs = rhs, data = data,  : 
   variable lengths differ (found for 'success')
-Got error as expected from try(expand.bpairs(success.fail ~ ., data = xy.short))
+Got expected error from try(expand.bpairs(success.fail ~ ., data = xy.short))
 > success.fail <- old.success.fail
 > 
 > # example with short data as a matrix (not a data.frame)

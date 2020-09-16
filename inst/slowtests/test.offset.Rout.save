@@ -281,7 +281,7 @@ GCV 0.8799077    RSS 87.99077    GRSq 0.312992    RSq 0.312992
 +     outer=TRUE, cex=.8)
 > set.seed(2019)
 > plotmo(earth4, trace=0, pt.col=2, do.par=FALSE)
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
  plotmo grid:    x1 myoffset
@@ -293,12 +293,12 @@ note: the offset in the formula is not plotted
           0.5369945       -3
 > set.seed(2019)
 > plotmo(earth4, trace=0, pt.col=2, do.par=FALSE, grid.levels=list(myoffset=-3))
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
  plotmo grid:    x1 myoffset
           0.5369945       -3
-> par(old.par)
+> par(org.par)
 > 
 > plotres(lm4)
 > plotres(earth4)
@@ -340,15 +340,15 @@ GCV 0.4651571    RSS 46.51571    GRSq 0.1327794    RSq 0.1327794
 > data <- data.frame(y=y, x1=x1)
 > expect.err(try(earth(y ~ x1 + offset(myoffset), data=data)), "the offset variable 'myoffset' in 'offset(myoffset)' must be in the data")
 Error : the offset variable 'myoffset' in 'offset(myoffset)' must be in the data
-Got error as expected from try(earth(y ~ x1 + offset(myoffset), data = data))
+Got expected error from try(earth(y ~ x1 + offset(myoffset), data = data))
 > expect.err(try(earth(y ~ x1 + offset(myoffset))), "if an offset is specified in the formula, the 'data' argument must be used")
 Error : if an offset is specified in the formula, the 'data' argument must be used
-Got error as expected from try(earth(y ~ x1 + offset(myoffset)))
+Got expected error from try(earth(y ~ x1 + offset(myoffset)))
 > 
 > data <- data.frame(y=y, x1=x1, offset0=rep(0, length.out=n), offset1=rep(1, length.out=n))
 > expect.err(try(earth(y ~ x1 + offset(offset0) + offset(offset1), data=data)), "only one offset is allowed")
 Error : only one offset is allowed
-Got error as expected from try(earth(y ~ x1 + offset(offset0) + offset(offset1), data = data))
+Got expected error from try(earth(y ~ x1 + offset(offset0) + offset(offset1), data = data))
 > 
 > #------------------------------------------------------------------------------
 > # poisson model with and without linear predictors
@@ -359,7 +359,7 @@ Got error as expected from try(earth(y ~ x1 + offset(offset0) + offset(offset1),
 > Ins$Claims[Ins$Claims > 100] <- 100
 > Ins$day <- (1:nrow(Insurance)) / nrow(Insurance) # non linear term (like a seasonal effect)
 > Ins$Claims <- round(Ins$Claims * (1 + sin(2 * pi * Ins$day)))
-> pois <- glm(Claims ~ Group + Age + day + offset(log(Holders)),
+> pois <- glm(Claims ~ offset(log(Holders)) + Group + Age + day,
 +             data = Ins, family = poisson)
 > earth.pois.linpreds <- earth(Claims ~ offset(log(Holders)) + Group + Age + day,
 +                              data = Ins, glm=list(family = poisson),
@@ -481,15 +481,15 @@ earth.pois.no.penalty  devratio 0.90
 > par(mfrow=c(3, 4), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
 > set.seed(2019)
 > plotmo(pois, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50))
- plotmo grid:    Group Age       day Holders
-                   <1l <25 0.5078125     136
+ plotmo grid:    Holders Group Age       day
+                     136   <1l <25 0.5078125
 > mtext(sprint(
 +     "row1: pois (%s)\nrow2: earth.pois.linpreds (%s)\nrow3: earth.pois.linpreds(all1=TRUE)",
 +     devratio(pois), devratio(earth.pois.linpreds)),
 +     outer=TRUE, cex=.8)
 > set.seed(2019)
 > plotmo(earth.pois.linpreds, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50))
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
  plotmo grid:    Holders Group Age       day
@@ -497,7 +497,7 @@ note: the offset in the formula is not plotted
 > empty.plot()
 > set.seed(2019)
 > plotmo(earth.pois.linpreds, all1=T, trace=-1, pt.col=2, do.par=FALSE, ylim=c(0,50))
-> par(old.par)
+> par(org.par)
 > 
 > plotres(pois, type="response", caption='pois, type="response"')
 > plotres(earth.pois.linpreds, type="response", caption='earth.pois.linpreds, type="response"')
@@ -505,14 +505,14 @@ note: the offset in the formula is not plotted
 > par(mfrow=c(3, 4), mar=c(3, 3, 3, 1), mgp=c(1.5, 0.5, 0), oma=c(0, 0, 5, 0))
 > set.seed(2019)
 > plotmo(pois, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.levels=list(Holders=20))
- plotmo grid:    Group Age       day Holders
-                   <1l <25 0.5078125      20
+ plotmo grid:    Holders Group Age       day
+                      20   <1l <25 0.5078125
 > mtext(
 +     "----- grid.levels=list(Holders=20)) -----\nrow1: pois\nrow2: earth.pois.linpreds\nrow3: earth.pois.linpreds(all1=TRUE)",
 +     outer=TRUE, cex=.8)
 > set.seed(2019)
 > plotmo(earth.pois.linpreds, trace=0, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.levels=list(Holders=20))
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
  plotmo grid:    Holders Group Age       day
@@ -520,11 +520,11 @@ note: the offset in the formula is not plotted
 > empty.plot()
 > set.seed(2019)
 > plotmo(earth.pois.linpreds, all1=T, trace=-1, pt.col=2, do.par=FALSE, ylim=c(0,50), grid.levels=list(Holders=20))
-> par(old.par)
+> par(org.par)
 > 
 > plotmo(earth.pois.linpreds, pmethod="partdep", do.par=2,
 +        caption=sprint("earth.pois.linpreds, pmethod=\"partdep\", %s", devratio(earth.pois.linpreds)))
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
 calculating partdep for Group 
@@ -532,13 +532,14 @@ calculating partdep for Age
 calculating partdep for day 
 > plotmo(earth.pois.linpreds, pmethod="partdep", do.par=0,
 +        grid.levels=list(Age=">35"), degree1="day", main="day with Age=\">35\"")
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
 calculating partdep for day 
+> par(org.par)
 > plotmo(earth.pois,          pmethod="partdep",
 +        caption=sprint("earth.pois, pmethod=\"partdep\", %s", devratio(earth.pois)))
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
 calculating partdep for Group 
@@ -546,7 +547,7 @@ calculating partdep for Age
 calculating partdep for day 
 > plotmo(earth.pois.no.penalty, pmethod="partdep",
 +        caption=sprint("earth.pois.no.penalty, pmethod=\"partdep\", %s", devratio(earth.pois.no.penalty)))
-note: the offset in the formula is not plotted
+Note: the offset in the formula is not plotted
       (use all1=TRUE to plot the offset, or use trace=-1 to silence this message)
 
 calculating partdep for Group 
@@ -822,5 +823,12 @@ Offset: log(Height) with values log(70), log(65), log(63), log(72), log(...
 Weights: 1, 2, 0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, ...
 Number of terms at each degree of interaction: 1 1 (additive model)
 GCV 292.7582    RSS 9075.505    GRSq 0.9339319    RSq 0.9339319
+> cat("\nnearth31.weights.offset$modvars:\n")
+
+nearth31.weights.offset$modvars:
+> print.default(earth31.weights.offset$modvars)
+       Girth
+Girth      1
+Height  9999
 > 
 > source("test.epilog.R")

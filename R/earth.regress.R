@@ -11,7 +11,7 @@ earth.regress <- function(
     # expand factors, convert to double matrix with col names
     env <- parent.frame()
     x <- expand.arg(x, env, trace=0)
-    y <- expand.arg(y, env, trace=0, is.y.arg=TRUE, xname=trunc.deparse(substitute(y)))
+    y <- expand.arg(y, env, trace=0, is.y.arg=TRUE, name=trunc.deparse(substitute(y)))
     if(nrow(x) == 0)
         stop0("no 'x' values")
     if(ncol(x) == 0)    # this happens for example for earth(Volume~Volume,data=trees)

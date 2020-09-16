@@ -37,11 +37,22 @@ as.char <- function(object, maxlen=20)
     else if(class(object)[1] == "list") # not is.list() because e.g. lm objects are lists
         paste0("list(", paste.trunc(list.as.char(object), maxlen=maxlen+12), ")")
 
-    else if(class(object)[1] == "Date")
+    else if(inherits(object, "Date"))
         paste0("Date:", paste.trunc(object, maxlen=maxlen+12))
 
     else
-        paste0(class(object)[1], ".object")
+        paste0(class.as.char(object), ".object")
+}
+# compact description of an object's class
+# typically quotify=TRUE for error messages (full class name with quotes),
+# and quotify=FALSE for trace messages (just first field of class name, no quotes)
+
+class.as.char <- function(object, quotify=FALSE)
+{
+    if(quotify)
+        quotify(paste.trunc(class(object), collapse=",", maxlen=60))
+    else
+        class(object)[1]
 }
 # compact description of a list
 # maxlen is max length of each list element (not of the entire list)

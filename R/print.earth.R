@@ -41,6 +41,8 @@ print.earth <- function(x, digits=getOption("digits"), fixed.point=TRUE, ...)
         "of", ncol(x$dirs), "predictors")
     if(x$pmethod != "backward")
         printf(" (pmethod=\"%s\")", x$pmethod)
+    if(!is.null(x$nprune))
+        printf(" (nprune=%g)", x$nprune)
     cat("\n")
 
     print_termcond(x, remind.user.bpairs.expansion)
@@ -399,5 +401,17 @@ spaceout <- function(rownames.)
 {
     rownames. <- gsub("\\*", " * ", rownames.)   # spaces around *
     rownames. <- gsub("--", "- -", rownames.)    # spaces between --
-    gsub("`", "", rownames.)                     # remove backquotes
+    gsub("`", "", rownames.)                     # remove backquotes (TODO correct?)
+}
+get.nterms.per.degree <- function(object, which.terms = object$selected.terms)
+{
+    check.classname(object, substitute(object), "earth")
+    check.which.terms(object$dirs, which.terms)
+    degrees.per.term <- get.degrees.per.term(object$dirs[which.terms, , drop=FALSE])
+    max.degree <- max(degrees.per.term)
+    nterms.per.degree <- repl(0, max.degree+1) # +1 for intercept
+    for(i in 0:max.degree)
+        nterms.per.degree[i+1] <- sum(degrees.per.term == i)
+    names(nterms.per.degree) <- 0:max.degree # for backward compat with old version
+    nterms.per.degree
 }

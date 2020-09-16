@@ -629,10 +629,10 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the vignette.
   \url{http://www.botany.unimelb.edu.au/envisci/about/staff/elith.html}
 
   Miller, Alan (1990, 2nd ed. 2002) \emph{Subset Selection in Regression}
-  \url{http://wp.csiro.au/alanmiller/index.html}
+  \url{https://wp.csiro.au/alanmiller/index.html}
 
   Wikipedia article on MARS
-  \url{http://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines}
+  \url{https://en.wikipedia.org/wiki/Multivariate_adaptive_regression_splines}
 }
 \seealso{
   Start with \code{\link{summary.earth}}, \code{\link{plot.earth}},

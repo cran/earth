@@ -44,6 +44,8 @@ varmod.default <- function(parent,
     warning0("varmod.default: varmods are not supported for \"",
              class(parent)[1], "\" objects\nContinuing anyway")
 
+    # TODO this won't work: varmod.internal assumes an earth parent model in some places
+
     varmod.internal(parent,
                     method, exponent, conv, clamp, minspan,
                     trace, x, y, model.var, ...)
@@ -102,7 +104,8 @@ varmod.internal <- function(parent,
         hc3  = 1 / (1 - leverages)^2,
         hc12 = n / ((n - df) * (1 - leverages)))
 
-    squared.resids <- correction * (parent.y - predict(parent))^2 + model.var
+    squared.resids <- (parent.y - parent.predict(parent))^2
+    squared.resids <- correction * squared.resids + model.var
     abs.resids <- squared.resids ^ (lambda / 2) # by default lambda=1, so this takes sqrt
     temp <- iterate.residmod(parent, abs.resids,
                              method, exponent, lambda, conv, clamp, minspan,
@@ -589,14 +592,13 @@ residmod.const <- function(parent.x, parent.y, abs.resids, weights, trace)
     colnames(data) <- c("abs.resids", colnames(parent.x))
     lm(abs.resids~1, data=data, weights=weights, y=TRUE)
 }
-apply.exponent <- function(yhat, exponent, yname=colnames(yhat))
+apply.exponent <- function(yhat, exponent)
 {
-    stopifnot(!is.null(yname))
     check.vec(yhat, "yhat")
     # exponents of neg numbers are allowed only for integer exponents
     if(floor(exponent) != exponent) {
         check.that.most.are.positive(
-            yhat, yname, sprint("exponent=%g", exponent), "nonpositive")
+            yhat, "parent.fit", sprint("exponent=%g", exponent), "nonpositive")
         yhat[yhat < 0] <- 0 # don't want to take say sqrt of a neg number
     }
     yhat ^ exponent
@@ -653,9 +655,9 @@ residmod.power <- function(exponent, parent.x, parent.y, abs.resids,
 {
     if(exponent != 1) # TODO allow this?
         stop0("the exponent argument is not allowed with varmod.method=\"power\"")
-    parent.fit <- predict(parent)
+    parent.fit <- parent.predict(parent)
     check.that.most.are.positive(
-        parent.fit, "predict(parent)", "varmod.method=\"power\"", "nonpositive")
+        parent.fit, "parent.predict(parent)", "varmod.method=\"power\"", "nonpositive")
     parent.fit[parent.fit < 0] <- 0 # force negative values to zero
     form <- abs.resids~`(Intercept)` + coef * RHS^exponent
     data <- data.frame(abs.resids, apply.exponent(parent.fit, exponent))
@@ -698,9 +700,9 @@ residmod.power0 <- function(exponent, parent.x, parent.y, abs.resids,
 {
     if(exponent != 1) # TODO allow this?
         stop0("the exponent argument is not allowed with varmod.method=\"power0\"")
-    parent.fit <- predict(parent)
+    parent.fit <- parent.predict(parent)
     check.that.most.are.positive(
-        parent.fit, "predict(parent)", "varmod.method=\"power0\"", "nonpositive")
+        parent.fit, "parent.predict(parent)", "varmod.method=\"power0\"", "nonpositive")
     parent.fit[parent.fit < 0] <- 0 # force negative values to zero
     data <- data.frame(abs.resids, apply.exponent(parent.fit, exponent))
     colnames(data) <- c("abs.resids", "RHS")
@@ -712,16 +714,18 @@ residmod.power0 <- function(exponent, parent.x, parent.y, abs.resids,
 residmod.lm <- function(exponent, parent.x, parent.y, abs.resids,
                         weights, trace, parent, ...)
 {
+    parent.fit <- parent.predict(parent)
+    data <- data.frame(abs.resids, apply.exponent(parent.fit, exponent))
     # we use RHS instead of colnames(parent.y) because we have applied exponent
-    data <- data.frame(abs.resids, apply.exponent(predict(parent), exponent))
     colnames(data) <- c("abs.resids", "RHS")
     lm(abs.resids~., data=data, weights=weights, y=TRUE)
 }
 residmod.rlm <- function(exponent, parent.x, parent.y, abs.resids,
                         weights, trace, parent, ...)
 {
+    parent.fit <- parent.predict(parent)
+    data <- data.frame(abs.resids, apply.exponent(parent.fit, exponent))
     # we use RHS instead of colnames(parent.y) because we have applied exponent
-    data <- data.frame(abs.resids, apply.exponent(predict(parent), exponent))
     colnames(data) <- c("abs.resids", "RHS")
     mod <- MASS::rlm(abs.resids~., data=data, weights=weights, method="MM")
     # make model data available for plotmo and plotres
@@ -731,7 +735,8 @@ residmod.rlm <- function(exponent, parent.x, parent.y, abs.resids,
 residmod.earth <- function(exponent, minspan, parent.x, parent.y, abs.resids,
                            weights, trace, parent, ...)
 {
-    data <- data.frame(abs.resids, apply.exponent(predict(parent), exponent))
+    parent.fit <- parent.predict(parent)
+    data <- data.frame(abs.resids, apply.exponent(parent.fit, exponent))
     colnames(data) <- c("abs.resids", "RHS")
     earth(abs.resids~., data=data, weights=weights,
           keepxy=TRUE, trace=trace, minspan=minspan, ...)
@@ -795,7 +800,8 @@ residmod.gam <- function(exponent, parent.x, parent.y, abs.resids,
                          weights, trace, parent, iter, ...)
 {
     form <- abs.resids ~ s(RHS)
-    RHS <- apply.exponent(predict(parent), exponent)
+    parent.fit <- parent.predict(parent)
+    RHS <- apply.exponent(parent.fit, exponent)
     data <- data.frame(abs.resids, RHS)
     colnames(data) <- c("abs.resids", "RHS")
     residmod.gam.aux(form, data, weights, trace, iter)
@@ -875,7 +881,7 @@ predict.abs.residual <- function(object, newdata)
     if(is.null(newdata))
         abs.resid <- predict(object$residmod)
     else if(method.uses.fitted.response(object$method)) {
-        parent.fit <- predict(object$parent, newdata=newdata)
+        parent.fit <- parent.predict(object$parent, newdata=newdata)
         parent.fit <- apply.exponent(parent.fit, object$exponent)
         parent.fit <- data.frame(parent.fit)
         parent.fit <- hack.colnames(parent.fit, object$method)
@@ -894,17 +900,10 @@ predict.abs.residual <- function(object, newdata)
     min.abs.resid <- (object$min.sd ^ object$lambda) / lamba.factor.global
     pmax(abs.resid, min.abs.resid)
 }
-get.parent.fit <- function(object, newdata)
-{
-    parent.fit <- predict(object$parent, newdata=newdata)
-    check.vec(parent.fit, "parent.fit")
-    stopifnot(!is.null(dim(parent.fit))) # check parent.fit is a matrix or dataframe
-    parent.fit[,1]
-}
 predict.pint <- function(object, newdata, level) # newdata allowed
 {
     se <- predict.se(object, newdata)
-    parent.fit <- get.parent.fit(object, newdata)
+    parent.fit <- parent.predict(object$parent, newdata)
     stopifnot(length(parent.fit) == length(se))
     quant <- get.quant(level)
     data.frame(fit = parent.fit,
@@ -915,7 +914,7 @@ predict.cint <- function(object, newdata, level)
 {
     if(!is.null(newdata))
         stop0("predict.varmod: newdata is not allowed with interval=\"cint\"")
-    parent.fit <- get.parent.fit(object, newdata)
+    parent.fit <- parent.predict(object$parent, newdata)
     se <- sqrt(object$model.var)
     stopifnot(length(se) == length(parent.fit))
     quant <- get.quant(level)
@@ -1061,7 +1060,7 @@ get.varmod.coef.tab <- function(
     abs.coef <- abs(coef)
     stderr.percent <- 100 * stderr / abs.coef
     coef.names <- names(coef)
-    coef.names <- gsub("`", "", coef.names) # remove backquotes added by lm etc.
+    coef.names <- gsub("\`", "", coef.names, fixed=TRUE) # remove backquotes added by lm etc.
     if(style == "unit") {
         coef.tab <- data.frame(c(coef, unit), c(stderr, NA), c(stderr.percent, NA))
         rownames(coef.tab) <- c(coef.names, "unit")
@@ -1335,13 +1334,13 @@ plot.varmod <- function(
     if(is.specified(main))
         main <- repl(main, 4) # recycle for up to 4 plots
     ylim <- fix.lim(c(min(object$abs.resids, 0), max(object$abs.resids)))
-    parent.fitted <- predict(object$parent)[,1]
-    order <- order(parent.fitted)
+    parent.fit <- parent.predict(object$parent, newdata=NULL)
+    order <- order(parent.fit)
     smooth.col <- if(info) 2 else 0
     lwd <- 1
     for(iwhich in seq_along(which)) {
         if(which[iwhich] == 1) {            #--- fitted vs parent fitted ---
-            plot(parent.fitted[order], object$abs.resids[order],
+            plot(parent.fit[order], object$abs.resids[order],
                  main=if(!is.specified(main))
                         sprint("%s vs Fitted", get.resids.name(object))
                       else
@@ -1351,11 +1350,11 @@ plot.varmod <- function(
             min.sd.line(object, min.sd.col, lwd) # horizontal line at min.sd
             sd.axis(object)                # right hand axis in stddev scale
             # fitted values of residual model
-            fitted <- predict.varmod(object, type="abs.residual")
-            lines(parent.fitted[order], fitted[order], col=line.col, lwd=lwd)
+            fit <- predict.varmod(object, type="abs.residual")
+            lines(parent.fit[order], fit[order], col=line.col, lwd=lwd)
             if(info) {
                 # lowess smooth
-                smooth <- lowess(parent.fitted[order],
+                smooth <- lowess(parent.fit[order],
                                  object$abs.resids[order], f=.5)
                 lines(smooth$x, smooth$y, col=smooth.col, lwd=1)
             }
@@ -1391,4 +1390,22 @@ plot.varmod <- function(
     }
     draw.caption(caption, ...)
     invisible()
+}
+# This func exists because when predicting for variance calculations with earth-glm
+# models, we want to predict using the earth model itself (not the glm submodel).
+# Therefore for earth models, we force type="earth".
+
+parent.predict <- function(parent, newdata=NULL)
+{
+    stopifnot(!is.null(parent))
+
+    type <- if(inherits(parent, "earth"))
+                "earth" # ignore glm submodel of earth model, if any
+            else
+                plotmo::plotmo_type(parent, trace, "varmod")
+
+    parent.fit <- predict(parent, newdata=newdata, type=type)
+    check.vec(parent.fit, "parent.fit")
+    stopifnot(!is.null(dim(parent.fit))) # check parent.fit is a matrix or dataframe
+    parent.fit[,1]
 }
