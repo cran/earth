@@ -3,7 +3,7 @@
 @rem Stephen Milborrow Apr 2015 Berea
 
 @echo test.varmod.mgcv.bat
-@"C:\PROGRA~1\R\R-4.0.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.varmod.mgcv.R
+@"C:\PROGRA~1\R\R-4.0.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.varmod.mgcv.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.varmod.mgcv.Rout:
 @echo.

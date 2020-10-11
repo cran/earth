@@ -1,9 +1,15 @@
-# test.earthc.mak: makefile for test.earthc.main.exe with Microsoft Visual C 6.0
+# test.earthc.msc.mak: makefile for test.earthc.main.exe with Microsoft VC16 (Visual Studio 2019) 32 bit.
 # This builds the executable, runs it, then diffs the results against the reference.
+#
+# To set up the environment before calling this batch file, run 
+#    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
 
 all: test.earthc.out
 
-R_DIR="%ProgramFiles%\r\R-4.0.2"
+# LINK needs to be explicitly set, else we may call the wrong link program (e.g. /rtools/usr/bin/link)
+LINK = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\bin\HostX64\x86\link.exe" 
+
+R_DIR="%ProgramFiles%\r\R-4.0.3"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -55,20 +61,17 @@ clean:
 	rm -f test.earthc.main.exe $(OUTDIR)/*.obj $(OUTDIR)/*.out $(OUTDIR)/*.pch *.pdb *.dll *.map *.ilk
 
 test.earthc.main.exe: $(OBJ)
-	@rem Added path below to disambiguate from rtools which (may 2020 R version 4.0.0)
-	"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\link.exe" $(LFLAGS) -out:test.earthc.main.exe $(OBJ) $(LIBS)
+	$(LINK) $(LFLAGS) -out:test.earthc.main.exe $(OBJ) $(LIBS)
 
 # we use diff -w below so \r\n is treated the same as \n
 test.earthc.out: test.earthc.main.exe test.earthc.out.save
-	@rem following is so we can check the compiler version because it can affect the model
-	-cl 1> NUL 2> $(OUTDIR)\test.earthc.out
-	test.earthc.main.exe >> $(OUTDIR)\test.earthc.out
+	test.earthc.main.exe > $(OUTDIR)\test.earthc.out
 !IF  "$(CFG)" == "Debug"
 	@rem @echo === Following diff may give some differences ===
 !ENDIF
 	diff -w $(OUTDIR)\test.earthc.out test.earthc.out.save 
 
-$(OUTDIR)/earth.obj: ..\..\src\earth.c test.earthc.mak
+$(OUTDIR)/earth.obj: ..\..\src\earth.c test.earthc.msc.mak
    cl $(CFLAGS) ..\..\src\earth.c
 
-$(OUTDIR)/test.earthc.obj: test.earthc.c ..\..\src\earth.c test.earthc.mak
+$(OUTDIR)/test.earthc.obj: test.earthc.c ..\..\src\earth.c test.earthc.msc.mak

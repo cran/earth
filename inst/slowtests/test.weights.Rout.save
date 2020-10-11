@@ -915,8 +915,57 @@ mod3, mod4: models identical
 mod5, mod6: models identical
 
 > 
-> mod7 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=FALSE)
-> mod8 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=TRUE)
+> # trace=2 so we see "Fixed rank deficient bx"
+> mod7 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=FALSE, trace=2)
+x[330,9] with colnames vh wind humidity temp ibh dpg ibt vis doy
+y[330,1] with colname O3, and values 3, 5, 5, 6, 4, 4, 6, 7, 4, 6,...
+weights[330]: 1.732, 2.236, 2.236, 2.449, 2, 2, 2.449, 2.646, 2, 2.449,...
+Forward pass: minspan 6 endspan 10   x[330,9] 23.2 kB   bx[330,21] 54.1 kB weighted
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
+1      0.0000 0.0000                    (Intercept)
+2      0.6345 0.6433       0.6433    4         temp          58  2   3         1 
+4      0.6799 0.6953      0.05198    5          ibh         777  4   5         1 
+6      0.6962 0.7180      0.02268    6          dpg           6  6   7         1 
+8      0.7169 0.7438      0.02585    9          doy         150  8   9         1 
+10     0.7358 0.7670      0.02316    8          vis         150  10  11        1 
+12     0.7420 0.7783      0.01129    1           vh        5890  12  13        1 
+14     0.7459 0.7873     0.009072    3     humidity          32  14  15        1 
+16     0.7454 0.7925     0.005168    7          ibt         256  16  17        1 
+18     0.7444 0.7973     0.004762    2         wind           6  18  19        1 
+20     0.7419 0.8008     0.003582    7          ibt         132  20  21        1 final (reached nk 21)
+
+Reached nk 21
+After forward pass GRSq 0.742 RSq 0.801
+Forward pass complete: 21 terms
+Fixed rank deficient bx by removing 1 term, 20 terms remain
+Prune backward penalty 2 nprune null: selected 14 of 20 terms, and 9 of 9 preds
+After pruning pass GRSq 0.764 RSq 0.8
+> mod8 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=TRUE,  trace=2)
+x[330,9] with colnames vh wind humidity temp ibh dpg ibt vis doy
+y[330,1] with colname O3, and values 3, 5, 5, 6, 4, 4, 6, 7, 4, 6,...
+weights[330]: 1.732, 2.236, 2.236, 2.449, 2, 2, 2.449, 2.646, 2, 2.449,...
+Forward pass: minspan 6 endspan 10   x[330,9] 23.2 kB   bx[330,21] 54.1 kB weighted
+
+         GRSq    RSq     DeltaRSq Pred     PredName         Cut  Terms   Par Deg
+1      0.0000 0.0000                    (Intercept)
+2      0.6345 0.6433       0.6433    4         temp          58  2   3         1 
+4      0.6799 0.6953      0.05198    5          ibh         777  4   5         1 
+6      0.6962 0.7180      0.02268    6          dpg           6  6   7         1 
+8      0.7169 0.7438      0.02585    9          doy         150  8   9         1 
+10     0.7358 0.7670      0.02316    8          vis         150  10  11        1 
+12     0.7420 0.7783      0.01129    1           vh        5890  12  13        1 
+14     0.7459 0.7873     0.009072    3     humidity          32  14  15        1 
+16     0.7454 0.7925     0.005168    7          ibt         256  16  17        1 
+18     0.7444 0.7973     0.004762    2         wind           6  18  19        1 
+20     0.7419 0.8008     0.003582    7          ibt         132  20  21        1 final (reached nk 21)
+
+Reached nk 21
+After forward pass GRSq 0.742 RSq 0.801
+Forward pass complete: 21 terms
+Fixed rank deficient bx by removing 1 term, 20 terms remain
+Prune backward penalty 2 nprune null: selected 14 of 20 terms, and 9 of 9 preds
+After pruning pass GRSq 0.764 RSq 0.8
 > check.models.equal(mod7, mod8, "mod7, mod8", newdata=ozone1[3,])
 mod7, mod8: models identical
 

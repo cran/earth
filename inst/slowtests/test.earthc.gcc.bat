@@ -1,11 +1,15 @@
-@rem test.earthmain.gcc.bat: test 32-bit standalone earth.c with main()
+@rem test.earthc.gcc.bat:
 @rem
-@rem The gcc, Microsoft, and clang compiler batch files all test
-@rem against the same reference file "test.earthmain.out.save"
+@rem This tests the earth C code.  It does this: builds test.earthc.exe
+@rem (under gcc), runs it, and compares results to test.earthc.out.save.
 @rem
-@rem Stephen Milborrow Jan 2008 Durban
+@rem You will need to tweak this file and test.earthc.gcc.mak for your directories.
+@rem
+@rem You need to make R.lib first -- see instructions in gnuwin32/README.packages.
 
-@echo test.earthmain.gcc.bat
+@echo test.earthc.gcc.bat
+
+@set CYGWIN=nodosfilewarning
 
 @rem set the path and environment for building R packages for the 32-bit gcc compiler
 @rem only do it if needed
@@ -31,23 +35,22 @@ C:\Program Files\gs\gs9.19\bin;^
                                 @if %errorlevel% neq 0 goto error
 @mks.cp "C:\bin\R400devdll\i386\Rblas.lib" .
                                 @if %errorlevel% neq 0 goto error
-
-gcc -DSTANDALONE -DMAIN -Wall --pedantic -Wextra -O3 -std=gnu99^
- -I"/a/r/ra/include" -I../../inst/slowtests ../../src/earth.c^
- R.lib Rblas.lib -o earthmain-gcc.exe
+gcc -DSTANDALONE -m32 -O3 -std=gnu99^
+ -I"/a/r/ra/include" -I../../inst/slowtests^
+ --pedantic -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable^
+ ../../src/earth.c test.earthc.c^
+ R.lib Rblas.lib -o test.earthc.exe
                                 @if %errorlevel% neq 0 goto error
-earthmain-gcc.exe > test.earthmain-gcc.out
-                                @rem no errorlevel test, diff will do check for discrepancies
-                                @rem @if %errorlevel% neq 0 goto error
+test.earthc.exe >test.earthc.out
+                                @if %errorlevel% neq 0 goto error
 @rem we use -w on mks.diff so it treats \r\n the same as \n
-mks.diff -w test.earthmain-gcc.out test.earthmain.out.save
+diff -w test.earthc.out test.earthc.out.save
                                 @if %errorlevel% neq 0 goto error
-
 @if %errorlevel% equ 0 goto good
 :error
 @echo error: errorlevel %errorlevel%
 @exit /B %errorlevel%
 :good
-@rm -f R.dll Rblas.dll Riconv.dll Riconv.dll Rgraphapp.dll R.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc.* *.o
-@rm -rf Release
+@rm -f R.dll Rblas.dll R.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll
+@rm -f test.earthc.exe test.earthc.map test.earthc.main.ilk test.earthc.out *.pdb
 @exit /B 0

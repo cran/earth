@@ -2,7 +2,7 @@
 @rem Stephen Milborrow Dec 2014 Shrewsbury
 
 @echo test.weights.bat
-@"C:\PROGRA~1\R\R-4.0.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.weights.R
+@"C:\PROGRA~1\R\R-4.0.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.weights.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.weights.Rout:
 @echo.

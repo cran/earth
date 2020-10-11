@@ -98,11 +98,11 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 +     } else
 +         nlm[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 1.15 ncells 19 vcells 29
-mem 0.97 ncells 1577 vcells 3666
-mem 1.13 ncells 1777 vcells 4246
-mem 1.13 ncells 1777 vcells 4246
-mem 1.13 ncells 1777 vcells 4246
+mem 5.64 ncells 19 vcells 29
+mem 5.46 ncells 1577 vcells 3666
+mem 5.62 ncells 1777 vcells 4246
+mem 5.62 ncells 1777 vcells 4246
+mem 5.62 ncells 1777 vcells 4246
 > cat("actual run of lm\n")
 actual run of lm
 > # We use 0:nmodels, because we build the first model at iter 0,
@@ -167,62 +167,95 @@ GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
 +     } else
 +         nstandardearth[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 12.45 ncells 8 vcells 0
-mem 12.45 ncells 8 vcells 0
-mem 12.45 ncells 8 vcells 0
-mem 12.45 ncells 8 vcells 0
-mem 12.45 ncells 8 vcells 0
-> 
-> # # TODO July 2020: commented out because varying results per run with R 4.0.2
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
 > # earth model with an allowed func
-> # cat("earth(y~x, allowed = good.allowedfunc)\n")
-> # print(summary(earth(y~x, allowed = good.allowedfunc)))
-> # for(i in 0:nmodels) {
-> #     try(earth(y~x, allowed = good.allowedfunc), silent=FALSE)
-> #     gc <- gc(full=TRUE)
-> #     if(i <= 0) {
-> #         mem.start <- memory.size()
-> #         gc.start <- gc(full=TRUE)
-> #     } else
-> #         ngoodallowed[i] <- max.mem.change(mem.start, gc.start)
-> # }
+> cat("earth(y~x, allowed = good.allowedfunc)\n")
+earth(y~x, allowed = good.allowedfunc)
+> print(summary(earth(y~x, allowed = good.allowedfunc)))
+Call: earth(formula=y~x, allowed=good.allowedfunc)
+
+            coefficients
+(Intercept)    1.1315971
+h(5-x)        -0.1980423
+h(x-5)        -0.1787669
+
+Selected 3 of 3 terms, and 1 of 1 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: x
+Number of terms at each degree of interaction: 1 2 (additive model)
+GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
+> for(i in 0:nmodels) {
++     try(earth(y~x, allowed = good.allowedfunc), silent=FALSE)
++     gc <- gc(full=TRUE)
++     if(i <= 0) {
++         mem.start <- memory.size()
++         gc.start <- gc(full=TRUE)
++     } else
++         ngoodallowed[i] <- max.mem.change(mem.start, gc.start)
++ }
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+> # try earth model with an allowed func which causes an error
+> cat("earth(y~x, allowed = bad.allowedfunc)\n")
+earth(y~x, allowed = bad.allowedfunc)
+> expect.err(try(earth(y~x, allowed = bad.allowedfunc), silent=FALSE), "early exit from bad.allowedfunc")
+Error in (function (degree, pred, parents, namesx, first)  : 
+  early exit from bad.allowedfunc
+Got expected error from try(earth(y ~ x, allowed = bad.allowedfunc), silent = FALSE)
+> for(i in 0:nmodels) {
++     try(earth(y~x, allowed = bad.allowedfunc), silent=TRUE)
++     gc <- gc(full=TRUE)
++     if(i <= 0) {
++         mem.start <- memory.size()
++         gc.start <- gc(full=TRUE)
++     } else
++         nbadallowed[i] <- max.mem.change(mem.start, gc.start)
++ }
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
 > 
-> # # TODO July 2020: commented out because varying results per run with R 4.0.2
-> # # try earth model with an allowed func which causes an error
-> # cat("earth(y~x, allowed = bad.allowedfunc)\n")
-> # expect.err(try(earth(y~x, allowed = bad.allowedfunc), silent=FALSE), "early exit from bad.allowedfunc")
-> # for(i in 0:nmodels) {
-> #     try(earth(y~x, allowed = bad.allowedfunc), silent=TRUE)
-> #     gc <- gc(full=TRUE)
-> #     if(i <= 0) {
-> #         mem.start <- memory.size()
-> #         gc.start <- gc(full=TRUE)
-> #     } else
-> #         nbadallowed[i] <- max.mem.change(mem.start, gc.start)
-> # }
-> 
-> # # TODO July 2020: commented out because varying results per run with R 4.0.2
-> # # try earth model with an arg that causes error in ForwardPass in earth.c
-> # cat("earth(y~x, Adjust.endspan = -999\n")
-> # expect.err(try(earth(y~x, Adjust.endspan = -999), silent=FALSE), "Adjust.endspan is -999 but should be between 0 and 10")
-> # for(i in 0:nmodels) {
-> #     try(earth(y~x, Adjust.endspan = -999), silent=TRUE)
-> #     gc <- gc(full=TRUE)
-> #     if(i <= 0) {
-> #         mem.start <- memory.size()
-> #         gc.start <- gc(full=TRUE)
-> #     } else
-> #         nbadendspan[i] <- max.mem.change(mem.start, gc.start)
-> # }
+> # try earth model with an arg that causes error in ForwardPass in earth.c
+> cat("earth(y~x, Adjust.endspan = -999\n")
+earth(y~x, Adjust.endspan = -999
+> expect.err(try(earth(y~x, Adjust.endspan = -999), silent=FALSE), "Adjust.endspan is -999 but should be between 0 and 10")
+Error in forward.pass(x, y, yw, weights, trace, degree, penalty, nk, thresh,  : 
+  Adjust.endspan is -999 but should be between 0 and 10
+Got expected error from try(earth(y ~ x, Adjust.endspan = -999), silent = FALSE)
+> for(i in 0:nmodels) {
++     try(earth(y~x, Adjust.endspan = -999), silent=TRUE)
++     gc <- gc(full=TRUE)
++     if(i <= 0) {
++         mem.start <- memory.size()
++         gc.start <- gc(full=TRUE)
++     } else
++         nbadendspan[i] <- max.mem.change(mem.start, gc.start)
++ }
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
+mem 0 ncells 8 vcells 0
 > 
 > cat("nlm           "); print(nlm)
 nlm           [1] 8 8 8 8 8
 > cat("nstandardearth"); print(nstandardearth)
-nstandardearth[1] 12.45 12.45 12.45 12.45 12.45
-> # # TODO July 2020: commented out because varying results per run with R 4.0.2
-> # cat("ngoodallowed  "); print(ngoodallowed)
-> # cat("nbadallowed   "); print(nbadallowed)
-> # cat("nbadendspan   "); print(nbadendspan)
+nstandardearth[1] 8 8 8 8 8
+> cat("ngoodallowed  "); print(ngoodallowed)
+ngoodallowed  [1] 8 8 8 8 8
+> cat("nbadallowed   "); print(nbadallowed)
+nbadallowed   [1] 8 8 8 8 8
+> cat("nbadendspan   "); print(nbadendspan)
+nbadendspan   [1] 8 8 8 8 8
 > 
 > # printf("\n                             Min       1stQ     Median       Mean      3rdQ        Max\n")
 > # printf("lm                    %s\n", paste0(sprintf("% 10.3f", summary(nlm)), collapse=" "))

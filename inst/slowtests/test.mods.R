@@ -16,7 +16,7 @@ PLOT <- FALSE
 TIME <- FALSE
 COMPARE_TO_WEIGHTED_MODEL <- FALSE
 RANDOMFOREST <- FALSE
-MARS <- FALSE
+MARS <- TRUE
 RPROF <- FALSE
 if(SHORTTEST) {
     GLOBAL.SEEDS <- 1
@@ -26,7 +26,7 @@ if(SHORTTEST) {
     TIME <- FALSE
     COMPARE_TO_WEIGHTED_MODEL <- FALSE
     RANDOMFOREST <- FALSE
-    MARS <- FALSE
+    # MARS <- FALSE
     RPROF <- FALSE
 }
 itest <- 0
@@ -114,7 +114,7 @@ test.mod <- function(func, x, xtest, collinear.x2, npreds, nk=NULL, degree=2, ..
         mars.rsqs.global   <<- c(mars.rsqs.global, rsq.mars)
         mars.nterms.global <<- c(mars.nterms.global, length(mars$selected.terms))
         delta <- test.rsq - rsq.mars
-        extra.msg <- sprint("%s rsq.mars % 4.2f delta % 4.2f%s",
+        extra.msg <- sprint("%s rsq.mars % 4.3f delta % 4.2f%s",
                                extra.msg, rsq.mars, delta,
                                if(abs(delta) > .5) "!" else "")
     }

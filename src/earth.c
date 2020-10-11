@@ -49,40 +49,41 @@
 #include <string.h>
 #include <float.h>
 #include <math.h>
-#if _MSC_VER         // microsoft
+
+#if _MSC_VER    // microsoft
     #include <crtdbg.h> // microsoft malloc debugging library
-    #define _C_ "C"
+    #define _C_ "C"     // for externs in linpack library
     // disable warning: 'vsprintf': This function or variable may be unsafe
     #pragma warning(disable: 4996)
-#else
+#else           // not microsoft
     #define _C_
-    #ifndef bool
-        typedef int bool;
-        #define false 0
-        #define true  1
-    #endif
 #endif
 
-#if USING_R             // R with gcc
+#if USING_R     // R with gcc
+    typedef int bool; // size of bool must match Rboolean (not char)
+    #define false 0
+    #define true  1
     #include "R.h"
     #include "Rinternals.h" // needed for Allowed function handling
     #include "allowed.h"
     #include "R_ext/Rdynload.h"
     #define printf Rprintf
     #define FINITE(x) R_FINITE(x)
-#else
+#else           // not R
+    #include <stdbool.h> // defines bool, true, false
     #define warning printf
     void error(const char* args, ...);
 #if _MSC_VER // microsoft
     #define ISNAN(x)  _isnan(x)
     #define FINITE(x) _finite(x)
-#else
+#else        // not microsoft
     #define ISNAN(x)  isnan(x)
     #define FINITE(x) finite(x)
 #endif
 #endif
 
 #include "earth.h"
+
 #ifdef MATLAB
     #include "mex.h" // for printf
 #endif
@@ -132,7 +133,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 5.1.0"; // change if you modify this file!
+static const char*  VERSION     = "version 5.3.0"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -557,11 +558,12 @@ static int GetNextParent(   // returns -1 if no more parents
 #endif // FAST_MARS
 
 //-----------------------------------------------------------------------------
-// This helps reduce the effects of numerical err, mostly when testing.
+// This reduces the effects of slight numerical differences across compilers
+// and machines (especially when comparing prints while testing).
 
 static INLINE double MaybeZero(double x)
 {
-    return x < ALMOST_ZERO? 0. : x;
+    return (x > -ALMOST_ZERO && x < ALMOST_ZERO)? 0. : x;
 }
 
 //-----------------------------------------------------------------------------
@@ -1296,6 +1298,7 @@ static void AddTermPair(
     memset(&bx_(0,nTerms),   0, nCases * sizeof(double));
     memset(&bx_(0,nTerms+1), 0, nCases * sizeof(double));
 #endif
+
     int i;
     if(DirEntry == 2) { // linpred?
         for(i = 0; i < (const int)nCases; i++)      // add single term
@@ -1668,21 +1671,6 @@ static INLINE void AddCandidateLinearTerm(
 // This function now selects a predictor, and a knot for that predictor.
 //
 // TODO These functions have a ridiculous number of parameters, I know.
-//
-// TODO A note on the comparison against ALMOST_ZERO below:
-// It's not a clean solution but seems to work ok.
-// It was added after we saw different results on different
-// machines for certain datasets e.g. (tested on earth 1.4.0)
-// ldose  <- rep(0:5, 2) - 2
-// ldose1 <- c(0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 0.3, 1.4, 2.5, 3.6, 4.7, 5.8)
-// sex3 <- factor(rep(c("male", "female", "andro"), times=c(6,4,2)))
-// fac3 <- factor(c("lev2", "lev2", "lev1", "lev1", "lev3", "lev3",
-//                  "lev2", "lev2", "lev1", "lev1", "lev3", "lev3"))
-// numdead <- c(1,4,9,13,18,20,0,2,6,10,12,16)
-// numdead2 <- c(2,3,10,13,19,20,0,3,7,11,13,17)
-// pair <- cbind(numdead, numdead2)
-// df <- data.frame(sex3, ldose, ldose1, fac3)
-// am <-  earth(df, pair, trace=6, pmethod="none", degree=2)
 
 static INLINE void FindPredGivenParent(
     int*    piBestCase,             // out: untouched unless an improving term is found
@@ -1765,19 +1753,27 @@ static INLINE void FindPredGivenParent(
                         iParent+IOFFSET, iPred+IOFFSET,
                         GetCut(0, iPred, nCases, x, xOrder),
                         MaybeZero(RssBeforeNewTerm - RssDeltaLin));
-                tprintf(9, " RssDeltaLin %-12.5g ", RssDeltaLin);
+                tprintf(9, " RssDeltaLin %-12.5g", RssDeltaLin);
+
+#if 0
+                // Oct 2020 Earth version 5.3.0: Removed the following code because
+                // under certain conditions is caused an end knot to be reported as
+                // as an internal knot (1 in the dirs matrix that should be a 2).
+                // (The code's original purpose, 2008, was to fix a slight numerical
+                // instability across architectures that no longer is an issue.)
                 if(fabs(RssDeltaLin - *pBestRssDeltaForTerm) < ALMOST_ZERO) {
-                    RssDeltaLin = *pBestRssDeltaForTerm; // see header note
-                    tprintf(7, "RssDelta %g is ALMOST_ZERO\n",
-                            RssDeltaLin - *pBestRssDeltaForTerm);
+                    tprintf(7, "RssDelta %g is almost zero\n",
+                           RssDeltaLin - *pBestRssDeltaForTerm);
+                    RssDeltaLin = *pBestRssDeltaForTerm;
                 }
+#endif
                 if(RssDeltaLin > *pBestRssDeltaForParent)
                     *pBestRssDeltaForParent = RssDeltaLin;
                 RssBeforeKnot -= RssDeltaLin;
                 if(RssDeltaLin > *pBestRssDeltaForTerm) {
                     // The new term (with predictor entering linearly) beats other
                     // candidate terms so far.
-                    tprintf(9, "best for term (lin pred) ");
+                    tprintf(9, " best for term (lin pred)");
                     UpdatedBestRssDelta = true;
                     *pBestRssDeltaForTerm = RssDeltaLin;
                     *pLinPredIsBest = true;
@@ -1801,9 +1797,19 @@ static INLINE void FindPredGivenParent(
                         x, y, xOrder, yMean,
                         nStartSpan, nMinSpan, nEndSpan, NewVarAdjust,
                         RssBeforeNewTerm); // RssBeforeNewTerm is for tracing
+
                 if(RssDeltaForParPredPair > *pBestRssDeltaForParent)
                     *pBestRssDeltaForParent = RssDeltaForParPredPair;
                 if(RssDeltaForParPredPair > *pBestRssDeltaForTerm) {
+                    tprintf(7,
+"|Parent %-2d Pred %-2d Case %4d Cut % 12.4g  Rss %-12.5g RssDelta %-12.5g    %s\n",
+                        iParent+IOFFSET, iPred+IOFFSET,
+                        iBestCase+IOFFSET,
+                        GetCut(iBestCase, iPred, nCases, x, xOrder),
+                        MaybeZero(RssBeforeNewTerm - RssDeltaForParPredPair),
+                        MaybeZero(RssDeltaForParPredPair),
+                        RssDeltaForParPredPair > *pBestRssDeltaForTerm?
+                            "best for term": "better");
                     UpdatedBestRssDelta = true;
                     *pBestRssDeltaForTerm = RssDeltaForParPredPair;
                     *pLinPredIsBest = false;
@@ -1811,15 +1817,6 @@ static INLINE void FindPredGivenParent(
                     *piBestPred     = iPred;
                     *piBestParent   = iParent;
                     *pIsNewForm     = IsNewForm;
-                    tprintf(7,
-"|Parent %-2d Pred %-2d Case %4d Cut % 12.4g  Rss %-12.5g RssDelta %-12.5g%s\n",
-                        iParent+IOFFSET, iPred+IOFFSET,
-                        iBestCase+IOFFSET,
-                        GetCut(iBestCase, iPred, nCases, x, xOrder),
-                        MaybeZero(RssBeforeNewTerm - *pBestRssDeltaForTerm),
-                        MaybeZero(*pBestRssDeltaForTerm),
-                        RssDeltaForParPredPair > *pBestRssDeltaForTerm?
-                            " best for term": "");
                 } else
                     tprintf(7,
 "|Parent %-2d Pred %-2d Case %4d Cut % 12.4g< Rss %-12.5g RssDelta %-12.5g\n",
@@ -2773,6 +2770,7 @@ static void ForwardPass(
                         nResp, sizeof(double));
 
     memset(FullSet, 0, nMaxTerms * sizeof(bool));
+
     memset(Dirs,    0, nMaxTerms * nPreds * sizeof(int));
     memset(Cuts,    0, nMaxTerms * nPreds * sizeof(double));
     memset(nDegree, 0, nMaxTerms * sizeof(int));
@@ -2834,6 +2832,7 @@ static void ForwardPass(
         if((LinPredIsBest && iBestCase != 0) || // paranoia, should never happen
            (!LinPredIsBest && iBestCase == 0))
             printf("\nLinPredIsBest %d yet iBestCase%-5d\n", LinPredIsBest, iBestCase);
+
         if(!AutoLinPreds && !LinPreds[iBestPred])
             LinPredIsBest = false;
 
@@ -2897,6 +2896,7 @@ static void ForwardPass(
         }
         tprintf(2, "\n");
     } // while(1)
+
     *piTermCond = ForwardEpilog(nTerms, nMaxTerms, Thresh, RSq, RSqDelta,
                                 Gcv, GcvNull, iBestCase, FullSet);
     *pnTerms = nTerms;
@@ -2957,6 +2957,8 @@ SEXP ForwardPassR(             // for use by R
     nEndSpanGlobal        = INTEGER(SEXP_nEndSpan)[0];
     AdjustEndSpanGlobal   = REAL(SEXP_AdjustEndSpan)[0];
     TraceGlobal           = REAL(SEXP_Trace)[0];
+
+    ASSERT(sizeof(bool) == sizeof(Rboolean));
 
     // nUses is the number of time each predictor is used in the model
     nUses = (int*)malloc1(nPreds * sizeof(int),
@@ -3244,7 +3246,8 @@ static void BackwardPass(
     tprintf(3, "\nBackward pass complete: selected %d terms of %d, "
             "GRSq %.3f RSq %.3f\n\n",
             iBestModel+IOFFSET, nMaxTerms,
-            1 - BestGcv/GcvNull, 1 - RssVec[iBestModel]/RssVec[0]);
+            MaybeZero(1 - BestGcv/GcvNull),
+            MaybeZero(1 - RssVec[iBestModel]/RssVec[0]));
 
     // set BestSet to the model which has the best GCV
 
@@ -3324,7 +3327,7 @@ void Earth(
     const double FastBeta,       // in: Fast MARS ageing coef
     const double NewVarPenalty,  // in: penalty for adding a new variable
     const int LinPreds[],        // in: nPreds x 1, 1 if predictor must enter linearly
-    const double AdjustEndSpan,  // in:
+    const double AdjustEndSpan,  // in: for adjusting endspan for interaction terms
     const bool AutoLinPreds,     // in: assume predictor linear if knot is min predictor value
     const bool UseBetaCache,     // in: 1 to use the beta cache, for speed
     const double Trace,          // in: 0 none 1 overview 2 forward 3 pruning 4 more pruning

@@ -3,13 +3,7 @@
 #include "R.h"
 #include "Rinternals.h"
 
-#ifndef _MSC_VER // microsoft
-#ifndef bool
-    typedef int bool;
-    #define false 0
-    #define true  1
-#endif
-#endif
+typedef int bool; // size of bool must match Rboolean (not char)
 
 #define Dirs_(iTerm,iPred) Dirs[(iTerm) + (iPred)*(nMaxTerms)]
 
@@ -51,6 +45,9 @@ void InitAllowedFunc(
         int nAllowedArgs, SEXP Env,
         const char** sPredNames, int nPreds)
 {
+    if(sizeof(bool) != sizeof(Rboolean))
+        error("InitAllowedFunc: sizeof(bool) != sizeof(Rboolean)");
+
     if(Allowed == R_NilValue)
         AllowedFuncGlobal = NULL;
     else {
@@ -99,7 +96,7 @@ void InitAllowedFunc(
             SETCAR(s, allocVector(LGLSXP, 1));
         }
     }
-    FirstGlobal = true;
+    FirstGlobal = TRUE;
 }
 
 void FreeAllowedFunc(void)
@@ -175,7 +172,7 @@ bool IsAllowed(
 
     if(nArgsGlobal >= 5)            // optional 6th element is "first"
         *(LOGICAL(CAD4R(s))) = FirstGlobal;
-    FirstGlobal = false;
+    FirstGlobal = FALSE;
 
     return EvalAllowedFunc();
 }

@@ -90,6 +90,23 @@ a1b <- earth(etitanic[,-2,drop=FALSE], etitanic[,2,drop=FALSE],
 printh(a1b)
 plotmo(a1b)
 
+# test modvars for the example in the man page earth.object.Rd
+
+aform <- earth(survived ~ age + pclass + sqrt(age) - sex, data=etitanic)
+cat("\nattr(aform$terms, \"factors\")\n")
+print(attr(aform$terms, "factors"))
+cat("\na$modvars\n")
+print(aform$modvars)
+cat("\n")
+
+axy.dat <- data.frame(age=etitanic$age, pclass=etitanic$pclass, sqrt_age=sqrt(etitanic$age))
+axy <- earth(axy.dat, etitanic$survived)
+cat("\nattr(axy$terms, \"factors\")\n")
+print(attr(axy$terms, "factors"))
+cat("\na$modvars\n")
+print(axy$modvars)
+cat("\n")
+
 # x and y dataframes but with missing column names
 xdf_nonames <- etitanic[,-2,drop=FALSE]
 cat("original colnames of xdf_nonames:", paste(colnames(xdf_nonames)), "\n")
@@ -531,25 +548,33 @@ a$selected.terms[earth:::reorder.earth(a)]
 cat("--- tests with ozone data ----------------------\n")
 
 ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
-                    plotit=PLOT, trace=0, smooth.col="red")
+                    plotit=PLOT, trace=0, smooth.col="red", print.mars=FALSE)
 {
     fite <- earth(x, y, degree=degree, nk=nk, trace=trace)
     fitm <- mars(x, y, degree=degree, nk=nk)
+    fitme <- mars.to.earth(fitm)
 
     cat("itest",
         sprint("%-3d", itest),
         sprint("%-32s", sModel),
-        "degree", sprint("%-2d", degree), "nk", sprint("%-3g", nk),
-        "nTerms",  sprint("%-2d", sum(fite$selected.terms != 0)),
-        "of", sprint("%-3d", nrow(fite$dirs)),
-        "GRSq", sprint("%4.2g", fite$grsq),
-        "GRSq ratio", fite$grsq/mars.to.earth(fitm)$grsq,
+        "degree",   sprint("%-2d",  degree), "nk", sprint("%-3g", nk),
+        "nTerms",   sprint("%-2d",  sum(fite$selected.terms != 0)),
+        "of",       sprint("%-3d",  nrow(fite$dirs)),
+        "RSq",      sprint("%4.2g", fite$rsq),
+        "GRSq",     sprint("%4.2g", fite$grsq),
+        "mars RSq", sprint("%4.2g", fitme$rsq),
+        "ratio",    sprint("%.2f",  fite$rsq / fitme$rsq),
+        "GRSq",     sprint("%4.2g", fitme$grsq),
+        "ratio",    sprint("%.2f",  fite$grsq / fitme$grsq),
         "\n")
-    caption <- paste("itest ", itest, ": ", sModel, " degree=", degree, " nk=", nk, sep="")
+    if(print.mars) {
+        fitme1 <- update(fitme) # generate model selection data
+        printh(summary(fitme1))
+        cat("\n")
+    }
     printh(summary(fite))
-    printh(summary(fite, style="bf"))
     if(plotit) {
-        fitme <- mars.to.earth(fitm)
+        caption <- paste("itest ", itest, ": ", sModel, " degree=", degree, " nk=", nk, sep="")
         plotmo(fite, caption=paste("EARTH", caption), trace=-1)
         plotmo(fitme, caption=paste("MARS", caption), trace=-1)
         plot(fite, npoints=500, smooth.col=smooth.col, caption=paste("EARTH", caption), info=TRUE)
@@ -576,8 +601,7 @@ cat("--Expect warning from mda::mars: NAs introduced by coercion\n") # why do we
 x.global <- cbind(wind, exp(humidity))
 y <- doy
 # smooth.col is 0 else get loess errors
-# trace==2 so we print the "Fixed rank deficient bx by removing 2 terms, 7 terms remain" message
-# TODO why are we getting the rank deficient message?
+# trace==2 so we see "Fixed rank deficient bx by removing 2 terms, 7 terms remain"
 itest <- itest+1; ozone.test(itest, "doy ~ wind+exp(humidity)", x.global, y, degree=1, nk=21, smooth.col=0, trace=2)
 
 x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
@@ -586,7 +610,7 @@ itest <- itest+1; ozone.test(itest, "O3~.", x.global, y, degree=2, nk=21)
 
 x.global <- cbind(vh,wind,humidity,temp,ibh,dpg,ibt,vis,doy)
 y <- O3
-itest <- itest+1; ozone.test(itest, "O3~., nk=51", x.global, y, degree=2, nk=51)
+itest <- itest+1; ozone.test(itest, "O3~., nk=51", x.global, y, degree=2, nk=51, print.mars=TRUE)
 
 detach(ozone1)
 
@@ -1083,6 +1107,8 @@ colnames(ndata) <- c("x1", "x2", "x3", "x4", "x5", "y")
 ndata <- as.data.frame(ndata)
 
 cat("Auto.linpreds=TRUE pmethod=\"none\":\n")
+# trace==2 so we see "Fixed rank deficient bx by removing terms"
+# TODO why are we getting the rank deficient message?
 auto.linpreds.true.pmethod.none <- earth(y~., data=ndata, degree=2, nk=21, trace=2, pmethod="none")
 print(summary(auto.linpreds.true.pmethod.none, decomp="none"))
 cat("\nAuto.linpreds=FALSE pmethod=\"none\":\n")
@@ -2036,5 +2062,43 @@ predict.lm <- predict(lm.Species, newdata=data.frame(Species="setosa")) # ok
 earth.Species <- earth(Sepal.Length~Species, data=iris)
 predict.earth <- predict(earth.Species, newdata=data.frame(Species="setosa")) # used to fail
 stopifnot(identical(as.vector(predict.lm), as.vector(predict.earth)))
+
+# Check fix for bug reported by Max Kuhn (Oct 2020, fixed in earth 5.3.0):
+# Occasionally we used to put a 1 when we should have put a 2 into the dirs matrix.
+options.old <- options()
+options(width=1000)
+
+library(modeldata)
+data(ames)
+vars <- c("Sale_Price", "Gr_Liv_Area", "Alley", "Mas_Vnr_Type", "BsmtFin_Type_2", "Condition_2")
+ames2 <- ames[,vars,drop=FALSE]
+ames2$Sale_Price <- log10(ames2$Sale_Price)
+# change colnames to something easier to work with
+colnames(ames2) <- c("Sale_Price", "g", "a", "m", "b", "c")
+ames2 <- as.data.frame(ames2)
+ames2.mod <- earth(Sale_Price ~ ., data = ames2, degree = 2,
+                   trace=4, pmethod="none")
+cat("\nsummary(ames2.mod)\n")
+print(summary(ames2.mod))
+cat("\names2.mod$dirs\n")
+print(ames2.mod$dirs)
+plotmo(ames2.mod, SHOWCALL=TRUE)
+# check that there are no 1s in dirs, except for the "g" variable
+# all entries should be 0 or 2, because all vars are indicators (binary), so no knots
+stopifnot(all(ames2.mod$dirs[,-1,drop=FALSE] != 1)) # -1 drops "g" column
+stopifnot(ames2.mod$dirs["h(g-3390)*mStone",  "mStone"] == 2)
+
+# same as above but with Auto.linpreds=FALSE
+ames2.mod.Auto.linpreds.FALSE <- earth(Sale_Price ~ ., data = ames2, degree = 2,
+                                       pmethod="none", Auto.linpreds=FALSE)
+cat("\nsummary(ames2.mod.Auto.linpreds.FALSE)\n")
+print(summary(ames2.mod.Auto.linpreds.FALSE))
+cat("\nAuto.linpreds.FALSE$dirs\n")
+print(ames2.mod.Auto.linpreds.FALSE$dirs)
+# check that there are no 2s in dirs with Auto.linpreds=FALSE
+stopifnot(all(ames2.mod.Auto.linpreds.FALSE$dirs != 2))
+stopifnot(abs(ames2.mod$rsq - ames2.mod.Auto.linpreds.FALSE$rsq) < 1e-10)
+
+options(options.old) # no more width=1000
 
 source("test.epilog.R")

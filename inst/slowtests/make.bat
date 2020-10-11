@@ -2,12 +2,19 @@
 
 @call test.earthmain.gcc.bat
                         @if %errorlevel% NEQ 0 goto error
-@rem TODO Feb 2020: clang gives link errors if used with ms c compiler on the path
-@rem @call test.earthmain.clang.bat
-                   @if %errorlevel% NEQ 0 goto error
-@call test.earthmain.vc.bat
+@call test.earthmain.clang.bat
                         @if %errorlevel% NEQ 0 goto error
-@call test.earthc.bat
+@call test.earthmain.msc.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.earthc.msc.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.earthc.gcc.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.earthc.msc.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.earthc.clang.bat
+                        @if %errorlevel% NEQ 0 goto error
+@call test.numstab.bat
                         @if %errorlevel% NEQ 0 goto error
 @call test.mods.bat
                         @if %errorlevel% NEQ 0 goto error
@@ -45,9 +52,9 @@
                         @if %errorlevel% NEQ 0 goto error
 @call test.emma.bat
                         @if %errorlevel% NEQ 0 goto error
-@rem TODO Sep 2020: commented out because varying results per run with R 4.0.2
+@rem TODO Sep 2020: commented out because varying results per run with R 4.0.3
 @rem @call test.mem.bat
-@rem                    @if %errorlevel% NEQ 0 goto error
+                        @if %errorlevel% NEQ 0 goto error
 @goto done
 :error
 @echo ==== ERROR ====

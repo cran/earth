@@ -1,6 +1,30 @@
 Changes to the earth package
 ----------------------------
 
+5.2.3  Oct 10, 2020
+
+  Fixed a minor bug where occasionally, for binary variables,
+  earth put a 1 when it should have put a 2 into the dirs matrix.
+  The bug was invisible unless you accessed earth's dirs matrix directly.
+  In some circumstances this fix may cause earth to build slightly different
+  models (an internal boundary check for almost-zero in earth.c was modified).
+  Thanks to Max Kuhn for reporting this issue.
+
+  Updated the .c and .h files to use the more modern header
+  file <stdbool.h> where appropriate (i.e. when not in an R environment).
+  We now also check that sizeof(bool)==sizeof(Rboolean) when called from R.
+
+  Updated some trace prints in earth.c (only affects very high trace levels).
+
+  Test suite additions: Added test.earthc.gcc.bat and
+  test.earthc.clang.bat. Extended inst/slowtests/test.earthc.c to
+  include binary predictors. Added test.numstab.R to test models which
+  are known to give (slightly) different results with different
+  compilers. Extended the clang tests. We now use version VC16 (Visual
+  Studio 2019) of the Microsoft compiler. Miscellaneous other test updates.
+
+  Minor documentation updates.
+
 5.2.0 Sep 15, 2020
 
   Earth now has better support for models with unusual variable names:

@@ -1,7 +1,7 @@
 @rem test.emma.R: regression tests for emma with plotmo
 @rem Stephen Milborrow, Shrewsbury Nov 2014
 
-@"C:\PROGRA~1\R\R-4.0.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.emma.R
+@"C:\PROGRA~1\R\R-4.0.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.emma.R
 @if %errorlevel% equ 0 goto good1:
 @echo R returned errorlevel %errorlevel%, see test.emma.Rout:
 @echo.

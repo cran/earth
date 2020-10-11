@@ -5,11 +5,7 @@
 #include "R.h"
 #include "Rinternals.h" // for REALSXP etc.
 #include "R_ext/Rdynload.h"
-#ifndef _MSC_VER // microsoft
-#ifndef bool
-    typedef int bool;
-#endif
-#endif
+typedef int bool; // size of bool must match Rboolean (not char)
 #include "earth.h"
 
 static R_NativePrimitiveArgType FreeEarth_t[] = {INTSXP};
@@ -37,6 +33,7 @@ static R_NativePrimitiveArgType RegressR_t[] = {
     INTSXP,     // 11 int*         pnCols
     LGLSXP      // 12 const bool   UsedCols[]
 };
+// TODO: for below, "gcc --pedantic" gives "warning: cast between incompatible function types"
 static R_CMethodDef cEntries[] = {
   {"FreeEarth",            (DL_FUNC)&FreeEarth,             0, FreeEarth_t},
   {"EvalSubsetsUsingXtxR", (DL_FUNC)&EvalSubsetsUsingXtxR,  8, EvalSubsetsUsingXtxR_t},

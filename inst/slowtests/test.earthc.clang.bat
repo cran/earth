@@ -1,11 +1,13 @@
-@rem test.earthmain.clang.bat: test the standalone earth.c with main()
+@rem test.earthc.clang.bat: test the standalone earth.c with main()
 @rem
-@rem The gcc, Microsoft, and clang compiler batch files all test
-@rem against the same reference file "test.earthmain.out.save"
+@rem This tests the earth C code.  It does this: builds test.earthc.exe
+@rem (under clang), runs it, and compares results to test.earthc.out.save.
 @rem
-@rem Stephen Milborrow Dec 2014 Shrewsbury.  Updated Petaluma May 2020.
+@rem You will need to tweak this file and test.earthc.gcc.mak for your directories.
+@rem
+@rem You need to make R.lib first -- see instructions in gnuwin32/README.packages.
 
-@echo test.earthmain.clang.bat
+@echo test.earthc.clang.bat
 @mks.cp "C:\bin\R400devdll\i386\R.dll" .
                                 @if %errorlevel% neq 0 goto error
 @mks.cp "C:\bin\R400devdll\i386\Rblas.dll" .
@@ -25,26 +27,24 @@
 @rem Flags same as gcc where possible.
 @rem -U_MSC_VER is needed because some clang executables define this inherently https://stackoverflow.com/questions/38499462/how-to-tell-clang-to-stop-pretending-to-be-other-compilers
 @rem Some of these warning suppressions are necessary because we use R and BLAS routines.
-
 @rem Oct 2020: tested with clang version 6.0.0 (tags/RELEASE_600/final)
-%CLANGEXE% --version
 
-%CLANGEXE% -DSTANDALONE -DMAIN -Wall --pedantic -Wextra -Weverything -O3 -std=gnu99^
+%CLANGEXE% -DSTANDALONE -Wall --pedantic -Wextra -Weverything -O3 -std=gnu99^
  -U_MSC_VER^
  -Wno-strict-prototypes -Wno-reserved-id-macro -Wno-cast-qual -Wno-unknown-pragmas^
  -Wno-float-equal -Wno-format-nonliteral -Wno-padded -Wno-sign-conversion -Wno-undef^
  -Wno-shadow -Wno-deprecated-declarations -Wno-implicit-function-declaration^
- -Wno-missing-noreturn^
- -I"/a/r/ra/include" -I../../inst/slowtests ../../src/earth.c^
- R.lib Rblas.lib -o earthmain-clang.exe
+ -Wno-missing-noreturn -Wno-missing-prototypes -Wno-unused-parameter^
+ -I"/a/r/ra/include" -I../../inst/slowtests ../../src/earth.c test.earthc.c^
+ R.lib Rblas.lib -o earthc-clang.exe
                                 @if %errorlevel% neq 0 goto error
-earthmain-clang.exe > test.earthmain-clang.out
+earthc-clang.exe > test.earthc-clang.out
                                 @rem no errorlevel test, diff will do check for discrepancies
                                 @rem @if %errorlevel% neq 0 goto error
-mks.diff test.earthmain-clang.out test.earthmain.out.save
+mks.diff test.earthc-clang.out test.earthc.out.save
                                 @if %errorlevel% neq 0 goto error
 
-@rm -f R.dll Rblas.dll Riconv.dll Riconv.dll Rgraphapp.dll R.lib Rblas.lib earthmain-clang.* test.earthmain-clang.* *.o
+@rm -f R.dll Rblas.dll Riconv.dll Riconv.dll Rgraphapp.dll R.lib Rblas.lib earthc-clang.* test.earthc-clang.* *.o
 @exit /B 0
 
 :error

@@ -1,14 +1,26 @@
-@rem test.earthc.bat:
+@rem test.earthc.msc.bat:
 @rem
 @rem This tests the earth C code.  It does this: builds test.earthc.exe
-@rem (under Microsoft C), runs it, and compares results to test.earthc.out.save
-@rem You need to make R.lib first -- see instructions in gnuwin32/README.packages
-@rem You will need to tweak this file and test.earthc.mak for your directories
+@rem (under Microsoft C VC16 (Visual Studio 2019) 32 bit, runs it,
+@rem and compares results to test.earthc.out.save.
+@rem
+@rem You will need to tweak this file and test.earthc.msc.mak for your directories.
+@rem
+@rem You need to make R.lib first -- see instructions in gnuwin32/README.packages.
+@rem
+@rem To set up the environment for the call to "cl" and "link" in the makefile below, invoke:
+@rem    C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat
 @rem
 @rem Stephen Milborrow Mar 2007 Forden, Wales
 
-@echo test.earthc.bat
+@echo test.earthc.msc.bat
 @set CYGWIN=nodosfilewarning
+
+@rem The following is a basic check that you have Visual Studio 2019 for 32 bit targets
+@which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
+@echo Environment is not VC16 (Visual Studio 2019) 32 bit -- invoke vc16-32.bat
+@exit /B 1
+:donesetpath
 
 @mks.cp "C:\bin\R400devdll\i386\R.dll" .
                                 @if %errorlevel% neq 0 goto error
@@ -24,15 +36,13 @@ mks.cp "C:\bin\R400devdll\i386\R.lib" .
 mks.cp "C:\bin\R400devdll\i386\Rblas.lib" .
                                 @if %errorlevel% neq 0 goto error
 
-@md Debug
-@md Release
+@rem @md Release
+@rem @nmake -nologo CFG=Release -f test.earthc.msc.mak
 
-@rem @nmake -nologo CFG=Release -f test.earthc.mak
-
-@rem The Debug build gives slightly different output in lower decimal places (TODO why?)
 @rem The advantage of using Debug is that memory leaks are reported.
 @rem It is much slower though.
-@nmake -nologo CFG=Debug -f test.earthc.mak
+@md Debug
+@nmake -nologo CFG=Debug -f test.earthc.msc.mak
 
 @if %errorlevel% equ 0 goto good
 @echo error: errorlevel %errorlevel%
@@ -42,3 +52,4 @@ mks.cp "C:\bin\R400devdll\i386\Rblas.lib" .
 @rm -f test.earthc.main.exe test.earthc.main.map test.earthc.main.ilk *.pdb
 @rm -rf Debug
 @rm -rf Release
+@exit /B 0

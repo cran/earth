@@ -42,8 +42,6 @@ mars.to.earth(object, trace=TRUE)
 \bold{Weights}
 
   The \code{w} argument is silently ignored by \code{mars}.
-  % The equivalent \code{earth} argument \code{weights} is also not yet supported,
-  % and you will get a warning.
 
   \code{mars} normalizes \code{wp} to (euclidean) length 1;
   \code{earth} normalizes

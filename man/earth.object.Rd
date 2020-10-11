@@ -211,6 +211,17 @@ results in:
     age       1         0         0         1  # age and sqrt(age) use "age"
     pclass    0         1         1         0  # pclass2nd and pclass3rd use "pclass"
 }
+Note that for models built with \code{earth.default} (\code{x,y} models),
+``derived variables'' are not combined in \code{modvars} as they are for formula models.
+The row names of \code{modvars} match the column names of \code{x},
+after factor expansion.
+Columns in \code{x} named \code{"age"} and \code{"sqrt(age)"}
+will be treated as two separate variables.
+% up to changes to conform the names to standard R variable names.
+% For example, if the column names of \code{x} are\cr
+% \code{"age", "pclass2nd", "pclass3rd", "sqrt_age"},\cr
+% then the row names of \code{modvars} will be\cr
+% \code{"age", "pclass2nd", "pclass3rd", "sqrt_age"}.
 }
 \item{\code{namesx}}{
      Variable names in the input data.  Deprecated (subsumed by \code{modvars}).

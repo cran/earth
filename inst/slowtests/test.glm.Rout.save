@@ -7518,6 +7518,36 @@ Got expected error from try(printh(resid(a, type = "standardize"), max.print = 3
 > # tests based on Gavin Simpson's bug report
 > # fit a MARS model allowing one-way interactions
 > mod.Gamma <- earth(O3 ~ . - doy, data = ozone1, degree = 2, glm = list(family = Gamma))
+> cat("summary(mod.Gamma):\n")
+summary(mod.Gamma):
+> print(summary(mod.Gamma))
+Call: earth(formula=O3~.-doy, data=ozone1, glm=list(family=Gamma), degree=2)
+
+GLM coefficients
+                                       O3
+(Intercept)                   0.059990770
+h(58-temp)                    0.005133954
+h(ibh-1105)                   0.000008963
+h(2-dpg)                      0.001426223
+h(17-vis)                     0.001446316
+h(vis-17)                     0.000116396
+h(wind-5) * h(1105-ibh)       0.000011633
+h(53-humidity) * h(temp-58)   0.000036902
+h(humidity-46) * h(ibh-1105)  0.000000267
+h(temp-58) * h(dpg-54)        0.000060348
+h(temp-58) * h(54-dpg)       -0.000024529
+h(ibh-1105) * h(vis-40)       0.000000011
+h(dpg-2) * h(ibt-115)        -0.000004080
+
+GLM (family Gamma, link inverse):
+ nulldev  df       dev  df   devratio     AIC iters converged
+  167.03 329   45.5397 317      0.727    1779     5         1
+
+Earth selected 13 of 21 terms, and 7 of 8 predictors
+Termination condition: Reached nk 21
+Importance: temp, humidity, dpg, ibt, ibh, vis, wind, vh-unused
+Number of terms at each degree of interaction: 1 5 7
+Earth GCV 15.35284    RSS 4159.269    GRSq 0.7615117    RSq 0.8030221
 > for(type in c("earth", "deviance", "glm.pearson", "glm.working", "glm.response", "glm.partial"))
 + {
 +     cat("residuals.earth Gamma type=", type, ":\n", sep="")
@@ -7585,6 +7615,32 @@ residuals.earth Gamma type=glm.partial:
 329              0.04242856              0.04099196
 330              0.18450245              0.18553509
 > mod.binomial <- earth(survived ~ ., data = etitanic, degree = 2, glm = list(family = binomial))
+> cat("summary(mod.binomial):\n")
+summary(mod.binomial):
+> print(summary(mod.binomial))
+Call: earth(formula=survived~., data=etitanic, glm=list(family=binomial),
+            degree=2)
+
+GLM coefficients
+                         survived
+(Intercept)             2.9135260
+pclass3rd              -5.0300560
+sexmale                -3.1856245
+h(age-32)              -0.0375715
+pclass2nd * sexmale    -1.7680945
+pclass3rd * sexmale     1.2226954
+pclass3rd * h(4-sibsp)  0.6186527
+sexmale * h(16-age)     0.2418140
+
+GLM (family binomial, link logit):
+ nulldev   df       dev   df   devratio     AIC iters converged
+ 1414.62 1045   892.794 1038      0.369   908.8     5         1
+
+Earth selected 8 of 17 terms, and 5 of 6 predictors
+Termination condition: Reached nk 21
+Importance: sexmale, pclass3rd, pclass2nd, age, sibsp, parch-unused
+Number of terms at each degree of interaction: 1 3 4
+Earth GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
 > for(type in c("earth", "deviance", "glm.pearson", "glm.working", "glm.response", "glm.partial"))
 + {
 +     cat("residuals.earth binomial type=", type, ":\n", sep="")

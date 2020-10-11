@@ -1296,6 +1296,8 @@ expect.err(try(printh(resid(a, type="standardize"), max.print=3)), "model was no
 # tests based on Gavin Simpson's bug report
 # fit a MARS model allowing one-way interactions
 mod.Gamma <- earth(O3 ~ . - doy, data = ozone1, degree = 2, glm = list(family = Gamma))
+cat("summary(mod.Gamma):\n")
+print(summary(mod.Gamma))
 for(type in c("earth", "deviance", "glm.pearson", "glm.working", "glm.response", "glm.partial"))
 {
     cat("residuals.earth Gamma type=", type, ":\n", sep="")
@@ -1303,6 +1305,8 @@ for(type in c("earth", "deviance", "glm.pearson", "glm.working", "glm.response",
     print(tail(resid(mod.Gamma, type = type), n=2))
 }
 mod.binomial <- earth(survived ~ ., data = etitanic, degree = 2, glm = list(family = binomial))
+cat("summary(mod.binomial):\n")
+print(summary(mod.binomial))
 for(type in c("earth", "deviance", "glm.pearson", "glm.working", "glm.response", "glm.partial"))
 {
     cat("residuals.earth binomial type=", type, ":\n", sep="")

@@ -493,8 +493,9 @@ mod5 <- earth(O3~., ozone1, Scale.y=FALSE)
 mod6 <- earth(O3~., ozone1, Scale.y=TRUE)
 check.models.equal(mod5, mod6, "mod5, mod6", newdata=ozone1[3,])
 
-mod7 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=FALSE)
-mod8 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=TRUE)
+# trace=2 so we see "Fixed rank deficient bx"
+mod7 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=FALSE, trace=2)
+mod8 <- earth(O3~., ozone1, weights=sqrt(ozone1$O3), Scale.y=TRUE,  trace=2)
 check.models.equal(mod7, mod8, "mod7, mod8", newdata=ozone1[3,])
 
 data(etitanic)
