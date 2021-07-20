@@ -23,15 +23,18 @@ dots.used.err <- function(..., STOPFUNC, MSG) # utility for stop.if.dots and fri
     callers.name <- callers.name(n=2)
     dots <- match.call(expand.dots=FALSE)$...
     for(idot in seq_along(dots)) # STOPFUNC is either stop() or warning()
-        STOPFUNC(callers.name, MSG, describe.dot(dots, idot), call.=FALSE)
+    {
+        desc <- describe.dot(dots, idot)
+        STOPFUNC(callers.name, MSG, desc, call.=FALSE)
+    }
 }
-describe.dot <- function(dots, idot) # utility for dots.used.err
+describe.dot <- function(dots, idot, n=4) # utility for dots.used.err
 {
     nchar <- nchar(names(dots)[idot])
     if(length(nchar) && nchar > 0)
         return(sprint(" argument '%s'", names(dots[idot])))
     # the argument that was passed in dots is unnamed
-    call <- call.as.char(n=5) # n=5 to describe call to caller of stop.if.dots
+    call <- call.as.char(n=4) # n=4 to describe call to caller of stop.if.dots
     sprint(" unnamed argument\n       The call was %s",
            paste0(strwrap(call,
                   width=max(40, max(25, getOption("width")-20)), exdent=25),

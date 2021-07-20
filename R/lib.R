@@ -151,7 +151,7 @@ check.no.na.in.mat <- function(object)
                     sprint("%s[,%d]",
                         short.deparse(substitute(object), "matrix"), icol)
 
-            check(object, check.name, "NA", is.na, na.ok=FALSE)
+            check(object[,icol], check.name, "NA", is.na, na.ok=FALSE)
         }
     }
 }

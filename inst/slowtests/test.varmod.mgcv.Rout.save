@@ -32,7 +32,7 @@ Loading required package: TeachingDemos
 > 
 > library(mgcv)
 Loading required package: nlme
-This is mgcv 1.8-33. For overview type 'help("mgcv-package")'.
+This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
 > 
 > for(varmod.method in c("gam", "x.gam")) {
 + 

@@ -18,7 +18,7 @@
 
 @rem The following is a basic check that you have Visual Studio 2019 for 32 bit targets
 @which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
-@echo Environment is not VC16 (Visual Studio 2019) 32 bit -- invoke vc16-32.bat
+@echo Environment is not VC16 (Visual Studio 2019) 32 bit -- please invoke vc16-32.bat
 @exit /B 1
 :donesetpath
 

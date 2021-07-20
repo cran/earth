@@ -1,7 +1,13 @@
 Changes to the earth package
 ----------------------------
 
-5.2.3  Oct 10, 2020
+5.3.1  July 19, 2021
+
+  Minor updates for R version 4.1.0:
+    o Updates to the test scripts for ordered factors.
+    o Update to the code that reports missing arguments.
+
+5.3.0  Oct 10, 2020
 
   Fixed a minor bug where occasionally, for binary variables,
   earth put a 1 when it should have put a 2 into the dirs matrix.
@@ -42,7 +48,7 @@ Changes to the earth package
   earth model formula.
 
   Under certain circumstances when nprune was used with pmethod="cv",
-  summary.earth would issue an incorrect error messge.
+  summary.earth would issue an incorrect error message.
   Fixed that with help from Boris Leroy at the
   Muséum national d'Histoire naturelle (Paris).
 

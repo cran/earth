@@ -1,7 +1,7 @@
 > # test.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 4.0.3 (2020-10-10)"
+[1] "R version 4.1.0 (2021-05-18)"
 > 
 > source("test.prolog.R")
 > source("check.models.equal.R")
@@ -44,7 +44,7 @@ To cite package 'earth' in publications use:
   Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob
   Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's
   leaps wrapper. (2011). earth: Multivariate Adaptive Regression
-  Splines. R package version 5.3.0.
+  Splines. R package version 5.3.1.
   https://CRAN.R-project.org/package=earth
 
 A BibTeX entry for LaTeX users is
@@ -53,7 +53,7 @@ A BibTeX entry for LaTeX users is
     title = {earth: Multivariate Adaptive Regression Splines},
     author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
     year = {2011},
-    note = {R package version 5.3.0},
+    note = {R package version 5.3.1},
     url = {https://CRAN.R-project.org/package=earth},
   }
 
@@ -6727,8 +6727,10 @@ GCV 0.1404529    RSS 141.7629    GRSq 0.4197106    RSq 0.4389834
 > detach(etitanic)
 > 
 > # basic test with ordered factors
+> # TODO June 2021: this doesn't actually check factors and never has, see note below
 > ff <- factor(substring("statistics", 1:10, 1:10), levels=letters, ordered=TRUE)
-> ff <- c(ff, ff, ff)
+> # NOTE: Jun 2021: added as.numeric for backward compability with R pre version R 4.1.0
+> ff <- as.numeric(c(ff, ff, ff))
 > vowels = (ff == 1 | ff == 9) * 3
 > printh(head(ff))
 ===head(ff) 

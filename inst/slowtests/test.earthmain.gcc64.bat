@@ -3,13 +3,13 @@
 @rem TODO I haven't yet been able to get this to work:
 @rem      Crashes in daxpy_ call in FindKnot, ok with USE_BLAS = 0.
 
-cp "C:/Program Files/R/R-4.0.3/bin/x64/R.dll" .
+cp "C:/Program Files/R/R-4.1.0/bin/x64/R.dll" .
                                 @if %errorlevel% neq 0 goto error
-cp "C:/Program Files/R/R-4.0.3/bin/x64/Rblas.dll" .
+cp "C:/Program Files/R/R-4.1.0/bin/x64/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto error
-cp "C:/Program Files/R/R-4.0.3/bin/x64/Riconv.dll" .
+cp "C:/Program Files/R/R-4.1.0/bin/x64/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto error
-cp "C:/Program Files/R/R-4.0.3/bin/x64/Rgraphapp.dll" .
+cp "C:/Program Files/R/R-4.1.0/bin/x64/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto error
 
 @rem you may have to create Rdll_x64.lib and Rblas_x64.lib beforehand
@@ -22,7 +22,7 @@ cp "C:/Program Files/R/R-4.0.3/bin/x64/Rgraphapp.dll" .
 @echo Modifying path for 64-bit Rtools and R
 @set PATH=C:\rtools40\mingw64\bin;^
 C:\rtools40\usr\bin;^
-C:\Program Files\R\R-4.0.3\bin\x64;^
+C:\Program Files\R\R-4.1.0\bin\x64;^
 C:\Program Files\gs\gs9.19\bin;^
 C:\Program Files (x86)\Pandoc;^
 %PATH%

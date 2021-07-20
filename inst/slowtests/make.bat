@@ -52,7 +52,7 @@
                         @if %errorlevel% NEQ 0 goto error
 @call test.emma.bat
                         @if %errorlevel% NEQ 0 goto error
-@rem TODO Sep 2020: commented out because varying results per run with R 4.0.3
+@rem TODO With some versions of R, test.mem gives different results per run (first seen Sep 2020, R 4.0.3)
 @rem @call test.mem.bat
                         @if %errorlevel% NEQ 0 goto error
 @goto done

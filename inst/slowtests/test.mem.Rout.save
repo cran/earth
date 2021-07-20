@@ -1,4 +1,7 @@
 > # test.mem.R: test earth C code memory usage under both normal and error conditions
+> #
+> # TODO With some versions of R, test.mem gives different results per run.
+> #      First seen Sep 2020, R 4.0.3.
 > 
 > source("test.prolog.R")
 > library(earth)
@@ -98,11 +101,11 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 +     } else
 +         nlm[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 5.64 ncells 19 vcells 29
-mem 5.46 ncells 1577 vcells 3666
-mem 5.62 ncells 1777 vcells 4246
-mem 5.62 ncells 1777 vcells 4246
-mem 5.62 ncells 1777 vcells 4246
+mem 1.93 ncells 19 vcells 29
+mem 1.75 ncells 1577 vcells 3666
+mem 1.91 ncells 1777 vcells 4246
+mem 1.91 ncells 1777 vcells 4246
+mem 1.91 ncells 1777 vcells 4246
 > cat("actual run of lm\n")
 actual run of lm
 > # We use 0:nmodels, because we build the first model at iter 0,

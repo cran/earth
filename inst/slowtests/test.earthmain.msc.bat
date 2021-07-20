@@ -10,7 +10,7 @@
 
 @rem The following is a basic check that you have Visual Studio 2019 for 32 bit targets
 @which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
-@echo Environment is not VC16 (Visual Studio 2019) 32 bit -- invoke vc16-32.bat
+@echo Environment is not VC16 (Visual Studio 2019) 32 bit -- please invoke vc16-32.bat
 @exit /B 1
 :donesetpath
 
@@ -38,7 +38,7 @@
 @rem
 @rem We use -W4 below (insteadof -W3) for lint-like warnings
 
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\R\R-4.0.3"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
+cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\R\R-4.1.0"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
                                 @if %errorlevel% neq 0 goto error
 @rem linker needs to be called explicitly, else we may call the wrong link program (e.g. /rtools/usr/bin/link)
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\bin\HostX64\x86\link.exe" -nologo -debug -out:earthmain.exe Debug\earth.obj R.lib Rblas.lib

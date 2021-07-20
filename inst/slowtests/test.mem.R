@@ -1,4 +1,7 @@
 # test.mem.R: test earth C code memory usage under both normal and error conditions
+#
+# TODO With some versions of R, test.mem gives different results per run.
+#      First seen Sep 2020, R 4.0.3.
 
 source("test.prolog.R")
 library(earth)

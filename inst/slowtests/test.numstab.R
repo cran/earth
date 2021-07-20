@@ -57,7 +57,7 @@ ozone.test <- function(itest, sModel, x, y, degree=2, nk=51,
     printh(summary(fite, style="bf"))
     if(plotit) {
         fitme <- mars.to.earth(fitm)
-        plotmo(fite, caption=paste("EARTH", caption), trace=-1)
+        plotmo(fite, caption=paste("NUMSTAB EARTH", caption), trace=-1)
         plotmo(fitme, caption=paste("MARS", caption), trace=-1)
         plot(fite, npoints=500, smooth.col=smooth.col, caption=paste("EARTH", caption), info=TRUE)
         plot(fitme, caption=paste("MARS", caption), info=TRUE)

@@ -1,7 +1,7 @@
 @rem test.glm.bat
 
 @echo test.glm.bat
-@"C:\PROGRA~1\R\R-4.0.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.glm.R
+@"C:\PROGRA~1\R\R-4.1.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.glm.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.glm.Rout:
 @echo.

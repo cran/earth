@@ -1401,8 +1401,10 @@ if (PLOT)
 detach(etitanic)
 
 # basic test with ordered factors
+# TODO June 2021: this doesn't actually check factors and never has, see note below
 ff <- factor(substring("statistics", 1:10, 1:10), levels=letters, ordered=TRUE)
-ff <- c(ff, ff, ff)
+# NOTE: Jun 2021: added as.numeric for backward compability with R pre version R 4.1.0
+ff <- as.numeric(c(ff, ff, ff))
 vowels = (ff == 1 | ff == 9) * 3
 printh(head(ff))
 printh(head(vowels))

@@ -22,9 +22,9 @@ This dataset is included in the earth package because it is a convenient
 vehicle for illustrating earth's GLM and factor handling.
 
 The dataset was compiled by Frank Harrell and Robert Dawson:
-\url{http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/titanic.html}\cr
+\url{https://hbiostat.org/data/repo/titanic.html}\cr
 See also:\cr
-\url{http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/titanic3info.txt}.
+\url{https://biostat.app.vumc.org/wiki/pub/Main/DataSets/titanic3info.txt}.
 
 For this version of the Titanic data,
 passenger details and incomplete cases were deleted
@@ -60,7 +60,7 @@ Further details and analyses of the Titanic data may be found in:
 
 F. Harrell (2001) \emph{
 Regression Modeling Strategies with Applications to Linear Models, Logistic Regression, and Survival Analysis }
-\url{http://biostat.mc.vanderbilt.edu/wiki/bin/view/Main/RmS}
+\url{https://biostat.app.vumc.org/wiki/bin/view/Main/RmS}
 }
 \seealso{
   \code{\link{earth}}

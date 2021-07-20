@@ -6,6 +6,13 @@
 @rem Stephen Milborrow Dec 2014 Shrewsbury.  Updated Petaluma May 2020.
 
 @echo test.earthmain.clang.bat
+
+@rem The following is a basic check that you have Visual Studio 2019 for 32 bit targets
+@which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
+@echo Environment is not VC16 (Visual Studio 2019) 32 bit -- please invoke vc16-32.bat
+@exit /B 1
+:donesetpath
+
 @mks.cp "C:\bin\R400devdll\i386\R.dll" .
                                 @if %errorlevel% neq 0 goto error
 @mks.cp "C:\bin\R400devdll\i386\Rblas.dll" .

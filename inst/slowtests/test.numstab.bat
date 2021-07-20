@@ -1,7 +1,7 @@
 @rem test.numstab.bat:
 
 @echo test.numstab.bat
-@"C:\PROGRA~1\R\R-4.0.3\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.numstab.R
+@"C:\PROGRA~1\R\R-4.1.0\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.numstab.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.numstab.Rout:
 @echo.
