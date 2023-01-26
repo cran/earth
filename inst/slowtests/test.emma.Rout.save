@@ -3,7 +3,7 @@
 > 
 > source("test.prolog.R")
 > print(R.version.string)
-[1] "R version 4.1.0 (2021-05-18)"
+[1] "R version 4.1.1 (2021-08-10)"
 > library(emma)
 Loading required package: earth
 Loading required package: Formula

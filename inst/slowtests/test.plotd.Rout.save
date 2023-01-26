@@ -214,7 +214,7 @@ Warning in terms.formula(formula, data = data) :
 
 plotd> if (require(earth)) {
 plotd+     old.par <- par(no.readonly=TRUE);
-plotd+     par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
+plotd+     par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), cex = 0.8)
 plotd+     data(etitanic)
 plotd+     mod <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
 plotd+ 

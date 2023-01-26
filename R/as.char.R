@@ -243,8 +243,10 @@ print_colnames <- function(x, full=FALSE, newline="\n")
 print_with_strings_quoted <- function(x)
 {
     if(length(dim(x)) == 2)
-        for(i in seq_len(NCOL(x)))
-            if(is.character(x[,i]) && x[,i] != "...")
-                x[,i] <- paste0("\"", x[,i], "\"")
+        for(j in seq_len(NCOL(x)))
+            if(is.character(x[,j]))
+                for(i in seq_along(x[,j]))
+                    if(x[i,j] != "...")
+                        x[i,j] <- paste0("\"", x[i,j], "\"")
     print(x)
 }

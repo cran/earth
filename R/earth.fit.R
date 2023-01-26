@@ -167,6 +167,10 @@ earth.fit <- function(
         stop0("non double entries in 'y' argument")
     check.no.na.in.mat(x)
     check.no.na.in.mat(y)
+    # Oct 2021: Check for duplicate column names (possibly due to factor expansion)
+    if(length(unique(colnames(x))) != length(colnames(x)))
+        stop0("Duplicate colname in x (colnames are ",
+              paste.with.quotes(colnames(x), maxlen=100), ")")
 
     glm.arg <- process.glm.arg(glm)
     # determine is.bpairs before applying weights (which can change y values)
@@ -524,7 +528,7 @@ get.earth.term.name <- function(ntermsVec, dirs, cuts, pred.names, x, warn.if.du
                 else if(dirs[nterm,ipred] == 1) {
                     if(cuts[nterm,ipred] == 0 && !is.null(xrange) &&
                             xrange[1, ipred] == 0 && xrange[2, ipred] < 100 &&
-                            x[,ipred] == floor(x[,ipred])) # all integer?
+                            all(x[,ipred] == floor(x[,ipred]))) # all integer?
                         # simplify to no hinge function, it's a factor
                         s <- pastef(s, "%s", get.name(ipred))
                     else

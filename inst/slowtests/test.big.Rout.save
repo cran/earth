@@ -67,7 +67,7 @@ maxmem 0.1 GB
 malloc    400  B: nUses			nPreds 100 sizeof(int) 4
 malloc    804  B: nDegree		nMaxTerms 201 sizeof(int) 4
 calloc      4  B: iDirs			nMaxTerms 201 nPreds 100 sizeof(int) 4
-malloc    804  B: BoolFullSet		nMaxTerms 201 sizeof(bool) 4
+malloc    201  B: BoolFullSet		nMaxTerms 201 sizeof(bool) 1
 malloc    800  B: sPredNames		LENGTH(SEXP_sPredNames) 100 sizeof(char*) 8
 FreeEarth
 Error in forward.pass(x, y, yw, weights, trace, degree, penalty, nk, thresh,  : 
@@ -83,7 +83,7 @@ maxmem 0.1 GB
 malloc    400  B: nUses			nPreds 100 sizeof(int) 4
 malloc    804  B: nDegree		nMaxTerms 201 sizeof(int) 4
 calloc      4  B: iDirs			nMaxTerms 201 nPreds 100 sizeof(int) 4
-malloc    804  B: BoolFullSet		nMaxTerms 201 sizeof(bool) 4
+malloc    201  B: BoolFullSet		nMaxTerms 201 sizeof(bool) 1
 malloc    800  B: sPredNames		LENGTH(SEXP_sPredNames) 100 sizeof(char*) 8
 malloc      8 MB: xOrder		nRows 20000 nCols 100 sizeof(int) 4
 malloc     31 MB: BetaCacheGlobal	nMaxTerms 201 nMaxTerms 201 nPreds 100 sizeof(double) 8

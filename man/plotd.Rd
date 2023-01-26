@@ -359,7 +359,7 @@ plotd(earth.mod, vline.col=1, err.col=c(2,3,4))
 \examples{
 if (require(earth)) {
     old.par <- par(no.readonly=TRUE);
-    par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
+    par(mfrow=c(2,2), mar=c(4, 3, 1.7, 0.5), mgp=c(1.6, 0.6, 0), cex = 0.8)
     data(etitanic)
     mod <- earth(survived ~ ., data=etitanic, degree=2, glm=list(family=binomial))
 

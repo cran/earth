@@ -9,24 +9,24 @@
 @set CYGWIN=nodosfilewarning
 
 @rem The following is a basic check that you have Visual Studio 2019 for 32 bit targets
-@which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
+@mks.which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
 @echo Environment is not VC16 (Visual Studio 2019) 32 bit -- please invoke vc16-32.bat
 @exit /B 1
 :donesetpath
 
-@mks.cp "C:\bin\R400devdll\i386\R.dll" .
-                                @if %errorlevel% neq 0 goto error
-@mks.cp "C:\bin\R400devdll\i386\Rblas.dll" .
-                                @if %errorlevel% neq 0 goto error
-@mks.cp "C:\bin\R400devdll\i386\Riconv.dll" .
-                                @if %errorlevel% neq 0 goto error
-@mks.cp "C:\bin\R400devdll\i386\Rgraphapp.dll" .
-                                @if %errorlevel% neq 0 goto error
+@mks.cp "D:\bin\milbo\R400devdll\i386\R.dll" .
+                                @if %errorlevel% neq 0 goto err
+@mks.cp "D:\bin\milbo\R400devdll\i386\Rblas.dll" .
+                                @if %errorlevel% neq 0 goto err
+@mks.cp "D:\bin\milbo\R400devdll\i386\Riconv.dll" .
+                                @if %errorlevel% neq 0 goto err
+@mks.cp "D:\bin\milbo\R400devdll\i386\Rgraphapp.dll" .
+                                @if %errorlevel% neq 0 goto err
 @rem you may have to create R.lib and Rblas.lib beforehand
-@mks.cp "C:\bin\R400devdll\i386\R.lib" .
-                                @if %errorlevel% neq 0 goto error
-@mks.cp "C:\bin\R400devdll\i386\Rblas.lib" .
-                                @if %errorlevel% neq 0 goto error
+@mks.cp "D:\bin\milbo\R400devdll\i386\R.lib" .
+                                @if %errorlevel% neq 0 goto err
+@mks.cp "D:\bin\milbo\R400devdll\i386\Rblas.lib" .
+                                @if %errorlevel% neq 0 goto err
 
 @md Debug
 
@@ -38,21 +38,21 @@
 @rem
 @rem We use -W4 below (insteadof -W3) for lint-like warnings
 
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\R\R-4.1.0"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
-                                @if %errorlevel% neq 0 goto error
-@rem linker needs to be called explicitly, else we may call the wrong link program (e.g. /rtools/usr/bin/link)
-"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\bin\HostX64\x86\link.exe" -nologo -debug -out:earthmain.exe Debug\earth.obj R.lib Rblas.lib
+cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\R\R-4.2.2"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
+                                @if %errorlevel% neq 0 goto err
+@rem linker needs to be called explicitly, else we may call the wrong link program (e.g. /rtools40/usr/bin/link)
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x86\link.exe" -nologo -debug -out:earthmain.exe Debug\earth.obj R.lib Rblas.lib
 
-                                @if %errorlevel% neq 0 goto error
+                                @if %errorlevel% neq 0 goto err
 earthmain.exe > Debug\test.earthmain.out
                                 @rem no errorlevel test, diff will do check for discrepancies
-                                @rem @if %errorlevel% neq 0 goto error
+                                @rem @if %errorlevel% neq 0 goto err
 mks.diff Debug\test.earthmain.out test.earthmain.out.save
-                                @if %errorlevel% neq 0 goto error
+                                @if %errorlevel% neq 0 goto err
 
 @rm -f R.dll Rblas.dll R.lib Rblas.lib iconv.dll Riconv.dll Rgraphapp.dll earthmain.exe *.map *.ilk *.pdb
 @rm -rf Debug
 @exit /B 0
 
-:error
+:err
 @exit /B %errorlevel%

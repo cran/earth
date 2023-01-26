@@ -176,7 +176,7 @@ print.stripped.earth.model(earth.mod.help, "earth.mod.help")
 plot(earth.mod.help) # the full model
 
 # test various options
-par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8))
+par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), cex = 0.8)
 
 plot(earth.mod.help, which=1, main="plot.model.selection\ncol.oof.rsq=c(\"red\", \"green\")",
      col.oof.rsq=c("red", "green"), do.par=F)

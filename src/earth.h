@@ -74,8 +74,7 @@ void RegressR(                  // for testing earth routine Regress from R
     const int*   pnCases,       // in: number of rows in x and in y
     const int*   pnResp,        // in: number of cols in y
     int*         pnCols,        // in: number of columns in x, some may not be used
-    const bool   UsedCols[]);   // in: specifies used columns in x
-
+    const int    UsedColsR[]);  // in: specifies used columns in x (assume R LOGICAL is stored as int)
 #endif // USING_R
 
 #if STANDALONE

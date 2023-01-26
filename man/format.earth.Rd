@@ -109,37 +109,37 @@ earth.mod <- earth(Volume ~ ., data = trees)
 cat(format(earth.mod))
 
 # yields:
-#    37.9
-#    -  3.92 * h(16-Girth)
-#    +   7.4 * h(Girth-16)
-#    + 0.484 * h(Height-75)
+#    29.0
+#    -  3.42 * h(14.2-Girth)
+#    +  6.23 * h(Girth-14.2)
+#    + 0.581 * h(Height-75)
 
 cat(format(earth.mod, style="pmax"))
 
 # yields:
-#    37.9
-#    -  3.92 * pmax(0,     16 -  Girth)
-#    +   7.4 * pmax(0,  Girth -     16)
-#    + 0.484 * pmax(0, Height -     75)
+#    29.0
+#    -  3.42 * pmax(0,   14.2 -  Girth)
+#    +  6.23 * pmax(0,  Girth -  14.2)
+#    + 0.581 * pmax(0, Height -  75)
 
 cat(format(earth.mod, style="C"))
 
 # yields (note zero based indexing):
-#  37.927
-#    -  3.9187 * max(0,   16 - x[0])
-#    +  7.4011 * max(0, x[0] -   16)
-#    + 0.48411 * max(0, x[1] -   75)
+#    29.0
+#    -  3.42 * max(0, 14.2 - x[0])
+#    +  6.23 * max(0, x[0] - 14.2)
+#    + 0.581 * max(0, x[1] - 75)
 
 cat(format(earth.mod, style="bf"))
 
 # yields:
-#    37.9
-#    -  3.92 * bf1
-#    +   7.4 * bf2
-#    + 0.484 * bf3
+#    29.0
+#    -  3.42 * bf1
+#    +  6.23 * bf2
+#    + 0.581 * bf3
 #
-#     bf1  h(16-Girth)
-#     bf2  h(Girth-16)
+#     bf1  h(14.2-Girth)
+#     bf2  h(Girth-14.2)
 #     bf3  h(Height-75)
 }
 \keyword{models}

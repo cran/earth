@@ -17,24 +17,24 @@
 @set CYGWIN=nodosfilewarning
 
 @rem The following is a basic check that you have Visual Studio 2019 for 32 bit targets
-@which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
+@mks.which cl | egrep -i "Visual.Studio.2019.Community.VC.Tools.MSVC.*.bin.Hostx.*x86.cl" >NUL && goto donesetpath
 @echo Environment is not VC16 (Visual Studio 2019) 32 bit -- please invoke vc16-32.bat
 @exit /B 1
 :donesetpath
 
-@mks.cp "C:\bin\R400devdll\i386\R.dll" .
-                                @if %errorlevel% neq 0 goto error
-@mks.cp "C:\bin\R400devdll\i386\Rblas.dll" .
-                                @if %errorlevel% neq 0 goto error
-@mks.cp "C:\bin\R400devdll\i386\Riconv.dll" .
-                                @if %errorlevel% neq 0 goto error
-@mks.cp "C:\bin\R400devdll\i386\Rgraphapp.dll" .
-                                @if %errorlevel% neq 0 goto error
+@mks.cp "D:\bin\milbo\R400devdll\i386\R.dll" .
+                                @if %errorlevel% neq 0 goto err
+@mks.cp "D:\bin\milbo\R400devdll\i386\Rblas.dll" .
+                                @if %errorlevel% neq 0 goto err
+@mks.cp "D:\bin\milbo\R400devdll\i386\Riconv.dll" .
+                                @if %errorlevel% neq 0 goto err
+@mks.cp "D:\bin\milbo\R400devdll\i386\Rgraphapp.dll" .
+                                @if %errorlevel% neq 0 goto err
 @rem you may have to create R.lib and Rblas.lib beforehand
-mks.cp "C:\bin\R400devdll\i386\R.lib" .
-                                @if %errorlevel% neq 0 goto error
-mks.cp "C:\bin\R400devdll\i386\Rblas.lib" .
-                                @if %errorlevel% neq 0 goto error
+mks.cp "D:\bin\milbo\R400devdll\i386\R.lib" .
+                                @if %errorlevel% neq 0 goto err
+mks.cp "D:\bin\milbo\R400devdll\i386\Rblas.lib" .
+                                @if %errorlevel% neq 0 goto err
 
 @rem @md Release
 @rem @nmake -nologo CFG=Release -f test.earthc.msc.mak

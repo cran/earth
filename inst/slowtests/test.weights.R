@@ -218,7 +218,7 @@ glm.a8.azeroweight <- glm(y~., data=data, weights=glm.weights, family=binomial)
 
 cat("=== plot.earth with weights ===\n")
 # we also test id.n=TRUE and id.n=-1 here
-par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), oma=c(0,0,3,0), par(cex=1))
+par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), oma=c(0,0,3,0), cex=1)
 plot(a3, id.n=TRUE, SHOWCALL=TRUE, caption="compare a3 to to lm3", do.par=FALSE,
      which=c(3,4), caption.cex=1.5)
 plot(lm3, id.n=9, which=c(1,2), sub.caption="")
@@ -324,7 +324,7 @@ aw.biv <- earth(x, y, degree=2, trace=2, Force.weights=TRUE)
 cat("aw.biv:\n")
 print(aw.biv)
 
-par(mfrow=c(2,3), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.8), oma=c(0,0,3,0))
+par(mfrow=c(2,3), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), cex = 0.8, oma=c(0,0,3,0))
 plotmo(a.biv,  do.par=FALSE, caption="bivariate: top and bottom should be similar")
 plotmo(aw.biv, do.par=FALSE)
 

@@ -599,7 +599,7 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the vignette.
   which is based on techniques in Miller.
 
   Faraway (2005) \emph{Extending the Linear Model with R}
-  \url{http://www.maths.bath.ac.uk/~jjf23}
+  \url{https://www.maths.bath.ac.uk/~jjf23}
 
   Friedman (1991) \emph{Multivariate Adaptive Regression Splines (with discussion)}
   Annals of Statistics 19/1, 1--141
@@ -620,12 +620,12 @@ See \dQuote{\emph{XHAUST returned error code -999}} in the vignette.
   % \url{https://www.jstor.org/stable/1270359} % CRAN check fails with "Message: Forbidden"
 
   Hastie, Tibshirani, and Friedman (2009) \emph{The Elements of Statistical Learning (2nd ed.)}
-  \url{http://web.stanford.edu/~hastie/pub.htm}
+  \url{https://hastie.su.domains/pub.htm}
 
   Leathwick, J.R., Rowe, D., Richardson, J., Elith, J., & Hastie, T. (2005)
   \emph{Using multivariate adaptive regression splines to predict the distributions
   of New Zealand's freshwater diadromous fish} Freshwater Biology, 50, 2034-2052
-  \url{http://web.stanford.edu/~hastie/pub.htm},
+  \url{https://hastie.su.domains/pub.htm},
   \url{http://www.botany.unimelb.edu.au/envisci/about/staff/elith.html}
 
   Miller, Alan (1990, 2nd ed. 2002) \emph{Subset Selection in Regression}

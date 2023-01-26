@@ -49,28 +49,28 @@
 #include <string.h>
 #include <float.h>
 #include <math.h>
+#include <stdbool.h> // defines bool, true, false
 
 #if _MSC_VER    // microsoft
     #include <crtdbg.h> // microsoft malloc debugging library
     #define _C_ "C"     // for externs in linpack library
-    // disable warning: 'vsprintf': This function or variable may be unsafe
+    // disable warning: 'strcpy': This function or variable may be unsafe
     #pragma warning(disable: 4996)
 #else           // not microsoft
     #define _C_
 #endif
 
 #if USING_R     // R with gcc
-    typedef int bool; // size of bool must match Rboolean (not char)
-    #define false 0
-    #define true  1
     #include "R.h"
     #include "Rinternals.h" // needed for Allowed function handling
     #include "allowed.h"
     #include "R_ext/Rdynload.h"
+    #ifdef printf
+    #undef printf // prevent clang warning
+    #endif
     #define printf Rprintf
     #define FINITE(x) R_FINITE(x)
 #else           // not R
-    #include <stdbool.h> // defines bool, true, false
     #define warning printf
     void error(const char* args, ...);
 #if _MSC_VER // microsoft
@@ -133,7 +133,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 5.3.0"; // change if you modify this file!
+static const char*  VERSION     = "version 5.3.2"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;
@@ -256,7 +256,7 @@ static void* malloc1(size_t size, const char* args, ...)
             char s[1000];
             va_list va;
             va_start(va, args);
-            vsprintf(s, args, va);
+            vsnprintf(s, sizeof(s), args, va);
             va_end(va);
             printf("malloc %s: %s\n", sFormatMemSize(size, true), s);
         }
@@ -276,7 +276,7 @@ static void* calloc1(size_t num, size_t size, const char* args, ...)
             char s[1000];
             va_list va;
             va_start(va, args);
-            vsprintf(s, args, va);
+            vsnprintf(s, sizeof(s), args, va);
             va_end(va);
             printf("calloc %s: %s\n", sFormatMemSize(size, true), s);
         }
@@ -358,13 +358,13 @@ static char* sFormatMemSize(const size_t MemSize, const bool Align)
     static char s[100];
     double Size = (double)MemSize;
     if(Size >= 1e9)
-        sprintf(s, Align? "%6.3f GB": "%.3g GB", Size / ((size_t)1 << 30));
+        snprintf(s, sizeof(s), Align? "%6.3f GB": "%.3g GB", Size / ((size_t)1 << 30));
     else if(Size >= 1e6)
-        sprintf(s, Align? "%6.0f MB": "%.3g MB", Size / ((size_t)1 << 20));
+        snprintf(s, sizeof(s), Align? "%6.0f MB": "%.3g MB", Size / ((size_t)1 << 20));
     else if(Size >= 1e3)
-        sprintf(s, Align? "%6.0f kB": "%.3g kB", Size / ((size_t)1 << 10));
+        snprintf(s, sizeof(s), Align? "%6.0f kB": "%.3g kB", Size / ((size_t)1 << 10));
     else
-        sprintf(s, Align? "%6.0f  B": "%g Bytes", Size);
+        snprintf(s, sizeof(s), Align? "%6.0f  B": "%g Bytes", Size);
     return s;
 }
 
@@ -375,7 +375,7 @@ static void tprintf(const int trace, const char *args, ...) // printf with trace
         char s[1000];
         va_list va;
         va_start(va, args);
-        vsprintf(s, args, va);
+        vsnprintf(s, sizeof(s), args, va);
         va_end(va);
         printf("%s", s);
     }
@@ -945,12 +945,23 @@ void RegressR(                  // for testing earth routine Regress from R
     const int*   pnCases,       // in: number of rows in x and in y
     const int*   pnResp,        // in: number of cols in y
     int*         pnCols,        // in: number of columns in x, some may not be used
-    const bool   UsedCols[])    // in: specifies used columns in x
+    const int    UsedColsR[])   // in: specifies used columns in x (assume R LOGICAL is stored as int)
 {
     const size_t nCases1 = *pnCases; // type convert
 
+    // convert UsedColsR from R_LOGICAL (int) to bool
+    const int nCols = *pnCols;
+    UsedCols = (bool*)malloc1(nCols * sizeof(bool),
+                        "UsedCols\t\tnCols %d sizeof(bool) %d",
+                        nCols, sizeof(bool));
+    int iCol;
+    for(iCol = 0; iCol < nCols; iCol++)
+        UsedCols[iCol] = UsedColsR[iCol] != 0;
+
     Regress(Betas, Residuals, Rss, Diags, pnRank, iPivots,
-        x, y, nCases1, *pnResp, *pnCols, UsedCols);
+        x, y, nCases1, *pnResp, nCols, UsedCols);
+
+    free1(UsedCols);
 }
 #endif
 
@@ -1089,6 +1100,7 @@ static void InitBetaCache(const bool UseBetaCache,
                           const int nMaxTerms, const int nPreds)
 {
     int nCache =  nMaxTerms * nMaxTerms * nPreds;
+
     if(!UseBetaCache) {
         BetaCacheGlobal = NULL;
     // 3e9 below is somewhat arbitrary but seems about right (in 2011)
@@ -1736,7 +1748,6 @@ static INLINE void FindPredGivenParent(
             const double NewVarAdjust = 1 / (1 + (nUses[iPred] == 0? NewVarPenalty: 0));
             double RssDeltaLin = 0; // change in RSS for iPred entering linearly
             double UnadjustedRssDeltaLin = 0;
-            double RssBeforeKnot = RssBeforeNewTerm;
             bool IsNewForm = GetNewFormFlag(iPred, iParent, Dirs,
                                             FullSet, nTerms, nPreds, nMaxTerms);
             if(IsNewForm) {
@@ -1757,10 +1768,10 @@ static INLINE void FindPredGivenParent(
 
 #if 0
                 // Oct 2020 Earth version 5.3.0: Removed the following code because
-                // under certain conditions is caused an end knot to be reported as
+                // under certain conditions it caused an end knot to be reported as
                 // as an internal knot (1 in the dirs matrix that should be a 2).
                 // (The code's original purpose, 2008, was to fix a slight numerical
-                // instability across architectures that no longer is an issue.)
+                // instability across architectures that is no longer an issue.)
                 if(fabs(RssDeltaLin - *pBestRssDeltaForTerm) < ALMOST_ZERO) {
                     tprintf(7, "RssDelta %g is almost zero\n",
                            RssDeltaLin - *pBestRssDeltaForTerm);
@@ -1769,7 +1780,6 @@ static INLINE void FindPredGivenParent(
 #endif
                 if(RssDeltaLin > *pBestRssDeltaForParent)
                     *pBestRssDeltaForParent = RssDeltaLin;
-                RssBeforeKnot -= RssDeltaLin;
                 if(RssDeltaLin > *pBestRssDeltaForTerm) {
                     // The new term (with predictor entering linearly) beats other
                     // candidate terms so far.
@@ -2348,7 +2358,7 @@ static void PrintForwardProlog(
         GetSpanParams(&nMinSpan, &nEndSpan, &nStartSpan,
                       nCases, nPreds, 1 /*nDegree*/, 0 /*iParent*/, NULL /*bx*/);
         char sx[100];
-        strcpy(sx, sFormatMemSize(nCases * nPreds    * sizeof(double), false));
+        strcpy(sx, sFormatMemSize(nCases * nPreds * sizeof(double), false));
         char sbx[100];
         strcpy(sbx, sFormatMemSize(nCases * nMaxTerms * sizeof(double), false));
         printf("Forward pass: minspan %d endspan %d   x[%d,%d] %s   bx[%d,%d] %s%s\n\n",
@@ -2360,7 +2370,6 @@ static void PrintForwardProlog(
         if(sPredNames)
             printf("    PredName  ");
         printf("       Cut  Terms   Par Deg\n");
-
         // following matches printfs in PrintForwardStep
         if(sPredNames) // in: predictor names, can be NULL
             printf("%-4d%9.4f %6.4f                   %12.12s\n",
@@ -2456,9 +2465,9 @@ static int ForwardEpilog( // returns reason we stopped adding terms
     char sUsed[100] = "";
     const int nUsed = GetNbrUsedCols(FullSet, nMaxTerms);
     if(nUsed != nTerms)
-        sprintf(sUsed, ", %d term%s used", nUsed, nUsed == 1? "": "s");
+        snprintf(sUsed, sizeof(sUsed), ", %d term%s used", nUsed, nUsed == 1? "": "s");
     char sTerms[200]; // May 2018: changed 100 to 200 for specious CRAN warning: '%s' directive writing up to 99 bytes into a region of size between 84 and 94 [-Wformat-overflow=]
-    sprintf(sTerms, "%d term%s%s", nTerms, nTerms == 1? "": "s", sUsed);
+    snprintf(sTerms, sizeof(sTerms), "%d term%s%s", nTerms, nTerms == 1? "": "s", sUsed);
 
     // NOTE 1: this code must match the loop termination conditions in ForwardPass
     // NOTE 2: if you update this, also update print.termcond in the R code
@@ -2958,8 +2967,6 @@ SEXP ForwardPassR(             // for use by R
     AdjustEndSpanGlobal   = REAL(SEXP_AdjustEndSpan)[0];
     TraceGlobal           = REAL(SEXP_Trace)[0];
 
-    ASSERT(sizeof(bool) == sizeof(Rboolean));
-
     // nUses is the number of time each predictor is used in the model
     nUses = (int*)malloc1(nPreds * sizeof(int),
                     "nUses\t\t\tnPreds %d sizeof(int) %d",
@@ -2974,7 +2981,7 @@ SEXP ForwardPassR(             // for use by R
                         "iDirs\t\t\tnMaxTerms %d nPreds %d sizeof(int) %d",
                         nMaxTerms, nPreds, sizeof(int));
 
-    // convert FullSet int to bool (may be redundant, depending on compiler)
+    // convert FullSet int to bool
     BoolFullSet = (bool*)malloc1(nMaxTerms * sizeof(bool),
                         "BoolFullSet\t\tnMaxTerms %d sizeof(bool) %d",
                         nMaxTerms, sizeof(bool));
@@ -3336,6 +3343,7 @@ void Earth(
 #if _MSC_VER && _DEBUG
     InitMallocTracking();
 #endif
+
     TraceGlobal = Trace;
     nMinSpanGlobal = nMinSpan;
     nEndSpanGlobal = nEndSpan;
@@ -3455,10 +3463,9 @@ static void FormatOneResponse(
     int iBestTerm = 0;
     int nKnotsMax = GetMaxKnotsPerTerm(UsedCols, Dirs, nPreds, nTerms, nMaxTerms);
     int nKnots = 0;
-    char s[1000];
     ASSERT(nDigits >= 0);
-    char sFormat[50];  sprintf(sFormat,  "%%-%d.%dg", nDigits+6, nDigits);
-    char sFormat1[50]; sprintf(sFormat1, "%%%d.%dg",  nDigits+6, nDigits);
+    char sFormat[50];  snprintf(sFormat,  sizeof(sFormat),  "%%-%d.%dg", nDigits+6, nDigits);
+    char sFormat1[50]; snprintf(sFormat1, sizeof(sFormat1), "%%%d.%dg",  nDigits+6, nDigits);
     int nPredWidth;
     if(nPreds > 100)
         nPredWidth = 3;
@@ -3466,14 +3473,15 @@ static void FormatOneResponse(
         nPredWidth = 2;
     else
         nPredWidth = 1;
-    char sPredFormat[20]; sprintf(sPredFormat, "%%%dd", nPredWidth);
-    char sPad[500]; sprintf(sPad, "%*s", 28+nDigits+nPredWidth, " ");    // comment pad
+    char sPredFormat[20]; snprintf(sPredFormat, sizeof(sPredFormat), "%%%dd", nPredWidth);
+    char sPad[500]; snprintf(sPad, sizeof(sPad), "%*s", 28+nDigits+nPredWidth, " ");    // comment pad
     const int nUsedCols = nTerms;       // nUsedCols is needed for the Betas_ macro
     printf(sFormat, Betas_(0, iResp));  // intercept
     while(nKnots++ < nKnotsMax)
         printf("%s", sPad);
     printf(" // 0\n");
 
+    char s[1000];
     for(int iTerm = 1; iTerm < nTerms; iTerm++)
         if(UsedCols[iTerm]) {
             iBestTerm++;
@@ -3485,19 +3493,19 @@ static void FormatOneResponse(
                         case  0:
                             break;
                         case -1:
-                            sprintf(s, " * max(0, %s - %*sx[%s])",
+                            snprintf(s, sizeof(s), " * max(0, %s - %*sx[%s])",
                                 sFormat, nDigits+2, " ", sPredFormat);
                             printf(s, Cuts_(iTerm, iPred), iPred);
                             nKnots++;
                             break;
                         case  1:
-                            sprintf(s, " * max(0, x[%s]%*s-  %s)",
+                            snprintf(s, sizeof(s), " * max(0, x[%s]%*s-  %s)",
                                 sPredFormat,  nDigits+2, " ", sFormat1);
                             printf(s, iPred, Cuts_(iTerm, iPred));
                             nKnots++;
                             break;
                         case  2:
-                            sprintf(s, " * x[%s]%*s                    ",
+                            snprintf(s, sizeof(s), " * x[%s]%*s                    ",
                                 sPredFormat,  nDigits+2, " ");
                             printf(s, iPred);
                             nKnots++;
@@ -3597,7 +3605,7 @@ void error(const char *args, ...)       // params like printf
     char s[1000];
     va_list va;
     va_start(va, args);
-    vsprintf(s, args, va);
+    vsnprintf(s, sizeof(s), args, va);
     va_end(va);
     printf("\nError: %s\n", s);
     // The following frees memory malloced by Earth().
@@ -3634,6 +3642,7 @@ int main(void)
     const double FastBeta = 1;
     const double NewVarPenalty = 0;
     int*         LinPreds = (int*)calloc1(nPreds, sizeof(int), NULL); // "linpreds" in R code
+
     const double AdjustEndSpan = 2.0;
     const bool   AutoLinPreds = true;
     const bool   UseBetaCache = true;

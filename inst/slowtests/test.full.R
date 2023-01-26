@@ -306,7 +306,7 @@ stopifnot(length(mars.mod$coeff) == length(earth.mod$coeff))
 # coeff differences can be big because forward passes are different
 stopifnot(max(mars.mod$coeff - earth.mod$coeff) < .3)
 
-par(mfrow=c(3,4), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.7))
+par(mfrow=c(3,4), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), cex = 0.7)
 plot(mars.to.earth.mod, which=c(1,3), do.par=FALSE)
 plotmo(mars.to.earth.mod, do.par=FALSE)
 mars.to.earth.mod2 <- update(mars.to.earth.mod)
@@ -1039,7 +1039,7 @@ print(summary(mod.none2))
 stopifnot(all.equal(predict(mod.none1), predict(mod.none2)))
 
 # example figure in inst/doc
-par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), par(cex = 0.7))
+par(mfrow=c(2,2), mar=c(4, 3.2, 3, 3), mgp=c(1.6, 0.6, 0), cex = 0.7)
 set.seed(2017)
 offset <- 98
 data.autolin <- data.frame(x=offset+(1:10), y=offset+(1:10))
@@ -2100,6 +2100,22 @@ print(ames2.mod.Auto.linpreds.FALSE$dirs)
 # check that there are no 2s in dirs with Auto.linpreds=FALSE
 stopifnot(all(ames2.mod.Auto.linpreds.FALSE$dirs != 2))
 stopifnot(abs(ames2.mod$rsq - ames2.mod.Auto.linpreds.FALSE$rsq) < 1e-10)
+
+# Oct 2021 (earth 5.3.2): issue an error if x colnames are duplicated because of factor expansion.
+iris.dup <- transform(iris, Species=factor(as.numeric(Species) + 20),
+                            Species2=factor(as.numeric(Species)))
+# TODO $$ Mar 2022: We no longer get the expected error below,
+#                   but get it if we manually call try(earth(Sepal.Length ~ ., data=iris.dup))
+# expect.err(try(earth(Sepal.Length ~ ., data=iris.dup)),
+#            "Duplicate colname in x (colnames are \"Sepal.Width\", \"Petal.Length\", \"Petal.Width\", \"Species22\", \"Species23\", \"Species22\", \"Species23\")")
+# expect.err(try(earth(iris.dup[,-1], iris.dup[,1])),
+#            "Duplicate colname in x (colnames are \"Sepal.Width\", \"Petal.Length\", \"Petal.Width\", \"Species22\", \"Species23\", \"Species22\", \"Species23\")")
+
+# check that lm has the same problem (but doesn't report it)
+lm.dup <- lm(Sepal.Length ~ ., data=iris.dup)
+stopifnot(identical(names(coef(lm.dup)),
+                    c("(Intercept)", "Sepal.Width", "Petal.Length", "Petal.Width",
+                      "Species22", "Species23", "Species22", "Species23")))
 
 options(options.old) # no more width=1000
 

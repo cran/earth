@@ -2,8 +2,7 @@
 
 #include "R.h"
 #include "Rinternals.h"
-
-typedef int bool; // size of bool must match Rboolean (not char)
+#include <stdbool.h> // defines bool, true, false
 
 #define Dirs_(iTerm,iPred) Dirs[(iTerm) + (iPred)*(nMaxTerms)]
 
@@ -45,9 +44,6 @@ void InitAllowedFunc(
         int nAllowedArgs, SEXP Env,
         const char** sPredNames, int nPreds)
 {
-    if(sizeof(bool) != sizeof(Rboolean))
-        error("InitAllowedFunc: sizeof(bool) != sizeof(Rboolean)");
-
     if(Allowed == R_NilValue)
         AllowedFuncGlobal = NULL;
     else {
@@ -171,7 +167,7 @@ bool IsAllowed(
     // optional 5th element already initialized to predictor names
 
     if(nArgsGlobal >= 5)            // optional 6th element is "first"
-        *(LOGICAL(CAD4R(s))) = FirstGlobal;
+        *(LOGICAL(CAD4R(s))) = FirstGlobal != 0;
     FirstGlobal = FALSE;
 
     return EvalAllowedFunc();

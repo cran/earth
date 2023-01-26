@@ -7,9 +7,9 @@
 all: test.earthc.out
 
 # LINK needs to be explicitly set, else we may call the wrong link program (e.g. /rtools/usr/bin/link)
-LINK = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\bin\HostX64\x86\link.exe" 
+LINK = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x86\link.exe" 
 
-R_DIR="%ProgramFiles%\r\R-4.1.0"
+R_DIR="%ProgramFiles%\r\R-4.2.2"
 
 INCL=-I$(R_DIR)\src\include -I.
 
@@ -30,7 +30,7 @@ OUTDIR=Release
 CFLAGS=-nologo -DSTANDALONE $(RELEASE_BUILD_CFLAGS) -TP -O2 -W3 -MT $(INCL) -Fp$(OUTDIR)\vc60.PCH -Fo"$(OUTDIR)/" -c
 LFLAGS=-nologo $(RELEASE_BUILD_LFLAGS) $(PROF_FLAGS)
 # To build R.lib, see for example https://www.asawicki.info/news_1420_generating_lib_file_for_dll_library
-# See also c:\bin\ddl2lib.bat
+# See also D:\bin\ddl2lib.bat
 LIBS=R.lib Rblas.lib
 !ENDIF
 

@@ -18,7 +18,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.5-2
+Loaded mda 0.5-3
 
 > data(ozone1)
 > data(trees)
@@ -1125,8 +1125,8 @@ response values in prediction interval   100     100     100     100
 > set.seed(2020)
 > 
 > library(caret)
-Loading required package: lattice
 Loading required package: ggplot2
+Loading required package: lattice
 > set.seed(2015)
 > a.bag3 <- bagEarth(survived~., data=etitanic, degree=2, B=3, trace=1)
 x[1046,7] with colnames pclass1st pclass2nd pclass3rd sexmale age sibsp parch

@@ -19,7 +19,7 @@ Loading required package: plotrix
 Loading required package: TeachingDemos
 > library(mda)
 Loading required package: class
-Loaded mda 0.5-2
+Loaded mda 0.5-3
 
 > data(ozone1)
 > data(trees)
