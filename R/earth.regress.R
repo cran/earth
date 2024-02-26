@@ -1,7 +1,7 @@
-# earth.regress.R: earth.regress is used only for testing Regress in earth.c
-#                  (it is called using earth:::earth.regress in test.earth.full.R)
+# earth.regress.R: earth_regress is used only for testing Regress in earth.c
+#                  (it is called using earth:::earth_regress in test.earth.full.R)
 
-earth.regress <- function(
+earth_regress <- function(
     x         = stop("no 'x' argument"), # NAs are not allowed in x or y
     y         = stop("no 'y' argument"),
     weights   = NULL,               # case weights

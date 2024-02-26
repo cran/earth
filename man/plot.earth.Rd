@@ -192,6 +192,11 @@ To remove the \code{Number of used predictors} from the Model Selection
 graph (to reduce clutter), use \code{col.npreds=0}.
 
 \code{earth_plotmodsel} is provided for use by \code{\link[plotmo]{plotres}}.
+
+\bold{Acknowledgment}
+
+This function incorporates the function \code{spread.labs} from the orphaned
+package \code{TeachingDemos} written by Greg Snow.
 }
 \seealso{
   \code{\link{earth}},

@@ -941,7 +941,7 @@ short.deparse <- function(object, alternative="object")
 }
 # Remove duplicates in x, then sort (smallest first).
 # Also works for Dates.
-sort.unique <- function(x)
+sort_unique <- function(x)
 {
     sort(unique(x), na.last=NA) # na.last=NA drops NAs
 }

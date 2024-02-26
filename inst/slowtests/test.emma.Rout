@@ -1,0 +1,9 @@
+> # test.emma.R: regression tests for emma (which uses earth internally)
+> # Stephen Milborrow, Shrewsbury Nov 2014
+> 
+> source("test.prolog.R")
+> print(R.version.string)
+[1] "R version 4.3.2 (2023-10-31 ucrt)"
+> library(emma)
+Error in library(emma) : there is no package called 'emma'
+Execution halted

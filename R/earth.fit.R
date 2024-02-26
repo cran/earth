@@ -293,8 +293,8 @@ earth.fit <- function(
         # when n >> p, memory use peaks here
         qr <- lm.fit$qr
         remove(lm.fit) # free memory
-        leverages <- hatvalues.qr.wrapper(qr, maxmem, trace)
-        possible.gc(maxmem, trace, "after hatvalues.qr.wrapper")
+        leverages <- hatvalues_qr_wrapper(qr, maxmem, trace)
+        possible.gc(maxmem, trace, "after hatvalues_qr_wrapper")
     }
     if(!is.null(wp)) {
         tt <- outer(repl(1, nrow(y)), wp)
@@ -310,7 +310,7 @@ earth.fit <- function(
         y.glm <- y.org
         if(!is.null(subset))
             y.glm <- y.glm[subset, , drop=FALSE]
-        glm.list <- earth.glm(bx, y.glm, weights.before.bpairs, na.action, offset,
+        glm.list <- earth_glm(bx, y.glm, weights.before.bpairs, na.action, offset,
                               glm.arg, trace, is.bpairs, env)
         glm.coefs <- get.glm.coefs(glm.list=glm.list,
                                    nresp=if(is.bpairs) 1 else ncol(coefficients),
@@ -387,7 +387,7 @@ earth.fit <- function(
         thresh         = thresh,           # copy of thresh argument
         termcond       = termcond,         # reason we terminated the forward pass
         weights        = if(use.weights) weights.before.bpairs else NULL,
-        Scale.y        = Scale.y),         # return Scale.y so can pass to earth.cv
+        Scale.y        = Scale.y),         # return Scale.y so can pass to earth_cv
 
     class = "earth")
 
@@ -651,21 +651,21 @@ get.weights <- function(weights, y, is.bpairs, is.subset.arg, is.glm.arg, Force.
 }
 # hatvalues() doesn't work on lm.fit objects, so get leverages ourselves
 # TODO this hasn't been tested for multiple response models
-hatvalues.qr <- function(qr, maxmem, trace)
+hatvalues_qr <- function(qr, maxmem, trace)
 {
-    possible.gc(maxmem, trace, "hatvalues.qr1")
+    possible.gc(maxmem, trace, "hatvalues_qr1")
     y <- diag(1, nrow=nrow(qr$qr), ncol=qr$rank)
-    possible.gc(maxmem, trace, "hatvalues.qr2")
+    possible.gc(maxmem, trace, "hatvalues_qr2")
     qr.qy <- qr.qy(qr, y)^2 # calculate (Q %*% y)^2
     remove(y) # free memory for rowSums
-    possible.gc(maxmem, trace, "hatvalues.qr3")
+    possible.gc(maxmem, trace, "hatvalues_qr3")
     leverages <- rowSums(qr.qy)
     leverages[leverages < 1e-8]     <- 0 # allow for numerical error
     leverages[leverages > 1 - 1e-8] <- 1 # allow for numerical error
     leverages
 }
 # this wrapper is because when n >> p we run out of memory in qr.qy
-hatvalues.qr.wrapper <- function(qr, maxmem, trace)
+hatvalues_qr_wrapper <- function(qr, maxmem, trace)
 {
     # treat memory allocation warning in qr.qy as an error, not a warning
     old.warn <- getOption("warn")
@@ -673,7 +673,7 @@ hatvalues.qr.wrapper <- function(qr, maxmem, trace)
     options(warn=2) # treat warnings as errors
     if(trace == 1.5)
         printf("Getting leverages\n")
-    leverages <- try(hatvalues.qr(qr, maxmem, trace), silent=TRUE)
+    leverages <- try(hatvalues_qr(qr, maxmem, trace), silent=TRUE)
     if(is.try.err(leverages)) {
         options(warn=1)
         warning0("Not enough memory to get leverages (but otherwise the model is fine)")

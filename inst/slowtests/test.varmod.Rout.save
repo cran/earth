@@ -5,7 +5,6 @@
 Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
-Loading required package: TeachingDemos
 > options(warn=1) # print warnings as they occur
 > printh <- function(caption)
 +     cat("===", caption, "\n", sep="")
@@ -1497,10 +1496,10 @@ varmod method="power" rmethod="hc12" lambda=1 exponent=1 conv=1 clamp=0.1 minspa
         1           19        0.00       -4.28 2.89     0.28
         2           14      141.52        0.69 0.12     0.87
         3           16       69.67        0.13 0.25     0.72
-        4           15       69.81        0.35 0.19     0.78
+        4           15       69.80        0.35 0.19     0.78
         5           15       10.17        0.28 0.21     0.76
-        6           15        3.91        0.30 0.20     0.77
-        7           15        1.21        0.30 0.21     0.77
+        6           15        3.92        0.30 0.20     0.77
+        7           15        1.22        0.30 0.21     0.77
         8           15        0.41        0.30 0.20     0.77
 
 ===varmod.method power: summary(earth.mod)
@@ -1531,12 +1530,12 @@ varmod: method "power"    min.sd 0.381    iter.rsq 0.195
 
 stddev of predictions:
             coefficients iter.stderr iter.stderr%
-(Intercept)    0.3731008     4.80736          big
-coef           0.2564913     1.41385          551
-exponent       0.7682577     1.19522          156
+(Intercept)    0.3731063     4.80734          big
+coef           0.2564899     1.41384          551
+exponent       0.7682587     1.19522          156
 
                               mean   smallest    largest      ratio
-95% prediction interval   14.92662   7.320154   28.74623   3.926998
+95% prediction interval   14.92662   7.320158   28.74623   3.926996
 
                                          68%    80%    90%    95% 
 response values in prediction interval   74     94     97     97  
@@ -1584,7 +1583,7 @@ Nonlinear regression model
  weighted residual sum-of-squares: 84
 
 Number of iterations to convergence: 4 
-Achieved convergence tolerance: 2.4e-09
+Achieved convergence tolerance: 2.5e-09
 ===summary(earth.mod$varmod$residmod)
 
 Formula: abs.resids ~ `(Intercept)` + coef * RHS^exponent
@@ -1592,19 +1591,19 @@ Formula: abs.resids ~ `(Intercept)` + coef * RHS^exponent
 Parameters:
             Estimate Std. Error t value Pr(>|t|)
 (Intercept)   0.2977     3.8357   0.078    0.939
-coef          0.2047     1.1281   0.181    0.857
+coef          0.2046     1.1281   0.181    0.857
 exponent      0.7683     1.1952   0.643    0.526
 
 Residual standard error: 1.733 on 28 degrees of freedom
 
 Number of iterations to convergence: 4 
-Achieved convergence tolerance: 2.419e-09
+Achieved convergence tolerance: 2.499e-09
 
 ===varmod.method power: predict(earth.mod, interval="pint")
          fit       lwr      upr
-1   9.913855  6.253778 13.57393
-2  10.942195  7.051415 14.83298
-3  11.627755  7.585973 15.66954
+1   9.913855  6.253775 13.57393
+2  10.942195  7.051413 14.83298
+3  11.627755  7.585971 15.66954
 4  17.455018 12.200662 22.70937
 5  18.140578 12.750354 23.53080
 6  18.483359 13.025648 23.94107
@@ -1615,24 +1614,24 @@ Achieved convergence tolerance: 2.419e-09
 11 20.197259 14.406333 25.98819
 12 20.540040 14.683271 26.39681
 13 20.540040 14.683271 26.39681
-14 21.568380 15.515590 27.62117
-15 22.596721 16.350064 28.84338
-16 25.681742 18.865270 32.49821
-17 25.681742 18.865270 32.49821
-18 27.052863 19.988308 34.11742
-19 28.423983 21.114244 35.73372
-20 28.766764 21.396161 36.13737
-21 30.080913 22.478505 37.68332
-22 31.395063 23.563186 39.22694
-23 33.366287 25.194326 41.53825
-24 43.222408 33.413637 53.03118
-25 45.193632 35.068458 55.31881
-26 51.764379 40.606626 62.92213
-27 53.078529 41.718011 64.43905
+14 21.568380 15.515591 27.62117
+15 22.596721 16.350065 28.84338
+16 25.681742 18.865271 32.49821
+17 25.681742 18.865271 32.49821
+18 27.052863 19.988309 34.11742
+19 28.423983 21.114245 35.73372
+20 28.766764 21.396162 36.13737
+21 30.080913 22.478506 37.68332
+22 31.395063 23.563187 39.22694
+23 33.366287 25.194327 41.53825
+24 43.222408 33.413638 53.03118
+25 45.193632 35.068459 55.31881
+26 51.764379 40.606627 62.92213
+27 53.078529 41.718012 64.43905
 28 55.706828 43.944227 67.46943
-29 56.363903 44.501474 68.22633
-30 56.363903 44.501474 68.22633
-31 73.447846 59.074730 87.82096
+29 56.363903 44.501475 68.22633
+30 56.363903 44.501475 68.22633
+31 73.447846 59.074729 87.82096
 ===varmod.method="power0"
 ===varmod.method power0: summary(earth.mod)
 ===summary(earth.mod)
@@ -1662,7 +1661,7 @@ varmod: method "power0"    min.sd 0.38    iter.rsq 0.197
 
 stddev of predictions:
          coefficients iter.stderr iter.stderr%
-coef        0.3806260    0.298741           78
+coef        0.3806261    0.298741           78
 exponent    0.6838047    0.236589           35
 
                               mean   smallest    largest      ratio
@@ -1712,7 +1711,7 @@ Nonlinear regression model
  weighted residual sum-of-squares: 83
 
 Number of iterations to convergence: 2 
-Achieved convergence tolerance: 4.7e-12
+Achieved convergence tolerance: 4.6e-12
 ===summary(earth.mod$varmod$residmod)
 
 Formula: abs.resids ~ coef * RHS^exponent
@@ -1727,13 +1726,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 Residual standard error: 1.693 on 29 degrees of freedom
 
 Number of iterations to convergence: 2 
-Achieved convergence tolerance: 4.65e-12
+Achieved convergence tolerance: 4.643e-12
 
 ===varmod.method power0: predict(earth.mod, interval="pint")
          fit       lwr      upr
 1   9.913855  6.333039 13.49467
 2  10.942195  7.111381 14.77301
-3  11.627755  7.634403 15.62111
+3  11.627755  7.634402 15.62111
 4  17.455018 12.182992 22.72704
 5  18.140578 12.727826 23.55333
 6  18.483359 13.000875 23.96584
@@ -1746,15 +1745,15 @@ Achieved convergence tolerance: 4.65e-12
 13 20.540040 14.647405 26.43267
 14 21.568380 15.475575 27.66119
 15 22.596721 16.306741 28.88670
-16 25.681742 18.816523 32.54696
-17 25.681742 18.816523 32.54696
+16 25.681742 18.816522 32.54696
+17 25.681742 18.816522 32.54696
 18 27.052863 19.939078 34.16665
 19 28.423983 21.065587 35.78238
 20 28.766764 21.347802 36.18573
 21 30.080913 22.431838 37.72999
 22 31.395063 23.519032 39.27109
 23 33.366287 25.155370 41.57720
-24 43.222408 33.421821 53.02299
+24 43.222408 33.421822 53.02299
 25 45.193632 35.089566 55.29770
 26 51.764379 40.677507 62.85125
 27 53.078529 41.799954 64.35710
@@ -2166,7 +2165,7 @@ GCV 3.834325    RSS 96.97131    GRSq 0.1284858    RSq 0.2408143
 ===varmod.method="gam"
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.22
+Loaded gam 1.22-3
 
 ===varmod.method gam: summary(earth.mod)
 ===summary(earth.mod)

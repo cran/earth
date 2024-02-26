@@ -96,20 +96,19 @@ A \code{"varmod"} object has the following fields:
     An n x 1 matrix.
     The absolute residuals used to build the residual model.
 
-    \item{\code{parent.x}} {
+    \item{\code{parent.x}}
     An n x p matrix. Parent earth model \code{x}.
-    }
-    \item{\code{parent.y}} {
+
+    \item{\code{parent.y}}
     An n x 1 matrix. Parent earth model \code{y}.
-    }
-    \item{\code{iter.rsq}} {
+
+    \item{\code{iter.rsq}}
     Weighted R-Squared of residual submodel \code{residmod},
     after IRLS iteration.
-    }
-    \item{\code{iter.stderr}} {
+
+    \item{\code{iter.stderr}}
     Standard errors of the coefficients of the residual submodel \code{residmod},
     after IRLS iteration.
-    }
   }
 }
 \examples{

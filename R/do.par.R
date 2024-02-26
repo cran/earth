@@ -45,9 +45,9 @@ do.par <- function(..., nfigs, caption, main1, xlab1, ylab1, trace,
     # or ylab specified (note that xlab or ylab equal to NULL means
     # that we will later auto generate them)
     mar <- c(
-        if(is.null(xlab1) || (is.specified(xlab1) && nzchar(xlab1)))
+        if(is.null(xlab1) || (is.specified(xlab1) && any(nzchar(xlab1))))
             4 else 3,               # bottom
-        if(is.null(ylab1) || (is.specified(ylab1) && nzchar(ylab1)))
+        if(is.null(ylab1) || (is.specified(ylab1) && any(nzchar(ylab1))))
             3 else 2,               # left
         1.2 * nlines.in.main,       # top
         def.right.mar)              # right

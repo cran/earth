@@ -399,7 +399,7 @@ C
       IF (LAST .GT. NP) IER = IER + 8
       IF (NRBAR .LT. NP*(NP-1)/2) IER = IER + 16
       IF (IWK .LT. 2*LAST) IER = IER + 32
-      IF (NBEST .GT. 0) THEN
+      IF (NBEST .GT. -1) THEN
         NEED = NVMAX*(NVMAX+1)/2
         IF (IR .LT. NVMAX) IER = IER + 64
         IF (IL .LT. NEED) IER = IER + 128
@@ -599,7 +599,7 @@ C
       IF (LAST .GT. NP) IER = IER + 8
       IF (NRBAR .LT. NP*(NP-1)/2) IER = IER + 16
       IF (IWK .LT. 3*LAST) IER = IER + 32
-      IF (NBEST .GT. 0) THEN
+      IF (NBEST .GT. -1) THEN
         NEED = NVMAX*(NVMAX+1)/2
         IF (IR .LT. NVMAX) IER = IER + 64
         IF (IL .LT. NEED) IER = IER + 128

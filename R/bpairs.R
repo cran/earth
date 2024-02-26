@@ -145,7 +145,7 @@ expand.bpairs.formula <- function(formula=stop("no 'formula' argument"), data=NU
     if(!is.bpairs(y, family="binomial", trace=1, is.earth=FALSE))
         stopf("expand.bpairs: the left side of the formula is not a two-column matrix of binomial pairs")
 
-    expand.bpairs.aux(x, y, sort)
+    expand.bpairs_aux(x, y, sort)
 }
 expand.bpairs.default <- function(data = stop("no 'data' argument"), y = NULL, sort=FALSE, ...)
 {
@@ -204,9 +204,9 @@ expand.bpairs.default <- function(data = stop("no 'data' argument"), y = NULL, s
     if(!is.bpairs(y, family="binomial", trace=1, is.earth=FALSE))
         stopf("expand.bpairs: %s is not a two-column matrix of binomial pairs", yarg.name)
 
-    expand.bpairs.aux(data, y, sort)
+    expand.bpairs_aux(data, y, sort)
 }
-expand.bpairs.aux <- function(x, y, sort) # returns a data.frame with attributes
+expand.bpairs_aux <- function(x, y, sort) # returns a data.frame with attributes
 {
     sort <- check.boolean(sort)
     stopifnot(ncol(x) >= 1)

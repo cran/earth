@@ -2,7 +2,7 @@
 @rem Sep 2020 Petaluma
 
 @echo test.ordinal.bat
-@"C:\PROGRA~1\R\R-4.2.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.ordinal.R
+@"C:\PROGRA~1\R\R-4.3.2\bin\x64\R.exe" CMD BATCH --quiet --vanilla test.ordinal.R
 @if %errorlevel% equ 0 goto good1
 @echo R returned errorlevel %errorlevel%, see test.ordinal.Rout:
 @echo.

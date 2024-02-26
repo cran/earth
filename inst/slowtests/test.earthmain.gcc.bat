@@ -1,53 +1,51 @@
-@rem test.earthmain.gcc.bat: test 32-bit standalone earth.c with main()
+@rem test.earthmain.gcc.bat: test 64 bit standalone earth.c with main()
 @rem
-@rem The gcc, Microsoft, and clang compiler batch files all test
-@rem against the same reference file "test.earthmain.out.save"
+@rem This tests the earth C code.  It does this: builds test.earthmain.exe
+@rem (under gcc), runs it, and compares results to test.earthmain.out.save.
 @rem
-@rem Stephen Milborrow Jan 2008 Durban
+@rem You will need to tweak this file for your directories.
+@rem
+@rem You need to make R.lib first -- see instructions in gnuwin32/README.packages.
 
 @echo test.earthmain.gcc.bat
+@set CYGWIN=nodosfilewarning
+@rem Init environment for GCC compiler, if necessary
+@call D:\bin\milbo\rpath.bat
 
-@rem set the path and environment for building R packages for the 32-bit gcc compiler
-@rem only do it if needed
-@mks.which gcc | egrep -i "mingw32" >NUL && goto :donesetpath
-@echo Modifying path for 32-bit Rtools and R
-@set PATH=C:\rtools40\mingw32\bin;^
-C:\rtools40\usr\bin;^
-C:\Program Files\R\R-4.2.2\bin\i386;^
-C:\Program Files\gs\gs9.19\bin;^
-%PATH%
-:donesetpath
-
-@mks.cp "D:\bin\milbo\R400devdll\i386\R.dll" .
+cp "C:/Program Files/R/R-4.3.2/bin/x64/R.dll" .
                                 @if %errorlevel% neq 0 goto err
-@mks.cp "D:\bin\milbo\R400devdll\i386\Rblas.dll" .
+cp "C:/Program Files/R/R-4.3.2/bin/x64/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto err
-@mks.cp "D:\bin\milbo\R400devdll\i386\Riconv.dll" .
+cp "C:/Program Files/R/R-4.3.2/bin/x64/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto err
-@mks.cp "D:\bin\milbo\R400devdll\i386\Rgraphapp.dll" .
-                                @if %errorlevel% neq 0 goto err
-@rem you may have to create R.lib and Rblas.lib beforehand
-@mks.cp "D:\bin\milbo\R400devdll\i386\R.lib" .
-                                @if %errorlevel% neq 0 goto err
-@mks.cp "D:\bin\milbo\R400devdll\i386\Rblas.lib" .
+cp "C:/Program Files/R/R-4.3.2/bin/x64/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto err
 
-gcc -DSTANDALONE -DMAIN -Wall --pedantic -Wextra -O3 -std=gnu99^
- -I"/a/r/ra/include" -I../../inst/slowtests ../../src/earth.c^
- R.lib Rblas.lib -o earthmain-gcc.exe
+@rem @rem you may have to create Rdll_x64.lib and Rblas_x64.lib beforehand
+@cp "../../.#/Rdll_x64.lib" R.lib
+                                 @if %errorlevel% neq 0 goto err
+@cp "../../.#/Rblas_x64.lib" Rblas.lib
+                                 @if %errorlevel% neq 0 goto err
+
+@rem TODO -USE_BLAS=0 else crashes in daxpy_ call in FindKnot
+@rem TODO -Wno-stringop-overflow else earth.c:3301:warning: 'memset' exceeds maximum object size
+
+gcc -DMAIN -DSTANDALONE -DUSE_BLAS=0 -Wall --pedantic -Wextra -O3 -std=gnu99 -m64^
+ -Wno-stringop-overflow^
+ -I"/a/r/ra/include" -I../../inst/slowtests^
+ ../../src/earth.c^
+ R.lib Rblas.lib^
+ -o earthmain.gcc.exe
                                 @if %errorlevel% neq 0 goto err
-earthmain-gcc.exe > test.earthmain-gcc.out
+earthmain.gcc.exe >test.earthmain.gcc.out
                                 @rem no errorlevel test, diff will do check for discrepancies
                                 @rem @if %errorlevel% neq 0 goto err
-@rem we use -w on mks.diff so it treats \r\n the same as \n
-mks.diff -w test.earthmain-gcc.out test.earthmain.out.save
+mks.diff test.earthmain.gcc.out test.earthmain.gcc.out.save
                                 @if %errorlevel% neq 0 goto err
 
-@if %errorlevel% equ 0 goto good
-:err
-@echo error: errorlevel %errorlevel%
-@exit /B %errorlevel%
-:good
-@rm -f R.dll Rblas.dll Riconv.dll Riconv.dll Rgraphapp.dll R.lib Rblas.lib earthmain-gcc.* test.earthmain-gcc.* *.o
-@rm -rf Release
+@rm -f R.dll Rblas.dll R.lib Rblas.lib Riconv.dll Rgraphapp.dll R.lib Rblas.lib
+@rm -f earthmain.gcc.* test.earthmain.gcc.out *.o
 @exit /B 0
+
+:err
+@exit /B %errorlevel%

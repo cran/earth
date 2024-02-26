@@ -7,7 +7,6 @@
 Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
-Loading required package: TeachingDemos
 > options(digits=3) # prevent floating point implementation issues across machines
 > data(trees)
 > earth.mod <- earth(Volume~., data=trees)

@@ -38,9 +38,9 @@
 @rem
 @rem We use -W4 below (insteadof -W3) for lint-like warnings
 
-cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\R\R-4.2.2"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
+cl -nologo -DSTANDALONE -DMAIN -TP -Zi -W3 -MDd -I"%ProgramFiles%\R\R-4.3.2"\src\include -I. -FpDebug\vc60.PCH -Fo"Debug/" -c ..\..\src\earth.c
                                 @if %errorlevel% neq 0 goto err
-@rem linker needs to be called explicitly, else we may call the wrong link program (e.g. /rtools40/usr/bin/link)
+@rem linker needs to be called explicitly, else we may call the wrong link program (e.g. /rtools43/usr/bin/link)
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x86\link.exe" -nologo -debug -out:earthmain.exe Debug\earth.obj R.lib Rblas.lib
 
                                 @if %errorlevel% neq 0 goto err

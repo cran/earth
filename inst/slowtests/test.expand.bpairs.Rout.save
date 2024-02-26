@@ -5,7 +5,6 @@
 Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
-Loading required package: TeachingDemos
 > options(warn=1) # print warnings as they occur
 > 
 > # 5 cases (11 obs)
@@ -204,8 +203,7 @@ The y argument should be one of:
        The full names must be used (partial matching isn't supported).
 Got expected error from try(expand.bpairs(short.data.frame, "nonesuch"))
 > expect.err(try(expand.bpairs(short.data.frame, nonesuch)), "object 'nonesuch' not found")
-Error in expand.bpairs.default(short.data.frame, nonesuch) : 
-  object 'nonesuch' not found
+Error : object 'nonesuch' not found
 Got expected error from try(expand.bpairs(short.data.frame, nonesuch))
 > options(warn=2) # treat warnings as errors
 > expect.err(try(expand.bpairs(short.data.frame, c("nonesuch", "fail"))),   "\"nonesuch\" in ycolumns does not match any names")

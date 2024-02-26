@@ -7,7 +7,6 @@
 Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
-Loading required package: TeachingDemos
 > options(warn=1) # print warnings as they occur
 > 
 > printh <- function(caption)
@@ -32,7 +31,7 @@ Loading required package: TeachingDemos
 > 
 > library(mgcv)
 Loading required package: nlme
-This is mgcv 1.8-41. For overview type 'help("mgcv-package")'.
+This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
 > 
 > for(varmod.method in c("gam", "x.gam")) {
 + 
@@ -108,7 +107,7 @@ s(Volume).8     0.000000          NA           NA
 s(Volume).9     1.929016          NA           NA
 
                               mean   smallest    largest      ratio
-95% prediction interval   14.92165   5.262808   35.55661   6.756206
+95% prediction interval   14.92165   5.262806   35.55662   6.756209
 
                                          68%    80%    90%    95% 
 response values in prediction interval   74     90     97     97  
@@ -117,7 +116,7 @@ response values in prediction interval   74     90     97     97
 ===varmod.method gam: predict(earth.mod, interval="pint")
          fit       lwr      upr
 1   9.913855  7.282451 12.54526
-2  10.942195  8.065628 13.81876
+2  10.942195  8.065629 13.81876
 3  11.627755  8.587747 14.66776
 4  17.455018 13.025754 21.88428
 5  18.140578 13.547872 22.73328
@@ -126,7 +125,7 @@ response values in prediction interval   74     90     97     97
 8  19.168919 14.331050 24.00679
 9  19.511699 14.592109 24.43129
 10 19.854479 14.853168 24.85579
-11 20.197259 15.114227 25.28029
+11 20.197259 15.114228 25.28029
 12 20.540040 15.375287 25.70479
 13 20.540040 15.375287 25.70479
 14 21.568380 16.158464 26.97830
@@ -134,19 +133,19 @@ response values in prediction interval   74     90     97     97
 16 25.681742 19.291175 32.07231
 17 25.681742 19.291175 32.07231
 18 27.052863 20.335412 33.77031
-19 28.423983 21.379649 35.46832
+19 28.423983 21.379648 35.46832
 20 28.766764 21.640708 35.89282
 21 30.080913 22.641556 37.52027
-22 31.395063 23.642404 39.14772
-23 33.366287 25.143676 41.58890
-24 43.222408 32.650036 53.79478
-25 45.193632 34.151308 56.23596
-26 51.764379 39.155548 64.37321
-27 53.078529 40.156396 66.00066
-28 55.706828 42.158092 69.25556
-29 56.363903 42.658516 70.06929
-30 56.363903 42.658516 70.06929
-31 73.447846 55.669540 91.22615
+22 31.395063 23.642403 39.14772
+23 33.366287 25.143675 41.58890
+24 43.222408 32.650035 53.79478
+25 45.193632 34.151307 56.23596
+26 51.764379 39.155546 64.37321
+27 53.078529 40.156394 66.00066
+28 55.706828 42.158090 69.25557
+29 56.363903 42.658514 70.06929
+30 56.363903 42.658514 70.06929
+31 73.447846 55.669537 91.22615
 ===varmod.method="x.gam"
 ===varmod.method x.gam: summary(earth.mod)
 ===summary(earth.mod)

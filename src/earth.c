@@ -118,8 +118,9 @@ extern _C_ double ddot_(const int* n,
 
 #define INLINE      inline
 
+#ifndef USE_BLAS      // ifndef here allows USE_BLAS to be defined on compiler cmdline
 #define USE_BLAS    1 // 1 is faster (tested on Windows XP Pentium with R BLAS)
-                      // also, need USE_BLAS to use bxOrthCenteredT
+#endif                // also, need USE_BLAS to use bxOrthCenteredT
 
 #define FAST_MARS   1 // 1 to use techniques in FriedmanFastMars (see refs)
 
@@ -133,7 +134,7 @@ extern _C_ double ddot_(const int* n,
                       // use 0 for C style indices in messages to the user
 #endif
 
-static const char*  VERSION     = "version 5.3.2"; // change if you modify this file!
+static const char*  VERSION     = "version 5.3.3"; // change if you modify this file!
 static const double MIN_GRSQ    = -10.0;
 static const double QR_TOL      = 1e-8;  // same as R lm
 static const double MIN_BX_SOS  = .01;

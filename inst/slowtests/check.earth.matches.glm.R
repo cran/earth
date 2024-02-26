@@ -24,34 +24,34 @@ check.earth.matches.glm <- function(earth, glm, newdata=long[c(3,1,9),],
          deparse(substitute(glm)), "\n")
 
     # sort is needed because earth may reorder predictors based in importance
-    earth.glm <- earth$glm.list[[1]]
-    stopifnot(!is.null(earth.glm))
-    stopifnot(almost.equal(sort(coef(earth.glm)), sort(coef(glm)), max=max))
+    earth_glm <- earth$glm.list[[1]]
+    stopifnot(!is.null(earth_glm))
+    stopifnot(almost.equal(sort(coef(earth_glm)), sort(coef(glm)), max=max))
     if(check.coef.names) {
         # earth and glm handle backquoted names slightly differently
-        names.earth.glm <- gsub("\`", "", names(coef(earth.glm)))
-        names.earth.glm <- sort(names.earth.glm)
+        names.earth_glm <- gsub("\`", "", names(coef(earth_glm)))
+        names.earth_glm <- sort(names.earth_glm)
         names.glm       <- gsub("\`", "", names(coef(glm)))
         names.glm       <- sort(names.glm)
-        stopifnot(identical(names.earth.glm, names.glm))
+        stopifnot(identical(names.earth_glm, names.glm))
     }
 
-    stopifnot(length(earth.glm$coefficients) == length(glm$coefficients))
-    stopifnot(almost.equal(sort(earth.glm$coefficients), sort(glm$coefficients), max=max))
+    stopifnot(length(earth_glm$coefficients) == length(glm$coefficients))
+    stopifnot(almost.equal(sort(earth_glm$coefficients), sort(glm$coefficients), max=max))
 
-    stopifnot(length(earth.glm$residuals) == length(glm$residuals))
-    stopifnot(almost.equal(earth.glm$residuals, glm$residuals, max=max.residuals))
+    stopifnot(length(earth_glm$residuals) == length(glm$residuals))
+    stopifnot(almost.equal(earth_glm$residuals, glm$residuals, max=max.residuals))
 
-    stopifnot(length(earth.glm$fitted.values) == length(glm$fitted.values))
-    stopifnot(almost.equal(earth.glm$fitted.values, glm$fitted.values, max=max))
+    stopifnot(length(earth_glm$fitted.values) == length(glm$fitted.values))
+    stopifnot(almost.equal(earth_glm$fitted.values, glm$fitted.values, max=max))
 
-    stopifnot(almost.equal(fitted(earth.glm), fitted(glm), max=max))
-    if(!is.null(names(fitted(earth.glm))) && !is.null(names(fitted(glm))))
-        check.names(names(fitted(earth.glm)), names(fitted(glm)))
+    stopifnot(almost.equal(fitted(earth_glm), fitted(glm), max=max))
+    if(!is.null(names(fitted(earth_glm))) && !is.null(names(fitted(glm))))
+        check.names(names(fitted(earth_glm)), names(fitted(glm)))
 
-    stopifnot(almost.equal(residuals(earth.glm), residuals(glm), max=max.residuals))
-    if(!is.null(names(residuals(earth.glm))) && !is.null(names(residuals(glm))))
-        check.names(names(residuals(earth.glm)), names(residuals(glm)))
+    stopifnot(almost.equal(residuals(earth_glm), residuals(glm), max=max.residuals))
+    if(!is.null(names(residuals(earth_glm))) && !is.null(names(residuals(glm))))
+        check.names(names(residuals(earth_glm)), names(residuals(glm)))
 
     stopifnot(almost.equal(residuals(earth, type="response"),     residuals(glm, type="response"), max=max.residuals))
     stopifnot(almost.equal(residuals(earth, type="glm.response"), residuals(glm, type="response"), max=max.residuals))

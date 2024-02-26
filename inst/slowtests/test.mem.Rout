@@ -100,11 +100,17 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 +     } else
 +         nlm[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 1.93 ncells 19 vcells 29
-mem 1.75 ncells 1577 vcells 3666
-mem 1.91 ncells 1777 vcells 4246
-mem 1.91 ncells 1777 vcells 4246
-mem 1.91 ncells 1777 vcells 4246
+Warning: 'memory.size()' is no longer supported
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 19 vcells 29
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 1579 vcells 3668
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 1779 vcells 4248
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 1779 vcells 4248
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 1779 vcells 4248
 > cat("actual run of lm\n")
 actual run of lm
 > # We use 0:nmodels, because we build the first model at iter 0,
@@ -139,11 +145,17 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 +     } else
 +         nlm[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
 > # standard earth model
 > cat("earth(y~x)\n")
 earth(y~x)
@@ -169,11 +181,17 @@ GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
 +     } else
 +         nstandardearth[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
 > # earth model with an allowed func
 > cat("earth(y~x, allowed = good.allowedfunc)\n")
 earth(y~x, allowed = good.allowedfunc)
@@ -199,11 +217,17 @@ GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
 +     } else
 +         ngoodallowed[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
 > # try earth model with an allowed func which causes an error
 > cat("earth(y~x, allowed = bad.allowedfunc)\n")
 earth(y~x, allowed = bad.allowedfunc)
@@ -220,11 +244,17 @@ Got expected error from try(earth(y ~ x, allowed = bad.allowedfunc), silent = FA
 +     } else
 +         nbadallowed[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
 > 
 > # try earth model with an arg that causes error in ForwardPass in earth.c
 > cat("earth(y~x, Adjust.endspan = -999\n")
@@ -242,22 +272,28 @@ Got expected error from try(earth(y ~ x, Adjust.endspan = -999), silent = FALSE)
 +     } else
 +         nbadendspan[i] <- max.mem.change(mem.start, gc.start)
 + }
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
-mem 0 ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
+Warning: 'memory.size()' is no longer supported
+mem NaN ncells 8 vcells 0
 > 
 > cat("nlm           "); print(nlm)
-nlm           [1] 8 8 8 8 8
+nlm           [1] NaN NaN NaN NaN NaN
 > cat("nstandardearth"); print(nstandardearth)
-nstandardearth[1] 8 8 8 8 8
+nstandardearth[1] NaN NaN NaN NaN NaN
 > cat("ngoodallowed  "); print(ngoodallowed)
-ngoodallowed  [1] 8 8 8 8 8
+ngoodallowed  [1] NaN NaN NaN NaN NaN
 > cat("nbadallowed   "); print(nbadallowed)
-nbadallowed   [1] 8 8 8 8 8
+nbadallowed   [1] NaN NaN NaN NaN NaN
 > cat("nbadendspan   "); print(nbadendspan)
-nbadendspan   [1] 8 8 8 8 8
+nbadendspan   [1] NaN NaN NaN NaN NaN
 > 
 > # printf("\n                             Min       1stQ     Median       Mean      3rdQ        Max\n")
 > # printf("lm                    %s\n", paste0(sprintf("% 10.3f", summary(nlm)), collapse=" "))
@@ -271,5 +307,6 @@ nbadendspan   [1] 8 8 8 8 8
 > 
 > # plot memory used for each model
 > plotmem(nlm, nstandardearth, ngoodallowed, nbadallowed, nbadendspan)
-> 
-> source("test.epilog.R")
+Error in plot.window(...) : need finite 'ylim' values
+Calls: plotmem -> plot -> plot.default -> localWindow -> plot.window
+Execution halted

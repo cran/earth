@@ -68,19 +68,19 @@ format.earth <- function(
         colon.char = "*"
     }
     for(iresp in seq_len(nresp))
-        s[iresp] <- format.one.response(iresp, x, digits, use.names,
+        s[iresp] <- format_one_response(iresp, x, digits, use.names,
                                         decomp, style=style,
                                         colon.char=colon.char, coefs=NULL)
 
     if(!is.null(x$glm.list))   # embedded GLM model(s)?
         for(iresp in seq_len(nresp))
-            s[nresp + iresp] <- format.one.response(iresp, x, digits, use.names,
+            s[nresp + iresp] <- format_one_response(iresp, x, digits, use.names,
                                         decomp, style=style,
                                         colon.char=colon.char,
                                         coefs=x$glm.list[[iresp]]$coefficients)
     s
 }
-format.one.response <- function( # called by format.earth
+format_one_response <- function( # called by format.earth
     iresp,          # response index i.e. column in y matrix
     object,         # "earth" object
     digits,

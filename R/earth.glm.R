@@ -36,7 +36,7 @@ check.no.family.arg.to.earth <- function(..., is.null.glm.arg)
 # Note that on entry process.glm.arg has already checked the glm argument
 # Most args are direct copies of args to earth.fit.
 
-earth.glm <- function(bx, y, weights, na.action, offset,
+earth_glm <- function(bx, y, weights, na.action, offset,
                       glm.arg, trace, is.bpairs, env)
 {
     hack.intercept.only.glm.model <- function(g)
@@ -73,7 +73,7 @@ earth.glm <- function(bx, y, weights, na.action, offset,
 
         g
     }
-    #--- earth.glm starts here ---
+    #--- earth_glm starts here ---
     if(trace >= 4)
         cat("\n")
     ncases <- nrow(bx)
@@ -87,7 +87,7 @@ earth.glm <- function(bx, y, weights, na.action, offset,
         # hack.intercept.only.glm.model).
         # Actually the fake intercept does have a small effect on the
         # model: dof is off by one (which also affects vals derived from dof).
-        trace1(trace, "earth.glm: intercept-only earth model\n")
+        trace1(trace, "earth_glm: intercept-only earth model\n")
         bx.data.frame <- as.data.frame(bx) # bx has a single column, the earth intercept
         colnames(bx.data.frame) <- "EarthIntercept" # for sanity checking
     } else {

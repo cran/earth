@@ -1,5 +1,15 @@
 # Changes to the earth package
 
+## 5.3.3  Feb 16, 2024
+
+    Updates for R version 4.3.2.
+    For example, had to change "sort.unique" to "sort_unique".
+
+    On leaps.f, changed "IF (NBEST .GT. 0)" to "IF (NBEST .GT. -1)" in subroutines
+    FORWRD and BAKWRD in order to match corresponding changes in the leaps package.
+
+    Removed dependency on possibly orphaned package TeachingDemos.
+
 ## 5.3.2  Jan 26, 2023
 
     Modified use of "bool" in the C code to conform to C23 (which predefines "bool").

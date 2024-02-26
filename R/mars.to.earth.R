@@ -141,7 +141,7 @@ mars.to.earth <- function(object=stop("no 'object' argument"), trace=TRUE)
     dirs <- object$factor[object$all.terms, , drop=FALSE]
     modvars <- get.identity.modvars(dirs) # incorrect if terms like sqrt(num) in formula
 
-    leverages = try(hatvalues.qr(lm.fit(object$x, y, singular.ok=FALSE)$qr,
+    leverages = try(hatvalues_qr(lm.fit(object$x, y, singular.ok=FALSE)$qr,
                     maxmem=0, trace=0), silent=trace == 0)
     if(is.try.err(leverages))
         leverages <- NULL

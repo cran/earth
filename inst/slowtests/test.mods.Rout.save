@@ -5,7 +5,6 @@
 Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
-Loading required package: TeachingDemos
 > options(digits=4)
 > 
 > SHORTTEST <- TRUE # use TRUE for production testing against test.mods.Rout.save
@@ -587,7 +586,7 @@ begin GLOBAL.SEEDS 1 FORCE.WEIGHTS FALSE
 + }
 TEST 1  n 100 p 1 univariate       nk 21  deg 1 Loading required package: mda
 Loading required package: class
-Loaded mda 0.5-3
+Loaded mda 0.5-4
 
 nterms 3  grsq  0.79 test.rsq  0.78 grsq-test.rsq -0.01 rsq.mars  0.782 delta  0.00
 TEST 2  n 100 p 2 univariate       nk 21  deg 2 nterms 3  grsq  0.80 test.rsq  0.75 grsq-test.rsq -0.05 rsq.mars  0.751 delta  0.00

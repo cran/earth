@@ -285,89 +285,89 @@ try(earth.weights.local2()) # fails: object 'weights.local' not found, so does l
 
 #--- cross validation tests
 
-earth.cv.1 <- function() {
+earth_cv.1 <- function() {
     set.seed(2017)
     earth(formula=Volume ~ ., data=trees, weights=weights.global, linpreds=TRUE,
          nfold=3)
 }
-cat("\n--earth.cv.1\n")
-print(earth.cv.1())
-earth.cv.2 <- function() {
+cat("\n--earth_cv.1\n")
+print(earth_cv.1())
+earth_cv.2 <- function() {
     weights.local <- rep(1, length.out=nrow(trees))
     weights.local[1] <- 2
     set.seed(2017)
     earth(formula=Volume ~ ., data=trees, weights=weights.local, linpreds=TRUE,
           nfold=3)
 }
-cat("\n--earth.cv.2\n")
-print(earth.cv.2())
-earth.cv.3 <- function(){
+cat("\n--earth_cv.2\n")
+print(earth_cv.2())
+earth_cv.3 <- function(){
     set.seed(2017)
     earth(formula=formula.global, data=data.global, weights=weights.global, linpreds=TRUE,
           nfold=3)
 }
-cat("\n--earth.cv.3\n")
-print(earth.cv.3())
+cat("\n--earth_cv.3\n")
+print(earth_cv.3())
 
-# earth.cv.4 <- function(){ # fails: object 'weights.local' not found, cf earth.weights.local2 above for simpler example
+# earth_cv.4 <- function(){ # fails: object 'weights.local' not found, cf earth.weights.local2 above for simpler example
 #    weights.local <- rep(1, length.out=nrow(trees))
 #    weights.local[1] <- 2
 #    set.seed(2017)
 #    earth(formula=formula.global, data=data.global, weights=weights.local, linpreds=TRUE,
 #          nfold=3)
 # }
-# cat("\n--earth.cv.4\n")
-# printt(earth.cv.4())
+# cat("\n--earth_cv.4\n")
+# printt(earth_cv.4())
 
 thresh.global <- .002
-earth.cv.1 <- function() {
+earth_cv.1 <- function() {
     set.seed(2017)
     earth(formula=Volume ~ ., data=trees, thresh=thresh.global,
          nfold=3)
 }
-cat("\n--earth.cv.1\n")
-print(earth.cv.1())
-earth.cv.2 <- function() {
+cat("\n--earth_cv.1\n")
+print(earth_cv.1())
+earth_cv.2 <- function() {
     thresh.local <- .002
     set.seed(2017)
     earth(formula=Volume ~ ., data=trees, thresh=thresh.local,
           nfold=3)
 }
-cat("\n--earth.cv.2\n")
-print(earth.cv.2())
-earth.cv.3 <- function(){
+cat("\n--earth_cv.2\n")
+print(earth_cv.2())
+earth_cv.3 <- function(){
     set.seed(2017)
     earth(formula=formula.global, data=data.global, thresh=thresh.global,
           nfold=3)
 }
-cat("\n--earth.cv.3\n")
-print(earth.cv.3())
-earth.cv.4 <- function(){
+cat("\n--earth_cv.3\n")
+print(earth_cv.3())
+earth_cv.4 <- function(){
     thresh.local <- .002
     set.seed(2017)
     earth(formula=formula.global, data=data.global, thresh=thresh.local,
           nfold=3)
 }
-cat("\n--earth.cv.4\n")
-print(earth.cv.4())
-earth.cv.5 <- function(){
+cat("\n--earth_cv.4\n")
+print(earth_cv.4())
+earth_cv.5 <- function(){
     thresh <- .002
     set.seed(2017)
     earth(formula=formula.global, data=data.global, thresh=thresh,
           nfold=3)
 }
-cat("\n--earth.cv.5\n")
-print(earth.cv.5())
+cat("\n--earth_cv.5\n")
+print(earth_cv.5())
 
 thresh.global <- .002
-earth.cv.1 <- function() {
+earth_cv.1 <- function() {
     set.seed(2017)
     earth(formula=Volume ~ ., data=trees, thresh=thresh.global,
           pmethod="cv", nfold=3)
 }
-cat("\n--earth.cv.1\n")
-print(earth.cv.1())
-earth.cv.2 <- function() { # fails
+cat("\n--earth_cv.1\n")
+print(earth_cv.1())
+earth_cv.2 <- function() { # fails
     thresh.local <- .002
     set.seed(2017)
     a <- earth(formula=Volume ~ ., data=trees, thresh=thresh.local,
@@ -376,34 +376,34 @@ earth.cv.2 <- function() { # fails
     # print(a)
     a
 }
-cat("\n--earth.cv.2\n")
-print(earth.cv.2())
-a <- earth.cv.2()
-earth.cv.3 <- function(){
+cat("\n--earth_cv.2\n")
+print(earth_cv.2())
+a <- earth_cv.2()
+earth_cv.3 <- function(){
     set.seed(2017)
     earth(formula=formula.global, data=data.global, thresh=thresh.global,
           pmethod="cv", nfold=3)
 }
-cat("\n--earth.cv.3\n")
-print(earth.cv.3())
-earth.cv.4 <- function(){ # fails
+cat("\n--earth_cv.3\n")
+print(earth_cv.3())
+earth_cv.4 <- function(){ # fails
     thresh.local <- .002
     set.seed(2017)
     earth(formula=formula.global, data=data.global, thresh=thresh.local,
           pmethod="cv", nfold=3)
 }
-cat("\n--earth.cv.4\n")
-print(earth.cv.4())
-earth.cv.5 <- function(){ # fails
+cat("\n--earth_cv.4\n")
+print(earth_cv.4())
+earth_cv.5 <- function(){ # fails
     thresh <- .002
     set.seed(2017)
     earth(formula=formula.global, data=data.global, thresh=thresh,
           pmethod="cv", nfold=3)
 }
-cat("\n--earth.cv.5\n")
-a.cv.5 <- earth.cv.5()
+cat("\n--earth_cv.5\n")
+a.cv.5 <- earth_cv.5()
 print(a.cv.5)
-cat("\n--summary(earth.cv.5)\n")
+cat("\n--summary(earth_cv.5)\n")
 print(summary(a.cv.5))
 
 source("test.epilog.R")

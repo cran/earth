@@ -467,7 +467,7 @@ earth_plotmodsel <- function(
             }
             cex <- .6
             text(x=x,
-                 y=TeachingDemos::spread.labs(y, mindiff=1.2 * strheight("X")),
+                 y=spread.labs(y, mindiff=1.2 * strheight("X")),
                  labels=labs, cex=cex, col=col.oof.labs[ifold], xpd=NA)
         }
         if(is.specified(col.pch.max.oof.rsq) || is.specified(col.pch.cv.rsq)) {

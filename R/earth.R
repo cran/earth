@@ -161,7 +161,7 @@ earth.default <- function( # user called earth with x y args (not formula)
         if(!is.null(subset))
             stop0("'subset' cannot be used with 'nfold' (implementation restriction)")
         glm.arg <- process.glm.arg(glm)
-        cv <- earth.cv(object=rv,
+        cv <- earth_cv(object=rv,
                 x=if(is.null(subset)) x else x[subset,,drop=FALSE],
                 y=if(is.null(subset)) y else y[subset,,drop=FALSE],
                 subset=subset, weights=weights, na.action=na.action,
@@ -396,7 +396,7 @@ earth.formula <- function( # user called earth with formula arg (not x y args)
         if(!is.null(subset))
             stop0("'subset' cannot be used with 'nfold' (implementation restriction)")
         glm.arg <- process.glm.arg(glm)
-        cv <- earth.cv(object=rv,
+        cv <- earth_cv(object=rv,
                 x=if(is.null(subset)) x else x[subset,,drop=FALSE],
                 y=if(is.null(subset)) y else y[subset,,drop=FALSE],
                 subset=subset, weights=weights, na.action=na.action,
@@ -880,7 +880,7 @@ reorder.earth <- function(
     check.which.terms(x$dirs, which.terms)
     dirs <- x$dirs[which.terms, , drop=FALSE]
     new.order <- switch(match.arg1(decomp, "decomp"),
-                   anova = reorder.terms.anova(
+                   anova = reorder_terms_anova(
                                 dirs, x$cuts[which.terms,,drop=FALSE]),
                    none  = 1:length(which.terms))
     degrees <- get.degrees.per.term(dirs[new.order, , drop=FALSE])
@@ -888,7 +888,7 @@ reorder.earth <- function(
 }
 # return a vector of term numbers, ordered as per the "anova" decomposition
 
-reorder.terms.anova <- function(dirs, cuts)
+reorder_terms_anova <- function(dirs, cuts)
 {
     nterms <- nrow(dirs)
     key.degrees <- get.degrees.per.term(dirs)   # sort first on degree
@@ -963,11 +963,11 @@ update.earth <- function(
     trace <- get.update.arg(this.call$trace, "trace", object, env,
                             trace1=NULL, "update.earth", print.trace=FALSE)
     trace <- eval.parent(trace)
-    if(is.name(trace))    # TODO needed when called from earth.cv with glm=NULL, why?
+    if(is.name(trace))    # TODO needed when called from earth_cv with glm=NULL, why?
         trace <- eval.parent(trace)
     if(is.null(trace))
         trace <- 0
-    if(is.name(call$glm)) # TODO needed when called from earth.cv with glm=NULL, why?
+    if(is.name(call$glm)) # TODO needed when called from earth_cv with glm=NULL, why?
         call$glm <- eval.parent(call$glm)
     dots <- match.call(expand.dots=FALSE)$...
     if(length(dots) > 0) {

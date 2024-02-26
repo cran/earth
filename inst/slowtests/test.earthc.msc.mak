@@ -9,7 +9,7 @@ all: test.earthc.out
 # LINK needs to be explicitly set, else we may call the wrong link program (e.g. /rtools/usr/bin/link)
 LINK = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX64\x86\link.exe" 
 
-R_DIR="%ProgramFiles%\r\R-4.2.2"
+R_DIR="%ProgramFiles%\r\R-4.3.2"
 
 INCL=-I$(R_DIR)\src\include -I.
 

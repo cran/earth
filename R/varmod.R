@@ -33,7 +33,7 @@ varmod.earth <- function(parent,
     trace, x, y, model.var, ...)
 {
     check.classname(parent, substitute(parent), "earth")
-    varmod.internal(parent,
+    varmod_internal(parent,
                     method, exponent, conv, clamp, minspan,
                     trace, x, y, model.var, ...)
 }
@@ -44,13 +44,13 @@ varmod.default <- function(parent,
     warning0("varmod.default: varmods are not supported for \"",
              class(parent)[1], "\" objects\nContinuing anyway")
 
-    # TODO this won't work: varmod.internal assumes an earth parent model in some places
+    # TODO this won't work: varmod_internal assumes an earth parent model in some places
 
-    varmod.internal(parent,
+    varmod_internal(parent,
                     method, exponent, conv, clamp, minspan,
                     trace, x, y, model.var, ...)
 }
-varmod.internal <- function(parent,
+varmod_internal <- function(parent,
     method, exponent=1, conv=1, clamp=.1,
     minspan=-5,
     trace=0, parent.x=NULL, parent.y=NULL,
@@ -217,7 +217,7 @@ iterate.residmod <- function(parent, abs.resids,
         class(varmod)   <- "varmod"
         weights         <- get.residmod.weights(varmod, iter, trace)
 
-        trace.tab <- update.trace.tab(trace.tab, trace, iter, max.iter,
+        trace.tab <- update_trace_tab(trace.tab, trace, iter, max.iter,
                                       residmod, varmod, coef, coef.change,
                                       parent.y, weights, exponent)
 
@@ -245,7 +245,7 @@ blank.plot <- function(main=NULL)
 }
 trace.ncoef.global <- 0
 
-update.trace.tab <- function(trace.tab, trace, iter, max.iter, residmod, varmod,
+update_trace_tab <- function(trace.tab, trace, iter, max.iter, residmod, varmod,
                              coef, coef.change, parent.y, weights, exponent)
 {
     if(trace == TRACE.VARMOD.DETAILS) {
@@ -484,14 +484,14 @@ get.residmod.weights <- function(object, iter=0, trace=0)
 
 lamba.global <- lamba.factor.global <- -999
 
-update.lambda.factor <- function(lambda, trace)
+update_lambda_factor <- function(lambda, trace)
 {
     approx.equal <- function(x, y)
     {
         # allow for limited precision in doubles, also allows .33 for 1/3
         abs(x - y) < 1e-2
     }
-    #--- update.lambda.factor starts here ---
+    #--- update_lambda_factor starts here ---
     if(lambda != lamba.global) {
         assignInMyNamespace("lamba.global", lambda)
 
@@ -523,7 +523,7 @@ update.lambda.factor <- function(lambda, trace)
 
 to.sd <- function(abs.resids, lambda, trace=0)
 {
-    update.lambda.factor(lambda, trace)
+    update_lambda_factor(lambda, trace)
     # pmax is necessary to prevent e.g. sqrt of neg prediction from residmod
     (lamba.factor.global * pmax(abs.resids, 0)) ^ (1 / lambda)
 }
@@ -858,11 +858,11 @@ get.quant <- function(level) # e.g for level=.95 return 1.96
     level <- 1 - (1 - level) / 2 # .95 becomes .975
     qnorm(level)                 # .975 becomes 1.96
 }
-predict.se <- function(object, newdata)
+predict_se <- function(object, newdata)
 {
-    to.sd(predict.abs.residual(object, newdata), object$lambda)
+    to.sd(predict_abs_residual(object, newdata), object$lambda)
 }
-predict.abs.residual <- function(object, newdata)
+predict_abs_residual <- function(object, newdata)
 {
     # unfortunately needed to get model formulas to work for some varmod methods
     hack.colnames <- function(newdata, method)
@@ -900,9 +900,9 @@ predict.abs.residual <- function(object, newdata)
     min.abs.resid <- (object$min.sd ^ object$lambda) / lamba.factor.global
     pmax(abs.resid, min.abs.resid)
 }
-predict.pint <- function(object, newdata, level) # newdata allowed
+predict_pint <- function(object, newdata, level) # newdata allowed
 {
-    se <- predict.se(object, newdata)
+    se <- predict_se(object, newdata)
     parent.fit <- parent.predict(object$parent, newdata)
     stopifnot(length(parent.fit) == length(se))
     quant <- get.quant(level)
@@ -910,7 +910,7 @@ predict.pint <- function(object, newdata, level) # newdata allowed
                lwr = parent.fit - quant * se,
                upr = parent.fit + quant * se)
 }
-predict.cint <- function(object, newdata, level)
+predict_cint <- function(object, newdata, level)
 {
     if(!is.null(newdata))
         stop0("predict.varmod: newdata is not allowed with interval=\"cint\"")
@@ -940,15 +940,15 @@ predict.varmod <- function(
     check.classname(object, substitute(object), "varmod")
     warn.if.dots(...)
     switch(match.arg1(type, "type"),
-        pint = predict.pint(object, newdata, level),
-        cint = predict.cint(object, newdata, level),
+        pint = predict_pint(object, newdata, level),
+        cint = predict_cint(object, newdata, level),
         se   = {
             check.level95(level)
-            predict.se(object, newdata)
+            predict_se(object, newdata)
         },
         abs.residual = {
             check.level95(level)
-            predict.abs.residual(object, newdata)
+            predict_abs_residual(object, newdata)
         })
 }
 # Example: if digits=3, then "%.*f" becomes "%.3f"
@@ -1271,7 +1271,7 @@ get.varmod.ylab <- function(object, as.sd)
 {
     sprint("ParentMod %s", if(as.sd) "StdDev" else get.resids.name(object))
 }
-min.sd.line <- function(object, min.sd.col, lwd) # draw horizontal line at min.sd
+min_sd_line <- function(object, min.sd.col, lwd) # draw horizontal line at min.sd
 {
     if(is.specified(min.sd.col)) {
         # TODO need to apply lambda exponent here?
@@ -1347,7 +1347,7 @@ plot.varmod <- function(
                         main[iwhich],
                  ylim=ylim, pch=20, cex=cex, xlab="Fitted",
                  ylab=get.varmod.ylab(object, as.sd=FALSE))
-            min.sd.line(object, min.sd.col, lwd) # horizontal line at min.sd
+            min_sd_line(object, min.sd.col, lwd) # horizontal line at min.sd
             sd.axis(object)                # right hand axis in stddev scale
             # fitted values of residual model
             fit <- predict.varmod(object, type="abs.residual")
@@ -1370,7 +1370,7 @@ plot.varmod <- function(
                         sprint("%s vs First Predictor", get.resids.name(object))
                      else
                         main[iwhich])
-            min.sd.line(object, min.sd.col, lwd) # horizontal line at min.sd
+            min_sd_line(object, min.sd.col, lwd) # horizontal line at min.sd
             sd.axis(object)                 # right hand axis in stddev scale
 
         } else if(which[iwhich] == 3) {     #--- residual plot ---

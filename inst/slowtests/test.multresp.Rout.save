@@ -8,7 +8,6 @@
 Loading required package: Formula
 Loading required package: plotmo
 Loading required package: plotrix
-Loading required package: TeachingDemos
 > show.earth.mod <- function(mod, modname, nresponses, caption, trace, ...)
 + {
 +     set.seed(2019)

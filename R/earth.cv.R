@@ -1,7 +1,7 @@
 # earth.cv.R: Functions for cross validation of earth models.
-#             Note that earth.cv returns null unless nfold > 1.
+#             Note that earth_cv returns null unless nfold > 1.
 
-earth.cv <- function(object, x, y, subset, weights, na.action,
+earth_cv <- function(object, x, y, subset, weights, na.action,
     pmethod, keepxy, trace, trace.org, glm.arg, degree,
     nfold, ncross, stratify, get.oof.fit.tab, get.oof.rsq.per.subset,
     Scale.y, env, ...)
@@ -43,7 +43,7 @@ earth.cv <- function(object, x, y, subset, weights, na.action,
         list(oof.rsq.per.subset    = oof.rsq.per.subset,
              infold.rsq.per.subset = infold.rsq.per.subset)
     }
-    #--- earth.cv starts here ---
+    #--- earth_cv starts here ---
     # We called check.cv.args(nfold, ncross, varmod.method, pmethod)
     # earlier so it's safe to use those args here.
     # Likewise, subset arg was already checked in earth.fit.

@@ -1,4 +1,4 @@
-# earth.cv.lib.R: library functions for cross validation of earth models
+# earth_cv.lib.R: library functions for cross validation of earth models
 
 # The following functions were lifted from the Elith Leathwick code.
 # In that code, the AUC calculation was adapted from Ferrier, Pearce and Watson.

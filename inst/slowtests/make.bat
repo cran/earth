@@ -1,20 +1,20 @@
 @rem earth/inst/slowtests/make.bat
 
-@call test.earthmain.gcc.bat
+@rem TODO Removed clang because 32-bit builds are no longer supported by rtools43
+@rem @call test.earthmain.clang.bat
+@rem                    @if %errorlevel% NEQ 0 goto err
+@rem @call test.earthc.clang.bat
+@rem                    @if %errorlevel% NEQ 0 goto err
+
+call test.earthmain.gcc.bat
                         @if %errorlevel% NEQ 0 goto err
-@call test.earthmain.clang.bat
+call test.earthc.gcc.bat
                         @if %errorlevel% NEQ 0 goto err
-@call test.earthmain.msc.bat
+call test.earthmain.msc.bat
                         @if %errorlevel% NEQ 0 goto err
-@call test.earthc.msc.bat
+call test.earthc.msc.bat
                         @if %errorlevel% NEQ 0 goto err
-@call test.earthc.gcc.bat
-                        @if %errorlevel% NEQ 0 goto err
-@call test.earthc.msc.bat
-                        @if %errorlevel% NEQ 0 goto err
-@call test.earthc.clang.bat
-                        @if %errorlevel% NEQ 0 goto err
-@call test.numstab.bat
+call test.numstab.bat
                         @if %errorlevel% NEQ 0 goto err
 @call test.mods.bat
                         @if %errorlevel% NEQ 0 goto err
