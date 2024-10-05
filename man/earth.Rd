@@ -373,7 +373,7 @@ The \code{varmod.method} argument should be one of\cr
 \bold{\code{"lm"}} Use \code{\link{lm}} to estimate standard deviation as a
 function of the predicted response.
 \cr
-\bold{\code{"rlm"}} Use \code{\link{rlm}}.
+\bold{\code{"rlm"}} Use \code{\link[MASS]{rlm}}.
 \cr
 \bold{\code{"earth"}} Use \code{\link{earth}}.
 \cr

@@ -1,5 +1,12 @@
 # Changes to the earth package
 
+## 5.3.4  Oct 1, 2024
+
+   Fixed a bug in format.earth(style="bf") where mis-formatting
+   occurred for variables which enter the model without a hinge.
+
+   Update for R version 4.4.1: We now use allocLang in allowed.c instead of SET_TYPEOF.
+
 ## 5.3.3  Feb 16, 2024
 
     Updates for R version 4.3.2.

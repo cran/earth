@@ -654,7 +654,7 @@ GCV 0.0670688    RSS 0.1825762    GRSq 0.9142114    RSq 0.9854545
 > library(gam)
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.22-3
+Loaded gam 1.22-4
 
 > library(rpart)
 > n <- 100

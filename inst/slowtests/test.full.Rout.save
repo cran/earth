@@ -1,7 +1,7 @@
 > # test.full.R: test earth
 > 
 > print(R.version.string)
-[1] "R version 4.3.2 (2023-10-31 ucrt)"
+[1] "R version 4.4.1 (2024-06-14 ucrt)"
 > 
 > source("test.prolog.R")
 > source("check.models.equal.R")
@@ -39,23 +39,19 @@ Loaded mda 0.5-4
 > print(citation("earth"))
 To cite package 'earth' in publications use:
 
-  Hastie SMDfmbT, wrapper. RTUAMFuwTLl (2011). _earth: Multivariate
-  Adaptive Regression Splines_. R package version 5.3.3,
+  Milborrow S, Hastie T, Tibshirani R (2011). _earth: Multivariate
+  Adaptive Regression Splines_. R package version 5.3.4,
   <https://CRAN.R-project.org/package=earth>.
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
     title = {earth: Multivariate Adaptive Regression Splines},
-    author = {Stephen Milborrow. Derived from mda:mars by Trevor Hastie and Rob Tibshirani. Uses Alan Miller's Fortran utilities with Thomas Lumley's leaps wrapper.},
+    author = {Stephen Milborrow and Trevor Hastie and Rob Tibshirani},
     year = {2011},
-    note = {R package version 5.3.3},
+    note = {R package version 5.3.4},
     url = {https://CRAN.R-project.org/package=earth},
   }
-
-ATTENTION: This citation information has been auto-generated from the
-package DESCRIPTION file and may need manual editing, see
-'help("citation")'.
 > 
 > #--- test examples from man pages ------------------------------------------------------------
 > 
@@ -1291,9 +1287,9 @@ All 0.5296626 538.2511  0.166969402 0.18914032
 +     "}\n", sep = "")))
 > a <- earth(Volume ~ ., data = trees)
 > my.func <- as.func(a, use.names = FALSE)
-> printh(my.func(c(10,80)))     # yields 17.76888
+> printh(my.func(c(10,80)))     # yields 17.60359
 ===my.func(c(10, 80)) [1] 17.60359
-> printh(predict(a, c(10,80)))  # yields 17.76888, but is slower
+> printh(predict(a, c(10,80)))  # yields 17.60359, but is slower
 ===predict(a, c(10, 80))        Volume
 [1,] 17.60359
 > example(format.earth)
@@ -1358,47 +1354,48 @@ frmt.r> #     bf3  h(Height-75)
 frmt.r> 
 frmt.r> 
 frmt.r> 
-> a <- earth(Volume ~ ., data = trees)
+> a <- earth(Volume ~ ., data = trees, degree=2)
 > cat(format(a)) # basic tests of format.earth
-  29.05995
-  -  3.419806 * h(14.2-Girth)
-  +  6.229514 * h(Girth-14.2)
-  + 0.5813644 * h(Height-75)
+  29.25859
+  -  3.437775 * h(14.2-Girth)
+  +  5.762954 * h(Girth-14.2)
+  + 0.0444337 * Girth*h(Height-75)
 > cat(format(a, digits=4))
-  29.06
-  -   3.42 * h(14.2-Girth)
-  +   6.23 * h(Girth-14.2)
-  + 0.5814 * h(Height-75)
+  29.26
+  -   3.438 * h(14.2-Girth)
+  +   5.763 * h(Girth-14.2)
+  + 0.04443 * Girth*h(Height-75)
 > # cat(format(a, use.names=FALSE))
 > cat(format(a, style="pmax"))
-  29.05995
-  -  3.419806 * pmax(0,   14.2 -  Girth) 
-  +  6.229514 * pmax(0,  Girth -   14.2) 
-  + 0.5813644 * pmax(0, Height -     75) 
+  29.25859
+  -  3.437775 * pmax(0,   14.2 -  Girth) 
+  +  5.762954 * pmax(0,  Girth -   14.2) 
+  + 0.0444337 * Girth                    * pmax(0, Height -     75) 
 > cat(format(a, style="max"))
-  29.05995
-  -  3.419806 * max(0,   14.2 -  Girth) 
-  +  6.229514 * max(0,  Girth -   14.2) 
-  + 0.5813644 * max(0, Height -     75) 
+  29.25859
+  -  3.437775 * max(0,   14.2 -  Girth) 
+  +  5.762954 * max(0,  Girth -   14.2) 
+  + 0.0444337 * Girth                    * max(0, Height -     75) 
 > cat(format(a, style="bf"))
-  29.05995
-  -  3.419806 * bf1
-  +  6.229514 * bf2
-  + 0.5813644 * bf3
+  29.25859
+  -  3.437775 * bf1
+  +  5.762954 * bf2
+  + 0.0444337 * bf3 * bf4
 
    bf1  h(14.2-Girth)
    bf2  h(Girth-14.2)
-   bf3  h(Height-75)
+   bf3  Girth
+   bf4  h(Height-75)
 > cat(format(a, use.names=FALSE, style="p"))
-  29.05995
-  -  3.419806 * pmax(0,  14.2 - x[,1]) 
-  +  6.229514 * pmax(0, x[,1] -  14.2) 
-  + 0.5813644 * pmax(0, x[,2] -    75) 
+  29.25859
+  -  3.437775 * pmax(0,  14.2 - x[,1]) 
+  +  5.762954 * pmax(0, x[,1] -  14.2) 
+  + 0.0444337 * x[,1]                  * pmax(0, x[,2] -    75) 
 > cat(format(a, use.names=FALSE, style="m"))
-  29.05995
-  -  3.419806 * max(0,  14.2 - x[,1]) 
-  +  6.229514 * max(0, x[,1] -  14.2) 
-  + 0.5813644 * max(0, x[,2] -    75) 
+  29.25859
+  -  3.437775 * max(0,  14.2 - x[,1]) 
+  +  5.762954 * max(0, x[,1] -  14.2) 
+  + 0.0444337 * x[,1]                  * max(0, x[,2] -    75) 
 > a <- earth(Volume ~ Girth*Height, data = trees, pmethod="none")
 > cat(format(a))
   25.24205
@@ -1412,6 +1409,17 @@ frmt.r>
   +   2.590203 * h(Girth-13.3)
   - 0.02669905 * h(972.7-Girth*Height)
   + 0.03883467 * h(Girth*Height-972.7)
+> cat(format(a, colon.char="*", style="bf"))
+  25.24205
+  -  0.8905681 * bf1
+  +   2.590203 * bf2
+  - 0.02669905 * bf3
+  + 0.03883467 * bf4
+
+   bf1  h(13.3-Girth)
+   bf2  h(Girth-13.3)
+   bf3  h(972.7-Girth:Height)
+   bf4  h(Girth:Height-972.7)
 > a <- lm(Volume ~ ., data = trees)
 > cat(format(a)) # basic tests of format.lm
   -57.98766
@@ -5931,7 +5939,7 @@ yscaled[101,1]:
  3rd Qu.: 0.8753  
  Max.   : 1.5633  
 
-earth.c version 5.3.3
+earth.c version 5.3.4
 BetaCache 3.45 kB
 Forward pass: minspan 4 endspan 7   x[101,1] 808 Bytes   bx[101,21] 16.6 kB
 
@@ -9532,6 +9540,135 @@ h(1822-g)*mCBlock      -1                0      0        0       1     0      0 
 > stopifnot(identical(names(coef(lm.dup)),
 +                     c("(Intercept)", "Sepal.Width", "Petal.Length", "Petal.Width",
 +                       "Species22", "Species23", "Species22", "Species23")))
+> 
+> cat("--- test style=\"bf\" with various predictors ---------------------\n")
+--- test style="bf" with various predictors ---------------------
+> 
+> data(etitanic)
+> mod.bf1 <- earth(sex ~ pclass, data=etitanic, degree=2, trace=0)
+> printh(summary(mod.bf1))
+===summary(mod.bf1) 
+Call: earth(formula=sex~pclass, data=etitanic, trace=0, degree=2)
+
+            coefficients
+(Intercept)        0.567
+pclass3rd          0.130
+
+Selected 2 of 3 terms, and 1 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: pclass3rd, pclass2nd-unused
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 0.231    RSS 240    GRSq 0.0133    RSq 0.018
+> printh(summary(mod.bf1, style="bf"))
+===summary(mod.bf1, style = "bf") 
+Call: earth(formula=sex~pclass, data=etitanic, trace=0, degree=2)
+
+male =
+  0.567
+  + 0.13 * bf1
+
+   bf1  pclass3rd
+
+Selected 2 of 3 terms, and 1 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: pclass3rd, pclass2nd-unused
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 0.231    RSS 240    GRSq 0.0133    RSq 0.018
+> 
+> etit.slash <- etitanic
+> 
+> etit.slash$`pclass/slash` = etit.slash$pclass
+> etit.slash$pclass <- NULL
+> 
+> etit.slash$`survived/slash` = etit.slash$survived
+> etit.slash$survived <- NULL
+> 
+> etit.slash$`age/slash` = etit.slash$age
+> etit.slash$age <- NULL
+> 
+> mod.bf2 <- earth(sex ~ `pclass/slash`, data=etit.slash, degree=2, trace=0)
+> printh(summary(mod.bf2))
+===summary(mod.bf2) 
+Call: earth(formula=sex~`pclass/slash`, data=etit.slash, trace=0, degree=2)
+
+                coefficients
+(Intercept)            0.567
+pclass/slash3rd        0.130
+
+Selected 2 of 3 terms, and 1 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: `pclass/slash`3rd, `pclass/slash`2nd-unused
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 0.231    RSS 240    GRSq 0.0133    RSq 0.018
+> printh(summary(mod.bf2, style="bf"))
+===summary(mod.bf2, style = "bf") 
+Call: earth(formula=sex~`pclass/slash`, data=etit.slash, trace=0, degree=2)
+
+male =
+  0.567
+  + 0.13 * bf1
+
+   bf1  `pclass/slash`3rd
+
+Selected 2 of 3 terms, and 1 of 2 predictors
+Termination condition: RSq changed by less than 0.001 at 3 terms
+Importance: `pclass/slash`3rd, `pclass/slash`2nd-unused
+Number of terms at each degree of interaction: 1 1 (additive model)
+GCV 0.231    RSS 240    GRSq 0.0133    RSq 0.018
+> 
+> mod.bf3 <- earth(sex ~ ., data=etit.slash, degree=2, trace=0)
+> printh(summary(mod.bf3))
+===summary(mod.bf3) 
+Call: earth(formula=sex~., data=etit.slash, trace=0, degree=2)
+
+                                   coefficients
+(Intercept)                              0.7868
+pclass/slash3rd                         -0.5470
+pclass/slash2nd * survived/slash        -0.1639
+pclass/slash3rd * survived/slash         0.2100
+h(4-parch) * pclass/slash3rd             0.1183
+survived/slash * h(age/slash-15)         0.1722
+survived/slash * h(age/slash-11.5)      -0.1725
+h(2-sibsp) * h(4-parch)                  0.0243
+h(sibsp-2) * h(4-parch)                  0.0651
+h(4-parch) * h(25-age/slash)            -0.0045
+
+Selected 10 of 15 terms, and 6 of 6 predictors
+Termination condition: Reached nk 21
+Importance: `survived/slash`, parch, `age/slash`, `pclass/slash`3rd, sibsp, `pclass/slash`2nd
+Number of terms at each degree of interaction: 1 1 8
+GCV 0.151    RSS 151    GRSq 0.352    RSq 0.38
+> printh(summary(mod.bf3, style="bf"))
+===summary(mod.bf3, style = "bf") 
+Call: earth(formula=sex~., data=etit.slash, trace=0, degree=2)
+
+male =
+  0.787
+  -   0.547 * bf1
+  -   0.164 * bf2 * bf3
+  +    0.21 * bf1 * bf3
+  +   0.118 * bf4 * bf1
+  +   0.172 * bf3 * bf5
+  -   0.172 * bf3 * bf6
+  +  0.0243 * bf7 * bf4
+  +  0.0651 * bf8 * bf4
+  - 0.00454 * bf4 * bf9
+
+   bf1  `pclass/slash`3rd
+   bf2  `pclass/slash`2nd
+   bf3  `survived/slash`
+   bf4  h(4-parch)
+   bf5  h(`age/slash`-15)
+   bf6  h(`age/slash`-11.5)
+   bf7  h(2-sibsp)
+   bf8  h(sibsp-2)
+   bf9  h(25-`age/slash`)
+
+Selected 10 of 15 terms, and 6 of 6 predictors
+Termination condition: Reached nk 21
+Importance: `survived/slash`, parch, `age/slash`, `pclass/slash`3rd, sibsp, `pclass/slash`2nd
+Number of terms at each degree of interaction: 1 1 8
+GCV 0.151    RSS 151    GRSq 0.352    RSq 0.38
 > 
 > options(options.old) # no more width=1000
 > 

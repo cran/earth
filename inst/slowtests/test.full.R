@@ -263,10 +263,10 @@ as.func <- function( # convert expression string to func
     "}\n", sep = "")))
 a <- earth(Volume ~ ., data = trees)
 my.func <- as.func(a, use.names = FALSE)
-printh(my.func(c(10,80)))     # yields 17.76888
-printh(predict(a, c(10,80)))  # yields 17.76888, but is slower
+printh(my.func(c(10,80)))     # yields 17.60359
+printh(predict(a, c(10,80)))  # yields 17.60359, but is slower
 example(format.earth)
-a <- earth(Volume ~ ., data = trees)
+a <- earth(Volume ~ ., data = trees, degree=2)
 cat(format(a)) # basic tests of format.earth
 cat(format(a, digits=4))
 # cat(format(a, use.names=FALSE))
@@ -278,6 +278,7 @@ cat(format(a, use.names=FALSE, style="m"))
 a <- earth(Volume ~ Girth*Height, data = trees, pmethod="none")
 cat(format(a))
 cat(format(a, colon.char="*"))
+cat(format(a, colon.char="*", style="bf"))
 a <- lm(Volume ~ ., data = trees)
 cat(format(a)) # basic tests of format.lm
 cat(format(a, digits=4))
@@ -2117,6 +2118,32 @@ lm.dup <- lm(Sepal.Length ~ ., data=iris.dup)
 stopifnot(identical(names(coef(lm.dup)),
                     c("(Intercept)", "Sepal.Width", "Petal.Length", "Petal.Width",
                       "Species22", "Species23", "Species22", "Species23")))
+
+cat("--- test style=\"bf\" with various predictors ---------------------\n")
+
+data(etitanic)
+mod.bf1 <- earth(sex ~ pclass, data=etitanic, degree=2, trace=0)
+printh(summary(mod.bf1))
+printh(summary(mod.bf1, style="bf"))
+
+etit.slash <- etitanic
+
+etit.slash$`pclass/slash` = etit.slash$pclass
+etit.slash$pclass <- NULL
+
+etit.slash$`survived/slash` = etit.slash$survived
+etit.slash$survived <- NULL
+
+etit.slash$`age/slash` = etit.slash$age
+etit.slash$age <- NULL
+
+mod.bf2 <- earth(sex ~ `pclass/slash`, data=etit.slash, degree=2, trace=0)
+printh(summary(mod.bf2))
+printh(summary(mod.bf2, style="bf"))
+
+mod.bf3 <- earth(sex ~ ., data=etit.slash, degree=2, trace=0)
+printh(summary(mod.bf3))
+printh(summary(mod.bf3, style="bf"))
 
 options(options.old) # no more width=1000
 

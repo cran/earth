@@ -4675,7 +4675,7 @@ Prune none penalty 3 nprune null: selected 3 of 3 terms, and 2 of 3 preds
 After pruning pass GRSq 0.935 RSq 0.981
 predict with single level factors and a single response: models not identical
 
-Formulas differ: Error in formula.default(mod1) : invalid formula
+Formulas differ: Error in attr(x, "formula") %||% { : invalid formula
 and:             numdead ~ sex + ldose + ldose1
 
 predict with single level factors and a single response: Models are equivalent, within numerical tolerances
@@ -5695,7 +5695,7 @@ Prune none penalty 3 nprune null: selected 4 of 4 terms, and 2 of 6 preds
 After pruning pass GRSq 0.763 RSq 0.976
 B predict with multiple level factors and a multiple real response: models not identical
 
-Formulas differ: Error in formula.default(mod1) : invalid formula
+Formulas differ: Error in attr(x, "formula") %||% { : invalid formula
 and:             numdeadboth ~ sex3 + ldose + ldose1 + fac3
 
 B predict with multiple level factors and a multiple real response: Models are equivalent, within numerical tolerances
@@ -6094,7 +6094,7 @@ Prune none penalty 3 nprune null: selected 4 of 4 terms, and 2 of 6 preds
 After pruning pass GRSq -2.98 RSq 0.597
 C predict with multiple level factors and a multiple real response: models not identical
 
-Formulas differ: Error in formula.default(mod1) : invalid formula
+Formulas differ: Error in attr(x, "formula") %||% { : invalid formula
 and:             facdead ~ sex3 + ldose + ldose1 + fac3
 
 C predict with multiple level factors and a multiple real response: Models are equivalent, within numerical tolerances
@@ -6466,7 +6466,7 @@ sexmale:
  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
 predict with single level factors and a single response: models not identical
 
-Formulas differ: Error in formula.default(mod1) : invalid formula
+Formulas differ: Error in attr(x, "formula") %||% { : invalid formula
 and:             numdead ~ sex + ldose + ldose1
 
 predict with single level factors and a single response: Models are equivalent, within numerical tolerances
@@ -6688,7 +6688,7 @@ A-73f identical
 
 B predict with multiple level factors and a multiple real response: models not identical
 
-Formulas differ: Error in formula.default(mod1) : invalid formula
+Formulas differ: Error in attr(x, "formula") %||% { : invalid formula
 and:             numdeadboth ~ sex3 + ldose + ldose1 + fac3
 
 B predict with multiple level factors and a multiple real response: Models are equivalent, within numerical tolerances
@@ -6764,7 +6764,7 @@ B-60f identical
 
 C predict with multiple level factors and a multiple real response: models not identical
 
-Formulas differ: Error in formula.default(mod1) : invalid formula
+Formulas differ: Error in attr(x, "formula") %||% { : invalid formula
 and:             facdead ~ sex3 + ldose + ldose1 + fac3
 
 C predict with multiple level factors and a multiple real response: Models are equivalent, within numerical tolerances

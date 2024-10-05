@@ -2,6 +2,7 @@
 
 #include "R.h"
 #include "Rinternals.h"
+#include "Rversion.h"
 #include <stdbool.h> // defines bool, true, false
 
 #define Dirs_(iTerm,iPred) Dirs[(iTerm) + (iPred)*(nMaxTerms)]
@@ -53,19 +54,24 @@ void InitAllowedFunc(
         AllowedEnvGlobal = Env;
         nArgsGlobal = nAllowedArgs;
 
-        // We use R_PreserveObject/R_ReleaseObject here instead of
-        // PROTECT/UNPROTECT purely to avoid a false warning from CRAN rchk.
-        // In the normal course of operation, FreeAllowedFunc() calls
+        // We use R_PreserveObject/R_ReleaseObject below (instead of
+        // PROTECT/UNPROTECT) purely to avoid a false warning from CRAN rchk.
+        //
+        // In the normal course of earth's operation, FreeAllowedFunc() calls
         // R_ReleaseObject to undo the call below to R_PreserveObject.
-        // But if there is a call to error in the earth C code (or
-        // R_CheckUserInterrupt doesn't return), an on.exit in
+        //
+        // But if there is a call to error() in the earth C code (or
+        // R_CheckUserInterrupt doesn't return), an on.exit() in
         // the R code will call FreeEarth to callFreeAllowedFunc.
-        AllowedFuncGlobal = allocList(1 + nAllowedArgs);
-        R_PreserveObject(AllowedFuncGlobal);
 
+#if R_VERSION >= R_Version(4,4,1)
+        AllowedFuncGlobal = allocLang(1 + nAllowedArgs);
+#else
+        AllowedFuncGlobal = LCONS(R_NilValue, allocList(nAllowedArgs));
+#endif
+        R_PreserveObject(AllowedFuncGlobal);
         SEXP s = AllowedFuncGlobal; // 1st element is the function
         SETCAR(s, Allowed);
-        SET_TYPEOF(s, LANGSXP);
 
         s = CDR(s);                 // 2nd element is "degree"
         SETCAR(s, allocVector(INTSXP, 1));

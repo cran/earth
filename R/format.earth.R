@@ -221,22 +221,17 @@ get.term.strings.pmax <- function(object, digits, use.names, new.order, fname)
 # return a data.frame, each row has 2 elements: the original and new basis function names
 
 get.bfs <- function(names)
-{                                           # Example: start of with names:
-                                            # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", ...
-    # make a single long string
-    s0 <- paste(names, collapse="")         # "(Intercept)h(temp-58)h(humidity-55)*h(temp-58)..."
-    # replace * with nothing
-    s1 <- gsub("*", "", s0, fixed=TRUE)     # "(Intercept)h(temp-58)h(humidity-55)h(temp-58)..."
-    # replace ) with )@ so @ are split points
-    s2 <- gsub(")", ")@", s1, fixed=TRUE)   # "(Intercept)@h(temp-58)@h(humidity-55)@h(temp-58)..."
-    # separate strings at split points
-    s3 <- strsplit(s2, split="@")[[1]]      # "(Intercept)", "h(temp-58)", "h(humidity-55)" "h(temp-58)", ...
+{   # Example: start with names:
+    # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", "Girth*h(Height-75)"
+    new_names = NULL
+    for(i in seq_along(names)) {                             # "h(humidity-55)*h(temp-58)"
+        s <- strsplit(names[i], split="*", fixed=TRUE)[[1]]  # c("h(humidity-55)", "h(temp-58)")
+        new_names <- append(new_names, s)                    # c(..., "h(humidity-55)", "h(temp-58)")
+    }
     # remove duplicate strings, result is a vector of all basis function names
-    original <- unique(s3)                  # "(Intercept)", "h(temp-58)", "h(humidity-55)" "h(temp-58)", ...
-
+    original <- unique(new_names)
     # -1 below so first term is bf1 (i.e. intercept is bf0, which is unused)
     new <- paste0("bf", seq_along(original)-1) # "bf1", "bf2", "bf3", ...
-
     data.frame(original, new)
 }
 get.term.strings.bf <- function(object, digits, use.names, new.order)
@@ -244,9 +239,9 @@ get.term.strings.bf <- function(object, digits, use.names, new.order)
     # digits is unused
 
     if(!use.names)
-        warning("use.names=FALSE ignored because style=\"h\"")
+        warning("use.names=FALSE ignored because style=\"bf\"")
 
-    names <- colnames(object$bx)[new.order] # "(Intercept)", "h(temp-58)", "h(humidity-55)*h(temp-58)", ...
+    names <- colnames(object$bx)[new.order]
     bfs <- get.bfs(names)
 
     # replace original names with names in new.bfs

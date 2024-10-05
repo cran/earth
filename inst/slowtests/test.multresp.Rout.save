@@ -1012,7 +1012,7 @@ mul2, mul1: Models are equivalent, within numerical tolerances
 > check.models.equal(mul3, mul1,"mul3, mul", newdata=ozone1[1:3,])
 mul3, mul: models not identical
 
-Formulas differ: Error in formula.default(mod1) : invalid formula
+Formulas differ: Error in attr(x, "formula") %||% { : invalid formula
 and:             cbind(O3, wind) ~ vh + humidity + temp + ibh + dpg + ibt + vis +     doy
 
 mul3, mul: Models are equivalent, within numerical tolerances

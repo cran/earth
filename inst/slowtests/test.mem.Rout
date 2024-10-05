@@ -102,15 +102,15 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 + }
 Warning: 'memory.size()' is no longer supported
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 19 vcells 29
+mem NaN ncells 20 vcells 30
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 1579 vcells 3668
+mem NaN ncells 1599 vcells 3697
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 1779 vcells 4248
+mem NaN ncells 1799 vcells 4277
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 1779 vcells 4248
+mem NaN ncells 1799 vcells 4277
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 1779 vcells 4248
+mem NaN ncells 1799 vcells 4277
 > cat("actual run of lm\n")
 actual run of lm
 > # We use 0:nmodels, because we build the first model at iter 0,
@@ -147,15 +147,15 @@ F-statistic: 0.303 on 1 and 8 DF,  p-value: 0.597
 + }
 Warning: 'memory.size()' is no longer supported
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 > # standard earth model
 > cat("earth(y~x)\n")
 earth(y~x)
@@ -183,15 +183,15 @@ GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
 + }
 Warning: 'memory.size()' is no longer supported
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 > # earth model with an allowed func
 > cat("earth(y~x, allowed = good.allowedfunc)\n")
 earth(y~x, allowed = good.allowedfunc)
@@ -219,15 +219,15 @@ GCV 0.01888444    RSS 0.0472111    GRSq 0.8107224    RSq 0.941581
 + }
 Warning: 'memory.size()' is no longer supported
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 > # try earth model with an allowed func which causes an error
 > cat("earth(y~x, allowed = bad.allowedfunc)\n")
 earth(y~x, allowed = bad.allowedfunc)
@@ -246,15 +246,15 @@ Got expected error from try(earth(y ~ x, allowed = bad.allowedfunc), silent = FA
 + }
 Warning: 'memory.size()' is no longer supported
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 > 
 > # try earth model with an arg that causes error in ForwardPass in earth.c
 > cat("earth(y~x, Adjust.endspan = -999\n")
@@ -274,15 +274,15 @@ Got expected error from try(earth(y ~ x, Adjust.endspan = -999), silent = FALSE)
 + }
 Warning: 'memory.size()' is no longer supported
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 Warning: 'memory.size()' is no longer supported
-mem NaN ncells 8 vcells 0
+mem NaN ncells 9 vcells 1
 > 
 > cat("nlm           "); print(nlm)
 nlm           [1] NaN NaN NaN NaN NaN

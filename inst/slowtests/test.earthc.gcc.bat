@@ -13,13 +13,13 @@
 @rem Init environment for GCC compiler, if necessary
 @call D:\bin\milbo\rpath.bat
 
-cp "C:/Program Files/R/R-4.3.2/bin/x64/R.dll" .
+cp "C:/Program Files/R/R-4.4.1/bin/x64/R.dll" .
                                 @if %errorlevel% neq 0 goto err
-cp "C:/Program Files/R/R-4.3.2/bin/x64/Rblas.dll" .
+cp "C:/Program Files/R/R-4.4.1/bin/x64/Rblas.dll" .
                                 @if %errorlevel% neq 0 goto err
-cp "C:/Program Files/R/R-4.3.2/bin/x64/Riconv.dll" .
+cp "C:/Program Files/R/R-4.4.1/bin/x64/Riconv.dll" .
                                 @if %errorlevel% neq 0 goto err
-cp "C:/Program Files/R/R-4.3.2/bin/x64/Rgraphapp.dll" .
+cp "C:/Program Files/R/R-4.4.1/bin/x64/Rgraphapp.dll" .
                                 @if %errorlevel% neq 0 goto err
 @rem @rem you may have to create Rdll_x64.lib and Rblas_x64.lib beforehand
 @cp "../../.#/Rdll_x64.lib" R.lib

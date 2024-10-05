@@ -2165,7 +2165,7 @@ GCV 3.834325    RSS 96.97131    GRSq 0.1284858    RSq 0.2408143
 ===varmod.method="gam"
 Loading required package: splines
 Loading required package: foreach
-Loaded gam 1.22-3
+Loaded gam 1.22-4
 
 ===varmod.method gam: summary(earth.mod)
 ===summary(earth.mod)
